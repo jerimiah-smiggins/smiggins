@@ -1,0 +1,72 @@
+@import url('https://fonts.googleapis.com/css2?family=Poppins:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;0,800;0,900;1,100;1,200;1,300;1,400;1,500;1,600;1,700;1,800;1,900&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Cousine:wght@400;700&display=swap');
+
+:root {
+  --text: #fad4fd;
+  --background: #120116;
+  --primary: #ea7ef9;
+  --secondary: #9e0735;
+  --accent: #f63b4a;
+}
+
+body {
+  background-color: var(--background);
+  color: var(--text);
+  font-family: 'Poppins';
+}
+
+::selection {
+  background-color: var(--accent);
+  color: var(--text);
+}
+
+button {
+  background-color: var(--secondary);
+  color: var(--text);
+  border: none;
+  padding: 5px 7px;
+  border-radius: 10px;
+  cursor: pointer;
+  transition: 0.15s
+}
+
+button:disabled { opacity: 60%; pointer-events: none; }
+button:hover  { background-color: var(--primary); color: var(--background); }
+button:active { background-color: var(--accent); color: var(--background); scale: 90%; }
+
+input, select, option {
+  background-color: var(--secondary);
+  color: var(--text);
+  border: 2px var(--accent) solid;
+  border-radius: 2px;
+  transition: 0.15s
+}
+
+input:hover,
+select:hover,
+option:hover {
+  background-color: var(--primary);
+  color: var(--background);
+}
+
+a:link       { color: var(--primary); text-decoration: none; }
+a:visited    { color: var(--primary); text-decoration: none; }
+a:hover      { text-decoration: underline; }
+a::selection { text-decoration-color: var(--text); }
+
+i { opacity: 80%; }
+
+p {
+  margin: 0px;
+  padding: 2px;
+}
+
+.left   { text-align: left;   }
+.center { text-align: center; }
+.right  { text-align: right;  }
+
+.invis  { opacity: 0%; }
+.hidden { display: none; }
+.mono   { font-family: Cousine; }
+
+body#container { padding: 10px 10vw; }
