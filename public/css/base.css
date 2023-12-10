@@ -10,6 +10,11 @@
   --secondary-low-opacity: #3a1e9333;
 }
 
+::-moz-selection {
+  background-color: var(--accent);
+  color: var(--text);
+}
+
 ::selection {
   background-color: var(--accent);
   color: var(--text);
@@ -43,6 +48,7 @@ input, textarea, select, option {
   border-radius: 2px;
   padding: 5px 7px;
   margin: 3px;
+  font-family: 'Poppins';
 }
 
 textarea { background-color: var(--secondary-low-opacity); }
@@ -51,7 +57,8 @@ textarea:disabled { opacity: 70%; pointer-events: none; }
 a:link       { color: var(--primary); text-decoration: none; }
 a:visited    { color: var(--primary); text-decoration: none; }
 a:hover      { text-decoration: underline; }
-a::selection { text-decoration-color: var(--text); }
+a::-moz-selection { text-decoration-color: var(--text); }
+a::selection { -webkit-text-decoration-color: var(--text); text-decoration-color: var(--text); }
 
 i { opacity: 80%; }
 
