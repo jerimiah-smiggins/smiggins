@@ -1,0 +1,32 @@
+#post-text {
+  resize: none;
+  width: 400px;
+  height: 150px;
+}
+
+#post-text:focus-visible, #post-text:focus { outline: 2px var(--secondary) solid;; }
+
+#post {
+  position: relative;
+  top: -3em;
+  left: 180px;
+}
+
+.post-container {
+  width: 360px;
+  border: 3px var(--secondary-low-opacity) solid;
+  padding: 20px;
+  margin-bottom: 20px;
+  text-align: left;
+  display: inline-block;
+}
+
+.username {
+  display: inline-block;
+  opacity: 60%;
+}
+
+.timestamp {
+  display: inline-block;
+  opacity: 60%;
+}

@@ -6,12 +6,13 @@
     {{HTML_HEADERS}}
   </head>
 
-  <body class="center">
+  <body>
     <h1>Log In</h1>
     <input id="username" placeholder="Username..."><br>
     <input id="password" placeholder="Password..." type="password"><br><br>
     <button id="submit">Log In</button><br><br>
-    <button id="toggle-password">Show/Hide Password</button>
+    <button id="toggle-password">Show/Hide Password</button><br><br>
+    <a href="/signup">Sign up instead...</a>
     <div id="error"></div>
 
     <script>
@@ -29,7 +30,7 @@
         this.setAttribute("disabled", "");
         username = dom("username").value;
         sha256(dom("password").value).then((password) => {
-          fetch("/api/account/signup", {
+          fetch("/api/account/login", {
             method: "POST",
             headers: {
               "Content-Type": "application/json"
@@ -42,12 +43,12 @@
             .then((response) => response.json())
             .then((json) => {
               if (json.valid) {
-                setCookie("login", json.token);
+                setCookie("token", json.token);
                 window.location.href = "/home";
               } else {
                 dom("submit").removeAttribute("disabled")
                 inc++;
-                dom("error").innerText = `Unable to create account! Reason: ${json.reason}`;
+                dom("error").innerText = `Unable to login! Reason: ${json.reason}`;
                 setTimeout(() => { req++; if (req == inc) { dom("error").innerText = ""; }}, 3000);
               }
             })

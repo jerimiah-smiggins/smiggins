@@ -1,0 +1,16 @@
+<!DOCTYPE html>
+
+<html>
+  <head>
+    <title>Redirecting you shortly...</title>
+    {{HTML_HEADERS}}
+  </head>
+
+  <body>
+    If you don't get redirected soon, click <a href="/">here...</a>
+    <script>
+      eraseCookie("token");
+      window.location.href = "/";
+    </script>
+  </body>
+</html>

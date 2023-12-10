@@ -6,12 +6,13 @@
     {{HTML_HEADERS}}
   </head>
 
-  <body class="center">
+  <body>
     <h1>Sign Up</h1>
     <input id="username" placeholder="Username..."><br>
     <input id="password" placeholder="Password..." type="password"><br><br>
     <button id="submit">Sign Up</button><br><br>
-    <button id="toggle-password">Show/Hide Password</button>
+    <button id="toggle-password">Show/Hide Password</button><br><br>
+    <a href="/login">Log in instead...</a>
     <div id="error"></div>
 
     <script>
@@ -42,7 +43,7 @@
             .then((response) => response.json())
             .then((json) => {
               if (json.valid) {
-                setCookie("login", json.token);
+                setCookie("token", json.token);
                 window.location.href = "/home";
               } else {
                 dom("submit").removeAttribute("disabled")
