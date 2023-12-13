@@ -8,7 +8,7 @@
   │
   ├─┬ {TWEET_ID}.json
   │ ├─ content
-  │ ├─ poster user information
+  │ ├─ creator { id }
 ┌─┘ └─ timestamp
 │
 └─┬ usernames/
@@ -28,11 +28,11 @@
     ├── token.txt
     │
     ├─┬ settings.json
-    │ ├─ following
+    │ ├─ following []
     │ ├─ theme
-    │ ├─ display name
-    │ ├─ pfp information
-    │ ├─ user id
+    │ ├─ display_name
+    │ ├─ profile_picture
+    │ ├─ user_id
     │ └─ other settings(?)
     │
     ├─┬ posts.json

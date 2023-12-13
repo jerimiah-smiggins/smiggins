@@ -7,25 +7,42 @@
   --primary: #aa9ae0;
   --secondary: #3a1e93;
   --accent: #eca0e0;
+
+  --text-low-opacity: #e4e1ee33;
+  --background-low-opacity: #0e0a1833;
+  --primary-low-opacity: #aa9ae033;
   --secondary-low-opacity: #3a1e9333;
+  --accent-low-opacity: #eca0e066;
 }
 
 ::-moz-selection {
-  background-color: var(--accent);
+  background-color: var(--accent-low-opacity);
   color: var(--text);
 }
 
 ::selection {
-  background-color: var(--accent);
+  background-color: var(--accent-low-opacity);
   color: var(--text);
 }
+
+::webkit-scrollbar { display: none; }
 
 body {
   background-color: var(--background);
   color: var(--text);
   font-family: 'Poppins';
-  padding: 5vh 10vw;
+  padding: 5vh 0;
   text-align: center;
+  font-size: 14px;
+  margin: 0px;
+}
+
+@media screen and (min-width: 1025px) {
+  body { font-size: 16px; }
+}
+
+@media screen and (max-width: 565px) {
+  body { font-size: 16px; padding: 5vh 3vw; }
 }
 
 button {
@@ -35,20 +52,26 @@ button {
   padding: 5px 7px;
   border-radius: 10px;
   cursor: pointer;
-  transition: 0.15s
+  transition-property: color;
+  transition: 0.15s;
+  font-size: 0.8em;
+  transition: color 0.15s,
+              background-color 0.15s,
+              scale 0.15s;
 }
 
 button:disabled { opacity: 60%; pointer-events: none; }
 button:active { background-color: var(--accent); color: var(--background); scale: 90%; }
 
 input, textarea, select, option {
-  background-color: var(--secondary);
+  background-color: var(--secondary-low-opacity);
   color: var(--text);
   border: none;
   border-radius: 2px;
   padding: 5px 7px;
   margin: 3px;
   font-family: 'Poppins';
+  font-size: 0.8em;
 }
 
 textarea { background-color: var(--secondary-low-opacity); }
