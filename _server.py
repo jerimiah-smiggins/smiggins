@@ -1,14 +1,18 @@
+# Non-default library dependencies: flask
 import hashlib
 import shutil
 import flask
 import json
 import time
+import sys
 import os
 
+# Union from typing allows multiple possible types for type annotations
+from typing import Union, Callable
 from flask import request
 
-VERSION: str = "0.0.2"
-SITE_NAME: str = "Twittkey" # Twitt-er + trin-key
+VERSION: str = "0.0.3"
+SITE_NAME: str = "Twitter v2" # Twitt-er + trin-key
 HTML_HEADERS: str = """
 <link rel="stylesheet" href="/css/base.css">
 <script src="/js/base.js"></script>
@@ -27,12 +31,11 @@ FILE_CONTENT_TYPE_MAP: dict[str, str] = {
 
 PRIVATE_AUTHENTICATOR_KEY: str = hashlib.sha256(b"PRIVATE_AUTHENTICATION_KEY_TRINKEY_ABC").hexdigest()
 
-# Set this to the absolute path for the code. For testing purpouses you can use relative paths.
 ABSOLUTE_CONTENT_PATH: str = "./public/" # Where html/css/js is served from
-ABSOLUTE_SAVING_PATH:  str = "./save/"   # Where user information, posts, etc. are saved
+ABSOLUTE_SAVING_PATH: str  = "./save/"   # Where user information, posts, etc. are saved
 
 # General use flask functions
-def sha(string: str | bytes) -> str:
+def sha(string: Union[str, bytes]) -> str:
     if type(string) == str:
         return hashlib.sha256(str.encode(string)).hexdigest()
     elif type(string) == bytes:
@@ -50,12 +53,6 @@ def return_dynamic_content_type(content: str, content_type: str="text/html") -> 
     response = flask.make_response(content)
     response.headers["Content-Type"] = content_type
     return response
-
-def read_content(path: str) -> str:
-    return open(f"{ABSOLUTE_CONTENT_PATH}{path if path[0] != '/' else path[1::]}", "r").read()
-
-def read_database(path: str) -> str:
-    return open(f"{ABSOLUTE_SAVING_PATH}{path if path[0] != '/' else path[1::]}", "r").read()
 
 def ensure_file(path: str, defaultValue: str="", folder: bool=False) -> None:
     if os.path.exists(path):
@@ -76,49 +73,53 @@ def ensure_file(path: str, defaultValue: str="", folder: bool=False) -> None:
             f.close()
 
 # Website helper functions
-def validate_token(token: str | bytes) -> bool:
-    f = json.loads(read_database("users.json"))
-    for i in f:
-        if f[i]["token"] == token:
-            return True
-    return False
+def validate_token(token: Union[str, bytes]) -> bool:
+    try:
+        open(f"{ABSOLUTE_SAVING_PATH}tokens/{token}.txt", "r")
+        return True
+    except FileNotFoundError:
+        return False
 
-def load_user_json(username: str) -> dict:
-    f = json.loads(open(f"{ABSOLUTE_SAVING_PATH}users.json", "r").read())
-    if username in f:
-        return f[username]
-    return {
-        "token": 0,
-        "display_name": ""
-    }
+def token_to_id(token: str) -> int:
+    return int(open(f"{ABSOLUTE_SAVING_PATH}tokens/{token}.txt").read())
+
+def load_user_json(user_id: Union[int, str]) -> dict:
+    return json.loads(open(f"{ABSOLUTE_SAVING_PATH}users/{user_id}/settings.json").read())
+
+def get_user_post_ids(user_id: Union[int, str]) -> list:
+    return json.loads(open(f"{ABSOLUTE_SAVING_PATH}users/{user_id}/posts.json", "r").read())
 
 def increment_post_id(inc: bool=True) -> int:
-    f = int(open(f"{ABSOLUTE_SAVING_PATH}/nextPostID", "r").read())
+    f = int(open(f"{ABSOLUTE_SAVING_PATH}next_post.txt", "r").read())
+
     if inc:
-        g = open(f"{ABSOLUTE_SAVING_PATH}nextPostID", "w")
+        g = open(f"{ABSOLUTE_SAVING_PATH}next_post.txt", "w")
         g.write(str(f + 1))
+        g.close()
+
     return f
 
 def generate_token(username: str, password: str) -> str:
     return sha(sha(f"{username}:{password}") + PRIVATE_AUTHENTICATOR_KEY)
 
-def validate_username(username: str, existing: bool=True) -> int:
-    # 1 - valid
+def validate_username(username: str, existing: bool=True) -> int: # Make this work with the new filesystem
+    #  1 - valid
+    #  0 - invalid
     # -1 - taken
     # -2 - invalid characters
     # -3 - invalid length
 
     if existing:
         try:
-            json.loads(open(f"{ABSOLUTE_SAVING_PATH}users.json", "r").read())[username]
+            open(f"{ABSOLUTE_SAVING_PATH}users.json", "r")
             return 1
-        except KeyError:
+        except FileNotFoundError:
             return 0
     else:
         try:
-            json.loads(open(f"{ABSOLUTE_SAVING_PATH}users.json", "r").read())[username]
+            open(f"{ABSOLUTE_SAVING_PATH}users.json", "r")
             return -1
-        except KeyError:
+        except FileNotFoundError:
             pass
 
         if (len(username) > 18 or len(username) < 1):
@@ -130,22 +131,43 @@ def validate_username(username: str, existing: bool=True) -> int:
 
         return 1
 
+def generate_user_id(inc: bool=True) -> int:
+    f = int(open(f"{ABSOLUTE_SAVING_PATH}next_user.txt", "r").read())
+
+    if inc:
+        g = open(f"{ABSOLUTE_SAVING_PATH}next_user.txt", "w")
+        g.write(str(f + 1))
+        g.close()
+
+    return f
+
 # Routing functions
-def create_html_serve(path: str, logged_in_redir: bool=False):
-    x = lambda: return_dynamic_content_type(format_html(read_content("/redirect.html" if logged_in_redir and "token" in request.cookies and validate_token(request.cookies["token"]) else f'/{path}')), 'text/html')
+def create_html_serve(path: str, logged_in_redir: bool=False) -> Callable:
+    x = lambda: return_dynamic_content_type(
+        format_html(
+            open(f"{ABSOLUTE_CONTENT_PATH}redirect.html" if logged_in_redir and "token" in request.cookies and validate_token(request.cookies["token"]) else f'{ABSOLUTE_CONTENT_PATH}{path}').read()
+        ), 'text/html'
+    )
     x.__name__ = path
     return x
 
-def create_folder_serve(path: str):
-    x = lambda filename: return_dynamic_content_type(format_html(read_content(f'/{path if path[-1] != "/" else path[:-1:]}/{filename}')) if filename.split(".")[-1] == "html" else read_content(f'/{path if path[-1] != "/" else path[:-1:]}/{filename}'), FILE_CONTENT_TYPE_MAP[filename.split(".")[-1]])
+def create_folder_serve(path: str) -> Callable:
+    x = lambda filename: return_dynamic_content_type(
+        format_html(
+            open(f'{ABSOLUTE_CONTENT_PATH}{path if path[-1] != "/" else path[:-1:]}/{filename}', "r").read()
+        ) if filename.split(".")[-1] == "html" else (
+            open(f'{ABSOLUTE_CONTENT_PATH}{path if path[-1] != "/" else path[:-1:]}/{filename}', "r").read()
+        ), FILE_CONTENT_TYPE_MAP[filename.split(".")[-1]]
+    )
     x.__name__ = path
     return x
 
 # API functions
-def api_account_signup():
+def api_account_signup() -> flask.Response:
     x: dict[str, str] = json.loads(request.data)
     x["username"] = x["username"].lower()
 
+    # e3b0c44... is the sha for an empty string
     if x["password"] == "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855":
         return return_dynamic_content_type(json.dumps({
             "valid": False,
@@ -154,23 +176,23 @@ def api_account_signup():
 
     user_valid = validate_username(x["username"], existing=False)
     if user_valid == 1:
-        token = generate_token(x["username"], x["password"])
-        f = json.loads(open(f"{ABSOLUTE_SAVING_PATH}users.json", "r").read())
-        f[x["username"]] = {
-            "token": token,
-            "display_name": x["username"]
+        user_id = generate_user_id()
+        preferences = {
+            "following": [user_id],
+            "user_id": user_id,
+            "display_name": x["username"],
+            "theme": "dark",
+            "profile_picture": "default"
         }
 
-        g = open(f"{ABSOLUTE_SAVING_PATH}users.json", "w")
-        g.write(json.dumps(f))
-        g.close()
+        token = generate_token(x["username"], x["password"])
 
-        ensure_file(f"{ABSOLUTE_SAVING_PATH}user_info/{token}", folder=True)
-        ensure_file(f"{ABSOLUTE_SAVING_PATH}user_info/{token}/username", defaultValue=x["username"])
-        ensure_file(f"{ABSOLUTE_SAVING_PATH}user_info/{token}/posts.json", defaultValue="{}")
-        ensure_file(f"{ABSOLUTE_SAVING_PATH}user_info/{token}/settings.json", defaultValue=json.dumps({
-            "following": [x["username"]]
-        }))
+        ensure_file(f"{ABSOLUTE_SAVING_PATH}usernames/{x['username']}.txt", defaultValue=str(user_id))
+        ensure_file(f"{ABSOLUTE_SAVING_PATH}tokens/{token}.txt", defaultValue=str(user_id))
+        ensure_file(f"{ABSOLUTE_SAVING_PATH}users/{user_id}", folder=True)
+        ensure_file(f"{ABSOLUTE_SAVING_PATH}users/{user_id}/token.txt", defaultValue=token)
+        ensure_file(f"{ABSOLUTE_SAVING_PATH}users/{user_id}/posts.json", defaultValue="[]")
+        ensure_file(f"{ABSOLUTE_SAVING_PATH}users/{user_id}/settings.json", defaultValue=json.dumps(preferences))
 
         return return_dynamic_content_type(json.dumps({
             "valid": True,
@@ -194,7 +216,7 @@ def api_account_signup():
         "reason": "Username must be between 1 and 18 characters in length."
     }), "application/json")
 
-def api_account_login():
+def api_account_login() -> flask.Response:
     x: dict[str, str] = json.loads(request.data)
     token = generate_token(x["username"], x["password"])
 
@@ -216,15 +238,16 @@ def api_account_login():
             "reason": f"Account with username {x['username']} doesn't exist."
         }), "application/json")
 
-def api_post_create():
-    if not validate_token(request.cookies["token"]): flask.abort(403)
+def api_post_create() -> Union[tuple[flask.Response, int], flask.Response]: # Make this work with the new filesystem
+    if not validate_token(request.cookies["token"]): flask.abort(401)
 
     x = json.loads(request.data)
     reply = "reply" in x
 
     if (len(x["content"]) > 280 or len(x["content"]) < 1) or (reply and int(reply) >= increment_post_id(inc=False)):
         return return_dynamic_content_type(json.dumps({
-            "success": False
+            "success": False,
+            "reason": "Invalid post length. Must be between 1 and 280 characters."
         }), "application/json"), 400
 
     timestamp = round(time.time())
@@ -253,45 +276,42 @@ def api_post_create():
     return return_dynamic_content_type(json.dumps({
         "success": True,
         "post_id": post_id
-    }), "application/json")
+    }), "application/json"), 201
 
-def api_post_following(): # Todo: add a way to offset the posts
-    if not validate_token(request.cookies["token"]): flask.abort(403)
+def api_post_following() -> Union[tuple[flask.Response, int], flask.Response]: # This SHOULD work
+    if not validate_token(request.cookies["token"]): flask.abort(401)
+    offset = sys.maxsize if not request.data or ("offset" in json.loads(request.data) and type(json.loads(request.data)["offset"]) != int) else json.loads(request.data)["offset"]
 
-    postList = []
-    f = json.loads(open(f"{ABSOLUTE_SAVING_PATH}posts.json", "r").read())
-    following = json.loads(open(f"{ABSOLUTE_SAVING_PATH}user_info/{request.cookies['token']}/settings.json", "r").read())["following"]
+    potential = []
+    for i in load_user_json(token_to_id(request.cookies["token"]))["following"]:
+        potential += get_user_post_ids(i)
+    potential = sorted(potential, reverse=True)
 
-    q = [i for i in f][::-1]
+    index = 0
+    for i in range(len(potential)):
+        if potential[i] < offset:
+            index = i
 
-    for i in q:
-        if open(f"{ABSOLUTE_SAVING_PATH}user_info/{f[i]}/username", "r").read() in following:
-            postList.append(i)
-
-        if len(postList) >= 20:
-            break
+    potential = potential[index : index + 20 :]
 
     outputList = []
-    for i in postList:
-        x = json.loads(open(f"{ABSOLUTE_SAVING_PATH}user_info/{f[i]}/posts.json", "r").read())[i]
-        outputList.append({
-            "username": open(f"{ABSOLUTE_SAVING_PATH}user_info/{f[i]}/username", "r").read(),
-            "content": x["content"],
-            "timestamp": x["timestamp"]
-        })
+    for i in potential:
+        outputList.append(json.loads(open(f"{ABSOLUTE_SAVING_PATH}tweets/{i}.json", "r").read()))
 
     return return_dynamic_content_type(json.dumps({
         "posts": outputList,
-        "end": False
+        "end": len(outputList) < 20
     }), "application/json")
 
 # Rest of the code
 if __name__ == "__main__":
-    ensure_file(ABSOLUTE_SAVING_PATH, folder=True)
-    ensure_file(f"{ABSOLUTE_SAVING_PATH}nextPostID", "1")
-    ensure_file(f"{ABSOLUTE_SAVING_PATH}posts.json", "{}")
-    ensure_file(f"{ABSOLUTE_SAVING_PATH}users.json", "{}")
-    ensure_file(f"{ABSOLUTE_SAVING_PATH}user_info", folder=True)
+    ensure_file(   ABSOLUTE_SAVING_PATH,            folder=True)
+    ensure_file(f"{ABSOLUTE_SAVING_PATH}users",     folder=True)
+    ensure_file(f"{ABSOLUTE_SAVING_PATH}tweets",    folder=True)
+    ensure_file(f"{ABSOLUTE_SAVING_PATH}tokens",    folder=True)
+    ensure_file(f"{ABSOLUTE_SAVING_PATH}usernames", folder=True)
+    ensure_file(f"{ABSOLUTE_SAVING_PATH}next_post.txt", "1")
+    ensure_file(f"{ABSOLUTE_SAVING_PATH}next_user.txt", "1")
 
     app = flask.Flask(__name__)
 
@@ -319,10 +339,6 @@ if __name__ == "__main__":
     @app.errorhandler(500)
     def error_500(err):
         return create_html_serve("500.html")(), 500
-
-    @app.errorhandler(400)
-    def error_400(err):
-        return create_html_serve("500.html")(), 400
 
     @app.errorhandler(404)
     def error_404(err):

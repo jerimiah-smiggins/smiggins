@@ -1,0 +1,43 @@
+┬ save/
+│
+├── next_post.txt
+│
+├── next_user.txt
+│
+└─┬ tweets/
+  │
+  ├─┬ {TWEET_ID}.json
+  │ ├─ content
+  │ ├─ poster user information
+┌─┘ └─ timestamp
+│
+└─┬ usernames/
+  │
+  ├─┬ {USERNAME}.txt
+┌─┘ └─ {USER_ID}
+│
+└─┬ tokens/
+  │
+  ├─┬ {TOKEN}.txt
+┌─┘ └─ {USER_ID}
+│
+└─┬ users/
+  │
+  └─┬ {USER_ID}/
+    │
+    ├── token.txt
+    │
+    ├─┬ settings.json
+    │ ├─ following
+    │ ├─ theme
+    │ ├─ display name
+    │ ├─ pfp information
+    │ ├─ user id
+    │ └─ other settings(?)
+    │
+    ├─┬ posts.json
+    │ ├─ {TWEET_1_ID}
+    │ ├─ {TWEET_2_ID}
+────┘ └─ ...
+
+└ ─ ├ ┘ │ ┌
