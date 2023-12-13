@@ -21,19 +21,8 @@ HTML_HEADERS: str = """
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <link rel="stylesheet" href="/css/base.css">
 <script src="/js/base.js"></script>
+<link rel="icon" href="/img/favicon.ico" type="image/x-icon">
 """
-
-# Map of file types to their corresponding content type used for
-# serving files in a directory.
-FILE_CONTENT_TYPE_MAP: dict[str, str] = {
-    "js": "text/javascript",
-    "css": "text/css",
-    "html": "text/html",
-    "png": "image/png",
-    "jpg": "image/jpeg",
-    "jpeg": "image/jpeg",
-    "json": "application/json"
-}
 
 # Used when hashing user tokens
 PRIVATE_AUTHENTICATOR_KEY: str = hashlib.sha256(b"PRIVATE_AUTHENTICATION_KEY_TRINKEY_ABC").hexdigest()
@@ -61,7 +50,7 @@ def format_html(html_content: str) -> str:
 
     return html_content
 
-def return_dynamic_content_type(content: str, content_type: str="text/html") -> flask.Response:
+def return_dynamic_content_type(content: Union[str, bytes], content_type: str="text/html") -> flask.Response:
     # Returns a flask Response with the content type set to
     # the specified one, ex. `application/json` for json files.
 
@@ -108,10 +97,23 @@ def token_to_id(token: str) -> int:
 
     return int(open(f"{ABSOLUTE_SAVING_PATH}tokens/{token}.txt").read())
 
+def username_to_id(username: str) -> int:
+    # Returns the user id based on the specified username.
+
+    return int(open(f"{ABSOLUTE_SAVING_PATH}usernames/{username}.txt").read())
+
 def load_user_json(user_id: Union[int, str]) -> dict:
     # Returns the user settings.json file based on the specified user id.
 
     return json.loads(open(f"{ABSOLUTE_SAVING_PATH}users/{user_id}/settings.json").read())
+
+def save_user_json(user_id: Union[int, str], user_json: dict[str, Union[str, int, bool]]) -> None:
+    # Saves the user settings.json file based on the specified user id
+    # with the specified content.
+
+    f = open(f"{ABSOLUTE_SAVING_PATH}users/{user_id}/settings.json", "w")
+    f.write(json.dumps(user_json))
+    f.close()
 
 def get_user_post_ids(user_id: Union[int, str]) -> list:
     # Returns the list of post ids corresponding to a specified user id.
@@ -159,6 +161,10 @@ def validate_username(username: str, existing: bool=True) -> int:
     # -2 - invalid characters
     # -3 - invalid length
 
+    for i in username:
+        if i not in "abcdefghijklmnopqrstuvwxyz0123456789_-":
+            return -2
+
     if existing:
         try:
             open(f"{ABSOLUTE_SAVING_PATH}usernames/{username}.txt", "r")
@@ -174,10 +180,6 @@ def validate_username(username: str, existing: bool=True) -> int:
 
         if (len(username) > 18 or len(username) < 1):
             return -3
-
-        for i in username:
-            if i not in "abcdefghijklmnopqrstuvwxyz0123456789_-":
-                return -2
 
         return 1
 
@@ -196,16 +198,8 @@ def create_html_serve(path: str, logged_in_redir: bool=False) -> Callable:
 def create_folder_serve(path: str) -> Callable:
     # This returns a callable function that returns files in the specified directory
     # in relation to the base cdn directory.
-    # This is meant to be used for stuff like CSS and JS, try
-    # to use create_html_serve() for serving HTML
 
-    x = lambda filename: return_dynamic_content_type(
-        format_html(
-            open(f'{ABSOLUTE_CONTENT_PATH}{path if path[-1] != "/" else path[:-1:]}/{filename}', "r").read()
-        ) if filename.split(".")[-1] == "html" else (
-            open(f'{ABSOLUTE_CONTENT_PATH}{path if path[-1] != "/" else path[:-1:]}/{filename}', "r").read()
-        ), FILE_CONTENT_TYPE_MAP[filename.split(".")[-1]]
-    )
+    x = lambda filename: flask.send_from_directory(f"{ABSOLUTE_CONTENT_PATH}{path}/", filename)
     x.__name__ = path
     return x
 
@@ -330,6 +324,55 @@ def api_user_follower_add() -> Union[tuple[flask.Response, int], flask.Response]
             "valid": False,
             "reason": f"Account with username {x['username']} doesn't exist."
         }), "application/json"), 404
+
+    current_id = token_to_id(request.cookies["token"])
+    follow_id = username_to_id(x["username"])
+    current_json = load_user_json(current_id)
+    if follow_id not in current_json["following"]:
+        current_json["following"].append(follow_id)
+        save_user_json(current_id, current_json)
+
+    return return_dynamic_content_type(json.dumps({
+        "success": True
+    }), "application/json")
+
+def api_user_follower_remove() -> Union[tuple[flask.Response, int], flask.Response]: # type: ignore // WIP
+    # This is what is called when someone requests to unfollow another account.
+    # Login required: true
+    # Parameters:
+    # - "username": the username of the account to unfollow
+
+    try:
+        if not validate_token(request.cookies["token"]): flask.abort(403)
+    except:
+        flask.abort(401)
+
+    try:
+        x = json.loads(request.data)
+    except:
+        flask.abort(400)
+
+    for i in ["username"]:
+        if i not in x:
+            flask.abort(400)
+
+    x = json.loads(request.data)
+    if not validate_username(x["username"]):
+        return return_dynamic_content_type(json.dumps({
+            "valid": False,
+            "reason": f"Account with username {x['username']} doesn't exist."
+        }), "application/json"), 404
+
+    current_id = token_to_id(request.cookies["token"])
+    follow_id = username_to_id(x["username"])
+    current_json = load_user_json(current_id)
+    if current_id != follow_id and follow_id in current_json["following"]:
+        current_json["following"].remove(follow_id)
+        save_user_json(current_id, current_json)
+
+    return return_dynamic_content_type(json.dumps({
+        "success": True
+    }), "application/json")
 
 def api_post_create() -> Union[tuple[flask.Response, int], flask.Response]:
     # This is what is called when a new post is created.
@@ -477,11 +520,13 @@ if __name__ == "__main__":
 
     app.route("/css/<path:filename>", methods=["GET"])(create_folder_serve("css"))
     app.route("/js/<path:filename>", methods=["GET"])(create_folder_serve("js"))
+    app.route("/img/<path:filename>", methods=["GET"])(create_folder_serve("img"))
 
     app.route("/api/account/signup", methods=["POST"])(api_account_signup)
     app.route("/api/account/login", methods=["POST"])(api_account_login)
 
-    app.route("/api/user/follower/add", methods=["GET"])(api_user_follower_add)
+    app.route("/api/user/follower/add", methods=["POST"])(api_user_follower_add)
+    app.route("/api/user/follower/remove", methods=["DELETE"])(api_user_follower_remove)
 
     app.route("/api/post/create", methods=["PUT"])(api_post_create)
     app.route("/api/post/following", methods=["GET"])(api_post_following)

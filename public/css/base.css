@@ -25,7 +25,7 @@
   color: var(--text);
 }
 
-::webkit-scrollbar { display: none; }
+body::-webkit-scrollbar { display: none; }
 
 body {
   background-color: var(--background);
@@ -35,6 +35,8 @@ body {
   text-align: center;
   font-size: 14px;
   margin: 0px;
+  overflow-x: hidden;
+  word-wrap: break-word;
 }
 
 @media screen and (min-width: 1025px) {

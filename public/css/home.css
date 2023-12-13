@@ -23,7 +23,7 @@ button { width: 5em; }
 }
 
 #add-follower {
-  width: calc(30em - 5px);
+  width: calc(25em - 8px);
 }
 
 .main-content { white-space: pre; }
@@ -43,7 +43,7 @@ button { width: 5em; }
 
 @media screen and (max-width: 565px) {
   #post-text { width: calc(94vw - (2em / 7) - 17px); }
-  #add-follower { width: calc(94vw - (2em / 7) - 6.7em); left: 0px; }
+  #add-follower { width: calc(94vw - (2em / 7) - 12em); left: 0px; }
   .post { width: calc(94vw - 3.5em - (3em / 7)); }
   #post { left: calc(47vw - 2.5em - 5px); }
 }

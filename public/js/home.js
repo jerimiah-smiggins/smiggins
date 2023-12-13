@@ -45,11 +45,11 @@ dom("post").addEventListener("click", function() {
 });
 
 dom("add").addEventListener("click", function() {
-  dom("add-follower").setAttribute("disabled", "");
-  dom("add").setAttribute("disabled", "");
   if (dom("add-follower").value) {
+    dom("add-follower").setAttribute("disabled", "");
+    dom("add").setAttribute("disabled", "");
     fetch("/api/user/follower/add", {
-      method: "PUT",
+      method: "POST",
       headers: {
         "Content-Type": "application/json"
       },
@@ -65,6 +65,7 @@ dom("add").addEventListener("click", function() {
           setTimeout(() => { req++; if (req == inc) { dom("error").innerText = ""; }}, 3000);
         } else {
           dom("add-follower").value = "";
+          refresh();
         }
         dom("add-follower").removeAttribute("disabled");
         dom("add").removeAttribute("disabled");
@@ -72,6 +73,43 @@ dom("add").addEventListener("click", function() {
       .catch((err) => {
         dom("add-follower").removeAttribute("disabled");
         dom("add").removeAttribute("disabled");
+        inc++;
+        dom("error").innerText = "Something went wrong! Try again in a few moments...";
+        setTimeout(() => { req++; if (req == inc) { dom("error").innerText = ""; }}, 3000);
+        throw(err);
+      });
+  }
+})
+
+dom("remove").addEventListener("click", function() {
+  if (dom("add-follower").value) {
+    dom("add-follower").setAttribute("disabled", "");
+    dom("remove").setAttribute("disabled", "");
+    fetch("/api/user/follower/remove", {
+      method: "DELETE",
+      headers: {
+        "Content-Type": "application/json"
+      },
+      body: JSON.stringify({
+        "username": dom("add-follower").value
+      })
+    })
+      .then((response) => (response.json()))
+      .then((json) => {
+        if (!json.success) {
+          inc++;
+          dom("error").innerText = "Something went wrong! Try again in a few moments...";
+          setTimeout(() => { req++; if (req == inc) { dom("error").innerText = ""; }}, 3000);
+        } else {
+          dom("add-follower").value = "";
+          refresh();
+        }
+        dom("add-follower").removeAttribute("disabled");
+        dom("remove").removeAttribute("disabled");
+      })
+      .catch((err) => {
+        dom("add-follower").removeAttribute("disabled");
+        dom("remove").removeAttribute("disabled");
         inc++;
         dom("error").innerText = "Something went wrong! Try again in a few moments...";
         setTimeout(() => { req++; if (req == inc) { dom("error").innerText = ""; }}, 3000);
