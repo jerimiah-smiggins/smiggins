@@ -12,6 +12,8 @@ button { width: 5em; }
   left: calc(15em + 6px);
 }
 
+#more { width: 8em; }
+
 #post-text:focus-visible, #post-text:focus,
 #add-follower:focus-visible, #add-follower:focus {
   outline: calc(2em / 14) var(--secondary) solid;
@@ -22,9 +24,7 @@ button { width: 5em; }
   white-space: nowrap;
 }
 
-#add-follower {
-  width: calc(25em - 8px);
-}
+#add-follower { width: calc(25em - 8px); }
 
 .main-content { white-space: pre; }
 
@@ -38,8 +38,8 @@ button { width: 5em; }
   border-radius: calc(3em / 14);
 }
 
-.upper-content { opacity: 50%; }
-.username, .timestamp { display: inline-block; }
+.upper-content { opacity: 50%; color: var(--primary); cursor: pointer; }
+.username, .timestamp { display: inline-block;  }
 
 @media screen and (max-width: 565px) {
   #post-text { width: calc(94vw - (2em / 7) - 17px); }

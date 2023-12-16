@@ -1,4 +1,5 @@
 let inc = 0, req = 0, end = false;
+let offset = null;
 
 dom("post-text").addEventListener("input", function() {
   if (this.value.length > 280) {
@@ -118,10 +119,10 @@ dom("remove").addEventListener("click", function() {
   }
 })
 
-function refresh() {
-  dom("posts").innerHTML = "";
+function refresh(force_offset=false) {
+  if (force_offset !== true) { dom("posts").innerHTML = ""; }
 
-  fetch("/api/post/following", {
+  fetch(`/api/post/following${force_offset === true && !end ? `?offset=${offset}` : ""}`, {
     method: "GET",
     headers: {
       "Content-Type": "application/json"
@@ -134,14 +135,19 @@ function refresh() {
         dom("posts").innerHTML += `
         <div class="post-container">
           <div class="post">
-            <div class="upper-content">
+            <div class="upper-content"><a href="/u/${json.posts[post].creator_username}" class="no-underline">
               <div class="username">@${json.posts[post].creator_username}</div> -
               <div class="timestamp">${timeSince(json.posts[post].timestamp)} ago</div>
-            </div>
-            <div class="main-content">${json.posts[post].content}</div>
+            </a></div>
+            <div class="main-content">${json.posts[post].content.replaceAll("&", "&amp;").replaceAll("<", "&lt;")}</div>
           </div>
         </div>`;
+        offset = json.posts[post].post_id;
       }
+
+      if (force_offset !== true) { dom("more").removeAttribute("hidden"); }
+      if (json.end) { dom("more").setAttribute("hidden", ""); }
+
       dom("post").removeAttribute("disabled")
       dom("post-text").removeAttribute("disabled")
     })

@@ -11,7 +11,7 @@ import os
 from typing import Union, Callable
 from flask import request
 
-VERSION: str = "0.0.3" # Version
+VERSION: str = "0.0.4" # Version
 SITE_NAME: str = "Jerimiah Smiggins" # Name wip
 DEBUG: bool = True # Whether or not to enable flask debug mode.
 
@@ -22,6 +22,10 @@ HTML_HEADERS: str = """
 <link rel="stylesheet" href="/css/base.css">
 <script src="/js/base.js"></script>
 <link rel="icon" href="/img/favicon.ico" type="image/x-icon">
+"""
+
+HTML_FOOTERS: str = """
+<script src="/js/base_footer.js"></script>
 """
 
 # Used when hashing user tokens
@@ -40,13 +44,17 @@ def sha(string: Union[str, bytes]) -> str:
         return hashlib.sha256(string).hexdigest()
     return ""
 
-def format_html(html_content: str) -> str:
+def format_html(html_content: str, custom_replace: dict[str, str]={}) -> str:
     # Formats the served html content. This is ran on all served HTML files,
     # so add something here if it should be used globally with the template given.
 
     html_content = html_content.replace("{{VERSION}}", VERSION)
     html_content = html_content.replace("{{SITE_NAME}}", SITE_NAME)
     html_content = html_content.replace("{{HTML_HEADERS}}", HTML_HEADERS)
+    html_content = html_content.replace("{{HTML_FOOTERS}}", HTML_FOOTERS)
+
+    for i in custom_replace:
+        html_content = html_content.replace(i, custom_replace[i])
 
     return html_content
 
@@ -115,7 +123,7 @@ def save_user_json(user_id: Union[int, str], user_json: dict[str, Union[str, int
     f.write(json.dumps(user_json))
     f.close()
 
-def get_user_post_ids(user_id: Union[int, str]) -> list:
+def get_user_post_ids(user_id: Union[int, str]) -> list[int]:
     # Returns the list of post ids corresponding to a specified user id.
 
     return json.loads(open(f"{ABSOLUTE_SAVING_PATH}users/{user_id}/posts.json", "r").read())
@@ -189,7 +197,7 @@ def create_html_serve(path: str, logged_in_redir: bool=False) -> Callable:
 
     x = lambda: return_dynamic_content_type(
         format_html(
-            open(f"{ABSOLUTE_CONTENT_PATH}redirect.html" if logged_in_redir and "token" in request.cookies and validate_token(request.cookies["token"]) else f'{ABSOLUTE_CONTENT_PATH}{path}').read()
+            open(f"{ABSOLUTE_CONTENT_PATH}redirect_home.html" if logged_in_redir and "token" in request.cookies and validate_token(request.cookies["token"]) else f'{ABSOLUTE_CONTENT_PATH}{path}').read()
         ), 'text/html'
     )
     x.__name__ = path
@@ -197,9 +205,10 @@ def create_html_serve(path: str, logged_in_redir: bool=False) -> Callable:
 
 def create_folder_serve(path: str) -> Callable:
     # This returns a callable function that returns files in the specified directory
-    # in relation to the base cdn directory.
+    # in relation to the base cdn directory. Don't use this for HTML files as it assumes
+    # there is an extension and it doesn't format any of the templating anyways.
 
-    x = lambda filename: flask.send_from_directory(f"{ABSOLUTE_CONTENT_PATH}{path}/", filename)
+    x = lambda filename: flask.send_file(f"{ABSOLUTE_CONTENT_PATH}{path}/{filename}")
     x.__name__ = path
     return x
 
@@ -209,6 +218,33 @@ def create_error_serve(err: int) -> Callable:
     x = lambda: flask.abort(err)
     x.__name__ = str(err)
     return x
+
+def get_user_page(user: str) -> Union[tuple[flask.Response, int], flask.Response]:
+    try:
+        if not validate_token(request.cookies["token"]):
+            return return_dynamic_content_type(format_html(
+                open(f"{ABSOLUTE_CONTENT_PATH}/redirect_index.html", "r").read(),
+            ), "text/html"), 403
+    except:
+        return return_dynamic_content_type(format_html(
+            open(f"{ABSOLUTE_CONTENT_PATH}/redirect_index.html", "r").read(),
+        ), "text/html"), 401
+
+    if validate_username(user):
+        self_id = token_to_id(request.cookies["token"])
+        user_id = username_to_id(user)
+        is_following = user_id in load_user_json(self_id)["following"]
+        return return_dynamic_content_type(format_html(
+            open(f"{ABSOLUTE_CONTENT_PATH}/user.html", "r").read(),
+            custom_replace={
+                "{{USERNAME}}": user,
+                "{{FOLLOW}}": "Unfollow" if is_following else "Follow",
+                "{{IS_FOLLOWED}}": "1" if is_following else "0",
+                "{{IS_HIDDEN}}": "hidden" if user_id == self_id else ""
+            }
+        ), "text/html")
+    else:
+        return flask.send_file(f"{ABSOLUTE_CONTENT_PATH}redirect_home.html")
 
 # API functions
 def api_account_signup() -> flask.Response:
@@ -281,7 +317,7 @@ def api_account_login() -> flask.Response:
     token = generate_token(x["username"], x["password"])
 
     if validate_username(x["username"]) == 1:
-        if token == load_user_json(x["username"])["token"]:
+        if token == open(f"{ABSOLUTE_SAVING_PATH}users/{username_to_id(x['username'])}/token.txt", "r").read():
             return return_dynamic_content_type(json.dumps({
                 "valid": True,
                 "token": token
@@ -436,7 +472,7 @@ def api_post_following() -> Union[tuple[flask.Response, int], flask.Response]:
     except:
         flask.abort(401)
 
-    offset = sys.maxsize if not request.data or ("offset" in json.loads(request.data) and type(json.loads(request.data)["offset"]) != int) else json.loads(request.data)["offset"]
+    offset = sys.maxsize if request.args.get("offset") == None else int(request.args.get("offset")) # type: ignore // pylance likes to complain :3
 
     potential = []
     for i in load_user_json(token_to_id(request.cookies["token"]))["following"]:
@@ -467,8 +503,50 @@ def api_post_following() -> Union[tuple[flask.Response, int], flask.Response]:
         "end": len(outputList) < 20
     }), "application/json")
 
+def api_post_user_(user: str) -> Union[tuple[flask.Response, int], flask.Response]:
+    # This is what is called when getting posts from a specific user.
+    # Login required: true
+    # Parameters: none
+
+    try:
+        if not validate_token(request.cookies["token"]): flask.abort(403)
+    except:
+        flask.abort(401)
+
+    if not validate_username(user):
+        flask.abort(404)
+
+    offset = sys.maxsize if request.args.get("offset") == None else int(request.args.get("offset")) # type: ignore // pylance likes to complain :3
+
+    user_id = username_to_id(user)
+    potential = get_user_post_ids(username_to_id(user))[::-1]
+
+    index = 0
+    for i in range(len(potential)):
+        if potential[i] < offset:
+            index = i
+            break
+
+    potential = potential[index:index + 20:]
+
+    outputList = []
+    for i in potential:
+        post_info = json.loads(open(f"{ABSOLUTE_SAVING_PATH}tweets/{i}.json", "r").read())
+        outputList.append({
+            "post_id": i,
+            "creator_id": user_id,
+            "creator_username": user,
+            "content": post_info["content"],
+            "timestamp": post_info["timestamp"]
+        })
+
+    return return_dynamic_content_type(json.dumps({
+        "posts": outputList,
+        "end": len(outputList) < 20
+    }), "application/json")
+
 # Example function:
-#           # If there is an option of returning a tuple (response and status code), then add the Union[]
+# If there is an option of returning a tuple (response and status code), then add the Union[]
 # def example_func() -> Union[tuple[flask.Response, int], flask.Response]:
 #     # This makes sure that the user is logged in. Remove if login isn't needed.
 #     try:
@@ -517,6 +595,7 @@ if __name__ == "__main__":
 
     app.route("/home", methods=["GET"])(create_html_serve("home.html"))
     app.route("/logout", methods=["GET"])(create_html_serve("logout.html"))
+    app.route("/u/<path:user>", methods=["GET"])(get_user_page)
 
     app.route("/css/<path:filename>", methods=["GET"])(create_folder_serve("css"))
     app.route("/js/<path:filename>", methods=["GET"])(create_folder_serve("js"))
@@ -530,6 +609,7 @@ if __name__ == "__main__":
 
     app.route("/api/post/create", methods=["PUT"])(api_post_create)
     app.route("/api/post/following", methods=["GET"])(api_post_following)
+    app.route("/api/post/user/<path:user>", methods=["GET"])(api_post_user_)
 
     # Create routes for forcing all http response codes
     for i in [

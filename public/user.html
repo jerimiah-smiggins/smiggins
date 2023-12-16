@@ -1,0 +1,22 @@
+<!DOCTYPE html>
+
+<html>
+  <head>
+    <title>{{USERNAME}} - {{SITE_NAME}} v{{VERSION}}</title>
+    {{HTML_HEADERS}}
+    <link rel="stylesheet" href="/css/home.css">
+    <link rel="stylesheet" href="/css/user.css">
+  </head>
+
+  <body data-username="{{USERNAME}}">
+    <div id="banner"></div>
+    <div id="username-main">@{{USERNAME}}</div>
+    <button onclick="refresh()">Refresh</button> <button id="toggle" {{IS_HIDDEN}} data-followed="{{IS_FOLLOWED}}" onclick="toggle_follow()">{{FOLLOW}}</button><br><br>
+    <div id="error"></div>
+    <div id="posts"></div>
+    <button id="more" onclick="refresh(true)">Load more...</button>
+
+    <script src="/js/user.js"></script>
+    {{HTML_FOOTERS}}
+  </body>
+</html>

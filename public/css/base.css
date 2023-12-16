@@ -99,3 +99,17 @@ p {
 .invis  { opacity: 0%; }
 .hidden { display: none; }
 .mono   { font-family: Cousine; }
+.no-underline { text-decoration: none !important; }
+
+.icons svg {
+  position: fixed;
+  left: 1em;
+  height: 1.5em;
+  width: 1.5em;
+  display: inline-block;
+  fill: var(--text);
+  stroke: none;
+}
+
+.icons svg.settings { top: 1em; }
+.icons svg.home { top: 3.5em; }
