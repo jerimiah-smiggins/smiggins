@@ -1,0 +1,24 @@
+<!DOCTYPE html>
+
+<html>
+  <head>
+    <title>Settings - {{SITE_NAME}} v{{VERSION}}</title>
+    {{HTML_HEADERS}}
+  </head>
+
+  <body>
+    <h1>Settings</h1>
+    <div id="error"></div>
+
+    Theme:<br>
+    <select id="theme">
+      <option {{SELECTED_IF_DARK}} value="dark">Dark</option>
+      <option {{SELECTED_IF_LIGHT}} value="light">Light</option>
+    </select><br><br>
+
+    <a href="/logout">Log out</a>
+
+    <script src="/js/settings.js"></script>
+    {{HTML_FOOTERS}}
+  </body>
+</html>

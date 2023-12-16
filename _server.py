@@ -11,7 +11,7 @@ import os
 from typing import Union, Callable
 from flask import request
 
-VERSION: str = "0.0.4" # Version
+VERSION: str = "0.0.5" # Version
 SITE_NAME: str = "Jerimiah Smiggins" # Name wip
 DEBUG: bool = True # Whether or not to enable flask debug mode.
 
@@ -20,8 +20,8 @@ HTML_HEADERS: str = """
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <link rel="stylesheet" href="/css/base.css">
-<script src="/js/base.js"></script>
 <link rel="icon" href="/img/favicon.ico" type="image/x-icon">
+<script src="/js/base.js"></script>
 """
 
 HTML_FOOTERS: str = """
@@ -48,10 +48,22 @@ def format_html(html_content: str, custom_replace: dict[str, str]={}) -> str:
     # Formats the served html content. This is ran on all served HTML files,
     # so add something here if it should be used globally with the template given.
 
-    html_content = html_content.replace("{{VERSION}}", VERSION)
-    html_content = html_content.replace("{{SITE_NAME}}", SITE_NAME)
     html_content = html_content.replace("{{HTML_HEADERS}}", HTML_HEADERS)
     html_content = html_content.replace("{{HTML_FOOTERS}}", HTML_FOOTERS)
+
+    html_content = html_content.replace("{{VERSION}}", VERSION)
+    html_content = html_content.replace("{{SITE_NAME}}", SITE_NAME)
+
+    if "token" in request.cookies and validate_token(request.cookies["token"]):
+        th = load_user_json(token_to_id(request.cookies["token"]))["theme"]
+        html_content = html_content.replace("{{THEME}}", th)
+        html_content = html_content.replace("<body>", f"<body data-theme='{th}'>")
+        html_content = html_content.replace("{{SELECTED_IF_DARK}}", "selected" if th == "dark" else "")
+        html_content = html_content.replace("{{SELECTED_IF_LIGHT}}", "selected" if th == "light" else "")
+    else:
+        html_content = html_content.replace("{{THEME}}", "dark")
+        html_content = html_content.replace("{{SELECTED_IF_DARK}}", "selected")
+        html_content = html_content.replace("{{SELECTED_IF_LIGHT}}", "")
 
     for i in custom_replace:
         html_content = html_content.replace(i, custom_replace[i])
@@ -192,12 +204,17 @@ def validate_username(username: str, existing: bool=True) -> int:
         return 1
 
 # Routing functions
-def create_html_serve(path: str, logged_in_redir: bool=False) -> Callable:
+def create_html_serve(path: str, logged_in_redir: bool=False, logged_out_redir: bool=False) -> Callable:
     # This returns a callable function that returns a formatted html file at the specified directory.
 
     x = lambda: return_dynamic_content_type(
         format_html(
-            open(f"{ABSOLUTE_CONTENT_PATH}redirect_home.html" if logged_in_redir and "token" in request.cookies and validate_token(request.cookies["token"]) else f'{ABSOLUTE_CONTENT_PATH}{path}').read()
+            open(
+                f"{ABSOLUTE_CONTENT_PATH}redirect_home.html" if logged_in_redir and "token" in request.cookies and validate_token(request.cookies["token"]) else \
+                    f"{ABSOLUTE_CONTENT_PATH}redirect_index.html" if logged_out_redir and ("token" not in request.cookies or not validate_token(request.cookies["token"])) else \
+                    f"{ABSOLUTE_CONTENT_PATH}{path}"
+                , "r"
+            ).read()
         ), 'text/html'
     )
     x.__name__ = path
@@ -410,6 +427,28 @@ def api_user_follower_remove() -> Union[tuple[flask.Response, int], flask.Respon
         "success": True
     }), "application/json")
 
+def api_user_settings_theme() -> Union[tuple[flask.Response, int], flask.Response]:
+    try:
+        if not validate_token(request.cookies["token"]): flask.abort(403)
+    except:
+        flask.abort(401)
+
+    try:
+        x = json.loads(request.data)
+    except:
+        flask.abort(400)
+
+    if "theme" not in x and x["theme"].lower() not in ["light", "dark"]:
+        flask.abort(400)
+
+    user_id = token_to_id(request.cookies["token"])
+    user_info = load_user_json(user_id)
+    user_info["theme"] = x["theme"].lower()
+    save_user_json(user_id, user_info)
+    return return_dynamic_content_type(json.dumps({
+        "success": True
+    }))
+
 def api_post_create() -> Union[tuple[flask.Response, int], flask.Response]:
     # This is what is called when a new post is created.
     # Login required: true
@@ -592,8 +631,9 @@ if __name__ == "__main__":
     app.route("/", methods=["GET"])(create_html_serve("index.html", logged_in_redir=True))
     app.route("/login", methods=["GET"])(create_html_serve("login.html", logged_in_redir=True))
     app.route("/signup", methods=["GET"])(create_html_serve("signup.html", logged_in_redir=True))
+    app.route("/settings", methods=["GET"])(create_html_serve("settings.html", logged_out_redir=True))
 
-    app.route("/home", methods=["GET"])(create_html_serve("home.html"))
+    app.route("/home", methods=["GET"])(create_html_serve("home.html", logged_out_redir=True))
     app.route("/logout", methods=["GET"])(create_html_serve("logout.html"))
     app.route("/u/<path:user>", methods=["GET"])(get_user_page)
 
@@ -606,6 +646,7 @@ if __name__ == "__main__":
 
     app.route("/api/user/follower/add", methods=["POST"])(api_user_follower_add)
     app.route("/api/user/follower/remove", methods=["DELETE"])(api_user_follower_remove)
+    app.route("/api/user/settings/theme", methods=["POST"])(api_user_settings_theme)
 
     app.route("/api/post/create", methods=["PUT"])(api_post_create)
     app.route("/api/post/following", methods=["GET"])(api_post_following)

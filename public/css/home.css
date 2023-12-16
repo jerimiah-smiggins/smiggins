@@ -38,7 +38,7 @@ button { width: 5em; }
   border-radius: calc(3em / 14);
 }
 
-.upper-content { opacity: 50%; color: var(--primary); cursor: pointer; }
+.upper-content { opacity: 70%; color: var(--primary); cursor: pointer; }
 .username, .timestamp { display: inline-block;  }
 
 @media screen and (max-width: 565px) {

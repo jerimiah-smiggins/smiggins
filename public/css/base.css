@@ -15,6 +15,20 @@
   --accent-low-opacity: #eca0e066;
 }
 
+body[data-theme="light"] {
+  --text: #14111d;
+  --background: #eae6f4;
+  --primary: #301f65;
+  --secondary: #866be1;
+  --accent: #5e1352;
+
+  --text-low-opacity: #14111d33;
+  --background-low-opacity: #eae6f433;
+  --primary-low-opacity: #301f6533;
+  --secondary-low-opacity: #866be133;
+  --accent-low-opacity: #5e135266;
+}
+
 ::-moz-selection {
   background-color: var(--accent-low-opacity);
   color: var(--text);
@@ -65,16 +79,18 @@ button {
 button:disabled { opacity: 60%; pointer-events: none; }
 button:active { background-color: var(--accent); color: var(--background); scale: 90%; }
 
-input, textarea, select, option {
+input, textarea, option, select{
   background-color: var(--secondary-low-opacity);
   color: var(--text);
   border: none;
   border-radius: 2px;
   padding: 5px 7px;
   margin: 3px;
-  font-family: 'Poppins';
+  font-family: 'Poppins' sans-serif;
   font-size: 0.8em;
 }
+
+select { background-color: var(--secondary); }
 
 textarea { background-color: var(--secondary-low-opacity); }
 textarea:disabled { opacity: 70%; pointer-events: none; }
@@ -98,12 +114,18 @@ p {
 
 .invis  { opacity: 0%; }
 .hidden { display: none; }
-.mono   { font-family: Cousine; }
+.mono   { font-family: 'Cousine'; }
 .no-underline { text-decoration: none !important; }
 
-.icons svg {
+.icons a {
   position: fixed;
   left: 1em;
+  height: 1.5em;
+  width: 1.5em;
+  display: inline-block;
+}
+
+.icons svg {
   height: 1.5em;
   width: 1.5em;
   display: inline-block;
@@ -111,5 +133,5 @@ p {
   stroke: none;
 }
 
-.icons svg.settings { top: 1em; }
-.icons svg.home { top: 3.5em; }
+.icons a.settings { top: 1em; }
+.icons a.home { top: 3.5em; }
