@@ -1,2 +1,6 @@
 save/
 .vscode/
+__pycache__/
+
+# This is where API keys, private tokens, etc. are stored.
+_api_keys.py

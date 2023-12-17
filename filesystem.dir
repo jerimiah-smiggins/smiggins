@@ -4,9 +4,9 @@
 │
 ├── next_user.txt
 │
-└─┬ tweets/
+└─┬ posts/
   │
-  ├─┬ {TWEET_ID}.json
+  ├─┬ {POST_ID}.json
   │ ├─ content
   │ ├─ creator { id }
 ┌─┘ └─ timestamp
@@ -36,8 +36,8 @@
     │ └─ other settings(?)
     │
     ├─┬ posts.json
-    │ ├─ {TWEET_1_ID}
-    │ ├─ {TWEET_2_ID}
+    │ ├─ {POST_1_ID}
+    │ ├─ {POST_2_ID}
 ────┘ └─ ...
 
 └ ─ ├ ┘ │ ┌

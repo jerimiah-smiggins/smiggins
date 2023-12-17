@@ -12,6 +12,7 @@ button { width: 5em; }
   left: calc(15em + 6px);
 }
 
+#switch { width: 6em; }
 #more { width: 8em; }
 
 #post-text:focus-visible, #post-text:focus,

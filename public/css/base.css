@@ -86,7 +86,7 @@ input, textarea, option, select{
   border-radius: 2px;
   padding: 5px 7px;
   margin: 3px;
-  font-family: 'Poppins' sans-serif;
+  font-family: 'Poppins' sans-serif, 'Poppins' monospace;
   font-size: 0.8em;
 }
 

@@ -1,5 +1,9 @@
 let inc = 0, req = 0, end = false;
 let offset = null;
+let page = localStorage.getItem("home-page");
+if (page !== "following" && page !== "recent") { page = "following"; }
+
+dom("switch").innerText = "Switch to " + (page == "recent" ? "following" : "recent") + "...";
 
 dom("post-text").addEventListener("input", function() {
   if (this.value.length > 280) {
@@ -119,10 +123,17 @@ dom("remove").addEventListener("click", function() {
   }
 })
 
+dom("switch").addEventListener("click", function() {
+  page = page == "following" ? "recent" : "following"
+  localStorage.setItem("home-page", page);
+  dom("switch").innerHTML = "Switch to " + (page == "recent" ? "following" : "recent") + "...";
+  refresh();
+})
+
 function refresh(force_offset=false) {
   if (force_offset !== true) { dom("posts").innerHTML = ""; }
 
-  fetch(`/api/post/following${force_offset === true && !end ? `?offset=${offset}` : ""}`, {
+  fetch(`/api/post/${page == "following" ? "following" : "recent"}${force_offset === true && !end ? `?offset=${offset}` : ""}`, {
     method: "GET",
     headers: {
       "Content-Type": "application/json"

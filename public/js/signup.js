@@ -11,35 +11,34 @@ dom("toggle-password").addEventListener("click", function() {
 dom("submit").addEventListener("click", function() {
   this.setAttribute("disabled", "");
   username = dom("username").value;
-  sha256(dom("password").value).then((password) => {
-    fetch("/api/account/signup", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json"
-      },
-      body: JSON.stringify({
-        "username": username,
-        "password": password
-      })
+  password = sha256(dom("password").value)
+  fetch("/api/account/signup", {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json"
+    },
+    body: JSON.stringify({
+      "username": username,
+      "password": password
     })
-      .then((response) => response.json())
-      .then((json) => {
-        if (json.valid) {
-          setCookie("token", json.token);
-          window.location.href = "/home";
-        } else {
-          dom("submit").removeAttribute("disabled")
-          inc++;
-          dom("error").innerText = `Unable to create account! Reason: ${json.reason}`;
-          setTimeout(() => { req++; if (req == inc) { dom("error").innerText = ""; }}, 3000);
-        }
-      })
-      .catch((err) => {
+  })
+    .then((response) => response.json())
+    .then((json) => {
+      if (json.valid) {
+        setCookie("token", json.token);
+        window.location.href = "/home";
+      } else {
         dom("submit").removeAttribute("disabled")
         inc++;
-        dom("error").innerText = "Something went wrong! Try again in a few moments...";
+        dom("error").innerText = `Unable to create account! Reason: ${json.reason}`;
         setTimeout(() => { req++; if (req == inc) { dom("error").innerText = ""; }}, 3000);
-        throw(err);
-      });
-  });
+      }
+    })
+    .catch((err) => {
+      dom("submit").removeAttribute("disabled")
+      inc++;
+      dom("error").innerText = "Something went wrong! Try again in a few moments...";
+      setTimeout(() => { req++; if (req == inc) { dom("error").innerText = ""; }}, 3000);
+      throw(err);
+    });
 });

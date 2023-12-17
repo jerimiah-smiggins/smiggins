@@ -7,12 +7,15 @@ import time
 import sys
 import os
 
+import _api_keys
+
 # Union from typing allows multiple possible types for type annotations
 from typing import Union, Callable
 from flask import request
 
-VERSION: str = "0.0.5" # Version
-SITE_NAME: str = "Jerimiah Smiggins" # Name wip
+
+VERSION: str = "0.0.6" # Version
+SITE_NAME: str = "trinkr" # Name wip // Trinktter? Jerimiah Smiggins? idk...
 DEBUG: bool = True # Whether or not to enable flask debug mode.
 
 # Headers set at the top of every html file.
@@ -29,7 +32,7 @@ HTML_FOOTERS: str = """
 """
 
 # Used when hashing user tokens
-PRIVATE_AUTHENTICATOR_KEY: str = hashlib.sha256(b"PRIVATE_AUTHENTICATION_KEY_TRINKEY_ABC").hexdigest()
+PRIVATE_AUTHENTICATOR_KEY: str = hashlib.sha256(_api_keys.auth_key).hexdigest()
 
 ABSOLUTE_CONTENT_PATH: str = "./public/" # Where html/css/js is served from
 ABSOLUTE_SAVING_PATH: str  = "./save/"   # Where user information, posts, etc. are saved
@@ -44,7 +47,7 @@ def sha(string: Union[str, bytes]) -> str:
         return hashlib.sha256(string).hexdigest()
     return ""
 
-def format_html(html_content: str, custom_replace: dict[str, str]={}) -> str:
+def format_html(html_content: str, *, custom_replace: dict[str, str]={}) -> str:
     # Formats the served html content. This is ran on all served HTML files,
     # so add something here if it should be used globally with the template given.
 
@@ -78,7 +81,7 @@ def return_dynamic_content_type(content: Union[str, bytes], content_type: str="t
     response.headers["Content-Type"] = content_type
     return response
 
-def ensure_file(path: str, default_value: str="", folder: bool=False) -> None:
+def ensure_file(path: str, *, default_value: str="", folder: bool=False) -> None:
     # Checks if a file exists and if it doesn't then creates it.
     # If folder is false and if the file doesn't exist the contents
     # of the file will be set to default_value. If folder is true and
@@ -140,7 +143,7 @@ def get_user_post_ids(user_id: Union[int, str]) -> list[int]:
 
     return json.loads(open(f"{ABSOLUTE_SAVING_PATH}users/{user_id}/posts.json", "r").read())
 
-def generate_post_id(inc: bool=True) -> int:
+def generate_post_id(*, inc: bool=True) -> int:
     # This returns the next free post id. If `inc` is false,
     # then the next free will not be incremented.
 
@@ -153,7 +156,7 @@ def generate_post_id(inc: bool=True) -> int:
 
     return f
 
-def generate_user_id(inc: bool=True) -> int:
+def generate_user_id(*, inc: bool=True) -> int:
     # This returns the next free user id. If `inc` is false,
     # then the next free will not be incremented.
 
@@ -171,7 +174,7 @@ def generate_token(username: str, password: str) -> str:
 
     return sha(sha(f"{username}:{password}") + PRIVATE_AUTHENTICATOR_KEY)
 
-def validate_username(username: str, existing: bool=True) -> int:
+def validate_username(username: str, *, existing: bool=True) -> int:
     # Ensures the specified username is valid. If existing is true, then it checks
     # if the specified username exists, and if it is false, then it checks to make
     # sure it doesn't already exist and that it is valid.
@@ -204,7 +207,7 @@ def validate_username(username: str, existing: bool=True) -> int:
         return 1
 
 # Routing functions
-def create_html_serve(path: str, logged_in_redir: bool=False, logged_out_redir: bool=False) -> Callable:
+def create_html_serve(path: str, *, logged_in_redir: bool=False, logged_out_redir: bool=False) -> Callable:
     # This returns a callable function that returns a formatted html file at the specified directory.
 
     x = lambda: return_dynamic_content_type(
@@ -351,7 +354,7 @@ def api_account_login() -> flask.Response:
             "reason": f"Account with username {x['username']} doesn't exist."
         }), "application/json")
 
-def api_user_follower_add() -> Union[tuple[flask.Response, int], flask.Response]: # type: ignore // WIP
+def api_user_follower_add() -> Union[tuple[flask.Response, int], flask.Response]:
     # This is what is called when someone requests to follow another account.
     # Login required: true
     # Parameters:
@@ -389,7 +392,7 @@ def api_user_follower_add() -> Union[tuple[flask.Response, int], flask.Response]
         "success": True
     }), "application/json")
 
-def api_user_follower_remove() -> Union[tuple[flask.Response, int], flask.Response]: # type: ignore // WIP
+def api_user_follower_remove() -> Union[tuple[flask.Response, int], flask.Response]:
     # This is what is called when someone requests to unfollow another account.
     # Login required: true
     # Parameters:
@@ -486,7 +489,7 @@ def api_post_create() -> Union[tuple[flask.Response, int], flask.Response]:
     g.write(json.dumps(f))
     g.close()
 
-    g = open(f"{ABSOLUTE_SAVING_PATH}tweets/{post_id}.json", "w")
+    g = open(f"{ABSOLUTE_SAVING_PATH}posts/{post_id}.json", "w")
     g.write(json.dumps({
         "content": x["content"],
         "creator": {
@@ -528,7 +531,38 @@ def api_post_following() -> Union[tuple[flask.Response, int], flask.Response]:
 
     outputList = []
     for i in potential:
-        post_info = json.loads(open(f"{ABSOLUTE_SAVING_PATH}tweets/{i}.json", "r").read())
+        post_info = json.loads(open(f"{ABSOLUTE_SAVING_PATH}posts/{i}.json", "r").read())
+        outputList.append({
+            "post_id": i,
+            "creator_id": post_info["creator"]["id"],
+            "creator_username": load_user_json(post_info["creator"]["id"])["display_name"],
+            "content": post_info["content"],
+            "timestamp": post_info["timestamp"]
+        })
+
+    return return_dynamic_content_type(json.dumps({
+        "posts": outputList,
+        "end": len(outputList) < 20
+    }), "application/json")
+
+def api_post_recent() -> Union[tuple[flask.Response, int], flask.Response]:
+    # This is what is called when the recent posts tab is refreshed.
+    # Login required: true
+    # Parameters: none
+
+    try:
+        if not validate_token(request.cookies["token"]): flask.abort(403)
+    except:
+        flask.abort(401)
+
+    if request.args.get("offset") == None:
+        next_id = generate_post_id(inc=False) - 1
+    else:
+        next_id = int(str(request.args.get("offset")))
+
+    outputList = []
+    for i in range(next_id, next_id - 20 if next_id - 20 >= 0 else 0, -1):
+        post_info = json.loads(open(f"{ABSOLUTE_SAVING_PATH}posts/{i}.json", "r").read())
         outputList.append({
             "post_id": i,
             "creator_id": post_info["creator"]["id"],
@@ -570,7 +604,7 @@ def api_post_user_(user: str) -> Union[tuple[flask.Response, int], flask.Respons
 
     outputList = []
     for i in potential:
-        post_info = json.loads(open(f"{ABSOLUTE_SAVING_PATH}tweets/{i}.json", "r").read())
+        post_info = json.loads(open(f"{ABSOLUTE_SAVING_PATH}posts/{i}.json", "r").read())
         outputList.append({
             "post_id": i,
             "creator_id": user_id,
@@ -613,63 +647,64 @@ def api_post_user_(user: str) -> Union[tuple[flask.Response, int], flask.Respons
 #             "message": "Wrong username/password!"
 #         })), 401
 
-# Rest of the code
+# Make sure all required files for saving exist
+ensure_file(   ABSOLUTE_SAVING_PATH,            folder=True)
+ensure_file(f"{ABSOLUTE_SAVING_PATH}users",     folder=True)
+ensure_file(f"{ABSOLUTE_SAVING_PATH}posts",    folder=True)
+ensure_file(f"{ABSOLUTE_SAVING_PATH}tokens",    folder=True)
+ensure_file(f"{ABSOLUTE_SAVING_PATH}usernames", folder=True)
+ensure_file(f"{ABSOLUTE_SAVING_PATH}next_post.txt", default_value="1")
+ensure_file(f"{ABSOLUTE_SAVING_PATH}next_user.txt", default_value="1")
+
+# Initialize flask app
+app = flask.Flask(__name__)
+
+# Create all routes
+app.route("/", methods=["GET"])(create_html_serve("index.html", logged_in_redir=True))
+app.route("/login", methods=["GET"])(create_html_serve("login.html", logged_in_redir=True))
+app.route("/signup", methods=["GET"])(create_html_serve("signup.html", logged_in_redir=True))
+app.route("/settings", methods=["GET"])(create_html_serve("settings.html", logged_out_redir=True))
+
+app.route("/home", methods=["GET"])(create_html_serve("home.html", logged_out_redir=True))
+app.route("/logout", methods=["GET"])(create_html_serve("logout.html"))
+app.route("/u/<path:user>", methods=["GET"])(get_user_page)
+
+app.route("/css/<path:filename>", methods=["GET"])(create_folder_serve("css"))
+app.route("/js/<path:filename>", methods=["GET"])(create_folder_serve("js"))
+app.route("/img/<path:filename>", methods=["GET"])(create_folder_serve("img"))
+
+app.route("/api/account/signup", methods=["POST"])(api_account_signup)
+app.route("/api/account/login", methods=["POST"])(api_account_login)
+
+app.route("/api/user/follower/add", methods=["POST"])(api_user_follower_add)
+app.route("/api/user/follower/remove", methods=["DELETE"])(api_user_follower_remove)
+app.route("/api/user/settings/theme", methods=["POST"])(api_user_settings_theme)
+
+app.route("/api/post/create", methods=["PUT"])(api_post_create)
+app.route("/api/post/following", methods=["GET"])(api_post_following)
+app.route("/api/post/recent", methods=["GET"])(api_post_recent)
+app.route("/api/post/user/<path:user>", methods=["GET"])(api_post_user_)
+
+# Create routes for forcing all http response codes
+for i in [
+    100, 101, 102, 103,
+    200, 201, 202, 203, 204, 205, 206, 207, 208, 226,
+    300, 301, 302, 303, 304, 305, 306, 307, 308,
+    400, 401, 402, 403, 404, 405, 406, 407, 408, 409, 410,
+            411, 412, 413, 414, 415, 416, 417, 418, 421, 422,
+            423, 424, 425, 426, 428, 429, 431, 451,
+    500, 501, 502, 503, 504, 505, 506, 507, 508, 510, 511
+]:
+    app.route(f"/{i}")(create_error_serve(i))
+
+# What to do on certain errors
+@app.errorhandler(500)
+def error_500(err): return create_html_serve("500.html")(), 500
+
+@app.errorhandler(404)
+def error_404(err): return create_html_serve("404.html")(), 404
+
+# Start the flask server if the program is the main program
+# running and not imported from another program
 if __name__ == "__main__":
-    # Make sure all required files for saving exist
-    ensure_file(   ABSOLUTE_SAVING_PATH,            folder=True)
-    ensure_file(f"{ABSOLUTE_SAVING_PATH}users",     folder=True)
-    ensure_file(f"{ABSOLUTE_SAVING_PATH}tweets",    folder=True)
-    ensure_file(f"{ABSOLUTE_SAVING_PATH}tokens",    folder=True)
-    ensure_file(f"{ABSOLUTE_SAVING_PATH}usernames", folder=True)
-    ensure_file(f"{ABSOLUTE_SAVING_PATH}next_post.txt", "1")
-    ensure_file(f"{ABSOLUTE_SAVING_PATH}next_user.txt", "1")
-
-    # Initialize flask app
-    app = flask.Flask(__name__)
-
-    # Create all routes
-    app.route("/", methods=["GET"])(create_html_serve("index.html", logged_in_redir=True))
-    app.route("/login", methods=["GET"])(create_html_serve("login.html", logged_in_redir=True))
-    app.route("/signup", methods=["GET"])(create_html_serve("signup.html", logged_in_redir=True))
-    app.route("/settings", methods=["GET"])(create_html_serve("settings.html", logged_out_redir=True))
-
-    app.route("/home", methods=["GET"])(create_html_serve("home.html", logged_out_redir=True))
-    app.route("/logout", methods=["GET"])(create_html_serve("logout.html"))
-    app.route("/u/<path:user>", methods=["GET"])(get_user_page)
-
-    app.route("/css/<path:filename>", methods=["GET"])(create_folder_serve("css"))
-    app.route("/js/<path:filename>", methods=["GET"])(create_folder_serve("js"))
-    app.route("/img/<path:filename>", methods=["GET"])(create_folder_serve("img"))
-
-    app.route("/api/account/signup", methods=["POST"])(api_account_signup)
-    app.route("/api/account/login", methods=["POST"])(api_account_login)
-
-    app.route("/api/user/follower/add", methods=["POST"])(api_user_follower_add)
-    app.route("/api/user/follower/remove", methods=["DELETE"])(api_user_follower_remove)
-    app.route("/api/user/settings/theme", methods=["POST"])(api_user_settings_theme)
-
-    app.route("/api/post/create", methods=["PUT"])(api_post_create)
-    app.route("/api/post/following", methods=["GET"])(api_post_following)
-    app.route("/api/post/user/<path:user>", methods=["GET"])(api_post_user_)
-
-    # Create routes for forcing all http response codes
-    for i in [
-        100, 101, 102, 103,
-        200, 201, 202, 203, 204, 205, 206, 207, 208, 226,
-        300, 301, 302, 303, 304, 305, 306, 307, 308,
-        400, 401, 402, 403, 404, 405, 406, 407, 408, 409, 410,
-             411, 412, 413, 414, 415, 416, 417, 418, 421, 422,
-             423, 424, 425, 426, 428, 429, 431, 451,
-        500, 501, 502, 503, 504, 505, 506, 507, 508, 510, 511
-    ]:
-        app.route(f"/{i}")(create_error_serve(i))
-
-    # What to do on certain errors
-    @app.errorhandler(500)
-    def error_500(err): return create_html_serve("500.html")(), 500
-
-    @app.errorhandler(404)
-    def error_404(err): return create_html_serve("404.html")(), 404
-
-    # Start the flask server
     app.run(port=80, debug=DEBUG)
