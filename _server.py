@@ -14,8 +14,8 @@ from typing import Union, Callable
 from flask import request
 
 
-VERSION: str = "0.0.6" # Version
-SITE_NAME: str = "trinkr" # Name wip // Trinktter? Jerimiah Smiggins? idk...
+VERSION: str = "0.0.7" # Version
+SITE_NAME: str = "Jerimiah Smiggins" # Name wip // Trinktter? trinkr? Jerimiah Smiggins? idk...
 DEBUG: bool = True # Whether or not to enable flask debug mode.
 
 # Headers set at the top of every html file.
@@ -60,7 +60,7 @@ def format_html(html_content: str, *, custom_replace: dict[str, str]={}) -> str:
     if "token" in request.cookies and validate_token(request.cookies["token"]):
         th = load_user_json(token_to_id(request.cookies["token"]))["theme"]
         html_content = html_content.replace("{{THEME}}", th)
-        html_content = html_content.replace("<body>", f"<body data-theme='{th}'>")
+        html_content = html_content.replace("<body", f"<body data-theme='{th}'")
         html_content = html_content.replace("{{SELECTED_IF_DARK}}", "selected" if th == "dark" else "")
         html_content = html_content.replace("{{SELECTED_IF_LIGHT}}", "selected" if th == "light" else "")
     else:
@@ -240,6 +240,10 @@ def create_error_serve(err: int) -> Callable:
     return x
 
 def get_user_page(user: str) -> Union[tuple[flask.Response, int], flask.Response]:
+    # Returns the user page for a specific user
+    # Login required: true
+    # Parameters: none
+
     try:
         if not validate_token(request.cookies["token"]):
             return return_dynamic_content_type(format_html(
@@ -263,6 +267,34 @@ def get_user_page(user: str) -> Union[tuple[flask.Response, int], flask.Response
                 "{{IS_HIDDEN}}": "hidden" if user_id == self_id else ""
             }
         ), "text/html")
+    else:
+        return flask.send_file(f"{ABSOLUTE_CONTENT_PATH}redirect_home.html")
+
+def get_post_page(post_id: Union[str, int]) -> Union[tuple[flask.Response, int], flask.Response]:
+    # Returns the user page for a specific user
+    # Login required: true
+    # Parameters: none
+
+    try:
+        if not validate_token(request.cookies["token"]):
+            return return_dynamic_content_type(format_html(
+                open(f"{ABSOLUTE_CONTENT_PATH}/redirect_index.html", "r").read(),
+            ), "text/html"), 403
+    except:
+        return return_dynamic_content_type(format_html(
+            open(f"{ABSOLUTE_CONTENT_PATH}/redirect_index.html", "r").read(),
+        ), "text/html"), 401
+
+    if int(post_id) < generate_post_id(inc=False):
+        post_info = json.loads(open(f"{ABSOLUTE_SAVING_PATH}posts/{post_id}.json", "r").read())
+        return return_dynamic_content_type(format_html(
+            open(f"{ABSOLUTE_CONTENT_PATH}post.html", "r").read(),
+            custom_replace={
+                "{{CREATOR_USERNAME}}": load_user_json(post_info["creator"]["id"])["display_name"],
+                "{{CONTENT}}": post_info["content"].replace("&", "&amp;").replace("<", "&lt;").replace("\n", "<br>"),
+                "{{TIMESTAMP}}": str(post_info["timestamp"])
+            }
+        ))
     else:
         return flask.send_file(f"{ABSOLUTE_CONTENT_PATH}redirect_home.html")
 
@@ -390,7 +422,7 @@ def api_user_follower_add() -> Union[tuple[flask.Response, int], flask.Response]
 
     return return_dynamic_content_type(json.dumps({
         "success": True
-    }), "application/json")
+    }), "application/json"), 201
 
 def api_user_follower_remove() -> Union[tuple[flask.Response, int], flask.Response]:
     # This is what is called when someone requests to unfollow another account.
@@ -428,7 +460,7 @@ def api_user_follower_remove() -> Union[tuple[flask.Response, int], flask.Respon
 
     return return_dynamic_content_type(json.dumps({
         "success": True
-    }), "application/json")
+    }), "application/json"), 201
 
 def api_user_settings_theme() -> Union[tuple[flask.Response, int], flask.Response]:
     try:
@@ -668,6 +700,7 @@ app.route("/settings", methods=["GET"])(create_html_serve("settings.html", logge
 app.route("/home", methods=["GET"])(create_html_serve("home.html", logged_out_redir=True))
 app.route("/logout", methods=["GET"])(create_html_serve("logout.html"))
 app.route("/u/<path:user>", methods=["GET"])(get_user_page)
+app.route("/p/<path:post_id>", methods=["GET"])(get_post_page)
 
 app.route("/css/<path:filename>", methods=["GET"])(create_folder_serve("css"))
 app.route("/js/<path:filename>", methods=["GET"])(create_folder_serve("js"))

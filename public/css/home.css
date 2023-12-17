@@ -27,7 +27,7 @@ button { width: 5em; }
 
 #add-follower { width: calc(25em - 8px); }
 
-.main-content { white-space: pre; }
+.main-content { word-break: break-word; }
 
 .post {
   width: calc(26.95em - (3em / 7));

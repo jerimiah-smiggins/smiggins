@@ -1,0 +1,27 @@
+<!DOCTYPE html>
+
+<html>
+  <head>
+    <title>{{CREATOR_USERNAME}} - {{SITE_NAME}} v{{VERSION}}</title>
+    {{HTML_HEADERS}}
+    <link rel="stylesheet" href="/css/home.css">
+    <link rel="stylesheet" href="/css/user.css">
+  </head>
+
+  <body data-username="{{USERNAME}}">
+    <div class="post-container">
+      <div class="post">
+        <div class="upper-content"><a href="/u/{{CREATOR_USERNAME}}" class="no-underline">
+          <div class="username">@{{CREATOR_USERNAME}}</div> -
+          <div class="timestamp"><span id="timestamp" data-timestamp="{{TIMESTAMP}}"></span> ago</div>
+        </a></div>
+        <div class="main-content">{{CONTENT}}</div>
+      </div>
+    </div>
+    <div id="error"></div>
+    <div id="comments" hidden>
+
+    <script src="/js/post.js"></script>
+    {{HTML_FOOTERS}}
+  </body>
+</html>

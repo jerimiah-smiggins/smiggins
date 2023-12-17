@@ -19,11 +19,11 @@ function refresh(force_offset=false) {
         dom("posts").innerHTML += `
         <div class="post-container">
           <div class="post">
-            <div class="upper-content">
+            <div class="upper-content" onclick="window.location.href = '/p/${json.posts[post].post_id}';">
               <div class="username">@${json.posts[post].creator_username}</div> -
               <div class="timestamp">${timeSince(json.posts[post].timestamp)} ago</div>
             </div>
-            <div class="main-content">${json.posts[post].content.replaceAll("&", "&amp;").replaceAll("<", "&lt;")}</div>
+            <div class="main-content">${json.posts[post].content.replaceAll("&", "&amp;").replaceAll("<", "&lt;").replaceAll("\n", "<br>")}</div>
           </div>
         </div>`;
         offset = json.posts[post].post_id;

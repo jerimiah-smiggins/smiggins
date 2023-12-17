@@ -6,9 +6,8 @@ if (page !== "following" && page !== "recent") { page = "following"; }
 dom("switch").innerText = "Switch to " + (page == "recent" ? "following" : "recent") + "...";
 
 dom("post-text").addEventListener("input", function() {
-  if (this.value.length > 280) {
-    this.value = this.value.slice(0, 280);
-  }
+  while (this.value.indexOf("  ") !== -1) { this.value = this.value.replaceAll("  ", " "); }
+  if (this.value.length > 280) { this.value = this.value.slice(0, 280); }
 })
 
 dom("post").addEventListener("click", function() {
@@ -146,11 +145,11 @@ function refresh(force_offset=false) {
         dom("posts").innerHTML += `
         <div class="post-container">
           <div class="post">
-            <div class="upper-content"><a href="/u/${json.posts[post].creator_username}" class="no-underline">
+            <div class="upper-content" onclick="window.location.href = '/p/${json.posts[post].post_id}';"><a href="/u/${json.posts[post].creator_username}" class="no-underline">
               <div class="username">@${json.posts[post].creator_username}</div> -
               <div class="timestamp">${timeSince(json.posts[post].timestamp)} ago</div>
             </a></div>
-            <div class="main-content">${json.posts[post].content.replaceAll("&", "&amp;").replaceAll("<", "&lt;")}</div>
+            <div class="main-content">${json.posts[post].content.replaceAll("&", "&amp;").replaceAll("<", "&lt;").replaceAll("\n", "<br>")}</div>
           </div>
         </div>`;
         offset = json.posts[post].post_id;
