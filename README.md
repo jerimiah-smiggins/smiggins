@@ -1,5 +1,7 @@
 # social-media-thing
 (name and project wip)
+
+online version (at least for now): https://trinkey.pythonanywhere.com
 ## wtf is this and why did you make it
 it's like twitter but bad basically, i made it because im really bored
 
