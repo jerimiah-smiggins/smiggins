@@ -18,3 +18,10 @@ auth_key = b"put some random text here"
 
 ## where can i report issues or suggest stuff
 go to the [issues tab](https://github.com/trinkey/social-media-thing) and make a new issue (make sure you're logged in with github)
+
+## how can i contribute to this project
+if there is a specific thing you want to do, you can make an issue (if a duplicate doesn't already exist) and then
+assign yourself if you can. (if you can't assign yourself as you're not a contributor, you can make a comment on it
+stating that you are going to do it)
+
+once you finish programming you can create a new branch with your code and then make a pull request with it.
