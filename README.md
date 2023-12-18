@@ -24,4 +24,7 @@ if there is a specific thing you want to do, you can make an issue (if a duplica
 assign yourself if you can. (if you can't assign yourself as you're not a contributor, you can make a comment on it
 stating that you are going to do it)
 
-once you finish programming you can create a new branch with your code and then make a pull request with it.
+once you finish programming you can create a new fork with your code and then make a pull request with it.
+
+if you have contributed a lot to this project, you can message me on any platform that i use (email: asdfjkltrinketio@gmail.com,
+discord: @trinkey_, twitter: @trinkey_2) and let me know your github username and stuff that you have worked on and i'll consider it
