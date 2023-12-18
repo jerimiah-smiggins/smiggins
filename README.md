@@ -10,7 +10,7 @@ it's like twitter but bad basically, i made it because im really bored
 2. make a new file in the base directory called `_api_keys.py`
 3. in that file, put the following code:
 ```py
-auth_key = "put a random string here"
+auth_key = b"put some random text here"
 ```
 4. run the `_server.py` file (make sure you have the flask library installed), then go to localhost (specify port if needed), after that everything should work on it's own
 
