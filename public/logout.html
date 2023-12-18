@@ -9,6 +9,7 @@
   <body>
     If you don't get redirected soon, click <a href="/">here...</a>
     <script>
+      localStorage.removeItem("home-page");
       eraseCookie("token");
       window.location.href = "/";
     </script>

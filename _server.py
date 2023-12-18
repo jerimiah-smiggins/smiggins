@@ -106,8 +106,12 @@ def ensure_file(path: str, *, default_value: str="", folder: bool=False) -> None
             f.close()
 
 # Website helper functions
-def validate_token(token: Union[str, bytes]) -> bool:
+def validate_token(token: str) -> bool:
     # Ensures that a specific token corresponds to an actual account.
+
+    for i in token:
+        if i not in "0123456789abcdef":
+            return False
 
     try:
         open(f"{ABSOLUTE_SAVING_PATH}tokens/{token}.txt", "r")
@@ -270,7 +274,9 @@ def get_user_page(user: str) -> Union[tuple[flask.Response, int], flask.Response
             }
         ), "text/html")
     else:
-        return flask.send_file(f"{ABSOLUTE_CONTENT_PATH}redirect_home.html")
+        return return_dynamic_content_type(format_html(
+            open(f"{ABSOLUTE_CONTENT_PATH}/redirect_home.html", "r").read(),
+        ), "text/html"), 404
 
 def get_post_page(post_id: Union[str, int]) -> Union[tuple[flask.Response, int], flask.Response]:
     # Returns the user page for a specific user
@@ -287,7 +293,7 @@ def get_post_page(post_id: Union[str, int]) -> Union[tuple[flask.Response, int],
             open(f"{ABSOLUTE_CONTENT_PATH}/redirect_index.html", "r").read(),
         ), "text/html"), 401
 
-    if int(post_id) < generate_post_id(inc=False):
+    if int(post_id) < generate_post_id(inc=False) and int(post_id) > 0:
         post_info = json.loads(open(f"{ABSOLUTE_SAVING_PATH}posts/{post_id}.json", "r").read())
         user_json = load_user_json(post_info["creator"]["id"])
         return return_dynamic_content_type(format_html(
@@ -300,7 +306,9 @@ def get_post_page(post_id: Union[str, int]) -> Union[tuple[flask.Response, int],
             }
         ))
     else:
-        return flask.send_file(f"{ABSOLUTE_CONTENT_PATH}redirect_home.html")
+        return return_dynamic_content_type(format_html(
+            open(f"{ABSOLUTE_CONTENT_PATH}/redirect_home.html", "r").read(),
+        ), "text/html"), 404
 
 def get_settings_page() -> flask.Response:
     # Handles serving the settings page
@@ -779,6 +787,7 @@ app.route("/p/<path:post_id>", methods=["GET"])(get_post_page)
 app.route("/css/<path:filename>", methods=["GET"])(create_folder_serve("css"))
 app.route("/js/<path:filename>", methods=["GET"])(create_folder_serve("js"))
 app.route("/img/<path:filename>", methods=["GET"])(create_folder_serve("img"))
+app.route("/robots.txt", methods=["GET"])(create_html_serve("robots.txt"))
 
 app.route("/api/account/signup", methods=["POST"])(api_account_signup)
 app.route("/api/account/login", methods=["POST"])(api_account_login)
