@@ -39,8 +39,9 @@ button { width: 5em; }
   border-radius: calc(3em / 14);
 }
 
-.upper-content { opacity: 70%; color: var(--primary); cursor: pointer; }
-.username, .timestamp { display: inline-block;  }
+.upper-content { cursor: pointer; }
+.upper-lower-opacity { opacity: 70%; color: var(--primary); }
+.username, .timestamp, .displ-name { display: inline-block;  }
 
 @media screen and (max-width: 565px) {
   #post-text { width: calc(94vw - (2em / 7) - 17px); }

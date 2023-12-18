@@ -10,7 +10,8 @@
 
   <body data-username="{{USERNAME}}">
     <div id="banner"></div>
-    <div id="username-main">@{{USERNAME}}</div>
+    <div id="username-main">{{DISPLAY_NAME}}</div>
+    <div id="username-lower">@{{USERNAME}}</div>
     <button onclick="refresh()">Refresh</button> <button id="toggle" {{IS_HIDDEN}} data-followed="{{IS_FOLLOWED}}" onclick="toggle_follow()">{{FOLLOW}}</button><br><br>
     <div id="error"></div>
     <div id="posts"></div>

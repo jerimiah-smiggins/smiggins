@@ -8,15 +8,23 @@
     <link rel="stylesheet" href="/css/user.css">
   </head>
 
-  <body data-username="{{USERNAME}}">
+  <body data-username="{{CREATOR_USERNAME}}">
     <div class="post-container">
       <div class="post">
-        <div class="upper-content"><a href="/u/{{CREATOR_USERNAME}}" class="no-underline">
-          <div class="username">@{{CREATOR_USERNAME}}</div> -
-          <div class="timestamp"><span id="timestamp" data-timestamp="{{TIMESTAMP}}"></span> ago</div>
-        </a></div>
-        <div class="main-content">{{CONTENT}}</div>
+        <div class="upper-content">
+          <a href="/u/{{CREATOR_USERNAME}}" class="no-underline text">
+            <div class="displ-name">{{DISPLAY_NAME}}</div>
+            <span class="upper-lower-opacity"> -
+              <div class="username">@{{CREATOR_USERNAME}}</div> -
+              <div class="timestamp"><span id="timestamp" data-timestamp="{{TIMESTAMP}}">-1 seconds</span> ago</div>
+            </span>
+          </a>
+        </div>
+        <div class="main-content">
+          {{CONTENT}}
+        </div>
       </div>
+    </div>
     </div>
     <div id="error"></div>
     <div id="comments" hidden>

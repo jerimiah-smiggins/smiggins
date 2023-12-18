@@ -15,8 +15,8 @@ dom("theme").addEventListener("change", function() {
     .then((response) => (response.json()))
     .then((json) => {
       if (!json.success) {
-        inc++;
         dom("error").innerText = "Something went wrong! Try again in a few moments...";
+        inc++;
         setTimeout(() => { req++; if (req == inc) { dom("error").innerText = ""; }}, 3000);
       }
       dom("theme").removeAttribute("disabled");
@@ -24,6 +24,40 @@ dom("theme").addEventListener("change", function() {
     })
     .catch((err) => {
       dom("theme").removeAttribute("disabled");
+      inc++;
+      dom("error").innerText = "Something went wrong! Try again in a few moments...";
+      setTimeout(() => { req++; if (req == inc) { dom("error").innerText = ""; }}, 3000);
+      throw(err);
+    });
+});
+
+dom("displ-name-save").addEventListener("click", function() {
+  dom("displ-name").setAttribute("disabled", "");
+  dom("displ-name-save").setAttribute("disabled", "");
+  fetch("/api/user/settings/display-name", {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json"
+    },
+    body: JSON.stringify({
+      "displ_name": dom("displ-name").value
+    })
+  })
+    .then((response) => (response.json()))
+    .then((json) => {
+      if (!json.success) {
+        dom("error").innerText = "Something went wrong! Try again in a few moments...";
+      } else {
+        dom("error").innerText = "Success!";
+      }
+      inc++;
+      setTimeout(() => { req++; if (req == inc) { dom("error").innerText = ""; }}, 3000);
+      dom("displ-name").removeAttribute("disabled");
+      dom("displ-name-save").removeAttribute("disabled");
+    })
+    .catch((err) => {
+      dom("displ-name").removeAttribute("disabled");
+      dom("displ-name-save").removeAttribute("disabled");
       inc++;
       dom("error").innerText = "Something went wrong! Try again in a few moments...";
       setTimeout(() => { req++; if (req == inc) { dom("error").innerText = ""; }}, 3000);

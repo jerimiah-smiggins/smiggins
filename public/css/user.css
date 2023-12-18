@@ -12,6 +12,13 @@
   top: -1em;
 }
 
+#username-lower {
+  position: relative;
+  top: -2em;
+  color: var(--primary);
+  opacity: 70%;
+}
+
 [data-followed] {
   width: 6em;
 }

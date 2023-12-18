@@ -44,7 +44,7 @@ body::-webkit-scrollbar { display: none; }
 body {
   background-color: var(--background);
   color: var(--text);
-  font-family: 'Poppins';
+  font-family: 'Poppins', 'Arial';
   padding: 5vh 0;
   text-align: center;
   font-size: 14px;
@@ -86,11 +86,21 @@ input, textarea, option, select{
   border-radius: 2px;
   padding: 5px 7px;
   margin: 3px;
-  font-family: 'Poppins' sans-serif, 'Poppins' monospace;
   font-size: 0.8em;
 }
 
-select { background-color: var(--secondary); }
+input, textarea, select {
+  font-family: 'Poppins';
+}
+
+option, select {
+  background-color: var(--secondary);
+}
+
+option {
+  font-family: 'Poppins', sans-serif;
+  font-size: 1.1em;
+}
 
 textarea { background-color: var(--secondary-low-opacity); }
 textarea:disabled { opacity: 70%; pointer-events: none; }
@@ -107,6 +117,18 @@ p {
   margin: 0px;
   padding: 2px;
 }
+
+.text:not(svg)       { color: var(--text);       }
+.background:not(svg) { color: var(--background); }
+.primary:not(svg)    { color: var(--primary);    }
+.secondary:not(svg)  { color: var(--secondary);  }
+.accent:not(svg)     { color: var(--accent);     }
+
+svg.text       { fill: var(--text);       }
+svg.background { fill: var(--background); }
+svg.primary    { fill: var(--primary);    }
+svg.secondary  { fill: var(--secondary);  }
+svg.accent     { fill: var(--accent);     }
 
 .left   { text-align: left;   }
 .center { text-align: center; }

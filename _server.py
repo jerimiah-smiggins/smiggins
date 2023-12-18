@@ -14,7 +14,7 @@ from typing import Union, Callable
 from flask import request
 
 
-VERSION: str = "0.0.7" # Version
+VERSION: str = "0.0.8" # Version
 SITE_NAME: str = "Jerimiah Smiggins" # Name wip // Trinktter? trinkr? Jerimiah Smiggins? idk...
 DEBUG: bool = True # Whether or not to enable flask debug mode.
 
@@ -249,7 +249,7 @@ def get_user_page(user: str) -> Union[tuple[flask.Response, int], flask.Response
             return return_dynamic_content_type(format_html(
                 open(f"{ABSOLUTE_CONTENT_PATH}/redirect_index.html", "r").read(),
             ), "text/html"), 403
-    except:
+    except KeyError:
         return return_dynamic_content_type(format_html(
             open(f"{ABSOLUTE_CONTENT_PATH}/redirect_index.html", "r").read(),
         ), "text/html"), 401
@@ -257,11 +257,13 @@ def get_user_page(user: str) -> Union[tuple[flask.Response, int], flask.Response
     if validate_username(user):
         self_id = token_to_id(request.cookies["token"])
         user_id = username_to_id(user)
+        user_json = load_user_json(user_id)
         is_following = user_id in load_user_json(self_id)["following"]
         return return_dynamic_content_type(format_html(
             open(f"{ABSOLUTE_CONTENT_PATH}/user.html", "r").read(),
             custom_replace={
                 "{{USERNAME}}": user,
+                "{{DISPLAY_NAME}}": user_json["display_name"].replace("&", "&amp;").replace("<", "&lt;"),
                 "{{FOLLOW}}": "Unfollow" if is_following else "Follow",
                 "{{IS_FOLLOWED}}": "1" if is_following else "0",
                 "{{IS_HIDDEN}}": "hidden" if user_id == self_id else ""
@@ -280,23 +282,40 @@ def get_post_page(post_id: Union[str, int]) -> Union[tuple[flask.Response, int],
             return return_dynamic_content_type(format_html(
                 open(f"{ABSOLUTE_CONTENT_PATH}/redirect_index.html", "r").read(),
             ), "text/html"), 403
-    except:
+    except KeyError:
         return return_dynamic_content_type(format_html(
             open(f"{ABSOLUTE_CONTENT_PATH}/redirect_index.html", "r").read(),
         ), "text/html"), 401
 
     if int(post_id) < generate_post_id(inc=False):
         post_info = json.loads(open(f"{ABSOLUTE_SAVING_PATH}posts/{post_id}.json", "r").read())
+        user_json = load_user_json(post_info["creator"]["id"])
         return return_dynamic_content_type(format_html(
             open(f"{ABSOLUTE_CONTENT_PATH}post.html", "r").read(),
             custom_replace={
-                "{{CREATOR_USERNAME}}": load_user_json(post_info["creator"]["id"])["display_name"],
+                "{{CREATOR_USERNAME}}": user_json["username"],
+                "{{DISPLAY_NAME}}": user_json["display_name"],
                 "{{CONTENT}}": post_info["content"].replace("&", "&amp;").replace("<", "&lt;").replace("\n", "<br>"),
                 "{{TIMESTAMP}}": str(post_info["timestamp"])
             }
         ))
     else:
         return flask.send_file(f"{ABSOLUTE_CONTENT_PATH}redirect_home.html")
+
+def get_settings_page() -> flask.Response:
+    # Handles serving the settings page
+
+    if "token" in request.cookies and validate_token(request.cookies["token"]):
+        return return_dynamic_content_type(format_html(
+            open(f"{ABSOLUTE_CONTENT_PATH}settings.html", "r").read(),
+            custom_replace={
+                "{{DISPLAY_NAME}}": load_user_json(token_to_id(request.cookies["token"]))["display_name"]
+            }
+        ), 'text/html')
+
+    return return_dynamic_content_type(format_html(
+        open(f"{ABSOLUTE_CONTENT_PATH}redirect_index.html", "r").read()
+    ), 'text/html')
 
 # API functions
 def api_account_signup() -> flask.Response:
@@ -323,6 +342,7 @@ def api_account_signup() -> flask.Response:
             "following": [user_id],
             "user_id": user_id,
             "display_name": x["username"],
+            "username": x["username"],
             "theme": "dark",
             "profile_picture": "default"
         }
@@ -394,12 +414,12 @@ def api_user_follower_add() -> Union[tuple[flask.Response, int], flask.Response]
 
     try:
         if not validate_token(request.cookies["token"]): flask.abort(403)
-    except:
+    except KeyError:
         flask.abort(401)
 
     try:
         x = json.loads(request.data)
-    except:
+    except json.JSONDecodeError:
         flask.abort(400)
 
     for i in ["username"]:
@@ -432,12 +452,12 @@ def api_user_follower_remove() -> Union[tuple[flask.Response, int], flask.Respon
 
     try:
         if not validate_token(request.cookies["token"]): flask.abort(403)
-    except:
+    except KeyError:
         flask.abort(401)
 
     try:
         x = json.loads(request.data)
-    except:
+    except json.JSONDecodeError:
         flask.abort(400)
 
     for i in ["username"]:
@@ -465,12 +485,12 @@ def api_user_follower_remove() -> Union[tuple[flask.Response, int], flask.Respon
 def api_user_settings_theme() -> Union[tuple[flask.Response, int], flask.Response]:
     try:
         if not validate_token(request.cookies["token"]): flask.abort(403)
-    except:
+    except KeyError:
         flask.abort(401)
 
     try:
         x = json.loads(request.data)
-    except:
+    except json.JSONDecodeError:
         flask.abort(400)
 
     if "theme" not in x and x["theme"].lower() not in ["light", "dark"]:
@@ -484,6 +504,44 @@ def api_user_settings_theme() -> Union[tuple[flask.Response, int], flask.Respons
         "success": True
     }))
 
+def api_user_settings_display_name() -> Union[tuple[flask.Response, int], flask.Response]:
+    try:
+        if not validate_token(request.cookies["token"]): flask.abort(403)
+    except KeyError:
+        flask.abort(401)
+
+    try:
+        x = json.loads(request.data)
+    except json.JSONDecodeError:
+        flask.abort(400)
+
+    if "displ_name" not in x:
+        flask.abort(400)
+
+    displ_name = x["displ_name"].replace("\n", " ").replace("\r", "").replace("\t", " ")
+
+    while "  " in displ_name: displ_name = displ_name.replace("  ", " ")
+
+    try:
+        if displ_name[0]  == " ": displ_name = displ_name[1::]
+        if displ_name[-1] == " ": displ_name = displ_name[:-1:]
+    except IndexError:
+        displ_name = ""
+
+    if (len(displ_name) > 20 or len(displ_name) < 1):
+        return return_dynamic_content_type(json.dumps({
+            "success": False,
+            "reason": "Invalid name length. Must be between 1 and 20 characters after minifying whitespace."
+        }), "application/json"), 400
+
+    user_id = token_to_id(request.cookies["token"])
+    user_info = load_user_json(user_id)
+    user_info["display_name"] = x["displ_name"]
+    save_user_json(user_id, user_info)
+    return return_dynamic_content_type(json.dumps({
+        "success": True
+    }))
+
 def api_post_create() -> Union[tuple[flask.Response, int], flask.Response]:
     # This is what is called when a new post is created.
     # Login required: true
@@ -492,19 +550,29 @@ def api_post_create() -> Union[tuple[flask.Response, int], flask.Response]:
 
     try:
         if not validate_token(request.cookies["token"]): flask.abort(403)
-    except:
+    except KeyError:
         flask.abort(401)
 
     try:
         x = json.loads(request.data)
-    except:
+    except json.JSONDecodeError:
         flask.abort(400)
 
-    for i in ["content"]:
-        if i not in x:
-            flask.abort(400)
+    if "content" not in x:
+        flask.abort(400)
 
-    if (len(x["content"]) > 280 or len(x["content"]) < 1):
+    post = x["content"].replace("\r", "").replace("\t", " ")
+
+    while "  "     in post: post = post.replace("  ", " ")
+    while "\n\n\n" in post: post = post.replace("\n\n\n", "\n\n")
+
+    try:
+        if post[0]  == " ": post = post[1::]
+        if post[-1] == " ": post = post[:-1:]
+    except IndexError:
+        post = ""
+
+    if (len(post) > 280 or len(post) < 1):
         return return_dynamic_content_type(json.dumps({
             "success": False,
             "reason": "Invalid post length. Must be between 1 and 280 characters."
@@ -523,7 +591,7 @@ def api_post_create() -> Union[tuple[flask.Response, int], flask.Response]:
 
     g = open(f"{ABSOLUTE_SAVING_PATH}posts/{post_id}.json", "w")
     g.write(json.dumps({
-        "content": x["content"],
+        "content": post,
         "creator": {
             "id": user_id
         },
@@ -543,7 +611,7 @@ def api_post_following() -> Union[tuple[flask.Response, int], flask.Response]:
 
     try:
         if not validate_token(request.cookies["token"]): flask.abort(403)
-    except:
+    except KeyError:
         flask.abort(401)
 
     offset = sys.maxsize if request.args.get("offset") == None else int(request.args.get("offset")) # type: ignore // pylance likes to complain :3
@@ -564,10 +632,12 @@ def api_post_following() -> Union[tuple[flask.Response, int], flask.Response]:
     outputList = []
     for i in potential:
         post_info = json.loads(open(f"{ABSOLUTE_SAVING_PATH}posts/{i}.json", "r").read())
+        user_json = load_user_json(post_info["creator"]["id"])
         outputList.append({
             "post_id": i,
             "creator_id": post_info["creator"]["id"],
-            "creator_username": load_user_json(post_info["creator"]["id"])["display_name"],
+            "display_name": user_json["display_name"],
+            "creator_username": user_json["username"],
             "content": post_info["content"],
             "timestamp": post_info["timestamp"]
         })
@@ -584,7 +654,7 @@ def api_post_recent() -> Union[tuple[flask.Response, int], flask.Response]:
 
     try:
         if not validate_token(request.cookies["token"]): flask.abort(403)
-    except:
+    except KeyError:
         flask.abort(401)
 
     if request.args.get("offset") == None:
@@ -595,10 +665,12 @@ def api_post_recent() -> Union[tuple[flask.Response, int], flask.Response]:
     outputList = []
     for i in range(next_id, next_id - 20 if next_id - 20 >= 0 else 0, -1):
         post_info = json.loads(open(f"{ABSOLUTE_SAVING_PATH}posts/{i}.json", "r").read())
+        user_json = load_user_json(post_info["creator"]["id"])
         outputList.append({
             "post_id": i,
             "creator_id": post_info["creator"]["id"],
-            "creator_username": load_user_json(post_info["creator"]["id"])["display_name"],
+            "display_name": user_json["display_name"],
+            "creator_username": user_json["username"],
             "content": post_info["content"],
             "timestamp": post_info["timestamp"]
         })
@@ -615,7 +687,7 @@ def api_post_user_(user: str) -> Union[tuple[flask.Response, int], flask.Respons
 
     try:
         if not validate_token(request.cookies["token"]): flask.abort(403)
-    except:
+    except KeyError:
         flask.abort(401)
 
     if not validate_username(user):
@@ -624,7 +696,7 @@ def api_post_user_(user: str) -> Union[tuple[flask.Response, int], flask.Respons
     offset = sys.maxsize if request.args.get("offset") == None else int(request.args.get("offset")) # type: ignore // pylance likes to complain :3
 
     user_id = username_to_id(user)
-    potential = get_user_post_ids(username_to_id(user))[::-1]
+    potential = get_user_post_ids(user_id)[::-1]
 
     index = 0
     for i in range(len(potential)):
@@ -632,6 +704,7 @@ def api_post_user_(user: str) -> Union[tuple[flask.Response, int], flask.Respons
             index = i
             break
 
+    user_json = load_user_json(user_id)
     potential = potential[index:index + 20:]
 
     outputList = []
@@ -641,6 +714,7 @@ def api_post_user_(user: str) -> Union[tuple[flask.Response, int], flask.Respons
             "post_id": i,
             "creator_id": user_id,
             "creator_username": user,
+            "display_name": user_json["display_name"],
             "content": post_info["content"],
             "timestamp": post_info["timestamp"]
         })
@@ -656,12 +730,12 @@ def api_post_user_(user: str) -> Union[tuple[flask.Response, int], flask.Respons
 #     # This makes sure that the user is logged in. Remove if login isn't needed.
 #     try:
 #         if not validate_token(request.cookies["token"]): flask.abort(403)
-#     except:
+#     except KeyError:
 #         flask.abort(401)
 #     # This parses the request data. Remove if not needed.
 #     try:
 #         x = json.loads(request.data)
-#     except:
+#     except json.JSONDecodeError:
 #         flask.abort(400)
 #     # This makes sure all the required items are in the request data. Remove if not needed.
 #     for i in ["username", "password"]:
@@ -695,7 +769,7 @@ app = flask.Flask(__name__)
 app.route("/", methods=["GET"])(create_html_serve("index.html", logged_in_redir=True))
 app.route("/login", methods=["GET"])(create_html_serve("login.html", logged_in_redir=True))
 app.route("/signup", methods=["GET"])(create_html_serve("signup.html", logged_in_redir=True))
-app.route("/settings", methods=["GET"])(create_html_serve("settings.html", logged_out_redir=True))
+app.route("/settings", methods=["GET"])(get_settings_page)
 
 app.route("/home", methods=["GET"])(create_html_serve("home.html", logged_out_redir=True))
 app.route("/logout", methods=["GET"])(create_html_serve("logout.html"))
@@ -712,6 +786,7 @@ app.route("/api/account/login", methods=["POST"])(api_account_login)
 app.route("/api/user/follower/add", methods=["POST"])(api_user_follower_add)
 app.route("/api/user/follower/remove", methods=["DELETE"])(api_user_follower_remove)
 app.route("/api/user/settings/theme", methods=["POST"])(api_user_settings_theme)
+app.route("/api/user/settings/display-name", methods=["POST"])(api_user_settings_display_name)
 
 app.route("/api/post/create", methods=["PUT"])(api_post_create)
 app.route("/api/post/following", methods=["GET"])(api_post_following)
