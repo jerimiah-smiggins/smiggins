@@ -1,3 +1,21 @@
+# ----== SETTINGS ==----
+# Change these as needed
+
+ # Version displayed.
+VERSION: str = "0.0.8"
+
+# What to have the site name be.
+# Official name wip // Trinktter? trinkr? Jerimiah Smiggins? idk...
+SITE_NAME: str = "Jerimiah Smiggins"
+
+# Whether or not to enable flask debug mode. This makes it
+# so that the server restarts if you save the file.
+DEBUG: bool = True
+
+ABSOLUTE_CONTENT_PATH: str = "./public/" # Where html/css/js is served from
+ABSOLUTE_SAVING_PATH: str  = "./save/"   # Where user information, posts, etc. are saved
+
+# ----== OTHER CODE ==----
 # Non-default library dependencies: flask
 import hashlib
 import shutil
@@ -12,11 +30,6 @@ import _api_keys
 # Union from typing allows multiple possible types for type annotations
 from typing import Union, Callable
 from flask import request
-
-
-VERSION: str = "0.0.8" # Version
-SITE_NAME: str = "Jerimiah Smiggins" # Name wip // Trinktter? trinkr? Jerimiah Smiggins? idk...
-DEBUG: bool = True # Whether or not to enable flask debug mode.
 
 # Headers set at the top of every html file.
 HTML_HEADERS: str = """
@@ -33,9 +46,6 @@ HTML_FOOTERS: str = """
 
 # Used when hashing user tokens
 PRIVATE_AUTHENTICATOR_KEY: str = hashlib.sha256(_api_keys.auth_key).hexdigest()
-
-ABSOLUTE_CONTENT_PATH: str = "./public/" # Where html/css/js is served from
-ABSOLUTE_SAVING_PATH: str  = "./save/"   # Where user information, posts, etc. are saved
 
 # General use functions
 def sha(string: Union[str, bytes]) -> str:
