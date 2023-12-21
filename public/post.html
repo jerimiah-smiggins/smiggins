@@ -27,7 +27,7 @@
     <div id="comments" hidden>
 
     <script>
-      document.querySelector(".main-content").innerHTML = linkifyText(escapeHTML("{{CONTENT}}"))
+      document.querySelector(".main-content").innerHTML = linkifyText(escapeHTML("{{CONTENT}}".replaceAll("<br>", "\n"))).replaceAll("\n", "<br>")
     </script>
 
     <script src="/js/post.js"></script>
