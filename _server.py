@@ -617,14 +617,18 @@ def api_post_create() -> Union[tuple[flask.Response, int], flask.Response]:
     if "content" not in x:
         flask.abort(400)
 
-    post = x["content"].replace("\r", "").replace("\t", " ")
+    post = x["content"].replace("\r", "").replace("\t", " ").replace("\u200b", " ")
 
+    for i in ["\t", "​", "​", " ", " ", " ", " ", " ", " ", " ", " ", " ", "⠀"]:
+        post = post.replace(i, " ")
+
+    while "\n "    in post: post = post.replace("\n ", "\n")
     while "  "     in post: post = post.replace("  ", " ")
     while "\n\n\n" in post: post = post.replace("\n\n\n", "\n\n")
 
     try:
-        if post[0]  == " ": post = post[1::]
-        if post[-1] == " ": post = post[:-1:]
+        if post[0]  in "\n ": post = post[1::]
+        if post[-1] in "\n ": post = post[:-1:]
     except IndexError:
         post = ""
 
