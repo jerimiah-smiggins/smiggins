@@ -14,18 +14,13 @@ button { width: 5em; }
 
 #switch { width: 6em; }
 #more { width: 8em; }
+#follower-container { white-space: nowrap; }
+#add-follower { width: calc(25em - 8px); }
 
 #post-text:focus-visible, #post-text:focus,
 #add-follower:focus-visible, #add-follower:focus {
   outline: calc(2em / 14) var(--secondary) solid;
 }
-
-#follower-container {
-  margin: 0 calc(50vw - (35em / 2));
-  white-space: nowrap;
-}
-
-#add-follower { width: calc(25em - 8px); }
 
 .main-content { word-break: break-word; }
 
