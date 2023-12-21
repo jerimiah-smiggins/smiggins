@@ -1,8 +1,8 @@
 # ----== SETTINGS ==----
 # Change these as needed
 
- # Version displayed.
-VERSION: str = "0.0.8"
+# Version displayed.
+VERSION: str = "0.0.9"
 
 # What to have the site name be.
 # Official name wip // Trinktter? trinkr? Jerimiah Smiggins? idk...
@@ -67,7 +67,7 @@ def format_html(html_content: str, *, custom_replace: dict[str, str]={}) -> str:
     html_content = html_content.replace("{{VERSION}}", VERSION)
     html_content = html_content.replace("{{SITE_NAME}}", SITE_NAME)
 
-    if "token" in request.cookies and validate_token(request.cookies["token"]):
+    if "token" in request.cookies and validate_token(request.cookies["token"]) and "theme" in (th := load_user_json(token_to_id(request.cookies["token"]))):
         th = load_user_json(token_to_id(request.cookies["token"]))["theme"]
         html_content = html_content.replace("{{THEME}}", th)
         html_content = html_content.replace("<body", f"<body data-theme='{th}'")
@@ -280,7 +280,8 @@ def get_user_page(user: str) -> Union[tuple[flask.Response, int], flask.Response
                 "{{DISPLAY_NAME}}": user_json["display_name"].replace("&", "&amp;").replace("<", "&lt;"),
                 "{{FOLLOW}}": "Unfollow" if is_following else "Follow",
                 "{{IS_FOLLOWED}}": "1" if is_following else "0",
-                "{{IS_HIDDEN}}": "hidden" if user_id == self_id else ""
+                "{{IS_HIDDEN}}": "hidden" if user_id == self_id else "",
+                "{{BANNER_COLOR}}": "#3a1e93" if "color" not in user_json else user_json["color"]
             }
         ), "text/html")
     else:
@@ -309,7 +310,7 @@ def get_post_page(post_id: Union[str, int]) -> Union[tuple[flask.Response, int],
         return return_dynamic_content_type(format_html(
             open(f"{ABSOLUTE_CONTENT_PATH}post.html", "r").read(),
             custom_replace={
-                "{{CREATOR_USERNAME}}": user_json["username"],
+                "{{CREATOR_USERNAME}}": user_json["display_name"] if "username" not in user_json else user_json["username"],
                 "{{DISPLAY_NAME}}": user_json["display_name"],
                 "{{CONTENT}}": post_info["content"].replace("&", "&amp;").replace("<", "&lt;").replace("\n", "<br>"),
                 "{{TIMESTAMP}}": str(post_info["timestamp"])
@@ -324,10 +325,12 @@ def get_settings_page() -> flask.Response:
     # Handles serving the settings page
 
     if "token" in request.cookies and validate_token(request.cookies["token"]):
+        x = load_user_json(token_to_id(request.cookies["token"]))
         return return_dynamic_content_type(format_html(
             open(f"{ABSOLUTE_CONTENT_PATH}settings.html", "r").read(),
             custom_replace={
-                "{{DISPLAY_NAME}}": load_user_json(token_to_id(request.cookies["token"]))["display_name"]
+                "{{DISPLAY_NAME}}": x["display_name"],
+                "{{BANNER_COLOR}}": "#3a1e93" if "color" not in x else x["color"]
             }
         ), 'text/html')
 
@@ -362,7 +365,8 @@ def api_account_signup() -> flask.Response:
             "display_name": x["username"],
             "username": x["username"],
             "theme": "dark",
-            "profile_picture": "default"
+            "profile_picture": "default",
+            "color": "#3a1e93"
         }
 
         token = generate_token(x["username"], x["password"])
@@ -522,7 +526,36 @@ def api_user_settings_theme() -> Union[tuple[flask.Response, int], flask.Respons
         "success": True
     }))
 
+def api_user_settings_color() -> Union[tuple[flask.Response, int], flask.Response]:
+    try:
+        if not validate_token(request.cookies["token"]): flask.abort(403)
+    except KeyError:
+        flask.abort(401)
+
+    try:
+        x = json.loads(request.data)
+    except json.JSONDecodeError:
+        flask.abort(400)
+
+    if "color" not in x and x["color"][0] != "#" and len(x["color"]) == 7:
+        flask.abort(400)
+
+    for i in x["color"][1::].lower():
+        if i not in "abcdef0123456789":
+            flask.abort(400)
+
+    user_id = token_to_id(request.cookies["token"])
+    user_info = load_user_json(user_id)
+    user_info["color"] = x["color"].lower()
+    save_user_json(user_id, user_info)
+    return return_dynamic_content_type(json.dumps({
+        "success": True
+    }))
+
 def api_user_settings_display_name() -> Union[tuple[flask.Response, int], flask.Response]:
+    # Called when trying to set display name
+    # login required: true
+
     try:
         if not validate_token(request.cookies["token"]): flask.abort(403)
     except KeyError:
@@ -554,8 +587,13 @@ def api_user_settings_display_name() -> Union[tuple[flask.Response, int], flask.
 
     user_id = token_to_id(request.cookies["token"])
     user_info = load_user_json(user_id)
+
+    if "username" not in user_info:
+        user_info["username"] = user_info["display_name"]
+
     user_info["display_name"] = x["displ_name"]
     save_user_json(user_id, user_info)
+
     return return_dynamic_content_type(json.dumps({
         "success": True
     }))
@@ -610,10 +648,14 @@ def api_post_create() -> Union[tuple[flask.Response, int], flask.Response]:
     g = open(f"{ABSOLUTE_SAVING_PATH}posts/{post_id}.json", "w")
     g.write(json.dumps({
         "content": post,
-        "creator": {
-            "id": user_id
-        },
-        "timestamp": timestamp
+        "creator": { "id": user_id },
+        "timestamp": timestamp,
+        "interactions": {
+            "likes": [],
+            # below are not implemented, placeholders to be potentially created in the future
+            "comments": [],
+            "reposts": []
+        }
     }))
     g.close()
 
@@ -645,6 +687,7 @@ def api_post_following() -> Union[tuple[flask.Response, int], flask.Response]:
             index = i
             break
 
+    end = len(potential) > 20
     potential = potential[index:index + 20:]
 
     outputList = []
@@ -655,14 +698,14 @@ def api_post_following() -> Union[tuple[flask.Response, int], flask.Response]:
             "post_id": i,
             "creator_id": post_info["creator"]["id"],
             "display_name": user_json["display_name"],
-            "creator_username": user_json["username"],
+            "creator_username": user_json["display_name"] if "username" not in user_json else user_json["username"],
             "content": post_info["content"],
             "timestamp": post_info["timestamp"]
         })
 
     return return_dynamic_content_type(json.dumps({
         "posts": outputList,
-        "end": len(outputList) < 20
+        "end": end
     }), "application/json")
 
 def api_post_recent() -> Union[tuple[flask.Response, int], flask.Response]:
@@ -688,7 +731,7 @@ def api_post_recent() -> Union[tuple[flask.Response, int], flask.Response]:
             "post_id": i,
             "creator_id": post_info["creator"]["id"],
             "display_name": user_json["display_name"],
-            "creator_username": user_json["username"],
+            "creator_username": user_json["display_name"] if "username" not in user_json else user_json["username"],
             "content": post_info["content"],
             "timestamp": post_info["timestamp"]
         })
@@ -697,6 +740,39 @@ def api_post_recent() -> Union[tuple[flask.Response, int], flask.Response]:
         "posts": outputList,
         "end": len(outputList) < 20
     }), "application/json")
+
+def api_post_like() -> Union[tuple[flask.Response, int], flask.Response]: # type: ignore // WIP
+    # This is called when someone likes or unlikes a post.
+    # Login required: true
+    # Parameters: id: int - post id to like/unlike
+
+    try:
+        if not validate_token(request.cookies["token"]): flask.abort(403)
+    except KeyError:
+        flask.abort(401)
+
+    try:
+        x = json.loads(request.data)
+    except json.JSONDecodeError:
+        flask.abort(400)
+
+    if "id" not in x:
+        flask.abort(400)
+
+    try:
+        if generate_post_id(inc=False) >= int(x):
+            return return_dynamic_content_type(json.dumps({
+                "success": False
+            }), "application/json"), 404
+
+    except ValueError:
+        return return_dynamic_content_type(json.dumps({
+            "success": False
+        }), "application/json"), 404
+
+    post_json = json.loads(open(f"{ABSOLUTE_SAVING_PATH}posts/{x['id']}.json", "r").read())
+    if post_json['likes']:
+        pass # MAKE THIS WORK
 
 def api_post_user_(user: str) -> Union[tuple[flask.Response, int], flask.Response]:
     # This is what is called when getting posts from a specific user.
@@ -805,6 +881,7 @@ app.route("/api/account/login", methods=["POST"])(api_account_login)
 app.route("/api/user/follower/add", methods=["POST"])(api_user_follower_add)
 app.route("/api/user/follower/remove", methods=["DELETE"])(api_user_follower_remove)
 app.route("/api/user/settings/theme", methods=["POST"])(api_user_settings_theme)
+app.route("/api/user/settings/color", methods=["POST"])(api_user_settings_color)
 app.route("/api/user/settings/display-name", methods=["POST"])(api_user_settings_display_name)
 
 app.route("/api/post/create", methods=["PUT"])(api_post_create)

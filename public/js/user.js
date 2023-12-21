@@ -28,7 +28,7 @@ function refresh(force_offset=false) {
             </div>
             <div class="main-content">
               <a href="/p/${json.posts[post].post_id}" class="no-underline text">
-                ${json.posts[post].content.replaceAll("&", "&amp;").replaceAll("<", "&lt;").replaceAll("\n", "<br>")}
+                ${linkifyText(json.posts[post].content.replaceAll("&", "&amp;").replaceAll("<", "&lt;").replaceAll("\n", "<br>"))}
               </a>
             </div>
           </div>

@@ -3,7 +3,7 @@
   border-radius: 1em;
   width: 35em;
   height: 6em;
-  background-color: var(--primary-low-opacity)
+  opacity: 20%;
 }
 
 #username-main {

@@ -28,9 +28,10 @@
     ├── token.txt
     │
     ├─┬ settings.json
-    │ ├─ following []
+    │ ├─ following [id]
     │ ├─ theme
     │ ├─ display_name
+    │ ├─ username
     │ ├─ profile_picture
     │ ├─ user_id
     │ └─ other settings(?)
