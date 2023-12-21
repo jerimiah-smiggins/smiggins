@@ -100,7 +100,7 @@ function timeSince(date) {
 
 function linkifyText(inputText, postId) {
   console.log(inputText, postId)
-  let urlRegex = /(https?:\/\/[^\s/]+\.[^\s]{2,})/g;
+  let urlRegex = /(https?:\/\/(?:www\.)?[\-a-zA-Z0-9@:%._\+~#=]{1,256}\.[a-zA-Z0-9\-()]{1,6}\b(?:[\-a-zA-Z0-9()@:%_\+.~#?&/=]*[\-a-zA-Z0-9(@:%_\+.~#?&/=]))/g;
   return inputText.split(urlRegex).map((i) => {
     return i.match(urlRegex) || postId !== undefined ? `<a href="${i.match(urlRegex) ? `${i.replaceAll("\"", "&quo;")}" target="_blank` : `/p/${postId}" class="text no-underline`}">${i}</a>` : i;
   }).join("");
