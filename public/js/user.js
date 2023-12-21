@@ -20,16 +20,14 @@ function refresh(force_offset=false) {
         <div class="post-container">
           <div class="post">
             <div class="upper-content">
-              <div class="displ-name">${json.posts[post].display_name.replaceAll("&", "&amp;").replaceAll("<", "&lt;")}</div>
+              <div class="displ-name">${escapeHTML(json.posts[post].display_name)}</div>
               <span class="upper-lower-opacity"> -
                 <div class="username">@${json.posts[post].creator_username}</div> -
                 <div class="timestamp">${timeSince(json.posts[post].timestamp)} ago</div>
               </span>
             </div>
             <div class="main-content">
-              <a href="/p/${json.posts[post].post_id}" class="no-underline text">
-                ${linkifyText(json.posts[post].content.replaceAll("&", "&amp;").replaceAll("<", "&lt;").replaceAll("\n", "<br>"))}
-              </a>
+              ${linkifyText(escapeHTML(json.posts[post].content).replaceAll("\n", "<br>"), json.posts[post].post_id)}
             </div>
           </div>
         </div>`;

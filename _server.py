@@ -115,6 +115,11 @@ def ensure_file(path: str, *, default_value: str="", folder: bool=False) -> None
             f.write(default_value)
             f.close()
 
+def escape_html(string: str) -> str:
+    # Returns escaped html that won't accidentally create any elements
+
+    return string.replace("&", "&amp;").replace("<", "&lt;")
+
 # Website helper functions
 def validate_token(token: str) -> bool:
     # Ensures that a specific token corresponds to an actual account.
@@ -277,7 +282,7 @@ def get_user_page(user: str) -> Union[tuple[flask.Response, int], flask.Response
             open(f"{ABSOLUTE_CONTENT_PATH}/user.html", "r").read(),
             custom_replace={
                 "{{USERNAME}}": user,
-                "{{DISPLAY_NAME}}": user_json["display_name"].replace("&", "&amp;").replace("<", "&lt;"),
+                "{{DISPLAY_NAME}}": escape_html(user_json["display_name"]),
                 "{{FOLLOW}}": "Unfollow" if is_following else "Follow",
                 "{{IS_FOLLOWED}}": "1" if is_following else "0",
                 "{{IS_HIDDEN}}": "hidden" if user_id == self_id else "",
@@ -312,7 +317,7 @@ def get_post_page(post_id: Union[str, int]) -> Union[tuple[flask.Response, int],
             custom_replace={
                 "{{CREATOR_USERNAME}}": user_json["display_name"] if "username" not in user_json else user_json["username"],
                 "{{DISPLAY_NAME}}": user_json["display_name"],
-                "{{CONTENT}}": post_info["content"].replace("&", "&amp;").replace("<", "&lt;").replace("\n", "<br>"),
+                "{{CONTENT}}": post_info["content"].replace("\"", "\\\""),
                 "{{TIMESTAMP}}": str(post_info["timestamp"])
             }
         ))

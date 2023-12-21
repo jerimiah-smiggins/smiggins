@@ -98,12 +98,16 @@ function timeSince(date) {
   return Math.floor(seconds) + " second" + (Math.floor(seconds) == 1 ? "" : "s");
 }
 
-function linkifyText(inputText) {
-  return inputText;
-  // This doesn't work because <a>-s can't be nested. Lots of tweaking needed to make this work
-  // return inputText.replaceAll(/(https?:\/\/[^\s/]+\.[^\s]{2,})/, function(url) {
-  //   return '<a target="_blank" href="' + url + '">' + url + '</a>';
-  // });
+function linkifyText(inputText, postId) {
+  console.log(inputText, postId)
+  let urlRegex = /(https?:\/\/[^\s/]+\.[^\s]{2,})/g;
+  return inputText.split(urlRegex).map((i) => {
+    return i.match(urlRegex) || postId !== undefined ? `<a href="${i.match(urlRegex) ? `${i.replaceAll("\"", "&quo;")}" target="_blank` : `/p/${postId}" class="text no-underline`}">${i}</a>` : i;
+  }).join("");
+}
+
+function escapeHTML(str) {
+  return str.replaceAll("&", "&amp;").replaceAll("<", "&lt;")
 }
 
 const icons = {
