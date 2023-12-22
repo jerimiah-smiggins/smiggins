@@ -30,6 +30,7 @@
     ├─┬ settings.json
     │ ├─ following [id]
     │ ├─ theme
+    │ ├─ color
     │ ├─ display_name
     │ ├─ username
     │ ├─ profile_picture

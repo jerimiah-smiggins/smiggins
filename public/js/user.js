@@ -15,6 +15,8 @@ function refresh(force_offset=false) {
     .then((response) => (response.json()))
     .then((json) => {
       end = json.end;
+      dom("banner").style.backgroundColor = json.color;
+
       for (const post in json.posts) {
         dom("posts").innerHTML += `
         <div class="post-container">
@@ -31,8 +33,8 @@ function refresh(force_offset=false) {
             </div>
           </div>
         </div>`;
-        offset = json.posts[post].post_id;
       }
+      offset = json.posts[-1].post_id;
 
       if (force_offset !== true) { dom("more").removeAttribute("hidden"); }
       if (json.end) { dom("more").setAttribute("hidden", ""); }

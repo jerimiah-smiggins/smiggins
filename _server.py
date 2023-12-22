@@ -845,6 +845,8 @@ def api_post_recent() -> Union[tuple[flask.Response, int], flask.Response]:
     else:
         next_id = int(str(request.args.get("offset")))
 
+    end = next_id > 20
+
     outputList = []
     for i in range(next_id, next_id - 20 if next_id - 20 >= 0 else 0, -1):
         post_info = json.loads(open(f"{ABSOLUTE_SAVING_PATH}posts/{i}.json", "r").read())
@@ -860,7 +862,7 @@ def api_post_recent() -> Union[tuple[flask.Response, int], flask.Response]:
 
     return return_dynamic_content_type(json.dumps({
         "posts": outputList,
-        "end": len(outputList) < 20
+        "end": end
     }), "application/json")
 
 def api_post_like() -> Union[tuple[flask.Response, int], flask.Response]: # type: ignore // WIP
@@ -929,6 +931,7 @@ def api_post_user_(user: str) -> Union[tuple[flask.Response, int], flask.Respons
             break
 
     user_json = load_user_json(user_id)
+    end = len(potential) > 20
     potential = potential[index:index + 20:]
 
     outputList = []
@@ -945,7 +948,7 @@ def api_post_user_(user: str) -> Union[tuple[flask.Response, int], flask.Respons
 
     return return_dynamic_content_type(json.dumps({
         "posts": outputList,
-        "end": len(outputList) < 20,
+        "end": end,
         "color": "#3a1e93" if "color" not in user_json else user_json["color"]
     }), "application/json")
 
