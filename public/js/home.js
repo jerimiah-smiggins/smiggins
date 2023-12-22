@@ -31,18 +31,18 @@ dom("post").addEventListener("click", function() {
           dom("error").innerText = "You are being ratelimited! Try again in a few moments...";
           setTimeout(() => { req++; if (req == inc) { dom("error").innerText = ""; }}, 3000);
         } else {
-          let json = response.json()
-          if (json.success) {
-            dom("post-text").value = "";
-            refresh();
-          } else {
-            dom("post").removeAttribute("disabled");
-            dom("post-text").removeAttribute("disabled");
-            inc++;
-            dom("error").innerText = "Something went wrong! Try again in a few moments...";
-            setTimeout(() => { req++; if (req == inc) { dom("error").innerText = ""; }}, 3000);
-            throw(err);
-          }
+          response.json().then((json) => {
+            if (json.success) {
+              dom("post-text").value = "";
+              refresh();
+            } else {
+              dom("post").removeAttribute("disabled");
+              dom("post-text").removeAttribute("disabled");
+              inc++;
+              dom("error").innerText = "Something went wrong! Try again in a few moments...";
+              setTimeout(() => { req++; if (req == inc) { dom("error").innerText = ""; }}, 3000);
+            }
+          })
         }
       })
       .catch((err) => {
