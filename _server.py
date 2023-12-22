@@ -945,7 +945,8 @@ def api_post_user_(user: str) -> Union[tuple[flask.Response, int], flask.Respons
 
     return return_dynamic_content_type(json.dumps({
         "posts": outputList,
-        "end": len(outputList) < 20
+        "end": len(outputList) < 20,
+        "color": "#3a1e93" if "color" not in user_json else user_json["color"]
     }), "application/json")
 
 # Example function:
