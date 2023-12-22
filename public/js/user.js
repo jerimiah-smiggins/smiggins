@@ -15,6 +15,7 @@ function refresh(force_offset=false) {
     .then((response) => (response.json()))
     .then((json) => {
       end = json.end;
+      dom("banner").style.backgroundColor = json.color;
       for (const post in json.posts) {
         dom("posts").innerHTML += `
         <div class="post-container">
