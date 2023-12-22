@@ -15,8 +15,13 @@ DEBUG: bool = True
 ABSOLUTE_CONTENT_PATH: str = "./public/" # Where html/css/js is served from
 ABSOLUTE_SAVING_PATH: str  = "./save/"   # Where user information, posts, etc. are saved
 
+# List of valid `Host` header urls to accept API requests
+HOST_URLS: list[str] = ["localhost", "127.0.0.1"]
+
 # ----== OTHER CODE ==----
-# Non-default library dependencies: flask
+# Non-default library dependencies:
+# - flask (pip install flask)
+import threading
 import hashlib
 import shutil
 import flask
@@ -46,6 +51,10 @@ HTML_FOOTERS: str = """
 
 # Used when hashing user tokens
 PRIVATE_AUTHENTICATOR_KEY: str = hashlib.sha256(_api_keys.auth_key).hexdigest()
+
+# Using nested dicts because indexing a dict is generally faster than
+# for a list.
+timeout_handler: dict[str, dict[str, None]] = {}
 
 # General use functions
 def sha(string: Union[str, bytes]) -> str:
@@ -119,6 +128,18 @@ def escape_html(string: str) -> str:
     # Returns escaped html that won't accidentally create any elements
 
     return string.replace("&", "&amp;").replace("<", "&lt;")
+
+def set_timeout(callback: Callable, delay_ms: Union[int, float]) -> None:
+    # Works like javascript's setTimeout function.
+    # Callback is a callable which will be called after
+    # delay_ms has passed.
+
+    def wrapper():
+        threading.Event().wait(delay_ms / 1000)
+        callback()
+
+    thread = threading.Thread(target=wrapper)
+    thread.start()
 
 # Website helper functions
 def validate_token(token: str) -> bool:
@@ -224,6 +245,28 @@ def validate_username(username: str, *, existing: bool=True) -> int:
             return -3
 
         return 1
+
+def create_api_ratelimit(api_id: str, time_ms: Union[int, float], identifier: Union[str, None]) -> None:
+    # Creates a ratelimit timeout for a specific user via the identifier.
+    # The identifier should be the request.remote_addr ip address
+    # api_id is the identifier for the api, for example "api_account_signup". You
+    # can generally use the name of that api's funciton for this.
+
+    identifier = str(identifier)
+
+    if api_id not in timeout_handler:
+        timeout_handler[api_id] = {}
+    timeout_handler[api_id][identifier] = None
+
+    x = lambda: timeout_handler[api_id].pop(identifier)
+    x.__name__ = f"{api_id}:{identifier}"
+    set_timeout(x, time_ms)
+
+def ensure_ratelimit(api_id: str, identifier: Union[str, None]) -> bool:
+    # Returns whether or not a certain api is ratelimited for the specified
+    # identifier. True = not ratelimited, False = ratelimited
+
+    return not (api_id in timeout_handler and str(identifier) in timeout_handler[api_id])
 
 # Routing functions
 def create_html_serve(path: str, *, logged_in_redir: bool=False, logged_out_redir: bool=False) -> Callable:
@@ -347,22 +390,37 @@ def get_settings_page() -> flask.Response:
 def api_account_signup() -> flask.Response:
     # This is what is called when someone requests to follow another account.
     # Login required: false
+    # Ratelimit: 1s for unsuccessful, 15s for successful
     # Parameters:
     # - "username": the username of the account that is trying to be created
     # - "password": the sha256 hashed password of the account that is trying to be created
 
+    if "Host" not in request.headers or request.headers["Host"] not in HOST_URLS:
+        flask.abort(400)
+
+    if not ensure_ratelimit("api_account_signup", request.remote_addr):
+        flask.abort(429)
+
     x: dict[str, str] = json.loads(request.data)
     x["username"] = x["username"].lower()
 
-    # e3b0c44... is the sha for an empty string
-    if x["password"] == "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855":
+    # e3b0c44... is the sha256 hash for an empty string
+    if len(x["password"]) != 64 or x["password"] == "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855":
         return return_dynamic_content_type(json.dumps({
             "valid": False,
             "reason": "Invalid password."
         }), "application/json")
 
+    for i in x["password"]:
+        if i not in "abcdef0123456789":
+            return return_dynamic_content_type(json.dumps({
+                "valid": False,
+                "reason": "Invalid password."
+            }), "application/json")
+
     user_valid = validate_username(x["username"], existing=False)
     if user_valid == 1:
+        create_api_ratelimit("api_account_signup", 15000, request.remote_addr)
         user_id = generate_user_id()
         preferences = {
             "following": [user_id],
@@ -388,7 +446,9 @@ def api_account_signup() -> flask.Response:
             "token": token
         }), "application/json")
 
-    elif user_valid == -1:
+    create_api_ratelimit("api_account_signup", 1000, request.remote_addr)
+
+    if user_valid == -1:
         return return_dynamic_content_type(json.dumps({
             "valid": False,
             "reason": "Username taken."
@@ -408,14 +468,22 @@ def api_account_signup() -> flask.Response:
 def api_account_login() -> flask.Response:
     # This is what is called when someone attempts to log in.
     # Login required: false
+    # Ratelimit: 1s for unsuccessful, 5s for successful
     # Parameters:
     # - "username": the username of the account that is trying to be logged into
     # - "password": the sha256 hashed password of the account that is trying to be logged into
+
+    if "Host" not in request.headers or request.headers["Host"] not in HOST_URLS:
+        flask.abort(400)
+
+    if not ensure_ratelimit("api_account_login", request.remote_addr):
+        flask.abort(429)
 
     x: dict[str, str] = json.loads(request.data)
     token = generate_token(x["username"], x["password"])
 
     if validate_username(x["username"]) == 1:
+        create_api_ratelimit("api_account_login", 5000, request.remote_addr)
         if token == open(f"{ABSOLUTE_SAVING_PATH}users/{username_to_id(x['username'])}/token.txt", "r").read():
             return return_dynamic_content_type(json.dumps({
                 "valid": True,
@@ -428,6 +496,7 @@ def api_account_login() -> flask.Response:
             }), "application/json")
 
     else:
+        create_api_ratelimit("api_account_login", 1000, request.remote_addr)
         return return_dynamic_content_type(json.dumps({
             "valid": False,
             "reason": f"Account with username {x['username']} doesn't exist."
@@ -436,8 +505,12 @@ def api_account_login() -> flask.Response:
 def api_user_follower_add() -> Union[tuple[flask.Response, int], flask.Response]:
     # This is what is called when someone requests to follow another account.
     # Login required: true
+    # Ratelimit: none
     # Parameters:
     # - "username": the username of the account to follow
+
+    if "Host" not in request.headers or request.headers["Host"] not in HOST_URLS:
+        flask.abort(400)
 
     try:
         if not validate_token(request.cookies["token"]): flask.abort(403)
@@ -474,8 +547,12 @@ def api_user_follower_add() -> Union[tuple[flask.Response, int], flask.Response]
 def api_user_follower_remove() -> Union[tuple[flask.Response, int], flask.Response]:
     # This is what is called when someone requests to unfollow another account.
     # Login required: true
+    # Ratelimit: none
     # Parameters:
     # - "username": the username of the account to unfollow
+
+    if "Host" not in request.headers or request.headers["Host"] not in HOST_URLS:
+        flask.abort(400)
 
     try:
         if not validate_token(request.cookies["token"]): flask.abort(403)
@@ -510,6 +587,13 @@ def api_user_follower_remove() -> Union[tuple[flask.Response, int], flask.Respon
     }), "application/json"), 201
 
 def api_user_settings_theme() -> Union[tuple[flask.Response, int], flask.Response]:
+    # Called when the user changes the theme.
+    # Login required: true
+    # Ratelimit: none
+
+    if "Host" not in request.headers or request.headers["Host"] not in HOST_URLS:
+        flask.abort(400)
+
     try:
         if not validate_token(request.cookies["token"]): flask.abort(403)
     except KeyError:
@@ -532,6 +616,13 @@ def api_user_settings_theme() -> Union[tuple[flask.Response, int], flask.Respons
     }))
 
 def api_user_settings_color() -> Union[tuple[flask.Response, int], flask.Response]:
+    # Called when the user changes the banner color.
+    # Login required: true
+    # Ratelimit: none
+
+    if "Host" not in request.headers or request.headers["Host"] not in HOST_URLS:
+        flask.abort(400)
+
     try:
         if not validate_token(request.cookies["token"]): flask.abort(403)
     except KeyError:
@@ -560,6 +651,10 @@ def api_user_settings_color() -> Union[tuple[flask.Response, int], flask.Respons
 def api_user_settings_display_name() -> Union[tuple[flask.Response, int], flask.Response]:
     # Called when trying to set display name
     # login required: true
+    # Ratelimit: none
+
+    if "Host" not in request.headers or request.headers["Host"] not in HOST_URLS:
+        flask.abort(400)
 
     try:
         if not validate_token(request.cookies["token"]): flask.abort(403)
@@ -606,8 +701,15 @@ def api_user_settings_display_name() -> Union[tuple[flask.Response, int], flask.
 def api_post_create() -> Union[tuple[flask.Response, int], flask.Response]:
     # This is what is called when a new post is created.
     # Login required: true
+    # Ratelimit: 1s for unsuccessful, 3s for successful
     # Parameters:
     # - "content": the content of the post. must be between 1 >= x >= 280 characters
+
+    if "Host" not in request.headers or request.headers["Host"] not in HOST_URLS:
+        flask.abort(400)
+
+    if not ensure_ratelimit("api_post_create", request.remote_addr):
+        flask.abort(429)
 
     try:
         if not validate_token(request.cookies["token"]): flask.abort(403)
@@ -638,10 +740,13 @@ def api_post_create() -> Union[tuple[flask.Response, int], flask.Response]:
         post = ""
 
     if (len(post) > 280 or len(post) < 1):
+        create_api_ratelimit("api_post_create", 1000, request.remote_addr)
         return return_dynamic_content_type(json.dumps({
             "success": False,
             "reason": "Invalid post length. Must be between 1 and 280 characters."
         }), "application/json"), 400
+
+    create_api_ratelimit("api_post_create", 3000, request.remote_addr)
 
     timestamp = round(time.time())
     post_id = generate_post_id()
@@ -676,7 +781,11 @@ def api_post_create() -> Union[tuple[flask.Response, int], flask.Response]:
 def api_post_following() -> Union[tuple[flask.Response, int], flask.Response]:
     # This is what is called when the following tab is refreshed.
     # Login required: true
+    # Ratelimit: none
     # Parameters: none
+
+    if "Host" not in request.headers or request.headers["Host"] not in HOST_URLS:
+        flask.abort(400)
 
     try:
         if not validate_token(request.cookies["token"]): flask.abort(403)
@@ -720,7 +829,11 @@ def api_post_following() -> Union[tuple[flask.Response, int], flask.Response]:
 def api_post_recent() -> Union[tuple[flask.Response, int], flask.Response]:
     # This is what is called when the recent posts tab is refreshed.
     # Login required: true
+    # Ratelimit: none
     # Parameters: none
+
+    if "Host" not in request.headers or request.headers["Host"] not in HOST_URLS:
+        flask.abort(400)
 
     try:
         if not validate_token(request.cookies["token"]): flask.abort(403)
@@ -753,7 +866,11 @@ def api_post_recent() -> Union[tuple[flask.Response, int], flask.Response]:
 def api_post_like() -> Union[tuple[flask.Response, int], flask.Response]: # type: ignore // WIP
     # This is called when someone likes or unlikes a post.
     # Login required: true
+    # Ratelimit: none
     # Parameters: id: int - post id to like/unlike
+
+    if "Host" not in request.headers or request.headers["Host"] not in HOST_URLS:
+        flask.abort(400)
 
     try:
         if not validate_token(request.cookies["token"]): flask.abort(403)
@@ -786,7 +903,11 @@ def api_post_like() -> Union[tuple[flask.Response, int], flask.Response]: # type
 def api_post_user_(user: str) -> Union[tuple[flask.Response, int], flask.Response]:
     # This is what is called when getting posts from a specific user.
     # Login required: true
+    # Ratelimit: none
     # Parameters: none
+
+    if "Host" not in request.headers or request.headers["Host"] not in HOST_URLS:
+        flask.abort(400)
 
     try:
         if not validate_token(request.cookies["token"]): flask.abort(403)
@@ -830,6 +951,14 @@ def api_post_user_(user: str) -> Union[tuple[flask.Response, int], flask.Respons
 # Example function:
 # If there is an option of returning a tuple (response and status code), then add the Union[]
 # def example_func() -> Union[tuple[flask.Response, int], flask.Response]:
+#     # This makes sure that the `Host` header is valid
+#     if "Host" not in request.headers or request.headers["Host"] not in HOST_URLS:
+#         flask.abort(400)
+#
+#     # This enforces the API ratelimit if needed
+#     if not ensure_ratelimit("example_func", request.remote_addr):
+#         flask.abort(429)
+#
 #     # This makes sure that the user is logged in. Remove if login isn't needed.
 #     try:
 #         if not validate_token(request.cookies["token"]): flask.abort(403)
@@ -859,7 +988,7 @@ def api_post_user_(user: str) -> Union[tuple[flask.Response, int], flask.Respons
 # Make sure all required files for saving exist
 ensure_file(   ABSOLUTE_SAVING_PATH,            folder=True)
 ensure_file(f"{ABSOLUTE_SAVING_PATH}users",     folder=True)
-ensure_file(f"{ABSOLUTE_SAVING_PATH}posts",    folder=True)
+ensure_file(f"{ABSOLUTE_SAVING_PATH}posts",     folder=True)
 ensure_file(f"{ABSOLUTE_SAVING_PATH}tokens",    folder=True)
 ensure_file(f"{ABSOLUTE_SAVING_PATH}usernames", folder=True)
 ensure_file(f"{ABSOLUTE_SAVING_PATH}next_post.txt", default_value="1")

@@ -22,16 +22,24 @@ dom("submit").addEventListener("click", function() {
       "password": password
     })
   })
-    .then((response) => response.json())
-    .then((json) => {
-      if (json.valid) {
-        setCookie("token", json.token);
-        window.location.href = "/home";
-      } else {
-        dom("submit").removeAttribute("disabled")
+    .then((response) => {
+      if (response.status == 429) {
+        dom("post").removeAttribute("disabled");
+        dom("post-text").removeAttribute("disabled");
         inc++;
-        dom("error").innerText = `Unable to create account! Reason: ${json.reason}`;
+        dom("error").innerText = "You are being ratelimited! Try again in a few moments...";
         setTimeout(() => { req++; if (req == inc) { dom("error").innerText = ""; }}, 3000);
+      } else {
+        let json = response.json()
+        if (json.valid) {
+          setCookie("token", json.token);
+          window.location.href = "/home";
+        } else {
+          dom("submit").removeAttribute("disabled")
+          inc++;
+          dom("error").innerText = `Unable to create account! Reason: ${json.reason}`;
+          setTimeout(() => { req++; if (req == inc) { dom("error").innerText = ""; }}, 3000);
+        }
       }
     })
     .catch((err) => {
