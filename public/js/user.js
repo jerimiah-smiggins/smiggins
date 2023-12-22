@@ -29,7 +29,7 @@ function refresh(force_offset=false) {
               </span>
             </div>
             <div class="main-content">
-              ${linkifyText(escapeHTML(json.posts[post].content).replaceAll("\n", "<br>"), json.posts[post].post_id)}
+              ${linkifyText(json.posts[post].content.replaceAll("\n", "<br>"), json.posts[post].post_id)}
             </div>
           </div>
         </div>`;
