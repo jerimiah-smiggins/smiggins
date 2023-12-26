@@ -360,7 +360,7 @@ def get_post_page(post_id: Union[str, int]) -> Union[tuple[flask.Response, int],
             custom_replace={
                 "{{CREATOR_USERNAME}}": user_json["display_name"] if "username" not in user_json else user_json["username"],
                 "{{DISPLAY_NAME}}": user_json["display_name"],
-                "{{CONTENT}}": post_info["content"].replace("\\", "\\\\").replace("\"", "\\\""),
+                "{{CONTENT}}": post_info["content"].replace("\\", "\\\\").replace("\"", "\\\"").replace("\n", "\\n"),
                 "{{TIMESTAMP}}": str(post_info["timestamp"])
             }
         ))

@@ -163,7 +163,7 @@ function refresh(force_offset=false) {
               </a>
             </div>
             <div class="main-content">
-              ${linkifyText(json.posts[post].content.replaceAll("\n", "<br>"), json.posts[post].post_id)}
+              ${linkifyText(json.posts[post].content, json.posts[post].post_id).replaceAll("\n", "<br>")}
             </div>
           </div>
         </div>`;
