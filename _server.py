@@ -2,7 +2,7 @@
 # Change these as needed
 
 # Version displayed.
-VERSION: str = "0.2.0"
+VERSION: str = "0.3.0"
 
 # What to have the site name be.
 # Official name wip // Trinktter? trinkr? Jerimiah Smiggins? idk...
@@ -167,6 +167,16 @@ def load_user_json(user_id: Union[int, str]) -> dict:
 
     return json.loads(open(f"{ABSOLUTE_SAVING_PATH}users/{user_id}/settings.json").read())
 
+def load_post_json(post_id: Union[int, str]) -> dict:
+    # Returns the post id.json file based on the specified post id.
+
+    return json.loads(open(f"{ABSOLUTE_SAVING_PATH}posts/{post_id}.json").read())
+
+def load_comment_json(comment_id: Union[int, str]) -> dict:
+    # Returns the comment id.json file based on the specified comment id.
+
+    return json.loads(open(f"{ABSOLUTE_SAVING_PATH}posts/comments/{comment_id}.json").read())
+
 def save_user_json(user_id: Union[int, str], user_json: dict[str, Union[str, int, bool]]) -> None:
     # Saves the user settings.json file based on the specified user id
     # with the specified content.
@@ -175,17 +185,20 @@ def save_user_json(user_id: Union[int, str], user_json: dict[str, Union[str, int
     f.write(json.dumps(user_json))
     f.close()
 
-def load_post_json(post_id: Union[int, str]) -> dict:
-    # Returns the user settings.json file based on the specified user id.
-
-    return json.loads(open(f"{ABSOLUTE_SAVING_PATH}posts/{post_id}.json").read())
-
 def save_post_json(post_id: Union[int, str], post_json: dict[str, Union[str, int, bool]]) -> None:
-    # Saves the user settings.json file based on the specified user id
+    # Saves the post id.json file based on the specified post id
     # with the specified content.
 
     f = open(f"{ABSOLUTE_SAVING_PATH}posts/{post_id}.json", "w")
     f.write(json.dumps(post_json))
+    f.close()
+
+def save_comment_json(comment_id: Union[int, str], comment_json: dict[str, Union[str, int, bool]]) -> None:
+    # Saves the post id.json file based on the specified post id
+    # with the specified content.
+
+    f = open(f"{ABSOLUTE_SAVING_PATH}posts/comments/{comment_id}.json", "w")
+    f.write(json.dumps(comment_json))
     f.close()
 
 def get_user_post_ids(user_id: Union[int, str]) -> list[int]:
@@ -201,6 +214,19 @@ def generate_post_id(*, inc: bool=True) -> int:
 
     if inc:
         g = open(f"{ABSOLUTE_SAVING_PATH}next_post.txt", "w")
+        g.write(str(f + 1))
+        g.close()
+
+    return f
+
+def generate_comment_id(*, inc: bool=True) -> int:
+    # This returns the next free comment id. If `inc` is false,
+    # then the next free will not be incremented.
+
+    f = int(open(f"{ABSOLUTE_SAVING_PATH}next_comment.txt", "r").read())
+
+    if inc:
+        g = open(f"{ABSOLUTE_SAVING_PATH}next_comment.txt", "w")
         g.write(str(f + 1))
         g.close()
 
@@ -348,7 +374,7 @@ def get_user_page(user: str) -> Union[tuple[flask.Response, int], flask.Response
         ), "text/html"), 404
 
 def get_post_page(post_id: Union[str, int]) -> Union[tuple[flask.Response, int], flask.Response]:
-    # Returns the user page for a specific user
+    # Returns the post page for a specific post
     # Login required: true
     # Parameters: none
 
@@ -362,6 +388,8 @@ def get_post_page(post_id: Union[str, int]) -> Union[tuple[flask.Response, int],
             open(f"{ABSOLUTE_CONTENT_PATH}/redirect_index.html", "r").read(),
         ), "text/html"), 401
 
+    user_id = token_to_id(request.cookies["token"])
+
     if int(post_id) < generate_post_id(inc=False) and int(post_id) > 0:
         post_info = load_post_json(post_id)
         user_json = load_user_json(post_info["creator"]["id"])
@@ -371,7 +399,52 @@ def get_post_page(post_id: Union[str, int]) -> Union[tuple[flask.Response, int],
                 "{{CREATOR_USERNAME}}": user_json["display_name"] if "username" not in user_json else user_json["username"],
                 "{{DISPLAY_NAME}}": user_json["display_name"],
                 "{{CONTENT}}": post_info["content"].replace("\\", "\\\\").replace("\"", "\\\"").replace("\n", "\\n"),
-                "{{TIMESTAMP}}": str(post_info["timestamp"])
+                "{{TIMESTAMP}}": str(post_info["timestamp"]),
+                "{{POST_ID}}": str(post_id),
+                "{{LIKED}}": str("interactions" in post_info and "likes" in post_info["interactions"] and user_id in post_info["interactions"]["likes"]).lower(),
+                "{{LIKES}}": str(len(post_info["interactions"]["likes"])) if "interactions" in post_info and "likes" in post_info["interactions"] else "0",
+                "{{COMMENTS}}": str(len(post_info["interactions"]["comments"])) if "interactions" in post_info and "comments" in post_info["interactions"] else "0",
+                "{{COMMENT}}": "false"
+            }
+        ))
+    else:
+        return return_dynamic_content_type(format_html(
+            open(f"{ABSOLUTE_CONTENT_PATH}/redirect_home.html", "r").read(),
+        ), "text/html"), 404
+
+def get_comment_page(post_id: Union[str, int]) -> Union[tuple[flask.Response, int], flask.Response]:
+    # Returns the post page for a specific comment
+    # Login required: true
+    # Parameters: none
+
+    try:
+        if not validate_token(request.cookies["token"]):
+            return return_dynamic_content_type(format_html(
+                open(f"{ABSOLUTE_CONTENT_PATH}/redirect_index.html", "r").read(),
+            ), "text/html"), 403
+    except KeyError:
+        return return_dynamic_content_type(format_html(
+            open(f"{ABSOLUTE_CONTENT_PATH}/redirect_index.html", "r").read(),
+        ), "text/html"), 401
+
+    user_id = token_to_id(request.cookies["token"])
+
+    if int(post_id) < generate_post_id(inc=False) and int(post_id) > 0:
+        post_info = load_comment_json(post_id)
+        user_json = load_user_json(post_info["creator"]["id"])
+        return return_dynamic_content_type(format_html(
+            open(f"{ABSOLUTE_CONTENT_PATH}post.html", "r").read(),
+            custom_replace={
+                "{{CREATOR_USERNAME}}": user_json["display_name"] if "username" not in user_json else user_json["username"],
+                "{{DISPLAY_NAME}}": user_json["display_name"],
+                "{{CONTENT}}": post_info["content"].replace("\\", "\\\\").replace("\"", "\\\"").replace("\n", "\\n"),
+                "{{TIMESTAMP}}": str(post_info["timestamp"]),
+                "{{POST_ID}}": str(post_id),
+                "{{LIKED}}": str("interactions" in post_info and "likes" in post_info["interactions"] and user_id in post_info["interactions"]["likes"]).lower(),
+                "{{LIKES}}": str(len(post_info["interactions"]["likes"])) if "interactions" in post_info and "likes" in post_info["interactions"] else "0",
+                "{{COMMENTS}}": str(len(post_info["interactions"]["comments"])) if "interactions" in post_info and "comments" in post_info["interactions"] else "0",
+                "/api/post/like/": "/api/comment/like/",
+                "{{COMMENT}}": "true"
             }
         ))
     else:
@@ -752,8 +825,8 @@ def api_post_create() -> Union[tuple[flask.Response, int], flask.Response]:
         "timestamp": timestamp,
         "interactions": {
             "likes": [],
-            # below are not implemented, placeholders to be potentially created in the future
             "comments": [],
+            # below are not implemented, placeholders to be potentially created in the future
             "reposts": []
         }
     }))
@@ -805,7 +878,8 @@ def api_post_following() -> Union[tuple[flask.Response, int], flask.Response]:
             "content": post_info["content"],
             "timestamp": post_info["timestamp"],
             "liked": "interactions" in post_info and "likes" in post_info["interactions"] and user_id in post_info["interactions"]["likes"],
-            "likes": len(post_info["interactions"]["likes"]) if "interactions" in post_info and "likes" in post_info["interactions"] else 0
+            "likes": len(post_info["interactions"]["likes"]) if "interactions" in post_info and "likes" in post_info["interactions"] else 0,
+            "comments": len(post_info["interactions"]["comments"]) if "interactions" in post_info and "comments" in post_info["interactions"] else 0
         })
 
     return return_dynamic_content_type(json.dumps({
@@ -844,7 +918,8 @@ def api_post_recent() -> Union[tuple[flask.Response, int], flask.Response]:
             "content": post_info["content"],
             "timestamp": post_info["timestamp"],
             "liked": "interactions" in post_info and "likes" in post_info["interactions"] and user_id in post_info["interactions"]["likes"],
-            "likes": len(post_info["interactions"]["likes"]) if "interactions" in post_info and "likes" in post_info["interactions"] else len(post_info["interactions"]["likes"])
+            "likes": len(post_info["interactions"]["likes"]) if "interactions" in post_info and "likes" in post_info["interactions"] else 0,
+            "comments": len(post_info["interactions"]["comments"]) if "interactions" in post_info and "comments" in post_info["interactions"] else 0
         })
 
     return return_dynamic_content_type(json.dumps({
@@ -981,13 +1056,255 @@ def api_post_user_(user: str) -> Union[tuple[flask.Response, int], flask.Respons
             "content": post_info["content"],
             "timestamp": post_info["timestamp"],
             "liked": "interactions" in post_info and "likes" in post_info["interactions"] and user_id in post_info["interactions"]["likes"],
-            "likes": len(post_info["interactions"]["likes"]) if "interactions" in post_info and "likes" in post_info["interactions"] else len(post_info["interactions"]["likes"]) 
+            "likes": len(post_info["interactions"]["likes"]) if "interactions" in post_info and "likes" in post_info["interactions"] else 0,
+            "comments": len(post_info["interactions"]["comments"]) if "interactions" in post_info and "comments" in post_info["interactions"] else 0
         })
 
     return return_dynamic_content_type(json.dumps({
         "posts": outputList,
         "end": end,
         "color": "#3a1e93" if "color" not in user_json else user_json["color"]
+    }), "application/json")
+
+def api_comment_create() -> Union[tuple[flask.Response, int], flask.Response]:
+    # This is what is called when a new comment is created.
+    # Login required: true
+    # Ratelimit: 1s for unsuccessful, 3s for successful
+    # Parameters:
+    # - "content": the content of the comment. must be between 1 >= x >= 280 characters
+    # - "id": the id for the post being commented on. must be a valid id between 0 < x < next post id
+
+    if not ensure_ratelimit("api_comment_create", request.remote_addr):
+        flask.abort(429)
+
+    try:
+        if not validate_token(request.cookies["token"]): flask.abort(403)
+    except KeyError:
+        flask.abort(401)
+
+    try:
+        x = json.loads(request.data)
+    except json.JSONDecodeError:
+        flask.abort(400)
+
+    for i in ["content", "id"]:
+        if i not in x:
+            flask.abort(400)
+
+    post = x["content"].replace("\r", "").replace("\t", " ").replace("\u200b", " ")
+
+    for i in ["\t", "​", "​", " ", " ", " ", " ", " ", " ", " ", " ", " ", "⠀"]:
+        post = post.replace(i, " ")
+
+    while "\n "    in post: post = post.replace("\n ", "\n")
+    while "  "     in post: post = post.replace("  ", " ")
+    while "\n\n\n" in post: post = post.replace("\n\n\n", "\n\n")
+
+    try:
+        if post[0]  in "\n ": post = post[1::]
+        if post[-1] in "\n ": post = post[:-1:]
+    except IndexError:
+        post = ""
+
+    if len(post) > 280 or len(post) < 1:
+        create_api_ratelimit("api_comment_create", 1000, request.remote_addr)
+        return return_dynamic_content_type(json.dumps({
+            "success": False,
+            "reason": "Invalid post length. Must be between 1 and 280 characters."
+        }), "application/json"), 400
+
+    if x["id"] < 0 or generate_post_id(inc=False) < x["id"]:
+        create_api_ratelimit("api_comment_create", 1000, request.remote_addr)
+        return return_dynamic_content_type(json.dumps({
+            "success": False,
+            "reason": "Invalid post id. Must be between 0 and next possible post id (exclusive)."
+        }), "application/json"), 400
+
+    create_api_ratelimit("api_comment_create", 3000, request.remote_addr)
+
+    timestamp = round(time.time())
+    comment_id = generate_comment_id()
+    user_id = token_to_id(request.cookies["token"])
+
+    g = open(f"{ABSOLUTE_SAVING_PATH}posts/comments/{comment_id}.json", "w")
+    g.write(json.dumps({
+        "content": post,
+        "creator": { "id": user_id },
+        "timestamp": timestamp,
+        "interactions": {
+            "likes": [],
+            "comments": [],
+            # below are not implemented, placeholders to be potentially created in the future
+            "reposts": []
+        }
+    }))
+    g.close()
+
+    if "comment" in x:
+        post_json = load_comment_json(x["id"])
+    else:
+        post_json = load_post_json(x["id"])
+    if not ("interactions" in post_json and "comments" in post_json["interactions"]) or comment_id not in post_json["interactions"]["comments"]:
+        if "interactions" in post_json:
+            if "comments" in post_json["interactions"]:
+                post_json["interactions"]["comments"].append(comment_id)
+            else:
+                post_json["interactions"]["comments"] = [comment_id]
+        else:
+            post_json["interactions"] = {"likes": [], "comments": [comment_id], "reposts": []}
+
+        if "comment" in x:
+            save_comment_json(x["id"], post_json)
+        else:
+            save_post_json(x["id"], post_json)
+
+    return return_dynamic_content_type(json.dumps({
+        "success": True,
+        "comment_id": comment_id
+    }), "application/json"), 201
+
+def api_comment_list() -> Union[tuple[flask.Response, int], flask.Response]:
+    # This is what is called when the comments for a post are refreshed.
+    # Login required: true
+    # Ratelimit: none
+    # Parameters: none
+
+    try:
+        if not validate_token(request.cookies["token"]): flask.abort(403)
+    except KeyError:
+        flask.abort(401)
+
+    if request.args.get("id") == None:
+        flask.abort(400)
+
+    try:
+        if int(request.args.get("id")) >= generate_post_id(inc=False) or int(request.args.get("id")) <= 0: # type: ignore // pylance likes to complain :3
+            flask.abort(400)
+    except ValueError:
+        flask.abort(400)
+
+    offset = sys.maxsize if request.args.get("offset") == None else int(request.args.get("offset")) # type: ignore // pylance likes to complain :3
+
+    if request.args.get("comment"):
+        post_json = load_comment_json(int(request.args.get("id"))) # type: ignore // pylance likes to complain :3
+    else:
+        post_json = load_post_json(int(request.args.get("id"))) # type: ignore // pylance likes to complain :3
+    user_id = token_to_id(request.cookies["token"])
+
+    while len(post_json["interactions"]["comments"]) and post_json["interactions"]["comments"][0] > offset:
+        post_json["interactions"]["comments"].pop(0)
+
+    end = len(post_json["interactions"]["comments"]) <= 20
+    outputList = []
+    for i in post_json["interactions"]["comments"]:
+        post_info = load_comment_json(i)
+        user_json = load_user_json(post_info["creator"]["id"])
+        outputList.append({
+            "post_id": i,
+            "creator_id": post_info["creator"]["id"],
+            "display_name": user_json["display_name"],
+            "creator_username": user_json["display_name"] if "username" not in user_json else user_json["username"],
+            "content": post_info["content"],
+            "timestamp": post_info["timestamp"],
+            "liked": "interactions" in post_info and "likes" in post_info["interactions"] and user_id in post_info["interactions"]["likes"],
+            "likes": len(post_info["interactions"]["likes"]) if "interactions" in post_info and "likes" in post_info["interactions"] else 0,
+            "comments": len(post_info["interactions"]["comments"]) if "interactions" in post_info and "comments" in post_info["interactions"] else 0
+        })
+
+        if len(outputList) == 20:
+            break
+
+    return return_dynamic_content_type(json.dumps({
+        "posts": outputList,
+        "end": end
+    }), "application/json")
+
+def api_comment_like_add() -> Union[tuple[flask.Response, int], flask.Response]:
+    # This is called when someone likes.
+    # Login required: true
+    # Ratelimit: none
+    # Parameters: id: int - post id to like/unlike
+
+    try:
+        if not validate_token(request.cookies["token"]): flask.abort(403)
+    except KeyError:
+        flask.abort(401)
+
+    try:
+        x = json.loads(request.data)
+    except json.JSONDecodeError:
+        flask.abort(400)
+
+    if "id" not in x:
+        flask.abort(400)
+
+    try:
+        if generate_comment_id(inc=False) <= int(x["id"]):
+            return return_dynamic_content_type(json.dumps({
+                "success": False
+            }), "application/json"), 404
+
+    except ValueError:
+        return return_dynamic_content_type(json.dumps({
+            "success": False
+        }), "application/json"), 404
+
+    user_id = token_to_id(request.cookies["token"])
+    post_json = load_comment_json(x["id"])
+    if not ("interactions" in post_json and "likes" in post_json["interactions"]) or "user_id" not in post_json["interactions"]["likes"]:
+        if "interactions" in post_json:
+            if "likes" in post_json["interactions"]:
+                post_json["interactions"]["likes"].append(user_id)
+            else:
+                post_json["interactions"]["likes"] = [user_id]
+        else:
+            post_json["interactions"] = {"likes": [user_id], "comments": [], "reposts": []}
+        save_comment_json(x["id"], post_json)
+
+    return return_dynamic_content_type(json.dumps({
+        "success": True
+    }), "application/json")
+
+def api_comment_like_remove() -> Union[tuple[flask.Response, int], flask.Response]:
+    # This is called when someone likes.
+    # Login required: true
+    # Ratelimit: none
+    # Parameters: id: int - post id to like/unlike
+
+    try:
+        if not validate_token(request.cookies["token"]): flask.abort(403)
+    except KeyError:
+        flask.abort(401)
+
+    try:
+        x = json.loads(request.data)
+    except json.JSONDecodeError:
+        flask.abort(400)
+
+    if "id" not in x:
+        flask.abort(400)
+
+    try:
+        if generate_comment_id(inc=False) <= int(x["id"]):
+            return return_dynamic_content_type(json.dumps({
+                "success": False
+            }), "application/json"), 404
+
+    except ValueError:
+        print(x["id"])
+        return return_dynamic_content_type(json.dumps({
+            "success": False
+        }), "application/json"), 404
+
+    user_id = token_to_id(request.cookies["token"])
+    post_json = load_comment_json(x["id"])
+    if "interactions" in post_json and "likes" in post_json["interactions"]:
+        if user_id in post_json["interactions"]["likes"]:
+            post_json["interactions"]["likes"].remove(user_id)
+            save_comment_json(x["id"], post_json)
+
+    return return_dynamic_content_type(json.dumps({
+        "success": True
     }), "application/json")
 
 # Example function:
@@ -1027,10 +1344,12 @@ def api_post_user_(user: str) -> Union[tuple[flask.Response, int], flask.Respons
 ensure_file(   ABSOLUTE_SAVING_PATH,            folder=True)
 ensure_file(f"{ABSOLUTE_SAVING_PATH}users",     folder=True)
 ensure_file(f"{ABSOLUTE_SAVING_PATH}posts",     folder=True)
+ensure_file(f"{ABSOLUTE_SAVING_PATH}posts/comments", folder=True)
 ensure_file(f"{ABSOLUTE_SAVING_PATH}tokens",    folder=True)
 ensure_file(f"{ABSOLUTE_SAVING_PATH}usernames", folder=True)
 ensure_file(f"{ABSOLUTE_SAVING_PATH}next_post.txt", default_value="1")
 ensure_file(f"{ABSOLUTE_SAVING_PATH}next_user.txt", default_value="1")
+ensure_file(f"{ABSOLUTE_SAVING_PATH}next_comment.txt", default_value="1")
 
 # Initialize flask app
 app = flask.Flask(__name__)
@@ -1045,6 +1364,7 @@ app.route("/home", methods=["GET"])(create_html_serve("home.html", logged_out_re
 app.route("/logout", methods=["GET"])(create_html_serve("logout.html"))
 app.route("/u/<path:user>", methods=["GET"])(get_user_page)
 app.route("/p/<path:post_id>", methods=["GET"])(get_post_page)
+app.route("/c/<path:post_id>", methods=["GET"])(get_comment_page)
 
 app.route("/css/<path:filename>", methods=["GET"])(create_folder_serve("css"))
 app.route("/js/<path:filename>", methods=["GET"])(create_folder_serve("js"))
@@ -1066,6 +1386,11 @@ app.route("/api/post/recent", methods=["GET"])(api_post_recent)
 app.route("/api/post/like/add", methods=["POST"])(api_post_like_add)
 app.route("/api/post/like/remove", methods=["DELETE"])(api_post_like_remove)
 app.route("/api/post/user/<path:user>", methods=["GET"])(api_post_user_)
+
+app.route("/api/comments", methods=["GET"])(api_comment_list)
+app.route("/api/comment/create", methods=["PUT"])(api_comment_create)
+app.route("/api/comment/like/add", methods=["POST"])(api_comment_like_add)
+app.route("/api/comment/like/remove", methods=["DELETE"])(api_comment_like_remove)
 
 # Create routes for forcing all http response codes
 for i in [

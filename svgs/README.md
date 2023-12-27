@@ -6,3 +6,4 @@ the following svgs are from fontawesome:
 * like-deselect (`fa-regular fa-heart`)
 * settings (`fa-solid fa-gear`)
 * home (`fa-solid fa-house`)
+* comment (`fa-regular fa-comment`)

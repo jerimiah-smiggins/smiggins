@@ -9,7 +9,7 @@
   </head>
 
   <body>
-    <div class="post-container">
+    <div class="post-container" data-post-id="{{POST_ID}}">
       <div class="post">
         <div class="upper-content">
           <a href="/u/{{CREATOR_USERNAME}}" class="no-underline text">
@@ -21,13 +21,27 @@
           </a>
         </div>
         <div class="main-content"></div>
+        <div class="bottom-content">
+          <div class="comment" id="add-comment-svg"></div><span class="comment-number">{{COMMENTS}}</span>
+          <div class="bottom-spacing"></div>
+          <div class="like" id="add-like-svg" data-liked="{{LIKED}}" onclick='let q = document.querySelector(`div[data-post-id="{{POST_ID}}"] span.like-number`); let h = document.querySelector(`div[data-post-id="{{POST_ID}}"] div.like`); if (h.dataset["liked"] == "true") { fetch("/api/post/like/remove", { "method": "DELETE", "body": JSON.stringify({ "id": {{POST_ID}} }) }); h.setAttribute("data-liked", "false"); h.innerHTML = icons.unlike; q.innerHTML = +q.innerHTML - 1; } else { fetch("/api/post/like/add", { "method": "POST", "body": JSON.stringify({ "id": {{POST_ID}} }) }); h.setAttribute("data-liked", "true"); h.innerHTML = icons.like; q.innerHTML = +q.innerHTML + 1; }'></div>
+          <span class="like-number">{{LIKES}}</span>
+        </div>
       </div>
     </div>
+    <textarea id="post-text" style="height: 3em;" maxlength="280" placeholder="Enter your reply here..."></textarea><br>
+    <button id="post">Post</button><br>
+    <button onclick="refresh()">Refresh</button><br>
     <div id="error"></div>
-    <div id="comments" hidden>
+    <div id="posts"></div>
+    <button id="more" onclick="refresh(true)" hidden>Load more...</button>
 
     <script>
-      document.querySelector(".main-content").innerHTML = linkifyText("{{CONTENT}}").replaceAll("\n", "<br>")
+      document.querySelector(".main-content").innerHTML = linkifyText("{{CONTENT}}").replaceAll("\n", "<br>");
+      dom("add-comment-svg").innerHTML = icons.comment;
+      dom("add-like-svg").innerHTML = {{LIKED}} ? icons.like : icons.unlike;
+      const post_id = {{POST_ID}};
+      const comment = {{COMMENT}}
     </script>
 
     <script src="/js/post.js"></script>
