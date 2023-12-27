@@ -15,9 +15,6 @@ DEBUG: bool = True
 ABSOLUTE_CONTENT_PATH: str = "./public/" # Where html/css/js is served from
 ABSOLUTE_SAVING_PATH: str  = "./save/"   # Where user information, posts, etc. are saved
 
-# List of valid `Host` header urls to accept API requests
-HOST_URLS: list[str] = ["localhost", "127.0.0.1"]
-
 # ----== OTHER CODE ==----
 # Non-default library dependencies:
 # - flask (pip install flask)
@@ -408,9 +405,6 @@ def api_account_signup() -> flask.Response:
     # - "username": the username of the account that is trying to be created
     # - "password": the sha256 hashed password of the account that is trying to be created
 
-    if "Host" not in request.headers or request.headers["Host"] not in HOST_URLS:
-        flask.abort(400)
-
     if not ensure_ratelimit("api_account_signup", request.remote_addr):
         flask.abort(429)
 
@@ -486,9 +480,6 @@ def api_account_login() -> flask.Response:
     # - "username": the username of the account that is trying to be logged into
     # - "password": the sha256 hashed password of the account that is trying to be logged into
 
-    if "Host" not in request.headers or request.headers["Host"] not in HOST_URLS:
-        flask.abort(400)
-
     if not ensure_ratelimit("api_account_login", request.remote_addr):
         flask.abort(429)
 
@@ -521,9 +512,6 @@ def api_user_follower_add() -> Union[tuple[flask.Response, int], flask.Response]
     # Ratelimit: none
     # Parameters:
     # - "username": the username of the account to follow
-
-    if "Host" not in request.headers or request.headers["Host"] not in HOST_URLS:
-        flask.abort(400)
 
     try:
         if not validate_token(request.cookies["token"]): flask.abort(403)
@@ -564,9 +552,6 @@ def api_user_follower_remove() -> Union[tuple[flask.Response, int], flask.Respon
     # Parameters:
     # - "username": the username of the account to unfollow
 
-    if "Host" not in request.headers or request.headers["Host"] not in HOST_URLS:
-        flask.abort(400)
-
     try:
         if not validate_token(request.cookies["token"]): flask.abort(403)
     except KeyError:
@@ -604,9 +589,6 @@ def api_user_settings_theme() -> Union[tuple[flask.Response, int], flask.Respons
     # Login required: true
     # Ratelimit: none
 
-    if "Host" not in request.headers or request.headers["Host"] not in HOST_URLS:
-        flask.abort(400)
-
     try:
         if not validate_token(request.cookies["token"]): flask.abort(403)
     except KeyError:
@@ -632,9 +614,6 @@ def api_user_settings_color() -> Union[tuple[flask.Response, int], flask.Respons
     # Called when the user changes the banner color.
     # Login required: true
     # Ratelimit: none
-
-    if "Host" not in request.headers or request.headers["Host"] not in HOST_URLS:
-        flask.abort(400)
 
     try:
         if not validate_token(request.cookies["token"]): flask.abort(403)
@@ -665,9 +644,6 @@ def api_user_settings_display_name() -> Union[tuple[flask.Response, int], flask.
     # Called when trying to set display name
     # login required: true
     # Ratelimit: none
-
-    if "Host" not in request.headers or request.headers["Host"] not in HOST_URLS:
-        flask.abort(400)
 
     try:
         if not validate_token(request.cookies["token"]): flask.abort(403)
@@ -717,9 +693,6 @@ def api_post_create() -> Union[tuple[flask.Response, int], flask.Response]:
     # Ratelimit: 1s for unsuccessful, 3s for successful
     # Parameters:
     # - "content": the content of the post. must be between 1 >= x >= 280 characters
-
-    if "Host" not in request.headers or request.headers["Host"] not in HOST_URLS:
-        flask.abort(400)
 
     if not ensure_ratelimit("api_post_create", request.remote_addr):
         flask.abort(429)
@@ -797,9 +770,6 @@ def api_post_following() -> Union[tuple[flask.Response, int], flask.Response]:
     # Ratelimit: none
     # Parameters: none
 
-    if "Host" not in request.headers or request.headers["Host"] not in HOST_URLS:
-        flask.abort(400)
-
     try:
         if not validate_token(request.cookies["token"]): flask.abort(403)
     except KeyError:
@@ -849,9 +819,6 @@ def api_post_recent() -> Union[tuple[flask.Response, int], flask.Response]:
     # Ratelimit: none
     # Parameters: none
 
-    if "Host" not in request.headers or request.headers["Host"] not in HOST_URLS:
-        flask.abort(400)
-
     try:
         if not validate_token(request.cookies["token"]): flask.abort(403)
     except KeyError:
@@ -890,9 +857,6 @@ def api_post_like_add() -> Union[tuple[flask.Response, int], flask.Response]:
     # Login required: true
     # Ratelimit: none
     # Parameters: id: int - post id to like/unlike
-
-    if "Host" not in request.headers or request.headers["Host"] not in HOST_URLS:
-        flask.abort(400)
 
     try:
         if not validate_token(request.cookies["token"]): flask.abort(403)
@@ -940,9 +904,6 @@ def api_post_like_remove() -> Union[tuple[flask.Response, int], flask.Response]:
     # Ratelimit: none
     # Parameters: id: int - post id to like/unlike
 
-    if "Host" not in request.headers or request.headers["Host"] not in HOST_URLS:
-        flask.abort(400)
-
     try:
         if not validate_token(request.cookies["token"]): flask.abort(403)
     except KeyError:
@@ -984,9 +945,6 @@ def api_post_user_(user: str) -> Union[tuple[flask.Response, int], flask.Respons
     # Login required: true
     # Ratelimit: none
     # Parameters: none
-
-    if "Host" not in request.headers or request.headers["Host"] not in HOST_URLS:
-        flask.abort(400)
 
     try:
         if not validate_token(request.cookies["token"]): flask.abort(403)
@@ -1035,10 +993,6 @@ def api_post_user_(user: str) -> Union[tuple[flask.Response, int], flask.Respons
 # Example function:
 # If there is an option of returning a tuple (response and status code), then add the Union[]
 # def example_func() -> Union[tuple[flask.Response, int], flask.Response]:
-#     # This makes sure that the `Host` header is valid
-#     if "Host" not in request.headers or request.headers["Host"] not in HOST_URLS:
-#         flask.abort(400)
-#
 #     # This enforces the API ratelimit if needed
 #     if not ensure_ratelimit("example_func", request.remote_addr):
 #         flask.abort(429)
