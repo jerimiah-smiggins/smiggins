@@ -39,15 +39,22 @@ button { width: 5em; }
 .username, .timestamp, .displ-name { display: inline-block;  }
 .bottom-content { text-align: center; }
 
-.like {
+.like, .comment {
   width: 1.2em;
   height: 1.2em;
   display: inline-block;
   position: relative;
   top: 0.2em;
+  fill: var(--text);
 }
+
+.comment { padding-right: 0.3em; }
 .like[data-liked="true"] { fill: var(--primary); }
-.like[data-liked="false"] { fill: var(--text); }
+
+.bottom-spacing {
+  display: inline-block;
+  width: 3em;
+}
 
 @media screen and (max-width: 565px) {
   #post-text { width: calc(94vw - (2em / 7) - 17px); }

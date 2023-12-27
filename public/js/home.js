@@ -166,6 +166,8 @@ function refresh(force_offset=false) {
               ${linkifyText(json.posts[post].content, json.posts[post].post_id).replaceAll("\n", "<br>")}
             </div>
             <div class="bottom-content">
+              <div class="comment">${icons.comment}</div><span class="comment-number">${json.posts[post].comments}</span>
+              <div class="bottom-spacing"></div>
               <div class="like" data-liked="${json.posts[post].liked}" onclick="toggleLike(${json.posts[post].post_id})">
                 ${json.posts[post].liked ? icons.like : icons.unlike}
               </div>

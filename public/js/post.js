@@ -9,8 +9,6 @@ let offset = null;
 let page = localStorage.getItem("home-page");
 if (page !== "following" && page !== "recent") { page = "following"; }
 
-dom("switch").innerText = "Switch to " + (page == "recent" ? "following" : "recent") + "...";
-
 dom("post-text").addEventListener("input", function() {
   while (this.value.indexOf("  ") !== -1) { this.value = this.value.replaceAll("  ", " "); }
   if (this.value.length > 280) { this.value = this.value.slice(0, 280); }
@@ -20,13 +18,18 @@ dom("post").addEventListener("click", function() {
   if (dom("post-text").value) {
     this.setAttribute("disabled", "");
     dom("post-text").setAttribute("disabled", "");
-    fetch("/api/post/create", {
+    fetch("/api/comment/create", {
       method: "PUT",
       headers: {
         "Content-Type": "application/json"
       },
-      body: JSON.stringify({
-        "content": dom("post-text").value
+      body: comment ? JSON.stringify({
+        "content": dom("post-text").value,
+        "id": post_id,
+        "comment": 1
+      }):  JSON.stringify({
+        "content": dom("post-text").value,
+        "id": post_id
       })
     })
       .then((response) => {
@@ -65,7 +68,7 @@ dom("post").addEventListener("click", function() {
 function refresh(force_offset=false) {
   if (force_offset !== true) { dom("posts").innerHTML = ""; }
 
-  fetch(`/api/post/comments${force_offset === true && !end ? `?offset=${offset}` : ""}`, {
+  fetch(`/api/comments?id=${post_id}${comment ? "&comment=1" : ""}${force_offset === true && !end ? `&offset=${offset}` : ""}`, {
     method: "GET",
     headers: {
       "Content-Type": "application/json"
@@ -76,21 +79,21 @@ function refresh(force_offset=false) {
       end = json.end;
       for (const post in json.posts) {
         dom("posts").innerHTML += `
-        <div class="post-container" data-post-id="${json.posts[post].post_id}">
+        <div class="post-container" data-comment-id="${json.posts[post].post_id}">
           <div class="post">
             <div class="upper-content">
-              <a href="/u/${json.posts[post].creator_username}" class="no-underline text">
-                <div class="displ-name">${escapeHTML(json.posts[post].display_name)}</div>
-                <span class="upper-lower-opacity"> -
-                  <div class="username">@${json.posts[post].creator_username}</div> -
-                  <div class="timestamp">${timeSince(json.posts[post].timestamp)} ago</div>
-                </span>
-              </a>
+              <div class="displ-name">${escapeHTML(json.posts[post].display_name)}</div>
+              <span class="upper-lower-opacity"> -
+                <div class="username">@${json.posts[post].creator_username}</div> -
+                <div class="timestamp">${timeSince(json.posts[post].timestamp)} ago</div>
+              </span>
             </div>
             <div class="main-content">
-              ${linkifyText(json.posts[post].content, json.posts[post].post_id).replaceAll("\n", "<br>")}
+              ${linkifyText(json.posts[post].content, json.posts[post].post_id, true).replaceAll("\n", "<br>")}
             </div>
             <div class="bottom-content">
+              <div class="comment">${icons.comment}</div><span class="comment-number">${json.posts[post].comments}</span>
+              <div class="bottom-spacing"></div>
               <div class="like" data-liked="${json.posts[post].liked}" onclick="toggleLike(${json.posts[post].post_id})">
                 ${json.posts[post].liked ? icons.like : icons.unlike}
               </div>
@@ -118,10 +121,10 @@ function refresh(force_offset=false) {
 }
 
 function toggleLike(post_id) {
-  let q = document.querySelector(`div[data-post-id="${post_id}"] span.like-number`);
-  let h = document.querySelector(`div[data-post-id="${post_id}"] div.like`);
+  let q = document.querySelector(`div[data-comment-id="${post_id}"] span.like-number`);
+  let h = document.querySelector(`div[data-comment-id="${post_id}"] div.like`);
   if (h.dataset["liked"] == "true") {
-    fetch("/api/post/like/remove", {
+    fetch("/api/comment/like/remove", {
       "method": "DELETE",
       "body": JSON.stringify({
         "id": post_id
@@ -131,7 +134,7 @@ function toggleLike(post_id) {
     h.innerHTML = icons.unlike;
     q.innerHTML = +q.innerHTML - 1;
   } else {
-    fetch("/api/post/like/add", {
+    fetch("/api/comment/like/add", {
       "method": "POST",
       "body": JSON.stringify({
         "id": post_id
