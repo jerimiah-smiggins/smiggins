@@ -37,6 +37,17 @@ button { width: 5em; }
 .upper-content { cursor: pointer; }
 .upper-lower-opacity { opacity: 70%; color: var(--primary); }
 .username, .timestamp, .displ-name { display: inline-block;  }
+.bottom-content { text-align: center; }
+
+.like {
+  width: 1.2em;
+  height: 1.2em;
+  display: inline-block;
+  position: relative;
+  top: 0.2em;
+}
+.like[data-liked="true"] { fill: var(--primary); }
+.like[data-liked="false"] { fill: var(--text); }
 
 @media screen and (max-width: 565px) {
   #post-text { width: calc(94vw - (2em / 7) - 17px); }

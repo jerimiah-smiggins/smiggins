@@ -15,7 +15,7 @@
     <button onclick="refresh()">Refresh</button> <button id="toggle" {{IS_HIDDEN}} data-followed="{{IS_FOLLOWED}}" onclick="toggle_follow()">{{FOLLOW}}</button><br><br>
     <div id="error"></div>
     <div id="posts"></div>
-    <button id="more" onclick="refresh(true)">Load more...</button>
+    <button id="more" onclick="refresh(true)" hidden>Load more...</button>
 
     <script src="/js/user.js"></script>
     {{HTML_FOOTERS}}

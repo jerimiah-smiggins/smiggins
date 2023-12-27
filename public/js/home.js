@@ -151,7 +151,7 @@ function refresh(force_offset=false) {
       end = json.end;
       for (const post in json.posts) {
         dom("posts").innerHTML += `
-        <div class="post-container">
+        <div class="post-container" data-post-id="${json.posts[post].post_id}">
           <div class="post">
             <div class="upper-content">
               <a href="/u/${json.posts[post].creator_username}" class="no-underline text">
@@ -165,13 +165,19 @@ function refresh(force_offset=false) {
             <div class="main-content">
               ${linkifyText(json.posts[post].content, json.posts[post].post_id).replaceAll("\n", "<br>")}
             </div>
+            <div class="bottom-content">
+              <div class="like" data-liked="${json.posts[post].liked}" onclick="toggleLike(${json.posts[post].post_id})">
+                ${json.posts[post].liked ? icons.like : icons.unlike}
+              </div>
+              <span class="like-number">${json.posts[post].likes}</span>
+            </div>
           </div>
         </div>`;
         offset = json.posts[post].post_id;
       }
 
       if (force_offset !== true) { dom("more").removeAttribute("hidden"); }
-      if (json.end) { dom("more").setAttribute("hidden", ""); }
+      if (json.end) { dom("more").setAttribute("hidden", ""); } else { dom("more").removeAttribute("hidden"); }
 
       dom("post").removeAttribute("disabled")
       dom("post-text").removeAttribute("disabled")
@@ -184,6 +190,32 @@ function refresh(force_offset=false) {
       setTimeout(() => { req++; if (req == inc) { dom("error").innerText = ""; }}, 5000);
       throw(err);
     });
+}
+
+function toggleLike(post_id) {
+  let q = document.querySelector(`div[data-post-id="${post_id}"] span.like-number`);
+  let h = document.querySelector(`div[data-post-id="${post_id}"] div.like`);
+  if (h.dataset["liked"] == "true") {
+    fetch("/api/post/like/remove", {
+      "method": "DELETE",
+      "body": JSON.stringify({
+        "id": post_id
+      })
+    });
+    h.setAttribute("data-liked", "false");
+    h.innerHTML = icons.unlike;
+    q.innerHTML = +q.innerHTML - 1;
+  } else {
+    fetch("/api/post/like/add", {
+      "method": "POST",
+      "body": JSON.stringify({
+        "id": post_id
+      })
+    });
+    h.setAttribute("data-liked", "true");
+    h.innerHTML = icons.like;
+    q.innerHTML = +q.innerHTML + 1;
+  }
 }
 
 refresh();

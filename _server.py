@@ -2,7 +2,7 @@
 # Change these as needed
 
 # Version displayed.
-VERSION: str = "0.1.1"
+VERSION: str = "0.2.0"
 
 # What to have the site name be.
 # Official name wip // Trinktter? trinkr? Jerimiah Smiggins? idk...
@@ -176,6 +176,19 @@ def save_user_json(user_id: Union[int, str], user_json: dict[str, Union[str, int
 
     f = open(f"{ABSOLUTE_SAVING_PATH}users/{user_id}/settings.json", "w")
     f.write(json.dumps(user_json))
+    f.close()
+
+def load_post_json(post_id: Union[int, str]) -> dict:
+    # Returns the user settings.json file based on the specified user id.
+
+    return json.loads(open(f"{ABSOLUTE_SAVING_PATH}posts/{post_id}.json").read())
+
+def save_post_json(post_id: Union[int, str], post_json: dict[str, Union[str, int, bool]]) -> None:
+    # Saves the user settings.json file based on the specified user id
+    # with the specified content.
+
+    f = open(f"{ABSOLUTE_SAVING_PATH}posts/{post_id}.json", "w")
+    f.write(json.dumps(post_json))
     f.close()
 
 def get_user_post_ids(user_id: Union[int, str]) -> list[int]:
@@ -353,7 +366,7 @@ def get_post_page(post_id: Union[str, int]) -> Union[tuple[flask.Response, int],
         ), "text/html"), 401
 
     if int(post_id) < generate_post_id(inc=False) and int(post_id) > 0:
-        post_info = json.loads(open(f"{ABSOLUTE_SAVING_PATH}posts/{post_id}.json", "r").read())
+        post_info = load_post_json(post_id)
         user_json = load_user_json(post_info["creator"]["id"])
         return return_dynamic_content_type(format_html(
             open(f"{ABSOLUTE_CONTENT_PATH}post.html", "r").read(),
@@ -805,12 +818,14 @@ def api_post_following() -> Union[tuple[flask.Response, int], flask.Response]:
             index = i
             break
 
-    end = len(potential) > 20
-    potential = potential[index:index + 20:]
+    potential = potential[index::]
+    end = len(potential) <= 20
+    potential = potential[:20:]
+    user_id = token_to_id(request.cookies["token"])
 
     outputList = []
     for i in potential:
-        post_info = json.loads(open(f"{ABSOLUTE_SAVING_PATH}posts/{i}.json", "r").read())
+        post_info = load_post_json(i)
         user_json = load_user_json(post_info["creator"]["id"])
         outputList.append({
             "post_id": i,
@@ -818,7 +833,9 @@ def api_post_following() -> Union[tuple[flask.Response, int], flask.Response]:
             "display_name": user_json["display_name"],
             "creator_username": user_json["display_name"] if "username" not in user_json else user_json["username"],
             "content": post_info["content"],
-            "timestamp": post_info["timestamp"]
+            "timestamp": post_info["timestamp"],
+            "liked": "interactions" in post_info and "likes" in post_info["interactions"] and user_id in post_info["interactions"]["likes"],
+            "likes": len(post_info["interactions"]["likes"]) if "interactions" in post_info and "likes" in post_info["interactions"] else 0
         })
 
     return return_dynamic_content_type(json.dumps({
@@ -845,11 +862,12 @@ def api_post_recent() -> Union[tuple[flask.Response, int], flask.Response]:
     else:
         next_id = int(str(request.args.get("offset")))
 
-    end = next_id > 20
+    end = next_id <= 20
+    user_id = token_to_id(request.cookies["token"])
 
     outputList = []
     for i in range(next_id, next_id - 20 if next_id - 20 >= 0 else 0, -1):
-        post_info = json.loads(open(f"{ABSOLUTE_SAVING_PATH}posts/{i}.json", "r").read())
+        post_info = load_post_json(i)
         user_json = load_user_json(post_info["creator"]["id"])
         outputList.append({
             "post_id": i,
@@ -857,7 +875,9 @@ def api_post_recent() -> Union[tuple[flask.Response, int], flask.Response]:
             "display_name": user_json["display_name"],
             "creator_username": user_json["display_name"] if "username" not in user_json else user_json["username"],
             "content": post_info["content"],
-            "timestamp": post_info["timestamp"]
+            "timestamp": post_info["timestamp"],
+            "liked": "interactions" in post_info and "likes" in post_info["interactions"] and user_id in post_info["interactions"]["likes"],
+            "likes": len(post_info["interactions"]["likes"]) if "interactions" in post_info and "likes" in post_info["interactions"] else len(post_info["interactions"]["likes"])
         })
 
     return return_dynamic_content_type(json.dumps({
@@ -865,8 +885,8 @@ def api_post_recent() -> Union[tuple[flask.Response, int], flask.Response]:
         "end": end
     }), "application/json")
 
-def api_post_like() -> Union[tuple[flask.Response, int], flask.Response]: # type: ignore // WIP
-    # This is called when someone likes or unlikes a post.
+def api_post_like_add() -> Union[tuple[flask.Response, int], flask.Response]:
+    # This is called when someone likes.
     # Login required: true
     # Ratelimit: none
     # Parameters: id: int - post id to like/unlike
@@ -888,7 +908,7 @@ def api_post_like() -> Union[tuple[flask.Response, int], flask.Response]: # type
         flask.abort(400)
 
     try:
-        if generate_post_id(inc=False) >= int(x):
+        if generate_post_id(inc=False) <= int(x["id"]):
             return return_dynamic_content_type(json.dumps({
                 "success": False
             }), "application/json"), 404
@@ -898,9 +918,66 @@ def api_post_like() -> Union[tuple[flask.Response, int], flask.Response]: # type
             "success": False
         }), "application/json"), 404
 
-    post_json = json.loads(open(f"{ABSOLUTE_SAVING_PATH}posts/{x['id']}.json", "r").read())
-    if post_json['likes']:
-        pass # MAKE THIS WORK
+    user_id = token_to_id(request.cookies["token"])
+    post_json = load_post_json(x["id"])
+    if not ("interactions" in post_json and "likes" in post_json["interactions"]) or "user_id" not in post_json["interactions"]["likes"]:
+        if "interactions" in post_json:
+            if "likes" in post_json["interactions"]:
+                post_json["interactions"]["likes"].append(user_id)
+            else:
+                post_json["interactions"]["likes"] = [user_id]
+        else:
+            post_json["interactions"] = {"likes": [user_id], "comments": [], "reposts": []}
+        save_post_json(x["id"], post_json)
+
+    return return_dynamic_content_type(json.dumps({
+        "success": True
+    }), "application/json")
+
+def api_post_like_remove() -> Union[tuple[flask.Response, int], flask.Response]:
+    # This is called when someone likes.
+    # Login required: true
+    # Ratelimit: none
+    # Parameters: id: int - post id to like/unlike
+
+    if "Host" not in request.headers or request.headers["Host"] not in HOST_URLS:
+        flask.abort(400)
+
+    try:
+        if not validate_token(request.cookies["token"]): flask.abort(403)
+    except KeyError:
+        flask.abort(401)
+
+    try:
+        x = json.loads(request.data)
+    except json.JSONDecodeError:
+        flask.abort(400)
+
+    if "id" not in x:
+        flask.abort(400)
+
+    try:
+        if generate_post_id(inc=False) <= int(x["id"]):
+            return return_dynamic_content_type(json.dumps({
+                "success": False
+            }), "application/json"), 404
+
+    except ValueError:
+        print(x["id"])
+        return return_dynamic_content_type(json.dumps({
+            "success": False
+        }), "application/json"), 404
+
+    user_id = token_to_id(request.cookies["token"])
+    post_json = load_post_json(x["id"])
+    if "interactions" in post_json and "likes" in post_json["interactions"]:
+        if user_id in post_json["interactions"]["likes"]:
+            post_json["interactions"]["likes"].remove(user_id)
+            save_post_json(x["id"], post_json)
+
+    return return_dynamic_content_type(json.dumps({
+        "success": True
+    }), "application/json")
 
 def api_post_user_(user: str) -> Union[tuple[flask.Response, int], flask.Response]:
     # This is what is called when getting posts from a specific user.
@@ -931,19 +1008,22 @@ def api_post_user_(user: str) -> Union[tuple[flask.Response, int], flask.Respons
             break
 
     user_json = load_user_json(user_id)
-    end = len(potential) > 20
-    potential = potential[index:index + 20:]
+    potential = potential[index::]
+    end = len(potential) <= 20
+    potential = potential[:20:]
 
     outputList = []
     for i in potential:
-        post_info = json.loads(open(f"{ABSOLUTE_SAVING_PATH}posts/{i}.json", "r").read())
+        post_info = load_post_json(i)
         outputList.append({
             "post_id": i,
             "creator_id": user_id,
             "creator_username": user,
             "display_name": user_json["display_name"],
             "content": post_info["content"],
-            "timestamp": post_info["timestamp"]
+            "timestamp": post_info["timestamp"],
+            "liked": "interactions" in post_info and "likes" in post_info["interactions"] and user_id in post_info["interactions"]["likes"],
+            "likes": len(post_info["interactions"]["likes"]) if "interactions" in post_info and "likes" in post_info["interactions"] else len(post_info["interactions"]["likes"]) 
         })
 
     return return_dynamic_content_type(json.dumps({
@@ -1029,6 +1109,8 @@ app.route("/api/user/settings/display-name", methods=["POST"])(api_user_settings
 app.route("/api/post/create", methods=["PUT"])(api_post_create)
 app.route("/api/post/following", methods=["GET"])(api_post_following)
 app.route("/api/post/recent", methods=["GET"])(api_post_recent)
+app.route("/api/post/like/add", methods=["POST"])(api_post_like_add)
+app.route("/api/post/like/remove", methods=["DELETE"])(api_post_like_remove)
 app.route("/api/post/user/<path:user>", methods=["GET"])(api_post_user_)
 
 # Create routes for forcing all http response codes
