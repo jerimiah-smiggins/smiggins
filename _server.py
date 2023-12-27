@@ -180,6 +180,11 @@ def load_post_json(post_id: Union[int, str]) -> dict:
 
     return json.loads(open(f"{ABSOLUTE_SAVING_PATH}posts/{post_id}.json").read())
 
+def load_comment_json(post_id: Union[int, str]) -> dict:
+    # Returns the user settings.json file based on the specified user id.
+
+    return json.loads(open(f"{ABSOLUTE_SAVING_PATH}posts/comments/{post_id}.json").read())
+
 def save_post_json(post_id: Union[int, str], post_json: dict[str, Union[str, int, bool]]) -> None:
     # Saves the user settings.json file based on the specified user id
     # with the specified content.
@@ -201,6 +206,19 @@ def generate_post_id(*, inc: bool=True) -> int:
 
     if inc:
         g = open(f"{ABSOLUTE_SAVING_PATH}next_post.txt", "w")
+        g.write(str(f + 1))
+        g.close()
+
+    return f
+
+def generate_comment_id(*, inc: bool=True) -> int:
+    # This returns the next free comment id. If `inc` is false,
+    # then the next free will not be incremented.
+
+    f = int(open(f"{ABSOLUTE_SAVING_PATH}next_comment.txt", "r").read())
+
+    if inc:
+        g = open(f"{ABSOLUTE_SAVING_PATH}next_comment.txt", "w")
         g.write(str(f + 1))
         g.close()
 
@@ -348,7 +366,7 @@ def get_user_page(user: str) -> Union[tuple[flask.Response, int], flask.Response
         ), "text/html"), 404
 
 def get_post_page(post_id: Union[str, int]) -> Union[tuple[flask.Response, int], flask.Response]:
-    # Returns the user page for a specific user
+    # Returns the post page for a specific post
     # Login required: true
     # Parameters: none
 
@@ -752,8 +770,8 @@ def api_post_create() -> Union[tuple[flask.Response, int], flask.Response]:
         "timestamp": timestamp,
         "interactions": {
             "likes": [],
-            # below are not implemented, placeholders to be potentially created in the future
             "comments": [],
+            # below are not implemented, placeholders to be potentially created in the future
             "reposts": []
         }
     }))
@@ -762,6 +780,95 @@ def api_post_create() -> Union[tuple[flask.Response, int], flask.Response]:
     return return_dynamic_content_type(json.dumps({
         "success": True,
         "post_id": post_id
+    }), "application/json"), 201
+
+def api_comment_create() -> Union[tuple[flask.Response, int], flask.Response]:
+    # This is what is called when a new comment is created.
+    # Login required: true
+    # Ratelimit: 1s for unsuccessful, 3s for successful
+    # Parameters:
+    # - "content": the content of the comment. must be between 1 >= x >= 280 characters
+    # - "id": the id for the post being commented. must be a valid id between 0 < x < next post id
+
+    if not ensure_ratelimit("api_post_create", request.remote_addr):
+        flask.abort(429)
+
+    try:
+        if not validate_token(request.cookies["token"]): flask.abort(403)
+    except KeyError:
+        flask.abort(401)
+
+    try:
+        x = json.loads(request.data)
+    except json.JSONDecodeError:
+        flask.abort(400)
+
+    if "content" not in x:
+        flask.abort(400)
+
+    post = x["content"].replace("\r", "").replace("\t", " ").replace("\u200b", " ")
+
+    for i in ["\t", "​", "​", " ", " ", " ", " ", " ", " ", " ", " ", " ", "⠀"]:
+        post = post.replace(i, " ")
+
+    while "\n "    in post: post = post.replace("\n ", "\n")
+    while "  "     in post: post = post.replace("  ", " ")
+    while "\n\n\n" in post: post = post.replace("\n\n\n", "\n\n")
+
+    try:
+        if post[0]  in "\n ": post = post[1::]
+        if post[-1] in "\n ": post = post[:-1:]
+    except IndexError:
+        post = ""
+
+    if (len(post) > 280 or len(post) < 1):
+        create_api_ratelimit("api_comment_create", 1000, request.remote_addr)
+        return return_dynamic_content_type(json.dumps({
+            "success": False,
+            "reason": "Invalid post length. Must be between 1 and 280 characters."
+        }), "application/json"), 400
+    
+    if (x["id"]< 0 or generate_post_id(inc=False) < x["id"] ):
+        create_api_ratelimit("api_comment_create", 1000, request.remote_addr)
+        return return_dynamic_content_type(json.dumps({
+            "success": False,
+            "reason": "Invalid post id. Must be between 0 and next possible post id (exclusive)."
+        }), "application/json"), 400
+
+    create_api_ratelimit("api_comment_create", 3000, request.remote_addr)
+
+    timestamp = round(time.time())
+    comment_id = generate_comment_id()
+    user_id = token_to_id(request.cookies["token"])
+
+    g = open(f"{ABSOLUTE_SAVING_PATH}posts/comments/{comment_id}.json", "w")
+    g.write(json.dumps({
+        "content": post,
+        "creator": { "id": user_id },
+        "timestamp": timestamp,
+        "interactions": {
+            "likes": [],
+            "comments": [],
+            # below are not implemented, placeholders to be potentially created in the future
+            "reposts": []
+        }
+    }))
+    g.close()
+
+    post_json = load_post_json(x["id"])
+    if not ("interactions" in post_json and "comments" in post_json["interactions"]) or "id" not in post_json["interactions"]["comments"]:
+        if "interactions" in post_json:
+            if "likes" in post_json["interactions"]:
+                post_json["interactions"]["likes"].append(id)
+            else:
+                post_json["interactions"]["likes"] = [id]
+        else:
+            post_json["interactions"] = {"likes": [], "comments": [id], "reposts": []}
+        save_post_json(x["id"], post_json)
+
+    return return_dynamic_content_type(json.dumps({
+        "success": True,
+        "comment_id": comment_id
     }), "application/json"), 201
 
 def api_post_following() -> Union[tuple[flask.Response, int], flask.Response]:
@@ -835,6 +942,45 @@ def api_post_recent() -> Union[tuple[flask.Response, int], flask.Response]:
     outputList = []
     for i in range(next_id, next_id - 20 if next_id - 20 >= 0 else 0, -1):
         post_info = load_post_json(i)
+        user_json = load_user_json(post_info["creator"]["id"])
+        outputList.append({
+            "post_id": i,
+            "creator_id": post_info["creator"]["id"],
+            "display_name": user_json["display_name"],
+            "creator_username": user_json["display_name"] if "username" not in user_json else user_json["username"],
+            "content": post_info["content"],
+            "timestamp": post_info["timestamp"],
+            "liked": "interactions" in post_info and "likes" in post_info["interactions"] and user_id in post_info["interactions"]["likes"],
+            "likes": len(post_info["interactions"]["likes"]) if "interactions" in post_info and "likes" in post_info["interactions"] else len(post_info["interactions"]["likes"])
+        })
+
+    return return_dynamic_content_type(json.dumps({
+        "posts": outputList,
+        "end": end
+    }), "application/json")
+
+def api_post_comments() -> Union[tuple[flask.Response, int], flask.Response]:
+    # This is what is called when the recent posts tab is refreshed.
+    # Login required: true
+    # Ratelimit: none
+    # Parameters: none
+
+    try:
+        if not validate_token(request.cookies["token"]): flask.abort(403)
+    except KeyError:
+        flask.abort(401)
+
+    if request.args.get("offset") == None:
+        next_id = generate_comment_id(inc=False) - 1
+    else:
+        next_id = int(str(request.args.get("offset")))
+
+    end = next_id <= 20
+    user_id = token_to_id(request.cookies["token"])
+
+    outputList = []
+    for i in range(next_id, next_id - 20 if next_id - 20 >= 0 else 0, -1):
+        post_info = load_comment_json(i)
         user_json = load_user_json(post_info["creator"]["id"])
         outputList.append({
             "post_id": i,
@@ -1027,10 +1173,13 @@ def api_post_user_(user: str) -> Union[tuple[flask.Response, int], flask.Respons
 ensure_file(   ABSOLUTE_SAVING_PATH,            folder=True)
 ensure_file(f"{ABSOLUTE_SAVING_PATH}users",     folder=True)
 ensure_file(f"{ABSOLUTE_SAVING_PATH}posts",     folder=True)
+ensure_file(f"{ABSOLUTE_SAVING_PATH}posts/comments", folder=True)
 ensure_file(f"{ABSOLUTE_SAVING_PATH}tokens",    folder=True)
 ensure_file(f"{ABSOLUTE_SAVING_PATH}usernames", folder=True)
 ensure_file(f"{ABSOLUTE_SAVING_PATH}next_post.txt", default_value="1")
 ensure_file(f"{ABSOLUTE_SAVING_PATH}next_user.txt", default_value="1")
+ensure_file(f"{ABSOLUTE_SAVING_PATH}next_comment.txt", default_value="1")
+
 
 # Initialize flask app
 app = flask.Flask(__name__)
@@ -1063,6 +1212,7 @@ app.route("/api/user/settings/display-name", methods=["POST"])(api_user_settings
 app.route("/api/post/create", methods=["PUT"])(api_post_create)
 app.route("/api/post/following", methods=["GET"])(api_post_following)
 app.route("/api/post/recent", methods=["GET"])(api_post_recent)
+app.route("/api/post/comments", methods=["GET"])(api_post_comments)
 app.route("/api/post/like/add", methods=["POST"])(api_post_like_add)
 app.route("/api/post/like/remove", methods=["DELETE"])(api_post_like_remove)
 app.route("/api/post/user/<path:user>", methods=["GET"])(api_post_user_)
