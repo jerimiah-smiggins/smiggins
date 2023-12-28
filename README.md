@@ -7,7 +7,7 @@ it's like twitter but bad basically, i made it because im really bored
 
 ## how tf do i use this
 1. download the files from the directory either using git or the website
-2. make a new file in the server_module directory called `_api_keys.py`
+2. make a new file in the `_server_module` folder called `_api_keys.py`
 3. in that file, put the following code:
 ```py
 auth_key = b"put some random text here"
