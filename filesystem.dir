@@ -6,9 +6,18 @@
 │
 └─┬ posts/
   │
+  └─┬ comments/
+    │
+    ├─┬ {COMMENT_ID}.json
+    │ ├─ content
+    │ ├─ creator { id }
+    │ ├─ interactions { likes, comments, reposts }
+  ┌─┘ └─ timestamp
+  │
   ├─┬ {POST_ID}.json
   │ ├─ content
   │ ├─ creator { id }
+  │ ├─ interactions { likes, comments, reposts }
 ┌─┘ └─ timestamp
 │
 └─┬ usernames/
