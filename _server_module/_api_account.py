@@ -6,7 +6,7 @@ from ._settings import *
 from ._helper import *
 
 def api_account_signup() -> flask.Response:
-    # This is what is called when someone requests to follow another account.
+    # Called when someone requests to follow another account.
     # Login required: false
     # Ratelimit: 1s for unsuccessful, 15s for successful
     # Parameters:
@@ -86,7 +86,7 @@ def api_account_signup() -> flask.Response:
     }), "application/json")
 
 def api_account_login() -> flask.Response:
-    # This is what is called when someone attempts to log in.
+    # Called when someone attempts to log in.
     # Login required: false
     # Ratelimit: 1s for unsuccessful, 5s for successful
     # Parameters:

@@ -1,13 +1,13 @@
 # -- NOTE --
-# Only modify this file unless you
+# Only modify this file if you
 # know what you're doing.
 
 # Version displayed.
 VERSION: str = "0.3.0"
 
 # What to have the site name be.
-# Official name wip // Trinktter? trinkr? Jerimiah Smiggins? idk...
-SITE_NAME: str = "Jerimiah Smiggins"
+# Official name wip // Trinktter? trinkr? Jerimiah Smigs? idk...
+SITE_NAME: str = "Jerimiah Smigs"
 
 # Whether or not to enable flask debug mode. This makes it
 # so that the server restarts if you save the file.

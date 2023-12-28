@@ -1,11 +1,11 @@
-# For API functions that are related to comments, for example liking, creating, etc.
+# For API functions that relate to comments, for example liking, creating, etc.
 
 from ._packages import *
 from ._settings import *
 from ._helper import *
 
 def api_comment_create() -> Union[tuple[flask.Response, int], flask.Response]:
-    # This is what is called when a new comment is created.
+    # Called when a new comment is created.
     # Login required: true
     # Ratelimit: 1s for unsuccessful, 3s for successful
     # Parameters:
@@ -96,7 +96,7 @@ def api_comment_create() -> Union[tuple[flask.Response, int], flask.Response]:
     }), "application/json"), 201
 
 def api_comment_list() -> Union[tuple[flask.Response, int], flask.Response]:
-    # This is what is called when the comments for a post are refreshed.
+    # Called when the comments for a post are refreshed.
     # Login required: true
     # Ratelimit: none
     # Parameters: none
@@ -151,10 +151,10 @@ def api_comment_list() -> Union[tuple[flask.Response, int], flask.Response]:
     }), "application/json")
 
 def api_comment_like_add() -> Union[tuple[flask.Response, int], flask.Response]:
-    # This is called when someone likes.
+    # Called when someone likes a comment.
     # Login required: true
     # Ratelimit: none
-    # Parameters: id: int - post id to like/unlike
+    # Parameters: id: int - comment id to like
 
     x = std_checks(
         token=request.cookies["token"],
@@ -191,10 +191,10 @@ def api_comment_like_add() -> Union[tuple[flask.Response, int], flask.Response]:
     }), "application/json")
 
 def api_comment_like_remove() -> Union[tuple[flask.Response, int], flask.Response]:
-    # This is called when someone likes.
+    # Called when someone unlikes a comment.
     # Login required: true
     # Ratelimit: none
-    # Parameters: id: int - post id to like/unlike
+    # Parameters: id: int - comment id to unlike
 
     x = std_checks(
         token=request.cookies["token"],
