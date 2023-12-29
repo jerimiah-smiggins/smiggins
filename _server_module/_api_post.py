@@ -5,7 +5,7 @@ from ._settings import *
 from ._helper import *
 
 def api_post_create() -> Union[tuple[flask.Response, int], flask.Response]:
-    # This is what is called when a new post is created.
+    # Called when a new post is created.
     # Login required: true
     # Ratelimit: 1s for unsuccessful, 3s for successful
     # Parameters:
@@ -76,8 +76,8 @@ def api_post_create() -> Union[tuple[flask.Response, int], flask.Response]:
         "post_id": post_id
     }), "application/json"), 201
 
-def api_post_following() -> Union[tuple[flask.Response, int], flask.Response]:
-    # This is what is called when the following tab is refreshed.
+def api_post_list_following() -> Union[tuple[flask.Response, int], flask.Response]:
+    # Called when the following tab is refreshed.
     # Login required: true
     # Ratelimit: none
     # Parameters: none
@@ -125,8 +125,8 @@ def api_post_following() -> Union[tuple[flask.Response, int], flask.Response]:
         "end": end
     }), "application/json")
 
-def api_post_recent() -> Union[tuple[flask.Response, int], flask.Response]:
-    # This is what is called when the recent posts tab is refreshed.
+def api_post_list_recent() -> Union[tuple[flask.Response, int], flask.Response]:
+    # Called when the recent posts tab is refreshed.
     # Login required: true
     # Ratelimit: none
     # Parameters: none
@@ -164,84 +164,8 @@ def api_post_recent() -> Union[tuple[flask.Response, int], flask.Response]:
         "end": end
     }), "application/json")
 
-def api_post_like_add() -> Union[tuple[flask.Response, int], flask.Response]:
-    # This is called when someone likes.
-    # Login required: true
-    # Ratelimit: none
-    # Parameters: id: int - post id to like/unlike
-
-    x = std_checks(
-        token=request.cookies["token"],
-
-        parameters=True,
-        required_params=["id"]
-    )
-
-    try:
-        if generate_post_id(inc=False) <= int(x["id"]):
-            return return_dynamic_content_type(json.dumps({
-                "success": False
-            }), "application/json"), 404
-
-    except ValueError:
-        return return_dynamic_content_type(json.dumps({
-            "success": False
-        }), "application/json"), 404
-
-    user_id = token_to_id(request.cookies["token"])
-    post_json = load_post_json(x["id"])
-    if not ("interactions" in post_json and "likes" in post_json["interactions"]) or "user_id" not in post_json["interactions"]["likes"]:
-        if "interactions" in post_json:
-            if "likes" in post_json["interactions"]:
-                post_json["interactions"]["likes"].append(user_id)
-            else:
-                post_json["interactions"]["likes"] = [user_id]
-        else:
-            post_json["interactions"] = {"likes": [user_id], "comments": [], "reposts": []}
-        save_post_json(x["id"], post_json)
-
-    return return_dynamic_content_type(json.dumps({
-        "success": True
-    }), "application/json")
-
-def api_post_like_remove() -> Union[tuple[flask.Response, int], flask.Response]:
-    # This is called when someone likes.
-    # Login required: true
-    # Ratelimit: none
-    # Parameters: id: int - post id to like/unlike
-
-    x = std_checks(
-        token=request.cookies["token"],
-
-        parameters=True,
-        required_params=["id"]
-    )
-
-    try:
-        if generate_post_id(inc=False) <= int(x["id"]):
-            return return_dynamic_content_type(json.dumps({
-                "success": False
-            }), "application/json"), 404
-
-    except ValueError:
-        print(x["id"])
-        return return_dynamic_content_type(json.dumps({
-            "success": False
-        }), "application/json"), 404
-
-    user_id = token_to_id(request.cookies["token"])
-    post_json = load_post_json(x["id"])
-    if "interactions" in post_json and "likes" in post_json["interactions"]:
-        if user_id in post_json["interactions"]["likes"]:
-            post_json["interactions"]["likes"].remove(user_id)
-            save_post_json(x["id"], post_json)
-
-    return return_dynamic_content_type(json.dumps({
-        "success": True
-    }), "application/json")
-
-def api_post_user_(user: str) -> Union[tuple[flask.Response, int], flask.Response]:
-    # This is what is called when getting posts from a specific user.
+def api_post_list_user(user: str) -> Union[tuple[flask.Response, int], flask.Response]:
+    # Called when getting posts from a specific user.
     # Login required: true
     # Ratelimit: none
     # Parameters: none
@@ -289,3 +213,80 @@ def api_post_user_(user: str) -> Union[tuple[flask.Response, int], flask.Respons
         "end": end,
         "color": "#3a1e93" if "color" not in user_json else user_json["color"]
     }), "application/json")
+
+def api_post_like_add() -> Union[tuple[flask.Response, int], flask.Response]:
+    # Called when someone likes a post.
+    # Login required: true
+    # Ratelimit: none
+    # Parameters: id: int - post id to like
+
+    x = std_checks(
+        token=request.cookies["token"],
+
+        parameters=True,
+        required_params=["id"]
+    )
+
+    try:
+        if generate_post_id(inc=False) <= int(x["id"]):
+            return return_dynamic_content_type(json.dumps({
+                "success": False
+            }), "application/json"), 404
+
+    except ValueError:
+        return return_dynamic_content_type(json.dumps({
+            "success": False
+        }), "application/json"), 404
+
+    user_id = token_to_id(request.cookies["token"])
+    post_json = load_post_json(x["id"])
+    if not ("interactions" in post_json and "likes" in post_json["interactions"]) or "user_id" not in post_json["interactions"]["likes"]:
+        if "interactions" in post_json:
+            if "likes" in post_json["interactions"]:
+                post_json["interactions"]["likes"].append(user_id)
+            else:
+                post_json["interactions"]["likes"] = [user_id]
+        else:
+            post_json["interactions"] = {"likes": [user_id], "comments": [], "reposts": []}
+        save_post_json(x["id"], post_json)
+
+    return return_dynamic_content_type(json.dumps({
+        "success": True
+    }), "application/json")
+
+def api_post_like_remove() -> Union[tuple[flask.Response, int], flask.Response]:
+    # Called when someone unlikes a post.
+    # Login required: true
+    # Ratelimit: none
+    # Parameters: id: int - post id to unlike
+
+    x = std_checks(
+        token=request.cookies["token"],
+
+        parameters=True,
+        required_params=["id"]
+    )
+
+    try:
+        if generate_post_id(inc=False) <= int(x["id"]):
+            return return_dynamic_content_type(json.dumps({
+                "success": False
+            }), "application/json"), 404
+
+    except ValueError:
+        print(x["id"])
+        return return_dynamic_content_type(json.dumps({
+            "success": False
+        }), "application/json"), 404
+
+    user_id = token_to_id(request.cookies["token"])
+    post_json = load_post_json(x["id"])
+    if "interactions" in post_json and "likes" in post_json["interactions"]:
+        if user_id in post_json["interactions"]["likes"]:
+            post_json["interactions"]["likes"].remove(user_id)
+            save_post_json(x["id"], post_json)
+
+    return return_dynamic_content_type(json.dumps({
+        "success": True
+    }), "application/json")
+

@@ -1,5 +1,5 @@
 # -- NOTE --
-# Only modify this file unless you
+# Only modify this file if you
 # know what you're doing.
 
 # Version displayed.

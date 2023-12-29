@@ -5,7 +5,7 @@ from ._settings import *
 from ._helper import *
 
 def api_user_follower_add() -> Union[tuple[flask.Response, int], flask.Response]:
-    # This is what is called when someone requests to follow another account.
+    # Called when someone requests to follow another account.
     # Login required: true
     # Ratelimit: none
     # Parameters:
@@ -36,7 +36,7 @@ def api_user_follower_add() -> Union[tuple[flask.Response, int], flask.Response]
     }), "application/json"), 201
 
 def api_user_follower_remove() -> Union[tuple[flask.Response, int], flask.Response]:
-    # This is what is called when someone requests to unfollow another account.
+    # Called when someone requests to unfollow another account.
     # Login required: true
     # Ratelimit: none
     # Parameters:
@@ -67,7 +67,7 @@ def api_user_follower_remove() -> Union[tuple[flask.Response, int], flask.Respon
     }), "application/json"), 201
 
 def api_user_settings_theme() -> Union[tuple[flask.Response, int], flask.Response]:
-    # Called when the user changes the theme.
+    # Called when the user changes their theme.
     # Login required: true
     # Ratelimit: none
 
@@ -117,7 +117,7 @@ def api_user_settings_color() -> Union[tuple[flask.Response, int], flask.Respons
     }))
 
 def api_user_settings_display_name() -> Union[tuple[flask.Response, int], flask.Response]:
-    # Called when trying to set display name
+    # Called when trying to set display name.
     # login required: true
     # Ratelimit: none
 
