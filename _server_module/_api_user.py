@@ -128,7 +128,7 @@ def api_user_settings_display_name() -> Union[tuple[flask.Response, int], flask.
         required_params=["displ_name"]
     )
 
-    displ_name = x["content"].replace("\r", "").replace("\t", " ").replace("\u200b", " ")
+    displ_name = x["displ_name"].replace("\r", "").replace("\t", " ").replace("\u200b", " ")
 
     for i in ["\t", "​", "​", " ", " ", " ", " ", " ", " ", " ", " ", " ", "⠀"]:
         displ_name = displ_name.replace(i, " ")
