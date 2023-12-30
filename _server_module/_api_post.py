@@ -138,7 +138,7 @@ def api_post_list_recent() -> Union[tuple[flask.Response, int], flask.Response]:
     if request.args.get("offset") == None:
         next_id = generate_post_id(inc=False) - 1
     else:
-        next_id = int(str(request.args.get("offset")))
+        next_id = int(str(request.args.get("offset"))) - 1
 
     end = next_id <= 20
     user_id = token_to_id(request.cookies["token"])

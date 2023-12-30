@@ -3,7 +3,7 @@
 # know what you're doing.
 
 # Version displayed.
-VERSION: str = "0.3.0"
+VERSION: str = "0.3.1"
 
 # What to have the site name be.
 # Official name wip // Trinktter? trinkr? Jerimiah Smiggins? idk...

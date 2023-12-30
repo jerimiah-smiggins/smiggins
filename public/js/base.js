@@ -1,5 +1,8 @@
 const dom = id => document.getElementById(id);
 
+const urlRegex = /(https?:\/\/(?:\w+\.)+[\-0-9A-Za-z]{3,24}\/?(?:\/?[\w\-]+)*(?:\.[\w\-]+)?(?:\?(?:[\w\-]+=?[\w\-]*&?)*)?)/g;
+const usernameRegex = /(@[a-z0-9]{1,18})/g;
+
 function setCookie(name, value) {
   let date = new Date();
   date.setTime(date.getTime() + (356 * 24 * 60 * 60 * 1000));
@@ -99,9 +102,18 @@ function timeSince(date) {
 }
 
 function linkifyText(inputText, postId, comment=false) {
-  let urlRegex = /(https?:\/\/(?:\w+\.)+[\-0-9A-Za-z]{3,24}\/?(?:\/?\w+)*(?:\.\w+)?(?:\?(?:\w+=?\w*&?)*)?)/g;
+  let doTheThing = (input) => (
+    input.split(usernameRegex).map((i) => {
+      return i.match(usernameRegex) || postId !== undefined ? (
+        i.match(usernameRegex) ? `<a href="/u/${i.replace("@", "")}">` : `<a href="/${comment ? "c" : "p"}/${postId}" class="text no-underline">`
+      ) + `${escapeHTML(i)}</a>` : escapeHTML(i);
+    }).join("")
+  );
+
   return inputText.split(urlRegex).map((i) => {
-    return i.match(urlRegex) || postId !== undefined ? `<a href="${i.match(urlRegex) ? `${i.replaceAll("\"", "&quo;")}" target="_blank` : `/${comment ? "c" : "p"}/${postId}" class="text no-underline`}">${escapeHTML(i)}</a>` : escapeHTML(i);
+    return i.match(urlRegex) || postId !== undefined ? (
+      i.match(urlRegex) ? `<a href="${i.replaceAll("\"", "&quo;")}" target="_blank">${escapeHTML(i)}</a>` : doTheThing(i)
+    ) : doTheThing(i);
   }).join("");
 }
 
