@@ -12,9 +12,10 @@ it's like twitter but bad basically, i made it because im really bored
 ```py
 auth_key = b"put some random text here"
 ```
-4. run the `_server.py` file (make sure you have python and the flask library installed)
-5. on your web browser go to the url `localhost` (specify port if needed, don't add the `www.` or `https://` part)
-6. after that everything should work on it's own, make sure to report any features or suggestions
+4. run the `_server.py` file (make sure you have python and the flask library installed). if you get an error, you
+might need to update one of the libraries, or change the port to something above 1000 if you don't have admin permissions
+6. on your web browser go to the url `localhost` (specify port if needed, don't add the `www.` or `https://` part)
+7. after that everything should work on it's own, make sure to report any features or suggestions
 
 ## where can i report issues or suggest stuff
 go to the [issues tab](https://github.com/trinkey/social-media-thing) and make a new issue (make sure you're logged in with github)
