@@ -105,13 +105,14 @@ def api_account_login() -> flask.Response:
     token = generate_token(x["username"], x["password"])
 
     if validate_username(x["username"]) == 1:
-        create_api_ratelimit("api_account_login", 5000, request.remote_addr)
         if token == open(f"{ABSOLUTE_SAVING_PATH}users/{username_to_id(x['username'])}/token.txt", "r").read():
+            create_api_ratelimit("api_account_login", 5000, request.remote_addr)
             return return_dynamic_content_type(json.dumps({
                 "valid": True,
                 "token": token
             }), "application/json")
         else:
+            create_api_ratelimit("api_account_login", 1000, request.remote_addr)
             return return_dynamic_content_type(json.dumps({
                 "valid": False,
                 "reason": "Invalid password."

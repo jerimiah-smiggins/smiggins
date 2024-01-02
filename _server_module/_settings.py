@@ -1,6 +1,6 @@
 # -- NOTE --
-# Only modify this file if you
-# know what you're doing.
+# Only modify the other files if you know what you're doing.
+# This file is meant to have settings that are easy to understand.
 
 # Version displayed.
 VERSION: str = "0.3.1"
