@@ -102,6 +102,7 @@ def api_account_login() -> flask.Response:
         required_params=["username", "password"]
     )
 
+    x["username"] = x["username"].lower()
     token = generate_token(x["username"], x["password"])
 
     if validate_username(x["username"]) == 1:
