@@ -65,7 +65,7 @@ def get_user_page(user: str) -> Union[tuple[flask.Response, int], flask.Response
                 "{{FOLLOW}}": "Unfollow" if is_following else "Follow",
                 "{{IS_FOLLOWED}}": "1" if is_following else "0",
                 "{{IS_HIDDEN}}": "hidden" if user_id == self_id else "",
-                "{{BANNER_COLOR}}": "#3a1e93" if "color" not in user_json else user_json["color"]
+                "{{BANNER_COLOR}}": "#3a1e93" if "color" not in user_json else user_json["color"],
             }
         ), "text/html")
     else:
@@ -93,6 +93,12 @@ def get_post_page(post_id: Union[str, int]) -> Union[tuple[flask.Response, int],
     if int(post_id) < generate_post_id(inc=False) and int(post_id) > 0:
         post_info = load_post_json(post_id)
         user_json = load_user_json(post_info["creator"]["id"])
+
+        if "private" in user_json and user_json["private"] and user_id not in user_json["following"]:
+            return return_dynamic_content_type(format_html(
+                open(f"{ABSOLUTE_CONTENT_PATH}/redirect_index.html", "r").read(),
+            ), "text/html"), 404
+
         return return_dynamic_content_type(format_html(
             open(f"{ABSOLUTE_CONTENT_PATH}post.html", "r").read(),
             custom_replace={
@@ -107,10 +113,10 @@ def get_post_page(post_id: Union[str, int]) -> Union[tuple[flask.Response, int],
                 "{{COMMENT}}": "false"
             }
         ))
-    else:
-        return return_dynamic_content_type(format_html(
-            open(f"{ABSOLUTE_CONTENT_PATH}/redirect_home.html", "r").read(),
-        ), "text/html"), 404
+
+    return return_dynamic_content_type(format_html(
+        open(f"{ABSOLUTE_CONTENT_PATH}/redirect_home.html", "r").read(),
+    ), "text/html"), 404
 
 def get_comment_page(post_id: Union[str, int]) -> Union[tuple[flask.Response, int], flask.Response]:
     # Returns the post page for a specific comment
@@ -161,7 +167,8 @@ def get_settings_page() -> flask.Response:
             open(f"{ABSOLUTE_CONTENT_PATH}settings.html", "r").read(),
             custom_replace={
                 "{{DISPLAY_NAME}}": x["display_name"],
-                "{{BANNER_COLOR}}": "#3a1e93" if "color" not in x else x["color"]
+                "{{BANNER_COLOR}}": "#3a1e93" if "color" not in x else x["color"],
+                "{{CHECKED_IF_PRIV}}": "checked" if "private" in x and x["private"] else ""
             }
         ), 'text/html')
 

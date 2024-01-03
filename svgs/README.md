@@ -7,3 +7,4 @@ the following svgs are from fontawesome:
 * settings (`fa-solid fa-gear`)
 * home (`fa-solid fa-house`)
 * comment (`fa-regular fa-comment`)
+* lock (`fa-regular fa-lock`)

@@ -46,12 +46,14 @@ app.route("/api/user/follower/remove", methods=["DELETE"])(api_user_follower_rem
 app.route("/api/user/settings/theme", methods=["POST"])(api_user_settings_theme)
 app.route("/api/user/settings/color", methods=["POST"])(api_user_settings_color)
 app.route("/api/user/settings/display-name", methods=["POST"])(api_user_settings_display_name)
+app.route("/api/user/settings/priv", methods=["POST"])(api_user_settings_private)
 
 # Create post api routes
 app.route("/api/post/create", methods=["PUT"])(api_post_create)
 app.route("/api/post/following", methods=["GET"])(api_post_list_following)
 app.route("/api/post/recent", methods=["GET"])(api_post_list_recent)
 app.route("/api/post/like/add", methods=["POST"])(api_post_like_add)
+app.route("/api/post/like/remove", methods=["DELETE"])(api_post_like_remove)
 app.route("/api/post/like/remove", methods=["DELETE"])(api_post_like_remove)
 app.route("/api/post/user/<path:user>", methods=["GET"])(api_post_list_user)
 

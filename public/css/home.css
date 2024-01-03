@@ -39,7 +39,7 @@ button { width: 5em; }
 .username, .timestamp, .displ-name { display: inline-block;  }
 .bottom-content { text-align: center; }
 
-.like, .comment {
+.like, .comment, .priv {
   width: 1.2em;
   height: 1.2em;
   display: inline-block;
@@ -48,6 +48,7 @@ button { width: 5em; }
   fill: var(--text);
 }
 
+.priv { scale: 75%; }
 .comment { padding-right: 0.3em; }
 .like[data-liked="true"] { fill: var(--primary); }
 

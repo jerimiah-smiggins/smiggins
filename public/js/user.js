@@ -2,6 +2,7 @@ let inc = 0, req = 0, end = false;
 let offset = null;
 let username = document.querySelector("body").getAttribute("data-username");
 let home = true;
+let first = true;
 
 function refresh(force_offset=false) {
   if (force_offset !== true) { dom("posts").innerHTML = ""; }
@@ -14,6 +15,26 @@ function refresh(force_offset=false) {
   })
     .then((response) => (response.json()))
     .then((json) => {
+      document.querySelectorAll(".priv").forEach((val, index) => {
+        val.innerHTML = icons.lock;
+      });
+
+      if (json.private && true) {
+        document.querySelectorAll("[data-toggle-on-priv]").forEach((val, index) => {
+          if (val.hasAttribute("hidden")) { val.removeAttribute("hidden"); }
+          else { val.setAttribute("hidden", ""); }
+        });
+
+        if (json.can_view) {
+          document.querySelectorAll("[data-toggle-on-view]").forEach((val, index) => {
+            if (val.hasAttribute("hidden")) { val.removeAttribute("hidden"); }
+            else { val.setAttribute("hidden", ""); }
+          });
+        }
+
+        first = false;
+      }
+
       end = json.end;
       dom("banner").style.backgroundColor = json.color;
 

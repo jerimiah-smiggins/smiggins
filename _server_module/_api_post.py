@@ -100,29 +100,34 @@ def api_post_list_following() -> Union[tuple[flask.Response, int], flask.Respons
             break
 
     potential = potential[index::]
-    end = len(potential) <= 20
-    potential = potential[:20:]
     user_id = token_to_id(request.cookies["token"])
 
+    offset = 0
     outputList = []
     for i in potential:
         post_info = load_post_json(i)
         user_json = load_user_json(post_info["creator"]["id"])
-        outputList.append({
-            "post_id": i,
-            "creator_id": post_info["creator"]["id"],
-            "display_name": user_json["display_name"],
-            "creator_username": user_json["display_name"] if "username" not in user_json else user_json["username"],
-            "content": post_info["content"],
-            "timestamp": post_info["timestamp"],
-            "liked": "interactions" in post_info and "likes" in post_info["interactions"] and user_id in post_info["interactions"]["likes"],
-            "likes": len(post_info["interactions"]["likes"]) if "interactions" in post_info and "likes" in post_info["interactions"] else 0,
-            "comments": len(post_info["interactions"]["comments"]) if "interactions" in post_info and "comments" in post_info["interactions"] else 0
-        })
+
+        if "private" in user_json and user_json["private"] and user_id not in user_json["following"]:
+            offset += 1
+
+        else:
+            outputList.append({
+                "post_id": i,
+                "creator_id": post_info["creator"]["id"],
+                "display_name": user_json["display_name"],
+                "creator_username": user_json["display_name"] if "username" not in user_json else user_json["username"],
+                "content": post_info["content"],
+                "timestamp": post_info["timestamp"],
+                "liked": "interactions" in post_info and "likes" in post_info["interactions"] and user_id in post_info["interactions"]["likes"],
+                "likes": len(post_info["interactions"]["likes"]) if "interactions" in post_info and "likes" in post_info["interactions"] else 0,
+                "comments": len(post_info["interactions"]["comments"]) if "interactions" in post_info and "comments" in post_info["interactions"] else 0,
+                "private_acc": "private" in user_json and user_json["private"]
+            })
 
     return return_dynamic_content_type(json.dumps({
         "posts": outputList,
-        "end": end
+        "end": len(potential) - offset <= 20
     }), "application/json")
 
 def api_post_list_recent() -> Union[tuple[flask.Response, int], flask.Response]:
@@ -144,20 +149,29 @@ def api_post_list_recent() -> Union[tuple[flask.Response, int], flask.Response]:
     user_id = token_to_id(request.cookies["token"])
 
     outputList = []
-    for i in range(next_id, next_id - 20 if next_id - 20 >= 0 else 0, -1):
+    offset = 0
+    i = next_id
+    while i > next_id - 20 - offset:
         post_info = load_post_json(i)
         user_json = load_user_json(post_info["creator"]["id"])
-        outputList.append({
-            "post_id": i,
-            "creator_id": post_info["creator"]["id"],
-            "display_name": user_json["display_name"],
-            "creator_username": user_json["display_name"] if "username" not in user_json else user_json["username"],
-            "content": post_info["content"],
-            "timestamp": post_info["timestamp"],
-            "liked": "interactions" in post_info and "likes" in post_info["interactions"] and user_id in post_info["interactions"]["likes"],
-            "likes": len(post_info["interactions"]["likes"]) if "interactions" in post_info and "likes" in post_info["interactions"] else 0,
-            "comments": len(post_info["interactions"]["comments"]) if "interactions" in post_info and "comments" in post_info["interactions"] else 0
-        })
+        if "private" in user_json and user_json["private"] and user_id not in user_json["following"]:
+            offset += 1
+
+        else:
+            outputList.append({
+                "post_id": i,
+                "creator_id": post_info["creator"]["id"],
+                "display_name": user_json["display_name"],
+                "creator_username": user_json["display_name"] if "username" not in user_json else user_json["username"],
+                "content": post_info["content"],
+                "timestamp": post_info["timestamp"],
+                "liked": "interactions" in post_info and "likes" in post_info["interactions"] and user_id in post_info["interactions"]["likes"],
+                "likes": len(post_info["interactions"]["likes"]) if "interactions" in post_info and "likes" in post_info["interactions"] else 0,
+                "comments": len(post_info["interactions"]["comments"]) if "interactions" in post_info and "comments" in post_info["interactions"] else 0,
+                "private_acc": "private" in user_json and user_json["private"]
+            })
+
+        i -= 1
 
     return return_dynamic_content_type(json.dumps({
         "posts": outputList,
@@ -179,7 +193,19 @@ def api_post_list_user(user: str) -> Union[tuple[flask.Response, int], flask.Res
 
     offset = sys.maxsize if request.args.get("offset") == None else int(request.args.get("offset")) # type: ignore // pylance likes to complain :3
 
+    self_id = token_to_id(request.cookies["token"])
     user_id = username_to_id(user)
+    user_json = load_user_json(user_id)
+
+    if "private" in user_json and user_json["private"] and self_id not in user_json["following"]:
+        return return_dynamic_content_type(json.dumps({
+            "posts": [],
+            "end": True,
+            "color": "#3a1e93" if "color" not in user_json else user_json["color"],
+            "private": True,
+            "can_view": False
+        }))
+
     potential = get_user_post_ids(user_id)[::-1]
 
     index = 0
@@ -188,7 +214,6 @@ def api_post_list_user(user: str) -> Union[tuple[flask.Response, int], flask.Res
             index = i
             break
 
-    user_json = load_user_json(user_id)
     potential = potential[index::]
     end = len(potential) <= 20
     potential = potential[:20:]
@@ -211,7 +236,9 @@ def api_post_list_user(user: str) -> Union[tuple[flask.Response, int], flask.Res
     return return_dynamic_content_type(json.dumps({
         "posts": outputList,
         "end": end,
-        "color": "#3a1e93" if "color" not in user_json else user_json["color"]
+        "color": "#3a1e93" if "color" not in user_json else user_json["color"],
+        "private": "private" in user_json and user_json["private"],
+        "can_view": True
     }), "application/json")
 
 def api_post_like_add() -> Union[tuple[flask.Response, int], flask.Response]:

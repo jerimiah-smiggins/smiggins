@@ -125,29 +125,36 @@ def api_comment_list() -> Union[tuple[flask.Response, int], flask.Response]:
     while len(post_json["interactions"]["comments"]) and post_json["interactions"]["comments"][0] > offset:
         post_json["interactions"]["comments"].pop(0)
 
-    end = len(post_json["interactions"]["comments"]) <= 20
+    end = len(post_json["interactions"]["comments"])
     outputList = []
+    offset = 0
     for i in post_json["interactions"]["comments"]:
         post_info = load_comment_json(i)
         user_json = load_user_json(post_info["creator"]["id"])
-        outputList.append({
-            "post_id": i,
-            "creator_id": post_info["creator"]["id"],
-            "display_name": user_json["display_name"],
-            "creator_username": user_json["display_name"] if "username" not in user_json else user_json["username"],
-            "content": post_info["content"],
-            "timestamp": post_info["timestamp"],
-            "liked": "interactions" in post_info and "likes" in post_info["interactions"] and user_id in post_info["interactions"]["likes"],
-            "likes": len(post_info["interactions"]["likes"]) if "interactions" in post_info and "likes" in post_info["interactions"] else 0,
-            "comments": len(post_info["interactions"]["comments"]) if "interactions" in post_info and "comments" in post_info["interactions"] else 0
-        })
+
+        if "private" in user_json and user_json["private"] and user_id not in user_json["following"]:
+            offset += 1
+
+        else:
+            outputList.append({
+                "post_id": i,
+                "creator_id": post_info["creator"]["id"],
+                "display_name": user_json["display_name"],
+                "creator_username": user_json["display_name"] if "username" not in user_json else user_json["username"],
+                "content": post_info["content"],
+                "timestamp": post_info["timestamp"],
+                "liked": "interactions" in post_info and "likes" in post_info["interactions"] and user_id in post_info["interactions"]["likes"],
+                "likes": len(post_info["interactions"]["likes"]) if "interactions" in post_info and "likes" in post_info["interactions"] else 0,
+                "comments": len(post_info["interactions"]["comments"]) if "interactions" in post_info and "comments" in post_info["interactions"] else 0,
+                "private_acc": "private" in user_json and user_json["private"]
+            })
 
         if len(outputList) == 20:
             break
 
     return return_dynamic_content_type(json.dumps({
         "posts": outputList,
-        "end": end
+        "end": len(post_json) - offset <= 20
     }), "application/json")
 
 def api_comment_like_add() -> Union[tuple[flask.Response, int], flask.Response]:

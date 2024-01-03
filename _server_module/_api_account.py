@@ -49,7 +49,8 @@ def api_account_signup() -> flask.Response:
             "username": x["username"],
             "theme": "dark",
             "profile_picture": "default",
-            "color": "#3a1e93"
+            "color": "#3a1e93",
+            "private": False
         }
 
         token = generate_token(x["username"], x["password"])

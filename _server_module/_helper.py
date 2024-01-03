@@ -23,6 +23,7 @@ def format_html(html_content: str, *, custom_replace: dict[str, str]={}) -> str:
 
     html_content = html_content.replace("{{VERSION}}", VERSION)
     html_content = html_content.replace("{{SITE_NAME}}", SITE_NAME)
+    html_content = html_content.replace("{{HIDE_SOURCE}}", "" if SOURCE_CODE else "hidden")
 
     if "token" in request.cookies and validate_token(request.cookies["token"]) and "theme" in (th := load_user_json(token_to_id(request.cookies["token"]))):
         th = load_user_json(token_to_id(request.cookies["token"]))["theme"]
@@ -253,7 +254,7 @@ def ensure_ratelimit(api_id: str, identifier: Union[str, None]) -> bool:
     # Returns whether or not a certain api is ratelimited for the specified
     # identifier. True = not ratelimited, False = ratelimited
 
-    return not (api_id in timeout_handler and str(identifier) in timeout_handler[api_id])
+    return not (not RATELIMIT) or (api_id in timeout_handler and str(identifier) in timeout_handler[api_id])
 
 def std_checks(*,
         ratelimit: bool=False,

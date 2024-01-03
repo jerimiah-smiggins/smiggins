@@ -116,6 +116,26 @@ def api_user_settings_color() -> Union[tuple[flask.Response, int], flask.Respons
         "success": True
     }))
 
+def api_user_settings_private() -> Union[tuple[flask.Response, int], flask.Response]:
+    # Called when the user toggles being private.
+    # Login required: true
+    # Ratelimit: none
+
+    x = std_checks(
+        token=request.cookies["token"],
+
+        parameters=True,
+        required_params=["priv"]
+    )
+
+    user_id = token_to_id(request.cookies["token"])
+    user_info = load_user_json(user_id)
+    user_info["private"] = str(x["priv"]).lower() == "true"
+    save_user_json(user_id, user_info)
+    return return_dynamic_content_type(json.dumps({
+        "success": True
+    }))
+
 def api_user_settings_display_name() -> Union[tuple[flask.Response, int], flask.Response]:
     # Called when trying to set display name.
     # login required: true

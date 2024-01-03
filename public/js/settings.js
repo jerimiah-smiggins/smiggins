@@ -99,6 +99,40 @@ dom("color-save").addEventListener("click", function() {
     });
 });
 
+dom("priv-save").addEventListener("click", function() {
+  dom("priv").setAttribute("disabled", "");
+  dom("priv-save").setAttribute("disabled", "");
+  fetch("/api/user/settings/priv", {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json"
+    },
+    body: JSON.stringify({
+      "priv": dom("priv").checked
+    })
+  })
+    .then((response) => (response.json()))
+    .then((json) => {
+      if (!json.success) {
+        dom("error").innerText = "Something went wrong! Try again in a few moments...";
+      } else {
+        dom("error").innerText = "Success!";
+      }
+      inc++;
+      setTimeout(() => { req++; if (req == inc) { dom("error").innerText = ""; }}, 3000);
+      dom("priv").removeAttribute("disabled");
+      dom("priv-save").removeAttribute("disabled");
+    })
+    .catch((err) => {
+      dom("priv").removeAttribute("disabled");
+      dom("priv-save").removeAttribute("disabled");
+      inc++;
+      dom("error").innerText = "Something went wrong! Try again in a few moments...";
+      setTimeout(() => { req++; if (req == inc) { dom("error").innerText = ""; }}, 3000);
+      throw(err);
+    });
+});
+
 dom("color").addEventListener("input", function() {
   document.querySelector("body").setAttribute("style", `--banner: ${this.value}`);
-})
+});

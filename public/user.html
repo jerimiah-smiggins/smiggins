@@ -10,9 +10,10 @@
 
   <body data-username="{{USERNAME}}">
     <div id="banner" style="background-color: {{BANNER_COLOR}}"></div>
-    <div id="username-main">{{DISPLAY_NAME}}</div>
+    <div id="username-main">{{DISPLAY_NAME}}<span data-toggle-on-priv hidden> <div class="priv"></div></span></div>
     <div id="username-lower">@{{USERNAME}}</div>
-    <button onclick="refresh()">Refresh</button> <button id="toggle" {{IS_HIDDEN}} data-followed="{{IS_FOLLOWED}}" onclick="toggle_follow()">{{FOLLOW}}</button><br><br>
+    <button onclick="refresh()">Refresh</button> <button data-toggle-on-priv data-toggle-on-view id="toggle" {{IS_HIDDEN}} data-followed="{{IS_FOLLOWED}}" onclick="toggle_follow()">{{FOLLOW}}</button>
+    <div data-toggle-on-view>This account is private. Only users that they follow can see their posts.</div><br><br>
     <div id="error"></div>
     <div id="posts"></div>
     <button id="more" onclick="refresh(true)" hidden>Load more...</button>
