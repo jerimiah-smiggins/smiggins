@@ -1,7 +1,7 @@
 const dom = id => document.getElementById(id);
 
 const urlRegex = /(https?:\/\/(?:\w+\.)+[\-0-9A-Za-z]{3,24}\/?(?:\/?[\w\-]+)*(?:\.[\w\-]+)?(?:\?(?:[\w\-]+=?[\w\-]*&?)*)?)/g;
-const usernameRegex = /(@[a-z0-9]{1,18})/g;
+const usernameRegex = /(@[a-zA-Z0-9_]{1,18})/g;
 
 function setCookie(name, value) {
   let date = new Date();
@@ -105,7 +105,7 @@ function linkifyText(inputText, postId, comment=false) {
   let doTheThing = (input) => (
     input.split(usernameRegex).map((i) => {
       return i.match(usernameRegex) || postId !== undefined ? (
-        i.match(usernameRegex) ? `<a href="/u/${i.replace("@", "")}">` : `<a href="/${comment ? "c" : "p"}/${postId}" class="text no-underline">`
+        i.match(usernameRegex) ? `<a href="/u/${i.replace("@", "").toLowerCase()}">` : `<a href="/${comment ? "c" : "p"}/${postId}" class="text no-underline">`
       ) + `${escapeHTML(i)}</a>` : escapeHTML(i);
     }).join("")
   );
