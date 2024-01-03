@@ -254,7 +254,7 @@ def ensure_ratelimit(api_id: str, identifier: Union[str, None]) -> bool:
     # Returns whether or not a certain api is ratelimited for the specified
     # identifier. True = not ratelimited, False = ratelimited
 
-    return not (not RATELIMIT) or (api_id in timeout_handler and str(identifier) in timeout_handler[api_id])
+    return (not RATELIMIT) or not (api_id in timeout_handler and str(identifier) in timeout_handler[api_id])
 
 def std_checks(*,
         ratelimit: bool=False,
