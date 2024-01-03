@@ -163,10 +163,10 @@ def api_user_settings_display_name() -> Union[tuple[flask.Response, int], flask.
     except IndexError:
         displ_name = ""
 
-    if (len(displ_name) > 20 or len(displ_name) < 1):
+    if (len(displ_name) > 32 or len(displ_name) < 1):
         return return_dynamic_content_type(json.dumps({
             "success": False,
-            "reason": "Invalid name length. Must be between 1 and 20 characters after minifying whitespace."
+            "reason": "Invalid name length. Must be between 1 and 32 characters after minifying whitespace."
         }), "application/json"), 400
 
     user_id = token_to_id(request.cookies["token"])

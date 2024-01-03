@@ -82,11 +82,13 @@ function refresh(force_offset=false) {
         <div class="post-container" data-comment-id="${json.posts[post].post_id}">
           <div class="post">
             <div class="upper-content">
-              <div class="displ-name">${escapeHTML(json.posts[post].display_name)}${json.posts[post].private_acc ? ` <div class="priv">${icons.lock}</div>` : ""}</div>
-              <span class="upper-lower-opacity"> -
-                <div class="username">@${json.posts[post].creator_username}</div> -
-                <div class="timestamp">${timeSince(json.posts[post].timestamp)} ago</div>
-              </span>
+              <a href="/u/${json.posts[post].creator_username}" class="text no-underline">
+                <div class="displ-name">${escapeHTML(json.posts[post].display_name)}${json.posts[post].private_acc ? ` <div class="priv">${icons.lock}</div>` : ""}</div>
+                <span class="upper-lower-opacity"> -
+                  <div class="username">@${json.posts[post].creator_username}</div> -
+                  <div class="timestamp">${timeSince(json.posts[post].timestamp)} ago</div>
+                </span>
+              </a>
             </div>
             <div class="main-content">
               ${linkifyText(json.posts[post].content, json.posts[post].post_id, true).replaceAll("\n", "<br>")}

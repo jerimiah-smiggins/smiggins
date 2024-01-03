@@ -151,7 +151,7 @@ def api_post_list_recent() -> Union[tuple[flask.Response, int], flask.Response]:
     outputList = []
     offset = 0
     i = next_id
-    while i > next_id - 20 - offset:
+    while i > next_id - 20 - offset and i > 0:
         post_info = load_post_json(i)
         user_json = load_user_json(post_info["creator"]["id"])
         if "private" in user_json and user_json["private"] and user_id not in user_json["following"]:

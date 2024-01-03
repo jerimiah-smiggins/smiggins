@@ -1,0 +1,73 @@
+/* Monospace font */
+@font-face {
+  font-family: 'Cousine';
+  font-style: normal;
+  font-weight: 400;
+  font-display: swap;
+  src: url("/css/font/cousine-normal.ttf") format('truetype'),
+       url("/css/font/cousine-normal.woff") format('woff');
+}
+
+@font-face {
+  font-family: 'Cousine';
+  font-style: normal;
+  font-weight: 700;
+  font-display: swap;
+  src: url("/css/font/cousine-bold.ttf") format('truetype'),
+       url("/css/font/cousine-bold.woff") format('woff');
+}
+
+@font-face {
+  font-family: 'Cousine';
+  font-style: italic;
+  font-weight: 400;
+  font-display: swap;
+  src: url("/css/font/cousine-italic.ttf") format('truetype'),
+       url("/css/font/cousine-italic.woff") format('woff');
+}
+
+@font-face {
+  font-family: 'Cousine';
+  font-style: italic;
+  font-weight: 700;
+  font-display: swap;
+  src: url("/css/font/poppins-bolditalic.ttf") format('truetype'),
+       url("/css/font/poppins-bolditalic.woff") format('woff');
+}
+
+/* Normal font */
+@font-face {
+  font-family: 'Poppins';
+  font-style: normal;
+  font-weight: 400;
+  font-display: swap;
+  src: url("/css/font/poppins-normal.ttf") format('truetype'),
+       url("/css/font/poppins-normal.woff") format('woff');
+}
+
+@font-face {
+  font-family: 'Poppins';
+  font-style: normal;
+  font-weight: 700;
+  font-display: swap;
+  src: url("/css/font/poppins-bold.ttf") format('truetype'),
+       url("/css/font/poppins-bold.woff") format('woff');
+}
+
+@font-face {
+  font-family: 'Poppins';
+  font-style: italic;
+  font-weight: 400;
+  font-display: swap;
+  src: url("/css/font/poppins-italic.ttf") format('truetype'),
+       url("/css/font/poppins-italic.woff") format('woff');
+}
+
+@font-face {
+  font-family: 'Poppins';
+  font-style: italic;
+  font-weight: 700;
+  font-display: swap;
+  src: url("/css/font/poppins-bolditalic.ttf") format('truetype'),
+       url("/css/font/poppins-bolditalic.woff") format('woff');
+}
