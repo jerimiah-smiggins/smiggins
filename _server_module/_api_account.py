@@ -38,6 +38,8 @@ def api_account_signup() -> flask.Response:
                 "reason": "Invalid password."
             }), "application/json")
 
+    x["username"] = x["username"].replace(" ", "")
+
     user_valid = validate_username(x["username"], existing=False)
     if user_valid == 1:
         create_api_ratelimit("api_account_signup", 15000, request.remote_addr)
@@ -50,7 +52,8 @@ def api_account_signup() -> flask.Response:
             "theme": "dark",
             "profile_picture": "default",
             "color": "#3a1e93",
-            "private": False
+            "private": False,
+            "followers": 0
         }
 
         token = generate_token(x["username"], x["password"])

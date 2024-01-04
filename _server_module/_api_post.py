@@ -206,7 +206,9 @@ def api_post_list_user(user: str) -> Union[tuple[flask.Response, int], flask.Res
             "end": True,
             "color": "#3a1e93" if "color" not in user_json else user_json["color"],
             "private": True,
-            "can_view": False
+            "can_view": False,
+            "following": len(user_json["following"]),
+            "followers": user_json["followers"]
         }))
 
     potential = get_user_post_ids(user_id)[::-1]
@@ -231,7 +233,7 @@ def api_post_list_user(user: str) -> Union[tuple[flask.Response, int], flask.Res
             "display_name": user_json["display_name"],
             "content": post_info["content"],
             "timestamp": post_info["timestamp"],
-            "liked": "interactions" in post_info and "likes" in post_info["interactions"] and user_id in post_info["interactions"]["likes"],
+            "liked": "interactions" in post_info and "likes" in post_info["interactions"] and self_id in post_info["interactions"]["likes"],
             "likes": len(post_info["interactions"]["likes"]) if "interactions" in post_info and "likes" in post_info["interactions"] else 0,
             "comments": len(post_info["interactions"]["comments"]) if "interactions" in post_info and "comments" in post_info["interactions"] else 0
         })
@@ -241,7 +243,9 @@ def api_post_list_user(user: str) -> Union[tuple[flask.Response, int], flask.Res
         "end": end,
         "color": "#3a1e93" if "color" not in user_json else user_json["color"],
         "private": "private" in user_json and user_json["private"],
-        "can_view": True
+        "can_view": True,
+        "following": len(user_json["following"]),
+        "followers": user_json["followers"]
     }), "application/json")
 
 def api_post_like_add() -> Union[tuple[flask.Response, int], flask.Response]:

@@ -35,6 +35,8 @@ function refresh(force_offset=false) {
         first = false;
       }
 
+      dom("follow").innerText = `Followers: ${json.followers} - Following: ${json.following}`;
+
       end = json.end;
       dom("banner").style.backgroundColor = json.color;
 

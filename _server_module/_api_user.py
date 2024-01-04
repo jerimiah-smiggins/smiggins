@@ -30,6 +30,9 @@ def api_user_follower_add() -> Union[tuple[flask.Response, int], flask.Response]
     if follow_id not in current_json["following"]:
         current_json["following"].append(follow_id)
         save_user_json(current_id, current_json)
+        user_json = load_user_json(follow_id)
+        user_json["followers"] += 1
+        save_user_json(follow_id, user_json)
 
     return return_dynamic_content_type(json.dumps({
         "success": True
@@ -61,6 +64,9 @@ def api_user_follower_remove() -> Union[tuple[flask.Response, int], flask.Respon
     if current_id != follow_id and follow_id in current_json["following"]:
         current_json["following"].remove(follow_id)
         save_user_json(current_id, current_json)
+        user_json = load_user_json(follow_id)
+        user_json["followers"] -= 1
+        save_user_json(follow_id, user_json)
 
     return return_dynamic_content_type(json.dumps({
         "success": True

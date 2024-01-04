@@ -12,6 +12,11 @@
   top: -1em;
 }
 
+#follow {
+  position: relative;
+  top: -2em;
+}
+
 #username-lower {
   position: relative;
   top: -2em;
