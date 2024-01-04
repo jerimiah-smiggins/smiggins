@@ -122,6 +122,12 @@ def api_comment_list() -> Union[tuple[flask.Response, int], flask.Response]:
         post_json = load_post_json(int(request.args.get("id"))) # type: ignore // pylance likes to complain :3
     user_id = token_to_id(request.cookies["token"])
 
+    if "interactions" not in post_json or "comments" not in post_json["interactions"]:
+        return return_dynamic_content_type(json.dumps({
+            "posts": [],
+            "end": True
+        }), "application/json")
+
     while len(post_json["interactions"]["comments"]) and post_json["interactions"]["comments"][0] > offset:
         post_json["interactions"]["comments"].pop(0)
 

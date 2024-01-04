@@ -125,6 +125,9 @@ def api_post_list_following() -> Union[tuple[flask.Response, int], flask.Respons
                 "private_acc": "private" in user_json and user_json["private"]
             })
 
+            if len(outputList) >= 20:
+                break
+
     return return_dynamic_content_type(json.dumps({
         "posts": outputList,
         "end": len(potential) - offset <= 20
@@ -270,7 +273,8 @@ def api_post_like_add() -> Union[tuple[flask.Response, int], flask.Response]:
     if not ("interactions" in post_json and "likes" in post_json["interactions"]) or "user_id" not in post_json["interactions"]["likes"]:
         if "interactions" in post_json:
             if "likes" in post_json["interactions"]:
-                post_json["interactions"]["likes"].append(user_id)
+                if user_id not in post_json["interactions"]["likes"]:
+                    post_json["interactions"]["likes"].append(user_id)
             else:
                 post_json["interactions"]["likes"] = [user_id]
         else:
@@ -301,7 +305,6 @@ def api_post_like_remove() -> Union[tuple[flask.Response, int], flask.Response]:
             }), "application/json"), 404
 
     except ValueError:
-        print(x["id"])
         return return_dynamic_content_type(json.dumps({
             "success": False
         }), "application/json"), 404
@@ -316,4 +319,3 @@ def api_post_like_remove() -> Union[tuple[flask.Response, int], flask.Response]:
     return return_dynamic_content_type(json.dumps({
         "success": True
     }), "application/json")
-

@@ -36,6 +36,8 @@
 }
 
 /* Normal font */
+
+/* ignoring that the font files are invalid until i start caring
 @font-face {
   font-family: 'Poppins';
   font-style: normal;
@@ -71,3 +73,4 @@
   src: url("/css/font/poppins-bolditalic.ttf") format('truetype'),
        url("/css/font/poppins-bolditalic.woff") format('woff');
 }
+*/
