@@ -24,6 +24,9 @@ def format_html(html_content: str, *, custom_replace: dict[str, str]={}) -> str:
     html_content = html_content.replace("{{VERSION}}", VERSION)
     html_content = html_content.replace("{{SITE_NAME}}", SITE_NAME)
     html_content = html_content.replace("{{HIDE_SOURCE}}", "" if SOURCE_CODE else "hidden")
+    html_content = html_content.replace("{{MAX_USERNAME_LENGTH}}", str(MAX_USERNAME_LENGTH))
+    html_content = html_content.replace("{{MAX_DISPL_NAME_LENGTH}}", str(MAX_DISPL_NAME_LENGTH))
+    html_content = html_content.replace("{{MAX_POST_LENGTH}}", str(MAX_POST_LENGTH))
 
     if "token" in request.cookies and validate_token(request.cookies["token"]) and "theme" in (th := load_user_json(token_to_id(request.cookies["token"]))):
         th = load_user_json(token_to_id(request.cookies["token"]))["theme"]
@@ -229,7 +232,7 @@ def validate_username(username: str, *, existing: bool=True) -> int:
         except FileNotFoundError:
             pass
 
-        if (len(username) > 18 or len(username) < 1):
+        if (len(username) > MAX_USERNAME_LENGTH or len(username) < 1):
             return -3
 
         return 1
@@ -239,6 +242,9 @@ def create_api_ratelimit(api_id: str, time_ms: Union[int, float], identifier: Un
     # The identifier should be the request.remote_addr ip address
     # api_id is the identifier for the api, for example "api_account_signup". You
     # can generally use the name of that api's funciton for this.
+
+    if not RATELIMIT:
+        return
 
     identifier = str(identifier)
 

@@ -14,7 +14,7 @@ def api_post_create() -> Union[tuple[flask.Response, int], flask.Response]:
     x = std_checks(
         ratelimit=True,
         ratelimit_api_id="api_post_create",
-        ratelimit_identifier=request.remote_addr,
+        ratelimit_identifier=request.cookies["token"],
 
         token=request.cookies["token"],
 
@@ -37,14 +37,14 @@ def api_post_create() -> Union[tuple[flask.Response, int], flask.Response]:
     except IndexError:
         post = ""
 
-    if (len(post) > 280 or len(post) < 1):
-        create_api_ratelimit("api_post_create", 1000, request.remote_addr)
+    if (len(post) > MAX_POST_LENGTH or len(post) < 1):
+        create_api_ratelimit("api_post_create", API_TIMINGS["create post failure"], request.cookies["token"])
         return return_dynamic_content_type(json.dumps({
             "success": False,
-            "reason": "Invalid post length. Must be between 1 and 280 characters."
+            "reason": f"Invalid post length. Must be between 1 and {MAX_POST_LENGTH} characters."
         }), "application/json"), 400
 
-    create_api_ratelimit("api_post_create", 3000, request.remote_addr)
+    create_api_ratelimit("api_post_create", API_TIMINGS["create post"], request.cookies["token"])
 
     timestamp = round(time.time())
     post_id = generate_post_id()
@@ -125,12 +125,12 @@ def api_post_list_following() -> Union[tuple[flask.Response, int], flask.Respons
                 "private_acc": "private" in user_json and user_json["private"]
             })
 
-            if len(outputList) >= 20:
+            if len(outputList) >= POSTS_PER_REQUEST:
                 break
 
     return return_dynamic_content_type(json.dumps({
         "posts": outputList,
-        "end": len(potential) - offset <= 20
+        "end": len(potential) - offset <= POSTS_PER_REQUEST
     }), "application/json")
 
 def api_post_list_recent() -> Union[tuple[flask.Response, int], flask.Response]:
@@ -148,13 +148,13 @@ def api_post_list_recent() -> Union[tuple[flask.Response, int], flask.Response]:
     else:
         next_id = int(str(request.args.get("offset"))) - 1
 
-    end = next_id <= 20
+    end = next_id <= POSTS_PER_REQUEST
     user_id = token_to_id(request.cookies["token"])
 
     outputList = []
     offset = 0
     i = next_id
-    while i > next_id - 20 - offset and i > 0:
+    while i > next_id - POSTS_PER_REQUEST - offset and i > 0:
         post_info = load_post_json(i)
         user_json = load_user_json(post_info["creator"]["id"])
         if "private" in user_json and user_json["private"] and user_id not in user_json["following"]:
@@ -220,8 +220,8 @@ def api_post_list_user(user: str) -> Union[tuple[flask.Response, int], flask.Res
             break
 
     potential = potential[index::]
-    end = len(potential) <= 20
-    potential = potential[:20:]
+    end = len(potential) <= POSTS_PER_REQUEST
+    potential = potential[:POSTS_PER_REQUEST:]
 
     outputList = []
     for i in potential:

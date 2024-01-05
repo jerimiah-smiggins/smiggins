@@ -15,7 +15,7 @@ def api_comment_create() -> Union[tuple[flask.Response, int], flask.Response]:
     x = std_checks(
         ratelimit=True,
         ratelimit_api_id="api_comment_create",
-        ratelimit_identifier=request.remote_addr,
+        ratelimit_identifier=request.cookies["token"],
 
         token=request.cookies["token"],
 
@@ -39,20 +39,20 @@ def api_comment_create() -> Union[tuple[flask.Response, int], flask.Response]:
         post = ""
 
     if len(post) > 280 or len(post) < 1:
-        create_api_ratelimit("api_comment_create", 1000, request.remote_addr)
+        create_api_ratelimit("api_comment_create", API_TIMINGS["create comment failure"], request.cookies["token"])
         return return_dynamic_content_type(json.dumps({
             "success": False,
             "reason": "Invalid post length. Must be between 1 and 280 characters."
         }), "application/json"), 400
 
     if x["id"] < 0 or generate_post_id(inc=False) < x["id"]:
-        create_api_ratelimit("api_comment_create", 1000, request.remote_addr)
+        create_api_ratelimit("api_comment_create", API_TIMINGS["create comment failure"], request.cookies["token"])
         return return_dynamic_content_type(json.dumps({
             "success": False,
             "reason": "Invalid post id. Must be between 0 and next possible post id (exclusive)."
         }), "application/json"), 400
 
-    create_api_ratelimit("api_comment_create", 3000, request.remote_addr)
+    create_api_ratelimit("api_comment_create", API_TIMINGS["create comment"], request.cookies["token"])
 
     timestamp = round(time.time())
     comment_id = generate_comment_id()
@@ -155,12 +155,12 @@ def api_comment_list() -> Union[tuple[flask.Response, int], flask.Response]:
                 "private_acc": "private" in user_json and user_json["private"]
             })
 
-        if len(outputList) == 20:
+        if len(outputList) == POSTS_PER_REQUEST:
             break
 
     return return_dynamic_content_type(json.dumps({
         "posts": outputList,
-        "end": len(post_json) - offset <= 20
+        "end": len(post_json) - offset <= POSTS_PER_REQUEST
     }), "application/json")
 
 def api_comment_like_add() -> Union[tuple[flask.Response, int], flask.Response]:

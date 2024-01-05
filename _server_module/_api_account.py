@@ -42,7 +42,7 @@ def api_account_signup() -> flask.Response:
 
     user_valid = validate_username(x["username"], existing=False)
     if user_valid == 1:
-        create_api_ratelimit("api_account_signup", 15000, request.remote_addr)
+        create_api_ratelimit("api_account_signup", API_TIMINGS["signup successful"], request.remote_addr)
         user_id = generate_user_id()
         preferences = {
             "following": [user_id],
@@ -70,7 +70,7 @@ def api_account_signup() -> flask.Response:
             "token": token
         }), "application/json")
 
-    create_api_ratelimit("api_account_signup", 1000, request.remote_addr)
+    create_api_ratelimit("api_account_signup", API_TIMINGS["signup unsuccessful"], request.remote_addr)
 
     if user_valid == -1:
         return return_dynamic_content_type(json.dumps({
@@ -86,7 +86,7 @@ def api_account_signup() -> flask.Response:
 
     return return_dynamic_content_type(json.dumps({
         "valid": False,
-        "reason": "Username must be between 1 and 18 characters in length."
+        "reason": f"Username must be between 1 and {MAX_USERNAME_LENGTH} characters in length."
     }), "application/json")
 
 def api_account_login() -> flask.Response:
@@ -111,20 +111,20 @@ def api_account_login() -> flask.Response:
 
     if validate_username(x["username"]) == 1:
         if token == open(f"{ABSOLUTE_SAVING_PATH}users/{username_to_id(x['username'])}/token.txt", "r").read():
-            create_api_ratelimit("api_account_login", 5000, request.remote_addr)
+            create_api_ratelimit("api_account_login", API_TIMINGS["login successful"], request.remote_addr)
             return return_dynamic_content_type(json.dumps({
                 "valid": True,
                 "token": token
             }), "application/json")
         else:
-            create_api_ratelimit("api_account_login", 1000, request.remote_addr)
+            create_api_ratelimit("api_account_login", API_TIMINGS["login unsuccessful"], request.remote_addr)
             return return_dynamic_content_type(json.dumps({
                 "valid": False,
                 "reason": "Invalid password."
             }), "application/json")
 
     else:
-        create_api_ratelimit("api_account_login", 1000, request.remote_addr)
+        create_api_ratelimit("api_account_login", API_TIMINGS["login unsuccessful"], request.remote_addr)
         return return_dynamic_content_type(json.dumps({
             "valid": False,
             "reason": f"Account with username {x['username']} doesn't exist."
