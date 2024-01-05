@@ -207,7 +207,7 @@ def api_post_list_user(user: str) -> Union[tuple[flask.Response, int], flask.Res
             "color": "#3a1e93" if "color" not in user_json else user_json["color"],
             "private": True,
             "can_view": False,
-            "following": len(user_json["following"]),
+            "following": len(user_json["following"]) - 1,
             "followers": user_json["followers"]
         }))
 
@@ -244,7 +244,7 @@ def api_post_list_user(user: str) -> Union[tuple[flask.Response, int], flask.Res
         "color": "#3a1e93" if "color" not in user_json else user_json["color"],
         "private": "private" in user_json and user_json["private"],
         "can_view": True,
-        "following": len(user_json["following"]),
+        "following": len(user_json["following"]) - 1,
         "followers": user_json["followers"]
     }), "application/json")
 
