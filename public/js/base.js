@@ -83,6 +83,8 @@ function sha256(ascii) {
 function timeSince(date) {
   let seconds = Math.floor((+(new Date()) / 1000 - date + 1));
 
+  if (seconds < 0) { return "0 seconds"; }
+
   let interval = seconds / 31536000;
   if (interval >= 1) { return Math.floor(interval) + " year" + (Math.floor(interval) == 1 ? "" : "s"); }
 
