@@ -4,12 +4,14 @@ import json
 import os
 
 user_list = os.listdir("./users/")
-
-followers = [-1 for _ in user_list]
+followers = [-1 for _ in range(max([int(i) for i in user_list]))]
 
 for i in user_list:
     for o in json.loads(open(f"./users/{i}/settings.json", "r").read())["following"]:
-        followers[o - 1] += 1
+        try:
+            followers[o - 1] += 1
+        except:
+            print(i, o)
 
 for i in user_list:
     user_json = json.loads(open(f"./users/{i}/settings.json", "r").read())
