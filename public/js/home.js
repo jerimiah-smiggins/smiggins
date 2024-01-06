@@ -3,6 +3,12 @@ let offset = null;
 let page = localStorage.getItem("home-page");
 if (page !== "following" && page !== "recent") { page = "following"; }
 
+showlog = (str, time=3000) => {
+  inc++;
+  dom("error").innerText = str;
+  setTimeout(() => { req++; if (req == inc) { dom("error").innerText = ""; }}, time);
+};
+
 dom("switch").innerText = "Switch to " + (page == "recent" ? "following" : "recent") + "...";
 
 dom("post-text").addEventListener("input", function() {
@@ -27,9 +33,7 @@ dom("post").addEventListener("click", function() {
         if (response.status == 429) {
           dom("post").removeAttribute("disabled");
           dom("post-text").removeAttribute("disabled");
-          inc++;
-          dom("error").innerText = "You are being ratelimited! Try again in a few moments...";
-          setTimeout(() => { req++; if (req == inc) { dom("error").innerText = ""; }}, 3000);
+          showlog("You are being ratelimited! Try again in a few moments...");
         } else {
           response.json().then((json) => {
             if (json.success) {
@@ -38,9 +42,7 @@ dom("post").addEventListener("click", function() {
             } else {
               dom("post").removeAttribute("disabled");
               dom("post-text").removeAttribute("disabled");
-              inc++;
-              dom("error").innerText = "Something went wrong! Try again in a few moments...";
-              setTimeout(() => { req++; if (req == inc) { dom("error").innerText = ""; }}, 3000);
+              showlog("Something went wrong! Try again in a few moments...");
             }
           })
         }
@@ -48,9 +50,7 @@ dom("post").addEventListener("click", function() {
       .catch((err) => {
         dom("post").removeAttribute("disabled");
         dom("post-text").removeAttribute("disabled");
-        inc++;
-        dom("error").innerText = "Something went wrong! Try again in a few moments...";
-        setTimeout(() => { req++; if (req == inc) { dom("error").innerText = ""; }}, 3000);
+        showlog("Something went wrong! Try again in a few moments...");
         throw(err);
       });
   }
@@ -72,9 +72,7 @@ dom("add").addEventListener("click", function() {
       .then((response) => (response.json()))
       .then((json) => {
         if (!json.success) {
-          inc++;
-          dom("error").innerText = "Something went wrong! Try again in a few moments...";
-          setTimeout(() => { req++; if (req == inc) { dom("error").innerText = ""; }}, 3000);
+          showlog("Something went wrong! Try again in a few moments...");
         } else {
           dom("add-follower").value = "";
           refresh();
@@ -85,9 +83,7 @@ dom("add").addEventListener("click", function() {
       .catch((err) => {
         dom("add-follower").removeAttribute("disabled");
         dom("add").removeAttribute("disabled");
-        inc++;
-        dom("error").innerText = "Something went wrong! Try again in a few moments...";
-        setTimeout(() => { req++; if (req == inc) { dom("error").innerText = ""; }}, 3000);
+        showlog("Something went wrong! Try again in a few moments...");
         throw(err);
       });
   }
@@ -109,9 +105,7 @@ dom("remove").addEventListener("click", function() {
       .then((response) => (response.json()))
       .then((json) => {
         if (!json.success) {
-          inc++;
-          dom("error").innerText = "Something went wrong! Try again in a few moments...";
-          setTimeout(() => { req++; if (req == inc) { dom("error").innerText = ""; }}, 3000);
+          showlog("Something went wrong! Try again in a few moments...");
         } else {
           dom("add-follower").value = "";
           refresh();
@@ -122,9 +116,7 @@ dom("remove").addEventListener("click", function() {
       .catch((err) => {
         dom("add-follower").removeAttribute("disabled");
         dom("remove").removeAttribute("disabled");
-        inc++;
-        dom("error").innerText = "Something went wrong! Try again in a few moments...";
-        setTimeout(() => { req++; if (req == inc) { dom("error").innerText = ""; }}, 3000);
+        showlog("Something went wrong! Try again in a few moments...");
         throw(err);
       });
   }
@@ -189,9 +181,7 @@ function refresh(force_offset=false) {
     .catch((err) => {
       dom("post").removeAttribute("disabled")
       dom("post-text").removeAttribute("disabled")
-      inc++;
-      dom("error").innerText = "Something went wrong loading the posts! Try again in a few moments...";
-      setTimeout(() => { req++; if (req == inc) { dom("error").innerText = ""; }}, 5000);
+      showlog("Something went wrong loading the posts! Try again in a few moments...", 5000);
       throw(err);
     });
 }

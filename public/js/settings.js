@@ -1,6 +1,12 @@
 let inc = 0, req = 0;
 let home = true;
 
+showlog = (str, time=3000) => {
+  inc++;
+  dom("error").innerText = str;
+  setTimeout(() => { req++; if (req == inc) { dom("error").innerText = ""; }}, time);
+};
+
 dom("theme").addEventListener("change", function() {
   dom("theme").setAttribute("disabled", "");
   fetch("/api/user/settings/theme", {
@@ -15,18 +21,14 @@ dom("theme").addEventListener("change", function() {
     .then((response) => (response.json()))
     .then((json) => {
       if (!json.success) {
-        dom("error").innerText = "Something went wrong! Try again in a few moments...";
-        inc++;
-        setTimeout(() => { req++; if (req == inc) { dom("error").innerText = ""; }}, 3000);
+        showlog("Something went wrong! Try again in a few moments...");
       }
       dom("theme").removeAttribute("disabled");
       document.querySelector("body").setAttribute("data-theme", dom("theme").value);
     })
     .catch((err) => {
       dom("theme").removeAttribute("disabled");
-      inc++;
-      dom("error").innerText = "Something went wrong! Try again in a few moments...";
-      setTimeout(() => { req++; if (req == inc) { dom("error").innerText = ""; }}, 3000);
+      showlog("Something went wrong! Try again in a few moments...");
       throw(err);
     });
 });
@@ -46,21 +48,17 @@ dom("displ-name-save").addEventListener("click", function() {
     .then((response) => (response.json()))
     .then((json) => {
       if (!json.success) {
-        dom("error").innerText = "Something went wrong! Try again in a few moments...";
+        showlog("Something went wrong! Try again in a few moments...");
       } else {
-        dom("error").innerText = "Success!";
+        showlog("Success!");
       }
-      inc++;
-      setTimeout(() => { req++; if (req == inc) { dom("error").innerText = ""; }}, 3000);
       dom("displ-name").removeAttribute("disabled");
       dom("displ-name-save").removeAttribute("disabled");
     })
     .catch((err) => {
       dom("displ-name").removeAttribute("disabled");
       dom("displ-name-save").removeAttribute("disabled");
-      inc++;
-      dom("error").innerText = "Something went wrong! Try again in a few moments...";
-      setTimeout(() => { req++; if (req == inc) { dom("error").innerText = ""; }}, 3000);
+      showlog("Something went wrong! Try again in a few moments...");
       throw(err);
     });
 });
@@ -80,21 +78,17 @@ dom("color-save").addEventListener("click", function() {
     .then((response) => (response.json()))
     .then((json) => {
       if (!json.success) {
-        dom("error").innerText = "Something went wrong! Try again in a few moments...";
+        showlog("Something went wrong! Try again in a few moments...");
       } else {
-        dom("error").innerText = "Success!";
+        showlog("Success!");
       }
-      inc++;
-      setTimeout(() => { req++; if (req == inc) { dom("error").innerText = ""; }}, 3000);
       dom("color").removeAttribute("disabled");
       dom("color-save").removeAttribute("disabled");
     })
     .catch((err) => {
       dom("color").removeAttribute("disabled");
       dom("color-save").removeAttribute("disabled");
-      inc++;
-      dom("error").innerText = "Something went wrong! Try again in a few moments...";
-      setTimeout(() => { req++; if (req == inc) { dom("error").innerText = ""; }}, 3000);
+      showlog("Something went wrong! Try again in a few moments...");
       throw(err);
     });
 });
@@ -114,21 +108,17 @@ dom("priv-save").addEventListener("click", function() {
     .then((response) => (response.json()))
     .then((json) => {
       if (!json.success) {
-        dom("error").innerText = "Something went wrong! Try again in a few moments...";
+        showlog("Something went wrong! Try again in a few moments...");
       } else {
-        dom("error").innerText = "Success!";
+        showlog("Success!");
       }
-      inc++;
-      setTimeout(() => { req++; if (req == inc) { dom("error").innerText = ""; }}, 3000);
       dom("priv").removeAttribute("disabled");
       dom("priv-save").removeAttribute("disabled");
     })
     .catch((err) => {
       dom("priv").removeAttribute("disabled");
       dom("priv-save").removeAttribute("disabled");
-      inc++;
-      dom("error").innerText = "Something went wrong! Try again in a few moments...";
-      setTimeout(() => { req++; if (req == inc) { dom("error").innerText = ""; }}, 3000);
+      showlog("Something went wrong! Try again in a few moments...");
       throw(err);
     });
 });
