@@ -8,3 +8,4 @@ the following svgs are from fontawesome:
 * home (`fa-solid fa-house`)
 * comment (`fa-regular fa-comment`)
 * lock (`fa-regular fa-lock`)
+* share (`fa-solid fa-share`)

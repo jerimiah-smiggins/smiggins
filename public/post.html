@@ -18,10 +18,15 @@
 
     <link rel="stylesheet" href="/css/home.css">
     <link rel="stylesheet" href="/css/user.css">
+    <style>
+      #top .main-content {
+        -webkit-line-clamp: none;
+      }
+    </style>
   </head>
 
   <body>
-    <div class="post-container" data-post-id="{{POST_ID}}">
+    <div id="top" class="post-container" data-post-id="{{POST_ID}}">
       <div class="post">
         <div class="upper-content">
           <a href="/u/{{CREATOR_USERNAME}}" class="no-underline text">
@@ -55,6 +60,7 @@
       const post_id = {{POST_ID}};
       const comment = {{COMMENT}};
       const logged_in = {{LOGGED_IN}};
+      let share = window.location.href;
       let home = true;
     </script>
 

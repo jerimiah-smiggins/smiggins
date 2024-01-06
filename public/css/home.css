@@ -22,7 +22,14 @@ button { width: 5em; }
   outline: calc(2em / 14) var(--secondary) solid;
 }
 
-.main-content { word-break: break-word; }
+.main-content {
+  word-break: break-word;
+  display: -webkit-box;
+  -webkit-line-clamp: 7;
+  -webkit-box-orient: vertical;
+  overflow-y: hidden;
+  text-overflow: ellipsis;
+}
 
 .post {
   width: calc(26.95em - (3em / 7));

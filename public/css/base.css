@@ -138,12 +138,14 @@ svg.accent     { fill: var(--accent);     }
 .mono   { font-family: 'Cousine'; }
 .no-underline { text-decoration: none !important; }
 
-.icons a {
+.icons {
+  display: flex;
+  flex-direction: column;
+  flex-wrap: nowrap;
   position: fixed;
+  top: 1em;
   left: 1em;
-  height: 1.5em;
-  width: 1.5em;
-  display: inline-block;
+  gap: .5em;
 }
 
 .icons svg {
@@ -154,5 +156,5 @@ svg.accent     { fill: var(--accent);     }
   stroke: none;
 }
 
-.icons a.settings { top: 1em; }
-.icons a.home { top: 3.5em; }
+.icons svg:active { scale: 0.9; }
+.icons .share { cursor: pointer; }
