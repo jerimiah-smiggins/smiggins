@@ -1,6 +1,6 @@
 const dom = id => document.getElementById(id);
 
-const urlRegex = /(https?:\/\/(?:\w+\.)+[\-0-9A-Za-z]{3,24}\/?(?:\/?[\w\-]+)*(?:\.[\w\-]+)?(?:\?(?:[\w\-]+=?[\w\-]*&?)*)?)/g;
+const urlRegex = /(https?:\/\/(?:\w+\.)+[\-0-9A-Za-z]{2,24}\/?(?:\/?[\w\-]+)*(?:\.[\w\-]+)?(?:\?(?:[\w\-]+=?[\w\-]*&?)*)?)/g;
 const usernameRegex = /(@[a-zA-Z0-9_\-]{1,18})/g;
 
 function setCookie(name, value) {
