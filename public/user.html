@@ -4,6 +4,18 @@
   <head>
     <title>{{DISPLAY_NAME}} - {{SITE_NAME}} v{{VERSION}}</title>
     {{HTML_HEADERS}}
+
+    <!-- Make this the user bio once added // <meta name="description" content="{{USER_BIO}}"> -->
+    <meta name="author" content="{{DISPLAY_NAME}}">
+
+    <meta property="og:type" content="website">
+    <meta property="og:title" content="{{DISPLAY_NAME}} on {{SITE_NAME}}">
+    <!-- Make this the user bio once added // <meta property="og:description" content="{{USER_BIO}}"> -->
+
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:title" content="{{DISPLAY_NAME}} on {{SITE_NAME}}">
+    <!-- Make this the user bio once added // <meta name="twitter:description" content="{{USER_BIO}}"> -->
+
     <link rel="stylesheet" href="/css/home.css">
     <link rel="stylesheet" href="/css/user.css">
   </head>
@@ -18,9 +30,14 @@
     <div data-toggle-on-view hidden>This account is private. Only users that they follow can see their posts.</div><br><br>
     <div id="error"></div>
     <div id="posts"></div>
-    <button id="more" onclick="refresh(true)" hidden>Load more...</button>
+    <div id="more-container"><button id="more" onclick="refresh(true)" hidden>Load more...</button></div>
 
-    <script src="/js/user.js"></script>
+    <script>
+      const logged_in = {{LOGGED_IN}};
+      let home = true;
+    </script>
+
     {{HTML_FOOTERS}}
+    <script src="/js/user.js"></script>
   </body>
 </html>

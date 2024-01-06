@@ -187,16 +187,12 @@ def api_post_list_user(user: str) -> Union[tuple[flask.Response, int], flask.Res
     # Ratelimit: none
     # Parameters: none
 
-    x = std_checks(
-        token=request.cookies["token"],
-    )
-
     if not validate_username(user):
         flask.abort(404)
 
     offset = sys.maxsize if request.args.get("offset") == None else int(request.args.get("offset")) # type: ignore // pylance likes to complain :3
 
-    self_id = token_to_id(request.cookies["token"])
+    self_id = token_to_id(request.cookies["token"]) if "token" in request.cookies and validate_token(request.cookies["token"]) else 0
     user_id = username_to_id(user)
     user_json = load_user_json(user_id)
 
@@ -228,7 +224,6 @@ def api_post_list_user(user: str) -> Union[tuple[flask.Response, int], flask.Res
         post_info = load_post_json(i)
         outputList.append({
             "post_id": i,
-            "creator_id": user_id,
             "creator_username": user,
             "display_name": user_json["display_name"],
             "content": post_info["content"],

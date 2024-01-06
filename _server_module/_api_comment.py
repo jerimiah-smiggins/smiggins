@@ -38,11 +38,11 @@ def api_comment_create() -> Union[tuple[flask.Response, int], flask.Response]:
     except IndexError:
         post = ""
 
-    if len(post) > 280 or len(post) < 1:
+    if len(post) > MAX_POST_LENGTH or len(post) < 1:
         create_api_ratelimit("api_comment_create", API_TIMINGS["create comment failure"], request.cookies["token"])
         return return_dynamic_content_type(json.dumps({
             "success": False,
-            "reason": "Invalid post length. Must be between 1 and 280 characters."
+            "reason": f"Invalid post length. Must be between 1 and {MAX_POST_LENGTH} characters."
         }), "application/json"), 400
 
     if x["id"] < 0 or generate_post_id(inc=False) < x["id"]:
@@ -102,11 +102,17 @@ def api_comment_list() -> Union[tuple[flask.Response, int], flask.Response]:
     # Parameters: none
 
     std_checks(
-        token=request.cookies["token"],
-
         args=True,
         required_args=["id"]
     )
+
+    logged_out = False
+
+    try:
+        if not validate_token(request.cookies["token"]):
+            logged_out = True
+    except KeyError:
+        logged_out = True
 
     try:
         if int(request.args.get("id")) >= generate_post_id(inc=False) or int(request.args.get("id")) <= 0: # type: ignore // pylance likes to complain :3
@@ -114,13 +120,13 @@ def api_comment_list() -> Union[tuple[flask.Response, int], flask.Response]:
     except ValueError:
         flask.abort(400)
 
-    offset = sys.maxsize if request.args.get("offset") == None else int(request.args.get("offset")) # type: ignore // pylance likes to complain :3
+    offset = 0 if request.args.get("offset") == None else int(request.args.get("offset")) + 1 # type: ignore // pylance likes to complain :3
 
     if request.args.get("comment"):
         post_json = load_comment_json(int(request.args.get("id"))) # type: ignore // pylance likes to complain :3
     else:
         post_json = load_post_json(int(request.args.get("id"))) # type: ignore // pylance likes to complain :3
-    user_id = token_to_id(request.cookies["token"])
+    user_id = 0 if logged_out else token_to_id(request.cookies["token"])
 
     if "interactions" not in post_json or "comments" not in post_json["interactions"]:
         return return_dynamic_content_type(json.dumps({
@@ -128,10 +134,9 @@ def api_comment_list() -> Union[tuple[flask.Response, int], flask.Response]:
             "end": True
         }), "application/json")
 
-    while len(post_json["interactions"]["comments"]) and post_json["interactions"]["comments"][0] > offset:
+    while len(post_json["interactions"]["comments"]) and post_json["interactions"]["comments"][0] < offset:
         post_json["interactions"]["comments"].pop(0)
 
-    end = len(post_json["interactions"]["comments"])
     outputList = []
     offset = 0
     for i in post_json["interactions"]["comments"]:
@@ -144,7 +149,6 @@ def api_comment_list() -> Union[tuple[flask.Response, int], flask.Response]:
         else:
             outputList.append({
                 "post_id": i,
-                "creator_id": post_info["creator"]["id"],
                 "display_name": user_json["display_name"],
                 "creator_username": user_json["display_name"] if "username" not in user_json else user_json["username"],
                 "content": post_info["content"],
@@ -155,12 +159,12 @@ def api_comment_list() -> Union[tuple[flask.Response, int], flask.Response]:
                 "private_acc": "private" in user_json and user_json["private"]
             })
 
-        if len(outputList) == POSTS_PER_REQUEST:
+        if len(outputList) >= POSTS_PER_REQUEST:
             break
 
     return return_dynamic_content_type(json.dumps({
         "posts": outputList,
-        "end": len(post_json) - offset <= POSTS_PER_REQUEST
+        "end": len(post_json["interactions"]["comments"]) - offset <= POSTS_PER_REQUEST
     }), "application/json")
 
 def api_comment_like_add() -> Union[tuple[flask.Response, int], flask.Response]:

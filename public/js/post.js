@@ -1,5 +1,3 @@
-let home = true;
-
 dom("timestamp").innerHTML = timeSince(
   Number(dom("timestamp").getAttribute("data-timestamp"))
 );
@@ -9,9 +7,16 @@ let offset = null;
 let page = localStorage.getItem("home-page");
 if (page !== "following" && page !== "recent") { page = "following"; }
 
+if (!logged_in) {
+  dom("icons").setAttribute("hidden", "");
+  dom("more-container").innerHTML = "<a href=\"/signup\">Sign up</a> to see more!";
+  dom("post-text").setAttribute("hidden", "");
+  dom("post").setAttribute("hidden", "");
+  dom("hide-me").setAttribute("hidden", "");
+}
+
 dom("post-text").addEventListener("input", function() {
   while (this.value.indexOf("  ") !== -1) { this.value = this.value.replaceAll("  ", " "); }
-  if (this.value.length > 280) { this.value = this.value.slice(0, 280); }
 })
 
 dom("post").addEventListener("click", function() {
@@ -108,8 +113,8 @@ function refresh(force_offset=false) {
         offset = json.posts[post].post_id;
       }
 
-      if (force_offset !== true) { dom("more").removeAttribute("hidden"); }
-      if (json.end) { dom("more").setAttribute("hidden", ""); } else { dom("more").removeAttribute("hidden"); }
+      if (force_offset !== true && logged_in) { dom("more").removeAttribute("hidden"); }
+      if (json.end && logged_in) { dom("more").setAttribute("hidden", ""); } else if (logged_in) { dom("more").removeAttribute("hidden"); }
 
       dom("post").removeAttribute("disabled")
       dom("post-text").removeAttribute("disabled")

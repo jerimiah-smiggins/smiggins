@@ -1,5 +1,6 @@
 x = document.createElement("div");
 x.setAttribute("class", "icons");
+x.setAttribute("id", "icons");
 x.innerHTML = icons.settings;
 
 if (typeof(home) !== 'undefined') {

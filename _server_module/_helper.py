@@ -79,7 +79,7 @@ def ensure_file(path: str, *, default_value: str="", folder: bool=False) -> None
 def escape_html(string: str) -> str:
     # Returns escaped html that won't accidentally create any elements
 
-    return string.replace("&", "&amp;").replace("<", "&lt;")
+    return string.replace("&", "&amp;").replace("<", "&lt;").replace("\"", "&quo;")
 
 def set_timeout(callback: Callable, delay_ms: Union[int, float]) -> None:
     # Works like javascript's setTimeout function.
