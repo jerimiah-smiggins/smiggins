@@ -1,32 +1,5 @@
 @import url("/css/fonts.css");
-
-:root {
-  --text: #e4e1ee;
-  --background: #0e0a18;
-  --primary: #aa9ae0;
-  --secondary: #3a1e93;
-  --accent: #eca0e0;
-
-  --text-low-opacity: #e4e1ee33;
-  --background-low-opacity: #0e0a1833;
-  --primary-low-opacity: #aa9ae033;
-  --secondary-low-opacity: #3a1e9333;
-  --accent-low-opacity: #eca0e066;
-}
-
-body[data-theme="light"] {
-  --text: #14111d;
-  --background: #eae6f4;
-  --primary: #301f65;
-  --secondary: #866be1;
-  --accent: #5e1352;
-
-  --text-low-opacity: #14111d33;
-  --background-low-opacity: #eae6f433;
-  --primary-low-opacity: #301f6533;
-  --secondary-low-opacity: #866be133;
-  --accent-low-opacity: #5e135266;
-}
+@import url("/css/theme.css");
 
 ::-moz-selection {
   background-color: var(--accent-low-opacity);

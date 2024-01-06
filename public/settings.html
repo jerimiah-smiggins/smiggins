@@ -4,6 +4,8 @@
   <head>
     <title>Settings - {{SITE_NAME}} v{{VERSION}}</title>
     {{HTML_HEADERS}}
+    <link rel="stylesheet" href="/css/home.css">
+    <link rel="stylesheet" href="/css/settings.css">
   </head>
 
   <body style="--banner: {{BANNER_COLOR}};">
@@ -23,11 +25,14 @@
 
     Banner color:<br>
     <div style="width: 200px; background-color: var(--banner); opacity: 20%; height: 50px; display: inline-block;"></div><br>
-    <input id="color" value="{{BANNER_COLOR}}" type="color"> <button id="color-save">Save</button><br><br>
+    <input id="banner-color" value="{{BANNER_COLOR}}" type="color"> <button id="banner-color-save">Save</button><br><br>
 
     Private account:<br>
     <input type="checkbox" id="priv" {{CHECKED_IF_PRIV}}> <button id="priv-save">Save</button><br>
     If your account is private, that means only you and people you follow can see your posts.<br><br>
+
+    Color:
+    <div id="color-container"></div><br><br>
 
     <a href="https://github.com/trinkey/social-media-thing" target="_blank" {{HIDE_SOURCE}}>Source code</a><br {{HIDE_SOURCE}}>
     <a href="/logout">Log out</a>

@@ -1,6 +1,33 @@
 let inc = 0, req = 0;
 let home = true;
 
+for (i in validColors) {
+  dom("color-container").innerHTML += `
+    <div class="post-container" data-color="${validColors[i]}" onclick="localStorage.setItem('color', '${validColors[i]}'); document.querySelector('body').setAttribute('data-color', validColors.indexOf(localStorage.getItem('color')) == -1 ? validColors[0] : localStorage.getItem('color'));">
+      <div class="post">
+        <div class="upper-content">
+          <div class="displ-name">Example
+          <span class="upper-lower-opacity"> -
+            <div class="username">@example</div> -
+            <div class="timestamp">${Math.floor(Math.random() * 21) + 2} hours ago</div>
+          </span>
+        </div>
+        <div class="main-content">
+          This is an example post. I am <a href="#">@example</a>.
+        </div>
+        <div class="bottom-content">
+          <div class="comment">${icons.comment}</div><span class="comment-number">${Math.floor(Math.random() * 100)}</span>
+          <div class="bottom-spacing"></div>
+          <div class="like" data-liked="true">
+            ${icons.like}
+          </div>
+          <span class="like-number">${Math.floor(Math.random() * 100)}</span>
+        </div>
+      </div>
+    </div>
+  `;
+}
+
 showlog = (str, time=3000) => {
   inc++;
   dom("error").innerText = str;
@@ -63,16 +90,16 @@ dom("displ-name-save").addEventListener("click", function() {
     });
 });
 
-dom("color-save").addEventListener("click", function() {
-  dom("color").setAttribute("disabled", "");
-  dom("color-save").setAttribute("disabled", "");
+dom("banner-color-save").addEventListener("click", function() {
+  dom("banner-color").setAttribute("disabled", "");
+  dom("banner-color-save").setAttribute("disabled", "");
   fetch("/api/user/settings/color", {
     method: "POST",
     headers: {
       "Content-Type": "application/json"
     },
     body: JSON.stringify({
-      "color": dom("color").value
+      "color": dom("banner-color").value
     })
   })
     .then((response) => (response.json()))
@@ -82,12 +109,12 @@ dom("color-save").addEventListener("click", function() {
       } else {
         showlog("Success!");
       }
-      dom("color").removeAttribute("disabled");
-      dom("color-save").removeAttribute("disabled");
+      dom("banner-color").removeAttribute("disabled");
+      dom("banner-color-save").removeAttribute("disabled");
     })
     .catch((err) => {
-      dom("color").removeAttribute("disabled");
-      dom("color-save").removeAttribute("disabled");
+      dom("banner-color").removeAttribute("disabled");
+      dom("banner-color-save").removeAttribute("disabled");
       showlog("Something went wrong! Try again in a few moments...");
       throw(err);
     });
@@ -123,6 +150,6 @@ dom("priv-save").addEventListener("click", function() {
     });
 });
 
-dom("color").addEventListener("input", function() {
+dom("banner-color").addEventListener("input", function() {
   document.querySelector("body").setAttribute("style", `--banner: ${this.value}`);
 });

@@ -1,0 +1,19 @@
+#color-container {
+  display: flex;
+  flex-direction: row;
+  justify-content: center;
+  flex-wrap: wrap;
+}
+
+.post-container {
+  padding: 1em;
+  background-color: var(--background);
+}
+
+.post {
+  margin: 0px;
+}
+
+@media screen and (max-width: 565px) {
+  .post { width: calc(94vw - 3.5em - (3em / 7)); }
+}
