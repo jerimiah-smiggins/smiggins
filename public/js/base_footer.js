@@ -22,10 +22,19 @@ if (typeof(profile) === "undefined") {
     fetch("/api/info/username")
       .then((response) => (response.text()))
       .then((username) => {
-        localStorage.setItem("username", username)
-        dom("icons").innerHTML += `<a title="Profile" href="/u/${username}">${icons.user}</a>`;
+        if (usernameRegexFull.test(username)) {
+          localStorage.setItem("username", username);
+          dom("icons").innerHTML += `<a title="Profile" href="/u/${username}">${icons.user}</a>`;
+        } else {
+          console.log("Username returned from /api/info/username is invalid.");
+        }
       });
   } else {
-    dom("icons").innerHTML += `<a title="Profile" href="/u/${localStorage.getItem("username")}">${icons.user}</a>`;
+    if (usernameRegexFull.test(localStorage.getItem("username"))) {
+      dom("icons").innerHTML += `<a title="Profile" href="/u/${localStorage.getItem("username")}">${icons.user}</a>`;
+    } else {
+      console.log("Username in localStorage is invalid.");
+      localStorage.removeItem("username");
+    }
   }
 }
