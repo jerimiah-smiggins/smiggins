@@ -64,6 +64,10 @@ app.route("/api/comment/create", methods=["PUT"])(api_comment_create)
 app.route("/api/comment/like/add", methods=["POST"])(api_comment_like_add)
 app.route("/api/comment/like/remove", methods=["DELETE"])(api_comment_like_remove)
 
+# Create info routes
+app.route("/api/info/ip", methods=["GET"])(api_info_ip)
+app.route("/api/info/username", methods=["GET"])(api_info_username)
+
 # Create routes for forcing all http response codes
 for i in [
     100, 101, 102, 103,

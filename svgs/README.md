@@ -9,3 +9,4 @@ the following svgs are from fontawesome:
 * comment (`fa-regular fa-comment`)
 * lock (`fa-regular fa-lock`)
 * share (`fa-solid fa-share`)
+* user (`fa-solid fa-user`)

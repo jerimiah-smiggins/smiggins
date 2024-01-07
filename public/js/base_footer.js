@@ -12,7 +12,20 @@ if (typeof(logged_in) !== 'boolean' || logged_in) {
 }
 
 if (typeof(share) !== 'undefined') {
-  x.innerHTML += `<span class="share" title="Share" onclick="window.navigator.clipboard.writeText('${escapeHTML(share)}'); showlog('Copied to clipboard!');">${icons.share}</span>`;
+  x.innerHTML += `<span title="Share" onclick="window.navigator.clipboard.writeText('${escapeHTML(share)}'); showlog('Copied to clipboard!');">${icons.share}</span>`;
 }
 
 document.querySelector("body").append(x);
+
+if (typeof(profile) === "undefined") {
+  if (localStorage.getItem("username") === null) {
+    fetch("/api/info/username")
+      .then((response) => (response.text()))
+      .then((username) => {
+        localStorage.setItem("username", username)
+        dom("icons").innerHTML += `<a title="Profile" href="/u/${username}">${icons.user}</a>`;
+      });
+  } else {
+    dom("icons").innerHTML += `<a title="Profile" href="/u/${localStorage.getItem("username")}">${icons.user}</a>`;
+  }
+}
