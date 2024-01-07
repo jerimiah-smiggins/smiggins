@@ -3,6 +3,7 @@
 from ._packages import *
 from ._settings import *
 from ._variables import *
+from posts.models import Users, Posts, Comments
 
 # Website nonspecific helper functions
 def sha(string: Union[str, bytes]) -> str:
@@ -102,9 +103,9 @@ def validate_token(token: str) -> bool:
             return False
 
     try:
-        open(f"{ABSOLUTE_SAVING_PATH}tokens/{token}.txt", "r")
+        Users.objects.get(token=token).token
         return True
-    except FileNotFoundError:
+    except Users.DoesNotExist:
         return False
 
 def token_to_id(token: str) -> int:

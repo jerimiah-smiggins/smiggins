@@ -1,7 +1,7 @@
 # Non-default library dependencies:
 # - flask (pip install flask)
 
-from _server_module import *
+from smiggins._server_module import *
 
 # Make sure all required files for saving exist
 ensure_file(   ABSOLUTE_SAVING_PATH,            folder=True)
