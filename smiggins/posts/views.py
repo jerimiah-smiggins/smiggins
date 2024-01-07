@@ -14,10 +14,11 @@ def index(request):
     context = {
         "SITE_NAME" : SITE_NAME,
         "VERSION" : VERSION,
+        "HIDE_SOURCE" : "" if SOURCE_CODE else "hidden",
+
         "HTML_HEADERS" : HTML_HEADERS,
         "HTML_FOOTERS" : HTML_FOOTERS,
-        "HIDE_SOURCE" : "" if SOURCE_CODE else "hidden",
-    }
+        }
     return HttpResponse(template.render(context, request))
 
 def home(request):
@@ -25,9 +26,32 @@ def home(request):
     context = {
         "SITE_NAME" : SITE_NAME,
         "VERSION" : VERSION,
-        "HTML_HEADERS" : HTML_HEADERS,
         "MAX_POST_LENGTH" : MAX_POST_LENGTH,
-        "HTML_FOOTERS" : HTML_FOOTERS
+
+        "HTML_HEADERS" : HTML_HEADERS,
+        "HTML_FOOTERS" : HTML_FOOTERS,
+    }
+    return HttpResponse(template.render(context, request))
+
+def login (request):
+    template = loader.get_template("posts/login.html")
+    context = {
+        "SITE_NAME" : SITE_NAME,
+        "VERSION" : VERSION,
+        "MAX_USERNAME_LENGTH" : MAX_USERNAME_LENGTH,
+
+        "HTML_HEADERS" : HTML_HEADERS,
+    }
+    return HttpResponse(template.render(context, request))
+
+def signup (request):
+    template = loader.get_template("posts/signup.html")
+    context = {
+        "SITE_NAME" : SITE_NAME,
+        "VERSION" : VERSION,
+        "MAX_USERNAME_LENGTH" : MAX_USERNAME_LENGTH,
+
+        "HTML_HEADERS" : HTML_HEADERS,
     }
     return HttpResponse(template.render(context, request))
 
