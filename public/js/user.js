@@ -8,6 +8,12 @@ if (!logged_in) {
   dom("more-container").innerHTML = "<a href=\"/signup\">Sign up</a> to see more!";
 }
 
+showlog = (str, time=3000) => {
+  inc++;
+  dom("error").innerText = str;
+  setTimeout(() => { req++; if (req == inc) { dom("error").innerText = ""; }}, time);
+};
+
 function refresh(force_offset=false) {
   if (force_offset !== true) { dom("posts").innerHTML = ""; }
 
@@ -77,9 +83,7 @@ function refresh(force_offset=false) {
       if (json.end && logged_in) { dom("more").setAttribute("hidden", ""); } else if (logged_in) { dom("more").removeAttribute("hidden"); }
     })
     .catch((err) => {
-      inc++;
-      dom("error").innerText = "Something went wrong loading the posts! Try again in a few moments...";
-      setTimeout(() => { req++; if (req == inc) { dom("error").innerText = ""; }}, 5000);
+      showlog("Something went wrong loading the posts! Try again in a few moments...", 5000);
       throw(err);
     });
 }
@@ -101,9 +105,7 @@ function toggle_follow() {
       dom("toggle").innerText = x ? "Follow" : "Unfollow";
     })
     .catch((err) => {
-      inc++;
-      dom("error").innerText = "Something went wrong loading the posts! Try again in a few moments...";
-      setTimeout(() => { req++; if (req == inc) { dom("error").innerText = ""; }}, 5000);
+      showlog("Something went wrong loading the posts! Try again in a few moments...", 5000);
       throw(err);
     });
 }
