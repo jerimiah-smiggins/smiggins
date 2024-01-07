@@ -2,7 +2,7 @@ const dom = (id) => (document.getElementById(id));
 
 const urlRegex = /(https?:\/\/(?:\w+\.)+[\-0-9A-Za-z]{2,24}\/?(?:\/?[\w\-]+)*(?:\.[\w\-]+)?(?:\?(?:[\w\-]+=?[\w\-]*&?)*)?)/g;
 const usernameRegex = /(@[a-zA-Z0-9_\-]+)/g;
-const usernameRegexFull = /^(@[a-z0-9_\-]+)$/g;
+const usernameRegexFull = /^[a-z0-9_\-]+$/g;
 
 const validColors = [
   "purple", "purple2", "pinkgreen", "bluered", "blueyellow", "pink", "blue", "green", "orange", "red"
