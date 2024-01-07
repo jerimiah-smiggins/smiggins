@@ -1,5 +1,5 @@
-@import url("/css/fonts.css");
-@import url("/css/theme.css");
+@import url("fonts.css");
+@import url("theme.css");
 
 ::-moz-selection {
   background-color: var(--accent-low-opacity);

@@ -19,7 +19,6 @@ from django.http import HttpResponse
 from django.urls import include, path
 
 urlpatterns = [
-    path("", (lambda request: HttpResponse("<body> If you don't get redirected soon, click <a href=\"/posts\">here...</a><script> window.location.href = \"/posts\";</script></body>"))),
-    path("p/", include("posts.urls")),
     path("admin/", admin.site.urls),
+    path("", include("posts.urls")),
 ]

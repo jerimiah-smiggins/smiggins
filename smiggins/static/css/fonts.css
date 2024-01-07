@@ -1,0 +1,73 @@
+/* Monospace font */
+@font-face {
+  font-family: 'Cousine';
+  font-style: normal;
+  font-weight: 400;
+  font-display: swap;
+  src: url("/static/css/font/cousine-normal.woff") format('woff'),
+       url("/static/css/font/cousine-normal.woff2") format('woff2');
+}
+
+@font-face {
+  font-family: 'Cousine';
+  font-style: normal;
+  font-weight: 700;
+  font-display: swap;
+  src: url("/static/css/font/cousine-bold.woff") format('woff'),
+       url("/static/css/font/cousine-bold.woff2") format('woff2');
+}
+
+@font-face {
+  font-family: 'Cousine';
+  font-style: italic;
+  font-weight: 400;
+  font-display: swap;
+  src: url("/static/css/font/cousine-italic.woff") format('woff'),
+       url("/static/css/font/cousine-italic.woff2") format('woff2');
+}
+
+@font-face {
+  font-family: 'Cousine';
+  font-style: italic;
+  font-weight: 700;
+  font-display: swap;
+  src: url("/static/css/font/cousine-bolditalic.woff") format('woff'),
+       url("/static/css/font/cousine-bolditalic.woff2") format('woff2');
+}
+
+/* Normal font */
+@font-face {
+  font-family: 'Poppins';
+  font-style: normal;
+  font-weight: 400;
+  font-display: swap;
+  src: url("/static/css/font/poppins-normal.woff") format('woff'),
+       url("/static/css/font/poppins-normal.woff2") format('woff2');
+}
+
+@font-face {
+  font-family: 'Poppins';
+  font-style: normal;
+  font-weight: 700;
+  font-display: swap;
+  src: url("/static/css/font/poppins-bold.woff") format('woff'),
+       url("/static/css/font/poppins-bold.woff2") format('woff2');
+}
+
+@font-face {
+  font-family: 'Poppins';
+  font-style: italic;
+  font-weight: 400;
+  font-display: swap;
+  src: url("/static/css/font/poppins-italic.woff") format('woff'),
+       url("/static/css/font/poppins-italic.woff2") format('woff2');
+}
+
+@font-face {
+  font-family: 'Poppins';
+  font-style: italic;
+  font-weight: 700;
+  font-display: swap;
+  src: url("/static/css/font/poppins-bolditalic.woff") format('woff'),
+       url("/static/css/font/poppins-bolditalic.woff2") format('woff2');
+}

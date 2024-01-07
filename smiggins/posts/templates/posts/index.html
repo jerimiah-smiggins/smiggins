@@ -3,7 +3,9 @@
 <html>
   <head>
     <title>{{SITE_NAME}} v{{VERSION}}</title>
-    {{HTML_HEADERS}}
+    {% autoescape off %}
+    {{ HTML_HEADERS }}
+    {% endautoescape %}
 
     <meta name="description" content="social media thing">
     <meta name="author" content="{{SITE_NAME}} v{{VERSION}}">
