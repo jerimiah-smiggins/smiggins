@@ -44,7 +44,7 @@ def login (request):
     }
     return HttpResponse(template.render(context, request))
 
-def signup (request):
+def signup(request):
     template = loader.get_template("posts/signup.html")
     context = {
         "SITE_NAME" : SITE_NAME,
@@ -54,6 +54,48 @@ def signup (request):
         "HTML_HEADERS" : HTML_HEADERS,
     }
     return HttpResponse(template.render(context, request))
+
+def settings(request):
+    template = loader.get_template("posts/settings.html")
+
+    logged_in = True
+    
+    try:
+        token = request.COOKIES["token"].lower()
+        if not validate_token(token):
+            logged_in = False
+    except KeyError:
+        logged_in = False
+
+    if not logged_in:
+        context = {"HTML_HEADERS" : HTML_HEADERS}
+        return HttpResponse(loader.get_template("posts/redirect_index.html").render(context, request))
+    
+    try:
+        user = Users.objects.get(token=token)
+    except Users.DoesNotExist:
+        print("I uh what?")
+        logged_in = False
+
+    context = {
+        "SITE_NAME" : SITE_NAME,
+        "VERSION" : VERSION,
+        "MAX_DISPL_NAME_LENGTH" : MAX_DISPL_NAME_LENGTH,
+        "HIDE_SOURCE" : "" if SOURCE_CODE else "hidden",
+
+        "DISPLAY_NAME" : user.display_name,
+        "BANNER_COLOR" : user.color or "#3a1e93",
+        "SELECTED_IF_DARK" : "selected" if user.theme == "dark" else "",
+        "SELECTED_IF_LIGHT" : "selected" if user.theme == "light" else "",
+        
+        "CHECKED_IF_PRIV" : "checked" if user.private else "",
+
+        "HTML_HEADERS" : HTML_HEADERS,
+        "HTML_FOOTERS" : HTML_FOOTERS,
+    }
+    response = HttpResponse(template.render(context, request))
+    response.set_cookie('token',token.lower())
+    return response
 
 def user(request, username):
     template = loader.get_template("posts/user.html")
@@ -94,7 +136,9 @@ def user(request, username):
         "HTML_HEADERS" : HTML_HEADERS,
         "HTML_FOOTERS" : HTML_FOOTERS
     }
-    return HttpResponse(template.render(context, request))
+    response = HttpResponse(template.render(context, request))
+    response.set_cookie('token',token.lower())
+    return response
 
 def post(request, post_id):
     template = loader.get_template("posts/post.html")
@@ -144,7 +188,9 @@ def post(request, post_id):
         "HTML_HEADERS" : HTML_HEADERS,
         "HTML_FOOTERS" : HTML_FOOTERS,
     }
-    return HttpResponse(template.render(context, request))
+    response = HttpResponse(template.render(context, request))
+    response.set_cookie('token',token.lower())
+    return response
 
 def comment(request, comment_id):
     template = loader.get_template("posts/post.html")
@@ -194,4 +240,6 @@ def comment(request, comment_id):
         "HTML_HEADERS" : HTML_HEADERS,
         "HTML_FOOTERS" : HTML_FOOTERS,
     }
-    return HttpResponse(template.render(context, request))
+    response = HttpResponse(template.render(context, request))
+    response.set_cookie('token',token.lower())
+    return response

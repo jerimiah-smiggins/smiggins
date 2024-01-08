@@ -1,8 +1,8 @@
 save/
-smiggins/db.sqlite3
 .vscode/
 __pycache__/
 .hintrc
 
 # This is where API keys, private tokens, etc. are stored.
 _server_module/_api_keys.py
+smiggins/db.sqlite3
