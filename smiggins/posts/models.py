@@ -33,7 +33,7 @@ class Posts(models.Model):
         return self.content
 
 class Comments(models.Model):
-    post_id =          models.IntegerField(primary_key=True)
+    comment_id =       models.IntegerField(primary_key=True)
     content =          models.CharField(max_length=65536)
     creator =          models.IntegerField()
     timestamp =        models.DateTimeField()

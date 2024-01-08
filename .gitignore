@@ -1,4 +1,5 @@
 save/
+smiggins/db.sqlite3
 .vscode/
 __pycache__/
 .hintrc
