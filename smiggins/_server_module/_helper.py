@@ -5,6 +5,10 @@ from ._settings import *
 from ._variables import *
 from posts.models import Users, Posts, Comments
 
+from django.shortcuts import render
+from django.http import HttpResponse
+from django.template import loader
+
 # Website nonspecific helper functions
 def sha(string: Union[str, bytes]) -> str:
     # Returns the sha256 hash of a string.
@@ -93,6 +97,33 @@ def set_timeout(callback: Callable, delay_ms: Union[int, float]) -> None:
 
     thread = threading.Thread(target=wrapper)
     thread.start()
+
+def create_context(**kwargs: str) -> dict[str, str]:
+    content = {
+        "SITE_NAME" : SITE_NAME,
+        "VERSION" : VERSION,
+        "HIDE_SOURCE" : "" if SOURCE_CODE else "hidden",
+
+        "HTML_HEADERS" : HTML_HEADERS,
+        "HTML_FOOTERS" : HTML_FOOTERS,
+
+        "MAX_DISPL_NAME_LENGTH" : MAX_DISPL_NAME_LENGTH,
+        "MAX_POST_LENGTH" : MAX_POST_LENGTH,
+        "MAX_USERNAME_LENGTH" : MAX_USERNAME_LENGTH
+    }
+
+    for key, value in kwargs.iteritems():
+        content[key] = value
+
+    return content
+
+def get_HTTP_response(request, file: str, **kwargs: str) -> HttpResponse:
+    return HttpResponse(
+        loader.get_template(file).render(
+            create_context(kwargs),
+            request
+        )
+    )
 
 # Website specific helper functions
 def validate_token(token: str) -> bool:

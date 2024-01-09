@@ -9,8 +9,11 @@ VERSION: str = "0.3.8"
 # Official name wip // Trinktter? trinkr? Jerimiah Smiggins? idk...
 SITE_NAME: str = "Jerimiah Smiggins"
 
+# 1-200
 MAX_USERNAME_LENGTH: int = 18
 MAX_DISPL_NAME_LENGTH: int = 32
+
+# 1-65,536
 MAX_POST_LENGTH: int = 280
 
 # Whether or not to enable flask debug mode. This makes it

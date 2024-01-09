@@ -9,106 +9,60 @@ from _server_module._helper import *
 from .models import Users, Posts, Comments
 # Create your views here.
 
-def index(request):
-    template = loader.get_template("posts/index.html")
-    context = {
-        "SITE_NAME" : SITE_NAME,
-        "VERSION" : VERSION,
-        "HIDE_SOURCE" : "" if SOURCE_CODE else "hidden",
+def index(request) -> HttpResponse:
+    return get_HTTP_response(request, "posts/index.html")
 
-        "HTML_HEADERS" : HTML_HEADERS,
-        "HTML_FOOTERS" : HTML_FOOTERS,
-        }
-    return HttpResponse(template.render(context, request))
+def home(request) -> HttpResponse:
+    return get_HTTP_response(request, "posts/home.html")
 
-def home(request):
-    template = loader.get_template("posts/home.html")
-    context = {
-        "SITE_NAME" : SITE_NAME,
-        "VERSION" : VERSION,
-        "MAX_POST_LENGTH" : MAX_POST_LENGTH,
+def login(request) -> HttpResponse:
+    return get_HTTP_response(request, "posts/login.html")
 
-        "HTML_HEADERS" : HTML_HEADERS,
-        "HTML_FOOTERS" : HTML_FOOTERS,
-    }
-    return HttpResponse(template.render(context, request))
+def signup(request) -> HttpResponse:
+    return get_HTTP_response(request, "posts/signup.html")
 
-def login (request):
-    template = loader.get_template("posts/login.html")
-    context = {
-        "SITE_NAME" : SITE_NAME,
-        "VERSION" : VERSION,
-        "MAX_USERNAME_LENGTH" : MAX_USERNAME_LENGTH,
-
-        "HTML_HEADERS" : HTML_HEADERS,
-    }
-    return HttpResponse(template.render(context, request))
-
-def signup(request):
-    template = loader.get_template("posts/signup.html")
-    context = {
-        "SITE_NAME" : SITE_NAME,
-        "VERSION" : VERSION,
-        "MAX_USERNAME_LENGTH" : MAX_USERNAME_LENGTH,
-
-        "HTML_HEADERS" : HTML_HEADERS,
-    }
-    return HttpResponse(template.render(context, request))
-
-def settings(request):
-    template = loader.get_template("posts/settings.html")
-
+def settings(request) -> HttpResponse:
     logged_in = True
-    
+
     try:
-        token = request.COOKIES["token"].lower()
+        token: str = request.COOKIES["token"].lower()
         if not validate_token(token):
             logged_in = False
     except KeyError:
         logged_in = False
 
     if not logged_in:
-        context = {"HTML_HEADERS" : HTML_HEADERS}
-        return HttpResponse(loader.get_template("posts/redirect_index.html").render(context, request))
-    
+        return get_HTTP_response(request, "posts/redirect_index.html")
+
     try:
         user = Users.objects.get(token=token)
     except Users.DoesNotExist:
         print("I uh what?")
         logged_in = False
 
-    context = {
-        "SITE_NAME" : SITE_NAME,
-        "VERSION" : VERSION,
-        "MAX_DISPL_NAME_LENGTH" : MAX_DISPL_NAME_LENGTH,
-        "HIDE_SOURCE" : "" if SOURCE_CODE else "hidden",
+    response = get_HTTP_response(
+        request, "posts/settings.html",
 
-        "DISPLAY_NAME" : user.display_name,
-        "BANNER_COLOR" : user.color or "#3a1e93",
-        "SELECTED_IF_DARK" : "selected" if user.theme == "dark" else "",
-        "SELECTED_IF_LIGHT" : "selected" if user.theme == "light" else "",
-        
-        "CHECKED_IF_PRIV" : "checked" if user.private else "",
+        DISPLAY_NAME = user.display_name,
+        BANNER_COLOR = user.color or "#3a1e93",
+        SELECTED_IF_DARK = "selected" if user.theme == "dark" else "",
+        SELECTED_IF_LIGHT = "selected" if user.theme == "light" else "",
+        CHECKED_IF_PRIV = "checked" if user.private else ""
+    )
 
-        "HTML_HEADERS" : HTML_HEADERS,
-        "HTML_FOOTERS" : HTML_FOOTERS,
-    }
-    response = HttpResponse(template.render(context, request))
-    response.set_cookie('token',token.lower())
+    response.set_cookie("token", token.lower())
     return response
 
-def user(request, username):
-    template = loader.get_template("posts/user.html")
-    
+def user(request, username) -> HttpResponse:
     logged_in = True
-    
+
     try:
         token = request.COOKIES["token"]
         if not validate_token(token):
             logged_in = False
     except KeyError:
         logged_in = False
-    
+
     if logged_in:
         self_id = Users.objects.get(token=token).user_id
     else:
@@ -117,41 +71,34 @@ def user(request, username):
     try:
         user = Users.objects.get(username=username)
     except Users.DoesNotExist:
-        context = {"HTML_HEADERS" : HTML_HEADERS}
-        return HttpResponse(loader.get_template("posts/redirect_home.html" if logged_in else "posts/redirect_index.html").render(context, request))
-    
-    context = {
-        "SITE_NAME" : SITE_NAME,
-        "VERSION" : VERSION,
-        "MAX_POST_LENGTH" : MAX_POST_LENGTH,
-        "LOGGED_IN" : str(logged_in).lower(),
+        return get_HTTP_response(
+            request, "posts/redirect_home.html" if logged_in else "posts/redirect_index.html"
+        )
 
-        "USERNAME" : user.username,
-        "DISPLAY_NAME" : user.display_name,
-        "BANNER_COLOR" : user.color or "#3a1e93",
-        
-        "IS_FOLLOWING": user.user_id in Users.objects.get(pk=self_id).following if logged_in else "",
-        "IS_HIDDEN" : "hidden" if user.user_id == self_id else "",
+    response = get_HTTP_response(
+        request, "posts/user.html",
 
-        "HTML_HEADERS" : HTML_HEADERS,
-        "HTML_FOOTERS" : HTML_FOOTERS
-    }
-    response = HttpResponse(template.render(context, request))
+        LOGGED_IN = str(logged_in).lower(),
+        USERNAME = user.username,
+        DISPLAY_NAME = user.display_name,
+        BANNER_COLOR = user.color or "#3a1e93",
+        IS_FOLLOWING = user.user_id in Users.objects.get(pk=self_id).following if logged_in else "",
+        IS_HIDDEN = "hidden" if user.user_id == self_id else ""
+    )
+
     response.set_cookie('token',token.lower())
     return response
 
-def post(request, post_id):
-    template = loader.get_template("posts/post.html")
-
+def post(request, post_id) -> HttpResponse:
     logged_in = True
-    
+
     try:
         token = request.COOKIES["token"]
         if not validate_token(token):
             logged_in = False
     except KeyError:
         logged_in = False
-    
+
     if logged_in:
         self_id = Users.objects.get(token=token).user_id
     else:
@@ -160,50 +107,46 @@ def post(request, post_id):
     try:
         post = Posts.objects.get(pk=post_id)
     except Posts.DoesNotExist:
-        context = {"HTML_HEADERS" : HTML_HEADERS}
-        return HttpResponse(loader.get_template("posts/redirect_home.html" if logged_in else "posts/redirect_index.html").render(context, request))
-    
+        return get_HTTP_response(
+            request, "posts/redirect_home.html" if logged_in else "posts/redirect_index.html"
+        )
+
     try:
         creator = Users.objects.get(pk=post.creator)
     except Users.DoesNotExist:
-        print("I uh what")
+        pass
+        # this should return like a 403 error
 
-    context = {
-        "SITE_NAME" : SITE_NAME,
-        "VERSION" : VERSION,
-        "MAX_POST_LENGTH" : MAX_POST_LENGTH,
-        "LOGGED_IN" : str(logged_in).lower(),
+    response = get_HTTP_response(
+        request, "posts/post.html",
 
-        "POST_ID" : post.post_id,
-        "CREATOR_USERNAME" : creator.username,
-        "DISPLAY_NAME" : creator.display_name,
-        "CONTENT" : post.content,
-        "TIMESTAMP" : post.timestamp,
+        LOGGED_IN = str(logged_in).lower(),
+        POST_ID = post.post_id,
+        CREATOR_USERNAME = creator.username,
+        DISPLAY_NAME = creator.display_name,
+        CONTENT = post.content,
+        TIMESTAMP = post.timestamp,
+        COMMENTS = str(len(post.comments)),
+        COMMENT = "false",
+        LIKED = str(post.likes != [] and self_id in post.likes and logged_in).lower(),
+        LIKES = str(len(post.likes)) if post.likes != [] else "0"
+    )
 
-        "COMMENTS" : str(len(post.comments)),
-        "COMMENT" : "false",
-        "LIKED": str(post.likes != [] and self_id in post.likes and logged_in).lower(),
-        "LIKES": str(len(post.likes)) if post.likes != [] else "0",
-
-        "HTML_HEADERS" : HTML_HEADERS,
-        "HTML_FOOTERS" : HTML_FOOTERS,
-    }
-    response = HttpResponse(template.render(context, request))
     response.set_cookie('token',token.lower())
     return response
 
-def comment(request, comment_id):
+def comment(request, comment_id) -> HttpResponse:
     template = loader.get_template("posts/post.html")
 
     logged_in = True
-    
+
     try:
         token = request.COOKIES["token"]
         if not validate_token(token):
             logged_in = False
     except KeyError:
         logged_in = False
-    
+
     if logged_in:
         self_id = Users.objects.get(token=token).user_id
     else:
@@ -214,32 +157,26 @@ def comment(request, comment_id):
     except Comments.DoesNotExist:
         context = {"HTML_HEADERS" : HTML_HEADERS}
         return HttpResponse(loader.get_template("posts/redirect_home.html" if logged_in else "posts/redirect_index.html").render(context, request))
-    
+
     try:
         creator = Users.objects.get(pk=comment.creator)
     except Users.DoesNotExist:
         print("I uh what")
 
-    context = {
-        "SITE_NAME" : SITE_NAME,
-        "VERSION" : VERSION,
-        "MAX_POST_LENGTH" : MAX_POST_LENGTH,
-        "LOGGED_IN" : str(logged_in).lower(),
+    response = get_HTTP_response(
+        request, "posts/post.html",
 
-        "POST_ID" : comment.comment_id,
-        "CREATOR_USERNAME" : creator.username,
-        "DISPLAY_NAME" : creator.display_name,
-        "CONTENT" : comment.content,
-        "TIMESTAMP" : comment.timestamp,
+        LOGGED_IN = str(logged_in).lower(),
+        POST_ID = comment.comment_id,
+        CREATOR_USERNAME = creator.username,
+        DISPLAY_NAME = creator.display_name,
+        CONTENT = comment.content,
+        TIMESTAMP = comment.timestamp,
+        COMMENTS = str(len(comment.comments)),
+        COMMENT = "true",
+        LIKED = str(comment.likes != [] and self_id in comment.likes and logged_in).lower(),
+        LIKES = str(len(comment.likes)) if comment.likes != [] else "0"
+    )
 
-        "COMMENTS" : str(len(comment.comments)),
-        "COMMENT" : "false",
-        "LIKED": str(comment.likes != [] and self_id in comment.likes and logged_in).lower(),
-        "LIKES": str(len(comment.likes)) if comment.likes != [] else "0",
-
-        "HTML_HEADERS" : HTML_HEADERS,
-        "HTML_FOOTERS" : HTML_FOOTERS,
-    }
-    response = HttpResponse(template.render(context, request))
-    response.set_cookie('token',token.lower())
+    response.set_cookie('token', token.lower())
     return response
