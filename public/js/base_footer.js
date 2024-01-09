@@ -12,7 +12,7 @@ if (typeof(logged_in) !== 'boolean' || logged_in) {
 }
 
 if (typeof(share) !== 'undefined') {
-  x.innerHTML += `<span title="Share" onclick="window.navigator.clipboard.writeText('${escapeHTML(share)}'); showlog('Copied to clipboard!');">${icons.share}</span>`;
+  x.innerHTML += `<span title="Share" style="cursor: pointer;" onclick="window.navigator.clipboard.writeText('${escapeHTML(share)}'); showlog('Copied to clipboard!');">${icons.share}</span>`;
 }
 
 document.querySelector("body").append(x);
