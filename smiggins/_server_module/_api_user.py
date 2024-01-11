@@ -4,6 +4,149 @@ from ._packages import *
 from ._settings import *
 from ._helper import *
 
+def api_account_signup(request, data) -> dict:
+    # Called when someone requests to follow another account.
+    # Login required: false
+    # Ratelimit: 1s for unsuccessful, 15s for successful
+    # Parameters:
+    # - "username": the username of the account that is trying to be created
+    # - "password": the sha256 hashed password of the account that is trying to be created
+
+    username = data.username.lower()
+    password = data.password.lower()
+
+    # e3b0c44... is the sha256 hash for an empty string
+    if len(password) != 64 or password == "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855":
+        return std_checks(
+            data={
+                "valid": False,
+                "reason": "Invalid Password"
+            },
+            ratelimit=True,
+            ratelimit_api_id="api_account_signup",
+            ratelimit_identifier=request.META.get('REMOTE_ADDR'),
+        )
+
+    for i in password:
+        if i not in "abcdef0123456789":
+            return std_checks(
+            data={
+                "valid": False,
+                "reason": "Invalid Password"
+            },
+            ratelimit=True,
+            ratelimit_api_id="api_account_signup",
+            ratelimit_identifier=request.META.get('REMOTE_ADDR'),
+        )
+
+    username = username.replace(" ", "")
+
+    user_valid = validate_username(username, existing=False)
+    if user_valid == 1:
+        create_api_ratelimit("api_account_signup", API_TIMINGS["signup successful"], request.META.get('REMOTE_ADDR'))
+
+        token = generate_token(username, password)
+        user = Users(
+            username=username,
+            token=token,
+            display_name=username,
+            theme="dark",
+            color="#3a1e93",
+            private=False,
+            following=[],
+            followers=[],
+            posts=[],
+        )
+        
+        user.save()
+        user.following = [user.user_id]
+        user.save()
+        
+        return std_checks(
+            data={
+                "valid": True,
+                "token": token
+            },
+            ratelimit=True,
+            ratelimit_api_id="api_account_signup",
+            ratelimit_identifier=request.META.get('REMOTE_ADDR'),
+        )
+
+    create_api_ratelimit("api_account_signup", API_TIMINGS["signup unsuccessful"], request.META.REMOTE_ADDR)
+
+    if user_valid == -1:
+        return std_checks(
+            data={
+                "valid": False,
+                "reason": "Username taken."
+            },
+            ratelimit=True,
+            ratelimit_api_id="api_account_signup",
+            ratelimit_identifier=request.META.get('REMOTE_ADDR'),
+        )
+
+    elif user_valid == -2:
+        return std_checks(
+            data={
+                "valid": False,
+                "reason": "Username can only use A-Z, 0-9, underscores, and hyphens."
+            },
+            ratelimit=True,
+            ratelimit_api_id="api_account_signup",
+            ratelimit_identifier=request.META.get('REMOTE_ADDR'),
+        )
+
+    return std_checks(
+            data={
+                "valid": False,
+                "reason": f"Username must be between 1 and {MAX_USERNAME_LENGTH} characters in length."
+            },
+            ratelimit=True,
+            ratelimit_api_id="api_account_signup",
+            ratelimit_identifier=request.META.get('REMOTE_ADDR'),
+        )
+
+def api_account_login() -> flask.Response:
+    # Called when someone attempts to log in.
+    # Login required: false
+    # Ratelimit: 1s for unsuccessful, 5s for successful
+    # Parameters:
+    # - "username": the username of the account that is trying to be logged into
+    # - "password": the sha256 hashed password of the account that is trying to be logged into
+
+    x = std_checks(
+        ratelimit=True,
+        ratelimit_api_id="api_account_login",
+        ratelimit_identifier=request.remote_addr,
+
+        parameters=True,
+        required_params=["username", "password"]
+    )
+
+    x["username"] = x["username"].lower()
+    token = generate_token(x["username"], x["password"])
+
+    if validate_username(x["username"]) == 1:
+        if token == open(f"{ABSOLUTE_SAVING_PATH}users/{username_to_id(x['username'])}/token.txt", "r").read():
+            create_api_ratelimit("api_account_login", API_TIMINGS["login successful"], request.remote_addr)
+            return {
+                "valid": True,
+                "token": token
+            }
+        else:
+            create_api_ratelimit("api_account_login", API_TIMINGS["login unsuccessful"], request.remote_addr)
+            return {
+                "valid": False,
+                "reason": "Invalid password."
+            }
+
+    else:
+        create_api_ratelimit("api_account_login", API_TIMINGS["login unsuccessful"], request.remote_addr)
+        return {
+            "valid": False,
+            "reason": f"Account with username {x['username']} doesn't exist."
+        }
+
 def api_user_follower_add() -> Union[tuple[flask.Response, int], flask.Response]:
     # Called when someone requests to follow another account.
     # Login required: true
@@ -19,10 +162,10 @@ def api_user_follower_add() -> Union[tuple[flask.Response, int], flask.Response]
     )
 
     if not validate_username(x["username"]):
-        return return_dynamic_content_type(json.dumps({
+        return {
             "valid": False,
             "reason": f"Account with username {x['username']} doesn't exist."
-        }), "application/json"), 404
+        }, 404
 
     current_id = token_to_id(request.cookies["token"])
     follow_id = username_to_id(x["username"])
@@ -34,9 +177,9 @@ def api_user_follower_add() -> Union[tuple[flask.Response, int], flask.Response]
         user_json["followers"] += 1
         save_user_json(follow_id, user_json)
 
-    return return_dynamic_content_type(json.dumps({
+    return {
         "success": True
-    }), "application/json"), 201
+    }, 201
 
 def api_user_follower_remove() -> Union[tuple[flask.Response, int], flask.Response]:
     # Called when someone requests to unfollow another account.
@@ -53,10 +196,10 @@ def api_user_follower_remove() -> Union[tuple[flask.Response, int], flask.Respon
     )
 
     if not validate_username(x["username"]):
-        return return_dynamic_content_type(json.dumps({
+        return {
             "valid": False,
             "reason": f"Account with username {x['username']} doesn't exist."
-        }), "application/json"), 404
+        }, 404
 
     current_id = token_to_id(request.cookies["token"])
     follow_id = username_to_id(x["username"])
@@ -68,9 +211,9 @@ def api_user_follower_remove() -> Union[tuple[flask.Response, int], flask.Respon
         user_json["followers"] -= 1
         save_user_json(follow_id, user_json)
 
-    return return_dynamic_content_type(json.dumps({
+    return {
         "success": True
-    }), "application/json"), 201
+    }, 201
 
 def api_user_settings_theme() -> Union[tuple[flask.Response, int], flask.Response]:
     # Called when the user changes their theme.
@@ -91,9 +234,9 @@ def api_user_settings_theme() -> Union[tuple[flask.Response, int], flask.Respons
     user_info = load_user_json(user_id)
     user_info["theme"] = x["theme"].lower()
     save_user_json(user_id, user_info)
-    return return_dynamic_content_type(json.dumps({
+    return {
         "success": True
-    }))
+    }
 
 def api_user_settings_color() -> Union[tuple[flask.Response, int], flask.Response]:
     # Called when the user changes the banner color.
@@ -118,9 +261,9 @@ def api_user_settings_color() -> Union[tuple[flask.Response, int], flask.Respons
     user_info = load_user_json(user_id)
     user_info["color"] = x["color"].lower()
     save_user_json(user_id, user_info)
-    return return_dynamic_content_type(json.dumps({
+    return {
         "success": True
-    }))
+    }
 
 def api_user_settings_private() -> Union[tuple[flask.Response, int], flask.Response]:
     # Called when the user toggles being private.
@@ -138,9 +281,9 @@ def api_user_settings_private() -> Union[tuple[flask.Response, int], flask.Respo
     user_info = load_user_json(user_id)
     user_info["private"] = str(x["priv"]).lower() == "true"
     save_user_json(user_id, user_info)
-    return return_dynamic_content_type(json.dumps({
+    return {
         "success": True
-    }))
+    }
 
 def api_user_settings_display_name() -> Union[tuple[flask.Response, int], flask.Response]:
     # Called when trying to set display name.
@@ -170,10 +313,10 @@ def api_user_settings_display_name() -> Union[tuple[flask.Response, int], flask.
         displ_name = ""
 
     if (len(displ_name) > MAX_DISPL_NAME_LENGTH or len(displ_name) < 1):
-        return return_dynamic_content_type(json.dumps({
+        return {
             "success": False,
             "reason": f"Invalid name length. Must be between 1 and {MAX_DISPL_NAME_LENGTH} characters after minifying whitespace."
-        }), "application/json"), 400
+        }, 400
 
     user_id = token_to_id(request.cookies["token"])
     user_info = load_user_json(user_id)
@@ -184,6 +327,6 @@ def api_user_settings_display_name() -> Union[tuple[flask.Response, int], flask.
     user_info["display_name"] = x["displ_name"]
     save_user_json(user_id, user_info)
 
-    return return_dynamic_content_type(json.dumps({
+    return {
         "success": True
-    }))
+    }

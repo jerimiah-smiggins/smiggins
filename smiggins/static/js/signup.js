@@ -18,7 +18,7 @@ dom("submit").addEventListener("click", function() {
   this.setAttribute("disabled", "");
   username = dom("username").value;
   password = sha256(dom("password").value)
-  fetch("/api/account/signup", {
+  fetch("/api/user/signup", {
     method: "POST",
     headers: {
       "Content-Type": "application/json"

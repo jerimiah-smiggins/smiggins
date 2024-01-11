@@ -9,6 +9,8 @@ from django.shortcuts import render
 from django.http import HttpResponse
 from django.template import loader
 
+from ninja.errors import HttpError
+
 # Website nonspecific helper functions
 def sha(string: Union[str, bytes]) -> str:
     # Returns the sha256 hash of a string.
@@ -18,44 +20,6 @@ def sha(string: Union[str, bytes]) -> str:
     elif type(string) == bytes:
         return hashlib.sha256(string).hexdigest()
     return ""
-
-def format_html(html_content: str, *, custom_replace: dict[str, str]={}) -> str:
-    # Formats the served html content. This is ran on all served HTML files,
-    # so add something here if it should be used globally with the template given.
-
-    html_content = html_content.replace("{{HTML_HEADERS}}", HTML_HEADERS)
-    html_content = html_content.replace("{{HTML_FOOTERS}}", HTML_FOOTERS)
-
-    html_content = html_content.replace("{{VERSION}}", VERSION)
-    html_content = html_content.replace("{{SITE_NAME}}", SITE_NAME)
-    html_content = html_content.replace("{{HIDE_SOURCE}}", "" if SOURCE_CODE else "hidden")
-    html_content = html_content.replace("{{MAX_USERNAME_LENGTH}}", str(MAX_USERNAME_LENGTH))
-    html_content = html_content.replace("{{MAX_DISPL_NAME_LENGTH}}", str(MAX_DISPL_NAME_LENGTH))
-    html_content = html_content.replace("{{MAX_POST_LENGTH}}", str(MAX_POST_LENGTH))
-
-    if "token" in request.cookies and validate_token(request.cookies["token"]) and "theme" in (th := load_user_json(token_to_id(request.cookies["token"]))):
-        th = load_user_json(token_to_id(request.cookies["token"]))["theme"]
-        html_content = html_content.replace("{{THEME}}", th)
-        html_content = html_content.replace("<body", f"<body data-theme='{th}'")
-        html_content = html_content.replace("{{SELECTED_IF_DARK}}", "selected" if th == "dark" else "")
-        html_content = html_content.replace("{{SELECTED_IF_LIGHT}}", "selected" if th == "light" else "")
-    else:
-        html_content = html_content.replace("{{THEME}}", "dark")
-        html_content = html_content.replace("{{SELECTED_IF_DARK}}", "selected")
-        html_content = html_content.replace("{{SELECTED_IF_LIGHT}}", "")
-
-    for i in custom_replace:
-        html_content = html_content.replace(i, custom_replace[i])
-
-    return html_content
-
-def return_dynamic_content_type(content: Union[str, bytes], content_type: str="text/html") -> flask.Response:
-    # Returns a flask Response with the content type set to
-    # the specified one, ex. `application/json` for json files.
-
-    response = flask.make_response(content)
-    response.headers["Content-Type"] = content_type
-    return response
 
 def ensure_file(path: str, *, default_value: str="", folder: bool=False) -> None:
     # Checks if a file exists and if it doesn't then creates it.
@@ -81,11 +45,6 @@ def ensure_file(path: str, *, default_value: str="", folder: bool=False) -> None
             f.write(default_value)
             f.close()
 
-def escape_html(string: str) -> str:
-    # Returns escaped html that won't accidentally create any elements
-
-    return string.replace("&", "&amp;").replace("<", "&lt;").replace("\"", "&quo;")
-
 def set_timeout(callback: Callable, delay_ms: Union[int, float]) -> None:
     # Works like javascript's setTimeout function.
     # Callback is a callable which will be called after
@@ -98,8 +57,8 @@ def set_timeout(callback: Callable, delay_ms: Union[int, float]) -> None:
     thread = threading.Thread(target=wrapper)
     thread.start()
 
-def create_context(**kwargs: str) -> dict[str, str]:
-    content = {
+def get_HTTP_response(request, file: str, **kwargs: str) -> HttpResponse:
+    context = {
         "SITE_NAME" : SITE_NAME,
         "VERSION" : VERSION,
         "HIDE_SOURCE" : "" if SOURCE_CODE else "hidden",
@@ -112,15 +71,12 @@ def create_context(**kwargs: str) -> dict[str, str]:
         "MAX_USERNAME_LENGTH" : MAX_USERNAME_LENGTH
     }
 
-    for key, value in kwargs.iteritems():
-        content[key] = value
-
-    return content
-
-def get_HTTP_response(request, file: str, **kwargs: str) -> HttpResponse:
+    for key, value in kwargs.items():
+        context[key] = value
+    
     return HttpResponse(
         loader.get_template(file).render(
-            create_context(kwargs),
+            context,
             request
         )
     )
@@ -138,99 +94,6 @@ def validate_token(token: str) -> bool:
         return True
     except Users.DoesNotExist:
         return False
-
-def token_to_id(token: str) -> int:
-    # Returns the user id based on the specified token.
-
-    return int(open(f"{ABSOLUTE_SAVING_PATH}tokens/{token}.txt").read())
-
-def username_to_id(username: str) -> int:
-    # Returns the user id based on the specified username.
-
-    return int(open(f"{ABSOLUTE_SAVING_PATH}usernames/{username}.txt").read())
-
-def load_user_json(user_id: Union[int, str]) -> dict:
-    # Returns the user settings.json file based on the specified user id.
-
-    return json.loads(open(f"{ABSOLUTE_SAVING_PATH}users/{user_id}/settings.json").read())
-
-def load_post_json(post_id: Union[int, str]) -> dict:
-    # Returns the post id.json file based on the specified post id.
-
-    return json.loads(open(f"{ABSOLUTE_SAVING_PATH}posts/{post_id}.json").read())
-
-def load_comment_json(comment_id: Union[int, str]) -> dict:
-    # Returns the comment id.json file based on the specified comment id.
-
-    return json.loads(open(f"{ABSOLUTE_SAVING_PATH}posts/comments/{comment_id}.json").read())
-
-def save_user_json(user_id: Union[int, str], user_json: dict[str, Union[str, int, bool]]) -> None:
-    # Saves the user settings.json file based on the specified user id
-    # with the specified content.
-
-    f = open(f"{ABSOLUTE_SAVING_PATH}users/{user_id}/settings.json", "w")
-    f.write(json.dumps(user_json))
-    f.close()
-
-def save_post_json(post_id: Union[int, str], post_json: dict[str, Union[str, int, bool]]) -> None:
-    # Saves the post id.json file based on the specified post id
-    # with the specified content.
-
-    f = open(f"{ABSOLUTE_SAVING_PATH}posts/{post_id}.json", "w")
-    f.write(json.dumps(post_json))
-    f.close()
-
-def save_comment_json(comment_id: Union[int, str], comment_json: dict[str, Union[str, int, bool]]) -> None:
-    # Saves the post id.json file based on the specified post id
-    # with the specified content.
-
-    f = open(f"{ABSOLUTE_SAVING_PATH}posts/comments/{comment_id}.json", "w")
-    f.write(json.dumps(comment_json))
-    f.close()
-
-def get_user_post_ids(user_id: Union[int, str]) -> list[int]:
-    # Returns the list of post ids corresponding to a specified user id.
-
-    return json.loads(open(f"{ABSOLUTE_SAVING_PATH}users/{user_id}/posts.json", "r").read())
-
-def generate_post_id(*, inc: bool=True) -> int:
-    # This returns the next free post id. If `inc` is false,
-    # then the next free will not be incremented.
-
-    f = int(open(f"{ABSOLUTE_SAVING_PATH}next_post.txt", "r").read())
-
-    if inc:
-        g = open(f"{ABSOLUTE_SAVING_PATH}next_post.txt", "w")
-        g.write(str(f + 1))
-        g.close()
-
-    return f
-
-def generate_comment_id(*, inc: bool=True) -> int:
-    # This returns the next free comment id. If `inc` is false,
-    # then the next free will not be incremented.
-
-    f = int(open(f"{ABSOLUTE_SAVING_PATH}next_comment.txt", "r").read())
-
-    if inc:
-        g = open(f"{ABSOLUTE_SAVING_PATH}next_comment.txt", "w")
-        g.write(str(f + 1))
-        g.close()
-
-    return f
-
-def generate_user_id(*, inc: bool=True) -> int:
-    # This returns the next free user id. If `inc` is false,
-    # then the next free will not be incremented.
-
-    f = int(open(f"{ABSOLUTE_SAVING_PATH}next_user.txt", "r").read())
-
-    if inc:
-        g = open(f"{ABSOLUTE_SAVING_PATH}next_user.txt", "w")
-        g.write(str(f + 1))
-        g.close()
-
-    return f
 
 def generate_token(username: str, password: str) -> str:
     # Generates a users' token given their username and hashed password.
@@ -271,7 +134,7 @@ def validate_username(username: str, *, existing: bool=True) -> int:
 
 def create_api_ratelimit(api_id: str, time_ms: Union[int, float], identifier: Union[str, None]) -> None:
     # Creates a ratelimit timeout for a specific user via the identifier.
-    # The identifier should be the request.remote_addr ip address
+    # The identifier should be the request.META.REMOTE_ADDR ip address
     # api_id is the identifier for the api, for example "api_account_signup". You
     # can generally use the name of that api's funciton for this.
 
@@ -295,45 +158,25 @@ def ensure_ratelimit(api_id: str, identifier: Union[str, None]) -> bool:
     return (not RATELIMIT) or not (api_id in timeout_handler and str(identifier) in timeout_handler[api_id])
 
 def std_checks(*,
+        data: dict={},
+
         ratelimit: bool=False,
         ratelimit_api_id: str="",
         ratelimit_identifier: Union[str, None]="",
 
         token: str="",
-
-        parameters: bool=False,
-        required_params: list[str]=[],
-
-        args: bool=False,
-        required_args: list[str]=[]
-    ) -> dict:
+    ):
     # Removes a lot of boilerplate used to validate request calls.
 
     if ratelimit:
         if not ensure_ratelimit(ratelimit_api_id, ratelimit_identifier):
-            flask.abort(429)
+            raise HttpError(429, "Ha! you exceeded the ratelimit. Must suck to be you.")
 
-    if token != "":
+    if token:
         try:
-            if not validate_token(request.cookies["token"]): flask.abort(403)
+            if not validate_token(request.cookies["token"]):
+                raise HttpError(403, "That's an invalid token! Somethin's wrong with your token cookie, so maybe clear it and login again?")
         except KeyError:
-            flask.abort(401)
+            raise HttpError(401, "There's something wrong with that token, idk what happened but you better start coping.")
 
-    if args:
-        for i in required_args:
-            if request.args.get(i) == None:
-                flask.abort(400)
-
-    if parameters:
-        try:
-            x = json.loads(request.data)
-        except json.JSONDecodeError:
-            flask.abort(400)
-
-        for i in required_params:
-            if i not in x:
-                flask.abort(400)
-
-        return x
-
-    return {}
+    return data
