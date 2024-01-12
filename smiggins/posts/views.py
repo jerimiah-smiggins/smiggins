@@ -21,6 +21,9 @@ def login(request) -> HttpResponse:
 def signup(request) -> HttpResponse:
     return get_HTTP_response(request, "posts/signup.html")
 
+def logout(request) -> HttpResponse:
+    return get_HTTP_response(request, "posts/logout.html")
+
 def settings(request) -> HttpResponse:
     logged_in = True
 

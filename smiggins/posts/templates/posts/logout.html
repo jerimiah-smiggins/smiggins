@@ -3,17 +3,19 @@
 <html>
   <head>
     <title>Redirecting you shortly...</title>
-    {{HTML_HEADERS}}
+    {% autoescape off %}
+    {{ HTML_HEADERS }}
+    {% endautoescape %}
 
     <meta name="description" content="Logout page">
-    <meta name="author" content="{{SITE_NAME}} v{{VERSION}}">
+    <meta name="author" content="{{ SITE_NAME }} v{{ VERSION }}">
 
     <meta property="og:type" content="website">
-    <meta property="og:title" content="{{SITE_NAME}} v{{VERSION}}">
+    <meta property="og:title" content="{{ SITE_NAME }} v{{ VERSION }}">
     <meta property="og:description" content="Logout page">
 
     <meta name="twitter:card" content="summary_large_image">
-    <meta name="twitter:title" content="{{SITE_NAME}} v{{VERSION}}">
+    <meta name="twitter:title" content="{{ SITE_NAME }} v{{ VERSION }}">
     <meta name="twitter:description" content="Logout page">
   </head>
 

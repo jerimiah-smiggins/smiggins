@@ -17,27 +17,17 @@ def api_account_signup(request, data) -> dict:
 
     # e3b0c44... is the sha256 hash for an empty string
     if len(password) != 64 or password == "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855":
-        return std_checks(
-            data={
-                "valid": False,
-                "reason": "Invalid Password"
-            },
-            ratelimit=True,
-            ratelimit_api_id="api_account_signup",
-            ratelimit_identifier=request.META.get('REMOTE_ADDR'),
-        )
+        return {
+            "valid": False,
+            "reason": "Invalid Password"
+        }
 
     for i in password:
         if i not in "abcdef0123456789":
-            return std_checks(
-            data={
+            return {
                 "valid": False,
                 "reason": "Invalid Password"
-            },
-            ratelimit=True,
-            ratelimit_api_id="api_account_signup",
-            ratelimit_identifier=request.META.get('REMOTE_ADDR'),
-        )
+            }
 
     username = username.replace(" ", "")
 
@@ -57,54 +47,34 @@ def api_account_signup(request, data) -> dict:
             followers=[],
             posts=[],
         )
-        
+
         user.save()
         user.following = [user.user_id]
         user.save()
-        
-        return std_checks(
-            data={
-                "valid": True,
-                "token": token
-            },
-            ratelimit=True,
-            ratelimit_api_id="api_account_signup",
-            ratelimit_identifier=request.META.get('REMOTE_ADDR'),
-        )
+
+        return {
+            "valid": True,
+            "token": token
+        }
 
     create_api_ratelimit("api_account_signup", API_TIMINGS["signup unsuccessful"], request.META.REMOTE_ADDR)
 
     if user_valid == -1:
-        return std_checks(
-            data={
-                "valid": False,
-                "reason": "Username taken."
-            },
-            ratelimit=True,
-            ratelimit_api_id="api_account_signup",
-            ratelimit_identifier=request.META.get('REMOTE_ADDR'),
-        )
+        return {
+            "valid": False,
+            "reason": "Username taken."
+        }
 
     elif user_valid == -2:
-        return std_checks(
-            data={
-                "valid": False,
-                "reason": "Username can only use A-Z, 0-9, underscores, and hyphens."
-            },
-            ratelimit=True,
-            ratelimit_api_id="api_account_signup",
-            ratelimit_identifier=request.META.get('REMOTE_ADDR'),
-        )
+        return {
+            "valid": False,
+            "reason": "Username can only use A-Z, 0-9, underscores, and hyphens."
+        }
 
-    return std_checks(
-            data={
-                "valid": False,
-                "reason": f"Username must be between 1 and {MAX_USERNAME_LENGTH} characters in length."
-            },
-            ratelimit=True,
-            ratelimit_api_id="api_account_signup",
-            ratelimit_identifier=request.META.get('REMOTE_ADDR'),
-        )
+    return {
+        "valid": False,
+        "reason": f"Username must be between 1 and {MAX_USERNAME_LENGTH} characters in length."
+    }
 
 def api_account_login() -> flask.Response:
     # Called when someone attempts to log in.
@@ -133,6 +103,7 @@ def api_account_login() -> flask.Response:
                 "valid": True,
                 "token": token
             }
+
         else:
             create_api_ratelimit("api_account_login", API_TIMINGS["login unsuccessful"], request.remote_addr)
             return {

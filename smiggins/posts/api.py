@@ -6,8 +6,6 @@ from ninja import NinjaAPI, Schema
 from ninja.renderers import BaseRenderer
 import json
 
-
-
 class JSONRenderer(BaseRenderer):
     media_type = "application/json"
 
@@ -18,7 +16,6 @@ class JSONRenderer(BaseRenderer):
             return data()
 
 api = NinjaAPI(renderer=JSONRenderer())
-
 
 class accountSchema(Schema):
     username: str
@@ -38,9 +35,6 @@ def signup(request, data: accountSchema):
 def login(request, data: accountSchema):
     print(data.username + data.password)
     return api_account_login
-
-
-
 
 urlpatterns = [
     path("", api.urls)
