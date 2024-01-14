@@ -47,8 +47,10 @@ def api_account_signup(request, data) -> dict:
             followers=[],
             posts=[],
         )
-
         user.save()
+
+        user=Users.objects.get(username=username)
+
         user.following = [user.user_id]
         user.save()
 
@@ -57,7 +59,7 @@ def api_account_signup(request, data) -> dict:
             "token": token
         }
 
-    create_api_ratelimit("api_account_signup", API_TIMINGS["signup unsuccessful"], request.META.REMOTE_ADDR)
+    create_api_ratelimit("api_account_signup", API_TIMINGS["signup unsuccessful"], request.META.get('REMOTE_ADDR'))
 
     if user_valid == -1:
         return {
@@ -76,7 +78,7 @@ def api_account_signup(request, data) -> dict:
         "reason": f"Username must be between 1 and {MAX_USERNAME_LENGTH} characters in length."
     }
 
-def api_account_login() -> flask.Response:
+def api_account_login(request, data) -> dict:
     # Called when someone attempts to log in.
     # Login required: false
     # Ratelimit: 1s for unsuccessful, 5s for successful
@@ -84,38 +86,30 @@ def api_account_login() -> flask.Response:
     # - "username": the username of the account that is trying to be logged into
     # - "password": the sha256 hashed password of the account that is trying to be logged into
 
-    x = std_checks(
-        ratelimit=True,
-        ratelimit_api_id="api_account_login",
-        ratelimit_identifier=request.remote_addr,
+    username = data.username.lower()
+    password = data.password
+    token = generate_token(username, password)
 
-        parameters=True,
-        required_params=["username", "password"]
-    )
-
-    x["username"] = x["username"].lower()
-    token = generate_token(x["username"], x["password"])
-
-    if validate_username(x["username"]) == 1:
-        if token == open(f"{ABSOLUTE_SAVING_PATH}users/{username_to_id(x['username'])}/token.txt", "r").read():
-            create_api_ratelimit("api_account_login", API_TIMINGS["login successful"], request.remote_addr)
+    if validate_username(username) == 1:
+        if token == Users.objects.get(token=token):
+            create_api_ratelimit("api_account_login", API_TIMINGS["login successful"], request.META.get('REMOTE_ADDR'))
             return {
                 "valid": True,
                 "token": token
             }
 
         else:
-            create_api_ratelimit("api_account_login", API_TIMINGS["login unsuccessful"], request.remote_addr)
+            create_api_ratelimit("api_account_login", API_TIMINGS["login unsuccessful"], request.META.get('REMOTE_ADDR'))
             return {
                 "valid": False,
                 "reason": "Invalid password."
             }
 
     else:
-        create_api_ratelimit("api_account_login", API_TIMINGS["login unsuccessful"], request.remote_addr)
+        create_api_ratelimit("api_account_login", API_TIMINGS["login unsuccessful"], request.META.get('REMOTE_ADDR'))
         return {
             "valid": False,
-            "reason": f"Account with username {x['username']} doesn't exist."
+            "reason": f"Account with username {username} doesn't exist."
         }
 
 def api_user_follower_add() -> Union[tuple[flask.Response, int], flask.Response]:

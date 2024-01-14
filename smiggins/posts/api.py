@@ -34,7 +34,7 @@ def signup(request, data: accountSchema):
 @api.post("user/login")
 def login(request, data: accountSchema):
     print(data.username + data.password)
-    return api_account_login
+    return api_account_login(request=request, data=data)
 
 urlpatterns = [
     path("", api.urls)

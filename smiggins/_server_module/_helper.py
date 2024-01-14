@@ -91,6 +91,7 @@ def validate_token(token: str) -> bool:
             return False
 
     try:
+        print(token)
         Users.objects.get(token=token).token
         return True
     except Users.DoesNotExist:
@@ -117,15 +118,15 @@ def validate_username(username: str, *, existing: bool=True) -> int:
 
     if existing:
         try:
-            open(f"{ABSOLUTE_SAVING_PATH}usernames/{username}.txt", "r")
+            Users.objects.get(username=username).username
             return 1
-        except FileNotFoundError:
+        except Users.DoesNotExist:
             return 0
     else:
         try:
-            open(f"{ABSOLUTE_SAVING_PATH}usernames/{username}.txt", "r")
+            Users.objects.get(username=username).username
             return -1
-        except FileNotFoundError:
+        except Users.DoesNotExist:
             pass
 
         if (len(username) > MAX_USERNAME_LENGTH or len(username) < 1):
