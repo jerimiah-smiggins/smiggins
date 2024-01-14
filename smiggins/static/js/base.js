@@ -115,7 +115,7 @@ function linkifyText(inputText, postId, comment=false) {
   let doTheThing = (input) => (
     input.split(usernameRegex).map((i) => {
       return i.match(usernameRegex) || postId !== undefined ? (
-        i.match(usernameRegex) ? `<a href="/u/${i.replace("@", "").toLowerCase()}">` : `<a href="/${comment ? "c" : "p"}/${postId}" class="text no-underline">`
+        i.match(usernameRegex) ? `<a href="/u/${i.replace("@", "").toLowerCase()}">` : `<a href="/${comment ? "c" : "p"}/${postId}" tabindex="-1" class="text no-underline">`
       ) + `${escapeHTML(i)}</a>` : escapeHTML(i);
     }).join("")
   );
@@ -127,8 +127,8 @@ function linkifyText(inputText, postId, comment=false) {
   }).join("");
 }
 
-function escapeHTML(str) {
-  return str.replaceAll("&", "&amp;").replaceAll("<", "&lt;").replaceAll("\"", "&quo;");
+function escapeHTML(str, fixStupidBug=true) {
+  return str.replaceAll("&", "&amp;").replaceAll("<", "&lt;").replaceAll("&amp;quo;", fixStupidBug ? "&quo;" : "&amp;quo;");
 }
 
 const icons = {

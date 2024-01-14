@@ -21,7 +21,7 @@ for (i in validColors) {
           <div class="like" data-liked="true">
             ${icons.like}
           </div>
-          <span class="like-number">${Math.floor(Math.random() * 100)}</span>
+          <span class="like-number">${Math.floor(Math.random() * 100) + 1}</span>
         </div>
       </div>
     </div>

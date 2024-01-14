@@ -1,7 +1,7 @@
 let inc = 0, req = 0, end = false;
 let offset = null;
 let page = localStorage.getItem("home-page");
-if (page !== "following" && page !== "recent") { page = "following"; }
+if (page !== "following" && page !== "recent") { page = "recent"; }
 
 showlog = (str, time=3000) => {
   inc++;
@@ -55,72 +55,6 @@ dom("post").addEventListener("click", function() {
       });
   }
 });
-
-dom("add").addEventListener("click", function() {
-  if (dom("add-follower").value) {
-    dom("add-follower").setAttribute("disabled", "");
-    dom("add").setAttribute("disabled", "");
-    fetch("/api/user/follower/add", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json"
-      },
-      body: JSON.stringify({
-        "username": dom("add-follower").value
-      })
-    })
-      .then((response) => (response.json()))
-      .then((json) => {
-        if (!json.success) {
-          showlog("Something went wrong! Try again in a few moments...");
-        } else {
-          dom("add-follower").value = "";
-          refresh();
-        }
-        dom("add-follower").removeAttribute("disabled");
-        dom("add").removeAttribute("disabled");
-      })
-      .catch((err) => {
-        dom("add-follower").removeAttribute("disabled");
-        dom("add").removeAttribute("disabled");
-        showlog("Something went wrong! Try again in a few moments...");
-        throw(err);
-      });
-  }
-})
-
-dom("remove").addEventListener("click", function() {
-  if (dom("add-follower").value) {
-    dom("add-follower").setAttribute("disabled", "");
-    dom("remove").setAttribute("disabled", "");
-    fetch("/api/user/follower/remove", {
-      method: "DELETE",
-      headers: {
-        "Content-Type": "application/json"
-      },
-      body: JSON.stringify({
-        "username": dom("add-follower").value
-      })
-    })
-      .then((response) => (response.json()))
-      .then((json) => {
-        if (!json.success) {
-          showlog("Something went wrong! Try again in a few moments...");
-        } else {
-          dom("add-follower").value = "";
-          refresh();
-        }
-        dom("add-follower").removeAttribute("disabled");
-        dom("remove").removeAttribute("disabled");
-      })
-      .catch((err) => {
-        dom("add-follower").removeAttribute("disabled");
-        dom("remove").removeAttribute("disabled");
-        showlog("Something went wrong! Try again in a few moments...");
-        throw(err);
-      });
-  }
-})
 
 dom("switch").addEventListener("click", function() {
   page = page == "following" ? "recent" : "following"

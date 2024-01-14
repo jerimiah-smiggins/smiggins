@@ -8,6 +8,7 @@
 .post-container {
   padding: 1em;
   background-color: var(--background);
+  border-radius: 0.5em;
 }
 
 .post {

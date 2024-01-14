@@ -127,7 +127,7 @@ svg.accent     { fill: var(--accent);     }
   display: inline-block;
   fill: var(--text);
   stroke: none;
+  cursor: pointer;
 }
 
 .icons svg:active { scale: 0.9; }
-.icons .share { cursor: pointer; }
