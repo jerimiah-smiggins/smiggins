@@ -3,6 +3,7 @@
 from ._packages import *
 from ._settings import *
 from ._helper import *
+import ninja.errors
 
 def api_account_signup(request, data) -> dict:
     # Called when someone requests to follow another account.
@@ -112,157 +113,82 @@ def api_account_login(request, data) -> dict:
             "reason": f"Account with username {username} doesn't exist."
         }
 
-def api_user_follower_add() -> Union[tuple[flask.Response, int], flask.Response]:
-    # Called when someone requests to follow another account.
-    # Login required: true
-    # Ratelimit: none
-    # Parameters:
-    # - "username": the username of the account to follow
-
-    x = std_checks(
-        token=request.cookies["token"],
-
-        parameters=True,
-        required_params=["username"]
-    )
-
-    if not validate_username(x["username"]):
-        return {
-            "valid": False,
-            "reason": f"Account with username {x['username']} doesn't exist."
-        }, 404
-
-    current_id = token_to_id(request.cookies["token"])
-    follow_id = username_to_id(x["username"])
-    current_json = load_user_json(current_id)
-    if follow_id not in current_json["following"]:
-        current_json["following"].append(follow_id)
-        save_user_json(current_id, current_json)
-        user_json = load_user_json(follow_id)
-        user_json["followers"] += 1
-        save_user_json(follow_id, user_json)
-
-    return {
-        "success": True
-    }, 201
-
-def api_user_follower_remove() -> Union[tuple[flask.Response, int], flask.Response]:
-    # Called when someone requests to unfollow another account.
-    # Login required: true
-    # Ratelimit: none
-    # Parameters:
-    # - "username": the username of the account to unfollow
-
-    x = std_checks(
-        token=request.cookies["token"],
-
-        parameters=True,
-        required_params=["username"]
-    )
-
-    if not validate_username(x["username"]):
-        return {
-            "valid": False,
-            "reason": f"Account with username {x['username']} doesn't exist."
-        }, 404
-
-    current_id = token_to_id(request.cookies["token"])
-    follow_id = username_to_id(x["username"])
-    current_json = load_user_json(current_id)
-    if current_id != follow_id and follow_id in current_json["following"]:
-        current_json["following"].remove(follow_id)
-        save_user_json(current_id, current_json)
-        user_json = load_user_json(follow_id)
-        user_json["followers"] -= 1
-        save_user_json(follow_id, user_json)
-
-    return {
-        "success": True
-    }, 201
-
-def api_user_settings_theme() -> Union[tuple[flask.Response, int], flask.Response]:
+def api_user_settings_theme(request, data) -> dict:
     # Called when the user changes their theme.
     # Login required: true
     # Ratelimit: none
 
-    x = std_checks(
-        token=request.cookies["token"],
+    token = request.COOKIES.get('token')
+    theme = data.theme.lower()
 
-        parameters=True,
-        required_params=["theme"]
-    )
+    if theme.lower() not in ["light", "dark"]:
+        return 400, {
+        "success": False,
+        "reason": "That's not a vailid theme, idiot.",
+    }
 
-    if x["theme"].lower() not in ["light", "dark"]:
-        flask.abort(400)
+    user = Users.objects.get(token=token)
+    user.theme = theme
+    user.save()
 
-    user_id = token_to_id(request.cookies["token"])
-    user_info = load_user_json(user_id)
-    user_info["theme"] = x["theme"].lower()
-    save_user_json(user_id, user_info)
     return {
         "success": True
     }
 
-def api_user_settings_color() -> Union[tuple[flask.Response, int], flask.Response]:
+def api_user_settings_color(request, data) -> dict:
     # Called when the user changes the banner color.
     # Login required: true
     # Ratelimit: none
 
-    x = std_checks(
-        token=request.cookies["token"],
+    token = request.COOKIES.get('token')
+    color = data.color.lower()
 
-        parameters=True,
-        required_params=["color"]
-    )
+    if color[0] != "#" or len(color) != 7:
+        return 400, {
+        "success": False,
+        "reason": "Color no tasty",
+    }
 
-    if x["color"][0] != "#" or len(x["color"]) != 7:
-        flask.abort(400)
-
-    for i in x["color"][1::].lower():
+    for i in color[1::]:
         if i not in "abcdef0123456789":
-            flask.abort(400)
+            return 400, {
+                "success": False,
+                "reason": "Color no tasty",
+            }
 
-    user_id = token_to_id(request.cookies["token"])
-    user_info = load_user_json(user_id)
-    user_info["color"] = x["color"].lower()
-    save_user_json(user_id, user_info)
+    user = Users.objects.get(token=token)
+    print(color)
+    user.color = color
+    user.save()
+
     return {
         "success": True
     }
 
-def api_user_settings_private() -> Union[tuple[flask.Response, int], flask.Response]:
+def api_user_settings_private(request, data) -> dict:
     # Called when the user toggles being private.
     # Login required: true
     # Ratelimit: none
 
-    x = std_checks(
-        token=request.cookies["token"],
+    token = request.COOKIES.get('token')
+    priv = data.priv
 
-        parameters=True,
-        required_params=["priv"]
-    )
+    user = Users.objects.get(token=token)
+    print(priv)
+    user.private = priv
+    user.save()
 
-    user_id = token_to_id(request.cookies["token"])
-    user_info = load_user_json(user_id)
-    user_info["private"] = str(x["priv"]).lower() == "true"
-    save_user_json(user_id, user_info)
     return {
         "success": True
     }
 
-def api_user_settings_display_name() -> Union[tuple[flask.Response, int], flask.Response]:
+def api_user_settings_display_name(request, data) -> dict:
     # Called when trying to set display name.
     # login required: true
     # Ratelimit: none
 
-    x = std_checks(
-        token=request.cookies["token"],
-
-        parameters=True,
-        required_params=["displ_name"]
-    )
-
-    displ_name = x["displ_name"].replace("\r", "").replace("\t", " ").replace("\u200b", " ")
+    token = request.COOKIES.get('token')
+    displ_name = data.displ_name.replace("\r", "").replace("\t", " ").replace("\u200b", " ")
 
     for i in ["\t", "​", "​", " ", " ", " ", " ", " ", " ", " ", " ", " ", "⠀"]:
         displ_name = displ_name.replace(i, " ")
@@ -278,20 +204,76 @@ def api_user_settings_display_name() -> Union[tuple[flask.Response, int], flask.
         displ_name = ""
 
     if (len(displ_name) > MAX_DISPL_NAME_LENGTH or len(displ_name) < 1):
-        return {
+        return 400, {
             "success": False,
             "reason": f"Invalid name length. Must be between 1 and {MAX_DISPL_NAME_LENGTH} characters after minifying whitespace."
-        }, 400
+        }
 
-    user_id = token_to_id(request.cookies["token"])
-    user_info = load_user_json(user_id)
+    user = Users.objects.get(token=token)
+    user.display_name = displ_name
+    user.save
 
-    if "username" not in user_info:
-        user_info["username"] = user_info["display_name"]
+    return 200, {
+        "success": True
+    }
 
-    user_info["display_name"] = x["displ_name"]
-    save_user_json(user_id, user_info)
+def api_user_follower_add(request, data) -> dict:
+    # Called when someone requests to follow another account.
+    # Login required: true
+    # Ratelimit: none
+    # Parameters:
+    # - "username": the username of the account to follow
 
-    return {
+    token = request.COOKIES.get('token')
+    username = data.username.lower()
+
+    if not validate_username(username):
+        return 400, {
+            "valid": False,
+            "reason": f"Account with username {username} doesn't exist."
+        }
+
+    user = Users.objects.get(token=token)
+    followed = Users.objects.get(username=username)
+    if followed.user_id not in user.following :
+        user.following.append(followed.user_id)
+        user.save()
+
+    if user.user_id not in followed.followers:
+        followed.followers.append(user.user_id)
+        followed.save()
+
+    return 201, {
+        "success": True
+    }
+
+def api_user_follower_remove(request, data) -> dict:
+    # Called when someone requests to unfollow another account.
+    # Login required: true
+    # Ratelimit: none
+    # Parameters:
+    # - "username": the username of the account to unfollow
+
+    token = request.COOKIES.get('token')
+    username = data.username.lower()
+
+    if not validate_username(username):
+        return 400, {
+            "valid": False,
+            "reason": f"Account with username {username} doesn't exist."
+        }
+
+    user = Users.objects.get(token=token)
+    followed = Users.objects.get(username=username)
+    if user.user_id != followed.user_id:
+        if followed.user_id in user.following :
+            user.following.remove(followed.user_id)
+            user.save()
+
+        if user.user_id in followed.followers:
+            followed.followers.remove(user.user_id)
+            followed.save()
+
+    return 201, {
         "success": True
     }

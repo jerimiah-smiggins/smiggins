@@ -1,6 +1,7 @@
 from django.urls import path
 
 from _server_module._api_user import *
+from _server_module._api_post import *
 
 from ninja import NinjaAPI, Schema
 from ninja.renderers import BaseRenderer
@@ -17,24 +18,69 @@ class JSONRenderer(BaseRenderer):
 
 api = NinjaAPI(renderer=JSONRenderer())
 
+
 class accountSchema(Schema):
     username: str
     password: str
 
+
+class themeSchema(Schema):
+    theme: str
+
+class colorSchema(Schema):
+    color: str
+
+class privSchema(Schema):
+    priv: bool
+
+class displNameSchema(Schema):
+    displ_name: str
+
 class followerSchema(Schema):
     username: str
 
-# (api_account_signup)
+
+class postSchema(Schema):
+    content: str
+
+
 @api.post("user/signup")
 def signup(request, data: accountSchema):
-    print(data.username, data.password)
     return api_account_signup(request=request, data=data)
 
-# (api_account_login)
 @api.post("user/login")
 def login(request, data: accountSchema):
-    print(data.username + data.password)
     return api_account_login(request=request, data=data)
+
+
+@api.post("user/settings/theme", response={200: dict, 400: dict})
+def theme(request, data: themeSchema):
+    return api_user_settings_theme(request=request, data=data)
+
+@api.post("user/settings/color", response={200: dict, 400: dict})
+def color(request, data: colorSchema):
+    return api_user_settings_color(request=request, data=data)
+
+@api.post("user/settings/priv")
+def priv(request, data: privSchema):
+    return api_user_settings_private(request=request, data=data)
+
+@api.post("user/settings/display-name", response={200: dict, 400: dict})
+def displName(request, data: displNameSchema):
+    return api_user_settings_display_name(request=request, data=data)
+
+@api.post("user/follower", response={201: dict, 400: dict})
+def followAdd(request, data: followerSchema):
+    return api_user_follower_add(request=request, data=data)
+
+@api.delete("user/follower", response={201: dict, 400: dict})
+def followRemove(request, data: followerSchema):
+    return api_user_follower_remove(request=request, data=data)
+
+
+@api.put("post/create", response={201: dict, 400:dict})
+def postCreate(request, data: postSchema):
+    return api_post_create(request=request, data=data)
 
 urlpatterns = [
     path("", api.urls)

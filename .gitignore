@@ -6,3 +6,4 @@ __pycache__/
 # This is where API keys, private tokens, etc. are stored.
 _server_module/_api_keys.py
 smiggins/db.sqlite3
+smiggins/db.sqlite3

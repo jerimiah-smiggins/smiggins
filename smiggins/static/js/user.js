@@ -86,7 +86,7 @@ function refresh(force_offset=false) {
 
 function toggle_follow() {
   let x = dom("toggle").getAttribute("data-followed") === "1";
-  fetch(`/api/user/follower/${x ? "remove" : "add"}`, {
+  fetch(`/api/user/follower`, {
     method: x ? "DELETE" : "POST",
     headers: {
       "Content-Type": "application/json"
