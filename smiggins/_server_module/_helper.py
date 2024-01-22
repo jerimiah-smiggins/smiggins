@@ -90,8 +90,7 @@ def validate_token(token: str) -> bool:
         if i not in "0123456789abcdef":
             return False
 
-    try:
-        print(token)
+    try: 
         Users.objects.get(token=token).token
         return True
     except Users.DoesNotExist:

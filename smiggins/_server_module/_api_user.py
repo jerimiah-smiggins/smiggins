@@ -50,7 +50,7 @@ def api_account_signup(request, data) -> dict:
         )
         user.save()
 
-        user=Users.objects.get(username=username)
+        user = Users.objects.get(username=username)
 
         user.following = [user.user_id]
         user.save()
@@ -157,7 +157,6 @@ def api_user_settings_color(request, data) -> dict:
             }
 
     user = Users.objects.get(token=token)
-    print(color)
     user.color = color
     user.save()
 
@@ -174,7 +173,6 @@ def api_user_settings_private(request, data) -> dict:
     priv = data.priv
 
     user = Users.objects.get(token=token)
-    print(priv)
     user.private = priv
     user.save()
 

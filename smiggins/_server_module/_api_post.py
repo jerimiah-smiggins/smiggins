@@ -4,93 +4,75 @@ from ._packages import *
 from ._settings import *
 from ._helper import *
 
-def api_post_create() -> Union[tuple[flask.Response, int], flask.Response]:
+def api_post_create(request, data) -> dict:
     # Called when a new post is created.
     # Login required: true
     # Ratelimit: 1s for unsuccessful, 3s for successful
     # Parameters:
     # - "content": the content of the post. must be between 1 >= x >= 280 characters
 
-    x = std_checks(
-        ratelimit=True,
-        ratelimit_api_id="api_post_create",
-        ratelimit_identifier=request.cookies["token"],
-
-        token=request.cookies["token"],
-
-        parameters=True,
-        required_params=["content"]
-    )
-
-    post = x["content"].replace("\r", "").replace("\t", " ").replace("\u200b", " ")
+    token = request.COOKIES.get('token')
+    content = data.content.replace("\r", "").replace("\t", " ").replace("\u200b", " ")
 
     for i in ["\t", "​", "​", " ", " ", " ", " ", " ", " ", " ", " ", " ", "⠀"]:
-        post = post.replace(i, " ")
+        content = content.replace(i, " ")
 
-    while "\n "    in post: post = post.replace("\n ", "\n")
-    while "  "     in post: post = post.replace("  ", " ")
-    while "\n\n\n" in post: post = post.replace("\n\n\n", "\n\n")
+    while "\n "    in content: content = content.replace("\n ", "\n")
+    while "  "     in content: content = content.replace("  ", " ")
+    while "\n\n\n" in content: content = content.replace("\n\n\n", "\n\n")
 
     try:
-        if post[0]  in "\n ": post = post[1::]
-        if post[-1] in "\n ": post = post[:-1:]
+        if content[0]  in "\n ": content = content[1::]
+        if content[-1] in "\n ": content = content[:-1:]
     except IndexError:
-        post = ""
+        content = ""
 
-    if (len(post) > MAX_POST_LENGTH or len(post) < 1):
-        create_api_ratelimit("api_post_create", API_TIMINGS["create post failure"], request.cookies["token"])
-        return return_dynamic_content_type(json.dumps({
+    if (len(content) > MAX_POST_LENGTH or len(content) < 1):
+        create_api_ratelimit("api_post_create", API_TIMINGS["create post failure"], token)
+        return 400, {
             "success": False,
             "reason": f"Invalid post length. Must be between 1 and {MAX_POST_LENGTH} characters."
-        }), "application/json"), 400
+        }
 
-    create_api_ratelimit("api_post_create", API_TIMINGS["create post"], request.cookies["token"])
+    create_api_ratelimit("api_post_create", API_TIMINGS["create post"], token)
 
     timestamp = round(time.time())
-    post_id = generate_post_id()
-    user_id = token_to_id(request.cookies["token"])
+    
+    user = Users.objects.get(token=token)
 
-    f = json.loads(open(f"{ABSOLUTE_SAVING_PATH}users/{user_id}/posts.json", "r").read())
-    f.append(post_id)
+    post = Posts(
+        content = content,
+        creator = user.user_id,
+        timestamp = timestamp,
+        likes = [],
+        comments = [],
+        reposts = []
+    )
+    post.save()
 
-    g = open(f"{ABSOLUTE_SAVING_PATH}users/{user_id}/posts.json", "w")
-    g.write(json.dumps(f))
-    g.close()
+    post = Posts.objects.get(content=content,timestamp=timestamp,creator=user.user_id)
+    user.posts.append(post.post_id)
+    user.save()
 
-    g = open(f"{ABSOLUTE_SAVING_PATH}posts/{post_id}.json", "w")
-    g.write(json.dumps({
-        "content": post,
-        "creator": { "id": user_id },
-        "timestamp": timestamp,
-        "interactions": {
-            "likes": [],
-            "comments": [],
-            # below are not implemented, placeholders to be potentially created in the future
-            "reposts": []
-        }
-    }))
-    g.close()
-
-    return return_dynamic_content_type(json.dumps({
+    return 201, {
         "success": True,
-        "post_id": post_id
-    }), "application/json"), 201
+        "post_id": post.post_id
+    }
 
-def api_post_list_following() -> Union[tuple[flask.Response, int], flask.Response]:
+def api_post_list_following(request, offset) -> dict:
     # Called when the following tab is refreshed.
     # Login required: true
     # Ratelimit: none
     # Parameters: none
 
-    std_checks(
-        token=request.cookies["token"],
-    )
-
-    offset = sys.maxsize if request.args.get("offset") == None else int(request.args.get("offset")) # type: ignore // pylance likes to complain :3
+    token = request.COOKIES.get('token')
+    
+    offset = sys.maxsize if offset == -1 else offset
+    user = Users.objects.get(token=token)
 
     potential = []
-    for i in load_user_json(token_to_id(request.cookies["token"]))["following"]:
-        potential += get_user_post_ids(i)
+    for i in user.following:
+        potential += Users.objects.get(pk=i).posts
     potential = sorted(potential, reverse=True)
 
     index = 0
@@ -100,86 +82,87 @@ def api_post_list_following() -> Union[tuple[flask.Response, int], flask.Respons
             break
 
     potential = potential[index::]
-    user_id = token_to_id(request.cookies["token"])
 
     offset = 0
     outputList = []
     for i in potential:
-        post_info = load_post_json(i)
-        user_json = load_user_json(post_info["creator"]["id"])
+        current_post = Posts.objects.get(pk=i)
+        current_user = Users.objects.get(pk=current_post.creator)
 
-        if "private" in user_json and user_json["private"] and user_id not in user_json["following"]:
+        if current_user.private and user.user_id not in current_user.following:
             offset += 1
 
         else:
             outputList.append({
                 "post_id": i,
-                "creator_id": post_info["creator"]["id"],
-                "display_name": user_json["display_name"],
-                "creator_username": user_json["display_name"] if "username" not in user_json else user_json["username"],
-                "content": post_info["content"],
-                "timestamp": post_info["timestamp"],
-                "liked": "interactions" in post_info and "likes" in post_info["interactions"] and user_id in post_info["interactions"]["likes"],
-                "likes": len(post_info["interactions"]["likes"]) if "interactions" in post_info and "likes" in post_info["interactions"] else 0,
-                "comments": len(post_info["interactions"]["comments"]) if "interactions" in post_info and "comments" in post_info["interactions"] else 0,
-                "private_acc": "private" in user_json and user_json["private"]
+                "creator_id": current_post.creator,
+                "display_name": current_user.display_name,
+                "creator_username": current_user.display_name,
+                "content": current_post.content,
+                "timestamp": current_post.timestamp,
+                "liked": user.user_id in current_post.likes,
+                "likes": len(current_post.likes) or 0,
+                "comments": len(current_post.comments) or 0,
+                "private_acc": current_user.private
             })
 
             if len(outputList) >= POSTS_PER_REQUEST:
                 break
 
-    return return_dynamic_content_type(json.dumps({
+    return {
         "posts": outputList,
         "end": len(potential) - offset <= POSTS_PER_REQUEST
-    }), "application/json")
+    }
 
-def api_post_list_recent() -> Union[tuple[flask.Response, int], flask.Response]:
+def api_post_list_recent(request, offset) -> dict:
     # Called when the recent posts tab is refreshed.
     # Login required: true
     # Ratelimit: none
     # Parameters: none
 
-    std_checks(
-        token=request.cookies["token"],
-    )
+    token = request.COOKIES.get('token')
 
-    if request.args.get("offset") == None:
-        next_id = generate_post_id(inc=False) - 1
+    if offset == -1:
+        next_id = Posts.objects.latest('post_id').post_id
     else:
-        next_id = int(str(request.args.get("offset"))) - 1
+        next_id = offset - 10
 
     end = next_id <= POSTS_PER_REQUEST
-    user_id = token_to_id(request.cookies["token"])
+    user = Users.objects.get(token=token)
 
     outputList = []
     offset = 0
     i = next_id
     while i > next_id - POSTS_PER_REQUEST - offset and i > 0:
-        post_info = load_post_json(i)
-        user_json = load_user_json(post_info["creator"]["id"])
-        if "private" in user_json and user_json["private"] and user_id not in user_json["following"]:
-            offset += 1
+        try:
+            current_post = Posts.objects.get(pk=i)
+        
+            current_user = Users.objects.get(pk=current_post.creator)
+            if current_user.private and user.user_id not in current_user.following:
+                offset += 1
 
-        else:
-            outputList.append({
-                "post_id": i,
-                "creator_id": post_info["creator"]["id"],
-                "display_name": user_json["display_name"],
-                "creator_username": user_json["display_name"] if "username" not in user_json else user_json["username"],
-                "content": post_info["content"],
-                "timestamp": post_info["timestamp"],
-                "liked": "interactions" in post_info and "likes" in post_info["interactions"] and user_id in post_info["interactions"]["likes"],
-                "likes": len(post_info["interactions"]["likes"]) if "interactions" in post_info and "likes" in post_info["interactions"] else 0,
-                "comments": len(post_info["interactions"]["comments"]) if "interactions" in post_info and "comments" in post_info["interactions"] else 0,
-                "private_acc": "private" in user_json and user_json["private"]
-            })
+            else:
+                outputList.append({
+                    "post_id": i,
+                    "creator_id": current_post.creator,
+                    "display_name": current_user.display_name,
+                    "creator_username": current_user.username,
+                    "content": current_post.content,
+                    "timestamp": current_post.timestamp,
+                    "liked": user.user_id in current_post.likes,
+                    "likes": len(current_post.likes),
+                    "comments": len(current_post.comments),
+                    "private_acc": current_user.private
+                })
+        except Posts.DoesNotExist:
+            pass
 
         i -= 1
 
-    return return_dynamic_content_type(json.dumps({
+    return {
         "posts": outputList,
         "end": end
-    }), "application/json")
+    }
 
 def api_post_list_user(user: str) -> Union[tuple[flask.Response, int], flask.Response]:
     # Called when getting posts from a specific user.
@@ -192,7 +175,7 @@ def api_post_list_user(user: str) -> Union[tuple[flask.Response, int], flask.Res
 
     offset = sys.maxsize if request.args.get("offset") == None else int(request.args.get("offset")) # type: ignore // pylance likes to complain :3
 
-    self_id = token_to_id(request.cookies["token"]) if "token" in request.cookies and validate_token(request.cookies["token"]) else 0
+    self_id = token_to_id(token) if "token" in request.cookies and validate_token(token) else 0
     user_id = username_to_id(user)
     user_json = load_user_json(user_id)
 
@@ -250,7 +233,7 @@ def api_post_like_add() -> Union[tuple[flask.Response, int], flask.Response]:
     # Parameters: id: int - post id to like
 
     x = std_checks(
-        token=request.cookies["token"],
+        token=token,
 
         parameters=True,
         required_params=["id"]
@@ -267,7 +250,7 @@ def api_post_like_add() -> Union[tuple[flask.Response, int], flask.Response]:
             "success": False
         }), "application/json"), 404
 
-    user_id = token_to_id(request.cookies["token"])
+    user_id = token_to_id(token)
     post_json = load_post_json(x["id"])
     if not ("interactions" in post_json and "likes" in post_json["interactions"]) or "user_id" not in post_json["interactions"]["likes"]:
         if "interactions" in post_json:
@@ -291,7 +274,7 @@ def api_post_like_remove() -> Union[tuple[flask.Response, int], flask.Response]:
     # Parameters: id: int - post id to unlike
 
     x = std_checks(
-        token=request.cookies["token"],
+        token=token,
 
         parameters=True,
         required_params=["id"]
@@ -308,7 +291,7 @@ def api_post_like_remove() -> Union[tuple[flask.Response, int], flask.Response]:
             "success": False
         }), "application/json"), 404
 
-    user_id = token_to_id(request.cookies["token"])
+    user_id = token_to_id(token)
     post_json = load_post_json(x["id"])
     if "interactions" in post_json and "likes" in post_json["interactions"]:
         if user_id in post_json["interactions"]["likes"]:

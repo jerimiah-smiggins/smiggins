@@ -82,6 +82,14 @@ def followRemove(request, data: followerSchema):
 def postCreate(request, data: postSchema):
     return api_post_create(request=request, data=data)
 
+@api.get("post/following")
+def postFollowing(request, offset: int = -1):
+    return api_post_list_following(request=request, offset=offset)
+
+@api.get("post/recent")
+def postRecent(request, offset: int = -1):
+    return api_post_list_recent(request=request, offset=offset)
+
 urlpatterns = [
     path("", api.urls)
 ]

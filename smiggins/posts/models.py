@@ -22,7 +22,7 @@ class Posts(models.Model):
     post_id   = models.IntegerField(primary_key=True)
     content   = models.CharField(max_length=65536)
     creator   = models.IntegerField()
-    timestamp = models.DateTimeField()
+    timestamp = models.IntegerField()
 
     likes     = models.JSONField()
     comments  = models.JSONField()

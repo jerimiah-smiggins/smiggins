@@ -119,6 +119,8 @@ def post(request, post_id) -> HttpResponse:
     except Users.DoesNotExist:
         pass
         # this should return like a 403 error
+    
+    print(str(post.likes != [] and self_id in post.likes and logged_in).lower())
 
     response = get_HTTP_response(
         request, "posts/post.html",
@@ -135,7 +137,7 @@ def post(request, post_id) -> HttpResponse:
         LIKES = str(len(post.likes)) if post.likes != [] else "0"
     )
 
-    response.set_cookie('token',token.lower())
+    response.set_cookie('token', token.lower())
     return response
 
 def comment(request, comment_id) -> HttpResponse:
