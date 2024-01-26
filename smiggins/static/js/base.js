@@ -127,8 +127,8 @@ function linkifyText(inputText, postId, comment=false) {
   }).join("");
 }
 
-function escapeHTML(str, fixStupidBug=true) {
-  return str.replaceAll("&", "&amp;").replaceAll("<", "&lt;").replaceAll("&amp;quo;", fixStupidBug ? "&quo;" : "&amp;quo;");
+function escapeHTML(str) {
+  return str.replaceAll("&", "&amp;").replaceAll("<", "&lt;").replaceAll("\"", "&quot;")
 }
 
 const icons = {
