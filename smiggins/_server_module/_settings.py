@@ -24,7 +24,7 @@ ABSOLUTE_CONTENT_PATH: str = "./public/" # Where html/css/js is served from
 ABSOLUTE_SAVING_PATH: str  = "./save/"   # Where user information, posts, etc. are saved
 
 # Whether or not to enforce the ratelimit
-RATELIMIT: bool = True
+RATELIMIT: bool = False
 
 # False = hide links to the github source code
 SOURCE_CODE: bool = True

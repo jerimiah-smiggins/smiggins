@@ -1,1 +1,1 @@
-auth_key = b"put some random text here"
+auth_key = b"oowotbuhdrbuhdfyuhbfs"
