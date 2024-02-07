@@ -1,307 +1,95 @@
-body:not([data-color]), [data-color="purple"] {
-  --text: #e4e1ee;
-  --background: #0e0a18;
-  --primary: #aa9ae0;
-  --secondary: #3a1e93;
-  --accent: #eca0e0;
-
-  --text-low-opacity: #e4e1ee33;
-  --background-low-opacity: #0e0a1833;
-  --primary-low-opacity: #aa9ae033;
-  --secondary-low-opacity: #3a1e9333;
-  --accent-low-opacity: #eca0e066;
+[data-theme="black"] {
+  --text: #cdd6f4;
+  --text-secondary: #bac2de;
+  --text-muted: #a6adc8;
+  --background: #1e1e2e;
+  --background-muted: #181825;
+  --background-secondary: #11111b;
 }
 
-body[data-theme="light"]:not([data-color]), body[data-theme="light"][data-color="purple"], body[data-theme="light"] [data-color="purple"] {
-  --text: #14111d;
-  --background: #eae6f4;
-  --primary: #301f65;
-  --secondary: #866be1;
-  --accent: #5e1352;
+[data-theme="black"][data-color="rosewater"], [data-theme="black"] [data-color="rosewater"], [data-color="rosewater"] [data-theme="black"] { --accent: #f5e0dc; --accent-50: #f5e0dc80; }
+[data-theme="black"][data-color="flamingo"], [data-theme="black"] [data-color="flamingo"], [data-color="flamingo"] [data-theme="black"] { --accent: #f2cdcd; --accent-50: #f2cdcd80; }
+[data-theme="black"][data-color="pink"], [data-theme="black"] [data-color="pink"], [data-color="pink"] [data-theme="black"] { --accent: #f5c2e7; --accent-50: #f5c2e780; }
+[data-theme="black"][data-color="mauve"], [data-theme="black"] [data-color="mauve"], [data-color="mauve"] [data-theme="black"], body[data-theme="black"]:not([data-color]) { --accent: #cba6f7; --accent-50: #cba6f780; }
+[data-theme="black"][data-color="red"], [data-theme="black"] [data-color="red"], [data-color="red"] [data-theme="black"] { --accent: #f38ba8; --accent-50: #f38ba880; }
+[data-theme="black"][data-color="maroon"], [data-theme="black"] [data-color="maroon"], [data-color="maroon"] [data-theme="black"] { --accent: #eba0ac; --accent-50: #eba0ac80; }
+[data-theme="black"][data-color="peach"], [data-theme="black"] [data-color="peach"], [data-color="peach"] [data-theme="black"] { --accent: #fab387; --accent-50: #fab38780; }
+[data-theme="black"][data-color="yellow"], [data-theme="black"] [data-color="yellow"], [data-color="yellow"] [data-theme="black"] { --accent: #f9e2af; --accent-50: #f9e2af80; }
+[data-theme="black"][data-color="green"], [data-theme="black"] [data-color="green"], [data-color="green"] [data-theme="black"] { --accent: #a6e3a1; --accent-50: #a6e3a180; }
+[data-theme="black"][data-color="teal"], [data-theme="black"] [data-color="teal"], [data-color="teal"] [data-theme="black"] { --accent: #94e2d5; --accent-50: #94e2d580; }
+[data-theme="black"][data-color="sky"], [data-theme="black"] [data-color="sky"], [data-color="sky"] [data-theme="black"] { --accent: #89dceb; --accent-50: #89dceb80; }
+[data-theme="black"][data-color="sapphire"], [data-theme="black"] [data-color="sapphire"], [data-color="sapphire"] [data-theme="black"] { --accent: #74c7ec; --accent-50: #74c7ec80; }
+[data-theme="black"][data-color="blue"], [data-theme="black"] [data-color="blue"], [data-color="blue"] [data-theme="black"] { --accent: #89b4fa; --accent-50: #89b4fa80; }
+[data-theme="black"][data-color="lavender"], [data-theme="black"] [data-color="lavender"], [data-color="lavender"] [data-theme="black"] { --accent: #b4befe; --accent-50: #b4befe80; }
 
-  --text-low-opacity: #14111d33;
-  --background-low-opacity: #eae6f433;
-  --primary-low-opacity: #301f6533;
-  --secondary-low-opacity: #866be133;
-  --accent-low-opacity: #5e135266;
+body:not([data-theme]), [data-theme="dark"] {
+  --text: #cad3f5;
+  --text-secondary: #b8c0e0;
+  --text-muted: #a5adcb;
+  --background: #24273a;
+  --background-muted: #1e2030;
+  --background-secondary: #181926;
 }
 
-[data-color="pinkgreen"] {
-  --text: #f2fdf9;
-  --background: #010e09;
-  --primary: #eb8eb0;
-  --secondary: #0f523a;
-  --accent: #e04d83;
+body:not([data-theme])[data-color="rosewater"], body:not([data-theme]) [data-color="rosewater"], [data-theme="dark"][data-color="rosewater"], [data-theme="dark"] [data-color="rosewater"], [data-color="rosewater"] [data-theme="dark"] { --accent: #f4dbd6; --accent-50: #f4dbd680; }
+body:not([data-theme])[data-color="flamingo"], body:not([data-theme]) [data-color="flamingo"], [data-theme="dark"][data-color="flamingo"], [data-theme="dark"] [data-color="flamingo"], [data-color="flamingo"] [data-theme="dark"] { --accent: #f0c6c6; --accent-50: #f0c6c680; }
+body:not([data-theme])[data-color="pink"], body:not([data-theme]) [data-color="pink"], [data-theme="dark"][data-color="pink"], [data-theme="dark"] [data-color="pink"], [data-color="pink"] [data-theme="dark"] { --accent: #f5bde6; --accent-50: #f5bde680; }
+body:not([data-theme])[data-color="mauve"], body:not([data-theme]) [data-color="mauve"], [data-theme="dark"][data-color="mauve"], [data-theme="dark"] [data-color="mauve"], [data-color="mauve"] [data-theme="dark"], body[data-theme="dark"]:not([data-color]), body:not([data-theme]):not([data-color]) { --accent: #c6a0f6; --accent-50: #c6a0f680; }
+body:not([data-theme])[data-color="red"], body:not([data-theme]) [data-color="red"], [data-theme="dark"][data-color="red"], [data-theme="dark"] [data-color="red"], [data-color="red"] [data-theme="dark"] { --accent: #ed8796; --accent-50: #ed879680; }
+body:not([data-theme])[data-color="maroon"], body:not([data-theme]) [data-color="maroon"], [data-theme="dark"][data-color="maroon"], [data-theme="dark"] [data-color="maroon"], [data-color="maroon"] [data-theme="dark"] { --accent: #ee99a0; --accent-50: #ee99a080; }
+body:not([data-theme])[data-color="peach"], body:not([data-theme]) [data-color="peach"], [data-theme="dark"][data-color="peach"], [data-theme="dark"] [data-color="peach"], [data-color="peach"] [data-theme="dark"] { --accent: #f5a97f; --accent-50: #f5a97f80; }
+body:not([data-theme])[data-color="yellow"], body:not([data-theme]) [data-color="yellow"], [data-theme="dark"][data-color="yellow"], [data-theme="dark"] [data-color="yellow"], [data-color="yellow"] [data-theme="dark"] { --accent: #eed49f; --accent-50: #eed49f80; }
+body:not([data-theme])[data-color="green"], body:not([data-theme]) [data-color="green"], [data-theme="dark"][data-color="green"], [data-theme="dark"] [data-color="green"], [data-color="green"] [data-theme="dark"] { --accent: #a6da95; --accent-50: #a6da9580; }
+body:not([data-theme])[data-color="teal"], body:not([data-theme]) [data-color="teal"], [data-theme="dark"][data-color="teal"], [data-theme="dark"] [data-color="teal"], [data-color="teal"] [data-theme="dark"] { --accent: #8bd5ca; --accent-50: #8bd5ca80; }
+body:not([data-theme])[data-color="sky"], body:not([data-theme]) [data-color="sky"], [data-theme="dark"][data-color="sky"], [data-theme="dark"] [data-color="sky"], [data-color="sky"] [data-theme="dark"] { --accent: #91d7e3; --accent-50: #91d7e380; }
+body:not([data-theme])[data-color="sapphire"], body:not([data-theme]) [data-color="sapphire"], [data-theme="dark"][data-color="sapphire"], [data-theme="dark"] [data-color="sapphire"], [data-color="sapphire"] [data-theme="dark"] { --accent: #7dc4e4; --accent-50: #7dc4e480; }
+body:not([data-theme])[data-color="blue"], body:not([data-theme]) [data-color="blue"], [data-theme="dark"][data-color="blue"], [data-theme="dark"] [data-color="blue"], [data-color="blue"] [data-theme="dark"] { --accent: #8aadf4; --accent-50: #8aadf480; }
+body:not([data-theme])[data-color="lavender"], body:not([data-theme]) [data-color="lavender"], [data-theme="dark"][data-color="lavender"], [data-theme="dark"] [data-color="lavender"], [data-color="lavender"] [data-theme="dark"] { --accent: #b7bdf8; --accent-50: #b7bdf880; }
 
-  --text-low-opacity: #f2fdf933;
-  --background-low-opacity: #010e0933;
-  --primary-low-opacity: #eb8eb033;
-  --secondary-low-opacity: #0f523a33;
-  --accent-low-opacity: #e04d8366;
+[data-theme="gray"] {
+  --text: #c6d0f5;
+  --text-secondary: #b5bfe2;
+  --text-muted: #a5adce;
+  --background: #303446;
+  --background-muted: #292c3c;
+  --background-secondary: #232634;
 }
 
-body[data-theme="light"][data-color="pinkgreen"], body[data-theme="light"] [data-color="pinkgreen"] {
-  --text: #020d09;
-  --background: #f1fef9;
-  --primary: #711436;
-  --secondary: #adf0d9;
-  --accent: #b21f55;
+[data-theme="gray"][data-color="rosewater"], [data-theme="gray"] [data-color="rosewater"], [data-color="rosewater"] [data-theme="gray"] { --accent: #f2d5cf; --accent-50: #f2d5cf80; }
+[data-theme="gray"][data-color="flamingo"], [data-theme="gray"] [data-color="flamingo"], [data-color="flamingo"] [data-theme="gray"] { --accent: #eebebe; --accent-50: #eebebe80; }
+[data-theme="gray"][data-color="pink"], [data-theme="gray"] [data-color="pink"], [data-color="pink"] [data-theme="gray"] { --accent: #f4b8e4; --accent-50: #f4b8e480; }
+[data-theme="gray"][data-color="mauve"], [data-theme="gray"] [data-color="mauve"], [data-color="mauve"] [data-theme="gray"], body[data-theme="gray"]:not([data-color]) { --accent: #ca9ee6; --accent-50: #ca9ee680; }
+[data-theme="gray"][data-color="red"], [data-theme="gray"] [data-color="red"], [data-color="red"] [data-theme="gray"] { --accent: #e78284; --accent-50: #e7828480; }
+[data-theme="gray"][data-color="maroon"], [data-theme="gray"] [data-color="maroon"], [data-color="maroon"] [data-theme="gray"] { --accent: #ea999c; --accent-50: #ea999c80; }
+[data-theme="gray"][data-color="peach"], [data-theme="gray"] [data-color="peach"], [data-color="peach"] [data-theme="gray"] { --accent: #ef9f76; --accent-50: #ef9f7680; }
+[data-theme="gray"][data-color="yellow"], [data-theme="gray"] [data-color="yellow"], [data-color="yellow"] [data-theme="gray"] { --accent: #e5c890; --accent-50: #e5c89080; }
+[data-theme="gray"][data-color="green"], [data-theme="gray"] [data-color="green"], [data-color="green"] [data-theme="gray"] { --accent: #a6d189; --accent-50: #a6d18980; }
+[data-theme="gray"][data-color="teal"], [data-theme="gray"] [data-color="teal"], [data-color="teal"] [data-theme="gray"] { --accent: #81c8be; --accent-50: #81c8be80; }
+[data-theme="gray"][data-color="sky"], [data-theme="gray"] [data-color="sky"], [data-color="sky"] [data-theme="gray"] { --accent: #99d1db; --accent-50: #99d1db80; }
+[data-theme="gray"][data-color="sapphire"], [data-theme="gray"] [data-color="sapphire"], [data-color="sapphire"] [data-theme="gray"] { --accent: #85c1dc; --accent-50: #85c1dc80; }
+[data-theme="gray"][data-color="blue"], [data-theme="gray"] [data-color="blue"], [data-color="blue"] [data-theme="gray"] { --accent: #8caaee; --accent-50: #8caaee80; }
+[data-theme="gray"][data-color="lavender"], [data-theme="gray"] [data-color="lavender"], [data-color="lavender"] [data-theme="gray"] { --accent: #babbf1; --accent-50: #babbf180; }
 
-  --text-low-opacity: #020d0933;
-  --background-low-opacity: #f1fef933;
-  --primary-low-opacity: #71143633;
-  --secondary-low-opacity: #adf0d933;
-  --accent-low-opacity: #b21f5566;
+[data-theme="light"] {
+  --text: #4c4f69;
+  --text-secondary: #5c5f77;
+  --text-muted: #6c6f85;
+  --background: #eff1f5;
+  --background-muted: #e6e9ef;
+  --background-secondary: #dce0e8;
 }
 
-[data-color="bluered"] {
-  --text: #d1fade;
-  --background: #021208;
-  --primary: #ea2a4d;
-  --secondary: #410631;
-  --accent: #61efd5;
-
-  --text-low-opacity: #d1fade33;
-  --background-low-opacity: #02120833;
-  --primary-low-opacity: #ea2a4d33;
-  --secondary-low-opacity: #41063133;
-  --accent-low-opacity: #61efd566;
-}
-
-body[data-theme="light"][data-color="bluered"], body[data-theme="light"] [data-color="bluered"] {
-  --text: #052e12;
-  --background: #edfdf3;
-  --primary: #d51538;
-  --secondary: #f9bee8;
-  --accent: #109e84;
-
-  --text-low-opacity: #052e1233;
-  --background-low-opacity: #edfdf333;
-  --primary-low-opacity: #d5153833;
-  --secondary-low-opacity: #f9bee833;
-  --accent-low-opacity: #109e8466;
-}
-
-[data-color="blueyellow"] {
-  --text: #e5ebfa;
-  --background: #050c1f;
-  --primary: #d4a025;
-  --secondary: #45360c;
-  --accent: #dd6040;
-
-  --text-low-opacity: #e5ebfa33;
-  --background-low-opacity: #050c1f33;
-  --primary-low-opacity: #d4a02533;
-  --secondary-low-opacity: #45360c33;
-  --accent-low-opacity: #dd604066;
-}
-
-body[data-theme="light"][data-color="blueyellow"], body[data-theme="light"] [data-color="blueyellow"] {
-  --text: #050b1a;
-  --background: #e0e7fa;
-  --primary: #c48e1a;
-  --secondary: #f3e2ba;
-  --accent: #bf4122;
-
-  --text-low-opacity: #050b1a33;
-  --background-low-opacity: #e0e7fa33;
-  --primary-low-opacity: #c48e1a33;
-  --secondary-low-opacity: #f3e2ba33;
-  --accent-low-opacity: #bf412266;
-}
-
-[data-color="pink"] {
-  --text: #fbeffb;
-  --background: #180718;
-  --primary: #e090b8;
-  --secondary: #4c1529;
-  --accent: #d15c89;
-
-  --text-low-opacity: #fbeffb33;
-  --background-low-opacity: #18071833;
-  --primary-low-opacity: #e090b833;
-  --secondary-low-opacity: #4c152933;
-  --accent-low-opacity: #d15c8966;
-}
-
-body[data-theme="light"][data-color="pink"], body[data-theme="light"] [data-color="pink"] {
-  --text: #100410;
-  --background: #f8e7f8;
-  --primary: #6f1f47;
-  --secondary: #eab3b3;
-  --accent: #a32e5d;
-
-  --text-low-opacity: #10041033;
-  --background-low-opacity: #f8e7f833;
-  --primary-low-opacity: #6f1f4733;
-  --secondary-low-opacity: #eab3b333;
-  --accent-low-opacity: #a32e5d66;
-}
-
-[data-color="blue"] {
-  --text: #eef5f7;
-  --background: #080f11;
-  --primary: #5e77b5;
-  --secondary: #1a152d;
-  --accent: #6e5bb3;
-
-  --text-low-opacity: #eef5f733;
-  --background-low-opacity: #080f1133;
-  --primary-low-opacity: #5e77b533;
-  --secondary-low-opacity: #1a152d33;
-  --accent-low-opacity: #6e5bb366;
-}
-
-body[data-theme="light"][data-color="blue"], body[data-theme="light"] [data-color="blue"] {
-  --text: #080f11;
-  --background: #eef5f7;
-  --primary: #4a62a1;
-  --secondary: #d7d2ea;
-  --accent: #5f4ca4;
-
-  --text-low-opacity: #080f1133;
-  --background-low-opacity: #eef5f733;
-  --primary-low-opacity: #4a62a133;
-  --secondary-low-opacity: #d7d2ea33;
-  --accent-low-opacity: #5f4ca466;
-}
-
-[data-color="green"] {
-  --text: #eef7ef;
-  --background: #000f00;
-  --primary: #4d9d7d;
-  --secondary: #142829;
-  --accent: #85ad87;
-
-  --text-low-opacity: #eef7ef33;
-  --background-low-opacity: #000f0033;
-  --primary-low-opacity: #4d9d7d33;
-  --secondary-low-opacity: #14282933;
-  --accent-low-opacity: #85ad8766;
-}
-
-body[data-theme="light"][data-color="green"], body[data-theme="light"] [data-color="green"] {
-  --text: #081109;
-  --background: #f0fff0;
-  --primary: #379f76;
-  --secondary: #d6eaeb;
-  --accent: #527a54;
-
-  --text-low-opacity: #08110933;
-  --background-low-opacity: #f0fff033;
-  --primary-low-opacity: #379f7633;
-  --secondary-low-opacity: #d6eaeb33;
-  --accent-low-opacity: #527a5466;
-}
-
-[data-color="orange"] {
-  --text: #f2e5de;
-  --background: #100905;
-  --primary: #e0a88a;
-  --secondary: #8c431d;
-  --accent: #e17037;
-
-  --text-low-opacity: #f2e5de33;
-  --background-low-opacity: #10090533;
-  --primary-low-opacity: #e0a88a33;
-  --secondary-low-opacity: #8c431d33;
-  --accent-low-opacity: #e1703766;
-}
-
-body[data-theme="light"][data-color="orange"], body[data-theme="light"] [data-color="orange"] {
-  --text: #21140d;
-  --background: #faf3ef;
-  --primary: #753d1f;
-  --secondary: #e29a73;
-  --accent: #c8561e;
-
-  --text-low-opacity: #21140d33;
-  --background-low-opacity: #faf3ef33;
-  --primary-low-opacity: #753d1f33;
-  --secondary-low-opacity: #e29a7333;
-  --accent-low-opacity: #c8561e66;
-}
-
-[data-color="red"] {
-  --text: #ffd6d6;
-  --background: #0f0000;
-  --primary: #fe8b8b;
-  --secondary: #460101;
-  --accent: #f40101;
-
-  --text-low-opacity: #ffd6d633;
-  --background-low-opacity: #0f000033;
-  --primary-low-opacity: #fe8b8b33;
-  --secondary-low-opacity: #46010133;
-  --accent-low-opacity: #f4010166;
-}
-
-body[data-theme="light"][data-color="red"], body[data-theme="light"] [data-color="red"] {
-  --text: #290000;
-  --background: #fff0f0;
-  --primary: #740101;
-  --secondary: #feb9b9;
-  --accent: #fe0b0b;
-
-  --text-low-opacity: #29000033;
-  --background-low-opacity: #fff0f033;
-  --primary-low-opacity: #74010133;
-  --secondary-low-opacity: #feb9b933;
-  --accent-low-opacity: #fe0b0b66;
-}
-
-[data-color="purple2"] {
-  --text: #e4e3f2;
-  --background: #0b0408;
-  --primary: #d295fe;
-  --secondary: #2e2877;
-  --accent: #ba5de5;
-
-  --text-low-opacity: #e4e3f233;
-  --background-low-opacity: #0b040833;
-  --primary-low-opacity: #d295fe33;
-  --secondary-low-opacity: #2e287733;
-  --accent-low-opacity: #ba5de566;
-}
-
-body[data-theme="light"][data-color="purple2"], body[data-theme="light"] [data-color="purple2"] {
-  --text: #0e0d1c;
-  --background: #fbf4f8;
-  --primary: #3e016a;
-  --secondary: #8f88d7;
-  --accent: #771aa2;
-
-  --text-low-opacity: #0e0d1c33;
-  --background-low-opacity: #fbf4f833;
-  --primary-low-opacity: #3e016a33;
-  --secondary-low-opacity: #8f88d733;
-  --accent-low-opacity: #771aa266;
-}
-
-[data-color="redblack"] {
-  --text: #ecdfdf;
-  --background: #000000;
-  --primary: #e43f3f;
-  --secondary: #972424;
-  --accent: #d37272;
-
-  --text-low-opacity: #ecdfdf33;
-  --background-low-opacity: #00000033;
-  --primary-low-opacity: #e43f3f33;
-  --secondary-low-opacity: #97242433;
-  --accent-low-opacity: #d3727266;
-}
-
-body[data-theme="light"][data-color="redblack"], body[data-theme="light"] [data-color="redblack"] {
-  --text: #201313;
-  --background: #ffffff;
-  --primary: #c20000;
-  --secondary: #e59090;
-  --accent: #c24e4e;
-
-  --text-low-opacity: #20131333;
-  --background-low-opacity: #ffffff33;
-  --primary-low-opacity: #c2000033;
-  --secondary-low-opacity: #e5909033;
-  --accent-low-opacity: #c24e4e66;
-}
+[data-theme="light"][data-color="rosewater"], [data-theme="light"] [data-color="rosewater"], [data-color="rosewater"] [data-theme="light"] { --accent: #dc8a78; --accent-50: #dc8a7880; }
+[data-theme="light"][data-color="flamingo"], [data-theme="light"] [data-color="flamingo"], [data-color="flamingo"] [data-theme="light"] { --accent: #dd7878; --accent-50: #dd787880; }
+[data-theme="light"][data-color="pink"], [data-theme="light"] [data-color="pink"], [data-color="pink"] [data-theme="light"] { --accent: #ea76cb; --accent-50: #ea76cb80; }
+[data-theme="light"][data-color="mauve"], [data-theme="light"] [data-color="mauve"], [data-color="mauve"] [data-theme="light"], body[data-theme="light"]:not([data-color]) { --accent: #8839ef; --accent-50: #8839ef80; }
+[data-theme="light"][data-color="red"], [data-theme="light"] [data-color="red"], [data-color="red"] [data-theme="light"] { --accent: #d20f39; --accent-50: #d20f3980; }
+[data-theme="light"][data-color="maroon"], [data-theme="light"] [data-color="maroon"], [data-color="maroon"] [data-theme="light"] { --accent: #e64553; --accent-50: #e6455380; }
+[data-theme="light"][data-color="peach"], [data-theme="light"] [data-color="peach"], [data-color="peach"] [data-theme="light"] { --accent: #fe640b; --accent-50: #fe640b80; }
+[data-theme="light"][data-color="yellow"], [data-theme="light"] [data-color="yellow"], [data-color="yellow"] [data-theme="light"] { --accent: #df8e1d; --accent-50: #df8e1d80; }
+[data-theme="light"][data-color="green"], [data-theme="light"] [data-color="green"], [data-color="green"] [data-theme="light"] { --accent: #40a02b; --accent-50: #40a02b80; }
+[data-theme="light"][data-color="teal"], [data-theme="light"] [data-color="teal"], [data-color="teal"] [data-theme="light"] { --accent: #179299; --accent-50: #17929980; }
+[data-theme="light"][data-color="sky"], [data-theme="light"] [data-color="sky"], [data-color="sky"] [data-theme="light"] { --accent: #04a5e5; --accent-50: #04a5e580; }
+[data-theme="light"][data-color="sapphire"], [data-theme="light"] [data-color="sapphire"], [data-color="sapphire"] [data-theme="light"] { --accent: #209fb5; --accent-50: #209fb580; }
+[data-theme="light"][data-color="blue"], [data-theme="light"] [data-color="blue"], [data-color="blue"] [data-theme="light"] { --accent: #1e66f5; --accent-50: #1e66f580; }
+[data-theme="light"][data-color="lavender"], [data-theme="light"] [data-color="lavender"], [data-color="lavender"] [data-theme="light"] { --accent: #7287fd; --accent-50: #7287fd80; }

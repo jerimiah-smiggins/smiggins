@@ -2,12 +2,12 @@
 @import url("/css/theme.css");
 
 ::-moz-selection {
-  background-color: var(--accent-low-opacity);
+  background-color: var(--accent-50);
   color: var(--text);
 }
 
 ::selection {
-  background-color: var(--accent-low-opacity);
+  background-color: var(--accent-50);
   color: var(--text);
 }
 
@@ -25,16 +25,18 @@ body {
   word-wrap: break-word;
 }
 
+hr { border-color: var(--accent); }
+
 @media screen and (min-width: 1025px) {
   body { font-size: 16px; }
 }
 
 @media screen and (max-width: 565px) {
-  body { font-size: 16px; padding: 5vh 3vw; }
+  body { font-size: 18px; padding: 5vh 3vw; }
 }
 
 button {
-  background-color: var(--secondary);
+  background-color: var(--background-secondary);
   color: var(--text);
   border: none;
   padding: 5px 7px;
@@ -43,16 +45,15 @@ button {
   transition-property: color;
   transition: 0.15s;
   font-size: 0.8em;
-  transition: color 0.15s,
-              background-color 0.15s,
-              scale 0.15s;
+  transition: scale 0.15s,
+              background-color 0.15s;
 }
 
 button:disabled { opacity: 60%; pointer-events: none; }
-button:active { background-color: var(--accent); color: var(--background); scale: 90%; }
+button:active { scale: 90%; background-color: var(--background-muted); }
 
 input, textarea, option, select{
-  background-color: var(--secondary-low-opacity);
+  background-color: var(--background-secondary);
   color: var(--text);
   border: none;
   border-radius: 2px;
@@ -65,20 +66,23 @@ input, textarea, select {
   font-family: 'Poppins';
 }
 
-option, select {
-  background-color: var(--secondary);
-}
-
 option {
   font-family: 'Poppins', sans-serif;
   font-size: 1.1em;
 }
 
-textarea { background-color: var(--secondary-low-opacity); }
+input:focus, textarea:focus {
+  outline: 2px var(--text-muted) solid;
+}
+
+input::placeholder, textarea::placeholder {
+  color: var(--text-muted);
+}
+
 textarea:disabled { opacity: 70%; pointer-events: none; }
 
-a:link       { color: var(--primary); text-decoration: none; }
-a:visited    { color: var(--primary); text-decoration: none; }
+a:link       { color: var(--accent); text-decoration: none; }
+a:visited    { color: var(--accent); text-decoration: none; }
 a:hover      { text-decoration: underline; }
 a::-moz-selection { text-decoration-color: var(--text); }
 a::selection { -webkit-text-decoration-color: var(--text); text-decoration-color: var(--text); }
@@ -92,14 +96,10 @@ p {
 
 .text:not(svg)       { color: var(--text);       }
 .background:not(svg) { color: var(--background); }
-.primary:not(svg)    { color: var(--primary);    }
-.secondary:not(svg)  { color: var(--secondary);  }
 .accent:not(svg)     { color: var(--accent);     }
 
 svg.text       { fill: var(--text);       }
 svg.background { fill: var(--background); }
-svg.primary    { fill: var(--primary);    }
-svg.secondary  { fill: var(--secondary);  }
 svg.accent     { fill: var(--accent);     }
 
 .left   { text-align: left;   }

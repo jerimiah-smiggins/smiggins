@@ -84,7 +84,7 @@ def api_user_settings_theme() -> Union[tuple[flask.Response, int], flask.Respons
         required_params=["theme"]
     )
 
-    if x["theme"].lower() not in ["light", "dark"]:
+    if x["theme"].lower() not in ["light", "gray", "dark", "black"]:
         flask.abort(400)
 
     user_id = token_to_id(request.cookies["token"])

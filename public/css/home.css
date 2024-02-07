@@ -19,7 +19,7 @@ button { width: 5em; }
 
 #post-text:focus-visible, #post-text:focus,
 #add-follower:focus-visible, #add-follower:focus {
-  outline: calc(2em / 14) var(--secondary) solid;
+  outline: calc(2em / 14) var(--accent) solid;
 }
 
 .main-content {
@@ -27,13 +27,15 @@ button { width: 5em; }
   display: -webkit-box;
   -webkit-line-clamp: 7;
   -webkit-box-orient: vertical;
+  -ms-box-orient: vertical;
+  -moz-box-orient: vertical;
   overflow-y: hidden;
   text-overflow: ellipsis;
 }
 
 .post {
   width: calc(26.95em - (3em / 7));
-  border: calc(3em / 14) var(--secondary-low-opacity) solid;
+  border: calc(3em / 14) var(--accent-50) solid;
   padding: 1.25em;
   margin-bottom: 1.75em;
   text-align: left;
@@ -42,7 +44,7 @@ button { width: 5em; }
 }
 
 .upper-content { cursor: pointer; }
-.upper-lower-opacity { opacity: 70%; color: var(--primary); }
+.upper-lower-opacity { color: var(--accent-50); }
 .username, .timestamp, .displ-name { display: inline-block;  }
 .bottom-content { text-align: center; }
 
@@ -57,7 +59,7 @@ button { width: 5em; }
 
 .priv { scale: 75%; }
 .comment { padding-right: 0.3em; }
-.like[data-liked="true"] { fill: var(--primary); }
+.like[data-liked="true"] { fill: var(--accent); }
 
 .bottom-spacing {
   display: inline-block;

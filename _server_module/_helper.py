@@ -30,14 +30,18 @@ def format_html(html_content: str, *, custom_replace: dict[str, str]={}) -> str:
 
     if "token" in request.cookies and validate_token(request.cookies["token"]) and "theme" in (th := load_user_json(token_to_id(request.cookies["token"]))):
         th = load_user_json(token_to_id(request.cookies["token"]))["theme"]
-        html_content = html_content.replace("{{THEME}}", th)
         html_content = html_content.replace("<body", f"<body data-theme='{th}'")
-        html_content = html_content.replace("{{SELECTED_IF_DARK}}", "selected" if th == "dark" else "")
+
         html_content = html_content.replace("{{SELECTED_IF_LIGHT}}", "selected" if th == "light" else "")
+        html_content = html_content.replace("{{SELECTED_IF_GRAY}}", "selected" if th == "gray" else "")
+        html_content = html_content.replace("{{SELECTED_IF_DARK}}", "selected" if th == "dark" else "")
+        html_content = html_content.replace("{{SELECTED_IF_BLACK}}", "selected" if th == "black" else "")
+
     else:
-        html_content = html_content.replace("{{THEME}}", "dark")
-        html_content = html_content.replace("{{SELECTED_IF_DARK}}", "selected")
         html_content = html_content.replace("{{SELECTED_IF_LIGHT}}", "")
+        html_content = html_content.replace("{{SELECTED_IF_GRAY}}", "")
+        html_content = html_content.replace("{{SELECTED_IF_DARK}}", "selected")
+        html_content = html_content.replace("{{SELECTED_IF_BLACK}}", "")
 
     for i in custom_replace:
         html_content = html_content.replace(i, custom_replace[i])
