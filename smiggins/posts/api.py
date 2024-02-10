@@ -93,9 +93,13 @@ def postFollowing(request, offset: int = -1):
 def postRecent(request, offset: int = -1):
     return api_post_list_recent(request=request, offset=offset)
 
-@api.post("post/like")
-def likeAdd(request, data: likeSchema, response={200: dict, 404: dict}):
+@api.post("post/like", response={200: dict, 404: dict})
+def likeAdd(request, data: likeSchema):
     return api_post_like_add(request=request, data=data)
+
+@api.delete("post/like", response={200: dict, 404: dict})
+def likeRemove(request, data: likeSchema):
+    return api_post_like_remove(request=request, data=data)
 
 urlpatterns = [
     path("", api.urls)

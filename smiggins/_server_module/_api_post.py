@@ -233,8 +233,10 @@ def api_post_like_add(request, data):
     # Parameters: id: int - post id to like
     token = request.COOKIES.get('token')
     id = data.id
+    print(Posts.objects.latest('post_id').post_id)
+    print(id)
     try:
-        if Posts.objects.latest('post_id').post_id <= id:
+        if id > Posts.objects.latest('post_id').post_id:
             return 404, {
                 "success": False
             }
@@ -245,7 +247,7 @@ def api_post_like_add(request, data):
 
     user = Users.objects.get(token=token)
     post = Posts.objects.get(post_id=id)
-    if "user_id" in post.likes:
+    if user.user_id in post.likes:
             if user.user_id not in post.likes:
                 post.likes.append(user.user_id)
             else:
@@ -256,37 +258,32 @@ def api_post_like_add(request, data):
         "success": True
     }
 
-def api_post_like_remove() -> Union[tuple[flask.Response, int], flask.Response]:
+def api_post_like_remove(request, data):
     # Called when someone unlikes a post.
     # Login required: true
     # Ratelimit: none
     # Parameters: id: int - post id to unlike
 
-    x = std_checks(
-        token=token,
-
-        parameters=True,
-        required_params=["id"]
-    )
+    token = request.COOKIES.get('token')
+    id = data.id
 
     try:
-        if generate_post_id(inc=False) <= int(x["id"]):
-            return return_dynamic_content_type(json.dumps({
+        if id > Posts.objects.latest('post_id').post_id:
+            return 404, {
                 "success": False
-            }), "application/json"), 404
+            }
 
     except ValueError:
-        return return_dynamic_content_type(json.dumps({
+        return 404, {
             "success": False
-        }), "application/json"), 404
+        }
 
-    user_id = token_to_id(token)
-    post_json = load_post_json(x["id"])
-    if "interactions" in post_json and "likes" in post_json["interactions"]:
-        if user_id in post_json["interactions"]["likes"]:
-            post_json["interactions"]["likes"].remove(user_id)
-            save_post_json(x["id"], post_json)
+    user = Users.objects.get(token=token)
+    post = Posts.objects.get(post_id=id)
+    if user.user_id in post.likes:
+        post.likes.remove(user.user_id)
+        post.save()
 
-    return return_dynamic_content_type(json.dumps({
+    return 200, {
         "success": True
-    }), "application/json")
+    }
