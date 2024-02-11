@@ -247,8 +247,8 @@ def api_post_like_add(request, data):
 
     user = Users.objects.get(token=token)
     post = Posts.objects.get(post_id=id)
-    if user.user_id in post.likes:
-            if user.user_id not in post.likes:
+    if user.user_id not in post.likes:
+            if post.likes != []:
                 post.likes.append(user.user_id)
             else:
                 post.likes = [user.user_id]
@@ -282,7 +282,7 @@ def api_post_like_remove(request, data):
     post = Posts.objects.get(post_id=id)
     if user.user_id in post.likes:
         post.likes.remove(user.user_id)
-        post.save()
+    post.save()
 
     return 200, {
         "success": True
