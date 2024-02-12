@@ -164,33 +164,35 @@ def api_post_list_recent(request, offset) -> dict:
         "end": end
     }
 
-def api_post_list_user(user: str) -> Union[tuple[flask.Response, int], flask.Response]:
+def api_post_list_user(request, username, offset):
     # Called when getting posts from a specific user.
     # Login required: true
     # Ratelimit: none
     # Parameters: none
 
-    if not validate_username(user):
-        flask.abort(404)
+    if not validate_username(username):
+        return 404, {
+            "reason" : "Username is insvalbid"
+        }
 
-    offset = sys.maxsize if request.args.get("offset") == None else int(request.args.get("offset")) # type: ignore // pylance likes to complain :3
+    token = request.COOKIES.get('token') if 'token' in request.COOKIES and validate_token(request.COOKIES.get('token')) else 0
+    offset = sys.maxsize if offset == -1 else offset
 
-    self_id = token_to_id(token) if "token" in request.cookies and validate_token(token) else 0
-    user_id = username_to_id(user)
-    user_json = load_user_json(user_id)
+    self_user = Users.objects.get(token=token)
+    user = Users.objects.get(username=username)
 
-    if "private" in user_json and user_json["private"] and self_id not in user_json["following"]:
-        return return_dynamic_content_type(json.dumps({
+    if self_user.user_id not in user.following:
+        return 200, {
             "posts": [],
             "end": True,
-            "color": "#3a1e93" if "color" not in user_json else user_json["color"],
+            "color": user.color or "#3a1e93",
             "private": True,
             "can_view": False,
-            "following": len(user_json["following"]) - 1,
-            "followers": user_json["followers"]
-        }))
+            "following": len(user.following) - 1,
+            "followers": len(user.followers)
+        }
 
-    potential = get_user_post_ids(user_id)[::-1]
+    potential = user.posts[::-1]
 
     index = 0
     for i in range(len(potential)):
@@ -204,27 +206,27 @@ def api_post_list_user(user: str) -> Union[tuple[flask.Response, int], flask.Res
 
     outputList = []
     for i in potential:
-        post_info = load_post_json(i)
+        post = Posts.objects.get(pk=i)
         outputList.append({
             "post_id": i,
-            "creator_username": user,
-            "display_name": user_json["display_name"],
-            "content": post_info["content"],
-            "timestamp": post_info["timestamp"],
-            "liked": "interactions" in post_info and "likes" in post_info["interactions"] and self_id in post_info["interactions"]["likes"],
-            "likes": len(post_info["interactions"]["likes"]) if "interactions" in post_info and "likes" in post_info["interactions"] else 0,
-            "comments": len(post_info["interactions"]["comments"]) if "interactions" in post_info and "comments" in post_info["interactions"] else 0
+            "creator_username": user.username,
+            "display_name": user.display_name,
+            "content": post.content,
+            "timestamp": post.timestamp,
+            "liked": self_user.user_id in post.likes,
+            "likes": len(post.likes),
+            "comments": len(post.comments),
         })
 
-    return return_dynamic_content_type(json.dumps({
+    return 200, {
         "posts": outputList,
         "end": end,
-        "color": "#3a1e93" if "color" not in user_json else user_json["color"],
-        "private": "private" in user_json and user_json["private"],
+        "color": user.color or "#3a1e93",
+        "private": user.private,
         "can_view": True,
-        "following": len(user_json["following"]) - 1,
-        "followers": user_json["followers"]
-    }), "application/json")
+        "following": len(user.following) - 1,
+        "followers": user.followers,
+    }
 
 def api_post_like_add(request, data):
     # Called when someone likes a post.

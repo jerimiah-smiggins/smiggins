@@ -46,7 +46,7 @@ class postSchema(Schema):
 class likeSchema(Schema):
     id: int
 
-
+# Account stuff
 @api.post("user/signup")
 def signup(request, data: accountSchema):
     return api_account_signup(request=request, data=data)
@@ -55,7 +55,7 @@ def signup(request, data: accountSchema):
 def login(request, data: accountSchema):
     return api_account_login(request=request, data=data)
 
-
+# User stuff
 @api.post("user/settings/theme", response={200: dict, 400: dict})
 def theme(request, data: themeSchema):
     return api_user_settings_theme(request=request, data=data)
@@ -80,7 +80,7 @@ def followAdd(request, data: followerSchema):
 def followRemove(request, data: followerSchema):
     return api_user_follower_remove(request=request, data=data)
 
-
+# Post stuff
 @api.put("post/create", response={201: dict, 400:dict})
 def postCreate(request, data: postSchema):
     return api_post_create(request=request, data=data)
@@ -92,6 +92,10 @@ def postFollowing(request, offset: int = -1):
 @api.get("post/recent")
 def postRecent(request, offset: int = -1):
     return api_post_list_recent(request=request, offset=offset)
+
+@api.get("post/user/{str:username}", response={200: dict, 404: dict})
+def postUser(request,  username, offset: int = -1):
+    return api_post_list_user(request=request, username=username, offset=offset)
 
 @api.post("post/like", response={200: dict, 404: dict})
 def likeAdd(request, data: likeSchema):
