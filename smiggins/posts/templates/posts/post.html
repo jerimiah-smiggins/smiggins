@@ -44,7 +44,7 @@
         <div class="bottom-content">
           <div class="comment" id="add-comment-svg"></div><span class="comment-number">{{ COMMENTS }}</span>
           <div class="bottom-spacing"></div>
-          <div class="like" id="add-like-svg" data-liked="{{ LIKED }}" onclick='let q = document.querySelector(`div[data-post-id="{{ POST_ID }}"] span.like-number`); let h = document.querySelector(`div[data-post-id="{{ POST_ID }}"] div.like`); if (h.dataset["liked"] == "true") { fetch("/api/post/like/remove", { "method": "DELETE", "body": JSON.stringify({ "id": {{ POST_ID }} }) }); h.setAttribute("data-liked", "false"); h.innerHTML = icons.unlike; q.innerHTML = +q.innerHTML - 1; } else { fetch("/api/post/like/add", { "method": "POST", "body": JSON.stringify({ "id": {{ POST_ID }} }) }); h.setAttribute("data-liked", "true"); h.innerHTML = icons.like; q.innerHTML = +q.innerHTML + 1; }'></div>
+          <div class="like" id="add-like-svg" data-liked="{{ LIKED }}" onclick='let q = document.querySelector(`div[data-post-id="{{ POST_ID }}"] span.like-number`); let h = document.querySelector(`div[data-post-id="{{ POST_ID }}"] div.like`); if (h.dataset["liked"] == "true") { fetch("/api/post/like", { "method": "DELETE", "body": JSON.stringify({ "id": {{ POST_ID }} }) }); h.setAttribute("data-liked", "false"); h.innerHTML = icons.unlike; q.innerHTML = +q.innerHTML - 1; } else { fetch("/api/post/like", { "method": "POST", "body": JSON.stringify({ "id": {{ POST_ID }} }) }); h.setAttribute("data-liked", "true"); h.innerHTML = icons.like; q.innerHTML = +q.innerHTML + 1; }'></div>
           <span class="like-number">{{ LIKES }}</span>
         </div>
       </div>

@@ -112,7 +112,7 @@ function toggleLike(post_id) {
   let q = document.querySelector(`div[data-post-id="${post_id}"] span.like-number`);
   let h = document.querySelector(`div[data-post-id="${post_id}"] div.like`);
   if (h.dataset["liked"] == "true") {
-    fetch("/api/post/like/remove", {
+    fetch("/api/post/like", {
       "method": "DELETE",
       "body": JSON.stringify({
         "id": post_id
@@ -122,7 +122,7 @@ function toggleLike(post_id) {
     h.innerHTML = icons.unlike;
     q.innerHTML = +q.innerHTML - 1;
   } else {
-    fetch("/api/post/like/add", {
+    fetch("/api/post/like", {
       "method": "POST",
       "body": JSON.stringify({
         "id": post_id
