@@ -2,6 +2,7 @@ from django.urls import path
 
 from _server_module._api_user import *
 from _server_module._api_post import *
+from _server_module._api_comment import *
 
 from ninja import NinjaAPI, Schema
 from ninja.renderers import BaseRenderer
@@ -105,6 +106,24 @@ def likeAdd(request, data: likeSchema):
 def likeRemove(request, data: likeSchema):
     return api_post_like_remove(request=request, data=data)
 
+# Actually just comments (I will die debugging two (almost) identical functions)
+
+@api.get("comments")
+def commentList(request, id, offset: int = -1):
+    return api_comment_list(request=request, id=id, offset=offset)
+
+@api.put("comment/create")
+def postCreate(request, data: postSchema):
+    return api_comment_create(request=request, data=data)
+
+@api.post("comment/like", response={200: dict, 404: dict})
+def likeAdd(request, data: likeSchema):
+    return api_comment_like_add(request=request, data=data)
+
+@api.delete("comment/like", response={200: dict, 404: dict})
+def likeRemove(request, data: likeSchema):
+    return api_comment_like_remove(request=request, data=data)
+
 urlpatterns = [
     path("", api.urls)
 ]
@@ -123,14 +142,12 @@ app.route("/api/user/settings/priv", methods=["POST"])(api_user_settings_private
 app.route("/api/post/create", methods=["PUT"])(api_post_create)
 app.route("/api/post/following", methods=["GET"])(api_post_list_following)
 app.route("/api/post/recent", methods=["GET"])(api_post_list_recent)
-app.route("/api/post/like/add", methods=["POST"])(api_post_like_add)
-app.route("/api/post/like/remove", methods=["DELETE"])(api_post_like_remove)
-Just make method change which function? (POST to /api/post/like does like add, DELETE does like remove)
+app.route("/api/post/like", methods=["POST"])(api_post_like_add)
+app.route("/api/post/like", methods=["DELETE"])(api_post_like_remove)
 app.route("/api/post/user/<path:user>", methods=["GET"])(api_post_list_user)
 
 # Create comment api routes
 app.route("/api/comments", methods=["GET"])(api_comment_list)
-Add /list to the end for consistancy? (/api/comment/list)
 app.route("/api/comment/create", methods=["PUT"])(api_comment_create)
 app.route("/api/comment/like/add", methods=["POST"])(api_comment_like_add)
 app.route("/api/comment/like/remove", methods=["DELETE"])(api_comment_like_remove)
@@ -139,5 +156,4 @@ Just make method change which function? (POST to /api/comment/like does like add
 # Create info routes
 app.route("/api/info/ip", methods=["GET"])(api_info_ip)
 app.route("/api/info/username", methods=["GET"])(api_info_username)
-Just make it /api/ip , /username ?
 '''

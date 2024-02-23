@@ -27,7 +27,7 @@ def api_post_create(request, data) -> dict:
     except IndexError:
         content = ""
 
-    if (len(content) > MAX_POST_LENGTH or len(content) < 1):
+    if len(content) > MAX_POST_LENGTH or len(content) < 1:
         create_api_ratelimit("api_post_create", API_TIMINGS["create post failure"], token)
         return 400, {
             "success": False,

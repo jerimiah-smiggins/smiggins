@@ -34,14 +34,11 @@ dom("post").addEventListener("click", function() {
       headers: {
         "Content-Type": "application/json"
       },
-      body: comment ? JSON.stringify({
+      body: JSON.stringify({
         "content": dom("post-text").value,
         "id": post_id,
-        "comment": 1
-      }):  JSON.stringify({
-        "content": dom("post-text").value,
-        "id": post_id
-      })
+        "comment": comment
+    })
     })
       .then((response) => {
         if (response.status == 429) {

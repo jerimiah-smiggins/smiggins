@@ -4,7 +4,7 @@ from ._packages import *
 from ._settings import *
 from ._helper import *
 
-def api_comment_create() -> Union[tuple[flask.Response, int], flask.Response]:
+def api_comment_create(request, data) -> dict:
     # Called when a new comment is created.
     # Login required: true
     # Ratelimit: 1s for unsuccessful, 3s for successful
@@ -12,94 +12,71 @@ def api_comment_create() -> Union[tuple[flask.Response, int], flask.Response]:
     # - "content": the content of the comment. must be between 1 >= x >= 280 characters
     # - "id": the id for the post being commented on. must be a valid id between 0 < x < next post id
 
-    x = std_checks(
-        ratelimit=True,
-        ratelimit_api_id="api_comment_create",
-        ratelimit_identifier=request.cookies["token"],
-
-        token=request.cookies["token"],
-
-        parameters=True,
-        required_params=["content", "id"]
-    )
-
-    post = x["content"].replace("\r", "").replace("\t", " ").replace("\u200b", " ")
+    token = request.COOKIES.get('token')
+    content = data.content.replace("\r", "").replace("\t", " ").replace("\u200b", " ")
+    id = data.id
+    is_comment = data.comment
 
     for i in ["\t", "​", "​", " ", " ", " ", " ", " ", " ", " ", " ", " ", "⠀"]:
-        post = post.replace(i, " ")
+        content = content.replace(i, " ")
 
-    while "\n "    in post: post = post.replace("\n ", "\n")
-    while "  "     in post: post = post.replace("  ", " ")
-    while "\n\n\n" in post: post = post.replace("\n\n\n", "\n\n")
+    while "\n "    in content: content = content.replace("\n ", "\n")
+    while "  "     in content: content = content.replace("  ", " ")
+    while "\n\n\n" in content: content = content.replace("\n\n\n", "\n\n")
 
     try:
-        if post[0]  in "\n ": post = post[1::]
-        if post[-1] in "\n ": post = post[:-1:]
+        if content[0]  in "\n ": content = content[1::]
+        if content[-1] in "\n ": content = content[:-1:]
     except IndexError:
-        post = ""
+        content = ""
 
-    if len(post) > MAX_POST_LENGTH or len(post) < 1:
-        create_api_ratelimit("api_comment_create", API_TIMINGS["create comment failure"], request.cookies["token"])
-        return return_dynamic_content_type(json.dumps({
+    if len(content) > MAX_POST_LENGTH or len(content) < 1:
+        create_api_ratelimit("api_comment_create", API_TIMINGS["create post failure"], token)
+        return 400, {
             "success": False,
             "reason": f"Invalid post length. Must be between 1 and {MAX_POST_LENGTH} characters."
-        }), "application/json"), 400
+        }
 
-    if x["id"] < 0 or generate_post_id(inc=False) < x["id"]:
-        create_api_ratelimit("api_comment_create", API_TIMINGS["create comment failure"], request.cookies["token"])
-        return return_dynamic_content_type(json.dumps({
-            "success": False,
-            "reason": "Invalid post id. Must be between 0 and next possible post id (exclusive)."
-        }), "application/json"), 400
-
-    create_api_ratelimit("api_comment_create", API_TIMINGS["create comment"], request.cookies["token"])
+    create_api_ratelimit("api_comment_create", API_TIMINGS["create comment"], token)
 
     timestamp = round(time.time())
-    comment_id = generate_comment_id()
-    user_id = token_to_id(request.cookies["token"])
+    
+    user = Users.objects.get(token=token)
 
-    g = open(f"{ABSOLUTE_SAVING_PATH}posts/comments/{comment_id}.json", "w")
-    g.write(json.dumps({
-        "content": post,
-        "creator": { "id": user_id },
-        "timestamp": timestamp,
-        "interactions": {
-            "likes": [],
-            "comments": [],
-            # below are not implemented, placeholders to be potentially created in the future
-            "reposts": []
-        }
-    }))
-    g.close()
+    comment = Comments(
+        content = content,
+        creator = user.user_id,
+        timestamp = timestamp,
+        likes = [],
+        comments = [],
+        reposts = []
+    )
+    comment.save()
+    
+    comment = Comments.objects.get(content=content,timestamp=timestamp,creator=user.user_id)
+    
 
-    if "comment" in x:
-        post_json = load_comment_json(x["id"])
+    if is_comment:
+        parent = Posts.objects.get(pk=id)
     else:
-        post_json = load_post_json(x["id"])
-    if not ("interactions" in post_json and "comments" in post_json["interactions"]) or comment_id not in post_json["interactions"]["comments"]:
-        if "interactions" in post_json:
-            if "comments" in post_json["interactions"]:
-                post_json["interactions"]["comments"].append(comment_id)
-            else:
-                post_json["interactions"]["comments"] = [comment_id]
-        else:
-            post_json["interactions"] = {"likes": [], "comments": [comment_id], "reposts": []}
+        parent = Comments.objects.get(pk=id)
+    
+    if comment.comment_id not in parent.comments:
+        parent.comments.append(comment.comment_id)
+    
+    parent.save()
 
-        if "comment" in x:
-            save_comment_json(x["id"], post_json)
-        else:
-            save_post_json(x["id"], post_json)
 
-    return return_dynamic_content_type(json.dumps({
+    return 201, {
         "success": True,
-        "comment_id": comment_id
-    }), "application/json"), 201
+        "comment_id": comment.comment_id
+    }
 
 def api_comment_list() -> Union[tuple[flask.Response, int], flask.Response]:
     # Called when the comments for a post are refreshed.
     # Login required: true
     # Ratelimit: none
-    # Parameters: none
+    # Parameters: id, offset
 
     std_checks(
         args=True,
