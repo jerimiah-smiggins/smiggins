@@ -70,7 +70,7 @@ dom("post").addEventListener("click", function() {
 function refresh(force_offset=false) {
   if (force_offset !== true) { dom("posts").innerHTML = ""; }
 
-  fetch(`/api/comments?id=${post_id}${comment ? "&comment=1" : ""}${force_offset === true && !end ? `&offset=${offset}` : ""}`, {
+  fetch(`/api/comments?id=${post_id}&comment=${comment}${force_offset === true && !end ? `&offset=${offset}` : ""}`, {
     method: "GET",
     headers: {
       "Content-Type": "application/json"

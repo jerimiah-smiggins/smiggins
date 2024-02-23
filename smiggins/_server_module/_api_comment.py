@@ -73,34 +73,31 @@ def api_comment_create(request, data) -> dict:
         "comment_id": comment.comment_id
     }
 
-def api_comment_list(request, offset, id) -> dict:
+def api_comment_list(request, offset, comment, id) -> dict:
     # Called when the comments for a post are refreshed.
     # Login required: true
     # Ratelimit: none
     # Parameters: id, offset
 
-    std_checks(
-        args=True,
-        required_args=["id"]
-    )
+    token = request.COOKIES.get('token')
+    offset = 0 if offset == -1 else offset
 
-    logged_out = False
+    logged_in = True
 
     try:
-        if not validate_token(request.cookies["token"]):
-            logged_out = True
+        if not validate_token(token):
+            logged_in = False
     except KeyError:
-        logged_out = True
+        logged_in = False
 
     try:
-        if int(request.args.get("id")) >= generate_post_id(inc=False) or int(request.args.get("id")) <= 0: # type: ignore // pylance likes to complain :3
-            flask.abort(400)
+        if id >= generate_post_id(inc=False) or id <= 0: # type: ignore // pylance likes to complain :3
+            return 400
     except ValueError:
-        flask.abort(400)
+        return 400
 
-    offset = 0 if request.args.get("offset") == None else int(request.args.get("offset")) + 1 # type: ignore // pylance likes to complain :3
 
-    if request.args.get("comment"):
+    if comment:
         post_json = load_comment_json(int(request.args.get("id"))) # type: ignore // pylance likes to complain :3
     else:
         post_json = load_post_json(int(request.args.get("id"))) # type: ignore // pylance likes to complain :3

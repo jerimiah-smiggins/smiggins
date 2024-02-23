@@ -114,8 +114,8 @@ def likeRemove(request, data: likeSchema):
 # Actually just comments (I will die debugging two (almost) identical functions)
 
 @api.get("comments")
-def commentList(request, id, offset: int = -1):
-    return api_comment_list(request=request, id=id, offset=offset)
+def commentList(request, id: int, comment: bool, offset: int = -1):
+    return api_comment_list(request=request, comment=comment, id=id, offset=offset)
 
 @api.put("comment/create", response={201: dict, 400:dict})
 def postCreate(request, data: commentSchema):
