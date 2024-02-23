@@ -15,6 +15,7 @@ def api_comment_create(request, data) -> dict:
     token = request.COOKIES.get('token')
     content = data.content.replace("\r", "").replace("\t", " ").replace("\u200b", " ")
     id = data.id
+    print(data.id)
     is_comment = data.comment
 
     for i in ["\t", "​", "​", " ", " ", " ", " ", " ", " ", " ", " ", " ", "⠀"]:
@@ -57,9 +58,9 @@ def api_comment_create(request, data) -> dict:
     
 
     if is_comment:
-        parent = Posts.objects.get(pk=id)
+        parent = Posts.objects.get(post_id=id)
     else:
-        parent = Comments.objects.get(pk=id)
+        parent = Comments.objects.get(comment_id=id)
     
     if comment.comment_id not in parent.comments:
         parent.comments.append(comment.comment_id)
@@ -72,7 +73,7 @@ def api_comment_create(request, data) -> dict:
         "comment_id": comment.comment_id
     }
 
-def api_comment_list() -> Union[tuple[flask.Response, int], flask.Response]:
+def api_comment_list(request, offset, id) -> dict:
     # Called when the comments for a post are refreshed.
     # Login required: true
     # Ratelimit: none
@@ -204,7 +205,7 @@ def api_comment_like_remove() -> Union[tuple[flask.Response, int], flask.Respons
             }), "application/json"), 404
 
     except ValueError:
-        print(x["id"])
+        # print(x["id"])
         return return_dynamic_content_type(json.dumps({
             "success": False
         }), "application/json"), 404

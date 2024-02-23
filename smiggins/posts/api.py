@@ -47,6 +47,11 @@ class postSchema(Schema):
 class likeSchema(Schema):
     id: int
 
+
+class commentSchema(postSchema):
+    id: int
+    comment: bool
+
 # Account stuff
 @api.post("user/signup")
 def signup(request, data: accountSchema):
@@ -112,8 +117,8 @@ def likeRemove(request, data: likeSchema):
 def commentList(request, id, offset: int = -1):
     return api_comment_list(request=request, id=id, offset=offset)
 
-@api.put("comment/create")
-def postCreate(request, data: postSchema):
+@api.put("comment/create", response={201: dict, 400:dict})
+def postCreate(request, data: commentSchema):
     return api_comment_create(request=request, data=data)
 
 @api.post("comment/like", response={200: dict, 404: dict})

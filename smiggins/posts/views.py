@@ -88,8 +88,8 @@ def user(request, username) -> HttpResponse:
         IS_FOLLOWING = user.user_id in Users.objects.get(pk=self_id).following if logged_in else "",
         IS_HIDDEN = "hidden" if user.user_id == self_id else ""
     )
-
-    response.set_cookie('token',token.lower())
+    if logged_in:
+        response.set_cookie('token',token.lower())
     return response
 
 def post(request, post_id) -> HttpResponse:
@@ -120,7 +120,7 @@ def post(request, post_id) -> HttpResponse:
         pass
         # this should return like a 403 error
     
-    print(str(post.likes != [] and self_id in post.likes and logged_in).lower())
+    # print(str(post.likes != [] and self_id in post.likes and logged_in).lower())
 
     response = get_HTTP_response(
         request, "posts/post.html",
@@ -136,8 +136,8 @@ def post(request, post_id) -> HttpResponse:
         LIKED = str(post.likes != [] and self_id in post.likes and logged_in).lower(),
         LIKES = str(len(post.likes)) if post.likes != [] else "0"
     )
-
-    response.set_cookie('token', token.lower())
+    if logged_in:
+        response.set_cookie('token', token.lower())
     return response
 
 def comment(request, comment_id) -> HttpResponse:
