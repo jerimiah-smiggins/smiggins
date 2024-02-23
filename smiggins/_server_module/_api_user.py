@@ -271,6 +271,10 @@ def api_user_follower_remove(request, data) -> dict:
         if user.user_id in followed.followers:
             followed.followers.remove(user.user_id)
             followed.save()
+    else:
+        return 400, {
+            "success": False
+        }
 
     return 201, {
         "success": True
