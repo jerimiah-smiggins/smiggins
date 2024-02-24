@@ -73,7 +73,7 @@ def api_comment_create(request, data) -> dict:
         "comment_id": comment.comment_id
     }
 
-def api_comment_list(request, offset, comment, id) -> dict:
+def api_comment_list(request, offset, is_comment, id) -> dict:
     # Called when the comments for a post are refreshed.
     # Login required: true
     # Ratelimit: none
@@ -91,56 +91,61 @@ def api_comment_list(request, offset, comment, id) -> dict:
         logged_in = False
 
     try:
-        if id >= generate_post_id(inc=False) or id <= 0: # type: ignore // pylance likes to complain :3
-            return 400
+        print(id)
+        if id < 0 or (Posts.objects.latest('post_id').post_id if is_comment else Comments.objects.latest('comment_id').comment_id) < id: # type: ignore // pylance likes to complain :3
+            return 400, {
+                "reason": "Idk your id is not right at all"
+            }
     except ValueError:
-        return 400
+        return 400, {
+            "reason": "Your id broke soemthing owo"
+        }
 
 
-    if comment:
-        post_json = load_comment_json(int(request.args.get("id"))) # type: ignore // pylance likes to complain :3
+    if is_comment:
+        parent = Comments.objects.get(pk=id) 
     else:
-        post_json = load_post_json(int(request.args.get("id"))) # type: ignore // pylance likes to complain :3
-    user_id = 0 if logged_out else token_to_id(request.cookies["token"])
+        parent = Posts.objects.get(pk=id) 
+    user_id = Users.objects.get(token=token).user_id if logged_in else 0
 
-    if "interactions" not in post_json or "comments" not in post_json["interactions"]:
-        return return_dynamic_content_type(json.dumps({
+    if parent.comments == []:
+        return 200, {
             "posts": [],
             "end": True
-        }), "application/json")
+        }
 
-    while len(post_json["interactions"]["comments"]) and post_json["interactions"]["comments"][0] < offset:
-        post_json["interactions"]["comments"].pop(0)
+    while len(parent.comments) and parent.comments[0] < offset:
+        parent.comments.pop(0)
 
     outputList = []
     offset = 0
-    for i in post_json["interactions"]["comments"]:
-        post_info = load_comment_json(i)
-        user_json = load_user_json(post_info["creator"]["id"])
+    for i in parent.comments:
+        comment = Comments.objects.get(pk=i)
+        creator = Users.objects.get(pk=comment.creator)
 
-        if "private" in user_json and user_json["private"] and user_id not in user_json["following"]:
+        if creator.private and user_id not in creator.following:
             offset += 1
 
         else:
             outputList.append({
                 "post_id": i,
-                "display_name": user_json["display_name"],
-                "creator_username": user_json["display_name"] if "username" not in user_json else user_json["username"],
-                "content": post_info["content"],
-                "timestamp": post_info["timestamp"],
-                "liked": "interactions" in post_info and "likes" in post_info["interactions"] and user_id in post_info["interactions"]["likes"],
-                "likes": len(post_info["interactions"]["likes"]) if "interactions" in post_info and "likes" in post_info["interactions"] else 0,
-                "comments": len(post_info["interactions"]["comments"]) if "interactions" in post_info and "comments" in post_info["interactions"] else 0,
-                "private_acc": "private" in user_json and user_json["private"]
+                "display_name": creator.display_name,
+                "creator_username": creator.username,
+                "content": comment.content,
+                "timestamp": comment.timestamp,
+                "liked":  user_id in comment.likes,
+                "likes": len(comment.likes),
+                "comments": len(comment.comments),
+                "private_acc": creator.private
             })
 
         if len(outputList) >= POSTS_PER_REQUEST:
             break
 
-    return return_dynamic_content_type(json.dumps({
+    return 200, {
         "posts": outputList,
-        "end": len(post_json["interactions"]["comments"]) - offset <= POSTS_PER_REQUEST
-    }), "application/json")
+        "end": len(parent.comments) - offset <= POSTS_PER_REQUEST
+    }
 
 def api_comment_like_add() -> Union[tuple[flask.Response, int], flask.Response]:
     # Called when someone likes a comment.
