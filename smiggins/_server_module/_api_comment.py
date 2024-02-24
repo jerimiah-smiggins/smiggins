@@ -58,15 +58,14 @@ def api_comment_create(request, data) -> dict:
     
 
     if is_comment:
-        parent = Posts.objects.get(post_id=id)
-    else:
         parent = Comments.objects.get(comment_id=id)
+    else:
+        parent = Posts.objects.get(post_id=id)
     
     if comment.comment_id not in parent.comments:
         parent.comments.append(comment.comment_id)
     
     parent.save()
-
 
     return 201, {
         "success": True,
@@ -91,7 +90,6 @@ def api_comment_list(request, offset, is_comment, id) -> dict:
         logged_in = False
 
     try:
-        print(id)
         if id < 0 or (Posts.objects.latest('post_id').post_id if is_comment else Comments.objects.latest('comment_id').comment_id) < id: # type: ignore // pylance likes to complain :3
             return 400, {
                 "reason": "Idk your id is not right at all"
@@ -107,13 +105,13 @@ def api_comment_list(request, offset, is_comment, id) -> dict:
     else:
         parent = Posts.objects.get(pk=id) 
     user_id = Users.objects.get(token=token).user_id if logged_in else 0
-
     if parent.comments == []:
         return 200, {
             "posts": [],
             "end": True
         }
 
+    print(offset)
     while len(parent.comments) and parent.comments[0] < offset:
         parent.comments.pop(0)
 
