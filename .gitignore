@@ -5,3 +5,4 @@ __pycache__/
 .venv/
 smiggins/_server_module/_api_keys.py
 smiggins/db.sqlite3
+smiggins/collected-static/
