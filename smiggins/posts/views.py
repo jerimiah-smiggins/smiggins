@@ -47,9 +47,12 @@ def settings(request) -> HttpResponse:
 
         DISPLAY_NAME = user.display_name,
         BANNER_COLOR = user.color or "#3a1e93",
-        SELECTED_IF_DARK = "selected" if user.theme == "dark" else "",
+        CHECKED_IF_PRIV = "checked" if user.private else "",
+
         SELECTED_IF_LIGHT = "selected" if user.theme == "light" else "",
-        CHECKED_IF_PRIV = "checked" if user.private else ""
+        SELECTED_IF_GRAY = "selected" if user.theme == "gray" else "",
+        SELECTED_IF_DARK = "selected" if user.theme == "dark" else "",
+        SELECTED_IF_BLACK = "selected" if user.theme == "black" else ""
     )
 
     response.set_cookie("token", token.lower())
