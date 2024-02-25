@@ -3,5 +3,5 @@ save/
 __pycache__/
 .hintrc
 .venv/
-smiggins/_server_module/_api_keys.py
-smiggins/db.sqlite3
+_server_module/_api_keys.py
+db.sqlite3
