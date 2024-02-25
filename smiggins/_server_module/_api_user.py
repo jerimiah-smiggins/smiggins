@@ -208,8 +208,9 @@ def api_user_settings_display_name(request, data) -> dict:
         }
 
     user = Users.objects.get(token=token)
+    print(displ_name)
     user.display_name = displ_name
-    user.save
+    user.save()
 
     return 200, {
         "success": True
