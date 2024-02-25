@@ -57,7 +57,7 @@ def settings(request) -> HttpResponse:
 
 def user(request, username) -> HttpResponse:
     logged_in = True
-
+    username = username.lower()
     try:
         token = request.COOKIES["token"]
         if not validate_token(token):
