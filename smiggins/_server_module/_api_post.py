@@ -37,7 +37,7 @@ def api_post_create(request, data) -> dict:
     create_api_ratelimit("api_post_create", API_TIMINGS["create post"], token)
 
     timestamp = round(time.time())
-    
+
     user = Users.objects.get(token=token)
 
     post = Posts(
@@ -66,7 +66,7 @@ def api_post_list_following(request, offset) -> dict:
     # Parameters: none
 
     token = request.COOKIES.get('token')
-    
+
     offset = sys.maxsize if offset == -1 else offset
     user = Users.objects.get(token=token)
 
@@ -123,7 +123,13 @@ def api_post_list_recent(request, offset) -> dict:
     token = request.COOKIES.get('token')
 
     if offset == -1:
-        next_id = Posts.objects.latest('post_id').post_id
+        try:
+            next_id = Posts.objects.latest('post_id').post_id
+        except Posts.DoesNotExist:
+            return {
+                "posts": [],
+                "end": True
+            }
     else:
         next_id = offset - 10
 
@@ -133,10 +139,11 @@ def api_post_list_recent(request, offset) -> dict:
     outputList = []
     offset = 0
     i = next_id
+
     while i > next_id - POSTS_PER_REQUEST - offset and i > 0:
         try:
             current_post = Posts.objects.get(pk=i)
-        
+
             current_user = Users.objects.get(pk=current_post.creator)
             if current_user.private and user.user_id not in current_user.following:
                 offset += 1
@@ -154,6 +161,7 @@ def api_post_list_recent(request, offset) -> dict:
                     "comments": len(current_post.comments),
                     "private_acc": current_user.private
                 })
+
         except Posts.DoesNotExist:
             pass
 
@@ -181,7 +189,7 @@ def api_post_list_user(request, username, offset):
     self_user = Users.objects.get(token=token)
     user = Users.objects.get(username=username)
 
-    if self_user.user_id not in user.following:
+    if user.private and self_user.user_id not in user.following:
         return 200, {
             "posts": [],
             "end": True,
@@ -223,7 +231,7 @@ def api_post_list_user(request, username, offset):
         "end": end,
         "color": user.color or "#3a1e93",
         "private": user.private,
-        "can_view": True,
+        "can_view": not user.private or self_user.user_id in user.following,
         "following": len(user.following) - 1,
         "followers": user.followers,
     }
@@ -282,7 +290,7 @@ def api_post_like_remove(request, data):
 
     user = Users.objects.get(token=token)
     post = Posts.objects.get(post_id=id)
-    
+
     if user.user_id in post.likes:
         post.likes.remove(user.user_id)
     post.save()

@@ -41,7 +41,7 @@ def api_comment_create(request, data) -> dict:
     create_api_ratelimit("api_comment_create", API_TIMINGS["create comment"], token)
 
     timestamp = round(time.time())
-    
+
     user = Users.objects.get(token=token)
 
     comment = Comments(
@@ -53,18 +53,18 @@ def api_comment_create(request, data) -> dict:
         reposts = []
     )
     comment.save()
-    
+
     comment = Comments.objects.get(content=content,timestamp=timestamp,creator=user.user_id)
-    
+
 
     if is_comment:
         parent = Comments.objects.get(comment_id=id)
     else:
         parent = Posts.objects.get(post_id=id)
-    
+
     if comment.comment_id not in parent.comments:
         parent.comments.append(comment.comment_id)
-    
+
     parent.save()
 
     return 201, {
@@ -90,20 +90,20 @@ def api_comment_list(request, offset, is_comment, id) -> dict:
         logged_in = False
 
     try:
-        if id < 0 or (Posts.objects.latest('post_id').post_id if is_comment else Comments.objects.latest('comment_id').comment_id) < id: # type: ignore // pylance likes to complain :3
+        if id < 0 or (Posts.objects.latest('post_id').post_id if is_comment else Comments.objects.latest('comment_id').comment_id) < id:
             return 400, {
                 "reason": "Idk your id is not right at all"
             }
+
     except ValueError:
         return 400, {
             "reason": "Your id broke soemthing owo"
         }
 
-
     if is_comment:
-        parent = Comments.objects.get(pk=id) 
+        parent = Comments.objects.get(pk=id)
     else:
-        parent = Posts.objects.get(pk=id) 
+        parent = Posts.objects.get(pk=id)
     user_id = Users.objects.get(token=token).user_id if logged_in else 0
     if parent.comments == []:
         return 200, {
@@ -196,7 +196,7 @@ def api_comment_like_remove(request, data):
         return 404, {
                 "success": False
             }
-    
+
     user = Users.objects.get(token=token)
     comment = Comments.objects.get(comment_id=id)
 

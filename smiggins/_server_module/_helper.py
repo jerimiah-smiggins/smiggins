@@ -21,30 +21,6 @@ def sha(string: Union[str, bytes]) -> str:
         return hashlib.sha256(string).hexdigest()
     return ""
 
-def ensure_file(path: str, *, default_value: str="", folder: bool=False) -> None:
-    # Checks if a file exists and if it doesn't then creates it.
-    # If folder is false and if the file doesn't exist the contents
-    # of the file will be set to default_value. If folder is true and
-    # the specified file doesn't exist, then a folder will be created.
-    # If the file exists, then nothing is done.
-
-    if os.path.exists(path):
-        if folder and not os.path.isdir(path):
-            os.remove(path)
-            os.makedirs(path)
-        elif not folder and os.path.isdir(path):
-            shutil.rmtree(path, ignore_errors=True)
-            f = open(path, "w")
-            f.write(default_value)
-            f.close()
-    else:
-        if folder:
-            os.makedirs(path)
-        else:
-            f = open(path, "w")
-            f.write(default_value)
-            f.close()
-
 def set_timeout(callback: Callable, delay_ms: Union[int, float]) -> None:
     # Works like javascript's setTimeout function.
     # Callback is a callable which will be called after
@@ -69,7 +45,9 @@ def get_HTTP_response(request, file: str, **kwargs: str) -> HttpResponse:
 
         "MAX_DISPL_NAME_LENGTH" : MAX_DISPL_NAME_LENGTH,
         "MAX_POST_LENGTH" : MAX_POST_LENGTH,
-        "MAX_USERNAME_LENGTH" : MAX_USERNAME_LENGTH
+        "MAX_USERNAME_LENGTH" : MAX_USERNAME_LENGTH,
+
+        "THEME" : Users.objects.get(token=request.COOKIES.get('token')).theme if validate_token(request.COOKIES.get('token')) else "dark"
     }
 
     for key, value in kwargs.items():
@@ -86,11 +64,14 @@ def get_HTTP_response(request, file: str, **kwargs: str) -> HttpResponse:
 def validate_token(token: str) -> bool:
     # Ensures that a specific token corresponds to an actual account.
 
+    if not token:
+        return False
+
     for i in token:
         if i not in "0123456789abcdef":
             return False
 
-    try: 
+    try:
         Users.objects.get(token=token).token
         return True
     except Users.DoesNotExist:
@@ -137,7 +118,7 @@ def create_api_ratelimit(api_id: str, time_ms: Union[int, float], identifier: Un
     # Creates a ratelimit timeout for a specific user via the identifier.
     # The identifier should be the request.META.REMOTE_ADDR ip address
     # api_id is the identifier for the api, for example "api_account_signup". You
-    # can generally use the name of that api's funciton for this.
+    # can generally use the name of that api's function for this.
 
     if not RATELIMIT:
         return
@@ -154,33 +135,10 @@ def create_api_ratelimit(api_id: str, time_ms: Union[int, float], identifier: Un
     set_timeout(x, time_ms)
 
 def ensure_ratelimit(api_id: str, identifier: Union[str, None]) -> bool:
+    # NEEDS TO BE REWRITTEN
+    # Ratelimiting will be added before 0.5.0
+
     # Returns whether or not a certain api is ratelimited for the specified
     # identifier. True = not ratelimited, False = ratelimited
 
-    print(api_id, identifier, timeout_handler)
-
     return (not RATELIMIT) or not (api_id in timeout_handler and str(identifier) in timeout_handler[api_id])
-
-def std_checks(*,
-        data: dict={},
-
-        ratelimit: bool=False,
-        ratelimit_api_id: str="",
-        ratelimit_identifier: Union[str, None]="",
-
-        token: str="",
-    ):
-    # Removes a lot of boilerplate used to validate request calls.
-
-    if ratelimit:
-        if not ensure_ratelimit(ratelimit_api_id, ratelimit_identifier):
-            raise HttpError(429, "Ha! you exceeded the ratelimit. Must suck to be you.")
-
-    if token:
-        try:
-            if not validate_token(request.cookies["token"]):
-                raise HttpError(403, "That's an invalid token! Somethin's wrong with your token cookie, so maybe clear it and login again?")
-        except KeyError:
-            raise HttpError(401, "There's something wrong with that token, idk what happened but you better start coping.")
-
-    return data

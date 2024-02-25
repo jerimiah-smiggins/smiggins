@@ -3,15 +3,15 @@
 
 <html>
   <head>
-    <title>Home - {{ SITE_NAME }} v{{ VERSION }}</title>
+    <title>Home - {{SITE_NAME}} v{{VERSION}}</title>
     {% autoescape off %}
-    {{ HTML_HEADERS }}
+    {{HTML_HEADERS}}
     {% endautoescape %}
     <link rel="stylesheet" href="{% static '/css/home.css' %}">
   </head>
 
-  <body>
-    <textarea id="post-text" maxlength="{{ MAX_POST_LENGTH }}" placeholder="Enter your post here..."></textarea><br>
+  <body data-theme="{{THEME}}">
+    <textarea id="post-text" maxlength="{{MAX_POST_LENGTH}}" placeholder="Enter your post here..."></textarea><br>
     <button id="post">Post</button><br>
     <button onclick="refresh()">Refresh</button><br>
     <a id="switch" href="#"></a><br><br>
@@ -21,7 +21,7 @@
 
     <script src="{% static '/js/home.js' %}"></script>
     {% autoescape off %}
-    {{ HTML_FOOTERS }}
+    {{HTML_FOOTERS}}
     {% endautoescape %}
   </body>
 </html>

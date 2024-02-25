@@ -22,6 +22,8 @@ if (typeof(profile) === "undefined") {
     fetch("/api/info/username")
       .then((response) => (response.text()))
       .then((username) => {
+        username = username.username;
+
         if (usernameRegexFull.test(username)) {
           localStorage.setItem("username", username);
           dom("icons").innerHTML += `<a title="Profile" href="/u/${username}">${icons.user}</a>`;

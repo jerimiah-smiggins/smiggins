@@ -6,7 +6,6 @@
 VERSION: str = "0.4.0"
 
 # What to have the site name be.
-# Official name wip // Trinktter? trinkr? Jerimiah Smiggins? idk...
 SITE_NAME: str = "Jerimiah Smiggins"
 
 # 1-200
@@ -15,10 +14,6 @@ MAX_DISPL_NAME_LENGTH: int = 32
 
 # 1-65,536
 MAX_POST_LENGTH: int = 280
-
-# Whether or not to enable flask debug mode. This makes it
-# so that the server restarts if you save the file.
-DEBUG: bool = True
 
 ABSOLUTE_CONTENT_PATH: str = "./public/" # Where html/css/js is served from
 ABSOLUTE_SAVING_PATH: str  = "./save/"   # Where user information, posts, etc. are saved

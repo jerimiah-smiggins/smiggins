@@ -3,7 +3,9 @@
 <html>
   <head>
     <title>404 Not Found - {{SITE_NAME}} v{{VERSION}}</title>
+    {% autoescape off %}
     {{HTML_HEADERS}}
+    {% endautoescape %}
 
     <meta name="description" content="Page not found">
     <meta name="author" content="{{SITE_NAME}} v{{VERSION}}">
@@ -17,7 +19,7 @@
     <meta name="twitter:description" content="Page not found">
   </head>
 
-  <body class="center">
+  <body data-theme="{{THEME}}" class="center">
     <h1>Page Not Found!!</h1>
     <h3>The url wasn't found.</h3>
     Did you maybe go to the wrong page?

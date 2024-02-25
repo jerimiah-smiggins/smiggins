@@ -16,7 +16,9 @@ button { width: 5em; }
 #more { width: 8em; }
 #follower-container { white-space: nowrap; }
 
-#post-text:focus-visible, #post-text:focus,
+#post-text:focus-visible, #post-text:focus {
+  outline: calc(2em / 14) var(--accent) solid;
+}
 
 .main-content {
   word-break: break-word;

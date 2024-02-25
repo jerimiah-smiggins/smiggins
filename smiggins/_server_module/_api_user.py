@@ -123,9 +123,9 @@ def api_user_settings_theme(request, data) -> dict:
 
     if theme.lower() not in ["light", "dark"]:
         return 400, {
-        "success": False,
-        "reason": "That's not a vailid theme, idiot.",
-    }
+            "success": False,
+            "reason": "That's not a vailid theme, idiot.",
+        }
 
     user = Users.objects.get(token=token)
     user.theme = theme

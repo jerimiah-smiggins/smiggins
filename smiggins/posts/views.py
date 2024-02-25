@@ -7,7 +7,6 @@ from _server_module._variables import *
 from _server_module._helper import *
 
 from .models import Users, Posts, Comments
-# Create your views here.
 
 def index(request) -> HttpResponse:
     return get_HTTP_response(request, "posts/index.html")
@@ -185,3 +184,11 @@ def comment(request, comment_id) -> HttpResponse:
 
     response.set_cookie('token', token.lower())
     return response
+
+def _404(request, exception) -> HttpResponse:
+    response = get_HTTP_response(request, "posts/404.html")
+    response.status_code = 404
+    return response
+
+def _500(request) -> HttpResponse:
+    return 500, get_HTTP_response(request, "posts/500.html")
