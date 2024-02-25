@@ -93,7 +93,15 @@ function refresh(force_offset=false) {
               </a>
             </div>
             <div class="main-content">
-              ${linkifyText(json.posts[post].content, json.posts[post].post_id, true).replaceAll("\n", "<br>")}
+              ${linkifyHtml(
+                json.posts[post].content, json.posts[post].post_id,
+                {
+                  formatHref: {
+                    mention: (href) => "/u" + href,
+                  },
+                  nl2br: true
+                }
+              )}
             </div>
             <div class="bottom-content">
               <a href="/c/${json.posts[post].post_id}" class="text no-underline">

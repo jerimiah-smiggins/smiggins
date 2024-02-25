@@ -111,22 +111,6 @@ function timeSince(date) {
   return Math.floor(seconds) + " second" + (Math.floor(seconds) == 1 ? "" : "s");
 }
 
-function linkifyText(inputText, postId, comment=false) {
-  let doTheThing = (input) => (
-    input.split(usernameRegex).map((i) => {
-      return i.match(usernameRegex) || postId !== undefined ? (
-        i.match(usernameRegex) ? `<a href="/u/${i.replace("@", "").toLowerCase()}">` : `<a href="/${comment ? "c" : "p"}/${postId}" tabindex="-1" class="text no-underline">`
-      ) + `${escapeHTML(i)}</a>` : escapeHTML(i);
-    }).join("")
-  );
-
-  return inputText.split(urlRegex).map((i) => {
-    return i.match(urlRegex) || postId !== undefined ? (
-      i.match(urlRegex) ? `<a href="${i.replaceAll("\"", "&quo;")}" target="_blank">${escapeHTML(i)}</a>` : doTheThing(i)
-    ) : doTheThing(i);
-  }).join("");
-}
-
 function escapeHTML(str) {
   return str.replaceAll("&", "&amp;").replaceAll("<", "&lt;").replaceAll("\"", "&quot;")
 }
