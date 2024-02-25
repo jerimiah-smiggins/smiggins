@@ -20,7 +20,7 @@ document.querySelector("body").append(x);
 if (typeof(profile) === "undefined") {
   if (localStorage.getItem("username") === null) {
     fetch("/api/info/username")
-      .then((response) => (response.text()))
+      .then((response) => (response.json()))
       .then((username) => {
         username = username.username;
 
