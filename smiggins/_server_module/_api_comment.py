@@ -90,7 +90,7 @@ def api_comment_list(request, offset, is_comment, id) -> dict:
         logged_in = False
 
     try:
-        if id < 0 or (Posts.objects.latest('post_id').post_id if is_comment else Comments.objects.latest('comment_id').comment_id) < id:
+        if id < 0 or (Comments.objects.latest('comment_id').comment_id if is_comment else Posts.objects.latest('post_id').post_id) < id:
             return 400, {
                 "reason": "Idk your id is not right at all"
             }
