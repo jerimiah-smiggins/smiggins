@@ -145,78 +145,65 @@ def api_comment_list(request, offset, is_comment, id) -> dict:
         "end": len(parent.comments) - offset <= POSTS_PER_REQUEST
     }
 
-def api_comment_like_add() -> Union[tuple[flask.Response, int], flask.Response]:
+def api_comment_like_add(request, data):
     # Called when someone likes a comment.
     # Login required: true
     # Ratelimit: none
     # Parameters: id: int - comment id to like
 
-    x = std_checks(
-        token=request.cookies["token"],
-
-        parameters=True,
-        required_params=["id"]
-    )
+    token = request.COOKIES.get('token')
+    id = data.id
 
     try:
-        if generate_comment_id(inc=False) <= int(x["id"]):
-            return return_dynamic_content_type(json.dumps({
+        if id > Comments.objects.latest('comment_id').comment_id:
+            return 404, {
                 "success": False
-            }), "application/json"), 404
-
+            }
     except ValueError:
-        return return_dynamic_content_type(json.dumps({
-            "success": False
-        }), "application/json"), 404
+        return 404, {
+                "success": False
+            }
 
-    user_id = token_to_id(request.cookies["token"])
-    post_json = load_comment_json(x["id"])
-    if not ("interactions" in post_json and "likes" in post_json["interactions"]) or "user_id" not in post_json["interactions"]["likes"]:
-        if "interactions" in post_json:
-            if "likes" in post_json["interactions"]:
-                post_json["interactions"]["likes"].append(user_id)
+    user = Users.objects.get(token=token)
+    comment = Comments.objects.get(comment_id=id)
+
+    if user.user_id not in comment.likes:
+            if comment.likes != []:
+                comment.likes.append(user.user_id)
             else:
-                post_json["interactions"]["likes"] = [user_id]
-        else:
-            post_json["interactions"] = {"likes": [user_id], "comments": [], "reposts": []}
-        save_comment_json(x["id"], post_json)
+                comment.likes = [user.user_id]
+    comment.save()
 
-    return return_dynamic_content_type(json.dumps({
+    return 200, {
         "success": True
-    }), "application/json")
+    }
 
-def api_comment_like_remove() -> Union[tuple[flask.Response, int], flask.Response]:
+def api_comment_like_remove(request, data):
     # Called when someone unlikes a comment.
     # Login required: true
     # Ratelimit: none
     # Parameters: id: int - comment id to unlike
 
-    x = std_checks(
-        token=request.cookies["token"],
-
-        parameters=True,
-        required_params=["id"]
-    )
+    token = request.COOKIES.get('token')
+    id = data.id
 
     try:
-        if generate_comment_id(inc=False) <= int(x["id"]):
-            return return_dynamic_content_type(json.dumps({
+        if id > Comments.objects.latest('comment_id').comment_id:
+            return 404, {
                 "success": False
-            }), "application/json"), 404
-
+            }
     except ValueError:
-        # print(x["id"])
-        return return_dynamic_content_type(json.dumps({
-            "success": False
-        }), "application/json"), 404
+        return 404, {
+                "success": False
+            }
+    
+    user = Users.objects.get(token=token)
+    comment = Comments.objects.get(comment_id=id)
 
-    user_id = token_to_id(request.cookies["token"])
-    post_json = load_comment_json(x["id"])
-    if "interactions" in post_json and "likes" in post_json["interactions"]:
-        if user_id in post_json["interactions"]["likes"]:
-            post_json["interactions"]["likes"].remove(user_id)
-            save_comment_json(x["id"], post_json)
+    if user.user_id in comment.likes:
+        comment.likes.remove(user.user_id)
+    comment.save()
 
-    return return_dynamic_content_type(json.dumps({
+    return 200, {
         "success": True
-    }), "application/json")
+    }

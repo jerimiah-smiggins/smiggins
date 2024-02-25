@@ -233,10 +233,10 @@ def api_post_like_add(request, data):
     # Login required: true
     # Ratelimit: none
     # Parameters: id: int - post id to like
+
     token = request.COOKIES.get('token')
     id = data.id
-    print(Posts.objects.latest('post_id').post_id)
-    print(id)
+
     try:
         if id > Posts.objects.latest('post_id').post_id:
             return 404, {
@@ -249,6 +249,7 @@ def api_post_like_add(request, data):
 
     user = Users.objects.get(token=token)
     post = Posts.objects.get(post_id=id)
+
     if user.user_id not in post.likes:
             if post.likes != []:
                 post.likes.append(user.user_id)
@@ -274,7 +275,6 @@ def api_post_like_remove(request, data):
             return 404, {
                 "success": False
             }
-
     except ValueError:
         return 404, {
             "success": False
@@ -282,6 +282,7 @@ def api_post_like_remove(request, data):
 
     user = Users.objects.get(token=token)
     post = Posts.objects.get(post_id=id)
+    
     if user.user_id in post.likes:
         post.likes.remove(user.user_id)
     post.save()
