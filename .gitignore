@@ -5,4 +5,3 @@ __pycache__/
 .venv/
 _server_module/_api_keys.py
 smiggins/db.sqlite3
-smiggins/db.sqlite3
