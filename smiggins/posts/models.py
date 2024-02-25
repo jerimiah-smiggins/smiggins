@@ -19,7 +19,7 @@ class User(models.Model):
 
 class Post(models.Model):
     post_id   = models.IntegerField(primary_key=True)
-    content   = models.CharField(max_length=65536)
+    content   = models.TextField(max_length=65536)
     creator   = models.IntegerField()
     timestamp = models.IntegerField()
 
@@ -32,7 +32,7 @@ class Post(models.Model):
 
 class Comment(models.Model):
     comment_id = models.IntegerField(primary_key=True)
-    content    = models.CharField(max_length=65536)
+    content    = models.TextField(max_length=65536)
     creator    = models.IntegerField()
     timestamp  = models.IntegerField()
 
