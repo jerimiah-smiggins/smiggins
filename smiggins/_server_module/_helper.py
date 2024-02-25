@@ -3,7 +3,7 @@
 from ._packages import *
 from ._settings import *
 from ._variables import *
-from posts.models import Users, Posts, Comments
+from posts.models import User, Post, Comment
 
 from django.shortcuts import render
 from django.http import HttpResponse
@@ -47,7 +47,7 @@ def get_HTTP_response(request, file: str, **kwargs: str) -> HttpResponse:
         "MAX_POST_LENGTH" : MAX_POST_LENGTH,
         "MAX_USERNAME_LENGTH" : MAX_USERNAME_LENGTH,
 
-        "THEME" : Users.objects.get(token=request.COOKIES.get('token')).theme if validate_token(request.COOKIES.get('token')) else "dark"
+        "THEME" : User.objects.get(token=request.COOKIES.get('token')).theme if validate_token(request.COOKIES.get('token')) else "dark"
     }
 
     for key, value in kwargs.items():
@@ -72,13 +72,13 @@ def validate_token(token: str) -> bool:
             return False
 
     try:
-        Users.objects.get(token=token).token
+        User.objects.get(token=token).token
         return True
-    except Users.DoesNotExist:
+    except User.DoesNotExist:
         return False
 
 def generate_token(username: str, password: str) -> str:
-    # Generates a users' token given their username and hashed password.
+    # Generates a User' token given their username and hashed password.
 
     return sha(sha(f"{username}:{password}") + PRIVATE_AUTHENTICATOR_KEY)
 
@@ -98,15 +98,15 @@ def validate_username(username: str, *, existing: bool=True) -> int:
 
     if existing:
         try:
-            Users.objects.get(username=username).username
+            User.objects.get(username=username).username
             return 1
-        except Users.DoesNotExist:
+        except User.DoesNotExist:
             return 0
     else:
         try:
-            Users.objects.get(username=username).username
+            User.objects.get(username=username).username
             return -1
-        except Users.DoesNotExist:
+        except User.DoesNotExist:
             pass
 
         if (len(username) > MAX_USERNAME_LENGTH or len(username) < 1):

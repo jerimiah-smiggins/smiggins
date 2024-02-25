@@ -42,9 +42,9 @@ def api_comment_create(request, data) -> dict:
 
     timestamp = round(time.time())
 
-    user = Users.objects.get(token=token)
+    user = User.objects.get(token=token)
 
-    comment = Comments(
+    comment = Comment(
         content = content,
         creator = user.user_id,
         timestamp = timestamp,
@@ -54,13 +54,13 @@ def api_comment_create(request, data) -> dict:
     )
     comment.save()
 
-    comment = Comments.objects.get(content=content,timestamp=timestamp,creator=user.user_id)
+    comment = Comment.objects.get(content=content,timestamp=timestamp,creator=user.user_id)
 
 
     if is_comment:
-        parent = Comments.objects.get(comment_id=id)
+        parent = Comment.objects.get(comment_id=id)
     else:
-        parent = Posts.objects.get(post_id=id)
+        parent = Post.objects.get(post_id=id)
 
     if comment.comment_id not in parent.comments:
         parent.comments.append(comment.comment_id)
@@ -90,7 +90,7 @@ def api_comment_list(request, offset, is_comment, id) -> dict:
         logged_in = False
 
     try:
-        if id < 0 or (Comments.objects.latest('comment_id').comment_id if is_comment else Posts.objects.latest('post_id').post_id) < id:
+        if id < 0 or (Comment.objects.latest('comment_id').comment_id if is_comment else Post.objects.latest('post_id').post_id) < id:
             return 400, {
                 "reason": "Idk your id is not right at all"
             }
@@ -101,10 +101,10 @@ def api_comment_list(request, offset, is_comment, id) -> dict:
         }
 
     if is_comment:
-        parent = Comments.objects.get(pk=id)
+        parent = Comment.objects.get(pk=id)
     else:
-        parent = Posts.objects.get(pk=id)
-    user_id = Users.objects.get(token=token).user_id if logged_in else 0
+        parent = Post.objects.get(pk=id)
+    user_id = User.objects.get(token=token).user_id if logged_in else 0
     if parent.comments == []:
         return 200, {
             "posts": [],
@@ -118,8 +118,8 @@ def api_comment_list(request, offset, is_comment, id) -> dict:
     outputList = []
     offset = 0
     for i in parent.comments:
-        comment = Comments.objects.get(pk=i)
-        creator = Users.objects.get(pk=comment.creator)
+        comment = Comment.objects.get(pk=i)
+        creator = User.objects.get(pk=comment.creator)
 
         if creator.private and user_id not in creator.following:
             offset += 1
@@ -155,7 +155,7 @@ def api_comment_like_add(request, data):
     id = data.id
 
     try:
-        if id > Comments.objects.latest('comment_id').comment_id:
+        if id > Comment.objects.latest('comment_id').comment_id:
             return 404, {
                 "success": False
             }
@@ -164,8 +164,8 @@ def api_comment_like_add(request, data):
                 "success": False
             }
 
-    user = Users.objects.get(token=token)
-    comment = Comments.objects.get(comment_id=id)
+    user = User.objects.get(token=token)
+    comment = Comment.objects.get(comment_id=id)
 
     if user.user_id not in comment.likes:
             if comment.likes != []:
@@ -188,7 +188,7 @@ def api_comment_like_remove(request, data):
     id = data.id
 
     try:
-        if id > Comments.objects.latest('comment_id').comment_id:
+        if id > Comment.objects.latest('comment_id').comment_id:
             return 404, {
                 "success": False
             }
@@ -197,8 +197,8 @@ def api_comment_like_remove(request, data):
                 "success": False
             }
 
-    user = Users.objects.get(token=token)
-    comment = Comments.objects.get(comment_id=id)
+    user = User.objects.get(token=token)
+    comment = Comment.objects.get(comment_id=id)
 
     if user.user_id in comment.likes:
         comment.likes.remove(user.user_id)

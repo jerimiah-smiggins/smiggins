@@ -6,7 +6,7 @@ from _server_module._settings import *
 from _server_module._variables import *
 from _server_module._helper import *
 
-from .models import Users, Posts, Comments
+from .models import User, Post, Comment
 
 def index(request) -> HttpResponse:
     return get_HTTP_response(request, "posts/index.html")
@@ -37,8 +37,8 @@ def settings(request) -> HttpResponse:
         return get_HTTP_response(request, "posts/redirect_index.html")
 
     try:
-        user = Users.objects.get(token=token)
-    except Users.DoesNotExist:
+        user = User.objects.get(token=token)
+    except User.DoesNotExist:
         print("I uh what?")
         logged_in = False
 
@@ -66,13 +66,13 @@ def user(request, username) -> HttpResponse:
         logged_in = False
 
     if logged_in:
-        self_id = Users.objects.get(token=token).user_id
+        self_id = User.objects.get(token=token).user_id
     else:
         self_id = 0
 
     try:
-        user = Users.objects.get(username=username)
-    except Users.DoesNotExist:
+        user = User.objects.get(username=username)
+    except User.DoesNotExist:
         return get_HTTP_response(
             request, "posts/redirect_home.html" if logged_in else "posts/redirect_index.html"
         )
@@ -84,7 +84,7 @@ def user(request, username) -> HttpResponse:
         USERNAME = user.username,
         DISPLAY_NAME = user.display_name,
         BANNER_COLOR = user.color or "#3a1e93",
-        IS_FOLLOWING = user.user_id in Users.objects.get(pk=self_id).following if logged_in else "",
+        IS_FOLLOWING = user.user_id in User.objects.get(pk=self_id).following if logged_in else "",
         IS_HIDDEN = "hidden" if user.user_id == self_id else ""
     )
     if logged_in:
@@ -102,20 +102,20 @@ def post(request, post_id) -> HttpResponse:
         logged_in = False
 
     if logged_in:
-        self_id = Users.objects.get(token=token).user_id
+        self_id = User.objects.get(token=token).user_id
     else:
         self_id = 0
 
     try:
-        post = Posts.objects.get(pk=post_id)
-    except Posts.DoesNotExist:
+        post = Post.objects.get(pk=post_id)
+    except Post.DoesNotExist:
         return get_HTTP_response(
             request, "posts/redirect_home.html" if logged_in else "posts/redirect_index.html"
         )
 
     try:
-        creator = Users.objects.get(pk=post.creator)
-    except Users.DoesNotExist:
+        creator = User.objects.get(pk=post.creator)
+    except User.DoesNotExist:
         pass
         # this should return like a 403 error
     
@@ -152,19 +152,19 @@ def comment(request, comment_id) -> HttpResponse:
         logged_in = False
 
     if logged_in:
-        self_id = Users.objects.get(token=token).user_id
+        self_id = User.objects.get(token=token).user_id
     else:
         self_id = 0
 
     try:
-        comment = Comments.objects.get(pk=comment_id)
-    except Comments.DoesNotExist:
+        comment = Comment.objects.get(pk=comment_id)
+    except Comment.DoesNotExist:
         context = {"HTML_HEADERS" : HTML_HEADERS}
         return HttpResponse(loader.get_template("posts/redirect_home.html" if logged_in else "posts/redirect_index.html").render(context, request))
 
     try:
-        creator = Users.objects.get(pk=comment.creator)
-    except Users.DoesNotExist:
+        creator = User.objects.get(pk=comment.creator)
+    except User.DoesNotExist:
         print("I uh what")
 
     response = get_HTTP_response(

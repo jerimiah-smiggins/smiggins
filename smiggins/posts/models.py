@@ -1,6 +1,6 @@
 from django.db import models
 
-class Users(models.Model):
+class User(models.Model):
     user_id      = models.IntegerField(primary_key=True)
     username     = models.CharField(max_length=300, unique=True)
     token        = models.CharField(max_length=64)
@@ -17,28 +17,28 @@ class Users(models.Model):
     def __str__(self):
         return self.username
 
-class Posts(models.Model):
+class Post(models.Model):
     post_id   = models.IntegerField(primary_key=True)
     content   = models.CharField(max_length=65536)
     creator   = models.IntegerField()
     timestamp = models.IntegerField()
 
-    likes     = models.JSONField()
-    comments  = models.JSONField()
-    reposts   = models.JSONField()
+    likes     = models.JSONField(blank=True)
+    comments  = models.JSONField(blank=True)
+    reposts   = models.JSONField(blank=True)
 
     def __str__(self):
         return self.content
 
-class Comments(models.Model):
+class Comment(models.Model):
     comment_id = models.IntegerField(primary_key=True)
     content    = models.CharField(max_length=65536)
     creator    = models.IntegerField()
     timestamp  = models.IntegerField()
 
-    likes      = models.JSONField()
-    comments   = models.JSONField()
-    reposts    = models.JSONField()
+    likes      = models.JSONField(blank=True)
+    comments   = models.JSONField(blank=True)
+    reposts    = models.JSONField(blank=True)
 
     def __str__(self):
         return self.content

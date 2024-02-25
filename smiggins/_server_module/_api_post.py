@@ -38,9 +38,9 @@ def api_post_create(request, data) -> dict:
 
     timestamp = round(time.time())
 
-    user = Users.objects.get(token=token)
+    user = User.objects.get(token=token)
 
-    post = Posts(
+    post = Post(
         content = content,
         creator = user.user_id,
         timestamp = timestamp,
@@ -50,7 +50,7 @@ def api_post_create(request, data) -> dict:
     )
     post.save()
 
-    post = Posts.objects.get(content=content,timestamp=timestamp,creator=user.user_id)
+    post = Post.objects.get(content=content,timestamp=timestamp,creator=user.user_id)
     user.posts.append(post.post_id)
     user.save()
 
@@ -68,11 +68,11 @@ def api_post_list_following(request, offset) -> dict:
     token = request.COOKIES.get('token')
 
     offset = sys.maxsize if offset == -1 else offset
-    user = Users.objects.get(token=token)
+    user = User.objects.get(token=token)
 
     potential = []
     for i in user.following:
-        potential += Users.objects.get(pk=i).posts
+        potential += User.objects.get(pk=i).posts
     potential = sorted(potential, reverse=True)
 
     index = 0
@@ -86,8 +86,8 @@ def api_post_list_following(request, offset) -> dict:
     offset = 0
     outputList = []
     for i in potential:
-        current_post = Posts.objects.get(pk=i)
-        current_user = Users.objects.get(pk=current_post.creator)
+        current_post = Post.objects.get(pk=i)
+        current_user = User.objects.get(pk=current_post.creator)
 
         if current_user.private and user.user_id not in current_user.following:
             offset += 1
@@ -124,8 +124,8 @@ def api_post_list_recent(request, offset) -> dict:
 
     if offset == -1:
         try:
-            next_id = Posts.objects.latest('post_id').post_id
-        except Posts.DoesNotExist:
+            next_id = Post.objects.latest('post_id').post_id
+        except Post.DoesNotExist:
             return {
                 "posts": [],
                 "end": True
@@ -134,7 +134,7 @@ def api_post_list_recent(request, offset) -> dict:
         next_id = offset - 10
 
     end = next_id <= POSTS_PER_REQUEST
-    user = Users.objects.get(token=token)
+    user = User.objects.get(token=token)
 
     outputList = []
     offset = 0
@@ -142,9 +142,9 @@ def api_post_list_recent(request, offset) -> dict:
 
     while i > next_id - POSTS_PER_REQUEST - offset and i > 0:
         try:
-            current_post = Posts.objects.get(pk=i)
+            current_post = Post.objects.get(pk=i)
 
-            current_user = Users.objects.get(pk=current_post.creator)
+            current_user = User.objects.get(pk=current_post.creator)
             if current_user.private and user.user_id not in current_user.following:
                 offset += 1
 
@@ -162,7 +162,7 @@ def api_post_list_recent(request, offset) -> dict:
                     "private_acc": current_user.private
                 })
 
-        except Posts.DoesNotExist:
+        except Post.DoesNotExist:
             pass
 
         i -= 1
@@ -186,8 +186,8 @@ def api_post_list_user(request, username, offset):
     token = request.COOKIES.get('token') if 'token' in request.COOKIES and validate_token(request.COOKIES.get('token')) else 0
     offset = sys.maxsize if offset == -1 else offset
 
-    self_user = Users.objects.get(token=token)
-    user = Users.objects.get(username=username)
+    self_user = User.objects.get(token=token)
+    user = User.objects.get(username=username)
 
     if user.private and self_user.user_id not in user.following:
         return 200, {
@@ -214,7 +214,7 @@ def api_post_list_user(request, username, offset):
 
     outputList = []
     for i in potential:
-        post = Posts.objects.get(pk=i)
+        post = Post.objects.get(pk=i)
         outputList.append({
             "post_id": i,
             "creator_username": user.username,
@@ -246,7 +246,7 @@ def api_post_like_add(request, data):
     id = data.id
 
     try:
-        if id > Posts.objects.latest('post_id').post_id:
+        if id > Post.objects.latest('post_id').post_id:
             return 404, {
                 "success": False
             }
@@ -255,8 +255,8 @@ def api_post_like_add(request, data):
             "success": False
         }
 
-    user = Users.objects.get(token=token)
-    post = Posts.objects.get(post_id=id)
+    user = User.objects.get(token=token)
+    post = Post.objects.get(post_id=id)
 
     if user.user_id not in post.likes:
             if post.likes != []:
@@ -279,7 +279,7 @@ def api_post_like_remove(request, data):
     id = data.id
 
     try:
-        if id > Posts.objects.latest('post_id').post_id:
+        if id > Post.objects.latest('post_id').post_id:
             return 404, {
                 "success": False
             }
@@ -288,8 +288,8 @@ def api_post_like_remove(request, data):
             "success": False
         }
 
-    user = Users.objects.get(token=token)
-    post = Posts.objects.get(post_id=id)
+    user = User.objects.get(token=token)
+    post = Post.objects.get(post_id=id)
 
     if user.user_id in post.likes:
         post.likes.remove(user.user_id)

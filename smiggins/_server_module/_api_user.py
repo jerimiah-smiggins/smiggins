@@ -35,7 +35,7 @@ def api_account_signup(request, data) -> dict:
 
         token = generate_token(username, password)
         print(token)
-        user = Users(
+        user = User(
             username=username,
             token=token,
             display_name=username,
@@ -48,7 +48,7 @@ def api_account_signup(request, data) -> dict:
         )
         user.save()
 
-        user = Users.objects.get(username=username)
+        user = User.objects.get(username=username)
 
         user.following = [user.user_id]
         user.save()
@@ -92,7 +92,7 @@ def api_account_login(request, data) -> dict:
     print(token)
 
     if validate_username(username) == 1:
-        if token == Users.objects.get(username=username).token:
+        if token == User.objects.get(username=username).token:
             create_api_ratelimit("api_account_login", API_TIMINGS["login successful"], request.META.get('REMOTE_ADDR'))
             return {
                 "valid": True,
@@ -127,7 +127,7 @@ def api_user_settings_theme(request, data) -> dict:
             "reason": "That's not a vailid theme, idiot.",
         }
 
-    user = Users.objects.get(token=token)
+    user = User.objects.get(token=token)
     user.theme = theme
     user.save()
 
@@ -156,7 +156,7 @@ def api_user_settings_color(request, data) -> dict:
                 "reason": "Color no tasty",
             }
 
-    user = Users.objects.get(token=token)
+    user = User.objects.get(token=token)
     user.color = color
     user.save()
 
@@ -172,7 +172,7 @@ def api_user_settings_private(request, data) -> dict:
     token = request.COOKIES.get('token')
     priv = data.priv
 
-    user = Users.objects.get(token=token)
+    user = User.objects.get(token=token)
     user.private = priv
     user.save()
 
@@ -207,7 +207,7 @@ def api_user_settings_display_name(request, data) -> dict:
             "reason": f"Invalid name length. Must be between 1 and {MAX_DISPL_NAME_LENGTH} characters after minifying whitespace."
         }
 
-    user = Users.objects.get(token=token)
+    user = User.objects.get(token=token)
     user.display_name = displ_name
     user.save()
 
@@ -231,8 +231,8 @@ def api_user_follower_add(request, data) -> dict:
             "reason": f"Account with username {username} doesn't exist."
         }
 
-    user = Users.objects.get(token=token)
-    followed = Users.objects.get(username=username)
+    user = User.objects.get(token=token)
+    followed = User.objects.get(username=username)
     if followed.user_id not in user.following :
         user.following.append(followed.user_id)
         user.save()
@@ -261,8 +261,8 @@ def api_user_follower_remove(request, data) -> dict:
             "reason": f"Account with username {username} doesn't exist."
         }
 
-    user = Users.objects.get(token=token)
-    followed = Users.objects.get(username=username)
+    user = User.objects.get(token=token)
+    followed = User.objects.get(username=username)
     if user.user_id != followed.user_id:
         if followed.user_id in user.following :
             user.following.remove(followed.user_id)
