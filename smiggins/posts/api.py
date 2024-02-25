@@ -14,9 +14,6 @@ class JSONRenderer(BaseRenderer):
 
     def render(self, request, data, *, response_status):
         try:
-            if isinstance(data, str):
-                return data
-
             return json.dumps(data)
 
         except TypeError:
