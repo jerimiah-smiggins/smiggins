@@ -97,7 +97,7 @@ def api_post_list_following(request, offset) -> dict:
                 "post_id": i,
                 "creator_id": current_post.creator,
                 "display_name": current_user.display_name,
-                "creator_username": current_user.display_name,
+                "creator_username": current_user.username,
                 "content": current_post.content,
                 "timestamp": current_post.timestamp,
                 "liked": user.user_id in current_post.likes,
