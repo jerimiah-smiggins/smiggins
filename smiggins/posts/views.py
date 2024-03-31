@@ -9,16 +9,36 @@ from _server_module._helper import *
 from .models import User, Post, Comment
 
 def index(request) -> HttpResponse:
-    return get_HTTP_response(request, "posts/index.html")
+    if validate_token(request.COOKIES.get('token')):
+        response = get_HTTP_response(request, "posts/redirect_home.html")
+        response.status_code = 307
+    else:
+        response = get_HTTP_response(request, "posts/index.html")
+    return response
 
 def home(request) -> HttpResponse:
-    return get_HTTP_response(request, "posts/home.html")
+    if not validate_token(request.COOKIES.get('token')):
+        response = get_HTTP_response(request, "posts/redirect_index.html")
+        response.status_code = 307
+    else:
+        response = get_HTTP_response(request, "posts/home.html")
+    return response
 
 def login(request) -> HttpResponse:
-    return get_HTTP_response(request, "posts/login.html")
+    if validate_token(request.COOKIES.get('token')):
+        response = get_HTTP_response(request, "posts/redirect_home.html")
+        response.status_code = 307
+    else:
+        response = get_HTTP_response(request, "posts/login.html")
+    return response
 
 def signup(request) -> HttpResponse:
-    return get_HTTP_response(request, "posts/signup.html")
+    if validate_token(request.COOKIES.get('token')):
+        response = get_HTTP_response(request, "posts/redirect_home.html")
+        response.status_code = 307
+    else:
+        response = get_HTTP_response(request, "posts/signup.html")
+    return response
 
 def logout(request) -> HttpResponse:
     return get_HTTP_response(request, "posts/logout.html")
@@ -121,7 +141,7 @@ def post(request, post_id) -> HttpResponse:
     except User.DoesNotExist:
         pass
         # this should return like a 403 error
-    
+
     # print(str(post.likes != [] and self_id in post.likes and logged_in).lower())
 
     response = get_HTTP_response(

@@ -14,7 +14,6 @@ def api_account_signup(request, data) -> dict:
 
     username = data.username.lower().replace(" ", "")
     password = data.password.lower()
-    print(password)
     # e3b0c44... is the sha256 hash for an empty string
     if len(password) != 64 or password == "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855":
         return {
@@ -34,7 +33,6 @@ def api_account_signup(request, data) -> dict:
         create_api_ratelimit("api_account_signup", API_TIMINGS["signup successful"], request.META.get('REMOTE_ADDR'))
 
         token = generate_token(username, password)
-        print(token)
         user = User(
             username=username,
             token=token,
@@ -87,9 +85,7 @@ def api_account_login(request, data) -> dict:
 
     username = data.username.lower()
     password = data.password
-    print(password)
     token = generate_token(username, password)
-    print(token)
 
     if validate_username(username) == 1:
         if token == User.objects.get(username=username).token:
