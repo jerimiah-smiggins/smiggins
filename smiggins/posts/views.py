@@ -1,5 +1,5 @@
 from django.shortcuts import render
-from django.http import HttpResponse
+from django.http import HttpResponse, HttpResponseRedirect
 from django.template import loader
 
 from _server_module._settings import *
@@ -10,32 +10,26 @@ from .models import User, Post, Comment
 
 def index(request) -> HttpResponse:
     if validate_token(request.COOKIES.get('token')):
-        response = get_HTTP_response(request, "posts/redirect_home.html")
-        response.status_code = 307
-    else:
-        response = get_HTTP_response(request, "posts/index.html")
-    return response
+        return HttpResponseRedirect("/home", status=307)
+    return get_HTTP_response(request, "posts/index.html")
 
 def home(request) -> HttpResponse:
     if not validate_token(request.COOKIES.get('token')):
-        response = get_HTTP_response(request, "posts/redirect_index.html")
-        response.status_code = 307
+        return HttpResponseRedirect("/", status=307)
     else:
         response = get_HTTP_response(request, "posts/home.html")
     return response
 
 def login(request) -> HttpResponse:
     if validate_token(request.COOKIES.get('token')):
-        response = get_HTTP_response(request, "posts/redirect_home.html")
-        response.status_code = 307
+        return HttpResponseRedirect("/home", status=307)
     else:
         response = get_HTTP_response(request, "posts/login.html")
     return response
 
 def signup(request) -> HttpResponse:
     if validate_token(request.COOKIES.get('token')):
-        response = get_HTTP_response(request, "posts/redirect_home.html")
-        response.status_code = 307
+        return HttpResponseRedirect("/home", status=307)
     else:
         response = get_HTTP_response(request, "posts/signup.html")
     return response
@@ -54,7 +48,7 @@ def settings(request) -> HttpResponse:
         logged_in = False
 
     if not logged_in:
-        return get_HTTP_response(request, "posts/redirect_index.html")
+        return HttpResponseRedirect("/", status=307)
 
     try:
         user = User.objects.get(token=token)
@@ -96,9 +90,11 @@ def user(request, username) -> HttpResponse:
     try:
         user = User.objects.get(username=username)
     except User.DoesNotExist:
-        return get_HTTP_response(
-            request, "posts/redirect_home.html" if logged_in else "posts/redirect_index.html"
-        )
+        if logged_in:
+            return get_HTTP_response(
+                request, "posts/404_user.html"
+            )
+        return HttpResponseRedirect("/", status=307)
 
     response = get_HTTP_response(
         request, "posts/user.html",
@@ -132,9 +128,11 @@ def post(request, post_id) -> HttpResponse:
     try:
         post = Post.objects.get(pk=post_id)
     except Post.DoesNotExist:
-        return get_HTTP_response(
-            request, "posts/redirect_home.html" if logged_in else "posts/redirect_index.html"
-        )
+        if logged_in:
+            return get_HTTP_response(
+                request, "posts/404_post.html"
+            )
+        return HttpResponseRedirect("/", status=307)
 
     try:
         creator = User.objects.get(pk=post.creator)
@@ -182,8 +180,11 @@ def comment(request, comment_id) -> HttpResponse:
     try:
         comment = Comment.objects.get(pk=comment_id)
     except Comment.DoesNotExist:
-        context = {"HTML_HEADERS" : HTML_HEADERS}
-        return HttpResponse(loader.get_template("posts/redirect_home.html" if logged_in else "posts/redirect_index.html").render(context, request))
+        if logged_in:
+            return get_HTTP_response(
+                request, "posts/404_post.html"
+            )
+        return HttpResponseRedirect("/", status=307)
 
     try:
         creator = User.objects.get(pk=comment.creator)

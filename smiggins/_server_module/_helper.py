@@ -3,13 +3,6 @@
 from ._packages import *
 from ._settings import *
 from ._variables import *
-from posts.models import User, Post, Comment
-
-from django.shortcuts import render
-from django.http import HttpResponse
-from django.template import loader
-
-from ninja.errors import HttpError
 
 # Website nonspecific helper functions
 def sha(string: Union[str, bytes]) -> str:
