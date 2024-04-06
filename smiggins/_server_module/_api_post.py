@@ -233,7 +233,7 @@ def api_post_list_user(request, username, offset):
         "private": user.private,
         "can_view": not user.private or self_user.user_id in user.following,
         "following": len(user.following) - 1,
-        "followers": user.followers,
+        "followers": len(user.followers),
     }
 
 def api_post_like_add(request, data):
