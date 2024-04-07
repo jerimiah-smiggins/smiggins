@@ -132,4 +132,4 @@ svg.accent     { fill: var(--accent); }
 }
 
 .icons svg:active { scale: 0.9; }
-.icons .share { cursor: pointer; }
+.icons svg { cursor: pointer; }
