@@ -5,6 +5,14 @@
   flex-wrap: wrap;
 }
 
+#banner {
+  width: 200px;
+  background-color: var(--banner);
+  height: 50px;
+  display: inline-block;
+  border-radius: 0.2em;
+}
+
 .post-container {
   padding: 1em;
   background-color: var(--background);
@@ -17,4 +25,14 @@
 
 @media screen and (max-width: 565px) {
   .post { width: calc(94vw - 3.5em - (3em / 7)); }
+}
+
+.small-mw {
+  display: inline-block;
+  max-width: 25em;
+}
+
+.large-mw {
+  display: inline-block;
+  max-width: 100em;
 }

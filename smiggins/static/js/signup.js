@@ -9,8 +9,10 @@ showlog = (str, time=3000) => {
 dom("toggle-password").addEventListener("click", function() {
   if (dom("password").getAttribute("type") == "password") {
     dom("password").setAttribute("type", "text");
+    dom("confirm").setAttribute("type", "text");
   } else {
     dom("password").setAttribute("type", "password");
+    dom("confirm").setAttribute("type", "password");
   }
 });
 
@@ -18,6 +20,12 @@ dom("submit").addEventListener("click", function() {
   this.setAttribute("disabled", "");
   username = dom("username").value;
   password = sha256(dom("password").value)
+
+  if (password !== sha256(dom("confirm").value)) {
+    showlog("Passwords don't match!");
+    return;
+  }
+
   fetch("/api/user/signup", {
     method: "POST",
     headers: {
