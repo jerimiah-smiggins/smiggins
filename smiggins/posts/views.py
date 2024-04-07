@@ -209,6 +209,9 @@ def comment(request, comment_id) -> HttpResponse:
     response.set_cookie('token', token.lower())
     return response
 
+def robots(request) -> HttpResponse:
+    return HttpResponse(ROBOTS, content_type="text/plain")
+
 def _404(request, exception) -> HttpResponse:
     response = get_HTTP_response(request, "posts/404.html")
     response.status_code = 404

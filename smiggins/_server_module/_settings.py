@@ -6,7 +6,7 @@
 VERSION: str = "0.4.0"
 
 # What to have the site name be.
-SITE_NAME: str = "Jerimiah Smiggins"
+SITE_NAME: str = "Jerf"
 
 # 1-200
 MAX_USERNAME_LENGTH: int = 18
@@ -22,7 +22,7 @@ ABSOLUTE_SAVING_PATH: str  = "./save/"   # Where user information, posts, etc. a
 RATELIMIT: bool = False
 
 # False = hide links to the github source code
-SOURCE_CODE: bool = True
+SOURCE_CODE: bool = False
 
 # DON'T CHANGE THE FIRST STRING
 # timings are all in ms, where 1000ms = 1 second
@@ -42,3 +42,11 @@ API_TIMINGS: dict[str, int] = {
 # server to the client. Increasing the number can increase bandwidth
 # and cpu usage however it will likely improve the user experience
 POSTS_PER_REQUEST: int = 20
+
+# Content of the robots.txt file
+ROBOTS: str = """User-agent: *
+Allow: *
+Disallow: /settings
+Disallow: /home
+Disallow: /api
+"""
