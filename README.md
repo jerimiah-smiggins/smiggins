@@ -17,7 +17,7 @@ online version (at least for now): https://trinkey.pythonanywhere.com
       ```
       if you're on Windows then fuck you figure it out yourself
   4. In the folder REPO_BASE/smiggins run the command `python3 manage.py migrate` (`py ...` for windows)
-  5. Then, to start the server, run `python3 manage.py runserver` (`py ...` on windows still). If you want to start the server but already have the files, just do this step again. When updating versions, repeat step three too assuming you don't delete the `_api_keys.py` file.
+  5. Then, to start the server, run `python3 manage.py runserver` (`py ...` on windows still). If you want to start the server but already have the files, just do this step again. When updating versions, repeat step four too assuming you don't delete the `_api_keys.py` file, then you'd have to do step three again too.
 </details>
 
 <details>
