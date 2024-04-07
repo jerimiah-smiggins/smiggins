@@ -7,9 +7,9 @@ HTML_HEADERS: str = """
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <link rel="stylesheet" href="/static/css/base.css">
 <link rel="icon" href="/static/img/favicon.ico" type="image/x-icon">
-<script src="/js/linkify-4.1.3.min.js"></script>
-<script src="/js/linkify-html-4.1.3.min.js"></script>
-<script src="/js/linkify-mentions-4.1.3.min.js"></script>
+<script src="/static/js/linkify-4.1.3.min.js"></script>
+<script src="/static/js/linkify-html-4.1.3.min.js"></script>
+<script src="/static/js/linkify-mentions-4.1.3.min.js"></script>
 <script src="/static/js/base.js"></script>
 """
 
