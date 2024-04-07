@@ -6,7 +6,7 @@
 VERSION: str = "0.4.0"
 
 # What to have the site name be.
-SITE_NAME: str = "Jerf"
+SITE_NAME: str = "Jerimiah Smiggins"
 
 # 1-200
 MAX_USERNAME_LENGTH: int = 18
@@ -22,7 +22,7 @@ ABSOLUTE_SAVING_PATH: str  = "./save/"   # Where user information, posts, etc. a
 RATELIMIT: bool = False
 
 # False = hide links to the github source code
-SOURCE_CODE: bool = False
+SOURCE_CODE: bool = True
 
 # DON'T CHANGE THE FIRST STRING
 # timings are all in ms, where 1000ms = 1 second
