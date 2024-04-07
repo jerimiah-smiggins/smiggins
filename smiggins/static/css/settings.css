@@ -15,7 +15,7 @@
 
 .post-container {
   padding: 1em;
-  background-color: var(--background);
+  background-color: var(--base);
   border-radius: 0.5em;
 }
 

@@ -8,8 +8,8 @@ button { width: 5em; }
 
 #post {
   position: relative;
-  top: -2.6em;
-  left: calc(15em + 6px);
+  bottom: 2.6em;
+  left: calc(15em + 4px);
 }
 
 #switch { width: 6em; }

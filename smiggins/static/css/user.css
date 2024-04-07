@@ -19,8 +19,7 @@
 #username-lower {
   position: relative;
   top: -2em;
-  color: var(--primary);
-  opacity: 70%;
+  color: var(--subtext0);
 }
 
 [data-followed] {

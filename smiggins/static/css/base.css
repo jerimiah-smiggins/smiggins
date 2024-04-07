@@ -14,7 +14,7 @@
 body::-webkit-scrollbar { display: none; }
 
 body {
-  background-color: var(--background);
+  background-color: var(--base);
   color: var(--text);
   font-family: 'Poppins', 'Arial';
   padding: 5vh 0;
@@ -36,7 +36,7 @@ hr { border-color: var(--accent); }
 }
 
 button {
-  background-color: var(--background-secondary);
+  background-color: var(--crust);
   color: var(--text);
   border: none;
   padding: 5px 7px;
@@ -50,10 +50,12 @@ button {
 }
 
 button:disabled { opacity: 60%; pointer-events: none; }
-button:active { scale: 90%; background-color: var(--background-muted); }
+button:active { scale: 90%; background-color: var(--mantle); }
+button.inverted { background-color: var(--base); }
+button.inverted:hover { background-color: var(--mantle); }
 
 input, textarea, option, select{
-  background-color: var(--background-secondary);
+  background-color: var(--crust);
   color: var(--text);
   border: none;
   border-radius: 2px;
@@ -94,13 +96,13 @@ p {
   padding: 2px;
 }
 
-.text:not(svg)       { color: var(--text);       }
-.background:not(svg) { color: var(--background); }
-.accent:not(svg)     { color: var(--accent);     }
+.text:not(svg)       { color: var(--text);   }
+.background:not(svg) { color: var(--base);   }
+.accent:not(svg)     { color: var(--accent); }
 
-svg.text       { fill: var(--text);       }
-svg.background { fill: var(--background); }
-svg.accent     { fill: var(--accent);     }
+svg.text       { fill: var(--text);   }
+svg.background { fill: var(--base);   }
+svg.accent     { fill: var(--accent); }
 
 .left   { text-align: left;   }
 .center { text-align: center; }
