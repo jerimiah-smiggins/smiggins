@@ -67,6 +67,11 @@ del users
 posts = {}
 
 for i in os.listdir(f"{save_folder}/posts"):
+    if os.path.isdir(f"{save_folder}/posts/{i}"):
+        continue
+
+    i = i.split(".")[0]
+
     post_info = json.loads(open(f"{save_folder}/posts/{i}.json", "r").read())
 
     posts[i] = Post.objects.create(
@@ -74,8 +79,8 @@ for i in os.listdir(f"{save_folder}/posts"):
         content=post_info["content"],
         creator=post_info["creator"]["id"],
         timestamp=post_info["timestamp"],
-        likes=post_info["interactions"]["likes"],
-        comments=post_info["interactions"]["comments"],
+        likes=post_info["interactions"]["likes"] if "interactions" in post_info else [],
+        comments=post_info["interactions"]["comments"] if "interactions" in post_info else [],
         reposts=[]
     )
 
@@ -86,15 +91,17 @@ del posts
 comments = {}
 
 for i in os.listdir(f"{save_folder}/posts/comments"):
+    i = i.split(".")[0]
+
     comment_info = json.loads(open(f"{save_folder}/posts/comments/{i}.json", "r").read())
 
-    comments[i] = Post.objects.create(
+    comments[i] = Comment.objects.create(
         comment_id=int(i),
         content=comment_info["content"],
         creator=comment_info["creator"]["id"],
         timestamp=comment_info["timestamp"],
-        likes=comment_info["interactions"]["likes"],
-        comments=comment_info["interactions"]["comments"],
+        likes=comment_info["interactions"]["likes"] if "interactions" in post_info else [],
+        comments=comment_info["interactions"]["comments"] if "interactions" in post_info else [],
         reposts=[]
     )
 
@@ -106,6 +113,6 @@ del comment
 print("Database successfully migrated..")
 
 x = input("Would you like to delete the old save folder? (irreversible!) y/N\n>>> ")
-if x[:1:].lower() != "y":
+if x[:1:].lower() == "y":
     import shutil
     shutil.rmtree(save_folder)
