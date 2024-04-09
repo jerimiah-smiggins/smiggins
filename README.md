@@ -1,6 +1,11 @@
 # social-media-thing
 (name and project wip)
 
+> [!WARNING]
+> This version of the branch is no longer being maintained. The only version that is currently being supported is the Django version, which is pushed to the main branch.
+> 
+> **ONLY USE THIS BRANCH IF YOU ABSOLUTELY NEED TO!**
+
 online version (at least for now): https://trinkey.pythonanywhere.com
 
 official discord server: https://discord.gg/tH7QnHApwu
