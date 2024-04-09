@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+
+<html>
+  <head>
+    <title>{{SITE_NAME}} v{{VERSION}}</title>
+    {% autoescape off %}
+    {{ HTML_HEADERS }}
+    {% endautoescape %}
+
+    <meta name="description" content="social media thing">
+    <meta name="author" content="{{SITE_NAME}} v{{VERSION}}">
+
+    <meta property="og:type" content="website">
+    <meta property="og:title" content="{{SITE_NAME}} v{{VERSION}}">
+    <meta property="og:description" content="social media thing">
+
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:title" content="{{SITE_NAME}} v{{VERSION}}">
+    <meta name="twitter:description" content="social media thing">
+  </head>
+
+  <body data-theme="{{THEME}}">
+    <h1>{{SITE_NAME}}</h1>
+    <h3>v{{VERSION}}</h3>
+    <a href="/signup">Sign up</a> -
+    <a href="/login">Log in</a>
+    <br {{HIDE_SOURCE}}><br {{HIDE_SOURCE}}>
+    <a href="https://github.com/trinkey/social-media-thing" target="_blank" {{HIDE_SOURCE}}>Source code</a>
+  </body>
+</html>

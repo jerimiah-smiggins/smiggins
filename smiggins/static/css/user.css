@@ -1,0 +1,35 @@
+#banner {
+  display: inline-block;
+  border-radius: 1em;
+  width: 35em;
+  height: 6em;
+}
+
+#username-main {
+  font-size: 2em;
+  position: relative;
+  top: -1em;
+}
+
+#follow {
+  position: relative;
+  top: -2em;
+}
+
+#username-lower {
+  position: relative;
+  top: -2em;
+  color: var(--subtext0);
+}
+
+[data-followed] {
+  width: 6em;
+}
+
+@media screen and (max-width: 565px) {
+  #banner { width: 94vw; }
+  #username-main {
+    font-size: 1.5em;
+    top: -1.25em;
+  }
+}

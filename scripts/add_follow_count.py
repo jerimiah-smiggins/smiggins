@@ -1,4 +1,5 @@
 # Use when updating from a version <=0.3.2 to a version >=0.3.3
+# Run this file in the save folder
 
 import json
 import os
