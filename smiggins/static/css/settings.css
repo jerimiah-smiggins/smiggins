@@ -13,6 +13,10 @@
   border-radius: 0.2em;
 }
 
+#banner.gradient {
+  background: linear-gradient(90deg, var(--banner), var(--banner-two));
+}
+
 .post-container {
   padding: 1em;
   background-color: var(--base);

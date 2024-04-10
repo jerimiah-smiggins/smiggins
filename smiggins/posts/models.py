@@ -8,6 +8,8 @@ class User(models.Model):
     display_name = models.CharField(max_length=300)
     theme        = models.CharField(max_length=30)
     color        = models.CharField(max_length=7)
+    color_two    = models.CharField(max_length=7, null=True)
+    gradient     = models.BooleanField(default=False)
     private      = models.BooleanField()
 
     following    = models.JSONField()

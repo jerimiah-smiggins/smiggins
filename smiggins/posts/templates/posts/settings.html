@@ -11,7 +11,7 @@
     <link rel="stylesheet" href="{% static '/css/settings.css' %}">
   </head>
 
-  <body data-theme="{{THEME}}" style="--banner: {{BANNER_COLOR}};">
+  <body data-theme="{{THEME}}" style="--banner: {{BANNER_COLOR}}; --banner-two: {{BANNER_COLOR_TWO}}">
     <h1>Settings</h1>
     <div id="error"></div>
 
@@ -30,7 +30,10 @@
 
     Banner color:<br>
     <div id="banner"></div><br>
-    <input id="banner-color" value="{{BANNER_COLOR}}" type="color"> <button id="banner-color-save">Save</button><br><br>
+    <input id="banner-color" value="{{BANNER_COLOR}}" type="color">
+    <input hidden id="banner-color-two" value="{{BANNER_COLOR_TWO}}" type="color"><br>
+    Gradient banner: <input id="banner-is-gradient" {{CHECKED_IF_GRADIENT}} type="checkbox"><br>
+    <button id="banner-color-save">Save</button><br><br>
 
     Private account:<br>
     <input type="checkbox" id="priv" {{CHECKED_IF_PRIV}}> <button id="priv-save">Save</button><br>

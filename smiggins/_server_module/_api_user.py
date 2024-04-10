@@ -138,8 +138,9 @@ def api_user_settings_color(request, data) -> dict:
 
     token = request.COOKIES.get('token')
     color = data.color.lower()
+    color_two = data.color_two.lower()
 
-    if color[0] != "#" or len(color) != 7:
+    if color[0] != "#" or len(color) != 7 or color_two[0] != "#" or len(color_two) != 7:
         return 400, {
         "success": False,
         "reason": "Color no tasty",
@@ -152,8 +153,17 @@ def api_user_settings_color(request, data) -> dict:
                 "reason": "Color no tasty",
             }
 
+    for i in color_two[1::]:
+        if i not in "abcdef0123456789":
+            return 400, {
+                "success": False,
+                "reason": "Color no tasty",
+            }
+
     user = User.objects.get(token=token)
     user.color = color
+    user.color_two = color_two
+    user.gradient = bool(data.is_gradient)
     user.save()
 
     return {

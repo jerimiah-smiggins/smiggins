@@ -3,12 +3,28 @@
   border-radius: 1em;
   width: 35em;
   height: 6em;
+  background-color: var(--banner);
+}
+
+#banner.gradient {
+  background: linear-gradient(90deg, var(--banner), var(--banner-two));
 }
 
 #username-main {
+  display: inline-block;
   font-size: 2em;
   position: relative;
   top: -1em;
+  text-shadow: 0 0 20px var(--base),
+               0 0 19px var(--base),
+               0 0 18px var(--base),
+               0 0 17px var(--base),
+               0 0 16px var(--base),
+               0 0 15px var(--base),
+               0 0 14px var(--base),
+               0 0 13px var(--base),
+               0 0 12px var(--base),
+               0 0 11px var(--base);
 }
 
 #follow {

@@ -23,10 +23,9 @@
     <link rel="stylesheet" href="{% static '/css/user.css' %}">
   </head>
 
-  <body data-theme="{{THEME}}" data-username="{{USERNAME}}">
-    <div id="banner" style="background-color: {{BANNER_COLOR}}"></div>
-    <div id="username-main">{{DISPLAY_NAME}}<span data-toggle-on-priv hidden> <div class="priv"></div></span></div>
-    <div id="username-lower">@{{USERNAME}}</div>
+  <body data-theme="{{THEME}}" data-username="{{USERNAME}}" style="--banner: {{BANNER_COLOR}}; --banner-two: {{BANNER_COLOR_TWO}}">
+    <div id="banner" class="{{GRADIENT}}"></div>
+    <div><div id="username-main">{{DISPLAY_NAME}}<span data-toggle-on-priv hidden> <div class="priv"></div></span></div></div>    <div id="username-lower">@{{USERNAME}}</div>
     <div id="follow"></div>
     <button onclick="refresh()">Refresh</button>
     <button id="toggle" {{IS_HIDDEN}} data-followed="{% if IS_FOLLOWING %} 1 {% else %} 0 {% endif %}" onclick="toggle_follow()">{% if IS_FOLLOWING %} Unfollow {% else %} Follow {% endif %}</button>
