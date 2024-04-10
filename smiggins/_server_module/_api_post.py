@@ -186,14 +186,17 @@ def api_post_list_user(request, username, offset):
     token = request.COOKIES.get('token') if 'token' in request.COOKIES and validate_token(request.COOKIES.get('token')) else 0
     offset = sys.maxsize if offset == -1 else offset
 
-    self_user = User.objects.get(token=token)
     user = User.objects.get(username=username)
+    try:
+        self_user = User.objects.get(token=token)
+        logged_in = True
+    except User.DoesNotExist:
+        logged_in = False
 
-    if user.private and self_user.user_id not in user.following:
+    if user.private and (not logged_in or self_user.user_id not in user.following):
         return 200, {
             "posts": [],
             "end": True,
-            "color": user.color or "#3a1e93",
             "private": True,
             "can_view": False,
             "following": len(user.following) - 1,
@@ -221,7 +224,7 @@ def api_post_list_user(request, username, offset):
             "display_name": user.display_name,
             "content": post.content,
             "timestamp": post.timestamp,
-            "liked": self_user.user_id in post.likes,
+            "liked": False if not logged_in else self_user.user_id in post.likes,
             "likes": len(post.likes),
             "comments": len(post.comments),
         })
@@ -231,7 +234,7 @@ def api_post_list_user(request, username, offset):
         "end": end,
         "color": user.color or "#3a1e93",
         "private": user.private,
-        "can_view": not user.private or self_user.user_id in user.following,
+        "can_view": True if not logged_in else not user.private or self_user.user_id in user.following,
         "following": len(user.following) - 1,
         "followers": len(user.followers),
     }

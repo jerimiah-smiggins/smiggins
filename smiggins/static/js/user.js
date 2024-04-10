@@ -4,7 +4,6 @@ let username = document.querySelector("body").getAttribute("data-username");
 let first = true;
 
 if (!logged_in) {
-  dom("icons").setAttribute("hidden", "");
   dom("more-container").innerHTML = "<a href=\"/signup\">Sign up</a> to see more!";
 }
 
@@ -48,7 +47,6 @@ function refresh(force_offset=false) {
       dom("follow").innerText = `Followers: ${json.followers} - Following: ${json.following}`;
 
       end = json.end;
-      dom("banner").style.backgroundColor = json.color;
 
       for (const post in json.posts) {
         dom("posts").innerHTML += `

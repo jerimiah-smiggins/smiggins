@@ -14,7 +14,6 @@ showlog = (str, time=3000) => {
 };
 
 if (!logged_in) {
-  dom("icons").setAttribute("hidden", "");
   dom("more-container").innerHTML = "<a href=\"/signup\">Sign up</a> to see more!";
   dom("post-text").setAttribute("hidden", "");
   dom("post").setAttribute("hidden", "");

@@ -61,6 +61,8 @@ def settings(request) -> HttpResponse:
 
         DISPLAY_NAME = user.display_name,
         BANNER_COLOR = user.color or "#3a1e93",
+        BANNER_COLOR_TWO = user.color_two or "#3a1e93",
+        CHECKED_IF_GRADIENT = "checked" if user.gradient else "",
         CHECKED_IF_PRIV = "checked" if user.private else "",
 
         SELECTED_IF_LIGHT = "selected" if user.theme == "light" else "",
@@ -103,6 +105,8 @@ def user(request, username) -> HttpResponse:
         USERNAME = user.username,
         DISPLAY_NAME = user.display_name,
         BANNER_COLOR = user.color or "#3a1e93",
+        BANNER_COLOR_TWO = user.color_two or "#3a1e93",
+        GRADIENT = "gradient" if user.gradient else "",
         IS_FOLLOWING = user.user_id in User.objects.get(pk=self_id).following if logged_in else "",
         IS_HIDDEN = "hidden" if user.user_id == self_id else ""
     )

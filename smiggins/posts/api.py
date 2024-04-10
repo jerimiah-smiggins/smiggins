@@ -28,6 +28,8 @@ class themeSchema(Schema):
 
 class colorSchema(Schema):
     color: str
+    color_two: str
+    is_gradient: bool
 
 class privSchema(Schema):
     priv: bool

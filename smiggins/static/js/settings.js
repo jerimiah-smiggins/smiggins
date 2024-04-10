@@ -34,6 +34,18 @@ showlog = (str, time=3000) => {
   setTimeout(() => { req++; if (req == inc) { dom("error").innerText = ""; }}, time);
 };
 
+function toggleGradient() {
+  if (dom("banner-is-gradient").checked) {
+    dom("banner-color-two").removeAttribute("hidden");
+    dom("banner").classList.add("gradient");
+  } else {
+    dom("banner-color-two").setAttribute("hidden", "");
+    dom("banner").classList.remove("gradient");
+  }
+}
+
+toggleGradient();
+
 dom("theme").addEventListener("change", function() {
   dom("theme").setAttribute("disabled", "");
   fetch("/api/user/settings/theme", {
@@ -99,7 +111,9 @@ dom("banner-color-save").addEventListener("click", function() {
       "Content-Type": "application/json"
     },
     body: JSON.stringify({
-      "color": dom("banner-color").value
+      color: dom("banner-color").value,
+      color_two: dom("banner-color-two").value,
+      is_gradient: dom("banner-is-gradient").checked
     })
   })
     .then((response) => (response.json()))
@@ -151,5 +165,11 @@ dom("priv-save").addEventListener("click", function() {
 });
 
 dom("banner-color").addEventListener("input", function() {
-  document.querySelector("body").setAttribute("style", `--banner: ${this.value}`);
+  document.body.style.setProperty("--banner", this.value);
 });
+
+dom("banner-color-two").addEventListener("input", function() {
+  document.body.style.setProperty("--banner-two", this.value);
+});
+
+dom("banner-is-gradient").addEventListener("input", toggleGradient);
