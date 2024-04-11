@@ -1,19 +1,22 @@
 # For API functions that are user-specific, like settings, following, etc.
 
-from ._packages import *
 from ._settings import *
-from ._helper import *
+from .packages  import *
+from .schema    import *
+from .helper    import *
 
-def api_account_signup(request, data) -> dict:
+def api_account_signup(request, data: accountSchema) -> tuple | dict:
     # Called when someone requests to follow another account.
-    # Login required: false
-    # Ratelimit: 1s for unsuccessful, 15s for successful
-    # Parameters:
-    # - "username": the username of the account that is trying to be created
-    # - "password": the sha256 hashed password of the account that is trying to be created
+
+    if not ensure_ratelimit("api_account_signup", request.META.get("REMOTE_ADDR")):
+        return 429, {
+            "valid": False,
+            "reason": "Ratelimited"
+        }
 
     username = data.username.lower().replace(" ", "")
     password = data.password.lower()
+
     # e3b0c44... is the sha256 hash for an empty string
     if len(password) != 64 or password == "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855":
         return {
@@ -38,7 +41,7 @@ def api_account_signup(request, data) -> dict:
             token=token,
             display_name=username,
             theme="dark",
-            color="#3a1e93",
+            color=DEFAULT_BANNER_COLOR,
             private=False,
             following=[],
             followers=[],
@@ -75,13 +78,14 @@ def api_account_signup(request, data) -> dict:
         "reason": f"Username must be between 1 and {MAX_USERNAME_LENGTH} characters in length."
     }
 
-def api_account_login(request, data) -> dict:
+def api_account_login(request, data: accountSchema) -> tuple | dict:
     # Called when someone attempts to log in.
-    # Login required: false
-    # Ratelimit: 1s for unsuccessful, 5s for successful
-    # Parameters:
-    # - "username": the username of the account that is trying to be logged into
-    # - "password": the sha256 hashed password of the account that is trying to be logged into
+
+    if not ensure_ratelimit("api_account_login", request.META.get("REMOTE_ADDR")):
+        return 429, {
+            "valid": False,
+            "reason": "Ratelimited"
+        }
 
     username = data.username.lower()
     password = data.password
@@ -109,10 +113,8 @@ def api_account_login(request, data) -> dict:
             "reason": f"Account with username {username} doesn't exist."
         }
 
-def api_user_settings_theme(request, data) -> dict:
+def api_user_settings_theme(request, data: themeSchema) -> tuple | dict:
     # Called when the user changes their theme.
-    # Login required: true
-    # Ratelimit: none
 
     token = request.COOKIES.get('token')
     theme = data.theme.lower()
@@ -131,10 +133,8 @@ def api_user_settings_theme(request, data) -> dict:
         "success": True
     }
 
-def api_user_settings_color(request, data) -> dict:
+def api_user_settings_color(request, data: colorSchema) -> tuple | dict:
     # Called when the user changes the banner color.
-    # Login required: true
-    # Ratelimit: none
 
     token = request.COOKIES.get('token')
     color = data.color.lower()
@@ -143,21 +143,21 @@ def api_user_settings_color(request, data) -> dict:
     if color[0] != "#" or len(color) != 7 or color_two[0] != "#" or len(color_two) != 7:
         return 400, {
         "success": False,
-        "reason": "Color no tasty",
+        "reason": "Color very no tasty"
     }
 
     for i in color[1::]:
         if i not in "abcdef0123456789":
             return 400, {
                 "success": False,
-                "reason": "Color no tasty",
+                "reason": "Color no tasty"
             }
 
     for i in color_two[1::]:
         if i not in "abcdef0123456789":
             return 400, {
                 "success": False,
-                "reason": "Color no tasty",
+                "reason": "Color no tasty"
             }
 
     user = User.objects.get(token=token)
@@ -170,10 +170,8 @@ def api_user_settings_color(request, data) -> dict:
         "success": True
     }
 
-def api_user_settings_private(request, data) -> dict:
+def api_user_settings_private(request, data: privSchema) -> dict:
     # Called when the user toggles being private.
-    # Login required: true
-    # Ratelimit: none
 
     token = request.COOKIES.get('token')
     priv = data.priv
@@ -186,24 +184,21 @@ def api_user_settings_private(request, data) -> dict:
         "success": True
     }
 
-def api_user_settings_display_name(request, data) -> dict:
+def api_user_settings_display_name(request, data: displNameSchema) -> tuple | dict:
     # Called when trying to set display name.
-    # login required: true
-    # Ratelimit: none
 
     token = request.COOKIES.get('token')
-    displ_name = data.displ_name.replace("\r", "").replace("\t", " ").replace("\u200b", " ")
+    displ_name = data.displ_name.replace("\r", "")
 
-    for i in ["\t", "​", "​", " ", " ", " ", " ", " ", " ", " ", " ", " ", "⠀"]:
+    for i in ["\t", "\n", "\u2002", "\u2003", "\u2004", "\u2005", "\u2007", "\u2008", "\u2009", "\u200a", "\u200b", "\u2800"]:
         displ_name = displ_name.replace(i, " ")
 
-    while "\n "    in displ_name: displ_name = displ_name.replace("\n ", "\n")
-    while "  "     in displ_name: displ_name = displ_name.replace("  ", " ")
-    while "\n\n\n" in displ_name: displ_name = displ_name.replace("\n\n\n", "\n\n")
+    while "  " in displ_name:
+        displ_name = displ_name.replace("  ", " ")
 
     try:
-        if displ_name[0]  in "\n ": displ_name = displ_name[1::]
-        if displ_name[-1] in "\n ": displ_name = displ_name[:-1:]
+        if displ_name[0]  in " ": displ_name = displ_name[1::]
+        if displ_name[-1] in " ": displ_name = displ_name[:-1:]
     except IndexError:
         displ_name = ""
 
@@ -217,16 +212,12 @@ def api_user_settings_display_name(request, data) -> dict:
     user.display_name = displ_name
     user.save()
 
-    return 200, {
+    return {
         "success": True
     }
 
-def api_user_follower_add(request, data) -> dict:
+def api_user_follower_add(request, data: followerSchema) -> tuple | dict:
     # Called when someone requests to follow another account.
-    # Login required: true
-    # Ratelimit: none
-    # Parameters:
-    # - "username": the username of the account to follow
 
     token = request.COOKIES.get('token')
     username = data.username.lower()
@@ -239,7 +230,7 @@ def api_user_follower_add(request, data) -> dict:
 
     user = User.objects.get(token=token)
     followed = User.objects.get(username=username)
-    if followed.user_id not in user.following :
+    if followed.user_id not in user.following:
         user.following.append(followed.user_id)
         user.save()
 
@@ -251,12 +242,8 @@ def api_user_follower_add(request, data) -> dict:
         "success": True
     }
 
-def api_user_follower_remove(request, data) -> dict:
+def api_user_follower_remove(request, data: followerSchema) -> tuple | dict:
     # Called when someone requests to unfollow another account.
-    # Login required: true
-    # Ratelimit: none
-    # Parameters:
-    # - "username": the username of the account to unfollow
 
     token = request.COOKIES.get('token')
     username = data.username.lower()

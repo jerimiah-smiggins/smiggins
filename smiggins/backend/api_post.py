@@ -1,20 +1,24 @@
 # For API functions that relate to posts, for example creating, fetching home lists, etc.
 
-from ._packages import *
 from ._settings import *
-from ._helper import *
+from .packages import *
+from .schema import *
+from .helper import *
 
-def api_post_create(request, data) -> dict:
+def api_post_create(request, data: postSchema) -> tuple | dict:
     # Called when a new post is created.
-    # Login required: true
-    # Ratelimit: 1s for unsuccessful, 3s for successful
-    # Parameters:
-    # - "content": the content of the post. must be between 1 >= x >= 280 characters
 
     token = request.COOKIES.get('token')
-    content = data.content.replace("\r", "").replace("\t", " ").replace("\u200b", " ")
 
-    for i in ["\t", "​", "​", " ", " ", " ", " ", " ", " ", " ", " ", " ", "⠀"]:
+    if not ensure_ratelimit("api_post_create", token):
+        return 429, {
+            "success": False,
+            "reason": "Ratelimited"
+        }
+
+    content = data.content.replace("\r", "")
+
+    for i in ["\t", "\u2002", "\u2003", "\u2004", "\u2005", "\u2007", "\u2008", "\u2009", "\u200a", "\u200b", "\u2800"]:
         content = content.replace(i, " ")
 
     while "\n "    in content: content = content.replace("\n ", "\n")
@@ -37,9 +41,7 @@ def api_post_create(request, data) -> dict:
     create_api_ratelimit("api_post_create", API_TIMINGS["create post"], token)
 
     timestamp = round(time.time())
-
     user = User.objects.get(token=token)
-
     post = Post(
         content = content,
         creator = user.user_id,
@@ -50,7 +52,12 @@ def api_post_create(request, data) -> dict:
     )
     post.save()
 
-    post = Post.objects.get(content=content,timestamp=timestamp,creator=user.user_id)
+    post = Post.objects.get(
+        timestamp=timestamp,
+        creator=user.user_id,
+        content=content
+    )
+
     user.posts.append(post.post_id)
     user.save()
 
@@ -59,11 +66,8 @@ def api_post_create(request, data) -> dict:
         "post_id": post.post_id
     }
 
-def api_post_list_following(request, offset) -> dict:
+def api_post_list_following(request, offset: int=-1) -> dict:
     # Called when the following tab is refreshed.
-    # Login required: true
-    # Ratelimit: none
-    # Parameters: none
 
     token = request.COOKIES.get('token')
 
@@ -114,11 +118,8 @@ def api_post_list_following(request, offset) -> dict:
         "end": len(potential) - offset <= POSTS_PER_REQUEST
     }
 
-def api_post_list_recent(request, offset) -> dict:
+def api_post_list_recent(request, offset: int=-1) -> dict:
     # Called when the recent posts tab is refreshed.
-    # Login required: true
-    # Ratelimit: none
-    # Parameters: none
 
     token = request.COOKIES.get('token')
 
@@ -172,11 +173,8 @@ def api_post_list_recent(request, offset) -> dict:
         "end": end
     }
 
-def api_post_list_user(request, username, offset):
+def api_post_list_user(request, username: str, offset: int=-1) -> tuple | dict:
     # Called when getting posts from a specific user.
-    # Login required: true
-    # Ratelimit: none
-    # Parameters: none
 
     if not validate_username(username):
         return 404, {
@@ -184,7 +182,7 @@ def api_post_list_user(request, username, offset):
         }
 
     token = request.COOKIES.get('token') if 'token' in request.COOKIES and validate_token(request.COOKIES.get('token')) else 0
-    offset = sys.maxsize if offset == -1 else offset
+    offset = sys.maxsize if offset == -1 or not isinstance(offset, int) else offset
 
     user = User.objects.get(username=username)
     try:
@@ -193,8 +191,8 @@ def api_post_list_user(request, username, offset):
     except User.DoesNotExist:
         logged_in = False
 
-    if user.private and (not logged_in or self_user.user_id not in user.following):
-        return 200, {
+    if user.private and (not logged_in or self_user.user_id not in user.following): # type: ignore
+        return {
             "posts": [],
             "end": True,
             "private": True,
@@ -204,6 +202,8 @@ def api_post_list_user(request, username, offset):
         }
 
     potential = user.posts[::-1]
+
+    print(potential, offset)
 
     index = 0
     for i in range(len(potential)):
@@ -224,26 +224,23 @@ def api_post_list_user(request, username, offset):
             "display_name": user.display_name,
             "content": post.content,
             "timestamp": post.timestamp,
-            "liked": False if not logged_in else self_user.user_id in post.likes,
+            "liked": False if not logged_in else self_user.user_id in post.likes, # type: ignore
             "likes": len(post.likes),
             "comments": len(post.comments),
         })
 
-    return 200, {
+    return {
         "posts": outputList,
         "end": end,
         "color": user.color or "#3a1e93",
         "private": user.private,
-        "can_view": True if not logged_in else not user.private or self_user.user_id in user.following,
+        "can_view": True if not logged_in else not user.private or self_user.user_id in user.following, # type: ignore
         "following": len(user.following) - 1,
         "followers": len(user.followers),
     }
 
-def api_post_like_add(request, data):
+def api_post_like_add(request, data: likeSchema) -> tuple | dict:
     # Called when someone likes a post.
-    # Login required: true
-    # Ratelimit: none
-    # Parameters: id: int - post id to like
 
     token = request.COOKIES.get('token')
     id = data.id
@@ -253,6 +250,7 @@ def api_post_like_add(request, data):
             return 404, {
                 "success": False
             }
+
     except ValueError:
         return 404, {
             "success": False
@@ -268,15 +266,12 @@ def api_post_like_add(request, data):
                 post.likes = [user.user_id]
     post.save()
 
-    return 200, {
+    return {
         "success": True
     }
 
-def api_post_like_remove(request, data):
+def api_post_like_remove(request, data: likeSchema) -> tuple | dict:
     # Called when someone unlikes a post.
-    # Login required: true
-    # Ratelimit: none
-    # Parameters: id: int - post id to unlike
 
     token = request.COOKIES.get('token')
     id = data.id
@@ -298,6 +293,6 @@ def api_post_like_remove(request, data):
         post.likes.remove(user.user_id)
     post.save()
 
-    return 200, {
+    return {
         "success": True
     }

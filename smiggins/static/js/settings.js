@@ -1,32 +1,19 @@
 let inc = 0, req = 0;
 let home = true;
+let output = "";
 
-for (i in validColors) {
-  dom("color-container").innerHTML += `
-    <div class="post-container" data-color="${validColors[i]}" onclick="localStorage.setItem('color', '${validColors[i]}'); document.querySelector('body').setAttribute('data-color', validColors.indexOf(localStorage.getItem('color')) == -1 ? validColors[0] : localStorage.getItem('color'));">
-      <div class="post">
-        <div class="upper-content">
-          <div class="displ-name">Example
-          <span class="upper-lower-opacity"> -
-            <div class="username">@example</div> -
-            <div class="timestamp">${Math.floor(Math.random() * 21) + 2} hours ago</div>
-          </span>
-        </div>
-        <div class="main-content">
-          This is an example post. I am <a href="#">@example</a>.
-        </div>
-        <div class="bottom-content">
-          <div class="comment">${icons.comment}</div><span class="comment-number">${Math.floor(Math.random() * 100)}</span>
-          <div class="bottom-spacing"></div>
-          <div class="like" data-liked="true">
-            ${icons.like}
-          </div>
-          <span class="like-number">${Math.floor(Math.random() * 100) + 1}</span>
-        </div>
-      </div>
-    </div>
-  `;
+for (color of validColors) {
+  output += `<div data-color="${color}">${getPostHTML(
+    "This is an example post. I am @example.",
+    0, "example", "Example",
+    Date.now() / 1000 - Math.random() * 86400,
+    Math.floor(Math.random() * 100),
+    Math.floor(Math.random() * 99) + 1,
+    true, false, false, false, false, true
+  )}</div>`;
 }
+
+dom("color-container").innerHTML = output;
 
 showlog = (str, time=3000) => {
   inc++;

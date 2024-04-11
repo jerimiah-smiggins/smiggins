@@ -1,4 +1,8 @@
-from ._packages import hashlib
+# This file has variables used by the server.
+# This isn't for any settings. You can ignore
+# this file if you want.
+
+from .packages import hashlib
 from ._api_keys import *
 
 # Headers set at the top of every html file.

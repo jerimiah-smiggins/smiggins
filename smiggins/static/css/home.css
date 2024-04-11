@@ -54,6 +54,10 @@ button { width: 5em; }
   fill: var(--text);
 }
 
+.like {
+  cursor: pointer;
+}
+
 .priv { scale: 75%; }
 .comment { padding-right: 0.3em; }
 .like[data-liked="true"] { fill: var(--accent); }
