@@ -3,7 +3,7 @@ let home = true;
 let output = "";
 
 for (color of validColors) {
-  output += `<div data-color="${color}">${getPostHTML(
+  output += `<div data-color="${color}" onclick="localStorage.setItem('color', '${color}'); document.body.setAttribute('data-color', ${color});">${getPostHTML(
     "This is an example post. I am @example.",
     0, "example", "Example",
     Date.now() / 1000 - Math.random() * 86400,
