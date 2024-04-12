@@ -1,5 +1,4 @@
 from django.contrib import admin
-from django.http import HttpResponse
 from django.urls import include, path
 
 urlpatterns = [
@@ -9,4 +8,4 @@ urlpatterns = [
 ]
 
 handler404 = "posts.views._404"
-# handler500 = "posts.views._500"
+handler500 = "posts.views._500"

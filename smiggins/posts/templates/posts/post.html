@@ -34,6 +34,7 @@
         <div class="upper-content">
           <a href="/u/{{CREATOR_USERNAME}}" class="no-underline text">
             <div class="displ-name">{{DISPLAY_NAME}}</div>
+            <span {{PRIVATE}}><span class="priv" data-add-icon="lock"></span></span>
             <span class="upper-lower-opacity"> -
               <div class="username">@{{CREATOR_USERNAME}}</div> -
               <div class="timestamp"><span id="timestamp" data-timestamp="{{TIMESTAMP}}">-1 seconds</span> ago</div>
@@ -42,7 +43,7 @@
         </div>
         <div class="main-content"></div>
         <div class="bottom-content">
-          <div class="comment" id="add-comment-svg"></div><span class="comment-number">{{COMMENTS}}</span>
+          <div class="comment" data-add-icon="comment"></div><span class="comment-number">{{COMMENTS}}</span>
           <div class="bottom-spacing"></div>
           <div class="like" id="add-like-svg" data-liked="{{LIKED}}" onclick='let q = document.querySelector(`div[data-post-id="{{POST_ID}}"] span.like-number`); let h = document.querySelector(`div[data-post-id="{{POST_ID}}"] div.like`); if (h.dataset["liked"] == "true") { fetch("/api/post/like", { "method": "DELETE", "body": JSON.stringify({ "id": {{POST_ID}} }) }); h.setAttribute("data-liked", "false"); h.innerHTML = icons.unlike; q.innerHTML = +q.innerHTML - 1; } else { fetch("/api/post/like", { "method": "POST", "body": JSON.stringify({ "id": {{POST_ID}} }) }); h.setAttribute("data-liked", "true"); h.innerHTML = icons.like; q.innerHTML = +q.innerHTML + 1; }'></div>
           <span class="like-number">{{LIKES}}</span>
@@ -65,7 +66,6 @@
           },
         }
       )
-      dom("add-comment-svg").innerHTML = icons.comment;
       dom("add-like-svg").innerHTML = {{LIKED}} ? icons.like : icons.unlike;
       const post_id = {{POST_ID}};
       const comment = {{COMMENT}};

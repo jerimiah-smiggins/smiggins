@@ -78,51 +78,27 @@ function refresh(force_offset=false) {
     .then((response) => (response.json()))
     .then((json) => {
       end = json.end;
-      for (const post in json.posts) {
-        dom("posts").innerHTML += `
-        <div class="post-container" data-comment-id="${json.posts[post].post_id}">
-          <div class="post">
-            <div class="upper-content">
-              <a href="/u/${json.posts[post].creator_username}" class="text no-underline">
-                <div class="displ-name">${escapeHTML(json.posts[post].display_name)}${json.posts[post].private_acc ? ` <div class="priv">${icons.lock}</div>` : ""}</div>
-                <span class="upper-lower-opacity"> -
-                  <div class="username">@${json.posts[post].creator_username}</div> -
-                  <div class="timestamp">${timeSince(json.posts[post].timestamp)} ago</div>
-                </span>
-              </a>
-            </div>
-            <div class="main-content">
-              <a href=/c/${json.posts[post].post_id} class="text no-underline">
-                ${
-                  linkifyHtml(
-                    json.posts[post].content, {
-                      formatHref: {
-                        mention: (href) => "/u" + href,
-                      }
-                    }
-                  )
-                  .replaceAll("\n", "</br>")
-                  .replaceAll("<a", "  \n")
-                  .replaceAll("</a>", `</a><a href=/c/${json.posts[post].post_id} class="text no-underline">`)
-                  .replaceAll(`<a href=/c/${json.posts[post].post_id} class="text no-underline"></a>`, "")
-                  .replaceAll("  \n", "</a><a")
-                }
-              </a>
-            </div>
-            <div class="bottom-content">
-              <a href="/c/${json.posts[post].post_id}" class="text no-underline">
-                <div class="comment">${icons.comment}</div><span class="comment-number">${json.posts[post].comments}</span>
-              </a>
-              <div class="bottom-spacing"></div>
-              <div class="like" data-liked="${json.posts[post].liked}" onclick="toggleLike(${json.posts[post].post_id})">
-                ${json.posts[post].liked ? icons.like : icons.unlike}
-              </div>
-              <span class="like-number">${json.posts[post].likes}</span>
-            </div>
-          </div>
-        </div>`;
-        offset = json.posts[post].post_id;
+      let output = "";
+
+      for (const post of json.posts) {
+        output += getPostHTML(
+          post.content,          // content
+          post.post_id,          // postID
+          post.creator_username, // username
+          post.display_name,     // displayName
+          post.timestamp,        // timestamp
+          post.comments,         // commentCount
+          post.likes,            // likeCount
+          post.liked,            // isLiked
+          post.private_acc,      // isPrivate
+          true,                  // isComment
+          true,                  // includeUserLink
+          true                   // includePostLink
+        );
+        offset = post.post_id;
       }
+
+      dom("posts").innerHTML += output;
 
       if (force_offset !== true && logged_in) { dom("more").removeAttribute("hidden"); }
       if (json.end && logged_in) { dom("more").setAttribute("hidden", ""); } else if (logged_in) { dom("more").removeAttribute("hidden"); }

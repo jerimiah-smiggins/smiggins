@@ -1,24 +1,26 @@
 # For API functions that relate to comments, for example liking, creating, etc.
 
-from ._packages import *
 from ._settings import *
-from ._helper import *
+from .packages import *
+from .schema import *
+from .helper import *
 
-def api_comment_create(request, data) -> dict:
+def api_comment_create(request, data: commentSchema) -> tuple | dict:
     # Called when a new comment is created.
-    # Login required: true
-    # Ratelimit: 1s for unsuccessful, 3s for successful
-    # Parameters:
-    # - "content": the content of the comment. must be between 1 >= x >= 280 characters
-    # - "id": the id for the post being commented on. must be a valid id between 0 < x < next post id
 
     token = request.COOKIES.get('token')
-    content = data.content.replace("\r", "").replace("\t", " ").replace("\u200b", " ")
-    id = data.id
-    print(data.id)
-    is_comment = data.comment
 
-    for i in ["\t", "​", "​", " ", " ", " ", " ", " ", " ", " ", " ", " ", "⠀"]:
+    if not ensure_ratelimit("api_comment_create", token):
+        return 429, {
+            "success": False,
+            "reason": "Ratelimited"
+        }
+
+    id = data.id
+    is_comment = data.comment
+    content = data.content.replace("\r", "")
+
+    for i in ["\t", "\u2002", "\u2003", "\u2004", "\u2005", "\u2007", "\u2008", "\u2009", "\u200a", "\u200b", "\u2800"]:
         content = content.replace(i, " ")
 
     while "\n "    in content: content = content.replace("\n ", "\n")
@@ -54,8 +56,11 @@ def api_comment_create(request, data) -> dict:
     )
     comment.save()
 
-    comment = Comment.objects.get(content=content,timestamp=timestamp,creator=user.user_id)
-
+    comment = Comment.objects.get(
+        timestamp=timestamp,
+        creator=user.user_id,
+        content=content
+    )
 
     if is_comment:
         parent = Comment.objects.get(comment_id=id)
@@ -72,15 +77,11 @@ def api_comment_create(request, data) -> dict:
         "comment_id": comment.comment_id
     }
 
-def api_comment_list(request, offset, is_comment, id) -> dict:
+def api_comment_list(request, id: int, comment: bool, offset: int=-1) -> tuple | dict:
     # Called when the comments for a post are refreshed.
-    # Login required: true
-    # Ratelimit: none
-    # Parameters: id, offset
 
     token = request.COOKIES.get('token')
     offset = 0 if offset == -1 else offset
-
     logged_in = True
 
     try:
@@ -90,7 +91,7 @@ def api_comment_list(request, offset, is_comment, id) -> dict:
         logged_in = False
 
     try:
-        if id < 0 or (Comment.objects.latest('comment_id').comment_id if is_comment else Post.objects.latest('post_id').post_id) < id:
+        if id < 0 or (Comment.objects.latest('comment_id').comment_id if comment else Post.objects.latest('post_id').post_id) < id:
             return 400, {
                 "reason": "Idk your id is not right at all"
             }
@@ -100,7 +101,7 @@ def api_comment_list(request, offset, is_comment, id) -> dict:
             "reason": "Your id broke soemthing owo"
         }
 
-    if is_comment:
+    if comment:
         parent = Comment.objects.get(pk=id)
     else:
         parent = Post.objects.get(pk=id)
@@ -111,15 +112,14 @@ def api_comment_list(request, offset, is_comment, id) -> dict:
             "end": True
         }
 
-    print(offset)
     while len(parent.comments) and parent.comments[0] < offset:
         parent.comments.pop(0)
 
     outputList = []
     offset = 0
     for i in parent.comments:
-        comment = Comment.objects.get(pk=i)
-        creator = User.objects.get(pk=comment.creator)
+        comment_object = Comment.objects.get(pk=i)
+        creator = User.objects.get(pk=comment_object.creator)
 
         if creator.private and user_id not in creator.following:
             offset += 1
@@ -129,11 +129,11 @@ def api_comment_list(request, offset, is_comment, id) -> dict:
                 "post_id": i,
                 "display_name": creator.display_name,
                 "creator_username": creator.username,
-                "content": comment.content,
-                "timestamp": comment.timestamp,
-                "liked":  user_id in comment.likes,
-                "likes": len(comment.likes),
-                "comments": len(comment.comments),
+                "content": comment_object.content,
+                "timestamp": comment_object.timestamp,
+                "liked":  user_id in comment_object.likes,
+                "likes": len(comment_object.likes),
+                "comments": len(comment_object.comments),
                 "private_acc": creator.private
             })
 
@@ -145,11 +145,8 @@ def api_comment_list(request, offset, is_comment, id) -> dict:
         "end": len(parent.comments) - offset <= POSTS_PER_REQUEST
     }
 
-def api_comment_like_add(request, data):
+def api_comment_like_add(request, data: likeSchema):
     # Called when someone likes a comment.
-    # Login required: true
-    # Ratelimit: none
-    # Parameters: id: int - comment id to like
 
     token = request.COOKIES.get('token')
     id = data.id
@@ -159,10 +156,11 @@ def api_comment_like_add(request, data):
             return 404, {
                 "success": False
             }
+
     except ValueError:
         return 404, {
-                "success": False
-            }
+            "success": False
+        }
 
     user = User.objects.get(token=token)
     comment = Comment.objects.get(comment_id=id)
@@ -178,11 +176,8 @@ def api_comment_like_add(request, data):
         "success": True
     }
 
-def api_comment_like_remove(request, data):
+def api_comment_like_remove(request, data: likeSchema):
     # Called when someone unlikes a comment.
-    # Login required: true
-    # Ratelimit: none
-    # Parameters: id: int - comment id to unlike
 
     token = request.COOKIES.get('token')
     id = data.id

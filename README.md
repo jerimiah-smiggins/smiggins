@@ -12,8 +12,8 @@ online version (at least for now): https://trinkey.pythonanywhere.com
   2. With python, install the needed libraries (`python3 -m pip install --upgrade django django-ninja`, `py -m ...` on windows)
   3. Create the `_api_keys.py` file:
       ```bash
-      touch ~/social-media-thing/smiggins/_server_module/_api_keys.py
-      echo "auth_key = b'some random text this can be anything'" > ~/social-media-thing/smiggins/_server_module/_api_keys.py
+      touch ~/social-media-thing/smiggins/backend/_api_keys.py
+      echo "auth_key = b'some random text this can be anything'" > ~/social-media-thing/smiggins/backend/_api_keys.py
       ```
       if you're on Windows then fuck you figure it out yourself
   4. In the folder REPO_BASE/smiggins run the command `python3 manage.py migrate` (`py ...` for windows)
@@ -68,13 +68,13 @@ online version (at least for now): https://trinkey.pythonanywhere.com
 
   7. Back on the webapp dashboard, in the "Static Files" section, make an entry for `/static/` with the path set to `/home/USERNAME/social-media-thing/smiggins/collected-static`
 
-  8. In the file at `/home/USERNAME/social-media-thing/smiggins/smiggins/settings.py`, make sure the following settings are set:
+  8. In the file at `/home/USERNAME/social-media-thing/smiggins/backend/_settings.py`, make sure the following settings are set:
       - debug: `False`
 
   9. Create the `_api_keys.py` file:
       ```bash
-      touch ~/social-media-thing/smiggins/_server_module/_api_keys.py
-      echo "auth_key = b'some random text this can be anything'" > ~/social-media-thing/smiggins/_server_module/_api_keys.py
+      touch ~/social-media-thing/smiggins/backend/_api_keys.py
+      echo "auth_key = b'some random text this can be anything'" > ~/social-media-thing/smiggins/backend/_api_keys.py
       ```
 
   10. In your venv console, run the following commands to create the database and setup the static files:

@@ -1,7 +1,6 @@
 let inc = 0, req = 0, end = false;
 let offset = null;
 let username = document.querySelector("body").getAttribute("data-username");
-let first = true;
 
 if (!logged_in) {
   dom("more-container").innerHTML = "<a href=\"/signup\">Sign up</a> to see more!";
@@ -28,69 +27,46 @@ function refresh(force_offset=false) {
         val.innerHTML = icons.lock;
       });
 
-      if (json.private && true) {
-        document.querySelectorAll("[data-toggle-on-priv]").forEach((val, index) => {
-          if (val.hasAttribute("hidden")) { val.removeAttribute("hidden"); }
-          else { val.setAttribute("hidden", ""); }
-        });
-
-        if (json.can_view) {
-          document.querySelectorAll("[data-toggle-on-view]").forEach((val, index) => {
-            if (val.hasAttribute("hidden")) { val.removeAttribute("hidden"); }
-            else { val.setAttribute("hidden", ""); }
-          });
+      [...document.querySelectorAll("[data-show-on-priv]")].forEach((val) => {
+        if (json.private) {
+          val.removeAttribute("hidden");
+        } else {
+          val.setAttribute("hidden", "")
         }
+      });
 
-        first = false;
-      }
+      [...document.querySelectorAll("[data-show-on-view]")].forEach((val) => {
+        if (json.can_view) {
+          val.removeAttribute("hidden");
+        } else {
+          val.setAttribute("hidden", "")
+        }
+      });
 
       dom("follow").innerText = `Followers: ${json.followers} - Following: ${json.following}`;
 
+      let output = "";
       end = json.end;
 
-      for (const post in json.posts) {
-        dom("posts").innerHTML += `
-        <div class="post-container" data-post-id="${json.posts[post].post_id}">
-          <div class="post">
-            <div class="upper-content">
-              <div class="displ-name">${escapeHTML(json.posts[post].display_name)}</div>
-              <span class="upper-lower-opacity"> -
-                <div class="username">@${json.posts[post].creator_username}</div> -
-                <div class="timestamp">${timeSince(json.posts[post].timestamp)} ago</div>
-              </span>
-            </div>
-            <div class="main-content">
-            <a href=/p/${json.posts[post].post_id} class="text no-underline">
-              ${
-                linkifyHtml(
-                  json.posts[post].content, {
-                    formatHref: {
-                      mention: (href) => "/u" + href,
-                    }
-                  }
-                )
-                .replaceAll("\n", "</br>")
-                .replaceAll("<a", "  \n")
-                .replaceAll("</a>", `</a><a href=/p/${json.posts[post].post_id} class="text no-underline">`)
-                .replaceAll(`<a href=/p/${json.posts[post].post_id} class="text no-underline"></a>`, "")
-                .replaceAll("  \n", "</a><a")
-              }
-          </a>
-            </div>
-            <div class="bottom-content">
-              <a href="/p/${json.posts[post].post_id}" class="text no-underline">
-                <div class="comment">${icons.comment}</div><span class="comment-number">${json.posts[post].comments}</span>
-              </a>
-              <div class="bottom-spacing"></div>
-              <div class="like" data-liked="${json.posts[post].liked}"${logged_in ? ` onclick="toggleLike(${json.posts[post].post_id})"` : ""}>
-                ${json.posts[post].liked ? icons.like : icons.unlike}
-              </div>
-              <span class="like-number">${json.posts[post].likes}</span>
-            </div>
-          </div>
-        </div>`;
-        offset = json.posts[post].post_id;
+      for (const post of json.posts) {
+        output += getPostHTML(
+          post.content,          // content
+          post.post_id,          // postID
+          post.creator_username, // username
+          post.display_name,     // displayName
+          post.timestamp,        // timestamp
+          post.comments,         // commentCount
+          post.likes,            // likeCount
+          post.liked,            // isLiked
+          json.private,          // isPrivate
+          false,                 // isComment
+          false,                 // includeUserLink
+          true                   // includePostLink
+        );
+        offset = post.post_id;
       }
+
+      dom("posts").innerHTML += output;
 
       if (force_offset !== true && logged_in) { dom("more").removeAttribute("hidden"); }
       if (json.end && logged_in) { dom("more").setAttribute("hidden", ""); } else if (logged_in) { dom("more").removeAttribute("hidden"); }

@@ -4,6 +4,12 @@ const urlRegex = /(https?:\/\/(?:\w+\.)+[\-0-9A-Za-z]{2,24}\/?(?:\/?[\w\-]+)*(?:
 const usernameRegex = /(@[a-zA-Z0-9_\-]+)/g;
 const usernameRegexFull = /^[a-z0-9_\-]+$/g;
 
+const months = [
+  "Jan", "Feb", "Mar", "Apr",
+  "May", "Jun", "Jul", "Aug",
+  "Sep", "Oct", "Nov", "Dec"
+];
+
 const validColors = [
   "rosewater", "flamingo", "pink", "mauve",
   "red", "maroon", "peach", "yellow", "green",
@@ -91,32 +97,93 @@ function sha256(ascii) {
 };
 
 function timeSince(date) {
+  let dateObject = new Date(date * 1000);
+  let dateString = `${months[dateObject.getMonth()]} ${dateObject.getDate()}, ${dateObject.getFullYear()}, ${String(dateObject.getHours()).padStart(2, "0")}:${String(dateObject.getMinutes()).padStart(2, "0")}:${String(dateObject.getSeconds()).padStart(2, "0")}`;
+
   let seconds = Math.floor((+(new Date()) / 1000 - date + 1));
+  let unit = "second", amount = seconds > 0 ? seconds : 0;
 
-  if (seconds < 0) { return "0 seconds"; }
+  for (const info of [
+    ["minute", 60],
+    ["hour", 3600],
+    ["day", 86400],
+    ["month", 2592000],
+    ["year", 31536000]
+  ]) {
+    let interval = seconds / info[1];
 
-  let interval = seconds / 31536000;
-  if (interval >= 1) { return Math.floor(interval) + " year" + (Math.floor(interval) == 1 ? "" : "s"); }
+    if (interval >= 1) {
+      unit = info[0];
+      amount = Math.floor(interval);
+    }
+  }
 
-  interval = seconds / 2592000;
-  if (interval >= 1) { return Math.floor(interval) + " month" + (Math.floor(interval) == 1 ? "" : "s"); }
-
-  interval = seconds / 86400;
-  if (interval >= 1) { return Math.floor(interval) + " day" + (Math.floor(interval) == 1 ? "" : "s"); }
-
-  interval = seconds / 3600;
-  if (interval >= 1) { return Math.floor(interval) + " hour" + (Math.floor(interval) == 1 ? "" : "s"); }
-
-  interval = seconds / 60;
-  if (interval >= 1) { return Math.floor(interval) + " minute" + (Math.floor(interval) == 1 ? "" : "s"); }
-
-  return Math.floor(seconds) + " second" + (Math.floor(seconds) == 1 ? "" : "s");
+  return `<span title="${dateString}">${Math.floor(amount)} ${unit}${Math.floor(amount) == 1 ? "" : "s"}</span>`;
 }
 
 function escapeHTML(str) {
   return str.replaceAll("&", "&amp;").replaceAll("<", "&lt;").replaceAll("\"", "&quot;")
 }
 
+function getPostHTML(
+  content,
+  postID,
+  username,
+  displayName,
+  timestamp,
+  commentCount,
+  likeCount,
+  isLiked,
+  isPrivate,
+  isComment,
+  includeUserLink,
+  includePostLink,
+  fakeMentions=false
+) {
+  displayName = escapeHTML(displayName);
+
+  return `<div class="post-container" data-${isComment ? "comment" : "post"}-id="${postID}">
+    <div class="post">
+      <div class="upper-content">
+        ${includeUserLink ? `<a href="/u/${username}" class="no-underline text">` : ""}
+          <div class="displ-name">
+            ${displayName} ${isPrivate ? `<div class="priv">${icons.lock}</div>` : ""}
+          </div>
+          <span class="upper-lower-opacity"> -
+            <div class="username">@${username}</div> -
+            <div class="timestamp">${timeSince(timestamp)} ago</div>
+          </span>
+        ${includeUserLink ? "</a>" : ""}
+      </div>
+      <div class="main-content">
+        ${includePostLink ? `<a href="/${isComment ? "c" : "p"}/${postID}" class="text no-underline">` : ""}
+          ${
+            linkifyHtml(content, {
+              formatHref: { mention: (href) => fakeMentions ? "#" : "/u" + href }
+            }).replaceAll("\n", "<br>")
+              .replaceAll("<a", includePostLink ? "  \n" : "<a")
+              .replaceAll("</a>", includePostLink ? `</a><a href="/${isComment ? "c" : "p"}/${postID}" class="text no-underline">` : "</a>")
+              .replaceAll("  \n", "</a><a")
+              .replaceAll(`<a href="/${isComment ? "c" : "p"}/${postID}" class="text no-underline"></a>`, "")
+          }
+        ${includePostLink ? "</a>" : ""}
+      </div>
+      <div class="bottom-content">
+        ${includePostLink ? `<a href="/${isComment ? "c" : "p"}/${postID}" class="text no-underline">` : ""}
+          <div class="comment">${icons.comment}</div>
+          <span class="comment-number">${commentCount}</span>
+        ${includePostLink ? "</a>" : ""}
+        <div class="bottom-spacing"></div>
+        <div class="like" data-liked="${isLiked}" onclick="toggleLike(${postID})">
+          ${isLiked ? icons.like : icons.unlike}
+        </div>
+        <span class="like-number">${likeCount}</span>
+      </div>
+    </div>
+    </div>`;
+  }
+
+// Icons from Font Awesome
 const icons = {
   settings: '<a title="Settings" href="/settings"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><path d="M495.9 166.6c3.2 8.7.5 18.4-6.4 24.6l-43.3 39.4c1.1 8.3 1.7 16.8 1.7 25.4s-.6 17.1-1.7 25.4l43.3 39.4c6.9 6.2 9.6 15.9 6.4 24.6-4.4 11.9-9.7 23.3-15.8 34.3l-4.7 8.1c-6.6 11-14 21.4-22.1 31.2-5.9 7.2-15.7 9.6-24.5 6.8l-55.7-17.7c-13.4 10.3-28.2 18.9-44 25.4l-12.5 57.1c-2 9.1-9 16.3-18.2 17.8-13.8 2.3-28 3.5-42.5 3.5s-28.7-1.2-42.5-3.5c-9.2-1.5-16.2-8.7-18.2-17.8l-12.5-57.1c-15.8-6.5-30.6-15.1-44-25.4l-55.6 17.8c-8.8 2.8-18.6.3-24.5-6.8-8.1-9.8-15.5-20.2-22.1-31.2l-4.7-8.1c-6.1-11-11.4-22.4-15.8-34.3-3.2-8.7-.5-18.4 6.4-24.6l43.3-39.4c-1.1-8.4-1.7-16.9-1.7-25.5s.6-17.1 1.7-25.4l-43.3-39.4c-6.9-6.2-9.6-15.9-6.4-24.6 4.4-11.9 9.7-23.3 15.8-34.3l4.7-8.1c6.6-11 14-21.4 22.1-31.2 5.9-7.2 15.7-9.6 24.5-6.8l55.7 17.7c13.4-10.3 28.2-18.9 44-25.4l12.5-57.1c2-9.1 9-16.3 18.2-17.8C227.3 1.2 241.5 0 256 0s28.7 1.2 42.5 3.5c9.2 1.5 16.2 8.7 18.2 17.8l12.5 57.1c15.8 6.5 30.6 15.1 44 25.4l55.7-17.7c8.8-2.8 18.6-.3 24.5 6.8 8.1 9.8 15.5 20.2 22.1 31.2l4.7 8.1c6.1 11 11.4 22.4 15.8 34.3zM256 336a80 80 0 1 0 0-160 80 80 0 1 0 0 160z"/></svg></a>',
   home: '<a title="Home" href="/home"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 576 512"><path d="M575.8 255.5c0 18-15 32.1-32 32.1h-32l.7 160.2c0 2.7-.2 5.4-.5 8.1V472c0 22.1-17.9 40-40 40h-16c-1.1 0-2.2 0-3.3-.1-1.4.1-2.8.1-4.2.1H392c-22.1 0-40-17.9-40-40v-88c0-17.7-14.3-32-32-32h-64c-17.7 0-32 14.3-32 32v88c0 22.1-17.9 40-40 40h-55.9c-1.5 0-3-.1-4.5-.2-1.2.1-2.4.2-3.6.2h-16c-22.1 0-40-17.9-40-40V360c0-.9 0-1.9.1-2.8v-69.6H32c-18 0-32-14-32-32.1 0-9 3-17 10-24L266.4 8c7-7 15-8 22-8s15 2 21 7l255.4 224.5c8 7 12 15 11 24z"/></svg></a>',
