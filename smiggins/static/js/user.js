@@ -36,7 +36,7 @@ function refresh(force_offset=false) {
       });
 
       [...document.querySelectorAll("[data-show-on-view]")].forEach((val) => {
-        if (json.can_view) {
+        if (json.private && json.can_view) {
           val.removeAttribute("hidden");
         } else {
           val.setAttribute("hidden", "")
