@@ -67,6 +67,8 @@ def user(request, username) -> HttpResponse:
         USERNAME = user.username,
         DISPLAY_NAME = user.display_name,
         BANNER_COLOR = user.color or DEFAULT_BANNER_COLOR,
+        BANNER_COLOR_TWO = user.color_two or DEFAULT_BANNER_COLOR,
+        GRADIENT = "gradient" if user.gradient else "",
         IS_FOLLOWING = str(user.user_id in User.objects.get(pk=self_id).following) if logged_in else "false",
         IS_HIDDEN = "hidden" if user.user_id == self_id else ""
     )
