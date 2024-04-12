@@ -100,17 +100,17 @@ def post(request, post_id) -> HttpResponse:
     return get_HTTP_response(
         request, "posts/post.html",
 
-        LOGGED_IN = str(logged_in).lower(),
-        POST_ID = str(post.post_id),
         CREATOR_USERNAME = creator.username,
         DISPLAY_NAME = creator.display_name,
-        CONTENT = post.content,
+        LOGGED_IN = str(logged_in).lower(),
+        POST_ID   = str(post.post_id),
+        CONTENT   = post.content,
         TIMESTAMP = str(post.timestamp),
-        COMMENTS = str(len(post.comments)),
-        COMMENT = "false",
-        LIKED = str(post.likes != [] and self_id in post.likes and logged_in).lower(),
-        LIKES = str(len(post.likes)) if post.likes != [] else "0",
-        PRIVATE = "" if creator.private else "hidden"
+        COMMENTS  = str(len(post.comments)),
+        COMMENT   = "false",
+        LIKED     = str(post.likes != [] and self_id in post.likes and logged_in).lower(),
+        LIKES     = str(len(post.likes)) if post.likes != [] else "0",
+        PRIVATE   = "" if creator.private else "hidden"
     )
 
 def comment(request, comment_id) -> HttpResponse:
@@ -140,12 +140,16 @@ def comment(request, comment_id) -> HttpResponse:
             request, "posts/404_post.html"
         )
 
+    if creator.private and self_id not in creator.following:
+        return get_HTTP_response(
+            request, "posts/404_post.html"
+        )
+
     return get_HTTP_response(
         request, "posts/post.html",
 
         CREATOR_USERNAME = creator.username,
         DISPLAY_NAME     = creator.display_name,
-
         LOGGED_IN = str(logged_in).lower(),
         POST_ID   = str(comment.comment_id),
         CONTENT   = comment.content,
@@ -153,7 +157,8 @@ def comment(request, comment_id) -> HttpResponse:
         COMMENTS  = str(len(comment.comments)),
         COMMENT   = "true",
         LIKED     = str(comment.likes != [] and self_id in comment.likes and logged_in).lower(),
-        LIKES     = str(len(comment.likes)) if comment.likes != [] else "0"
+        LIKES     = str(len(comment.likes)) if comment.likes != [] else "0",
+        PRIVATE   = "" if creator.private else "hidden"
     )
 
 def contact(request) -> HttpResponse:
