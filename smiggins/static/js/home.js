@@ -89,7 +89,10 @@ function refresh(force_offset=false) {
           post.private_acc,      // isPrivate
           false,                 // isComment
           true,                  // includeUserLink
-          true                   // includePostLink
+          true,                  // includePostLink
+          post.color,            // bannerColor
+          post.color_two,        // bannerColorTwo
+          post.gradient          // gradient
         );
         offset = post.post_id;
       }

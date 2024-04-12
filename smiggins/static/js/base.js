@@ -122,7 +122,7 @@ function timeSince(date) {
 }
 
 function escapeHTML(str) {
-  return str.replaceAll("&", "&amp;").replaceAll("<", "&lt;").replaceAll("\"", "&quot;")
+  return str.replaceAll("&", "&amp;").replaceAll("<", "&lt;").replaceAll("\"", "&quot;");
 }
 
 function getPostHTML(
@@ -138,6 +138,9 @@ function getPostHTML(
   isComment,
   includeUserLink,
   includePostLink,
+  bannerColor,
+  bannerColorTwo,
+  gradient,
   fakeMentions=false
 ) {
   displayName = escapeHTML(displayName);
@@ -146,6 +149,9 @@ function getPostHTML(
     <div class="post">
       <div class="upper-content">
         ${includeUserLink ? `<a href="/u/${username}" class="no-underline text">` : ""}
+          <div class="pfp-container" style="--banner: ${bannerColor}; --banner-two: ${bannerColorTwo};">
+            <div class="pfp ${gradient ? "gradient" : ""}"></div>
+          </div>
           <div class="displ-name">
             ${displayName} ${isPrivate ? `<div class="priv">${icons.lock}</div>` : ""}
           </div>

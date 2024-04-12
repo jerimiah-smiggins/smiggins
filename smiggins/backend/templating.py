@@ -112,7 +112,10 @@ def post(request, post_id) -> HttpResponse:
         COMMENT   = "false",
         LIKED     = str(post.likes != [] and self_id in post.likes and logged_in).lower(),
         LIKES     = str(len(post.likes)) if post.likes != [] else "0",
-        PRIVATE   = "" if creator.private else "hidden"
+        PRIVATE   = "" if creator.private else "hidden",
+        COLOR     = creator.color,
+        COLOR_TWO = str(creator.color_two),
+        GRADIENT  = "gradient" if creator.gradient else ""
     )
 
 def comment(request, comment_id) -> HttpResponse:
@@ -151,7 +154,7 @@ def comment(request, comment_id) -> HttpResponse:
         request, "posts/post.html",
 
         CREATOR_USERNAME = creator.username,
-        DISPLAY_NAME     = creator.display_name,
+        DISPLAY_NAME = creator.display_name,
         LOGGED_IN = str(logged_in).lower(),
         POST_ID   = str(comment.comment_id),
         CONTENT   = comment.content,
@@ -160,7 +163,10 @@ def comment(request, comment_id) -> HttpResponse:
         COMMENT   = "true",
         LIKED     = str(comment.likes != [] and self_id in comment.likes and logged_in).lower(),
         LIKES     = str(len(comment.likes)) if comment.likes != [] else "0",
-        PRIVATE   = "" if creator.private else "hidden"
+        PRIVATE   = "" if creator.private else "hidden",
+        COLOR     = creator.color,
+        COLOR_TWO = str(creator.color_two),
+        GRADIENT  = "gradient" if creator.gradient else ""
     )
 
 def contact(request) -> HttpResponse:

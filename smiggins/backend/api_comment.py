@@ -134,7 +134,10 @@ def api_comment_list(request, id: int, comment: bool, offset: int=-1) -> tuple |
                 "liked":  user_id in comment_object.likes,
                 "likes": len(comment_object.likes),
                 "comments": len(comment_object.comments),
-                "private_acc": creator.private
+                "private_acc": creator.private,
+                "color": creator.color,
+                "color_two": creator.color_two or DEFAULT_BANNER_COLOR,
+                "gradient": creator.gradient
             })
 
         if len(outputList) >= POSTS_PER_REQUEST:

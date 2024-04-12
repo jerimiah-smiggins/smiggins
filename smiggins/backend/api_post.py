@@ -107,7 +107,10 @@ def api_post_list_following(request, offset: int=-1) -> dict:
                 "liked": user.user_id in current_post.likes,
                 "likes": len(current_post.likes) or 0,
                 "comments": len(current_post.comments) or 0,
-                "private_acc": current_user.private
+                "private_acc": current_user.private,
+                "color": current_user.color,
+                "color_two": current_user.color_two or DEFAULT_BANNER_COLOR,
+                "gradient": current_user.gradient
             })
 
             if len(outputList) >= POSTS_PER_REQUEST:
@@ -160,7 +163,10 @@ def api_post_list_recent(request, offset: int=-1) -> dict:
                     "liked": user.user_id in current_post.likes,
                     "likes": len(current_post.likes),
                     "comments": len(current_post.comments),
-                    "private_acc": current_user.private
+                    "private_acc": current_user.private,
+                    "color": current_user.color,
+                    "color_two": current_user.color_two or DEFAULT_BANNER_COLOR,
+                    "gradient": current_user.gradient
                 })
 
         except Post.DoesNotExist:
@@ -232,7 +238,9 @@ def api_post_list_user(request, username: str, offset: int=-1) -> tuple | dict:
     return {
         "posts": outputList,
         "end": end,
-        "color": user.color or "#3a1e93",
+        "color": user.color or DEFAULT_BANNER_COLOR,
+        "color_two": user.color_two or DEFAULT_BANNER_COLOR,
+        "gradient": user.gradient,
         "private": user.private,
         "can_view": True if not logged_in else not user.private or self_user.user_id in user.following, # type: ignore
         "following": len(user.following) - 1,

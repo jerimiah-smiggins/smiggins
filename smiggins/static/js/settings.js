@@ -9,7 +9,8 @@ for (color of validColors) {
     Date.now() / 1000 - Math.random() * 86400,
     Math.floor(Math.random() * 100),
     Math.floor(Math.random() * 99) + 1,
-    true, false, false, false, false, true
+    true, false, false, false, false,
+    "var(--accent)", "#000", false, true
   )}</div>`;
 }
 

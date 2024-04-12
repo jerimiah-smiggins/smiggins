@@ -61,7 +61,10 @@ function refresh(force_offset=false) {
           json.private,          // isPrivate
           false,                 // isComment
           false,                 // includeUserLink
-          true                   // includePostLink
+          true,                  // includePostLink
+          json.color,            // bannerColor
+          json.color_two,        // bannerColorTwo
+          json.gradient          // gradient
         );
         offset = post.post_id;
       }

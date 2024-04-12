@@ -30,6 +30,25 @@ button { width: 5em; }
   text-overflow: ellipsis;
 }
 
+.pfp-container {
+  position: absolute;
+  z-index: -1;
+}
+
+.pfp {
+  width: 2em;
+  height: 2em;
+  border-radius: 1em;
+  background-color: var(--banner);
+  position: relative;
+  right:  0.5em;
+  bottom: 0.5em;
+}
+
+.pfp.gradient {
+  background: linear-gradient(90deg, var(--banner), var(--banner-two));
+}
+
 .post {
   width: calc(26.95em - (3em / 7));
   border: calc(3em / 14) var(--accent-50) solid;
