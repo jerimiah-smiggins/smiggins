@@ -36,7 +36,7 @@ def settings(request) -> HttpResponse:
         SELECTED_IF_BLACK = "selected" if user.theme == "black" else ""
     )
 
-def user(request, username) -> HttpResponse:
+def user(request, username: str) -> HttpResponse:
     logged_in = True
     username = username.lower()
     token = ""
@@ -73,7 +73,7 @@ def user(request, username) -> HttpResponse:
         IS_HIDDEN = "hidden" if user.user_id == self_id else ""
     )
 
-def post(request, post_id) -> HttpResponse:
+def post(request, post_id: int) -> HttpResponse:
     logged_in = True
     token = ""
 
@@ -115,7 +115,7 @@ def post(request, post_id) -> HttpResponse:
         PRIVATE   = "" if creator.private else "hidden"
     )
 
-def comment(request, comment_id) -> HttpResponse:
+def comment(request, comment_id: int) -> HttpResponse:
     logged_in = True
     token = ""
 

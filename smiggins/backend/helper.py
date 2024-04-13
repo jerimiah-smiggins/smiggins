@@ -21,7 +21,6 @@ def set_timeout(callback: Callable, delay_ms: Union[int, float]) -> None:
     def wrapper():
         threading.Event().wait(delay_ms / 1000)
         callback()
-        print(timeout_handler)
 
     thread = threading.Thread(target=wrapper)
     thread.start()
@@ -137,7 +136,6 @@ def create_api_ratelimit(api_id: str, time_ms: Union[int, float], identifier: Un
         timeout_handler[api_id] = {}
     timeout_handler[api_id][identifier] = None
 
-    print(api_id, identifier, time_ms, timeout_handler)
     x = lambda: timeout_handler[api_id].pop(identifier)
     x.__name__ = f"{api_id}:{identifier}"
     set_timeout(x, time_ms)
@@ -145,7 +143,5 @@ def create_api_ratelimit(api_id: str, time_ms: Union[int, float], identifier: Un
 def ensure_ratelimit(api_id: str, identifier: Union[str, None]) -> bool:
     # Returns whether or not a certain api is ratelimited for the specified
     # identifier. True = not ratelimited, False = ratelimited
-
-    print(timeout_handler)
 
     return (not RATELIMIT) or not (api_id in timeout_handler and str(identifier) in timeout_handler[api_id])

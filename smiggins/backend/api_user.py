@@ -170,13 +170,20 @@ def api_user_settings_color(request, data: colorSchema) -> tuple | dict:
         "success": True
     }
 
-def api_user_settings_private(request, data: privSchema) -> dict:
+def api_user_settings_private(request, data: privSchema) -> tuple | dict:
     # Called when the user toggles being private.
 
     token = request.COOKIES.get('token')
     priv = data.priv
 
-    user = User.objects.get(token=token)
+    try:
+        user = User.objects.get(token=token)
+    except User.DoesNotExist:
+        return 400, {
+            "success": False,
+            "reason": "Invalid token"
+        }
+
     user.private = priv
     user.save()
 

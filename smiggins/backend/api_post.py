@@ -66,13 +66,20 @@ def api_post_create(request, data: postSchema) -> tuple | dict:
         "post_id": post.post_id
     }
 
-def api_post_list_following(request, offset: int=-1) -> dict:
+def api_post_list_following(request, offset: int=-1) -> tuple | dict:
     # Called when the following tab is refreshed.
 
     token = request.COOKIES.get('token')
 
     offset = sys.maxsize if offset == -1 else offset
-    user = User.objects.get(token=token)
+
+    try:
+        user = User.objects.get(token=token)
+    except User.DoesNotExist:
+        return 400, {
+            "success": False,
+            "reason": "Invalid token"
+        }
 
     potential = []
     for i in user.following:
@@ -118,7 +125,7 @@ def api_post_list_following(request, offset: int=-1) -> dict:
         "end": len(potential) - offset <= POSTS_PER_REQUEST
     }
 
-def api_post_list_recent(request, offset: int=-1) -> dict:
+def api_post_list_recent(request, offset: int=-1) -> tuple | dict:
     # Called when the recent posts tab is refreshed.
 
     token = request.COOKIES.get('token')

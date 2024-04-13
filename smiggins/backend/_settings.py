@@ -3,7 +3,7 @@
 # This file is meant to have settings that are easy to understand.
 
 # Version displayed.
-VERSION: str = "0.4.2"
+VERSION: str = "0.4.3"
 
 # What to have the site name be.
 SITE_NAME: str = "Jerimiah Smiggins"
@@ -21,11 +21,11 @@ MAX_POST_LENGTH: int = 280
 
 DEFAULT_BANNER_COLOR: str = "#3a1e93"
 
-# Whether or not to enforce the ratelimit
-RATELIMIT: bool = True
-
 # False = hide links to the github source code
 SOURCE_CODE: bool = True
+
+# Whether or not to enforce the ratelimit
+RATELIMIT: bool = True
 
 # DON'T CHANGE THE FIRST STRING
 # timings are all in ms, where 1000ms = 1 second

@@ -4,8 +4,6 @@ from backend._settings import ROBOTS, CONTACT_INFO
 from backend.helper import create_simple_return
 from backend.templating import *
 
-from . import views
-
 urlpatterns = [
     path("", create_simple_return("posts/index.html", redirect_logged_in=True), name="index"),
     path("home", create_simple_return("posts/home.html", redirect_logged_out=True), name="home"),
