@@ -7,9 +7,9 @@ from .variables import *
 def sha(string: Union[str, bytes]) -> str:
     # Returns the sha256 hash of a string.
 
-    if type(string) == str:
+    if isinstance(string, str):
         return hashlib.sha256(str.encode(string)).hexdigest()
-    elif type(string) == bytes:
+    elif isinstance(string, bytes):
         return hashlib.sha256(string).hexdigest()
     return ""
 
@@ -145,3 +145,66 @@ def ensure_ratelimit(api_id: str, identifier: Union[str, None]) -> bool:
     # identifier. True = not ratelimited, False = ratelimited
 
     return (not RATELIMIT) or not (api_id in timeout_handler and str(identifier) in timeout_handler[api_id])
+
+def get_post_json(post_id: int, current_user_id: int=0, comment: bool=False) -> dict[str, str | int | dict]:
+    if comment:
+        post = Comment.objects.get(comment_id=post_id)
+    else:
+        post = Post.objects.get(post_id=post_id)
+    creator = User.objects.get(user_id=post.creator)
+
+    if creator.private and current_user_id not in creator.following:
+        return {
+            "private_acc": True,
+            "can_view": False
+        }
+
+    post_json = {
+        "post_id": post_id,
+        "creator_id": post.creator,
+        "display_name": creator.display_name,
+        "creator_username": creator.username,
+        "content": post.content,
+        "timestamp": post.timestamp,
+        "liked": current_user_id in post.likes,
+        "likes": len(post.likes),
+        "comments": len(post.comments),
+        "quotes": len(post.reposts),
+        "private_acc": creator.private,
+        "can_view": True
+    }
+
+    if not comment and post.quote != 0: # type: ignore
+        if post.quote_is_comment: # type: ignore
+            quote = Comment.objects.get(comment_id=post.quote) # type: ignore
+        else:
+            quote = Post.objects.get(post_id=post.quote) # type: ignore
+
+        quote_creator = User.objects.get(user_id=quote.creator)
+
+        if quote_creator.private and current_user_id not in quote_creator.following:
+            quote_info = {
+                "private_acc": True,
+                "can_view": False
+            }
+
+        else:
+            quote_info = {
+                "comment": post.quote_is_comment, # type: ignore
+                "post_id": quote.post_id if isinstance(quote, Post) else quote.comment_id,
+                "creator_id": quote.creator,
+                "display_name": quote_creator.display_name,
+                "creator_username": quote_creator.username,
+                "content": quote.content,
+                "timestamp": quote.timestamp,
+                "liked": current_user_id in quote.likes,
+                "likes": len(quote.likes),
+                "comments": len(quote.comments),
+                "quotes": len(post.reposts),
+                "private_acc": quote_creator.private,
+                "can_view": True
+            }
+
+        post_json["quote"] = quote_info
+
+    return post_json

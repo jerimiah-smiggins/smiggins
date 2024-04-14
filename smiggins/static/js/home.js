@@ -85,6 +85,7 @@ function refresh(force_offset=false) {
           post.timestamp,        // timestamp
           post.comments,         // commentCount
           post.likes,            // likeCount
+          0,//post.quotes,           // quoteCount
           post.liked,            // isLiked
           post.private_acc,      // isPrivate
           false,                 // isComment
@@ -113,6 +114,8 @@ function refresh(force_offset=false) {
 function toggleLike(post_id) {
   let q = document.querySelector(`div[data-post-id="${post_id}"] span.like-number`);
   let h = document.querySelector(`div[data-post-id="${post_id}"] div.like`);
+  let x = document.querySelector(`div[data-post-id="${post_id}"] div.like svg`);
+
   if (h.dataset["liked"] == "true") {
     fetch("/api/post/like", {
       "method": "DELETE",
@@ -121,7 +124,7 @@ function toggleLike(post_id) {
       })
     });
     h.setAttribute("data-liked", "false");
-    h.innerHTML = icons.unlike;
+    x.innerHTML = icons.unlike;
     q.innerHTML = +q.innerHTML - 1;
   } else {
     fetch("/api/post/like", {
@@ -131,7 +134,7 @@ function toggleLike(post_id) {
       })
     });
     h.setAttribute("data-liked", "true");
-    h.innerHTML = icons.like;
+    x.innerHTML = icons.like;
     q.innerHTML = +q.innerHTML + 1;
   }
 }

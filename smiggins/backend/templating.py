@@ -39,17 +39,16 @@ def settings(request) -> HttpResponse:
 def user(request, username: str) -> HttpResponse:
     logged_in = True
     username = username.lower()
-    token = ""
 
     try:
-        token = request.COOKIES["token"]
-        if not validate_token(token):
+        if not validate_token(request.COOKIES["token"]):
             logged_in = False
     except KeyError:
         logged_in = False
 
     if logged_in:
-        self_id = User.objects.get(token=token).user_id
+        self_object = User.objects.get(token=request.COOKIES["token"])
+        self_id = self_object.user_id
     else:
         self_id = 0
 
@@ -69,7 +68,7 @@ def user(request, username: str) -> HttpResponse:
         BANNER_COLOR = user.color or DEFAULT_BANNER_COLOR,
         BANNER_COLOR_TWO = user.color_two or DEFAULT_BANNER_COLOR,
         GRADIENT = "gradient" if user.gradient else "",
-        IS_FOLLOWING = str(user.user_id in User.objects.get(pk=self_id).following) if logged_in else "false",
+        IS_FOLLOWING = str(user.user_id in self_object.following).lower() if logged_in else "false", # type: ignore
         IS_HIDDEN = "hidden" if user.user_id == self_id else ""
     )
 
@@ -112,7 +111,8 @@ def post(request, post_id: int) -> HttpResponse:
         COMMENT   = "false",
         LIKED     = str(post.likes != [] and self_id in post.likes and logged_in).lower(),
         LIKES     = str(len(post.likes)) if post.likes != [] else "0",
-        PRIVATE   = "" if creator.private else "hidden"
+        PRIVATE   = "" if creator.private else "hidden",
+        QUOTES    = str(len(post.reposts))
     )
 
 def comment(request, comment_id: int) -> HttpResponse:
@@ -160,7 +160,8 @@ def comment(request, comment_id: int) -> HttpResponse:
         COMMENT   = "true",
         LIKED     = str(comment.likes != [] and self_id in comment.likes and logged_in).lower(),
         LIKES     = str(len(comment.likes)) if comment.likes != [] else "0",
-        PRIVATE   = "" if creator.private else "hidden"
+        PRIVATE   = "" if creator.private else "hidden",
+        QUOTES    = str(len(post.reposts))
     )
 
 def contact(request) -> HttpResponse:

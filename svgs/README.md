@@ -10,3 +10,4 @@ the following svgs are from fontawesome:
 * lock (`fa-regular fa-lock`)
 * share (`fa-solid fa-share`)
 * user (`fa-solid fa-user`)
+* quote (`fa-regular fa-quote-left`)

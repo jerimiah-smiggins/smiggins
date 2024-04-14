@@ -24,10 +24,12 @@ class Post(models.Model):
     content   = models.TextField(max_length=65536)
     creator   = models.IntegerField()
     timestamp = models.IntegerField()
+    quote     = models.IntegerField(default=0)
+    quote_is_comment = models.BooleanField(default=False)
 
     likes     = models.JSONField(blank=True)
     comments  = models.JSONField(blank=True)
-    reposts   = models.JSONField(blank=True)
+    reposts   = models.JSONField(blank=True) # list of quote post ids, too lazy to rename
 
     def __str__(self):
         return self.content
@@ -40,7 +42,7 @@ class Comment(models.Model):
 
     likes      = models.JSONField(blank=True)
     comments   = models.JSONField(blank=True)
-    reposts    = models.JSONField(blank=True)
+    reposts    = models.JSONField(blank=True) # list of quote post ids, too lazy to rename
 
     def __str__(self):
         return self.content

@@ -1,3 +1,10 @@
+<!--
+  Functions to add:
+  ./backend/schema.py / quoteSchema
+  ./backend/helper.py / get_post_json
+  ./backend/api_post.py / api_quote_create
+-->
+
 # Backend Docs
 Docs for the backend. This contains descriptions of every function defined in
 any of the files in the backend.

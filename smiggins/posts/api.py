@@ -43,19 +43,20 @@ api.delete("user/follower", response=response_schema)(api_user_follower_remove)
 
 # Post stuff
 api.put("post/create",    response=response_schema)(api_post_create)
+api.put("comment/create", response=response_schema)(api_comment_create)
+api.put("quote/create",   response=response_schema)(api_quote_create)
+
 api.get("post/following", response=response_schema)(api_post_list_following)
 api.get("post/recent",    response=response_schema)(api_post_list_recent)
 api.get("post/user/{str:username}", response=response_schema)(api_post_list_user)
+api.get("comments",       response=response_schema)(api_comment_list)
 
 api.post  ("post/like", response=response_schema)(api_post_like_add)
 api.delete("post/like", response=response_schema)(api_post_like_remove)
-
-# Comment stuff
-api.get("comments",       response=response_schema)(api_comment_list)
-api.put("comment/create", response=response_schema)(api_comment_create)
-
 api.post  ("comment/like", response=response_schema)(api_comment_like_add)
 api.delete("comment/like", response=response_schema)(api_comment_like_remove)
+
+# Comment stuff
 
 # Information
 api.get("info/username", response=response_schema)(api_info_username)

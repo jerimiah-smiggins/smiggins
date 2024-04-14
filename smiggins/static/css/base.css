@@ -11,6 +11,10 @@
   color: var(--text);
 }
 
+:focus {
+  outline: calc(2em / 14) var(--accent) solid;
+}
+
 body::-webkit-scrollbar { display: none; }
 
 body {
@@ -71,10 +75,6 @@ input, textarea, select {
 option {
   font-family: 'Poppins', sans-serif;
   font-size: 1.1em;
-}
-
-input:focus, textarea:focus {
-  outline: 2px var(--text-muted) solid;
 }
 
 input::placeholder, textarea::placeholder {

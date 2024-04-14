@@ -1,23 +1,32 @@
 button { width: 5em; }
 
-#post-text {
+.post-text {
   resize: none;
+  width: calc(32em - 10px);
+  position: relative;
+  top: 2.6em;
+  height: 11em;
+}
+
+#post-text {
   width: 35em;
+  resize: none;
   height: 11em;
 }
 
 #post {
   position: relative;
   bottom: 2.6em;
-  left: calc(15em + 4px);
+  left: calc(15em + 6px);
+}
+
+.post-button {
+  position: relative;
+  left: calc(5px + 27em);
 }
 
 #switch { width: 6em; }
 #more { width: 8em; }
-
-#post-text:focus-visible, #post-text:focus {
-  outline: calc(2em / 14) var(--accent) solid;
-}
 
 .main-content {
   word-break: break-word;
@@ -45,7 +54,7 @@ button { width: 5em; }
 .username, .timestamp, .displ-name { display: inline-block;  }
 .bottom-content { text-align: center; }
 
-.like, .comment, .priv {
+.like svg, .comment, .priv, .quote-button svg {
   width: 1.2em;
   height: 1.2em;
   display: inline-block;
@@ -54,13 +63,15 @@ button { width: 5em; }
   fill: var(--text);
 }
 
-.like {
+.like, .quote-button {
+  white-space: nowrap;
   cursor: pointer;
+  display: inline-block;
 }
 
 .priv { scale: 75%; }
 .comment { padding-right: 0.3em; }
-.like[data-liked="true"] { fill: var(--accent); }
+.like[data-liked="true"] svg { fill: var(--accent); }
 
 .bottom-spacing {
   display: inline-block;
@@ -69,6 +80,8 @@ button { width: 5em; }
 
 @media screen and (max-width: 565px) {
   #post-text { width: calc(94vw - (2em / 7) - 17px); }
+  .post-text { width: calc(94vw - (2em / 7) - 90px); }
   .post { width: calc(94vw - 3.5em - (3em / 7)); }
   #post { left: calc(47vw - 2.5em - 5px); }
+  .post-button { left: calc(97vw - 11.5em - 5px); }
 }

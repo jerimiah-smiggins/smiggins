@@ -21,6 +21,7 @@
 
     <link rel="stylesheet" href="{% static '/css/home.css' %}">
     <link rel="stylesheet" href="{% static '/css/user.css' %}">
+    <script src="{% static '/js/quotes.js' %}"></script>
   </head>
 
   <body data-theme="{{THEME}}" data-username="{{USERNAME}}" style="--banner: {{BANNER_COLOR}}; --banner-two: {{BANNER_COLOR_TWO}}">
@@ -29,7 +30,7 @@
     <div id="username-lower">@{{USERNAME}}</div>
     <div id="follow"></div>
     <button onclick="refresh()">Refresh</button>
-    <button id="toggle" {{IS_HIDDEN}} data-followed="{% if IS_FOLLOWING %}1{% else %}0{% endif %}" onclick="toggle_follow()">{% if IS_FOLLOWING %}Unfollow{% else %}Follow{% endif %}</button>
+    <button id="toggle" {{IS_HIDDEN}} data-followed="{% if IS_FOLLOWING == "true" %}1{% else %}0{% endif %}" onclick="toggle_follow()">{% if IS_FOLLOWING == "true" %}Unfollow{% else %}Follow{% endif %}</button>
     <div data-show-on-view hidden>This account is private. Only users that they follow can see their posts.</div><br><br>
     <div id="error"></div>
     <div id="posts"></div>
