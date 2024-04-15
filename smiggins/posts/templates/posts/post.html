@@ -30,41 +30,7 @@
   </head>
 
   <body data-theme="{{THEME}}">
-    <div id="top" class="post-container" data-post-id="{{POST_ID}}">
-      <div class="post">
-        <div class="upper-content">
-          <a href="/u/{{CREATOR_USERNAME}}" class="no-underline text">
-            <div class="displ-name">{{DISPLAY_NAME}}</div>
-            <span {{PRIVATE}}><span class="priv" data-add-icon="lock"></span></span>
-            <span class="upper-lower-opacity"> -
-              <div class="username">@{{CREATOR_USERNAME}}</div> -
-              <div class="timestamp"><span id="timestamp" data-timestamp="{{TIMESTAMP}}">-1 seconds</span> ago</div>
-            </span>
-          </a>
-        </div>
-
-        <div class="main-content"></div>
-
-        <div class="bottom-content">
-          <span class="comment" data-add-icon="comment"></span>
-          <span class="comment-number">{{COMMENTS}}</span>
-
-          <div class="bottom-spacing"></div>
-
-          <div class="quote-button" onclick="addQuote('${postID}', '${isComment}')">
-            <span data-add-icon="quote"></span>
-            <span class="quote-number">{{QUOTES}}</span>
-          </div>
-
-          <div class="bottom-spacing"></div>
-
-          <div class="like" data-liked="{{LIKED}}" onclick='let q = document.querySelector(`div[data-post-id="{{POST_ID}}"] span.like-number`); let h = document.querySelector(`div[data-post-id="{{POST_ID}}"] div.like`); let x = document.querySelector(`div[data-post-id="{{POST_ID}}"] div.like svg`); if (h.dataset["liked"] == "true") { fetch("/api/post/like", { "method": "DELETE", "body": JSON.stringify({ "id": {{POST_ID}} }) }); h.setAttribute("data-liked", "false"); x.innerHTML = icons.unlike; q.innerHTML = +q.innerHTML - 1; } else { fetch("/api/post/like", { "method": "POST", "body": JSON.stringify({ "id": {{POST_ID}} }) }); h.setAttribute("data-liked", "true"); x.innerHTML = icons.like; q.innerHTML = +q.innerHTML + 1; }'>
-            <span id="add-like-svg"></span>
-            <span class="like-number">{{LIKES}}</span>
-          </div>
-        </div>
-      </div>
-    </div>
+    <div id="top" data-post-id="{{POST_ID}}"></div>
     <textarea id="post-text" style="height: 3em;" maxlength="{{MAX_POST_LENGTH}}" placeholder="Enter your reply here..."></textarea><br id="hide-me">
     <button id="post">Post</button><br>
     <button onclick="refresh()">Refresh</button><br><br>
@@ -73,20 +39,32 @@
     <div id="more-container"><button id="more" onclick="refresh(true)" hidden>Load more...</button></div>
 
     <script>
-      document.querySelector(".main-content").innerHTML = linkifyHtml(
-        "{{CONTENT|linebreaksbr}}",
-        {
-          formatHref: {
-            mention: (href) => "/u" + href,
-          },
-        }
-      )
-      dom("add-like-svg").innerHTML = {{LIKED}} ? icons.like : icons.unlike;
       const post_id = {{POST_ID}};
       const comment = {{COMMENT}};
       const logged_in = {{LOGGED_IN}};
       let share = window.location.href;
       let home = true;
+
+      {% autoescape off %}
+      const post = {{POST_JSON}};
+      {% endautoescape %}
+
+      dom("top").innerHTML = getPostHTML(
+        post.content,          // content
+        post.post_id,          // postID
+        post.creator_username, // username
+        post.display_name,     // displayName
+        post.timestamp,        // timestamp
+        post.comments,         // commentCount
+        post.likes,            // likeCount
+        post.quotes,           // quoteCount
+        post.quote,            // quote
+        post.liked,            // isLiked
+        post.private_acc,      // isPrivate
+        {{COMMENT}},           // isComment
+        true,                  // includeUserLink
+        false                  // includePostLink
+      );
     </script>
 
     {% autoescape off %}

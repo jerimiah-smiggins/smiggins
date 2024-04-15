@@ -67,7 +67,7 @@ def api_post_create(request, data: postSchema) -> tuple | dict:
     }
 
 def api_quote_create(request, data: quoteSchema) -> tuple | dict:
-    # Called when a new post is created.
+    # Called when a post is quoted.
 
     token = request.COOKIES.get('token')
 
@@ -121,7 +121,7 @@ def api_quote_create(request, data: quoteSchema) -> tuple | dict:
         content=content
     )
 
-    quoted_post = Post.objects.get(post_id=data.quote_id)
+    quoted_post = (Comment if data.quote_is_comment else Post).objects.get(pk=data.quote_id)
     quoted_post.reposts.append(post.post_id)
     quoted_post.save()
 

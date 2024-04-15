@@ -202,7 +202,8 @@ def get_post_json(post_id: int, current_user_id: int=0, comment: bool=False) -> 
                 "comments": len(quote.comments),
                 "quotes": len(post.reposts),
                 "private_acc": quote_creator.private,
-                "can_view": True
+                "can_view": True,
+                "has_quote": not post.quote_is_comment and quote.quote # type: ignore
             }
 
         post_json["quote"] = quote_info

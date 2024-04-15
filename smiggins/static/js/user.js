@@ -57,7 +57,8 @@ function refresh(force_offset=false) {
           post.timestamp,        // timestamp
           post.comments,         // commentCount
           post.likes,            // likeCount
-          0,//post.quotes,           // quoteCount
+          post.quotes,           // quote
+          post.quote,            // quoteInfo
           post.liked,            // isLiked
           json.private,          // isPrivate
           false,                 // isComment

@@ -134,6 +134,7 @@ function getPostHTML(
   commentCount,
   likeCount,
   quoteCount,
+  quote, // post_json.quote
   isLiked,
   isPrivate,
   isComment,
@@ -141,14 +142,12 @@ function getPostHTML(
   includePostLink,
   fakeMentions=false
 ) {
-  displayName = escapeHTML(displayName);
-
   return `<div class="post-container" data-${isComment ? "comment" : "post"}-id="${postID}">
     <div class="post">
       <div class="upper-content">
         ${includeUserLink ? `<a href="/u/${username}" class="no-underline text">` : ""}
           <div class="displ-name">
-            ${displayName} ${isPrivate ? `<div class="priv">${icons.lock}</div>` : ""}
+            ${escapeHTML(displayName)} ${isPrivate ? `<div class="priv">${icons.lock}</div>` : ""}
           </div>
           <span class="upper-lower-opacity"> -
             <div class="username">@${username}</div> -
@@ -156,10 +155,11 @@ function getPostHTML(
           </span>
         ${includeUserLink ? "</a>" : ""}
       </div>
+
       <div class="main-content">
         ${includePostLink ? `<a href="/${isComment ? "c" : "p"}/${postID}" class="text no-underline">` : ""}
           ${
-            linkifyHtml(content, {
+            linkifyHtml(escapeHTML(content), {
               formatHref: { mention: (href) => fakeMentions ? "#" : "/u" + href }
             }).replaceAll("\n", "<br>")
               .replaceAll("<a", includePostLink ? "  \n" : "<a")
@@ -169,6 +169,47 @@ function getPostHTML(
           }
         ${includePostLink ? "</a>" : ""}
       </div>
+
+      ${
+        quote ? `
+          <div class="quote-area">
+            <div class="post">
+              ${
+                quote.can_view ? `
+                  <div class="upper-content">
+                    ${includeUserLink || username !== quote.creator_username ? `<a href="/u/${quote.creator_username}" class="no-underline text">` : ""}
+                      <div class="displ-name">
+                        ${escapeHTML(quote.display_name)} ${quote.private_acc ? `<div class="priv">${icons.lock}</div>` : ""}
+                      </div>
+                      <span class="upper-lower-opacity"> -
+                        <div class="username">@${quote.creator_username}</div> -
+                        <div class="timestamp">${timeSince(quote.timestamp)} ago</div>
+                      </span>
+                    ${includeUserLink || username !== quote.creator_username ? "</a>" : ""}
+                  </div>
+
+                  <div class="main-content">
+                    <a href="/${quote.comment ? "c" : "p"}/${quote.post_id}" class="text no-underline">
+                      ${
+                        linkifyHtml(escapeHTML(quote.content), {
+                          formatHref: { mention: (href) => fakeMentions ? "#" : "/u" + href }
+                        }).replaceAll("\n", "<br>")
+                          .replaceAll("<a", "  \n")
+                          .replaceAll("</a>", `</a><a href="/${quote.comment ? "c" : "p"}/${quote.post_id}" class="text no-underline">`)
+                          .replaceAll("  \n", "</a><a")
+                          .replaceAll(`<a href="/${quote.comment ? "c" : "p"}/${quote.post_id}" class="text no-underline"></a>`, "")
+                      }
+
+                      ${quote.has_quote ? "<br><i>Quoting another post...</i>" : ""}
+                    </a>
+                  </div>
+                ` : "This person limits who can view their profile."
+              }
+            </div>
+          </div>
+        ` : ""
+      }
+
       <div class="bottom-content">
         ${includePostLink ? `<a href="/${isComment ? "c" : "p"}/${postID}" class="text no-underline">` : ""}
           <span class="comment">${icons.comment}</span>

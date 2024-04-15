@@ -49,6 +49,12 @@ button { width: 5em; }
   border-radius: calc(3em / 14);
 }
 
+.quote-area .post {
+  margin-bottom: 0.5em;
+  margin-top: 0.75em;
+  width: 23.5em;
+}
+
 .upper-content { cursor: pointer; }
 .upper-lower-opacity { color: var(--accent-50); }
 .username, .timestamp, .displ-name { display: inline-block;  }
@@ -84,4 +90,5 @@ button { width: 5em; }
   .post { width: calc(94vw - 3.5em - (3em / 7)); }
   #post { left: calc(47vw - 2.5em - 5px); }
   .post-button { left: calc(97vw - 11.5em - 5px); }
+  .quote-area .post { width: calc(94vw - (2em / 7) - 120px); }
 }
