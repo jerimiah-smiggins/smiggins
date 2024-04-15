@@ -1,7 +1,3 @@
-dom("timestamp").innerHTML = timeSince(
-  Number(dom("timestamp").getAttribute("data-timestamp"))
-);
-
 let inc = 0, req = 0, end = false;
 let offset = null;
 let page = localStorage.getItem("home-page");

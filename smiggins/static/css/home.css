@@ -16,13 +16,20 @@ button { width: 5em; }
 
 #post {
   position: relative;
-  bottom: 2.6em;
-  left: calc(15em + 6px);
+  bottom: calc(2px + 2.6em);
+  left: calc(15em + 3px);
 }
 
 .post-button {
   position: relative;
-  left: calc(5px + 27em);
+  left: calc(3px + 27em);
+  bottom: 2px;
+}
+
+.cancel-button {
+  position: relative;
+  left: calc(5px + 21.5em);
+  bottom: calc(2px + 2.5em);
 }
 
 #switch { width: 6em; }
@@ -90,5 +97,6 @@ button { width: 5em; }
   .post { width: calc(94vw - 3.5em - (3em / 7)); }
   #post { left: calc(47vw - 2.5em - 5px); }
   .post-button { left: calc(97vw - 11.5em - 5px); }
+  .cancel-button { left: calc(97vw - 17em - 2px); }
   .quote-area .post { width: calc(94vw - (2em / 7) - 120px); }
 }
