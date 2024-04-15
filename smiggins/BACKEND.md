@@ -1,11 +1,11 @@
+# Backend Docs
+Docs for the backend. This contains descriptions of every function defined in
+any of the files in the backend.
+
 <!--
   Functions to add:
   None
 -->
-
-# Backend Docs
-Docs for the backend. This contains descriptions of every function defined in
-any of the files in the backend.
 
 <style>
   pre {
