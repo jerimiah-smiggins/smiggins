@@ -7,12 +7,6 @@ any of the files in the backend.
   None
 -->
 
-<style>
-  pre {
-    display: inline-block;
-  }
-</style>
-
 ## ./manage.py
 This file is auto-created when making a django project. To see what this file
 does, you can read the django docs or run the file like you would a normal
