@@ -105,7 +105,8 @@ def post(request, post_id: int) -> HttpResponse:
         LOGGED_IN = str(logged_in).lower(),
         POST_ID   = str(post_id),
         COMMENT   = "false",
-        POST_JSON = json.dumps(get_post_json(post_id, User.objects.get(token=token).user_id))
+        POST_JSON = json.dumps(get_post_json(post_id, User.objects.get(token=token).user_id)),
+        CONTENT   = post.content
     )
 
 def comment(request, comment_id: int) -> HttpResponse:
@@ -147,7 +148,8 @@ def comment(request, comment_id: int) -> HttpResponse:
         LOGGED_IN = str(logged_in).lower(),
         POST_ID   = str(comment_id),
         COMMENT   = "true",
-        POST_JSON = json.dumps(get_post_json(comment_id, User.objects.get(token=token).user_id, True))
+        POST_JSON = json.dumps(get_post_json(comment_id, User.objects.get(token=token).user_id, True)),
+        CONTENT   = post.content
     )
 
 def contact(request) -> HttpResponse:
