@@ -96,7 +96,9 @@ function refresh(force_offset=false) {
         offset = post.post_id;
       }
 
-      dom("posts").innerHTML += output;
+      let x = document.createElement("div");
+      x.innerHTML = output;
+      dom("posts").append(x);
 
       if (force_offset !== true) { dom("more").removeAttribute("hidden"); }
       if (json.end) { dom("more").setAttribute("hidden", ""); } else { dom("more").removeAttribute("hidden"); }
