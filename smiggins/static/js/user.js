@@ -57,6 +57,8 @@ function refresh(force_offset=false) {
           post.timestamp,        // timestamp
           post.comments,         // commentCount
           post.likes,            // likeCount
+          post.quotes,           // quote
+          post.quote,            // quoteInfo
           post.liked,            // isLiked
           json.private,          // isPrivate
           false,                 // isComment
@@ -66,7 +68,9 @@ function refresh(force_offset=false) {
         offset = post.post_id;
       }
 
-      dom("posts").innerHTML += output;
+      let x = document.createElement("div");
+      x.innerHTML = output;
+      dom("posts").append(x);
 
       if (force_offset !== true && logged_in) { dom("more").removeAttribute("hidden"); }
       if (json.end && logged_in) { dom("more").setAttribute("hidden", ""); } else if (logged_in) { dom("more").removeAttribute("hidden"); }
@@ -102,6 +106,8 @@ function toggle_follow() {
 function toggleLike(post_id) {
   let q = document.querySelector(`div[data-post-id="${post_id}"] span.like-number`);
   let h = document.querySelector(`div[data-post-id="${post_id}"] div.like`);
+  let x = document.querySelector(`div[data-post-id="${post_id}"] div.like svg`);
+
   if (h.dataset["liked"] == "true") {
     fetch("/api/post/like", {
       "method": "DELETE",
@@ -110,7 +116,7 @@ function toggleLike(post_id) {
       })
     });
     h.setAttribute("data-liked", "false");
-    h.innerHTML = icons.unlike;
+    x.innerHTML = icons.unlike;
     q.innerHTML = +q.innerHTML - 1;
   } else {
     fetch("/api/post/like", {
@@ -120,7 +126,7 @@ function toggleLike(post_id) {
       })
     });
     h.setAttribute("data-liked", "true");
-    h.innerHTML = icons.like;
+    x.innerHTML = icons.like;
     q.innerHTML = +q.innerHTML + 1;
   }
 }

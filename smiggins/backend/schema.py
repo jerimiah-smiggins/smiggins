@@ -7,6 +7,10 @@ class accountSchema(Schema):
 class postSchema(Schema):
     content: str
 
+class quoteSchema(postSchema):
+    quote_id: int
+    quote_is_comment: bool
+
 class commentSchema(postSchema):
     id: int
     comment: bool

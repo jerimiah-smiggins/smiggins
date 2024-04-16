@@ -1,7 +1,3 @@
-dom("timestamp").innerHTML = timeSince(
-  Number(dom("timestamp").getAttribute("data-timestamp"))
-);
-
 let inc = 0, req = 0, end = false;
 let offset = null;
 let page = localStorage.getItem("home-page");
@@ -89,6 +85,8 @@ function refresh(force_offset=false) {
           post.timestamp,        // timestamp
           post.comments,         // commentCount
           post.likes,            // likeCount
+          post.quotes,           // quoteCount
+          post.quote,            // quote
           post.liked,            // isLiked
           post.private_acc,      // isPrivate
           true,                  // isComment
@@ -98,7 +96,9 @@ function refresh(force_offset=false) {
         offset = post.post_id;
       }
 
-      dom("posts").innerHTML += output;
+      let x = document.createElement("div");
+      x.innerHTML = output;
+      dom("posts").append(x);
 
       if (force_offset !== true && logged_in) { dom("more").removeAttribute("hidden"); }
       if (json.end && logged_in) { dom("more").setAttribute("hidden", ""); } else if (logged_in) { dom("more").removeAttribute("hidden"); }
@@ -117,6 +117,8 @@ function refresh(force_offset=false) {
 function toggleLike(post_id) {
   let q = document.querySelector(`div[data-comment-id="${post_id}"] span.like-number`);
   let h = document.querySelector(`div[data-comment-id="${post_id}"] div.like`);
+  let x = document.querySelector(`div[data-comment-id="${post_id}"] div.like svg`);
+
   if (h.dataset["liked"] == "true") {
     fetch("/api/comment/like", {
       "method": "DELETE",
@@ -125,7 +127,7 @@ function toggleLike(post_id) {
       })
     });
     h.setAttribute("data-liked", "false");
-    h.innerHTML = icons.unlike;
+    x.innerHTML = icons.unlike;
     q.innerHTML = +q.innerHTML - 1;
   } else {
     fetch("/api/comment/like", {
@@ -135,7 +137,7 @@ function toggleLike(post_id) {
       })
     });
     h.setAttribute("data-liked", "true");
-    h.innerHTML = icons.like;
+    x.innerHTML = icons.like;
     q.innerHTML = +q.innerHTML + 1;
   }
 }

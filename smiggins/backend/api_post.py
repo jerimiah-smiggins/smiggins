@@ -66,6 +66,73 @@ def api_post_create(request, data: postSchema) -> tuple | dict:
         "post_id": post.post_id
     }
 
+def api_quote_create(request, data: quoteSchema) -> tuple | dict:
+    # Called when a post is quoted.
+
+    token = request.COOKIES.get('token')
+
+    if not ensure_ratelimit("api_post_create", token):
+        return 429, {
+            "success": False,
+            "reason": "Ratelimited"
+        }
+
+    content = data.content.replace("\r", "")
+
+    for i in ["\t", "\u2002", "\u2003", "\u2004", "\u2005", "\u2007", "\u2008", "\u2009", "\u200a", "\u200b", "\u2800"]:
+        content = content.replace(i, " ")
+
+    while "\n "    in content: content = content.replace("\n ", "\n")
+    while "  "     in content: content = content.replace("  ", " ")
+    while "\n\n\n" in content: content = content.replace("\n\n\n", "\n\n")
+
+    try:
+        if content[0]  in "\n ": content = content[1::]
+        if content[-1] in "\n ": content = content[:-1:]
+    except IndexError:
+        content = ""
+
+    if len(content) > MAX_POST_LENGTH or len(content) < 1:
+        create_api_ratelimit("api_post_create", API_TIMINGS["create post failure"], token)
+        return 400, {
+            "success": False,
+            "reason": f"Invalid post length. Must be between 1 and {MAX_POST_LENGTH} characters."
+        }
+
+    create_api_ratelimit("api_post_create", API_TIMINGS["create post"], token)
+
+    timestamp = round(time.time())
+    user = User.objects.get(token=token)
+    post = Post(
+        content = content,
+        creator = user.user_id,
+        timestamp = timestamp,
+        likes = [],
+        comments = [],
+        reposts = [],
+        quote = data.quote_id,
+        quote_is_comment = data.quote_is_comment
+    )
+    post.save()
+
+    post = Post.objects.get(
+        timestamp=timestamp,
+        creator=user.user_id,
+        content=content
+    )
+
+    quoted_post = (Comment if data.quote_is_comment else Post).objects.get(pk=data.quote_id)
+    quoted_post.reposts.append(post.post_id)
+    quoted_post.save()
+
+    user.posts.append(post.post_id)
+    user.save()
+
+    return 201, {
+        "success": True,
+        "post_id": post.post_id
+    }
+
 def api_post_list_following(request, offset: int=-1) -> tuple | dict:
     # Called when the following tab is refreshed.
 
@@ -104,18 +171,7 @@ def api_post_list_following(request, offset: int=-1) -> tuple | dict:
             offset += 1
 
         else:
-            outputList.append({
-                "post_id": i,
-                "creator_id": current_post.creator,
-                "display_name": current_user.display_name,
-                "creator_username": current_user.username,
-                "content": current_post.content,
-                "timestamp": current_post.timestamp,
-                "liked": user.user_id in current_post.likes,
-                "likes": len(current_post.likes) or 0,
-                "comments": len(current_post.comments) or 0,
-                "private_acc": current_user.private
-            })
+            outputList.append(get_post_json(i, user.user_id))
 
             if len(outputList) >= POSTS_PER_REQUEST:
                 break
@@ -157,18 +213,8 @@ def api_post_list_recent(request, offset: int=-1) -> tuple | dict:
                 offset += 1
 
             else:
-                outputList.append({
-                    "post_id": i,
-                    "creator_id": current_post.creator,
-                    "display_name": current_user.display_name,
-                    "creator_username": current_user.username,
-                    "content": current_post.content,
-                    "timestamp": current_post.timestamp,
-                    "liked": user.user_id in current_post.likes,
-                    "likes": len(current_post.likes),
-                    "comments": len(current_post.comments),
-                    "private_acc": current_user.private
-                })
+                outputList.append(get_post_json(i, user.user_id))
+
 
         except Post.DoesNotExist:
             pass
@@ -210,8 +256,6 @@ def api_post_list_user(request, username: str, offset: int=-1) -> tuple | dict:
 
     potential = user.posts[::-1]
 
-    print(potential, offset)
-
     index = 0
     for i in range(len(potential)):
         if potential[i] < offset:
@@ -224,17 +268,7 @@ def api_post_list_user(request, username: str, offset: int=-1) -> tuple | dict:
 
     outputList = []
     for i in potential:
-        post = Post.objects.get(pk=i)
-        outputList.append({
-            "post_id": i,
-            "creator_username": user.username,
-            "display_name": user.display_name,
-            "content": post.content,
-            "timestamp": post.timestamp,
-            "liked": False if not logged_in else self_user.user_id in post.likes, # type: ignore
-            "likes": len(post.likes),
-            "comments": len(post.comments),
-        })
+        outputList.append(get_post_json(i, self_user.user_id if logged_in else 0)) # type: ignore
 
     return {
         "posts": outputList,

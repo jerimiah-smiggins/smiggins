@@ -39,17 +39,16 @@ def settings(request) -> HttpResponse:
 def user(request, username: str) -> HttpResponse:
     logged_in = True
     username = username.lower()
-    token = ""
 
     try:
-        token = request.COOKIES["token"]
-        if not validate_token(token):
+        if not validate_token(request.COOKIES["token"]):
             logged_in = False
     except KeyError:
         logged_in = False
 
     if logged_in:
-        self_id = User.objects.get(token=token).user_id
+        self_object = User.objects.get(token=request.COOKIES["token"])
+        self_id = self_object.user_id
     else:
         self_id = 0
 
@@ -69,7 +68,7 @@ def user(request, username: str) -> HttpResponse:
         BANNER_COLOR = user.color or DEFAULT_BANNER_COLOR,
         BANNER_COLOR_TWO = user.color_two or DEFAULT_BANNER_COLOR,
         GRADIENT = "gradient" if user.gradient else "",
-        IS_FOLLOWING = str(user.user_id in User.objects.get(pk=self_id).following) if logged_in else "false",
+        IS_FOLLOWING = str(user.user_id in self_object.following).lower() if logged_in else "false", # type: ignore
         IS_HIDDEN = "hidden" if user.user_id == self_id else ""
     )
 
@@ -89,7 +88,7 @@ def post(request, post_id: int) -> HttpResponse:
     try:
         post = Post.objects.get(pk=post_id)
         creator = User.objects.get(pk=post.creator)
-    except Post.DoesNotExist or User.DoesNotExist:
+    except Post.DoesNotExist:
         return get_HTTP_response(
             request, "posts/404_post.html"
         )
@@ -102,17 +101,12 @@ def post(request, post_id: int) -> HttpResponse:
     return get_HTTP_response(
         request, "posts/post.html",
 
-        CREATOR_USERNAME = creator.username,
         DISPLAY_NAME = creator.display_name,
         LOGGED_IN = str(logged_in).lower(),
-        POST_ID   = str(post.post_id),
-        CONTENT   = post.content,
-        TIMESTAMP = str(post.timestamp),
-        COMMENTS  = str(len(post.comments)),
+        POST_ID   = str(post_id),
         COMMENT   = "false",
-        LIKED     = str(post.likes != [] and self_id in post.likes and logged_in).lower(),
-        LIKES     = str(len(post.likes)) if post.likes != [] else "0",
-        PRIVATE   = "" if creator.private else "hidden"
+        POST_JSON = json.dumps(get_post_json(post_id, User.objects.get(token=token).user_id)),
+        CONTENT   = post.content
     )
 
 def comment(request, comment_id: int) -> HttpResponse:
@@ -150,17 +144,12 @@ def comment(request, comment_id: int) -> HttpResponse:
     return get_HTTP_response(
         request, "posts/post.html",
 
-        CREATOR_USERNAME = creator.username,
-        DISPLAY_NAME     = creator.display_name,
+        DISPLAY_NAME = creator.display_name,
         LOGGED_IN = str(logged_in).lower(),
-        POST_ID   = str(comment.comment_id),
-        CONTENT   = comment.content,
-        TIMESTAMP = str(comment.timestamp),
-        COMMENTS  = str(len(comment.comments)),
+        POST_ID   = str(comment_id),
         COMMENT   = "true",
-        LIKED     = str(comment.likes != [] and self_id in comment.likes and logged_in).lower(),
-        LIKES     = str(len(comment.likes)) if comment.likes != [] else "0",
-        PRIVATE   = "" if creator.private else "hidden"
+        POST_JSON = json.dumps(get_post_json(comment_id, User.objects.get(token=token).user_id, True)),
+        CONTENT   = comment.content
     )
 
 def contact(request) -> HttpResponse:

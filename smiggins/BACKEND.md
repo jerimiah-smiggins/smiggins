@@ -2,11 +2,10 @@
 Docs for the backend. This contains descriptions of every function defined in
 any of the files in the backend.
 
-<style>
-  pre {
-    display: inline-block;
-  }
-</style>
+<!--
+  Functions to add:
+  None
+-->
 
 ## ./manage.py
 This file is auto-created when making a django project. To see what this file
@@ -193,6 +192,14 @@ def api_post_create(
 ) -> tuple[int, dict] | dict
 ```
 This handles creating a post. Called from a PUT request to `/api/post/create`.
+
+```py
+def api_quote_create(
+  request: django.core.handlers.wsgi.WSGIRequest,
+  data: backend.schema.quoteSchema
+) -> tuple[int, dict] | dict
+```
+This handles creating a post. Called from a PUT request to `/api/quote/create`.
 
 ```py
 def api_post_list_following(
@@ -422,6 +429,17 @@ This checks to see if a certain `identifier` for the specified `api_id` is
 currently being ratelimited. `True` means that there is no ratelimit, and
 `False` means that it is being ratelimited.
 
+```py
+def get_post_json(
+  post_id: int,
+  current_user_id: int = 0,
+  comment: bool = False
+) -> dict[str, Any]
+```
+Returns the post information in a JSON format for the specified post id.
+`current_user_id` is used for validating private accounts, and `comment`
+determines if it should be treated as a comment or a post.
+
 ## ./backend/packages.py
 This file is just for importing packages and libraries to be used across the
 program. That's literally all this file is used for. Not much explaining needed.
@@ -439,6 +457,11 @@ For logging in and signing up
 class postSchema
 ```
 For creating a post
+
+```py
+class quoteSchema
+```
+For quoting a post
 
 ```py
 class commentSchema

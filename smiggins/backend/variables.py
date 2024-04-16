@@ -4,9 +4,10 @@
 
 from .packages import hashlib
 from ._api_keys import *
+from ._settings import MAX_POST_LENGTH
 
 # Headers set at the top of every html file.
-HTML_HEADERS: str = """
+HTML_HEADERS: str = f"""
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <link rel="stylesheet" href="/static/css/base.css">
@@ -15,6 +16,9 @@ HTML_HEADERS: str = """
 <script src="/static/js/linkify-html-4.1.3.min.js"></script>
 <script src="/static/js/linkify-mentions-4.1.3.min.js"></script>
 <script src="/static/js/base.js"></script>
+<script>
+  const MAX_POST_LENGTH = {MAX_POST_LENGTH};
+</script>
 """
 
 # Headers set at the bottom of some html files.

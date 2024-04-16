@@ -125,17 +125,7 @@ def api_comment_list(request, id: int, comment: bool, offset: int=-1) -> tuple |
             offset += 1
 
         else:
-            outputList.append({
-                "post_id": i,
-                "display_name": creator.display_name,
-                "creator_username": creator.username,
-                "content": comment_object.content,
-                "timestamp": comment_object.timestamp,
-                "liked":  user_id in comment_object.likes,
-                "likes": len(comment_object.likes),
-                "comments": len(comment_object.comments),
-                "private_acc": creator.private
-            })
+            outputList.append(get_post_json(i, user_id, True))
 
         if len(outputList) >= POSTS_PER_REQUEST:
             break
