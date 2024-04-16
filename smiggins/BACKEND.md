@@ -440,6 +440,16 @@ Returns the post information in a JSON format for the specified post id.
 `current_user_id` is used for validating private accounts, and `comment`
 determines if it should be treated as a comment or a post.
 
+```py
+def trim_whitespace(
+  string: str,
+  purge_newlines: bool = False
+) -> str
+```
+Trims whitespace and replaces invisible characters with normal spaces. Used when
+creating posts of any kind, or when changing display names. If `purge_newlines`
+is true, then all newlines will be replaced with spaces.
+
 ## ./backend/packages.py
 This file is just for importing packages and libraries to be used across the
 program. That's literally all this file is used for. Not much explaining needed.

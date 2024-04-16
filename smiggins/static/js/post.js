@@ -16,9 +16,7 @@ if (!logged_in) {
   dom("hide-me").setAttribute("hidden", "");
 }
 
-dom("post-text").addEventListener("input", function() {
-  while (this.value.indexOf("  ") !== -1) { this.value = this.value.replaceAll("  ", " "); }
-})
+dom("post-text").addEventListener("input", postTextInputEvent);
 
 dom("post").addEventListener("click", function() {
   if (dom("post-text").value) {

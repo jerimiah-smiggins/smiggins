@@ -11,10 +11,7 @@ showlog = (str, time=3000) => {
 
 dom("switch").innerText = "Switch to " + (page == "recent" ? "following" : "recent") + "...";
 
-dom("post-text").addEventListener("input", function() {
-  while (this.value.indexOf("  ") !== -1) { this.value = this.value.replaceAll("  ", " "); }
-  if (this.value.length > 280) { this.value = this.value.slice(0, 280); }
-})
+dom("post-text").addEventListener("input", postTextInputEvent);
 
 dom("post").addEventListener("click", function() {
   if (dom("post-text").value) {

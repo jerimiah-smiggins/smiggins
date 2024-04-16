@@ -16,20 +16,7 @@ def api_post_create(request, data: postSchema) -> tuple | dict:
             "reason": "Ratelimited"
         }
 
-    content = data.content.replace("\r", "")
-
-    for i in ["\t", "\u2002", "\u2003", "\u2004", "\u2005", "\u2007", "\u2008", "\u2009", "\u200a", "\u200b", "\u2800"]:
-        content = content.replace(i, " ")
-
-    while "\n "    in content: content = content.replace("\n ", "\n")
-    while "  "     in content: content = content.replace("  ", " ")
-    while "\n\n\n" in content: content = content.replace("\n\n\n", "\n\n")
-
-    try:
-        if content[0]  in "\n ": content = content[1::]
-        if content[-1] in "\n ": content = content[:-1:]
-    except IndexError:
-        content = ""
+    content = trim_whitespace(data.content)
 
     if len(content) > MAX_POST_LENGTH or len(content) < 1:
         create_api_ratelimit("api_post_create", API_TIMINGS["create post failure"], token)
@@ -77,20 +64,7 @@ def api_quote_create(request, data: quoteSchema) -> tuple | dict:
             "reason": "Ratelimited"
         }
 
-    content = data.content.replace("\r", "")
-
-    for i in ["\t", "\u2002", "\u2003", "\u2004", "\u2005", "\u2007", "\u2008", "\u2009", "\u200a", "\u200b", "\u2800"]:
-        content = content.replace(i, " ")
-
-    while "\n "    in content: content = content.replace("\n ", "\n")
-    while "  "     in content: content = content.replace("  ", " ")
-    while "\n\n\n" in content: content = content.replace("\n\n\n", "\n\n")
-
-    try:
-        if content[0]  in "\n ": content = content[1::]
-        if content[-1] in "\n ": content = content[:-1:]
-    except IndexError:
-        content = ""
+    content = trim_whitespace(data.content)
 
     if len(content) > MAX_POST_LENGTH or len(content) < 1:
         create_api_ratelimit("api_post_create", API_TIMINGS["create post failure"], token)

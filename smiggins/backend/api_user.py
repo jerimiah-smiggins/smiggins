@@ -195,19 +195,7 @@ def api_user_settings_display_name(request, data: displNameSchema) -> tuple | di
     # Called when trying to set display name.
 
     token = request.COOKIES.get('token')
-    displ_name = data.displ_name.replace("\r", "")
-
-    for i in ["\t", "\n", "\u2002", "\u2003", "\u2004", "\u2005", "\u2007", "\u2008", "\u2009", "\u200a", "\u200b", "\u2800"]:
-        displ_name = displ_name.replace(i, " ")
-
-    while "  " in displ_name:
-        displ_name = displ_name.replace("  ", " ")
-
-    try:
-        if displ_name[0]  in " ": displ_name = displ_name[1::]
-        if displ_name[-1] in " ": displ_name = displ_name[:-1:]
-    except IndexError:
-        displ_name = ""
+    displ_name = trim_whitespace(data.displ_name, True)
 
     if (len(displ_name) > MAX_DISPL_NAME_LENGTH or len(displ_name) < 1):
         return 400, {

@@ -209,3 +209,24 @@ def get_post_json(post_id: int, current_user_id: int=0, comment: bool=False) -> 
         post_json["quote"] = quote_info
 
     return post_json
+
+def trim_whitespace(string: str, purge_newlines: bool=False) -> str:
+    string = string.replace("\r", "")
+
+    if purge_newlines:
+        string = string.replace("\n", " ")
+
+    for i in ["\t", "\u2000", "\u2001", "\u2002", "\u2003", "\u2004", "\u2005", "\u2006", "\u2007", "\u2008", "\u2009", "\u200a", "\u200b", "\u200c", "\u200d", "\u200e", "\u200f", "\u2800"]:
+        string = string.replace(i, " ")
+
+    while "\n "    in string: string = string.replace("\n ", "\n")
+    while "  "     in string: string = string.replace("  ", " ")
+    while "\n\n\n" in string: string = string.replace("\n\n\n", "\n\n")
+
+    while len(string) and string[0] in " \n":
+        string = string[1::]
+
+    while len(string) and string[-1] in " \n":
+        string = string[:-1:]
+
+    return string
