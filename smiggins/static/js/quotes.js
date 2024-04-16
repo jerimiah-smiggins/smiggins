@@ -6,7 +6,7 @@ function addQuote(postID, isComment) {
 
   post.innerHTML = `
     <div class="log"></div>
-    <textarea class="post-text" maxlength="${MAX_POST_LENGTH}" placeholder="Enter your post here..."></textarea><br>
+    <textarea class="post-text" maxlength="${MAX_POST_LENGTH}" placeholder="Enter your quote here..."></textarea><br>
     <button class="post-button inverted">Post</button>
     <button class="cancel-button inverted">Cancel</button>
   `;
@@ -47,6 +47,8 @@ function addQuote(postID, isComment) {
         post.querySelector("button.cancel-button").removeAttribute("disabled");
       });
   });
+
+  post.querySelector("textarea").addEventListener("input", postTextInputEvent);
 
   post.querySelector("button.cancel-button").addEventListener("click", function() {
     post.innerHTML = "";
