@@ -27,6 +27,10 @@ function refresh(force_offset=false) {
         val.innerHTML = icons.lock;
       });
 
+      dom("user-bio").innerHTML = linkifyHtml(escapeHTML(json.bio), {
+        formatHref: { mention: (href) => "/u" + href }
+      });
+
       [...document.querySelectorAll("[data-show-on-priv]")].forEach((val) => {
         if (json.private) {
           val.removeAttribute("hidden");

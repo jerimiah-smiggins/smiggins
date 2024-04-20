@@ -32,6 +32,13 @@
   top: -2em;
 }
 
+#user-bio {
+  position: relative;
+  top: -1em;
+  max-width: 35em;
+  margin: 0 auto;
+}
+
 #username-lower {
   position: relative;
   top: -2em;
@@ -44,6 +51,8 @@
 
 @media screen and (max-width: 565px) {
   #banner { width: 94vw; }
+  #user-bio { max-width: 94em; }
+
   #username-main {
     font-size: 1.5em;
     top: -1.25em;

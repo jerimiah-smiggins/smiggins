@@ -15,6 +15,7 @@ for (color of validColors) {
 }
 
 dom("color-container").innerHTML = output;
+dom("bio").addEventListener("input", postTextInputEvent);
 
 showlog = (str, time=3000) => {
   inc++;
@@ -61,15 +62,17 @@ dom("theme").addEventListener("change", function() {
 });
 
 dom("displ-name-save").addEventListener("click", function() {
+  dom("bio").setAttribute("disabled", "");
   dom("displ-name").setAttribute("disabled", "");
   dom("displ-name-save").setAttribute("disabled", "");
-  fetch("/api/user/settings/display-name", {
+  fetch("/api/user/settings/text", {
     method: "POST",
     headers: {
       "Content-Type": "application/json"
     },
     body: JSON.stringify({
-      "displ_name": dom("displ-name").value
+      "displ_name": dom("displ-name").value,
+      "bio": dom("bio").value
     })
   })
     .then((response) => (response.json()))
@@ -79,10 +82,12 @@ dom("displ-name-save").addEventListener("click", function() {
       } else {
         showlog("Success!");
       }
+      dom("bio").removeAttribute("disabled");
       dom("displ-name").removeAttribute("disabled");
       dom("displ-name-save").removeAttribute("disabled");
     })
     .catch((err) => {
+      dom("bio").removeAttribute("disabled");
       dom("displ-name").removeAttribute("disabled");
       dom("displ-name-save").removeAttribute("disabled");
       showlog("Something went wrong! Try again in a few moments...");

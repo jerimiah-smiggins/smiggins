@@ -35,7 +35,7 @@ def api_post_create(request, data: postSchema) -> tuple | dict:
         timestamp = timestamp,
         likes = [],
         comments = [],
-        reposts = []
+        quotes = []
     )
     post.save()
 
@@ -83,7 +83,7 @@ def api_quote_create(request, data: quoteSchema) -> tuple | dict:
         timestamp = timestamp,
         likes = [],
         comments = [],
-        reposts = [],
+        quotes = [],
         quote = data.quote_id,
         quote_is_comment = data.quote_is_comment
     )
@@ -96,7 +96,7 @@ def api_quote_create(request, data: quoteSchema) -> tuple | dict:
     )
 
     quoted_post = (Comment if data.quote_is_comment else Post).objects.get(pk=data.quote_id)
-    quoted_post.reposts.append(post.post_id)
+    quoted_post.quotes.append(post.post_id)
     quoted_post.save()
 
     user.posts.append(post.post_id)
@@ -225,7 +225,8 @@ def api_post_list_user(request, username: str, offset: int=-1) -> tuple | dict:
             "private": True,
             "can_view": False,
             "following": len(user.following) - 1,
-            "followers": len(user.followers)
+            "followers": len(user.followers),
+            "bio": ""
         }
 
     potential = user.posts[::-1]
@@ -249,9 +250,10 @@ def api_post_list_user(request, username: str, offset: int=-1) -> tuple | dict:
         "end": end,
         "color": user.color or "#3a1e93",
         "private": user.private,
-        "can_view": True if not logged_in else not user.private or self_user.user_id in user.following, # type: ignore
+        "can_view": True,
         "following": len(user.following) - 1,
         "followers": len(user.followers),
+        "bio": user.bio or ""
     }
 
 def api_post_like_add(request, data: likeSchema) -> tuple | dict:

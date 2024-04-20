@@ -41,7 +41,7 @@ def api_comment_create(request, data: commentSchema) -> tuple | dict:
         timestamp = timestamp,
         likes = [],
         comments = [],
-        reposts = []
+        quotes = []
     )
     comment.save()
 

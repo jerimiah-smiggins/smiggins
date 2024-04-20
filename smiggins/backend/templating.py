@@ -30,6 +30,9 @@ def settings(request) -> HttpResponse:
         CHECKED_IF_GRADIENT = "checked" if user.gradient else "",
         CHECKED_IF_PRIV     = "checked" if user.private  else "",
 
+        MAX_BIO_LENGTH = str(MAX_BIO_LENGTH),
+        USER_BIO       = user.bio or "",
+
         SELECTED_IF_LIGHT = "selected" if user.theme == "light" else "",
         SELECTED_IF_GRAY  = "selected" if user.theme == "gray"  else "",
         SELECTED_IF_DARK  = "selected" if user.theme == "dark"  else "",
@@ -62,14 +65,18 @@ def user(request, username: str) -> HttpResponse:
     return get_HTTP_response(
         request, "posts/user.html",
 
-        LOGGED_IN = str(logged_in).lower(),
-        USERNAME = user.username,
+        USERNAME     = user.username,
         DISPLAY_NAME = user.display_name,
+        USER_BIO     = user.bio or "",
+
+        GRADIENT     = "gradient" if user.gradient else "",
         BANNER_COLOR = user.color or DEFAULT_BANNER_COLOR,
         BANNER_COLOR_TWO = user.color_two or DEFAULT_BANNER_COLOR,
-        GRADIENT = "gradient" if user.gradient else "",
+
         IS_FOLLOWING = str(user.user_id in self_object.following).lower() if logged_in else "false", # type: ignore
-        IS_HIDDEN = "hidden" if user.user_id == self_id else ""
+        IS_HIDDEN    = "hidden" if user.user_id == self_id else "",
+
+        LOGGED_IN = str(logged_in).lower()
     )
 
 def post(request, post_id: int) -> HttpResponse:

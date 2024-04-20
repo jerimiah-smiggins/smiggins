@@ -191,13 +191,14 @@ def api_user_settings_private(request, data: privSchema) -> tuple | dict:
         "success": True
     }
 
-def api_user_settings_display_name(request, data: displNameSchema) -> tuple | dict:
+def api_user_settings_text(request, data: textSettingsSchema) -> tuple | dict:
     # Called when trying to set display name.
 
     token = request.COOKIES.get('token')
     displ_name = trim_whitespace(data.displ_name, True)
+    bio = trim_whitespace(data.bio)
 
-    if (len(displ_name) > MAX_DISPL_NAME_LENGTH or len(displ_name) < 1):
+    if (len(displ_name) > MAX_DISPL_NAME_LENGTH or len(displ_name) < 1) or (len(bio) > MAX_BIO_LENGTH):
         return 400, {
             "success": False,
             "reason": f"Invalid name length. Must be between 1 and {MAX_DISPL_NAME_LENGTH} characters after minifying whitespace."
@@ -205,6 +206,7 @@ def api_user_settings_display_name(request, data: displNameSchema) -> tuple | di
 
     user = User.objects.get(token=token)
     user.display_name = displ_name
+    user.bio = bio
     user.save()
 
     return {

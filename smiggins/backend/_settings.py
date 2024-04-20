@@ -3,7 +3,7 @@
 # This file is meant to have settings that are easy to understand.
 
 # Version displayed.
-VERSION: str = "0.5.1"
+VERSION: str = "0.5.2"
 
 # What to have the site name be.
 SITE_NAME: str = "Jerimiah Smiggins"
@@ -18,6 +18,7 @@ MAX_DISPL_NAME_LENGTH: int = 32
 
 # 1-65,536
 MAX_POST_LENGTH: int = 280
+MAX_BIO_LENGTH: int = 280
 
 DEFAULT_BANNER_COLOR: str = "#3a1e93"
 

@@ -297,13 +297,13 @@ This handles changing the private account setting. Called on a POST request to
 `/api/user/settings/priv`.
 
 ```py
-def api_user_settings_display_name(
+def api_user_settings_text(
   request: django.core.handlers.wsgi.WSGIRequest,
-  data: backend.schema.displNameSchema
+  data: backend.schema.textSettingsSchema
 ) -> tuple[int, dict] | dict
 ```
-This handles you change your display name. Called on a POST request to
-`/api/user/settings/display-name`.
+This handles you change your display name and user bio. Called on a POST request
+to `/api/user/settings/text`.
 
 ```py
 def api_user_follower_add(
@@ -504,7 +504,7 @@ class privSchema
 For toggling the private account setting
 
 ```py
-class displNameSchema
+class textSettingsSchema
 ```
 For changing your display name
 

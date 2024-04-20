@@ -54,3 +54,7 @@ function addQuote(postID, isComment) {
     post.innerHTML = "";
   });
 }
+
+function addQuoteFromKey(event) {
+  console.log(event);
+}

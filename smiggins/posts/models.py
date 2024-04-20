@@ -6,6 +6,7 @@ class User(models.Model):
     token        = models.CharField(max_length=64)
 
     display_name = models.CharField(max_length=300)
+    bio          = models.CharField(max_length=65536, null=True)
     theme        = models.CharField(max_length=30)
     color        = models.CharField(max_length=7)
     color_two    = models.CharField(max_length=7, null=True)
@@ -13,8 +14,8 @@ class User(models.Model):
     private      = models.BooleanField()
 
     following    = models.JSONField()
-    posts        = models.JSONField()
     followers    = models.JSONField()
+    posts        = models.JSONField()
 
     def __str__(self):
         return self.username
@@ -29,7 +30,7 @@ class Post(models.Model):
 
     likes     = models.JSONField(blank=True)
     comments  = models.JSONField(blank=True)
-    reposts   = models.JSONField(blank=True) # list of quote post ids, too lazy to rename
+    quotes    = models.JSONField(blank=True)
 
     def __str__(self):
         return self.content
@@ -42,7 +43,7 @@ class Comment(models.Model):
 
     likes      = models.JSONField(blank=True)
     comments   = models.JSONField(blank=True)
-    reposts    = models.JSONField(blank=True) # list of quote post ids, too lazy to rename
+    quotes     = models.JSONField(blank=True)
 
     def __str__(self):
         return self.content

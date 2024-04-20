@@ -23,8 +23,9 @@
       <option {{SELECTED_IF_BLACK}} value="black">Black</option>
     </select><br><br>
 
-    Display name:<br>
-    <input id="displ-name" placeholder="Display name..." value="{{DISPLAY_NAME}}" maxlength="{{MAX_DISPL_NAME_LENGTH}}">
+    Basic information<br>
+    <input id="displ-name" placeholder="Display name..." value="{{DISPLAY_NAME}}" maxlength="{{MAX_DISPL_NAME_LENGTH}}"><br>
+    <textarea id="bio" placeholder="User bio..." maxlength="{{MAX_BIO_LENGTH}}">{{USER_BIO}}</textarea><br>
     <button id="displ-name-save">Save</button><br><br>
     <br><br>
 

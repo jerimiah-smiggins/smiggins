@@ -169,7 +169,7 @@ def get_post_json(post_id: int, current_user_id: int=0, comment: bool=False) -> 
         "liked": current_user_id in post.likes,
         "likes": len(post.likes),
         "comments": len(post.comments),
-        "quotes": len(post.reposts),
+        "quotes": len(post.quotes),
         "private_acc": creator.private,
         "can_view": True
     }
@@ -200,7 +200,7 @@ def get_post_json(post_id: int, current_user_id: int=0, comment: bool=False) -> 
                 "liked": current_user_id in quote.likes,
                 "likes": len(quote.likes),
                 "comments": len(quote.comments),
-                "quotes": len(post.reposts),
+                "quotes": len(post.quotes),
                 "private_acc": quote_creator.private,
                 "can_view": True,
                 "has_quote": not post.quote_is_comment and quote.quote # type: ignore

@@ -66,6 +66,7 @@ input, textarea, option, select{
   padding: 5px 7px;
   margin: 3px;
   font-size: 0.8em;
+  resize: vertical;
 }
 
 input, textarea, select {

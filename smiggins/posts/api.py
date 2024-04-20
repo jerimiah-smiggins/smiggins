@@ -36,7 +36,7 @@ api.post("user/login",  response=response_schema)(api_account_login)
 api.post("user/settings/theme", response=response_schema)(api_user_settings_theme)
 api.post("user/settings/color", response=response_schema)(api_user_settings_color)
 api.post("user/settings/priv",  response=response_schema)(api_user_settings_private)
-api.post("user/settings/display-name", response=response_schema)(api_user_settings_display_name)
+api.post("user/settings/text",  response=response_schema)(api_user_settings_text)
 
 api.post  ("user/follower", response=response_schema)(api_user_follower_add)
 api.delete("user/follower", response=response_schema)(api_user_follower_remove)

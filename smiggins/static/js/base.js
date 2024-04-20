@@ -157,15 +157,15 @@ function getPostHTML(
       </div>
 
       <div class="main-content">
-        ${includePostLink ? `<a href="/${isComment ? "c" : "p"}/${postID}" class="text no-underline">` : ""}
+        ${includePostLink ? `<a href="/${isComment ? "c" : "p"}/${postID}" tabindex="-1" class="text no-underline">` : ""}
           ${
             linkifyHtml(escapeHTML(content), {
               formatHref: { mention: (href) => fakeMentions ? "#" : "/u" + href }
             }).replaceAll("\n", "<br>")
               .replaceAll("<a", includePostLink ? "  \n" : "<a")
-              .replaceAll("</a>", includePostLink ? `</a><a href="/${isComment ? "c" : "p"}/${postID}" class="text no-underline">` : "</a>")
+              .replaceAll("</a>", includePostLink ? `</a><a href="/${isComment ? "c" : "p"}/${postID}" tabindex="-1" class="text no-underline">` : "</a>")
               .replaceAll("  \n", "</a><a")
-              .replaceAll(`<a href="/${isComment ? "c" : "p"}/${postID}" class="text no-underline"></a>`, "")
+              .replaceAll(`<a href="/${isComment ? "c" : "p"}/${postID}" tabindex="-1" class="text no-underline"></a>`, "")
           }
         ${includePostLink ? "</a>" : ""}
       </div>
@@ -216,15 +216,15 @@ function getPostHTML(
           <span class="comment-number">${commentCount}</span>
         ${includePostLink ? "</a>" : ""}
         <div class="bottom-spacing"></div>
-        <div class="quote-button" ${fakeMentions ? "" : `onclick="addQuote('${postID}', ${isComment})"`}>
+        <button class="quote-button fake-button" ${fakeMentions ? "" : `onclick="addQuote('${postID}', ${isComment})"`}>
           ${icons.quote}
           <span class="quote-number">${quoteCount}</span>
-        </div>
+        </button>
         <div class="bottom-spacing"></div>
-        <div class="like" data-liked="${isLiked}" ${fakeMentions ? "" : `onclick="toggleLike(${postID})"`}>
+        <button class="like" tabindex="0" data-liked="${isLiked}" ${fakeMentions ? "" : `onclick="toggleLike(${postID})"`}>
           ${isLiked ? icons.like : icons.unlike}
           <span class="like-number">${likeCount}</span>
-        </div>
+        </button>
       </div>
       <div class="post-after"></div>
     </div>

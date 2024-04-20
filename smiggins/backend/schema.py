@@ -32,5 +32,6 @@ class colorSchema(Schema):
 class privSchema(Schema):
     priv: bool
 
-class displNameSchema(Schema):
+class textSettingsSchema(Schema):
     displ_name: str
+    bio: str

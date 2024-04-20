@@ -113,8 +113,8 @@ function refresh(force_offset=false) {
 
 function toggleLike(post_id) {
   let q = document.querySelector(`div[data-post-id="${post_id}"] span.like-number`);
-  let h = document.querySelector(`div[data-post-id="${post_id}"] div.like`);
-  let x = document.querySelector(`div[data-post-id="${post_id}"] div.like svg`);
+  let h = document.querySelector(`div[data-post-id="${post_id}"] button.like`);
+  let x = document.querySelector(`div[data-post-id="${post_id}"] button.like svg`);
 
   if (h.dataset["liked"] == "true") {
     fetch("/api/post/like", {

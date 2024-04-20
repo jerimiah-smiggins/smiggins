@@ -8,16 +8,16 @@
     {{HTML_HEADERS}}
     {% endautoescape %}
 
-    <!-- Make this the user bio once added // <meta name="description" content="{{USER_BIO}}"> -->
+    <meta name="description" content="{{USER_BIO}}">
     <meta name="author" content="{{DISPLAY_NAME}}">
 
     <meta property="og:type" content="website">
     <meta property="og:title" content="{{DISPLAY_NAME}} on {{SITE_NAME}}">
-    <!-- Make this the user bio once added // <meta property="og:description" content="{{USER_BIO}}"> -->
+    <meta property="og:description" content="{{USER_BIO}}">
 
     <meta name="twitter:card" content="summary_large_image">
     <meta name="twitter:title" content="{{DISPLAY_NAME}} on {{SITE_NAME}}">
-    <!-- Make this the user bio once added // <meta name="twitter:description" content="{{USER_BIO}}"> -->
+    <meta name="twitter:description" content="{{USER_BIO}}">
 
     <link rel="stylesheet" href="{% static '/css/home.css' %}">
     <link rel="stylesheet" href="{% static '/css/user.css' %}">
@@ -29,6 +29,7 @@
     <div><div id="username-main">{{DISPLAY_NAME}}<span data-show-on-priv hidden><div class="priv"></div></span></div></div>
     <div id="username-lower">@{{USERNAME}}</div>
     <div id="follow"></div>
+    <div id="user-bio"></div>
     <button onclick="refresh()">Refresh</button>
     <button id="toggle" {{IS_HIDDEN}} data-followed="{% if IS_FOLLOWING == "true" %}1{% else %}0{% endif %}" onclick="toggle_follow()">{% if IS_FOLLOWING == "true" %}Unfollow{% else %}Follow{% endif %}</button>
     <div data-show-on-view hidden>This account is private. Only users that they follow can see their posts.</div><br><br>

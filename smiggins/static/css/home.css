@@ -80,6 +80,13 @@ button { width: 5em; }
   white-space: nowrap;
   cursor: pointer;
   display: inline-block;
+  background-color: unset;
+  font-size: 1rem;
+  border-radius: 0;
+  padding: 0;
+  margin: 0;
+  width: unset;
+  height: unset;
 }
 
 .priv { scale: 75%; }
