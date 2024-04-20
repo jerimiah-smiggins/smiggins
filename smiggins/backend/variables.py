@@ -61,5 +61,6 @@ except Badge.DoesNotExist:
     del icons
 
 BADGE_DATA = {}
+
 for i in Badge.objects.all():
     BADGE_DATA[i.name] = i.svg_data

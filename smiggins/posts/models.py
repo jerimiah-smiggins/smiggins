@@ -15,17 +15,17 @@ class User(models.Model):
     admin_level  = models.IntegerField(default=0)
 
     display_name = models.CharField(max_length=300)
-    bio          = models.CharField(max_length=65536, null=True)
+    bio          = models.CharField(max_length=65536, null=True, blank=True)
     theme        = models.CharField(max_length=30)
     color        = models.CharField(max_length=7)
-    color_two    = models.CharField(max_length=7, null=True)
+    color_two    = models.CharField(max_length=7, null=True, blank=True)
     gradient     = models.BooleanField(default=False)
     private      = models.BooleanField()
 
     following    = models.JSONField(default=list)
-    followers    = models.JSONField(default=list)
+    followers    = models.JSONField(default=list, null=True, blank=True)
     posts        = models.JSONField(default=list)
-    badges       = models.JSONField(default=list)
+    badges       = models.JSONField(default=list, null=True, blank=True)
 
     def __str__(self):
         return self.username
@@ -38,9 +38,9 @@ class Post(models.Model):
     quote     = models.IntegerField(default=0)
     quote_is_comment = models.BooleanField(default=False)
 
-    likes     = models.JSONField(blank=True)
-    comments  = models.JSONField(blank=True)
-    quotes    = models.JSONField(blank=True)
+    likes     = models.JSONField(null=True, blank=True)
+    comments  = models.JSONField(null=True, blank=True)
+    quotes    = models.JSONField(null=True, blank=True)
 
     def __str__(self):
         return self.content
@@ -51,9 +51,9 @@ class Comment(models.Model):
     creator    = models.IntegerField()
     timestamp  = models.IntegerField()
 
-    likes      = models.JSONField(blank=True)
-    comments   = models.JSONField(blank=True)
-    quotes     = models.JSONField(blank=True)
+    likes      = models.JSONField(null=True, blank=True)
+    comments   = models.JSONField(null=True, blank=True)
+    quotes     = models.JSONField(null=True, blank=True)
 
     def __str__(self):
         return self.content

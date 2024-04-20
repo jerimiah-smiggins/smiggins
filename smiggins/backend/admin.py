@@ -15,9 +15,11 @@ def templating(request) -> HttpResponse | HttpResponseRedirect:
     except KeyError or User.DoesNotExist:
         return HttpResponseRedirect("/", status=307)
 
-    if user.user_id != OWNER_USER_ID and not user.admin_level:
+    if user.user_id != OWNER_USER_ID or user.admin_level < 1:
         return HttpResponseRedirect("/home", status=307)
 
     return get_HTTP_response(
-        request, "posts/admin.html"
+        request, "posts/admin.html",
+
+        LEVEL = user.admin_level
     )

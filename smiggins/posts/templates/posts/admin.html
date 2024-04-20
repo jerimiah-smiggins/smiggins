@@ -1,15 +1,57 @@
+{% load static %}
 <!DOCTYPE html>
 
 <html>
   <head>
-    <title>Admin - {{SITE_NAME}} v{{VERSION}}</title>
+    <title>Admin Panel - {{SITE_NAME}} v{{VERSION}}</title>
     {% autoescape off %}
     {{HTML_HEADERS}}
     {% endautoescape %}
+    <link rel="stylesheet" href="{% static '/css/home.css' %}">
+    <link rel="stylesheet" href="{% static '/css/settings.css' %}">
   </head>
 
-  <body data-theme="{{THEME}}">
-    <h1>Admin Page</h1>
-    or whatever
+  <body data-theme="{{THEME}}" style="--banner: {{BANNER_COLOR}}; --banner-two: {{BANNER_COLOR_TWO}}">
+    <h1>Admin Panel: Level {{LEVEL}}/5</h1>
+    <div id="error"></div>
+
+    Theme:<br>
+    <select id="theme">
+      <option {{SELECTED_IF_LIGHT}} value="light">Light</option>
+      <option {{SELECTED_IF_GRAY}} value="gray">Gray</option>
+      <option {{SELECTED_IF_DARK}} value="dark">Dark</option>
+      <option {{SELECTED_IF_BLACK}} value="black">Black</option>
+    </select><br><br>
+
+    Basic information<br>
+    <input id="displ-name" placeholder="Display name..." value="{{DISPLAY_NAME}}" maxlength="{{MAX_DISPL_NAME_LENGTH}}"><br>
+    <textarea id="bio" placeholder="User bio..." maxlength="{{MAX_BIO_LENGTH}}">{{USER_BIO}}</textarea><br>
+    <button id="displ-name-save">Save</button><br><br>
+    <br><br>
+
+    Banner color:<br>
+    <div id="banner"></div><br>
+    <input id="banner-color" value="{{BANNER_COLOR}}" type="color">
+    <input hidden id="banner-color-two" value="{{BANNER_COLOR_TWO}}" type="color"><br>
+    Gradient banner: <input id="banner-is-gradient" {{CHECKED_IF_GRADIENT}} type="checkbox"><br>
+    <button id="banner-color-save">Save</button><br><br>
+
+    Private account:<br>
+    <input type="checkbox" id="priv" {{CHECKED_IF_PRIV}}> <button id="priv-save">Save</button><br>
+    <span class="small-mw">If your account is private, that means only you and people you follow can see your posts.</span><br><br>
+
+    Color:<br>
+    <div class="large-mw"><div id="color-container"></div></div><br><br>
+
+    {% autoescape off %}
+    {{ADMIN}}
+    {% endautoescape %}
+    <a href="https://github.com/trinkey/social-media-thing" target="_blank" {{HIDE_SOURCE}}>Source code</a><br {{HIDE_SOURCE}}>
+    <a href="/logout">Log out</a>
+
+    <script src="{% static '/js/settings.js' %}"></script>
+    {% autoescape off %}
+    {{HTML_FOOTERS}}
+    {% endautoescape %}
   </body>
 </html>

@@ -35,7 +35,7 @@ def settings(request) -> HttpResponse:
         SELECTED_IF_DARK  = "selected" if user.theme == "dark"  else "",
         SELECTED_IF_BLACK = "selected" if user.theme == "black" else "",
 
-        ADMIN = "<a href='/admin'>Admin page</a><br>" if bool(user.admin_level) or user.user_id == OWNER_USER_ID else ""
+        ADMIN = "<a href='/admin'>Admin page</a><br>" if user.user_id == OWNER_USER_ID or user.admin_level >= 1 else ""
     )
 
 def user(request, username: str) -> HttpResponse:
