@@ -33,11 +33,7 @@ api.post("user/signup", response=response_schema)(api_account_signup)
 api.post("user/login",  response=response_schema)(api_account_login)
 
 # User stuff
-api.post("user/settings/theme", response=response_schema)(api_user_settings_theme)
-api.post("user/settings/color", response=response_schema)(api_user_settings_color)
-api.post("user/settings/priv",  response=response_schema)(api_user_settings_private)
-api.post("user/settings/text",  response=response_schema)(api_user_settings_text)
-
+api.patch ("user/settings", response=response_schema)(api_user_settings)
 api.post  ("user/follower", response=response_schema)(api_user_follower_add)
 api.delete("user/follower", response=response_schema)(api_user_follower_remove)
 

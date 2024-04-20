@@ -202,7 +202,7 @@ def api_comment_delete(request, data: likeSchema) -> tuple | dict:
             "success": False
         }
 
-    if comment.creator == user.user_id:
+    if comment.creator == user.user_id or user.user_id == OWNER_USER_ID or user.admin_level >= 1:
         comment.delete()
 
         return {

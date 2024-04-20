@@ -35,3 +35,11 @@ class privSchema(Schema):
 class textSettingsSchema(Schema):
     displ_name: str
     bio: str
+
+class settingsSchema(Schema):
+    bio: str
+    priv: bool
+    color: str
+    color_two: str
+    displ_name : str
+    is_gradient: bool

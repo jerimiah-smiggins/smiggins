@@ -1,7 +1,3 @@
-h3 {
-  margin-bottom: 0;
-}
-
 hr {
   max-width: 12em;
 }
@@ -42,10 +38,12 @@ hr {
 
 .small-mw {
   display: inline-block;
-  max-width: 25em;
+  max-width: 20em;
 }
 
-.large-mw {
-  display: inline-block;
-  max-width: 100em;
+.big-button {
+  font-size: 1.5em;
+  width: 6em;
+  height: 2em;
+  border-radius: 1em;
 }

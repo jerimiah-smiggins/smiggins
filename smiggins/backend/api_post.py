@@ -334,11 +334,12 @@ def api_post_delete(request, data: likeSchema) -> tuple | dict:
             "success": False
         }
 
-    if post.creator == user.user_id:
-        post.delete()
+    if post.creator == user.user_id or user.user_id == OWNER_USER_ID or user.admin_level >= 1:
+        creator = User.objects.get(post_id=post.creator)
+        creator.posts.remove(id) # type: ignore
+        creator.save()
 
-        user.posts.remove(id)
-        user.save()
+        post.delete()
 
         return {
             "success": True

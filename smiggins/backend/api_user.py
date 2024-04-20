@@ -133,12 +133,21 @@ def api_user_settings_theme(request, data: themeSchema) -> tuple | dict:
         "success": True
     }
 
-def api_user_settings_color(request, data: colorSchema) -> tuple | dict:
-    # Called when the user changes the banner color.
+def api_user_settings(request, data: settingsSchema) -> tuple | dict:
+    # Called when someone saves their settings
 
     token = request.COOKIES.get('token')
+
     color = data.color.lower()
     color_two = data.color_two.lower()
+    displ_name = trim_whitespace(data.displ_name, True)
+    bio = trim_whitespace(data.bio, True)
+
+    if (len(displ_name) > MAX_DISPL_NAME_LENGTH or len(displ_name) < 1) or (len(bio) > MAX_BIO_LENGTH):
+        return 400, {
+            "success": False,
+            "reason": f"Invalid name length. Must be between 1 and {MAX_DISPL_NAME_LENGTH} characters after minifying whitespace."
+        }
 
     if color[0] != "#" or len(color) != 7 or color_two[0] != "#" or len(color_two) != 7:
         return 400, {
@@ -157,56 +166,18 @@ def api_user_settings_color(request, data: colorSchema) -> tuple | dict:
         if i not in "abcdef0123456789":
             return 400, {
                 "success": False,
-                "reason": "Color no tasty"
+                "reason": "Color no yummy"
             }
 
     user = User.objects.get(token=token)
+
     user.color = color
     user.color_two = color_two
-    user.gradient = bool(data.is_gradient)
-    user.save()
-
-    return {
-        "success": True
-    }
-
-def api_user_settings_private(request, data: privSchema) -> tuple | dict:
-    # Called when the user toggles being private.
-
-    token = request.COOKIES.get('token')
-    priv = data.priv
-
-    try:
-        user = User.objects.get(token=token)
-    except User.DoesNotExist:
-        return 400, {
-            "success": False,
-            "reason": "Invalid token"
-        }
-
-    user.private = priv
-    user.save()
-
-    return {
-        "success": True
-    }
-
-def api_user_settings_text(request, data: textSettingsSchema) -> tuple | dict:
-    # Called when trying to set display name.
-
-    token = request.COOKIES.get('token')
-    displ_name = trim_whitespace(data.displ_name, True)
-    bio = trim_whitespace(data.bio)
-
-    if (len(displ_name) > MAX_DISPL_NAME_LENGTH or len(displ_name) < 1) or (len(bio) > MAX_BIO_LENGTH):
-        return 400, {
-            "success": False,
-            "reason": f"Invalid name length. Must be between 1 and {MAX_DISPL_NAME_LENGTH} characters after minifying whitespace."
-        }
-
-    user = User.objects.get(token=token)
+    user.gradient = data.is_gradient
+    user.private = data.priv
     user.display_name = displ_name
     user.bio = bio
+
     user.save()
 
     return {
@@ -231,8 +202,8 @@ def api_user_follower_add(request, data: followerSchema) -> tuple | dict:
         user.following.append(followed.user_id)
         user.save()
 
-    if user.user_id not in followed.followers:
-        followed.followers.append(user.user_id)
+    if user.user_id not in (followed.followers or []):
+        followed.followers.append(user.user_id) # type: ignore
         followed.save()
 
     return 201, {
@@ -258,8 +229,8 @@ def api_user_follower_remove(request, data: followerSchema) -> tuple | dict:
             user.following.remove(followed.user_id)
             user.save()
 
-        if user.user_id in followed.followers:
-            followed.followers.remove(user.user_id)
+        if user.user_id in (followed.followers or []):
+            followed.followers.remove(user.user_id) # type: ignore
             followed.save()
     else:
         return 400, {

@@ -148,7 +148,6 @@ function deletePost(post_id) {
     })
   }).then((response) => (response.json()))
     .then((json) => {
-      console.log(json)
       if (json.success) {
         document.querySelector(`.post-container[data-post-id="${post_id}"]`).remove();
       }

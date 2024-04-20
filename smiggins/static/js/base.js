@@ -176,7 +176,7 @@ function getPostHTML(
           <div class="quote-area">
             <div class="post">
               ${
-                quote.can_view ? `
+                quote.deleted ? "The original post was deleted" : quote.can_view ? `
                   <div class="upper-content">
                     ${includeUserLink || username !== quote.creator_username ? `<a href="/u/${quote.creator_username}" class="no-underline text">` : ""}
                       <div class="displ-name">

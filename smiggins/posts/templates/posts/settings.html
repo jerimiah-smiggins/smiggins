@@ -15,7 +15,9 @@
     <h1>Settings</h1>
     <div id="error"></div>
 
-    <hr>
+    <hr><br>
+
+    <button class="big-button" id="save">Save</button>
 
     <div class="settings-container">
       <div>
@@ -23,24 +25,16 @@
 
         Basic information<br>
         <input id="displ-name" placeholder="Display name..." value="{{DISPLAY_NAME}}" maxlength="{{MAX_DISPL_NAME_LENGTH}}"><br>
-        <textarea id="bio" placeholder="User bio..." maxlength="{{MAX_BIO_LENGTH}}">{{USER_BIO}}</textarea><br>
-        <button id="displ-name-save">Save</button><br><br>
-        <br><br>
+        <textarea id="bio" placeholder="User bio..." maxlength="{{MAX_BIO_LENGTH}}">{{USER_BIO}}</textarea><br><br>
 
         Banner color:<br>
         <div id="banner"></div><br>
         <input id="banner-color" value="{{BANNER_COLOR}}" type="color">
         <input hidden id="banner-color-two" value="{{BANNER_COLOR_TWO}}" type="color"><br>
-        Gradient banner: <input id="banner-is-gradient" {{CHECKED_IF_GRADIENT}} type="checkbox"><br>
+        Gradient banner: <input id="banner-is-gradient" {{CHECKED_IF_GRADIENT}} type="checkbox"><br><br>
 
-        <button id="banner-color-save">Save</button><br><br>
-
-        Private account:<br>
-        <input type="checkbox" id="priv" {{CHECKED_IF_PRIV}}> <button id="priv-save">Save</button><br>
-        <span class="small-mw">If your account is private,</span><br>
-        <span class="small-mw">that means only you and people</span><br>
-        <span class="small-mw">you follow can see your posts.</span><br>
-
+        Private account: <input type="checkbox" id="priv" {{CHECKED_IF_PRIV}}><br>
+        <div class="small-mw">If your account is private, that means only you and people you follow can see your posts.</div>
       </div>
 
       <div>
@@ -55,7 +49,7 @@
 
         Color:<br>
         <div id="color-selector"></div>
-        <div class="large-mw"><div id="post-example"></div></div><br><br>
+        <div id="post-example"></div><br><br>
 
       </div>
 

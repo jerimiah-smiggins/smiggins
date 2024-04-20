@@ -153,6 +153,8 @@ def get_post_json(post_id: int, current_user_id: int=0, comment: bool=False) -> 
         post = Post.objects.get(post_id=post_id)
     creator = User.objects.get(user_id=post.creator)
 
+    can_delete_all = current_user_id == OWNER_USER_ID or User.objects.get(pk=current_user_id).admin_level >= 1
+
     if creator.private and current_user_id not in creator.following:
         return {
             "private_acc": True,
@@ -171,40 +173,51 @@ def get_post_json(post_id: int, current_user_id: int=0, comment: bool=False) -> 
         "comments": len(post.comments or []),
         "quotes": len(post.quotes or []),
         "private_acc": creator.private,
-        "owner": creator.user_id == current_user_id,
+        "owner": can_delete_all or creator.user_id == current_user_id,
         "can_view": True
     }
 
     if not comment and post.quote != 0: # type: ignore
-        if post.quote_is_comment: # type: ignore
-            quote = Comment.objects.get(comment_id=post.quote) # type: ignore
-        else:
-            quote = Post.objects.get(post_id=post.quote) # type: ignore
+        try:
+            if post.quote_is_comment: # type: ignore
+                quote = Comment.objects.get(comment_id=post.quote) # type: ignore
+            else:
+                quote = Post.objects.get(post_id=post.quote) # type: ignore
+            quote_creator = User.objects.get(user_id=quote.creator)
 
-        quote_creator = User.objects.get(user_id=quote.creator)
+            if quote_creator.private and current_user_id not in quote_creator.following:
+                quote_info = {
+                    "deleted": False,
+                    "private_acc": True,
+                    "can_view": False
+                }
 
-        if quote_creator.private and current_user_id not in quote_creator.following:
+            else:
+                quote_info = {
+                    "deleted": False,
+                    "comment": post.quote_is_comment, # type: ignore
+                    "post_id": quote.post_id if isinstance(quote, Post) else quote.comment_id,
+                    "creator_id": quote.creator,
+                    "display_name": quote_creator.display_name,
+                    "creator_username": quote_creator.username,
+                    "content": quote.content,
+                    "timestamp": quote.timestamp,
+                    "liked": current_user_id in (quote.likes or []),
+                    "likes": len(quote.likes or []),
+                    "comments": len(quote.comments or []),
+                    "quotes": len(post.quotes or []),
+                    "private_acc": quote_creator.private,
+                    "can_view": True,
+                    "has_quote": not post.quote_is_comment and quote.quote # type: ignore
+                }
+
+        except Comment.DoesNotExist:
             quote_info = {
-                "private_acc": True,
-                "can_view": False
+                "deleted": True
             }
-
-        else:
+        except Post.DoesNotExist:
             quote_info = {
-                "comment": post.quote_is_comment, # type: ignore
-                "post_id": quote.post_id if isinstance(quote, Post) else quote.comment_id,
-                "creator_id": quote.creator,
-                "display_name": quote_creator.display_name,
-                "creator_username": quote_creator.username,
-                "content": quote.content,
-                "timestamp": quote.timestamp,
-                "liked": current_user_id in (quote.likes or []),
-                "likes": len(quote.likes or []),
-                "comments": len(quote.comments or []),
-                "quotes": len(post.quotes or []),
-                "private_acc": quote_creator.private,
-                "can_view": True,
-                "has_quote": not post.quote_is_comment and quote.quote # type: ignore
+                "deleted": True
             }
 
         post_json["quote"] = quote_info

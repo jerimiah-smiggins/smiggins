@@ -1,12 +1,12 @@
 let inc = 0, req = 0;
 let home = true;
+
 let output = "<select id=\"color\">";
-
-
 for (color of validColors) {
   output += `<option ${((localStorage.getItem("color") == color) ? "selected" : "")} value="${color}">${color.charAt(0).toUpperCase() + color.slice(1)}</option>`;
 }
-output += "</select><br><br>"
+output += "</select><br><br>";
+
 dom("color-selector").innerHTML = output;
 dom("post-example").innerHTML = getPostHTML(
   "This is an example post. I am @example.",
@@ -41,15 +41,6 @@ toggleGradient();
 dom("color").addEventListener("change", function() {
   localStorage.setItem('color', dom("color").value);
   document.body.setAttribute('data-color', dom("color").value);
-  dom("post-example").innerHTML = getPostHTML(
-    "This is an example post. I am @example.",
-    0, "example", "Example",
-    Date.now() / 1000 - Math.random() * 86400,
-    Math.floor(Math.random() * 100),
-    Math.floor(Math.random() * 99) + 1,
-    Math.floor(Math.random() * 100), undefined,
-    true, false, false, false, false, false, true
-  );
 });
 
 dom("theme").addEventListener("change", function() {
@@ -78,100 +69,44 @@ dom("theme").addEventListener("change", function() {
     });
 });
 
-dom("displ-name-save").addEventListener("click", function() {
+dom("save").addEventListener("click", function() {
   dom("bio").setAttribute("disabled", "");
+  dom("priv").setAttribute("disabled", "");
+  dom("save").setAttribute("disabled", "");
   dom("displ-name").setAttribute("disabled", "");
-  dom("displ-name-save").setAttribute("disabled", "");
-  fetch("/api/user/settings/text", {
-    method: "POST",
-    headers: {
-      "Content-Type": "application/json"
-    },
-    body: JSON.stringify({
-      "displ_name": dom("displ-name").value,
-      "bio": dom("bio").value
-    })
-  })
-    .then((response) => (response.json()))
-    .then((json) => {
-      if (!json.success) {
-        showlog("Something went wrong! Try again in a few moments...");
-      } else {
-        showlog("Success!");
-      }
-      dom("bio").removeAttribute("disabled");
-      dom("displ-name").removeAttribute("disabled");
-      dom("displ-name-save").removeAttribute("disabled");
-    })
-    .catch((err) => {
-      dom("bio").removeAttribute("disabled");
-      dom("displ-name").removeAttribute("disabled");
-      dom("displ-name-save").removeAttribute("disabled");
-      showlog("Something went wrong! Try again in a few moments...");
-      throw(err);
-    });
-});
-
-dom("banner-color-save").addEventListener("click", function() {
   dom("banner-color").setAttribute("disabled", "");
-  dom("banner-color-save").setAttribute("disabled", "");
-  fetch("/api/user/settings/color", {
-    method: "POST",
-    headers: {
-      "Content-Type": "application/json"
-    },
+  dom("banner-color-two").setAttribute("disabled", "");
+  dom("banner-is-gradient").setAttribute("disabled", "");
+
+  fetch("/api/user/settings", {
+    method: "PATCH",
     body: JSON.stringify({
+      bio: dom("bio").value,
+      priv: dom("priv").checked,
       color: dom("banner-color").value,
       color_two: dom("banner-color-two").value,
+      displ_name: dom("displ-name").value,
       is_gradient: dom("banner-is-gradient").checked
     })
-  })
-    .then((response) => (response.json()))
+  }).then((response) => (response.json()))
     .then((json) => {
-      if (!json.success) {
-        showlog("Something went wrong! Try again in a few moments...");
-      } else {
+      if (json.success) {
         showlog("Success!");
+      } else {
+        showlog(`Unable to save! Reason: ${json.reason}`);
       }
-      dom("banner-color").removeAttribute("disabled");
-      dom("banner-color-save").removeAttribute("disabled");
-    })
-    .catch((err) => {
-      dom("banner-color").removeAttribute("disabled");
-      dom("banner-color-save").removeAttribute("disabled");
-      showlog("Something went wrong! Try again in a few moments...");
-      throw(err);
-    });
-});
 
-dom("priv-save").addEventListener("click", function() {
-  dom("priv").setAttribute("disabled", "");
-  dom("priv-save").setAttribute("disabled", "");
-  fetch("/api/user/settings/priv", {
-    method: "POST",
-    headers: {
-      "Content-Type": "application/json"
-    },
-    body: JSON.stringify({
-      "priv": dom("priv").checked
-    })
-  })
-    .then((response) => (response.json()))
-    .then((json) => {
-      if (!json.success) {
-        showlog("Something went wrong! Try again in a few moments...");
-      } else {
-        showlog("Success!");
-      }
-      dom("priv").removeAttribute("disabled");
-      dom("priv-save").removeAttribute("disabled");
+      throw "ermmm what the flip";
     })
     .catch((err) => {
+      dom("bio").removeAttribute("disabled");
       dom("priv").removeAttribute("disabled");
-      dom("priv-save").removeAttribute("disabled");
-      showlog("Something went wrong! Try again in a few moments...");
-      throw(err);
-    });
+      dom("save").removeAttribute("disabled");
+      dom("displ-name").removeAttribute("disabled");
+      dom("banner-color").removeAttribute("disabled");
+      dom("banner-color-two").removeAttribute("disabled");
+      dom("banner-is-gradient").removeAttribute("disabled");
+    })
 });
 
 dom("banner-color").addEventListener("input", function() {

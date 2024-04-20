@@ -6,11 +6,12 @@ any of the files in the backend.
   Functions to add:
   [backend/_settings.py].OWNER_USER_ID
   [backend/_settings.py].MAX_BIO_LENGTH
-  [backend/admin.py].templating
-  [backend/variables.py].BADGE_DATA
-  [backend/helper.py].get_HTTP_response (typing)
-  [backend/api_post.py].api_post_delete
   [backend/api_comment.py].api_comment_delete
+  [backend/api_post.py].api_post_delete
+  [backend/api_user.py].api_settings (remove all the other ones)
+  [backend/admin.py].templating
+  [backend/helper.py].get_HTTP_response (typing)
+  [backend/variables.py].BADGE_DATA
   [posts/models.py].Badge
 
   Functions to move:
