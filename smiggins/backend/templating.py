@@ -1,12 +1,9 @@
 # For getting pages, not api.
 
-from django.http import HttpResponse, HttpResponseRedirect
-from django.template import loader
-
-from posts.models import User, Post, Comment
-
 from ._settings import DEFAULT_BANNER_COLOR
 from .helper import *
+from .packages import *
+from .variables import *
 
 def settings(request) -> HttpResponse:
     try:
@@ -36,7 +33,9 @@ def settings(request) -> HttpResponse:
         SELECTED_IF_LIGHT = "selected" if user.theme == "light" else "",
         SELECTED_IF_GRAY  = "selected" if user.theme == "gray"  else "",
         SELECTED_IF_DARK  = "selected" if user.theme == "dark"  else "",
-        SELECTED_IF_BLACK = "selected" if user.theme == "black" else ""
+        SELECTED_IF_BLACK = "selected" if user.theme == "black" else "",
+
+        ADMIN = "<a href='/admin'>Admin page</a><br>" if bool(user.admin_level) or user.user_id == OWNER_USER_ID else ""
     )
 
 def user(request, username: str) -> HttpResponse:

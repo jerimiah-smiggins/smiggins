@@ -5,6 +5,15 @@ class User(models.Model):
     username     = models.CharField(max_length=300, unique=True)
     token        = models.CharField(max_length=64)
 
+    # Admin level
+    # 0 - Regular user
+    # 1 - Ability to delete any post
+    # 2 - Ability to delete any account
+    # 3 - Ability to add badges to accounts and create new badges
+    # 4 - Full access to modify anything in the database except for admin levels
+    # 5 - Ability to add anyone as an admin of any level, including level 5. This is automatically given to the owner specified in _settings.py
+    admin_level  = models.IntegerField(default=0)
+
     display_name = models.CharField(max_length=300)
     bio          = models.CharField(max_length=65536, null=True)
     theme        = models.CharField(max_length=30)
@@ -13,9 +22,10 @@ class User(models.Model):
     gradient     = models.BooleanField(default=False)
     private      = models.BooleanField()
 
-    following    = models.JSONField()
-    followers    = models.JSONField()
-    posts        = models.JSONField()
+    following    = models.JSONField(default=list)
+    followers    = models.JSONField(default=list)
+    posts        = models.JSONField(default=list)
+    badges       = models.JSONField(default=list)
 
     def __str__(self):
         return self.username
@@ -47,3 +57,10 @@ class Comment(models.Model):
 
     def __str__(self):
         return self.content
+
+class Badge(models.Model):
+    name     = models.CharField(max_length=64, primary_key=True, unique=True)
+    svg_data = models.CharField(max_length=65536)
+
+    def __str__(self):
+        return self.name
