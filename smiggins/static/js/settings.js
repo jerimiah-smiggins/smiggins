@@ -4,7 +4,7 @@ let output = "<select id=\"color\">";
 
 
 for (color of validColors) {
-  output += `<option ${((localStorage.getItem("color") == color) ? "selected" : "")} value="${color}">${color}</option>`;
+  output += `<option ${((localStorage.getItem("color") == color) ? "selected" : "")} value="${color}">${color.charAt(0).toUpperCase() + color.slice(1)}</option>`;
 }
 output += "</select><br><br>"
 dom("color-selector").innerHTML = output;
