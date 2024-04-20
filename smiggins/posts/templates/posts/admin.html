@@ -13,8 +13,9 @@
     </script>
   </head>
 
-  <body data-theme="{{THEME}}" style="--banner: {{BANNER_COLOR}}; --banner-two: {{BANNER_COLOR_TWO}}">
+  <body data-theme="{{THEME}}">
     <h1>Admin Panel: Level {{LEVEL}}/5</h1>
+    <div id="error"></div>
 
     <hr>
 
@@ -28,6 +29,7 @@
           Comment? <input type="checkbox"><br>
           <button>Delete Post</button>
         </div>
+
       </div>
 
       {% if LEVEL >= 2 %}
@@ -38,6 +40,7 @@
           <input placeholder="Account username/id..."><br>
           Use id? <input type="checkbox"><br>
           <button>Delete Account</button>
+
         </div>
       {% endif %}
 
@@ -66,6 +69,7 @@
           <h3>Delete Badge</h3>
           <input placeholder="Badge name..."><br>
           <button>Delete Badge</button>
+
         </div>
       {% endif %}
 
@@ -73,6 +77,7 @@
         <div>
           <h2>Level 4</h2>
 
+          <h3>Modify Account Info</h3>
           <h3>Get User Data</h3>
           <input placeholder="Account username/id..."><br>
           Use id? <input type="checkbox"><br>
@@ -86,6 +91,7 @@
             <button>Save user bio</button><br>
             <button>Add to Account Switcher</button>
           </div>
+
         </div>
       {% endif %}
 
@@ -93,7 +99,7 @@
         <div>
           <h2>Level 5</h2>
 
-          <h3>Account Deletion</h3>
+          <h3>Change Admin Perms</h3>
           <input placeholder="Account username/id..."><br>
           Use id? <input type="checkbox"><br>
           <select>
@@ -105,6 +111,7 @@
             <option value="5">Create new admins (lvl 5)</option>
           </select><br>
           <button>Set admin level</button>
+
         </div>
       {% endif %}
 

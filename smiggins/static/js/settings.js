@@ -1,20 +1,23 @@
 let inc = 0, req = 0;
 let home = true;
-let output = "";
+let output = "<select id=\"color\">";
+
 
 for (color of validColors) {
-  output += `<div data-color="${color}" onclick="localStorage.setItem('color', '${color}'); document.body.setAttribute('data-color', '${color}');">${getPostHTML(
-    "This is an example post. I am @example.",
-    0, "example", "Example",
-    Date.now() / 1000 - Math.random() * 86400,
-    Math.floor(Math.random() * 100),
-    Math.floor(Math.random() * 99) + 1,
-    Math.floor(Math.random() * 100), undefined,
-    true, false, false, false, false, false, true
-  )}</div>`;
+  output += `<option ${((localStorage.getItem("color") == color) ? "selected" : "")} value="${color}">${color}</option>`;
 }
+output += "</select><br><br>"
+dom("color-selector").innerHTML = output;
+dom("post-example").innerHTML = getPostHTML(
+  "This is an example post. I am @example.",
+  0, "example", "Example",
+  Date.now() / 1000 - Math.random() * 86400,
+  Math.floor(Math.random() * 100),
+  Math.floor(Math.random() * 99) + 1,
+  Math.floor(Math.random() * 100), undefined,
+  true, false, false, false, false, false, true
+);
 
-dom("color-container").innerHTML = output;
 dom("bio").addEventListener("input", postTextInputEvent);
 
 showlog = (str, time=3000) => {
@@ -34,6 +37,20 @@ function toggleGradient() {
 }
 
 toggleGradient();
+
+dom("color").addEventListener("change", function() {
+  localStorage.setItem('color', dom("color").value);
+  document.body.setAttribute('data-color', dom("color").value);
+  dom("post-example").innerHTML = getPostHTML(
+    "This is an example post. I am @example.",
+    0, "example", "Example",
+    Date.now() / 1000 - Math.random() * 86400,
+    Math.floor(Math.random() * 100),
+    Math.floor(Math.random() * 99) + 1,
+    Math.floor(Math.random() * 100), undefined,
+    true, false, false, false, false, false, true
+  );
+});
 
 dom("theme").addEventListener("change", function() {
   dom("theme").setAttribute("disabled", "");

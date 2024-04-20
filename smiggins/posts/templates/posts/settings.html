@@ -15,33 +15,52 @@
     <h1>Settings</h1>
     <div id="error"></div>
 
-    Theme:<br>
-    <select id="theme">
-      <option {{SELECTED_IF_LIGHT}} value="light">Light</option>
-      <option {{SELECTED_IF_GRAY}} value="gray">Gray</option>
-      <option {{SELECTED_IF_DARK}} value="dark">Dark</option>
-      <option {{SELECTED_IF_BLACK}} value="black">Black</option>
-    </select><br><br>
+    <hr>
 
-    Basic information<br>
-    <input id="displ-name" placeholder="Display name..." value="{{DISPLAY_NAME}}" maxlength="{{MAX_DISPL_NAME_LENGTH}}"><br>
-    <textarea id="bio" placeholder="User bio..." maxlength="{{MAX_BIO_LENGTH}}">{{USER_BIO}}</textarea><br>
-    <button id="displ-name-save">Save</button><br><br>
-    <br><br>
+    <div class="settings-container">
+      <div>
+        <h2>Profile</h2>
 
-    Banner color:<br>
-    <div id="banner"></div><br>
-    <input id="banner-color" value="{{BANNER_COLOR}}" type="color">
-    <input hidden id="banner-color-two" value="{{BANNER_COLOR_TWO}}" type="color"><br>
-    Gradient banner: <input id="banner-is-gradient" {{CHECKED_IF_GRADIENT}} type="checkbox"><br>
-    <button id="banner-color-save">Save</button><br><br>
+        Basic information<br>
+        <input id="displ-name" placeholder="Display name..." value="{{DISPLAY_NAME}}" maxlength="{{MAX_DISPL_NAME_LENGTH}}"><br>
+        <textarea id="bio" placeholder="User bio..." maxlength="{{MAX_BIO_LENGTH}}">{{USER_BIO}}</textarea><br>
+        <button id="displ-name-save">Save</button><br><br>
+        <br><br>
 
-    Private account:<br>
-    <input type="checkbox" id="priv" {{CHECKED_IF_PRIV}}> <button id="priv-save">Save</button><br>
-    <span class="small-mw">If your account is private, that means only you and people you follow can see your posts.</span><br><br>
+        Banner color:<br>
+        <div id="banner"></div><br>
+        <input id="banner-color" value="{{BANNER_COLOR}}" type="color">
+        <input hidden id="banner-color-two" value="{{BANNER_COLOR_TWO}}" type="color"><br>
+        Gradient banner: <input id="banner-is-gradient" {{CHECKED_IF_GRADIENT}} type="checkbox"><br>
 
-    Color:<br>
-    <div class="large-mw"><div id="color-container"></div></div><br><br>
+        <button id="banner-color-save">Save</button><br><br>
+
+        Private account:<br>
+        <input type="checkbox" id="priv" {{CHECKED_IF_PRIV}}> <button id="priv-save">Save</button><br>
+        <span class="small-mw">If your account is private,</span><br>
+        <span class="small-mw">that means only you and people</span><br>
+        <span class="small-mw">you follow can see your posts.</span><br>
+
+      </div>
+
+      <div>
+        <h2>Cosmetic</h2>
+        Theme:<br>
+        <select id="theme">
+          <option {{SELECTED_IF_LIGHT}} value="light">Light</option>
+          <option {{SELECTED_IF_GRAY}} value="gray">Gray</option>
+          <option {{SELECTED_IF_DARK}} value="dark">Dark</option>
+          <option {{SELECTED_IF_BLACK}} value="black">Black</option>
+        </select><br><br>
+
+        Color:<br>
+        <div id="color-selector"></div>
+        <div class="large-mw"><div id="post-example"></div></div><br><br>
+
+      </div>
+
+    </div>
+
 
     {% autoescape off %}
     {{ADMIN}}
