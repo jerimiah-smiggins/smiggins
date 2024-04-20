@@ -89,7 +89,8 @@ function refresh(force_offset=false) {
           post.private_acc,      // isPrivate
           true,                  // isComment
           true,                  // includeUserLink
-          true                   // includePostLink
+          true,                  // includePostLink
+          post.owner             // isOwner
         );
         offset = post.post_id;
       }
@@ -138,6 +139,20 @@ function toggleLike(post_id) {
     x.innerHTML = icons.like;
     q.innerHTML = +q.innerHTML + 1;
   }
+}
+
+function deletePost(post_id) {
+  fetch("/api/comment", {
+    method: "DELETE",
+    body: JSON.stringify({
+      "id": post_id
+    })
+  }).then((response) => (response.json()))
+    .then((json) => {
+      if (json.success) {
+        document.querySelector(`.post-container[data-comment-id="${post_id}"]`).remove();
+      }
+    });
 }
 
 refresh();

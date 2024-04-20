@@ -54,20 +54,21 @@ function refresh(force_offset=false) {
 
       for (const post of json.posts) {
         output += getPostHTML(
-          post.content,          // content
-          post.post_id,          // postID
+          post.content,            // content
+          post.post_id,           // postID
           post.creator_username, // username
-          post.display_name,     // displayName
-          post.timestamp,        // timestamp
-          post.comments,         // commentCount
-          post.likes,            // likeCount
-          post.quotes,           // quote
-          post.quote,            // quoteInfo
-          post.liked,            // isLiked
-          json.private,          // isPrivate
-          false,                 // isComment
-          false,                 // includeUserLink
-          true                   // includePostLink
+          post.display_name,    // displayName
+          post.timestamp,      // timestamp
+          post.comments,      // commentCount
+          post.likes,        // likeCount
+          post.quotes,      // quote
+          post.quote,      // quoteInfo
+          post.liked,     // isLiked
+          json.private,  // isPrivate
+          false,        // isComment
+          false,       // includeUserLink
+          true,       // includePostLink
+          json.self  // isOwner
         );
         offset = post.post_id;
       }
@@ -133,6 +134,21 @@ function toggleLike(post_id) {
     x.innerHTML = icons.like;
     q.innerHTML = +q.innerHTML + 1;
   }
+}
+
+function deletePost(post_id) {
+  fetch("/api/post", {
+    method: "DELETE",
+    body: JSON.stringify({
+      "id": post_id
+    })
+  }).then((response) => (response.json()))
+    .then((json) => {
+      console.log(json)
+      if (json.success) {
+        document.querySelector(`.post-container[data-post-id="${post_id}"]`).remove();
+      }
+    });
 }
 
 refresh();

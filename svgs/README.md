@@ -11,3 +11,4 @@ the following svgs are from fontawesome:
 * share (`fa-solid fa-share`)
 * user (`fa-solid fa-user`)
 * quote (`fa-regular fa-quote-left`)
+* delete (`fa-regular fa-trash-can`)

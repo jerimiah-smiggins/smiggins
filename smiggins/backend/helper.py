@@ -171,6 +171,7 @@ def get_post_json(post_id: int, current_user_id: int=0, comment: bool=False) -> 
         "comments": len(post.comments or []),
         "quotes": len(post.quotes or []),
         "private_acc": creator.private,
+        "owner": creator.user_id == current_user_id,
         "can_view": True
     }
 

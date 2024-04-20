@@ -56,8 +56,8 @@ def api_comment_create(request, data: commentSchema) -> tuple | dict:
     else:
         parent = Post.objects.get(post_id=id)
 
-    if comment.comment_id not in parent.comments:
-        parent.comments.append(comment.comment_id)
+    if comment.comment_id not in (parent.comments or []):
+        parent.comments.append(comment.comment_id) # type: ignore
 
     parent.save()
 
@@ -101,17 +101,23 @@ def api_comment_list(request, id: int, comment: bool, offset: int=-1) -> tuple |
             "end": True
         }
 
-    while len(parent.comments) and parent.comments[0] < offset:
-        parent.comments.pop(0)
+    while len(parent.comments or []) and parent.comments[0] < offset: # type: ignore
+        parent.comments.pop(0) # type: ignore
 
     outputList = []
     offset = 0
-    for i in parent.comments:
-        comment_object = Comment.objects.get(pk=i)
+    for i in (parent.comments or []):
+        try:
+            comment_object = Comment.objects.get(pk=i)
+        except Comment.DoesNotExist:
+            offset += 1
+            continue
+
         creator = User.objects.get(pk=comment_object.creator)
 
         if creator.private and user_id not in creator.following:
             offset += 1
+            continue
 
         else:
             outputList.append(get_post_json(i, user_id, True))
@@ -121,7 +127,7 @@ def api_comment_list(request, id: int, comment: bool, offset: int=-1) -> tuple |
 
     return 200, {
         "posts": outputList,
-        "end": len(parent.comments) - offset <= POSTS_PER_REQUEST
+        "end": len(parent.comments or []) - offset <= POSTS_PER_REQUEST
     }
 
 def api_comment_like_add(request, data: likeSchema):
@@ -144,11 +150,11 @@ def api_comment_like_add(request, data: likeSchema):
     user = User.objects.get(token=token)
     comment = Comment.objects.get(comment_id=id)
 
-    if user.user_id not in comment.likes:
+    if user.user_id not in (comment.likes or []):
             if comment.likes != []:
-                comment.likes.append(user.user_id)
+                comment.likes.append(user.user_id) # type: ignore
             else:
-                comment.likes = [user.user_id]
+                comment.likes = [user.user_id] # type: ignore
     comment.save()
 
     return 200, {
@@ -174,10 +180,35 @@ def api_comment_like_remove(request, data: likeSchema):
     user = User.objects.get(token=token)
     comment = Comment.objects.get(comment_id=id)
 
-    if user.user_id in comment.likes:
-        comment.likes.remove(user.user_id)
+    if user.user_id in (comment.likes or []):
+        comment.likes.remove(user.user_id) # type: ignore
     comment.save()
 
     return 200, {
         "success": True
+    }
+
+def api_comment_delete(request, data: likeSchema) -> tuple | dict:
+    # Called when someone deletes a post.
+
+    token = request.COOKIES.get('token')
+    id = data.id
+
+    try:
+        comment = Comment.objects.get(comment_id=id)
+        user = User.objects.get(token=token)
+    except Comment.DoesNotExist or User.DoesNotExist:
+        return 404, {
+            "success": False
+        }
+
+    if comment.creator == user.user_id:
+        comment.delete()
+
+        return {
+            "success": True
+        }
+
+    return 400, {
+        "success": False
     }

@@ -9,6 +9,8 @@ any of the files in the backend.
   [backend/admin.py].templating
   [backend/variables.py].BADGE_DATA
   [backend/helper.py].get_HTTP_response (typing)
+  [backend/api_post.py].api_post_delete
+  [backend/api_comment.py].api_comment_delete
   [posts/models.py].Badge
 
   Functions to move:
