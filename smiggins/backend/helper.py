@@ -25,7 +25,7 @@ def set_timeout(callback: Callable, delay_ms: Union[int, float]) -> None:
     thread = threading.Thread(target=wrapper)
     thread.start()
 
-def get_HTTP_response(request, file: str, **kwargs: str) -> HttpResponse:
+def get_HTTP_response(request, file: str, **kwargs: Any) -> HttpResponse:
     context = {
         "SITE_NAME" : SITE_NAME,
         "VERSION" : VERSION,
@@ -61,7 +61,7 @@ def create_simple_return(
     # This creates a response object. This was made so that its standardized
     # and creates less repeated code.
     x = lambda request: \
-            HttpResponseRedirect("/home" if redirect_logged_in else "/", status=307) \
+            HttpResponseRedirect("/home/" if redirect_logged_in else "/", status=307) \
         if (redirect_logged_in and validate_token(request.COOKIES.get("token"))) or (redirect_logged_out and not validate_token(request.COOKIES.get("token"))) \
         else (HttpResponse(content_override, content_type=content_type) if content_override else get_HTTP_response(request, template_path))
 
@@ -166,10 +166,10 @@ def get_post_json(post_id: int, current_user_id: int=0, comment: bool=False) -> 
         "creator_username": creator.username,
         "content": post.content,
         "timestamp": post.timestamp,
-        "liked": current_user_id in post.likes,
-        "likes": len(post.likes),
-        "comments": len(post.comments),
-        "quotes": len(post.quotes),
+        "liked": current_user_id in (post.likes or []),
+        "likes": len(post.likes or []),
+        "comments": len(post.comments or []),
+        "quotes": len(post.quotes or []),
         "private_acc": creator.private,
         "can_view": True
     }
@@ -197,10 +197,10 @@ def get_post_json(post_id: int, current_user_id: int=0, comment: bool=False) -> 
                 "creator_username": quote_creator.username,
                 "content": quote.content,
                 "timestamp": quote.timestamp,
-                "liked": current_user_id in quote.likes,
-                "likes": len(quote.likes),
-                "comments": len(quote.comments),
-                "quotes": len(post.quotes),
+                "liked": current_user_id in (quote.likes or []),
+                "likes": len(quote.likes or []),
+                "comments": len(quote.comments or []),
+                "quotes": len(post.quotes or []),
                 "private_acc": quote_creator.private,
                 "can_view": True,
                 "has_quote": not post.quote_is_comment and quote.quote # type: ignore

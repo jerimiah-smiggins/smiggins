@@ -6,6 +6,7 @@ from .packages import hashlib
 from ._api_keys import *
 from ._settings import MAX_POST_LENGTH
 from posts.models import Badge
+from django.db.utils import OperationalError
 
 # Headers set at the top of every html file.
 HTML_HEADERS: str = f"""
@@ -41,8 +42,14 @@ Disallow: /home
 Disallow: /api
 """
 
+BADGE_DATA = {}
+
 try:
     Badge.objects.get(name="administrator")
+
+    for i in Badge.objects.all():
+        BADGE_DATA[i.name] = i.svg_data
+
 except Badge.DoesNotExist:
     icons = {
         "verified": '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><path d="M200.3 81.5C210.9 61.5 231.9 48 256 48s45.1 13.5 55.7 33.5c5.4 10.2 17.3 15.1 28.3 11.7 21.6-6.6 46.1-1.4 63.1 15.7s22.3 41.5 15.7 63.1c-3.4 11 1.5 22.9 11.7 28.2 20 10.6 33.5 31.6 33.5 55.7s-13.5 45.1-33.5 55.7c-10.2 5.4-15.1 17.2-11.7 28.2 6.6 21.6 1.4 46.1-15.7 63.1s-41.5 22.3-63.1 15.7c-11-3.4-22.9 1.5-28.2 11.7-10.6 20-31.6 33.5-55.7 33.5s-45.1-13.5-55.7-33.5c-5.4-10.2-17.2-15.1-28.2-11.7-21.6 6.6-46.1 1.4-63.1-15.7S86.6 361.6 93.2 340c3.4-11-1.5-22.9-11.7-28.2C61.5 301.1 48 280.1 48 256s13.5-45.1 33.5-55.7c10.2-5.4 15.1-17.3 11.7-28.3-6.6-21.6-1.4-46.1 15.7-63.1s41.5-22.3 63.1-15.7c11 3.4 22.9-1.5 28.2-11.7zM256 0c-35.9 0-67.8 17-88.1 43.4-33-4.3-67.6 6.2-93 31.6S39 135 43.3 168C17 188.2 0 220.1 0 256s17 67.8 43.4 88.1c-4.3 33 6.2 67.6 31.6 93s60 35.9 93 31.6c20.2 26.3 52.1 43.3 88 43.3s67.8-17 88.1-43.4c33 4.3 67.6-6.2 93-31.6s35.9-60 31.6-93c26.3-20.2 43.3-52.1 43.3-88s-17-67.8-43.4-88.1c4.3-33-6.2-67.6-31.6-93S377 39 344 43.3C323.8 17 291.9 0 256 0m113 209c9.4-9.4 9.4-24.6 0-33.9s-24.6-9.4-33.9 0l-111 111-47-47c-9.4-9.4-24.6-9.4-33.9 0s-9.4 24.6 0 33.9l64 64c9.4 9.4 24.6 9.4 33.9 0z"/></svg>',
@@ -60,7 +67,8 @@ except Badge.DoesNotExist:
 
     del icons
 
-BADGE_DATA = {}
+    for i in Badge.objects.all():
+        BADGE_DATA[i.name] = i.svg_data
 
-for i in Badge.objects.all():
-    BADGE_DATA[i.name] = i.svg_data
+except OperationalError:
+    print("You need to migrate your database! Do this by running 'manage.py migrate'. If you are already doing that, ignore this message.")

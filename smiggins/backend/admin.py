@@ -8,18 +8,25 @@ def templating(request) -> HttpResponse | HttpResponseRedirect:
         token: str = request.COOKIES["token"].lower()
 
         if not validate_token(token):
-            return HttpResponseRedirect("/", status=307)
+            return get_HTTP_response(
+                request, "posts/404.html"
+            )
 
         user = User.objects.get(token=token)
 
     except KeyError or User.DoesNotExist:
-        return HttpResponseRedirect("/", status=307)
+        return get_HTTP_response(
+            request, "posts/404.html"
+        )
 
-    if user.user_id != OWNER_USER_ID or user.admin_level < 1:
-        return HttpResponseRedirect("/home", status=307)
+    if user.user_id != OWNER_USER_ID and user.admin_level < 1:
+        return get_HTTP_response(
+            request, "posts/404.html"
+        )
 
     return get_HTTP_response(
         request, "posts/admin.html",
 
-        LEVEL = user.admin_level
+        LEVEL = 5 if user.user_id == OWNER_USER_ID else user.admin_level,
+        BADGE_DATA = BADGE_DATA
     )

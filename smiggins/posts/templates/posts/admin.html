@@ -7,49 +7,106 @@
     {% autoescape off %}
     {{HTML_HEADERS}}
     {% endautoescape %}
-    <link rel="stylesheet" href="{% static '/css/home.css' %}">
-    <link rel="stylesheet" href="{% static '/css/settings.css' %}">
+    <link rel="stylesheet" href="{% static "/css/admin.css" %}">
   </head>
 
   <body data-theme="{{THEME}}" style="--banner: {{BANNER_COLOR}}; --banner-two: {{BANNER_COLOR_TWO}}">
     <h1>Admin Panel: Level {{LEVEL}}/5</h1>
-    <div id="error"></div>
 
-    Theme:<br>
-    <select id="theme">
-      <option {{SELECTED_IF_LIGHT}} value="light">Light</option>
-      <option {{SELECTED_IF_GRAY}} value="gray">Gray</option>
-      <option {{SELECTED_IF_DARK}} value="dark">Dark</option>
-      <option {{SELECTED_IF_BLACK}} value="black">Black</option>
-    </select><br><br>
+    <hr>
 
-    Basic information<br>
-    <input id="displ-name" placeholder="Display name..." value="{{DISPLAY_NAME}}" maxlength="{{MAX_DISPL_NAME_LENGTH}}"><br>
-    <textarea id="bio" placeholder="User bio..." maxlength="{{MAX_BIO_LENGTH}}">{{USER_BIO}}</textarea><br>
-    <button id="displ-name-save">Save</button><br><br>
-    <br><br>
+    <div class="actions-container">
+      <div>
+        <h2>Level 1</h2>
 
-    Banner color:<br>
-    <div id="banner"></div><br>
-    <input id="banner-color" value="{{BANNER_COLOR}}" type="color">
-    <input hidden id="banner-color-two" value="{{BANNER_COLOR_TWO}}" type="color"><br>
-    Gradient banner: <input id="banner-is-gradient" {{CHECKED_IF_GRADIENT}} type="checkbox"><br>
-    <button id="banner-color-save">Save</button><br><br>
+        <h3>Post Deletion</h3>
+        <div id="post-deletion">
+          <input placeholder="Post/comment id..."><br>
+          Comment? <input type="checkbox"><br>
+          <button>Delete Post</button>
+        </div>
+      </div>
 
-    Private account:<br>
-    <input type="checkbox" id="priv" {{CHECKED_IF_PRIV}}> <button id="priv-save">Save</button><br>
-    <span class="small-mw">If your account is private, that means only you and people you follow can see your posts.</span><br><br>
+      {% if LEVEL >= 2 %}
+        <div>
+          <h2>Level 2</h2>
 
-    Color:<br>
-    <div class="large-mw"><div id="color-container"></div></div><br><br>
+          <h3>Account Deletion</h3>
+          <input placeholder="Account username/id..."><br>
+          Use id? <input type="checkbox"><br>
+          <button>Delete Account</button>
+        </div>
+      {% endif %}
 
-    {% autoescape off %}
-    {{ADMIN}}
-    {% endautoescape %}
-    <a href="https://github.com/trinkey/social-media-thing" target="_blank" {{HIDE_SOURCE}}>Source code</a><br {{HIDE_SOURCE}}>
-    <a href="/logout">Log out</a>
+      {% if LEVEL >= 3 %}
+        <div>
+          <h2>Level 3</h2>
 
-    <script src="{% static '/js/settings.js' %}"></script>
+          <h3>Add/remove Badges</h3>
+          <h3>Get User Data</h3>
+          <input placeholder="Account username/id..."><br>
+          Use id? <input type="checkbox"><br>
+          <select>
+            {% for BADGE in BADGE_DATA %}
+            <option value="{{BADGE}}">{{BADGE}}</option>
+            {% empty %}
+            <option value="">Somehow there are no existing badges? This shouldn't happen...</option>
+            {% endfor %}
+          </select><br>
+          <button>Add Badge</button> <button>Remove Badge</button>
+
+          <h3>Create/Override Badge</h3>
+          <input placeholder="Badge name..."><br>
+          <textarea placeholder="Badge svg data..."></textarea><br>
+          <button>Create Badge</button>
+
+          <h3>Delete Badge</h3>
+          <input placeholder="Badge name..."><br>
+          <button>Delete Badge</button>
+        </div>
+      {% endif %}
+
+      {% if LEVEL >= 4 %}
+        <div>
+          <h2>Level 4</h2>
+
+          <h3>Get User Data</h3>
+          <input placeholder="Account username/id..."><br>
+          Use id? <input type="checkbox"><br>
+          <button>Get Data</button><br><br>
+
+          <div>
+            Current account: <code>subroutine</code> (id: 4)<br>
+            <input placeholder="Display name..." value="Ɛ: SubrOwOtine :3"><br>
+            <button>Save Display Name</button><br><br>
+            <textarea placeholder="User bio..."></textarea><br>
+            <button>Save user bio</button><br>
+            <button>Add to Account Switcher</button>
+          </div>
+        </div>
+      {% endif %}
+
+      {% if LEVEL >= 5 %}
+        <div>
+          <h2>Level 5</h2>
+
+          <h3>Account Deletion</h3>
+          <input placeholder="Account username/id..."><br>
+          Use id? <input type="checkbox"><br>
+          <select>
+            <option value="0">No admin permissions (lvl 0)</option>
+            <option value="1">Delete posts/comments (lvl 1)</option>
+            <option value="2">Delete accounts (lvl 2)</option>
+            <option value="3">Manage badges (lvl 3)</option>
+            <option value="4">Modify user data (lvl 4)</option>
+            <option value="5">Create new admins (lvl 5)</option>
+          </select><br>
+          <button>Set admin level</button>
+        </div>
+      {% endif %}
+
+    </div>
+
     {% autoescape off %}
     {{HTML_FOOTERS}}
     {% endautoescape %}

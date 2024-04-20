@@ -4,7 +4,15 @@ any of the files in the backend.
 
 <!--
   Functions to add:
-  None
+  [backend/_settings.py].OWNER_USER_ID
+  [backend/_settings.py].MAX_BIO_LENGTH
+  [backend/admin.py].templating
+  [backend/variables.py].BADGE_DATA
+  [backend/helper.py].get_HTTP_response (typing)
+  [posts/models.py].Badge
+
+  Functions to move:
+  [backend/_settings.py].ROBOTS -> [backend/variables.py].ROBOTS
 -->
 
 ## ./manage.py
@@ -20,8 +28,8 @@ python file (`python3 manage.py`). The most useful commands are:
   them into files in the migrations folder that can be used to upgrade the data
   in the database.
 - `python3 manage.py addsuperuser` - Adds a username/password that can be used
-  to access the `/admin` page. This is stored in the database, so if you ever
-  reset that, you will need to re-add any of these you have added.
+  to access the `/django-admin` page. This is stored in the database, so if you
+  ever reset that, you will need to re-add any of these you have added.
 - `python3 manage.py collectstatic` - Collects any static files into another
   folder. This should be used when creating a production server, and shouldn't
   ever need to be used in normal debugging.
