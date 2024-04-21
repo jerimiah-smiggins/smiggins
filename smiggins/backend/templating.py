@@ -19,7 +19,7 @@ def settings(request) -> HttpResponse:
         return HttpResponseRedirect("/", status=307)
 
     return get_HTTP_response(
-        request, "posts/settings.html",
+        request, "settings.html",
 
         DISPLAY_NAME        = user.display_name,
         BANNER_COLOR        = user.color or DEFAULT_BANNER_COLOR,
@@ -58,11 +58,11 @@ def user(request, username: str) -> HttpResponse:
         user = User.objects.get(username=username)
     except User.DoesNotExist:
         return get_HTTP_response(
-            request, "posts/404_user.html"
+            request, "404_user.html"
         )
 
     return get_HTTP_response(
-        request, "posts/user.html",
+        request, "user.html",
 
         USERNAME     = user.username,
         DISPLAY_NAME = user.display_name,
@@ -96,16 +96,16 @@ def post(request, post_id: int) -> HttpResponse:
         creator = User.objects.get(pk=post.creator)
     except Post.DoesNotExist:
         return get_HTTP_response(
-            request, "posts/404_post.html"
+            request, "404_post.html"
         )
 
     if creator.private and self_id not in creator.following:
         return get_HTTP_response(
-            request, "posts/404_post.html"
+            request, "404_post.html"
         )
 
     return get_HTTP_response(
-        request, "posts/post.html",
+        request, "post.html",
 
         DISPLAY_NAME = creator.display_name,
         LOGGED_IN = str(logged_in).lower(),
@@ -132,23 +132,23 @@ def comment(request, comment_id: int) -> HttpResponse:
         comment = Comment.objects.get(pk=comment_id)
     except Comment.DoesNotExist:
         return get_HTTP_response(
-            request, "posts/404_post.html"
+            request, "404_post.html"
         )
 
     try:
         creator = User.objects.get(pk=comment.creator)
     except User.DoesNotExist:
         return get_HTTP_response(
-            request, "posts/404_post.html"
+            request, "404_post.html"
         )
 
     if creator.private and self_id not in creator.following:
         return get_HTTP_response(
-            request, "posts/404_post.html"
+            request, "404_post.html"
         )
 
     return get_HTTP_response(
-        request, "posts/post.html",
+        request, "post.html",
 
         DISPLAY_NAME = creator.display_name,
         LOGGED_IN = str(logged_in).lower(),
@@ -160,7 +160,7 @@ def comment(request, comment_id: int) -> HttpResponse:
 
 def contact(request) -> HttpResponse:
     return get_HTTP_response(
-        request, "posts/contact.html",
+        request, "contact.html",
 
         CONTACT_LIST = "<li>" + "</li><li>".join([f'<a href="mailto:{i[1]}">{i[1]}</a>' if i[0] == "email" else f'<a href="{i[1]}">{i[1]}</a>' if i[0] == "url" else i[1] for i in CONTACT_INFO]) + "</li>"
     )
@@ -171,25 +171,35 @@ def admin(request) -> HttpResponse | HttpResponseRedirect:
 
         if not validate_token(token):
             return get_HTTP_response(
-                request, "posts/404.html"
+                request, "404.html"
             )
 
         user = User.objects.get(token=token)
 
     except KeyError or User.DoesNotExist:
         return get_HTTP_response(
-            request, "posts/404.html"
+            request, "404.html"
         )
 
     if user.user_id != OWNER_USER_ID and user.admin_level < 1:
         return get_HTTP_response(
-            request, "posts/404.html"
+            request, "404.html"
         )
 
     return get_HTTP_response(
-        request, "posts/admin.html",
+        request, "admin.html",
 
         LEVEL = 5 if user.user_id == OWNER_USER_ID else user.admin_level,
         BADGE_DATA = BADGE_DATA
     )
 
+# These two functions are referenced in smiggins/urls.py
+def _404(request, exception) -> HttpResponse:
+    response = get_HTTP_response(request, "404.html")
+    response.status_code = 404
+    return response
+
+def _500(request) -> HttpResponse:
+    response = get_HTTP_response(request, "500.html")
+    response.status_code = 500
+    return response

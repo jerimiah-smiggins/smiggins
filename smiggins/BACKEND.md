@@ -2,6 +2,8 @@
 Docs for the backend. This contains descriptions of every function defined in
 any of the files in the backend.
 
+<!-- i rearranged a lot so that's fun ill do that later -->
+
 ## ./manage.py
 This file is auto-created when making a django project. To see what this file
 does, you can read the django docs or run the file like you would a normal
