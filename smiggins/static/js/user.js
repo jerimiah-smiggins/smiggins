@@ -1,89 +1,38 @@
-let inc = 0, req = 0, end = false;
-let offset = null;
 let username = document.querySelector("body").getAttribute("data-username");
+let share = window.location.href;
+let home = true;
+
+const url = `/api/post/user/${username}`;
+const type = "post";
+const includeUserLink = false;
+const includePostLink = true;
+
+function extra(json) {
+  dom("user-bio").innerHTML = linkifyHtml(escapeHTML(json.bio), {
+    formatHref: { mention: (href) => "/u" + href }
+  });
+
+  [...document.querySelectorAll("[data-show-on-priv]")].forEach((val) => {
+    if (json.private) {
+      val.removeAttribute("hidden");
+    } else {
+      val.setAttribute("hidden", "")
+    }
+  });
+
+  [...document.querySelectorAll("[data-show-on-view]")].forEach((val) => {
+    if (json.private && json.can_view) {
+      val.removeAttribute("hidden");
+    } else {
+      val.setAttribute("hidden", "")
+    }
+  });
+
+  dom("follow").innerText = `Followers: ${json.followers} - Following: ${json.following}`;
+}
 
 if (!logged_in) {
   dom("more-container").innerHTML = "<a href=\"/signup\">Sign up</a> to see more!";
-}
-
-showlog = (str, time=3000) => {
-  inc++;
-  dom("error").innerText = str;
-  setTimeout(() => { req++; if (req == inc) { dom("error").innerText = ""; }}, time);
-};
-
-function refresh(force_offset=false) {
-  if (force_offset !== true) { dom("posts").innerHTML = ""; }
-
-  fetch(`/api/post/user/${document.querySelector("body").getAttribute("data-username")}${force_offset === true && !end ? `?offset=${offset}` : ""}`, {
-    method: "GET",
-    headers: {
-      "Content-Type": "application/json"
-    }
-  })
-    .then((response) => (response.json()))
-    .then((json) => {
-      document.querySelectorAll(".priv").forEach((val, index) => {
-        val.innerHTML = icons.lock;
-      });
-
-      dom("user-bio").innerHTML = linkifyHtml(escapeHTML(json.bio), {
-        formatHref: { mention: (href) => "/u" + href }
-      });
-
-      [...document.querySelectorAll("[data-show-on-priv]")].forEach((val) => {
-        if (json.private) {
-          val.removeAttribute("hidden");
-        } else {
-          val.setAttribute("hidden", "")
-        }
-      });
-
-      [...document.querySelectorAll("[data-show-on-view]")].forEach((val) => {
-        if (json.private && json.can_view) {
-          val.removeAttribute("hidden");
-        } else {
-          val.setAttribute("hidden", "")
-        }
-      });
-
-      dom("follow").innerText = `Followers: ${json.followers} - Following: ${json.following}`;
-
-      let output = "";
-      end = json.end;
-
-      for (const post of json.posts) {
-        output += getPostHTML(
-          post.content,            // content
-          post.post_id,           // postID
-          post.creator_username, // username
-          post.display_name,    // displayName
-          post.timestamp,      // timestamp
-          post.comments,      // commentCount
-          post.likes,        // likeCount
-          post.quotes,      // quote
-          post.quote,      // quoteInfo
-          post.liked,     // isLiked
-          json.private,  // isPrivate
-          false,        // isComment
-          false,       // includeUserLink
-          true,       // includePostLink
-          json.self  // isOwner
-        );
-        offset = post.post_id;
-      }
-
-      let x = document.createElement("div");
-      x.innerHTML = output;
-      dom("posts").append(x);
-
-      if (force_offset !== true && logged_in) { dom("more").removeAttribute("hidden"); }
-      if (json.end && logged_in) { dom("more").setAttribute("hidden", ""); } else if (logged_in) { dom("more").removeAttribute("hidden"); }
-    })
-    .catch((err) => {
-      showlog("Something went wrong loading the posts! Try again in a few moments...", 5000);
-      throw(err);
-    });
 }
 
 function toggle_follow() {
@@ -107,47 +56,3 @@ function toggle_follow() {
       throw(err);
     });
 }
-
-function toggleLike(post_id) {
-  let q = document.querySelector(`div[data-post-id="${post_id}"] span.like-number`);
-  let h = document.querySelector(`div[data-post-id="${post_id}"] div.like`);
-  let x = document.querySelector(`div[data-post-id="${post_id}"] div.like svg`);
-
-  if (h.dataset["liked"] == "true") {
-    fetch("/api/post/like", {
-      "method": "DELETE",
-      "body": JSON.stringify({
-        "id": post_id
-      })
-    });
-    h.setAttribute("data-liked", "false");
-    x.innerHTML = icons.unlike;
-    q.innerHTML = +q.innerHTML - 1;
-  } else {
-    fetch("/api/post/like", {
-      "method": "POST",
-      "body": JSON.stringify({
-        "id": post_id
-      })
-    });
-    h.setAttribute("data-liked", "true");
-    x.innerHTML = icons.like;
-    q.innerHTML = +q.innerHTML + 1;
-  }
-}
-
-function deletePost(post_id) {
-  fetch("/api/post", {
-    method: "DELETE",
-    body: JSON.stringify({
-      "id": post_id
-    })
-  }).then((response) => (response.json()))
-    .then((json) => {
-      if (json.success) {
-        document.querySelector(`.post-container[data-post-id="${post_id}"]`).remove();
-      }
-    });
-}
-
-refresh();

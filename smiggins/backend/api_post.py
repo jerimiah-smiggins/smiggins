@@ -231,7 +231,7 @@ def api_post_list_user(request, username: str, offset: int=-1) -> tuple | dict:
             "can_view": False,
             "following": len(user.following or []) - 1,
             "followers": len(user.followers or []),
-            "bio": ""
+            "bio": user.bio
         }
 
     potential = user.posts[::-1]
@@ -253,7 +253,6 @@ def api_post_list_user(request, username: str, offset: int=-1) -> tuple | dict:
     return {
         "posts": outputList,
         "end": end,
-        "color": user.color or "#3a1e93",
         "private": user.private,
         "can_view": True,
         "following": len(user.following or []) - 1,

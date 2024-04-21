@@ -222,7 +222,7 @@ function getPostHTML(
           <span class="quote-number">${quoteCount}</span>
         </button>
         <div class="bottom-spacing"></div>
-        <button class="like" tabindex="0" data-liked="${isLiked}" ${fakeMentions ? "" : `onclick="toggleLike(${postID})"`}>
+        <button class="like" tabindex="0" data-liked="${isLiked}" ${fakeMentions ? "" : `onclick="toggleLike(${postID}, ${isComment ? "'comment'" : "'post'"})"`}>
           ${isLiked ? icons.like : icons.unlike}
           <span class="like-number">${likeCount}</span>
         </button>
