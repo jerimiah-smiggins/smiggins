@@ -8,9 +8,6 @@
     {{HTML_HEADERS}}
     {% endautoescape %}
     <link rel="stylesheet" href="{% static "/css/admin.css" %}">
-    <script>
-      let home = true;
-    </script>
   </head>
 
   <body data-theme="{{THEME}}">
@@ -25,9 +22,9 @@
 
         <h3>Post Deletion</h3>
         <div id="post-deletion">
-          <input placeholder="Post/comment id..."><br>
-          Comment? <input type="checkbox"><br>
-          <button>Delete Post</button>
+          <input id="post-id" placeholder="Post/comment id..."><br>
+          Comment? <input id="comment-toggle"type="checkbox"><br>
+          <button id="post-delete">Delete Post</button>
         </div>
 
       </div>
@@ -37,9 +34,11 @@
           <h2>Level 2</h2>
 
           <h3>Account Deletion</h3>
-          <input placeholder="Account username/id..."><br>
-          Use id? <input type="checkbox"><br>
-          <button>Delete Account</button>
+          <div id="account-deletion">
+            <input placeholder="Account username/id..."><br>
+            Use id? <input type="checkbox"><br>
+            <button>Delete Account</button>
+          </div>
 
         </div>
       {% endif %}
@@ -117,6 +116,7 @@
 
     </div>
 
+    <script src="{% static '/js/admin.js' %}"></script>
     {% autoescape off %}
     {{HTML_FOOTERS}}
     {% endautoescape %}

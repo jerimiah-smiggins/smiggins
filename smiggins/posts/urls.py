@@ -4,7 +4,6 @@ from backend._settings import CONTACT_INFO
 from backend.variables import ROBOTS, BADGE_DATA
 from backend.helper import create_simple_return
 from backend.templating import *
-from backend.admin import templating
 
 urlpatterns = [
     path("", create_simple_return("posts/index.html", redirect_logged_in=True), name="index"),
@@ -19,7 +18,7 @@ urlpatterns = [
     path("p/<int:post_id>/", post, name="post"),
     path("c/<int:comment_id>/", comment, name="comment"),
 
-    path("admin/", templating, name="admin"),
+    path("admin/", admin, name="admin"),
 
     path("badges.js", create_simple_return(
         "", content_type="text/javascript",
