@@ -2,22 +2,6 @@
 Docs for the backend. This contains descriptions of every function defined in
 any of the files in the backend.
 
-<!--
-  Functions to add:
-  [backend/_settings.py].OWNER_USER_ID
-  [backend/_settings.py].MAX_BIO_LENGTH
-  [backend/api_comment.py].api_comment_delete
-  [backend/api_post.py].api_post_delete
-  [backend/api_user.py].api_settings (remove all the other ones)
-  [backend/admin.py].templating
-  [backend/helper.py].get_HTTP_response (typing)
-  [backend/variables.py].BADGE_DATA
-  [posts/models.py].Badge
-
-  Functions to move:
-  [backend/_settings.py].ROBOTS -> [backend/variables.py].ROBOTS
--->
-
 ## ./manage.py
 This file is auto-created when making a django project. To see what this file
 does, you can read the django docs or run the file like you would a normal
@@ -66,6 +50,12 @@ SITE_NAME: str
 The name of the site that is displayed on the frontend.
 
 ```py
+OWNER_USER_ID: int
+```
+The user id of the instance owner. Defaults to one. This can be found on the
+`/django-admin` page, assuming you have a superuser account (see `./manage.py`)
+
+```py
 DEBUG: bool
 ```
 Whether or not to automatically reload the server when the backend files change.
@@ -85,6 +75,11 @@ The maximum length for a display name. Must be between 1 and 200.
 MAX_POST_LENGTH: int
 ```
 The maximum length for a post. Must be between 1 and 65,536
+
+```py
+MAX_BIO_LENGTH: int
+```
+The maximum length for a user bio. Must be between 1 and 65,536
 
 ```py
 DEFAULT_BANNER_COLOR; str
@@ -131,11 +126,10 @@ is the type, which can be `email`, `url`, or `text`. `email` is for emails,
 `url` for links, and `text` for other text that wouldn't fit with either of the
 other options.
 
-```py
-ROBOTS: str
-```
-The context of the robots.txt file. That file is what tells web crawlers if they
-are allowed to view certain pages or the entire website in general.
+## ./backend/admin.py
+This file contains all admin-related functions.
+
+There is currently nothing here.
 
 ## ./backend/api_comment.py
 This file contains functions for any api calls to comment-related things, like
@@ -178,6 +172,14 @@ def api_comment_like_remove(
 ```
 Handles removing a like from a comment. Called to a DELETE request to
 `/api/comment/like`.
+
+```py
+def api_comment_delete(
+  request: django.core.handlers.wsgi.WSGIRequest,
+  data: backend.schema.likeSchema
+) -> tuple[int | dict] | dict
+```
+Handles deleting comments
 
 ## ./backend/api_info.py
 This file is for any api calls that retrieve information for the client, for
@@ -257,6 +259,14 @@ def api_post_like_remove(
 Handles removing a like from a post. Called to a DELETE request to
 `/api/post/like`.
 
+```py
+def api_post_delete(
+  request: django.core.handlers.wsgi.WSGIRequest,
+  data: backend.schema.likeSchema
+) -> tuple[int | dict] | dict
+```
+Handles deleting comments
+
 ## ./backend/api_user.py
 This file is for api functions that are related to user profiles and account
 management. This doesn't include any post-related things, as those would go into
@@ -290,31 +300,13 @@ This handles changing the theme setting. Called on a POST request to
 `/api/user/settings/theme`.
 
 ```py
-def api_user_settings_color(
+def api_user_settings(
   request: django.core.handlers.wsgi.WSGIRequest,
-  data: backend.schema.colorSchema
+  data: backend.schema.settingsSchema
 ) -> tuple[int, dict] | dict
 ```
-This handles changing the banner colors. Called on a POST request to
-`/api/user/settings/color`.
-
-```py
-def api_user_settings_private(
-  request: django.core.handlers.wsgi.WSGIRequest,
-  data: backend.schema.privSchema
-) -> tuple[int, dict] | dict
-```
-This handles changing the private account setting. Called on a POST request to
-`/api/user/settings/priv`.
-
-```py
-def api_user_settings_text(
-  request: django.core.handlers.wsgi.WSGIRequest,
-  data: backend.schema.textSettingsSchema
-) -> tuple[int, dict] | dict
-```
-This handles you change your display name and user bio. Called on a POST request
-to `/api/user/settings/text`.
+This handles changing and saving (almost) all of the settings in the settings
+page. Called on a PATCH request to `/api/user/settings/text`.
 
 ```py
 def api_user_follower_add(
@@ -360,7 +352,7 @@ thread so it shouldn't affect any code that's running at the same time.
 def get_HTTP_response(
   request: django.core.handlers.wsgi.WSGIRequest,
   file: str,
-  **kwargs: str
+  **kwargs: Any
 ) -> django.http.HttpResponse
 ```
 Returns an http response object that returns the formatted template `file`. Any
@@ -561,6 +553,13 @@ def contact(
 ```
 For the contact page
 
+```py
+def admin(
+  request: django.core.handlers.wsgi.WSGIRequest
+) -> HttpResponse | HttpResponseRedirect
+```
+For the `/admin` page
+
 ## ./backend/variables.py
 For global variables that shouldn't normally need to be modified by the server
 host.
@@ -582,6 +581,18 @@ timeout_handler: dict[str, dict[str, None]]
 This is the variable that keeps track of all active rate limits This should
 never manually be modified, instead the helper functions `create_api_ratelimit`
 and `ensure_ratelimit` from `./backend/helper.py` should be used.
+
+```py
+ROBOTS: str
+```
+The context of the robots.txt file. That file is what tells web crawlers if they
+are allowed to view certain pages or the entire website in general.
+
+```py
+BADGE_DATA: dict[str, str]
+```
+This holds the data for all of the badges. This is auto-generated by the backend
+on server startup, so it should never need to be changed
 
 ## ./posts/admin.py
 This file shouldn't need to be modified unless a new database object is added.
@@ -617,6 +628,11 @@ The post object
 class Comment
 ```
 The comment object
+
+```py
+class Badge
+```
+The badge object
 
 ## ./posts/tests.py
 This file doesn't need to ever be modified.
