@@ -41,7 +41,9 @@ def api_comment_create(request, data: commentSchema) -> tuple | dict:
         timestamp = timestamp,
         likes = [],
         comments = [],
-        quotes = []
+        quotes = [],
+        parent = id,
+        parent_is_comment = is_comment
     )
     comment.save()
 
@@ -201,6 +203,11 @@ def api_comment_delete(request, data: likeSchema) -> tuple | dict:
         return 404, {
             "success": False
         }
+
+    if comment.parent:
+        comment_parent = (Comment if comment.parent_is_comment else Post).objects.get(pk=comment.parent)
+        comment_parent.comments.remove(id) # type: ignore
+        comment_parent.save()
 
     if comment.creator == user.user_id or user.user_id == OWNER_USER_ID or user.admin_level >= 1:
         comment.delete()

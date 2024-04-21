@@ -50,6 +50,8 @@ class Comment(models.Model):
     content    = models.TextField(max_length=65536)
     creator    = models.IntegerField()
     timestamp  = models.IntegerField()
+    parent     = models.IntegerField(default=0)
+    parent_is_comment = models.BooleanField(default=False)
 
     likes      = models.JSONField(null=True, blank=True)
     comments   = models.JSONField(null=True, blank=True)

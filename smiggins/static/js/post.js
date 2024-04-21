@@ -19,6 +19,7 @@ dom("post").addEventListener("click", function() {
   if (dom("post-text").value) {
     this.setAttribute("disabled", "");
     dom("post-text").setAttribute("disabled", "");
+
     fetch("/api/comment/create", {
       method: "PUT",
       headers: {
@@ -31,9 +32,9 @@ dom("post").addEventListener("click", function() {
     })
     })
       .then((response) => {
+        dom("post").removeAttribute("disabled");
+        dom("post-text").removeAttribute("disabled");
         if (response.status == 429) {
-          dom("post").removeAttribute("disabled");
-          dom("post-text").removeAttribute("disabled");
           showlog("You are being ratelimited! Try again in a few moments...");
         } else {
           response.json().then((json) => {
@@ -41,8 +42,6 @@ dom("post").addEventListener("click", function() {
               dom("post-text").value = "";
               refresh();
             } else {
-              dom("post").removeAttribute("disabled");
-              dom("post-text").removeAttribute("disabled");
               showlog("Something went wrong! Try again in a few moments...");
             }
           })

@@ -101,10 +101,11 @@ function deletePost(post_id) {
   }).then((response) => (response.json()))
     .then((json) => {
       if (json.success) {
-        document.querySelector(`.post-container[data-post-id="${post_id}"]`).remove();
+        document.querySelector(`.post-container[data-${type}-id="${post_id}"]`).remove();
       }
     });
 }
+
 function addQuote(postID, isComment) {
   const post = document.querySelector(`[data-${isComment ? "comment" : "post"}-id="${postID}"]`).querySelector(".post-after");
   if (post.querySelector("button")) { return; }

@@ -338,6 +338,17 @@ def api_post_delete(request, data: likeSchema) -> tuple | dict:
         creator.posts.remove(id) # type: ignore
         creator.save()
 
+        if post.quote:
+            try:
+                quoted_post = (Comment if post.quote_is_comment else Post).objects.get(pk=post.quote)
+                quoted_post.quotes.remove(id) # type: ignore
+                quoted_post.save()
+
+            except Post.DoesNotExist:
+                pass
+            except Comment.DoesNotExist:
+                pass
+
         post.delete()
 
         return {
