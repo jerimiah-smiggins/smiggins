@@ -1,9 +1,10 @@
 from django.urls import path
 
-from backend.api_user    import *
-from backend.api_post    import *
+from backend.api_admin   import *
 from backend.api_comment import *
 from backend.api_info    import *
+from backend.api_post    import *
+from backend.api_user    import *
 
 from ninja.renderers import BaseRenderer
 from ninja import NinjaAPI
@@ -54,6 +55,9 @@ api.post  ("post/like", response=response_schema)(api_post_like_add)
 api.delete("post/like", response=response_schema)(api_post_like_remove)
 api.post  ("comment/like", response=response_schema)(api_comment_like_add)
 api.delete("comment/like", response=response_schema)(api_comment_like_remove)
+
+# Admin stuff
+api.get("admin/info", response=response_schema)(api_admin_account_info)
 
 # Information
 api.get("info/username", response=response_schema)(api_info_username)

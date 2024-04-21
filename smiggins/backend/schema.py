@@ -38,6 +38,11 @@ class badgeSchema(Schema):
 class newBadgeSchema(badgeSchema):
     badge_data: str
 
-class adminAccountSave(badgeSchema):
+class adminAccountSaveSchema(Schema):
     displ_name: str
     bio: str
+    id: int
+
+class adminAccountSchema(Schema):
+    identifier: str | int
+    use_id: bool

@@ -239,7 +239,6 @@ function getPostHTML(
   </div>`;
 }
 
-
 function trimWhitespace(string, purge_newlines=false) {
   const whitespace = [
     "\t",     "\u2800",

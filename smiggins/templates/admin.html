@@ -8,6 +8,10 @@
     {{HTML_HEADERS}}
     {% endautoescape %}
     <link rel="stylesheet" href="{% static "/css/admin.css" %}">
+
+    <script>
+      const level = {{LEVEL}};
+    </script>
   </head>
 
   <body data-theme="{{THEME}}">
@@ -39,7 +43,6 @@
             Use id? <input type="checkbox"><br>
             <button>Delete Account</button>
           </div>
-
         </div>
       {% endif %}
 
@@ -67,7 +70,6 @@
           <h3>Delete Badge</h3>
           <input placeholder="Badge name..."><br>
           <button>Delete Badge</button>
-
         </div>
       {% endif %}
 
@@ -76,19 +78,11 @@
           <h2>Level 4</h2>
 
           <h3>Modify Account Info</h3>
-          <input placeholder="Account username/id..."><br>
-          Use id? <input type="checkbox"><br>
-          <button>Get Data</button><br><br>
+          <input id="data-identifier" placeholder="Account username/id..."><br>
+          Use id? <input type="checkbox" id="data-use-id"><br>
+          <button id="data-get">Get Data</button><br><br>
 
-          <div>
-            Current account: <code>subroutine</code> (id: 4)<br>
-            <input placeholder="Display name..." value="Ɛ: SubrOwOtine :3"><br>
-            <button>Save Display Name</button><br><br>
-            <textarea placeholder="User bio..."></textarea><br>
-            <button>Save user bio</button><br>
-            <button>Add to Account Switcher</button>
-          </div>
-
+          <div id="data-section"></div>
         </div>
       {% endif %}
 
@@ -108,10 +102,8 @@
             <option value="5">Create new admins (lvl 5)</option>
           </select><br>
           <button>Set admin level</button>
-
         </div>
       {% endif %}
-
     </div>
 
     <script src="{% static '/js/admin.js' %}"></script>
