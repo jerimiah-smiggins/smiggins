@@ -1,13 +1,11 @@
 let inc = 0, req = 0;
 let home = true;
 
-
 showlog = (str, time=3000) => {
   inc++;
   dom("error").innerText = str;
   setTimeout(() => { req++; if (req == inc) { dom("error").innerText = ""; }}, time);
 };
-
 
 dom("post-delete").addEventListener("click", function() {
   fetch(`/api/${dom("comment-toggle").checked ? "comment" : "post"}`, {
@@ -22,5 +20,3 @@ dom("post-delete").addEventListener("click", function() {
       }
     });
 });
-
-
