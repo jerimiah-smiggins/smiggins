@@ -3,9 +3,36 @@ let home = true;
 
 let output = "<select id=\"color\">";
 for (color of validColors) {
-  output += `<option ${((localStorage.getItem("color") == color) ? "selected" : "")} value="${color}">${color.charAt(0).toUpperCase() + color.slice(1)}</option>`;
+  output += `<option ${((localStorage.getItem("color") == color || (!localStorage.getItem("color") && color == "mauve")) ? "selected" : "")} value="${color}">${color.charAt(0).toUpperCase() + color.slice(1)}</option>`;
 }
 output += "</select><br><br>";
+
+let currentAccount = document.cookie.match(/token=([a-f0-9]{64})/)[0].split("=")[1];
+let accounts = JSON.parse(localStorage.getItem("acc-switcher") || JSON.stringify([[localStorage.getItem("username"), currentAccount]]));
+if (!localStorage.getItem("username")) {
+  showlog("Username couldn't be loaded! Try reloading the page?", 10_000);
+  dom("switcher").setAttribute("hidden", "");
+}
+
+let hasCurrent = false;
+for (const acc of accounts) {
+  if (currentAccount == acc[1]) {
+    hasCurrent = true;
+  }
+}
+
+if (!hasCurrent) {
+  accounts.push([
+    localStorage.getItem("username"),
+    document.cookie.match(/token=([a-f0-9]{64})/)[0].split("=")[1]
+  ]);
+}
+
+accounts = accounts.sort(
+  (a, b) => (a[0].toLowerCase() > b[0].toLowerCase())
+);
+
+localStorage.setItem("acc-switcher", JSON.stringify(accounts));
 
 dom("color-selector").innerHTML = output;
 dom("post-example").innerHTML = getPostHTML(
@@ -35,6 +62,21 @@ function toggleGradient() {
     dom("banner").classList.remove("gradient");
   }
 }
+
+let x = new DocumentFragment();
+for (const acc of accounts) {
+  let y = document.createElement("option");
+  y.innerHTML = acc[0];
+  y.value = acc[1];
+
+  if (currentAccount == acc[1]) {
+    y.setAttribute("selected", "");
+  }
+
+  x.append(y);
+}
+
+dom("accs").append(x);
 
 toggleGradient();
 
@@ -118,3 +160,26 @@ dom("banner-color-two").addEventListener("input", function() {
 });
 
 dom("banner-is-gradient").addEventListener("input", toggleGradient);
+
+dom("acc-switch").addEventListener("click", function() {
+  setCookie("token", dom("accs").value);
+  localStorage.setItem("username", document.querySelector("#accs [selected]").innerHTML);
+  window.location.reload();
+})
+
+dom("acc-remove").addEventListener("click", function() {
+  let removed = dom("accs").value;
+  if (removed == currentAccount) {
+    showlog("You can't remove the account you're currently signed into!");
+  } else {
+    for (let i = 0; i < accounts.length; i++) {
+      if (accounts[i][1] == removed) {
+        accounts.splice(i, 1);
+        --i;
+      }
+    }
+
+    dom("accs").querySelector(`option[value="${removed}"]`).remove();
+    localStorage.setItem("acc-switcher", JSON.stringify(accounts));
+  }
+})

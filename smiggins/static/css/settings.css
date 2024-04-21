@@ -36,9 +36,9 @@ hr {
   .post { width: calc(94vw - 3.5em - (3em / 7)); }
 }
 
-.small-mw {
+.settings-side {
   display: inline-block;
-  max-width: 20em;
+  width: 20em;
 }
 
 .big-button {
