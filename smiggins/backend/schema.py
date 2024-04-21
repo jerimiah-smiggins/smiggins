@@ -24,22 +24,20 @@ class followerSchema(Schema):
 class themeSchema(Schema):
     theme: str
 
-class colorSchema(Schema):
-    color: str
-    color_two: str
-    is_gradient: bool
-
-class privSchema(Schema):
-    priv: bool
-
-class textSettingsSchema(Schema):
-    displ_name: str
-    bio: str
-
 class settingsSchema(Schema):
     bio: str
     priv: bool
     color: str
     color_two: str
     displ_name : str
-    is_gradient: bool
+    is_gradient: bool\
+
+class badgeSchema(Schema):
+    badge_name: str
+
+class newBadgeSchema(badgeSchema):
+    badge_data: str
+
+class adminAccountSave(badgeSchema):
+    displ_name: str
+    bio: str

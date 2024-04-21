@@ -15,8 +15,10 @@ dom("post-delete").addEventListener("click", function() {
     })
   }).then((response) => (response.json()))
     .then((json) => {
-      if (!json.success) {
-        showlog("I DONT THINK THAT WORKED MAYBE HITTING YOUR PC WILL HELP")
+      if (json.success) {
+        showlog("Success!");
+      } else {
+        showlog("Something went wrong deleting the specified post/comment! Maybe it doesn't exist?", 5000);
       }
     });
 });
