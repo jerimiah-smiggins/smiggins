@@ -29,8 +29,8 @@ dom("account-delete").addEventListener("click", function() {
   fetch("/api/user", {
     method: "DELETE",
     body: JSON.stringify({
-      "info": ((dom("delete-id-toggle").checked)? Number : "")(dom("account-del-identifier").value),
-      "is_id": dom("delete-id-toggle").checked
+      "identifier": ((dom("delete-id-toggle").checked)? Number(dom("account-del-identifier").value) : dom("account-del-identifier").value),
+      "use_id": dom("delete-id-toggle").checked
     })
   }).then((response) => (response.json()))
     .then((json) => {

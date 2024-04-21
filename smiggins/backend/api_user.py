@@ -276,7 +276,7 @@ def api_user_delete(request, data: adminAccountSchema) -> tuple | dict:
             if post.quote:
                 try:
                     quoted_post = (Comment if post.quote_is_comment else Post).objects.get(pk=post.quote)
-                    quoted_post.quotes.remove(id) # type: ignore
+                    quoted_post.quotes.remove(post.post_id) # type: ignore
                     quoted_post.save()
                 except Post.DoesNotExist:
                     pass
@@ -286,13 +286,19 @@ def api_user_delete(request, data: adminAccountSchema) -> tuple | dict:
             post.delete()
 
         for followed_id in account.following:
+            if followed_id == account.user_id:
+                continue
+
             followed = User.objects.get(user_id=followed_id)
-            followed.followers.remove(id) # type: ignore
+            followed.followers.remove(account.user_id) # type: ignore
             followed.save()
 
         for follower_id in account.followers:
+            if follower_id == account.user_id:
+                continue
+
             follower = User.objects.get(user_id=follower_id)
-            follower.following.remove(id) # type: ignore
+            follower.following.remove(account.user_id) # type: ignore
             follower.save()
 
         account.delete()
