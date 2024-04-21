@@ -25,7 +25,22 @@ dom("post-delete").addEventListener("click", function() {
 });
 
 // Level 2
-// ...
+dom("account-delete").addEventListener("click", function() {
+  fetch("/api/user", {
+    method: "DELETE",
+    body: JSON.stringify({
+      "info": ((dom("delete-id-toggle").checked)? Number : "")(dom("account-del-identifier").value),
+      "is_id": dom("delete-id-toggle").checked
+    })
+  }).then((response) => (response.json()))
+    .then((json) => {
+      if (json.success) {
+        showlog("Success!");
+      } else {
+        showlog("Something went wrong deleting the specified post/comment! Maybe it doesn't exist?", 5000);
+      }
+    });
+});
 
 // Level 3
 // ...

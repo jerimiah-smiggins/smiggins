@@ -18,7 +18,7 @@ class commentSchema(postSchema):
 class likeSchema(Schema):
     id: int
 
-class followerSchema(Schema):
+class userSchema(Schema):
     username: str
 
 class themeSchema(Schema):
@@ -30,7 +30,7 @@ class settingsSchema(Schema):
     color: str
     color_two: str
     displ_name : str
-    is_gradient: bool\
+    is_gradient: bool
 
 class badgeSchema(Schema):
     badge_name: str

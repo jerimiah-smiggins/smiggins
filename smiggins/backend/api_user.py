@@ -184,7 +184,7 @@ def api_user_settings(request, data: settingsSchema) -> tuple | dict:
         "success": True
     }
 
-def api_user_follower_add(request, data: followerSchema) -> tuple | dict:
+def api_user_follower_add(request, data: userSchema) -> tuple | dict:
     # Called when someone requests to follow another account.
 
     token = request.COOKIES.get('token')
@@ -210,7 +210,7 @@ def api_user_follower_add(request, data: followerSchema) -> tuple | dict:
         "success": True
     }
 
-def api_user_follower_remove(request, data: followerSchema) -> tuple | dict:
+def api_user_follower_remove(request, data: userSchema) -> tuple | dict:
     # Called when someone requests to unfollow another account.
 
     token = request.COOKIES.get('token')
@@ -239,4 +239,68 @@ def api_user_follower_remove(request, data: followerSchema) -> tuple | dict:
 
     return 201, {
         "success": True
+    }
+
+def api_user_delete(request, data: adminAccountSchema) -> tuple | dict:
+    # Called when someone deletes an account.
+
+    token = request.COOKIES.get('token')
+    identifier = data.identifier
+    use_id = data.use_id
+
+    try:
+            if use_id:
+                account = User.objects.get(user_id=int(identifier))
+            else:
+                account = User.objects.get(username=identifier)
+    except User.DoesNotExist:
+            return 404, {
+                "success": False,
+                "reason": "User not found!"
+            }
+
+    try:
+        user = User.objects.get(token=token)
+    except User.DoesNotExist:
+        return 404, {
+            "success": False
+        }
+
+    if account.user_id == user.user_id or user.user_id == OWNER_USER_ID or user.admin_level >= 2:
+        for post_id in account.posts:
+            try:
+                post = Post.objects.get(post_id=post_id)
+            except Post.DoesNotExist:
+                pass
+
+            if post.quote:
+                try:
+                    quoted_post = (Comment if post.quote_is_comment else Post).objects.get(pk=post.quote)
+                    quoted_post.quotes.remove(id) # type: ignore
+                    quoted_post.save()
+                except Post.DoesNotExist:
+                    pass
+                except Comment.DoesNotExist:
+                    pass
+
+            post.delete()
+
+        for followed_id in account.following:
+            followed = User.objects.get(user_id=followed_id)
+            followed.followers.remove(id) # type: ignore
+            followed.save()
+
+        for follower_id in account.followers:
+            follower = User.objects.get(user_id=follower_id)
+            follower.following.remove(id) # type: ignore
+            follower.save()
+
+        account.delete()
+
+        return {
+            "success": True
+        }
+
+    return 400, {
+        "success": False
     }

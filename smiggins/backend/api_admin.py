@@ -20,11 +20,12 @@ def api_admin_badge_remove(request, data: badgeSchema) -> tuple | dict:
     # Removing a badge from a user (3+)
     ...
 
-def api_admin_account_info(request, identifier: str, use_id: str) -> tuple | dict:
+def api_admin_account_info(request, data: adminAccountSchema) -> tuple | dict:
     # Get account information (4+)
 
     token = request.COOKIES.get('token')
-
+    identifier = data.identifier
+    use_id = data.use_id
     try:
         self_user = User.objects.get(token=token)
 
@@ -35,11 +36,10 @@ def api_admin_account_info(request, identifier: str, use_id: str) -> tuple | dic
 
     if self_user.admin_level >= 4 or self_user.user_id == OWNER_USER_ID:
         try:
-            if use_id == "true":
+            if use_id:
                 user = User.objects.get(user_id=int(identifier))
             else:
                 user = User.objects.get(username=identifier)
-
         except User.DoesNotExist:
             return 404, {
                 "success": False,
@@ -63,6 +63,6 @@ def api_admin_account_save(request, data: adminAccountSaveSchema) -> tuple | dic
     # Save account information (4+)
     ...
 
-def api_admin_set_level(request, data: followerSchema) -> tuple | dict:
+def api_admin_set_level(request, data: userSchema) -> tuple | dict:
     # Set the admin level for a different person
     ...

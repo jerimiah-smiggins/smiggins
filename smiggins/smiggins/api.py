@@ -37,6 +37,7 @@ api.post("user/login",  response=response_schema)(api_account_login)
 api.patch ("user/settings", response=response_schema)(api_user_settings)
 api.post  ("user/follower", response=response_schema)(api_user_follower_add)
 api.delete("user/follower", response=response_schema)(api_user_follower_remove)
+api.delete("user",          response=response_schema)(api_user_delete) #how should I space this
 
 # Post stuff
 api.put("post/create",    response=response_schema)(api_post_create)
