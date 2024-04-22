@@ -37,7 +37,7 @@ dom("account-delete").addEventListener("click", function() {
       if (json.success) {
         showlog("Success!");
       } else {
-        showlog("Something went wrong deleting the specified post/comment! Maybe it doesn't exist?", 5000);
+        showlog("Something went wrong deleting the specified account! Maybe it doesn't exist?", 5000);
       }
     });
 });
