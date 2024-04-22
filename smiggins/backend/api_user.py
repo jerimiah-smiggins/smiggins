@@ -249,15 +249,15 @@ def api_user_delete(request, data: adminAccountSchema) -> tuple | dict:
     use_id = data.use_id
 
     try:
-            if use_id:
-                account = User.objects.get(user_id=int(identifier))
-            else:
-                account = User.objects.get(username=identifier)
+        if use_id:
+            account = User.objects.get(user_id=int(identifier))
+        else:
+            account = User.objects.get(username=identifier)
     except User.DoesNotExist:
-            return 404, {
-                "success": False,
-                "reason": "User not found!"
-            }
+        return 404, {
+            "success": False,
+            "reason": "User not found!"
+        }
 
     try:
         user = User.objects.get(token=token)
