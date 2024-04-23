@@ -225,12 +225,12 @@ def get_post_json(post_id: int, current_user_id: int=0, comment: bool=False) -> 
     return post_json
 
 def trim_whitespace(string: str, purge_newlines: bool=False) -> str:
-    string = string.replace("\r", "")
+    string = string.replace("\x0d", "")
 
     if purge_newlines:
-        string = string.replace("\n", " ")
+        string = string.replace("\x0a", " ").replace("\x85")
 
-    for i in ["\t", "\u2000", "\u2001", "\u2002", "\u2003", "\u2004", "\u2005", "\u2006", "\u2007", "\u2008", "\u2009", "\u200a", "\u200b", "\u200c", "\u200d", "\u200e", "\u200f", "\u2800"]:
+    for i in ["\x09", "\x0b", "\x0c", "\xa0", "\u1680", "\u2000", "\u2001", "\u2002", "\u2003", "\u2004", "\u2005", "\u2006", "\u2007", "\u2008", "\u2009", "\u200a", "\u200b", "\u2028", "\u2029", "\u202f", "\u205f", "\u2800", "\u3000", "\ufeff"]:
         string = string.replace(i, " ")
 
     while "\n "    in string: string = string.replace("\n ", "\n")

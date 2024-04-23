@@ -241,17 +241,18 @@ function getPostHTML(
 
 function trimWhitespace(string, purge_newlines=false) {
   const whitespace = [
-    "\t",     "\u2800",
-    "\u2000", "\u2001", "\u2002", "\u2003",
-    "\u2004", "\u2005", "\u2006", "\u2007",
-    "\u2008", "\u2009", "\u200a", "\u200b",
-    "\u200c", "\u200d", "\u200e", "\u200f"
+    "\x09",   "\x0b",   "\x0c",   "\xa0",
+    "\u1680", "\u2000", "\u2001", "\u2002",
+    "\u2003", "\u2004", "\u2005", "\u2006",
+    "\u2007", "\u2008", "\u2009", "\u200a",
+    "\u200b", "\u2028", "\u2029", "\u202f",
+    "\u205f", "\u2800", "\u3000", "\ufeff"
   ];
 
-  string = string.replaceAll("\r", "");
+  string = string.replaceAll("\x0d", "");
 
   if (purge_newlines) {
-      string = string.replaceAll("\n", " ");
+    string = string.replaceAll("\x0a", " ").replaceAll("\x85")
   }
 
   for (const char of whitespace) {
