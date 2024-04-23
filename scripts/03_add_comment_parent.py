@@ -18,15 +18,15 @@ django.setup()
 from posts.models import Post, Comment
 
 ALL_POSTS = Post.objects.all()
-ALL_COMMENTS = Comment.objects.all()
-
 for post in ALL_POSTS:
     post_id = post.post_id
+    parent_object = Post.objects.get(post_id=post_id)
     invalid_comments = []
 
-    for comment in post.comments:
+    for comment in (parent_object.comments or []):
         try:
             comment_object = Comment.objects.get(comment_id=comment)
+            print(comment_object.content)
             comment_object.parent = post_id
             comment_object.parent_is_comment = False
             comment_object.save()
@@ -36,17 +36,19 @@ for post in ALL_POSTS:
 
     for comment in invalid_comments:
         try:
-            post.comments.remove(comment)
+            parent_object.comments.remove(comment) # type: ignore
         except ValueError:
             pass
 
-    post.save()
+    parent_object.save()
 
+ALL_COMMENTS = Comment.objects.all()
 for comment in ALL_COMMENTS:
     comment_id = comment.comment_id
+    parent_object = Comment.objects.get(comment_id=comment_id)
     invalid_comments = []
 
-    for subcomment in comment.comments:
+    for subcomment in (comment.comments or []):
         try:
             comment_object = Comment.objects.get(comment_id=subcomment)
             comment_object.parent = comment_id
@@ -54,16 +56,16 @@ for comment in ALL_COMMENTS:
             comment_object.save()
 
         except Comment.DoesNotExist:
-            invalid_comments.append(comment)
+            invalid_comments.append(subcomment)
 
-    for comment in invalid_comments:
+    for subcomment in invalid_comments:
         try:
-            comment.comments.remove(comment)
+            parent_object.comments.remove(subcomment) # type: ignore
         except ValueError:
             pass
 
-    comment.save()
+    parent_object.save()
 
-f = open("lastest_scr", "w")
+f = open("latest_scr", "w")
 f.write("add_comment_parent")
 f.close()
