@@ -8,6 +8,11 @@ from ._settings import MAX_POST_LENGTH
 from posts.models import Badge
 from django.db.utils import OperationalError
 
+f = open("latest_scr", "r").read()
+if f != "add_comment_parent":
+    print("The script 'add_comment_parent' doesn't seem to have been ran! If it has, you can ignore this message.")
+del f
+
 # Headers set at the top of every html file.
 HTML_HEADERS: str = f"""
 <meta charset="utf-8">
