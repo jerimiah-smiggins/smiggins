@@ -26,7 +26,6 @@ for post in ALL_POSTS:
     for comment in (parent_object.comments or []):
         try:
             comment_object = Comment.objects.get(comment_id=comment)
-            print(comment_object.content)
             comment_object.parent = post_id
             comment_object.parent_is_comment = False
             comment_object.save()
