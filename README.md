@@ -28,7 +28,7 @@ online version (at least for now): https://trinkey.pythonanywhere.com
 </details>
 
 <details>
-  <summary><h2 style="display: inline">How to set up the Django version on PythonAnywhere (using a venv)</h2></summary>
+  <summary><h2 style="display: inline">How to set up the server on PythonAnywhere (using a venv)</h2></summary>
 
   1. Create a venv (the name can be anything). if you already have one feel free
   to skip this step
@@ -101,15 +101,14 @@ online version (at least for now): https://trinkey.pythonanywhere.com
 </details>
 
 <details>
-  <summary><h2 style="display: inline">How to set up the Django version on PythonAnywhere (no venv)</h2></summary>
+  <summary><h2 style="display: inline">How to set up the server on PythonAnywhere (no venv)</h2></summary>
 
   1. Create a new webapp using the following settings:
       - Manual configuration
-      - Python 3.10 (or 3.9, just not 3.8)
+      - Python 3.10
 
   2. Install and update the required libraries
      ```bash
-     # use 3.9 if that's what you selected
      python3.10 -m pip install --upgrade django django-ninja
      ```
 
@@ -156,8 +155,8 @@ online version (at least for now): https://trinkey.pythonanywhere.com
   and setup the static files:
       ```bash
       cd ~/social-media-thing/smiggins
-      python manage.py collectstatic
-      python manage.py migrate
+      python3.10 manage.py collectstatic
+      python3.10 manage.py migrate
       ```
 </details>
 
@@ -196,7 +195,6 @@ online version (at least for now): https://trinkey.pythonanywhere.com
   Then, in the venv console, run these commands in the `~/social-media-thing/smiggins`
   folder:
   ```bash
-  # use 3.9 if you chose that
   python3.10 manage.py collectstatic
   python3.10 manage.py migrate
   ```
