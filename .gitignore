@@ -3,6 +3,8 @@ save/
 __pycache__/
 .hintrc
 .venv/
+
 smiggins/backend/_api_keys.py
-smiggins/db.sqlite3
 smiggins/collected-static/
+smiggins/db.sqlite3
+smiggins/latest_scr

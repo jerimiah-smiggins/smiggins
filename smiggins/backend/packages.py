@@ -9,8 +9,8 @@ import time
 import sys
 import os
 
-from typing import Union, Callable
-from posts.models import User, Post, Comment
+from typing import Union, Callable, Any
+from posts.models import User, Post, Comment, Badge
 from ninja.errors import HttpError
 
 from django.shortcuts import render

@@ -18,20 +18,31 @@ class commentSchema(postSchema):
 class likeSchema(Schema):
     id: int
 
-class followerSchema(Schema):
+class userSchema(Schema):
     username: str
 
 class themeSchema(Schema):
     theme: str
 
-class colorSchema(Schema):
+class settingsSchema(Schema):
+    bio: str
+    priv: bool
     color: str
     color_two: str
+    displ_name : str
     is_gradient: bool
 
-class privSchema(Schema):
-    priv: bool
+class badgeSchema(Schema):
+    badge_name: str
 
-class textSettingsSchema(Schema):
+class newBadgeSchema(badgeSchema):
+    badge_data: str
+
+class adminAccountSaveSchema(Schema):
     displ_name: str
     bio: str
+    id: int
+
+class adminAccountSchema(Schema):
+    identifier: str | int
+    use_id: bool
