@@ -67,11 +67,7 @@ button { width: 5em; }
 .username, .timestamp, .displ-name { display: inline-block;  }
 .bottom-content { text-align: center; }
 
-.like svg,
-.comment,
-.priv,
-.quote-button svg,
-.delete svg {
+.like svg, .comment, .priv, .quote-button svg {
   width: 1.2em;
   height: 1.2em;
   display: inline-block;
@@ -80,7 +76,7 @@ button { width: 5em; }
   fill: var(--text);
 }
 
-.like, .quote-button, .delete {
+.like, .quote-button {
   white-space: nowrap;
   cursor: pointer;
   display: inline-block;

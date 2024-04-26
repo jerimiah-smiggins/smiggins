@@ -21,11 +21,12 @@
 
     <link rel="stylesheet" href="{% static '/css/home.css' %}">
     <link rel="stylesheet" href="{% static '/css/user.css' %}">
+    <script src="{% static '/js/quotes.js' %}"></script>
   </head>
 
   <body data-theme="{{THEME}}" data-username="{{USERNAME}}" style="--banner: {{BANNER_COLOR}}; --banner-two: {{BANNER_COLOR_TWO}}">
     <div id="banner" class="{{GRADIENT}}"></div>
-    <div><div id="username-main">{{DISPLAY_NAME}}<span data-show-on-priv hidden><div class="priv" data-add-icon="lock"></div></span></div></div>
+    <div><div id="username-main">{{DISPLAY_NAME}}<span data-show-on-priv hidden><div class="priv"></div></span></div></div>
     <div id="username-lower">@{{USERNAME}}</div>
     <div id="follow"></div>
     <div id="user-bio"></div>
@@ -38,12 +39,13 @@
 
     <script>
       const logged_in = {{LOGGED_IN}};
+      let share = window.location.href;
+      let home = true;
     </script>
 
-    <script src="{% static '/js/user.js' %}"></script>
-    <script src="{% static '/js/timeline.js' %}"></script>
     {% autoescape off %}
     {{HTML_FOOTERS}}
     {% endautoescape %}
+    <script src="{% static '/js/user.js' %}"></script>
   </body>
 </html>

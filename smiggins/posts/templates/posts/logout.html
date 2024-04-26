@@ -23,14 +23,10 @@
     If you don't get redirected soon, click <a href="/">here...</a>
     <script>
       localStorage.removeItem("home-page");
+      localStorage.removeItem("color");
       localStorage.removeItem("username")
       eraseCookie("token");
-      if (window.location.search == "?from=switcher") {
-        window.location.href = "/login";
-      } else {
-        localStorage.removeItem("acc-switcher");
-        window.location.href = "/";
-      }
+      window.location.href = "/";
     </script>
   </body>
 </html>

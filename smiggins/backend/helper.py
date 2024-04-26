@@ -25,7 +25,7 @@ def set_timeout(callback: Callable, delay_ms: Union[int, float]) -> None:
     thread = threading.Thread(target=wrapper)
     thread.start()
 
-def get_HTTP_response(request, file: str, **kwargs: Any) -> HttpResponse:
+def get_HTTP_response(request, file: str, **kwargs: str) -> HttpResponse:
     context = {
         "SITE_NAME" : SITE_NAME,
         "VERSION" : VERSION,
@@ -61,7 +61,7 @@ def create_simple_return(
     # This creates a response object. This was made so that its standardized
     # and creates less repeated code.
     x = lambda request: \
-            HttpResponseRedirect("/home/" if redirect_logged_in else "/", status=307) \
+            HttpResponseRedirect("/home" if redirect_logged_in else "/", status=307) \
         if (redirect_logged_in and validate_token(request.COOKIES.get("token"))) or (redirect_logged_out and not validate_token(request.COOKIES.get("token"))) \
         else (HttpResponse(content_override, content_type=content_type) if content_override else get_HTTP_response(request, template_path))
 
@@ -153,8 +153,6 @@ def get_post_json(post_id: int, current_user_id: int=0, comment: bool=False) -> 
         post = Post.objects.get(post_id=post_id)
     creator = User.objects.get(user_id=post.creator)
 
-    can_delete_all = current_user_id == OWNER_USER_ID or User.objects.get(pk=current_user_id).admin_level >= 1
-
     if creator.private and current_user_id not in creator.following:
         return {
             "private_acc": True,
@@ -168,56 +166,44 @@ def get_post_json(post_id: int, current_user_id: int=0, comment: bool=False) -> 
         "creator_username": creator.username,
         "content": post.content,
         "timestamp": post.timestamp,
-        "liked": current_user_id in (post.likes or []),
-        "likes": len(post.likes or []),
-        "comments": len(post.comments or []),
-        "quotes": len(post.quotes or []),
+        "liked": current_user_id in post.likes,
+        "likes": len(post.likes),
+        "comments": len(post.comments),
+        "quotes": len(post.quotes),
         "private_acc": creator.private,
-        "owner": can_delete_all or creator.user_id == current_user_id,
         "can_view": True
     }
 
     if not comment and post.quote != 0: # type: ignore
-        try:
-            if post.quote_is_comment: # type: ignore
-                quote = Comment.objects.get(comment_id=post.quote) # type: ignore
-            else:
-                quote = Post.objects.get(post_id=post.quote) # type: ignore
-            quote_creator = User.objects.get(user_id=quote.creator)
+        if post.quote_is_comment: # type: ignore
+            quote = Comment.objects.get(comment_id=post.quote) # type: ignore
+        else:
+            quote = Post.objects.get(post_id=post.quote) # type: ignore
 
-            if quote_creator.private and current_user_id not in quote_creator.following:
-                quote_info = {
-                    "deleted": False,
-                    "private_acc": True,
-                    "can_view": False
-                }
+        quote_creator = User.objects.get(user_id=quote.creator)
 
-            else:
-                quote_info = {
-                    "deleted": False,
-                    "comment": post.quote_is_comment, # type: ignore
-                    "post_id": quote.post_id if isinstance(quote, Post) else quote.comment_id,
-                    "creator_id": quote.creator,
-                    "display_name": quote_creator.display_name,
-                    "creator_username": quote_creator.username,
-                    "content": quote.content,
-                    "timestamp": quote.timestamp,
-                    "liked": current_user_id in (quote.likes or []),
-                    "likes": len(quote.likes or []),
-                    "comments": len(quote.comments or []),
-                    "quotes": len(post.quotes or []),
-                    "private_acc": quote_creator.private,
-                    "can_view": True,
-                    "has_quote": not post.quote_is_comment and quote.quote # type: ignore
-                }
-
-        except Comment.DoesNotExist:
+        if quote_creator.private and current_user_id not in quote_creator.following:
             quote_info = {
-                "deleted": True
+                "private_acc": True,
+                "can_view": False
             }
-        except Post.DoesNotExist:
+
+        else:
             quote_info = {
-                "deleted": True
+                "comment": post.quote_is_comment, # type: ignore
+                "post_id": quote.post_id if isinstance(quote, Post) else quote.comment_id,
+                "creator_id": quote.creator,
+                "display_name": quote_creator.display_name,
+                "creator_username": quote_creator.username,
+                "content": quote.content,
+                "timestamp": quote.timestamp,
+                "liked": current_user_id in quote.likes,
+                "likes": len(quote.likes),
+                "comments": len(quote.comments),
+                "quotes": len(post.quotes),
+                "private_acc": quote_creator.private,
+                "can_view": True,
+                "has_quote": not post.quote_is_comment and quote.quote # type: ignore
             }
 
         post_json["quote"] = quote_info
@@ -225,12 +211,12 @@ def get_post_json(post_id: int, current_user_id: int=0, comment: bool=False) -> 
     return post_json
 
 def trim_whitespace(string: str, purge_newlines: bool=False) -> str:
-    string = string.replace("\x0d", "")
+    string = string.replace("\r", "")
 
     if purge_newlines:
-        string = string.replace("\x0a", " ").replace("\x85")
+        string = string.replace("\n", " ")
 
-    for i in ["\x09", "\x0b", "\x0c", "\xa0", "\u1680", "\u2000", "\u2001", "\u2002", "\u2003", "\u2004", "\u2005", "\u2006", "\u2007", "\u2008", "\u2009", "\u200a", "\u200b", "\u2028", "\u2029", "\u202f", "\u205f", "\u2800", "\u3000", "\ufeff"]:
+    for i in ["\t", "\u2000", "\u2001", "\u2002", "\u2003", "\u2004", "\u2005", "\u2006", "\u2007", "\u2008", "\u2009", "\u200a", "\u200b", "\u200c", "\u200d", "\u200e", "\u200f", "\u2800"]:
         string = string.replace(i, " ")
 
     while "\n "    in string: string = string.replace("\n ", "\n")
