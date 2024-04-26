@@ -96,7 +96,7 @@ def api_quote_create(request, data: quoteSchema) -> tuple | dict:
     )
 
     quoted_post = (Comment if data.quote_is_comment else Post).objects.get(pk=data.quote_id)
-    quoted_post.quotes.append(post.post_id) # type: ignore
+    quoted_post.quotes.append(post.post_id)
     quoted_post.save()
 
     user.posts.append(post.post_id)
@@ -138,12 +138,7 @@ def api_post_list_following(request, offset: int=-1) -> tuple | dict:
     offset = 0
     outputList = []
     for i in potential:
-        try:
-            current_post = Post.objects.get(pk=i)
-        except Post.DoesNotExist:
-            offset += 1
-            continue
-
+        current_post = Post.objects.get(pk=i)
         current_user = User.objects.get(pk=current_post.creator)
 
         if current_user.private and user.user_id not in current_user.following:
@@ -186,17 +181,17 @@ def api_post_list_recent(request, offset: int=-1) -> tuple | dict:
     while i > next_id - POSTS_PER_REQUEST - offset and i > 0:
         try:
             current_post = Post.objects.get(pk=i)
+
+            current_user = User.objects.get(pk=current_post.creator)
+            if current_user.private and user.user_id not in current_user.following:
+                offset += 1
+
+            else:
+                outputList.append(get_post_json(i, user.user_id))
+
+
         except Post.DoesNotExist:
-            offset += 1
-            i -= 1
-            continue
-
-        current_user = User.objects.get(pk=current_post.creator)
-        if current_user.private and user.user_id not in current_user.following:
-            offset += 1
-
-        else:
-            outputList.append(get_post_json(i, user.user_id))
+            pass
 
         i -= 1
 
@@ -229,9 +224,9 @@ def api_post_list_user(request, username: str, offset: int=-1) -> tuple | dict:
             "end": True,
             "private": True,
             "can_view": False,
-            "following": len(user.following or []) - 1,
-            "followers": len(user.followers or []),
-            "bio": user.bio
+            "following": len(user.following) - 1,
+            "followers": len(user.followers),
+            "bio": ""
         }
 
     potential = user.posts[::-1]
@@ -253,12 +248,12 @@ def api_post_list_user(request, username: str, offset: int=-1) -> tuple | dict:
     return {
         "posts": outputList,
         "end": end,
+        "color": user.color or "#3a1e93",
         "private": user.private,
         "can_view": True,
-        "following": len(user.following or []) - 1,
-        "followers": len(user.followers or []),
-        "bio": user.bio or "",
-        "self": False if not logged_in else self_user.username == username # type: ignore
+        "following": len(user.following) - 1,
+        "followers": len(user.followers),
+        "bio": user.bio or ""
     }
 
 def api_post_like_add(request, data: likeSchema) -> tuple | dict:
@@ -281,11 +276,11 @@ def api_post_like_add(request, data: likeSchema) -> tuple | dict:
     user = User.objects.get(token=token)
     post = Post.objects.get(post_id=id)
 
-    if user.user_id not in (post.likes or []):
+    if user.user_id not in post.likes:
             if post.likes != []:
-                post.likes.append(user.user_id) # type: ignore
+                post.likes.append(user.user_id)
             else:
-                post.likes = [user.user_id] # type: ignore
+                post.likes = [user.user_id]
     post.save()
 
     return {
@@ -311,50 +306,10 @@ def api_post_like_remove(request, data: likeSchema) -> tuple | dict:
     user = User.objects.get(token=token)
     post = Post.objects.get(post_id=id)
 
-    if user.user_id in (post.likes or []):
-        post.likes.remove(user.user_id) # type: ignore
+    if user.user_id in post.likes:
+        post.likes.remove(user.user_id)
     post.save()
 
     return {
         "success": True
-    }
-
-def api_post_delete(request, data: likeSchema) -> tuple | dict:
-    # Called when someone deletes a post.
-
-    token = request.COOKIES.get('token')
-    id = data.id
-
-    try:
-        post = Post.objects.get(post_id=id)
-        user = User.objects.get(token=token)
-    except Post.DoesNotExist or User.DoesNotExist:
-        return 404, {
-            "success": False
-        }
-
-    if post.creator == user.user_id or user.user_id == OWNER_USER_ID or user.admin_level >= 1:
-        creator = User.objects.get(user_id=post.creator)
-        creator.posts.remove(id) # type: ignore
-        creator.save()
-
-        if post.quote:
-            try:
-                quoted_post = (Comment if post.quote_is_comment else Post).objects.get(pk=post.quote)
-                quoted_post.quotes.remove(id) # type: ignore
-                quoted_post.save()
-
-            except Post.DoesNotExist:
-                pass
-            except Comment.DoesNotExist:
-                pass
-
-        post.delete()
-
-        return {
-            "success": True
-        }
-
-    return 400, {
-        "success": False
     }
