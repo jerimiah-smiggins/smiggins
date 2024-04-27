@@ -51,6 +51,23 @@ def api_admin_user_delete(request, data: adminAccountSchema) -> tuple | dict:
 
             post.delete()
 
+        for comment_id in account.comments:
+            try:
+                comment = Comment.objects.get(post_id=comment_id)
+            except Comment.DoesNotExist:
+                pass
+
+            try:
+                commented_post = (Comment if comment.parent_is_comment else Post).objects.get(pk=comment.parent)
+                commented_post.comments.remove(comment.comment_id) # type: ignore
+                commented_post.save()
+            except Post.DoesNotExist:
+                pass
+            except Comment.DoesNotExist:
+                pass
+
+            comment.delete()
+
         for followed_id in account.following:
             if followed_id == account.user_id:
                 continue
