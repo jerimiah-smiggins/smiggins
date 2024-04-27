@@ -49,6 +49,11 @@ def api_admin_user_delete(request, data: adminAccountSchema) -> tuple | dict:
                 except Comment.DoesNotExist:
                     pass
 
+            for quote_id in post.quotes:
+                quoting_post = Post.objects.get(post_id=quote_id)
+                quoting_post.quote = 0
+                quoting_post.save()
+
             post.delete()
 
         for comment_id in account.comments:
