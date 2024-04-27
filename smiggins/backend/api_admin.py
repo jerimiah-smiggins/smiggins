@@ -78,6 +78,11 @@ def api_admin_user_delete(request, data: adminAccountSchema) -> tuple | dict:
 
             comment.delete()
 
+        for like in user.likes:
+            post = (Comment if like[1] else Post).objects.get(pk=like[0])
+            post.likes.remove(account.user_id) # type: ignore
+            post.save()
+
         for followed_id in account.following:
             if followed_id == account.user_id:
                 continue
@@ -170,7 +175,7 @@ def api_admin_badge_create(request, data: newBadgeSchema) -> tuple | dict:
     }
 
 def api_admin_badge_delete(request, data: deleteBadgeSchema) -> tuple | dict:
-    # Creating a badge (3+)
+    # Deleting a badge (3+)
 
     token = request.COOKIES.get('token')
 
