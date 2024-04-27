@@ -21,6 +21,7 @@
 
     <link rel="stylesheet" href="{% static '/css/home.css' %}">
     <link rel="stylesheet" href="{% static '/css/user.css' %}">
+    <script src="{% static '/js/quotes.js' %}"></script>
     <style>
       #top .main-content {
         -webkit-line-clamp: unset;
@@ -41,6 +42,8 @@
       const post_id = {{POST_ID}};
       const comment = {{COMMENT}};
       const logged_in = {{LOGGED_IN}};
+      let share = window.location.href;
+      let home = true;
 
       {% autoescape off %}
       const post = {{POST_JSON}};
@@ -66,10 +69,9 @@
       );
     </script>
 
-    <script src="{% static '/js/post.js' %}"></script>
-    <script src="{% static '/js/timeline.js' %}"></script>
     {% autoescape off %}
     {{HTML_FOOTERS}}
     {% endautoescape %}
+    <script src="{% static '/js/post.js' %}"></script>
   </body>
 </html>

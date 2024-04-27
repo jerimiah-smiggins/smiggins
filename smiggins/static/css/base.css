@@ -97,8 +97,6 @@ p {
   padding: 2px;
 }
 
-.inline-block { display: inline-block; }
-
 .text:not(svg)       { color: var(--text);   }
 .background:not(svg) { color: var(--base);   }
 .accent:not(svg)     { color: var(--accent); }

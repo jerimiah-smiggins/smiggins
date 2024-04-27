@@ -1,12 +1,10 @@
 # social-media-thing
-(name and project wip)
-
 official discord server: https://discord.gg/tH7QnHApwu
 
 online version (at least for now): https://trinkey.pythonanywhere.com
 
 <details>
-  <summary><h2 style="display: inline-block">How to run locally</summary>
+  <summary><h2 style="display: inline">How to run locally</summary>
 
   1. Clone the github repo or download the files
 
@@ -30,7 +28,7 @@ online version (at least for now): https://trinkey.pythonanywhere.com
 </details>
 
 <details>
-  <summary><h2 style="display: inline-block">How to set up the Django version on PythonAnywhere</h2></summary>
+  <summary><h2 style="display: inline">How to set up the server on PythonAnywhere (using a venv)</h2></summary>
 
   1. Create a venv (the name can be anything). if you already have one feel free
   to skip this step
@@ -103,7 +101,67 @@ online version (at least for now): https://trinkey.pythonanywhere.com
 </details>
 
 <details>
-  <summary><h2 style="display: inline-block">How to upgrade versions on PythonAnywhere</summary>
+  <summary><h2 style="display: inline">How to set up the server on PythonAnywhere (no venv)</h2></summary>
+
+  1. Create a new webapp using the following settings:
+      - Manual configuration
+      - Python 3.10
+
+  2. Install and update the required libraries
+     ```bash
+     python3.10 -m pip install --upgrade django django-ninja
+     ```
+
+  3. Clone the github repo
+      ```bash
+      cd ~
+      git clone https://github.com/trinkey/social-media-thing.git
+      # Optional: Change branch
+      git switch branch-name
+      ```
+
+  4. Open the file at `/var/www/USERNAME_pythonanywhere_com.wgsi.py` and put the
+  following python code, replacing "USERNAME" with your PythonAnywhere username:
+      ```py
+      import os
+      import sys
+
+      path = '/home/USERNAME/social-media-thing/smiggins'
+      if path not in sys.path:
+          sys.path.append(path)
+
+      os.environ['DJANGO_SETTINGS_MODULE'] = 'smiggins.settings'
+
+      from django.core.wsgi import get_wsgi_application
+      application = get_wsgi_application()
+      ```
+      This file can be went to with the url
+      https://www.pythonanywhere.com/user/USERNAME/files/var/www/USERNAME_pythonanywhere_com.wgsi.py
+
+  6. Back on the webapp dashboard, in the "Static Files" section, make an entry
+  for `/static/` with the path set to `/home/USERNAME/social-media-thing/smiggins/collected-static`
+
+  8. In the file at `/home/USERNAME/social-media-thing/smiggins/backend/_settings.py`,
+  make sure the following settings are set:
+      - debug: `False`
+
+  9. Create the `_api_keys.py` file:
+      ```bash
+      touch ~/social-media-thing/smiggins/backend/_api_keys.py
+      echo "auth_key = b'some random text this can be anything'" > ~/social-media-thing/smiggins/backend/_api_keys.py
+      ```
+
+  10. In your venv console, run the following commands to create the database
+  and setup the static files:
+      ```bash
+      cd ~/social-media-thing/smiggins
+      python3.10 manage.py collectstatic
+      python3.10 manage.py migrate
+      ```
+</details>
+
+<details>
+  <summary><h2 style="display: inline">How to upgrade versions on PythonAnywhere (using a venv)</summary>
 
   To clone the newest version, do the following commands in the
   `~/social-media-thing` folder:
@@ -124,14 +182,35 @@ online version (at least for now): https://trinkey.pythonanywhere.com
 </details>
 
 <details>
-  <summary><h2 style="display: inline-block">Where can I report issues or suggest stuff</summary>
+  <summary><h2 style="display: inline">How to upgrade versions on PythonAnywhere (no venv)</summary>
+
+  To clone the newest version, do the following commands in the
+  `~/social-media-thing` folder:
+  ```bash
+  git stash
+  git pull
+  git stash pop
+  ```
+
+  Then, in the venv console, run these commands in the `~/social-media-thing/smiggins`
+  folder:
+  ```bash
+  python3.10 manage.py collectstatic
+  python3.10 manage.py migrate
+  ```
+
+  Then, just restart the server from the webapp dashboard!
+</details>
+
+<details>
+  <summary><h2 style="display: inline">Where can I report issues or suggest stuff</summary>
 
   go to the [issues tab](https://github.com/trinkey/social-media-thing) and make
   a new issue (make sure you're logged in with github)
 </details>
 
 <details>
-  <summary><h2 style="display: inline-block">How can I contribute to this project</h2></summary>
+  <summary><h2 style="display: inline">How can I contribute to this project</h2></summary>
 
   if there is a specific thing you want to do, you can make an issue (if a
   duplicate doesn't already exist) and then assign yourself if you can. (if you

@@ -8,12 +8,6 @@ VERSION: str = "0.6.0"
 # What to have the site name be.
 SITE_NAME: str = "Jerimiah Smiggins"
 
-# The user ID of the owner of the instance. This will give that
-# person full access to the custom admin panel, and the ability to
-# add new admins of any level. The access to the admin panel is found
-# on the settings page, assuming you have access to it.
-OWNER_USER_ID: int = 1
-
 # TURN THIS OFF for development servers!!!
 # Whether or not to refresh the server when code changes
 DEBUG = True
@@ -54,9 +48,17 @@ API_TIMINGS: dict[str, int] = {
 POSTS_PER_REQUEST: int = 20
 
 # Contact information. Can be email, url, or text
-CONTACT_INFO: list[list[str]] = [
+CONTACT_INFO = [
     ["email", "trinkey@duck.com"],
     ["url",   "https://github.com/trinkey/social-media-thing/issues"],
     ["url",   "https://discord.gg/tH7QnHApwu"],
     ["text",  "DM me on discord (@trinkey_)"]
 ]
+
+# Content of the robots.txt file
+ROBOTS: str = """User-agent: *
+Allow: *
+Disallow: /settings
+Disallow: /home
+Disallow: /api
+"""

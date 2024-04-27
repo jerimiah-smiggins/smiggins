@@ -8,6 +8,7 @@
     {{HTML_HEADERS}}
     {% endautoescape %}
     <link rel="stylesheet" href="{% static '/css/home.css' %}">
+    <script src="{% static '/js/quotes.js' %}"></script>
   </head>
 
   <body data-theme="{{THEME}}">
@@ -20,7 +21,6 @@
     <button id="more" onclick="refresh(true)" hidden>Load more...</button>
 
     <script src="{% static '/js/home.js' %}"></script>
-    <script src="{% static '/js/timeline.js' %}"></script>
     {% autoescape off %}
     {{HTML_FOOTERS}}
     {% endautoescape %}
