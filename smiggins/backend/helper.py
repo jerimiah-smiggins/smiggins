@@ -146,6 +146,11 @@ def ensure_ratelimit(api_id: str, identifier: Union[str, None]) -> bool:
 
     return (not RATELIMIT) or not (api_id in timeout_handler and str(identifier) in timeout_handler[api_id])
 
+def get_badges(user: User) -> list[str]:
+    # Returns the list of badges for the specified user
+
+    return (user.badges or []) + (["administrator"] if user.admin_level >= 1 or user.user_id == OWNER_USER_ID else [])
+
 def get_post_json(post_id: int, current_user_id: int=0, comment: bool=False) -> dict[str, str | int | dict]:
     if comment:
         post = Comment.objects.get(comment_id=post_id)
@@ -162,17 +167,19 @@ def get_post_json(post_id: int, current_user_id: int=0, comment: bool=False) -> 
         }
 
     post_json = {
+        "creator": {
+            "display_name": creator.display_name,
+            "username": creator.username,
+            "badges": get_badges(creator),
+            "private": creator.private
+        },
         "post_id": post_id,
-        "creator_id": post.creator,
-        "display_name": creator.display_name,
-        "creator_username": creator.username,
         "content": post.content,
         "timestamp": post.timestamp,
         "liked": current_user_id in (post.likes or []),
         "likes": len(post.likes or []),
         "comments": len(post.comments or []),
         "quotes": len(post.quotes or []),
-        "private_acc": creator.private,
         "owner": can_delete_all or creator.user_id == current_user_id,
         "can_view": True
     }
@@ -194,19 +201,21 @@ def get_post_json(post_id: int, current_user_id: int=0, comment: bool=False) -> 
 
             else:
                 quote_info = {
+                    "creator": {
+                        "display_name": quote_creator.display_name,
+                        "username": quote_creator.username,
+                        "badges": get_badges(quote_creator),
+                        "private": quote_creator.private
+                    },
                     "deleted": False,
                     "comment": post.quote_is_comment, # type: ignore
                     "post_id": quote.post_id if isinstance(quote, Post) else quote.comment_id,
-                    "creator_id": quote.creator,
-                    "display_name": quote_creator.display_name,
-                    "creator_username": quote_creator.username,
                     "content": quote.content,
                     "timestamp": quote.timestamp,
                     "liked": current_user_id in (quote.likes or []),
                     "likes": len(quote.likes or []),
                     "comments": len(quote.comments or []),
                     "quotes": len(post.quotes or []),
-                    "private_acc": quote_creator.private,
                     "can_view": True,
                     "has_quote": not post.quote_is_comment and quote.quote # type: ignore
                 }

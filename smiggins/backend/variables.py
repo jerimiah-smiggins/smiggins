@@ -24,6 +24,7 @@ HTML_HEADERS: str = f"""
 <script src="/static/js/linkify-4.1.3.min.js"></script>
 <script src="/static/js/linkify-html-4.1.3.min.js"></script>
 <script src="/static/js/linkify-mentions-4.1.3.min.js"></script>
+<script src="/badges.js"></script>
 <script src="/static/js/base.js"></script>
 <script>
   const MAX_POST_LENGTH = {MAX_POST_LENGTH};

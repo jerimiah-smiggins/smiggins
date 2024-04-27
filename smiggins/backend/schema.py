@@ -32,12 +32,6 @@ class settingsSchema(Schema):
     displ_name : str
     is_gradient: bool
 
-class badgeSchema(Schema):
-    badge_name: str
-
-class newBadgeSchema(badgeSchema):
-    badge_data: str
-
 class adminAccountSaveSchema(Schema):
     displ_name: str
     bio: str
@@ -49,3 +43,9 @@ class adminAccountSchema(Schema):
 
 class adminLevelSchema(adminAccountSchema):
     level: int
+
+class badgeSchema(adminAccountSchema):
+    badge_name: str
+
+class newBadgeSchema(badgeSchema):
+    badge_data: str

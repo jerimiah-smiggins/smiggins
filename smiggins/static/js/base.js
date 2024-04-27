@@ -133,21 +133,23 @@ function getPostHTML(
   commentCount,
   likeCount,
   quoteCount,
-  quote, // post_json.quote
+  quote,
   isLiked,
   isPrivate,
   isComment,
   includeUserLink,
   includePostLink,
   isOwner,
-  fakeMentions=false
+  badgeData,
+  fakeMentions=false,
 ) {
   return `<div class="post-container" data-${isComment ? "comment" : "post"}-id="${postID}">
     <div class="post">
       <div class="upper-content">
         ${includeUserLink ? `<a href="/u/${username}" class="no-underline text">` : ""}
           <div class="displ-name">
-            ${escapeHTML(displayName)} ${isPrivate ? `<div class="priv">${icons.lock}</div>` : ""}
+            ${escapeHTML(displayName)} ${isPrivate ? `<div class="user-badge">${icons.lock}</div>` : ""}
+            ${badgeData.length ? `<div class="user-badge">${badgeData.map((icon) => (badges[icon]))}</div>` : ""}
           </div>
           <span class="upper-lower-opacity"> -
             <div class="username">@${username}</div> -
@@ -177,15 +179,15 @@ function getPostHTML(
               ${
                 quote.deleted ? "The original post was deleted" : quote.can_view ? `
                   <div class="upper-content">
-                    ${includeUserLink || username !== quote.creator_username ? `<a href="/u/${quote.creator_username}" class="no-underline text">` : ""}
+                    ${includeUserLink || username !== quote.creator.username ? `<a href="/u/${quote.creator.username}" class="no-underline text">` : ""}
                       <div class="displ-name">
-                        ${escapeHTML(quote.display_name)} ${quote.private_acc ? `<div class="priv">${icons.lock}</div>` : ""}
+                        ${escapeHTML(quote.creator.display_name)} ${quote.creator.private ? `<div class="priv">${icons.lock}</div>` : ""}
                       </div>
                       <span class="upper-lower-opacity"> -
-                        <div class="username">@${quote.creator_username}</div> -
+                        <div class="username">@${quote.creator.username}</div> -
                         <div class="timestamp">${timeSince(quote.timestamp)} ago</div>
                       </span>
-                    ${includeUserLink || username !== quote.creator_username ? "</a>" : ""}
+                    ${includeUserLink || username !== quote.creator.username ? "</a>" : ""}
                   </div>
 
                   <div class="main-content">

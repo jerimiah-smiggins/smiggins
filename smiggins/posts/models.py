@@ -24,8 +24,9 @@ class User(models.Model):
 
     following    = models.JSONField(default=list)
     followers    = models.JSONField(default=list, null=True, blank=True)
-    posts        = models.JSONField(default=list)
     badges       = models.JSONField(default=list, null=True, blank=True)
+    posts        = models.JSONField(default=list)
+    comments     = models.JSONField(default=list)
 
     def __str__(self):
         return self.username

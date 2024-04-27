@@ -29,19 +29,20 @@ function refresh(force_offset=false) {
         output += getPostHTML(
           post.content,          // content
           post.post_id,          // postID
-          post.creator_username, // username
-          post.display_name,     // displayName
+          post.creator.username, // username
+          post.creator.display_name, // displayName
           post.timestamp,        // timestamp
           post.comments,         // commentCount
           post.likes,            // likeCount
           post.quotes,           // quoteCount
           post.quote,            // quote
           post.liked,            // isLiked
-          post.private_acc,      // isPrivate
+          post.creator.private,  // isPrivate
           type == "comment",     // isComment
           includeUserLink,       // includeUserLink
           includePostLink,       // includePostLink
-          post.owner             // isOwner
+          post.owner,            // isOwner
+          post.creator.badges    // badgeData
         );
         offset = post.post_id;
       }

@@ -42,7 +42,7 @@ dom("post-example").innerHTML = getPostHTML(
   Math.floor(Math.random() * 100),
   Math.floor(Math.random() * 99) + 1,
   Math.floor(Math.random() * 100), undefined,
-  true, false, false, false, false, false, true
+  true, false, false, false, false, false, [], true
 );
 
 dom("bio").addEventListener("input", postTextInputEvent);

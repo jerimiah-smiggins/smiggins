@@ -1,6 +1,7 @@
 # For admin-related apis
 
 from ._settings import OWNER_USER_ID, MAX_BIO_LENGTH, MAX_DISPL_NAME_LENGTH
+from .variables import BADGE_DATA
 from .packages  import User, Comment, Post
 from .helper    import trim_whitespace
 from .schema    import newBadgeSchema, badgeSchema, adminAccountSchema, adminAccountSaveSchema, adminLevelSchema
@@ -86,7 +87,45 @@ def api_admin_badge_delete(request, data: badgeSchema) -> tuple | dict:
 
 def api_admin_badge_add(request, data: badgeSchema) -> tuple | dict:
     # Adding a badge to a user (3+)
-    ...
+
+    token = request.COOKIES.get('token')
+
+    try:
+        self_user = User.objects.get(token=token)
+
+    except User.DoesNotExist:
+        return 400, {
+            "success": False
+        }
+
+    if self_user.admin_level >= 3 or self_user.user_id == OWNER_USER_ID:
+        try:
+            if data.use_id:
+                user = User.objects.get(user_id=int(data.identifier))
+            else:
+                user = User.objects.get(username=data.identifier)
+        except User.DoesNotExist:
+            return 404, {
+                "success": False,
+                "reason": "User not found!"
+            }
+
+        if data.badge_name.lower() in BADGE_DATA:
+            user.badges.append(data.badge_name.lower()) # type: ignore
+            user.save()
+
+            return {
+                "success": True
+            }
+
+        return 404, {
+            "success": False,
+            "reason": "Badge doesn't exist"
+        }
+
+    return 400, {
+        "success": False
+    }
 
 def api_admin_badge_remove(request, data: badgeSchema) -> tuple | dict:
     # Removing a badge from a user (3+)
