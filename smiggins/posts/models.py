@@ -28,7 +28,7 @@ class User(models.Model):
 
     posts    = models.JSONField(default=list)
     comments = models.JSONField(default=list)
-    likes    = models.JSONField(default=list)
+    likes    = models.JSONField(default=list) # list[list[id: int, is_comment: bool]]
 
     def __str__(self):
         return self.username

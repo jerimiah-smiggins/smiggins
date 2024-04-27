@@ -282,11 +282,11 @@ def api_post_like_add(request, data: likeSchema) -> tuple | dict:
     post = Post.objects.get(post_id=id)
 
     if user.user_id not in (post.likes or []):
-            if post.likes != []:
-                post.likes.append(user.user_id) # type: ignore
-            else:
-                post.likes = [user.user_id] # type: ignore
-    post.save()
+        user.likes.append([id, False])
+        post.likes.append(user.user_id) # type: ignore
+
+        user.save()
+        post.save()
 
     return {
         "success": True
@@ -312,8 +312,11 @@ def api_post_like_remove(request, data: likeSchema) -> tuple | dict:
     post = Post.objects.get(post_id=id)
 
     if user.user_id in (post.likes or []):
+        user.likes.remove([id, False])
         post.likes.remove(user.user_id) # type: ignore
-    post.save()
+
+        user.save()
+        post.save()
 
     return {
         "success": True

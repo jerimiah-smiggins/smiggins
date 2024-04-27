@@ -17,6 +17,10 @@ django.setup()
 
 from posts.models import User, Post, Comment # type: ignore
 
+for user in User.objects.all():
+    user.likes = []
+    user.save()
+
 ALL_POSTS = Post.objects.all()
 for post in ALL_POSTS:
     post_id = post.post_id
@@ -60,7 +64,7 @@ for comment in ALL_COMMENTS:
     for like in x:
         try:
             user = User.objects.get(user_id=like)
-            user.likes.append([comment_id, False])
+            user.likes.append([comment_id, True])
             user.save()
         except User.DoesNotExist:
             parent_object.likes.remove(like)

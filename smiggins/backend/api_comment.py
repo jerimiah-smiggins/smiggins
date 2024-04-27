@@ -153,11 +153,11 @@ def api_comment_like_add(request, data: likeSchema):
     comment = Comment.objects.get(comment_id=id)
 
     if user.user_id not in (comment.likes or []):
-            if comment.likes != []:
-                comment.likes.append(user.user_id) # type: ignore
-            else:
-                comment.likes = [user.user_id] # type: ignore
-    comment.save()
+        user.likes.append([id, True])
+        comment.likes.append(user.user_id) # type: ignore
+
+        user.save()
+        comment.save()
 
     return 200, {
         "success": True
@@ -176,15 +176,18 @@ def api_comment_like_remove(request, data: likeSchema):
             }
     except ValueError:
         return 404, {
-                "success": False
-            }
+            "success": False
+        }
 
     user = User.objects.get(token=token)
     comment = Comment.objects.get(comment_id=id)
 
     if user.user_id in (comment.likes or []):
+        user.likes.remove([id, True])
         comment.likes.remove(user.user_id) # type: ignore
-    comment.save()
+
+        user.save()
+        comment.save()
 
     return 200, {
         "success": True
