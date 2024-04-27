@@ -120,8 +120,8 @@ level >= 4 && dom("data-get").addEventListener("click", function() {
       if (json.success) {
         dom("data-section").innerHTML = `
           Current account: <code>${json.username}</code> (id: ${json.user_id})<br>
-          <input id="data-display-name" placeholder="Display name..." value="${escapeHTML(json.displ_name || "")}"><br>
-          <textarea id="data-bio" placeholder="User bio...">${escapeHTML(json.bio || "")}</textarea><br>
+          <input maxlength="300" id="data-display-name" placeholder="Display name..." value="${escapeHTML(json.displ_name || "")}"><br>
+          <textarea maxlength="65536" id="data-bio" placeholder="User bio...">${escapeHTML(json.bio || "")}</textarea><br>
           <button id="data-save" data-user-id="${json.user_id}">Save info</button><br>
           <button id="data-switcher" data-token="${json.token}" data-username="${json.username}">Add to account switcher</button>
         `;

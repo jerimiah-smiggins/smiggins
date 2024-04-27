@@ -131,7 +131,90 @@ other options.
 ## ./backend/admin.py
 This file contains all admin-related functions.
 
-There is currently nothing here.
+```py
+class AccountIdentifier(Schema)
+```
+The schema for identifying accounts.
+
+```py
+class DeleteBadge(Schema)
+```
+The schema for badge deletion
+
+```py
+class NewBadge(DeleteBadge)
+```
+The schema for creating a badge
+
+```py
+class UserBadge(AccountIdentifier)
+```
+The schema for modifying the badges of a user
+
+```py
+class SaveUser(Schema)
+```
+The schema for saving the user info
+
+```py
+class UserLevel(AccountIdentifier)
+```
+The schema for setting the admin level of a user
+
+```py
+def api_admin_user_delete(
+  request: django.core.handlers.wsgi.WSGIRequest,
+  data: AccountIdentifier
+) -> tuple[int, dict] | dict
+```
+Handles deleting a user (level 2+). Called from a DELETE request to
+`/api/admin/user`
+
+```py
+def api_admin_badge_create(
+  request: django.core.handlers.wsgi.WSGIRequest,
+  data: NewBadge
+) -> tuple[int, dict] | dict
+```
+Handles creating a new badge (level 3+). Called from a PUT request to
+`/api/admin/badge`
+
+```py
+def api_admin_badge_delete(
+  request: django.core.handlers.wsgi.WSGIRequest,
+  data: NewBadge
+) -> tuple[int, dict] | dict
+```
+Handles deleting a badge (level 3+). Called from a PATCH request to
+`/api/admin/badge`
+
+```py
+def api_admin_badge_add(
+  request: django.core.handlers.wsgi.WSGIRequest,
+  data: NewBadge
+) -> tuple[int, dict] | dict
+```
+Handles adding a badge to a user (level 3+). Called from a POST request to
+`/api/admin/badge`
+
+```py
+def api_admin_badge_remove(
+  request: django.core.handlers.wsgi.WSGIRequest,
+  data: NewBadge
+) -> tuple[int, dict] | dict
+```
+Handles removing a badge from a user (level 3+). Called from a PATCH request to
+`/api/admin/badge`
+
+```py
+def api_admin_account_info(
+  request: django.core.handlers.wsgi.WSGIRequest,
+  identifier: int | str,
+  use_id: bool
+) -> tuple | dict
+```
+Returns information about an account (level 4+). Called from a GET request to
+`/api/admin/info`
 
 ## ./backend/api_comment.py
 This file contains functions for any api calls to comment-related things, like
@@ -139,9 +222,19 @@ creating them, getting a list of comments, or adding/removing a like from a
 comment.
 
 ```py
+class NewComment(Schema)
+```
+The schema for creating a new comment
+
+```py
+class CommentID(Schema)
+```
+The schema that contains just a comment id
+
+```py
 def api_comment_create(
   request: django.core.handlers.wsgi.WSGIRequest,
-  data: backend.schema.commentSchema
+  data: NewComment
 ) -> tuple[int, dict] | dict
 ```
 Handles comment creation. Called from a PUT request to `/api/comment/create`.
@@ -160,7 +253,7 @@ Called from a GET request to `/api/comments`.
 ```py
 def api_comment_like_add(
   request: django.core.handlers.wsgi.WSGIRequest,
-  data: backend.schema.likeSchema
+  data: CommentID
 ) -> tuple[int, dict] | dict
 ```
 Handles adding a like to a comment. Called to a POST request to
@@ -169,7 +262,7 @@ Handles adding a like to a comment. Called to a POST request to
 ```py
 def api_comment_like_remove(
   request: django.core.handlers.wsgi.WSGIRequest,
-  data: backend.schema.likeSchema
+  data: CommentID
 ) -> tuple[int, dict] | dict
 ```
 Handles removing a like from a comment. Called to a DELETE request to
@@ -178,10 +271,10 @@ Handles removing a like from a comment. Called to a DELETE request to
 ```py
 def api_comment_delete(
   request: django.core.handlers.wsgi.WSGIRequest,
-  data: backend.schema.likeSchema
+  data: CommentID
 ) -> tuple[int | dict] | dict
 ```
-Handles deleting comments
+Handles deleting comments. Called from a DELETE request to `/api/comment`
 
 ## ./backend/api_info.py
 This file is for any api calls that retrieve information for the client, for
@@ -201,9 +294,24 @@ getting lists of posts. Comment related things should go in
 `./backend/api_comment.py`.
 
 ```py
+class NewPost(Schema)
+```
+The schema for creating a new post
+
+```py
+class NewQuote(NewPost)
+```
+The schema for creating a new quote
+
+```py
+class PostID(Schema)
+```
+The schema that contains just a post ID
+
+```py
 def api_post_create(
   request: django.core.handlers.wsgi.WSGIRequest,
-  data: backend.schema.postSchema
+  data: NewPost
 ) -> tuple[int, dict] | dict
 ```
 This handles creating a post. Called from a PUT request to `/api/post/create`.
@@ -211,7 +319,7 @@ This handles creating a post. Called from a PUT request to `/api/post/create`.
 ```py
 def api_quote_create(
   request: django.core.handlers.wsgi.WSGIRequest,
-  data: backend.schema.quoteSchema
+  data: NewQuote
 ) -> tuple[int, dict] | dict
 ```
 This handles creating a post. Called from a PUT request to `/api/quote/create`.
@@ -247,27 +355,27 @@ This gets a list of recent posts for a specific user with a username of
 ```py
 def api_post_like_add(
   request: django.core.handlers.wsgi.WSGIRequest,
-  data: backend.schema.likeSchema
+  data: PostID
 ) -> tuple[int, dict] | dict
 ```
-Handles adding a like to a post. Called to a POST request to `/api/post/like`.
+Handles adding a like to a post. Called from a POST request to `/api/post/like`.
 
 ```py
 def api_post_like_remove(
   request: django.core.handlers.wsgi.WSGIRequest,
-  data: backend.schema.likeSchema
+  data: PostID
 ) -> tuple[int, dict] | dict
 ```
-Handles removing a like from a post. Called to a DELETE request to
+Handles removing a like from a post. Called from a DELETE request to
 `/api/post/like`.
 
 ```py
 def api_post_delete(
   request: django.core.handlers.wsgi.WSGIRequest,
-  data: backend.schema.likeSchema
+  data: PostID
 ) -> tuple[int | dict] | dict
 ```
-Handles deleting comments
+Handles deleting comments. Called from a DELETE request to `/api/comment`
 
 ## ./backend/api_user.py
 This file is for api functions that are related to user profiles and account
@@ -275,9 +383,29 @@ management. This doesn't include any post-related things, as those would go into
 `./backend/api_post.py`.
 
 ```py
+class Username(Schema)
+```
+The schema that contains just a username
+
+```py
+class Account(Username)
+```
+The schema that has both a username and a password
+
+```py
+class Theme(Schema)
+```
+The schema for changing themes
+
+```py
+class Settings(Schema)
+```
+The schema that contains all of the settings
+
+```py
 def api_account_signup(
   request: django.core.handlers.wsgi.WSGIRequest,
-  data: backend.schema.accountSchema
+  data: Account
 ) -> tuple[int, dict] | dict
 ```
 This handles creating a new user on when signing up. Called on a POST request to
@@ -286,7 +414,7 @@ This handles creating a new user on when signing up. Called on a POST request to
 ```py
 def api_account_login(
   request: django.core.handlers.wsgi.WSGIRequest,
-  data: backend.schema.accountSchema
+  data: Account
 ) -> tuple[int, dict] | dict
 ```
 This handles sending auth information when logging in. Called on a POST request
@@ -295,7 +423,7 @@ to `/api/user/login`.
 ```py
 def api_user_settings_theme(
   request: django.core.handlers.wsgi.WSGIRequest,
-  data: backend.schema.themeSchema
+  data: Theme
 ) -> tuple[int, dict] | dict
 ```
 This handles changing the theme setting. Called on a POST request to
@@ -304,7 +432,7 @@ This handles changing the theme setting. Called on a POST request to
 ```py
 def api_user_settings(
   request: django.core.handlers.wsgi.WSGIRequest,
-  data: backend.schema.settingsSchema
+  data: Settings
 ) -> tuple[int, dict] | dict
 ```
 This handles changing and saving (almost) all of the settings in the settings
@@ -313,7 +441,7 @@ page. Called on a PATCH request to `/api/user/settings/text`.
 ```py
 def api_user_follower_add(
   request: django.core.handlers.wsgi.WSGIRequest,
-  data: backend.schema.followerSchema
+  data: Username
 ) -> tuple[int, dict] | dict
 ```
 This handles following someone. Called on a POST request to
@@ -322,7 +450,7 @@ This handles following someone. Called on a POST request to
 ```py
 def api_user_follower_remove(
   request: django.core.handlers.wsgi.WSGIRequest,
-  data: backend.schema.followerSchema
+  data: Username
 ) -> tuple[int, dict] | dict
 ```
 This handles unfollowing someone. Called on a DELETE request to
@@ -434,6 +562,13 @@ currently being ratelimited. `True` means that there is no ratelimit, and
 `False` means that it is being ratelimited.
 
 ```py
+def get_badges(
+  user: posts.models.User
+) -> list[str]
+```
+Returns a list of badges for the specified user object.
+
+```py
 def get_post_json(
   post_id: int,
   current_user_id: int = 0,
@@ -458,60 +593,6 @@ is true, then all newlines will be replaced with spaces.
 This file is just for importing packages and libraries to be used across the
 program. That's literally all this file is used for. Not much explaining needed.
 
-## ./backend/schema.py
-This contains the definitions for schemas used for POST, PUT, and DELETE
-requests that have a specific data structure that needs to be met.
-
-```py
-class accountSchema
-```
-For logging in and signing up
-
-```py
-class postSchema
-```
-For creating a post
-
-```py
-class quoteSchema
-```
-For quoting a post
-
-```py
-class commentSchema
-```
-For creating a comment
-
-```py
-class likeSchema
-```
-For liking a post
-
-```py
-class followerSchema
-```
-For adding/removing followers
-
-```py
-class themeSchema
-```
-For changing your theme
-
-```py
-class colorSchema
-```
-For changing your banner color
-
-```py
-class privSchema
-```
-For toggling the private account setting
-
-```py
-class textSettingsSchema
-```
-For changing your display name
-
 ## ./backend/templating.py
 This is for creating request objects that need templating beyond what
 `create_simple_return` can do.
@@ -521,7 +602,7 @@ def settings(
   request: django.core.handlers.wsgi.WSGIRequest
 ) -> HttpResponse
 ```
-For the settings page
+For the `/settings` page
 
 ```py
 def user(
@@ -529,7 +610,7 @@ def user(
   username: str
 ) -> HttpResponse
 ```
-For user pages
+For `/u/...` pages
 
 ```py
 def post(
@@ -537,7 +618,7 @@ def post(
   post_id: int
 ) -> HttpResponse
 ```
-For post pages
+For `/p/...` pages
 
 ```py
 def comment(
@@ -545,14 +626,14 @@ def comment(
   comment_id: str
 ) -> HttpResponse
 ```
-For comment pages
+For `/c/...` pages
 
 ```py
 def contact(
   request: django.core.handlers.wsgi.WSGIRequest
 ) -> HttpResponse
 ```
-For the contact page
+For the `/contact` page
 
 ```py
 def admin(
@@ -560,6 +641,25 @@ def admin(
 ) -> HttpResponse | HttpResponseRedirect
 ```
 For the `/admin` page
+
+```py
+def _404(
+  request: django.core.handlers.wsgi.WSGIRequest,
+  exception: django.urls.exceptions.Resolver404
+) -> HttpResponse
+```
+The function called when you receive a 404 page. 404 pages only show up on
+production servers, and on development servers you instead see the django
+traceback 404 page.
+
+```py
+def _500(
+  request: django.core.handlers.wsgi.WSGIRequest
+) -> HttpResponse
+```
+The function called when an internal server error happens. Just like 404 pages,
+500s only show up on production servers, and on development servers you instead
+see the django error traceback page.
 
 ## ./backend/variables.py
 For global variables that shouldn't normally need to be modified by the server
@@ -570,6 +670,12 @@ HTML_HEADERS: str
 ```
 The headers applied to every HTML document served. Contains global imports for
 scripts and styles along with some meta tags for compatibility and whatnot.
+
+```py
+HTML_FOOTERS: str
+```
+The footers applied to most HTML documents served. Contains linked script files
+and whatnot.
 
 ```py
 PRIVATE_AUTHENTICATOR_KEY: str
@@ -599,15 +705,6 @@ on server startup, so it should never need to be changed
 This file shouldn't need to be modified unless a new database object is added.
 This registers all of the database entries into the admin page.
 
-## ./posts/api.py
-This contains all of the api routes and the method used on those routes.
-
-```py
-response_schema: dict[int, type]
-```
-The schema used for all responses. The number is the response code and the type
-is the type of the object returned.
-
 ## ./posts/apps.py
 This file doesn't need to ever be modified.
 
@@ -635,46 +732,18 @@ class Badge
 ```
 The badge object
 
-## ./posts/tests.py
-This file doesn't need to ever be modified.
-
-## ./posts/urls.py
-This file contains the non-API routes for the website. Here is where the
-functions in `./backend/templating` are being used.
-
-```py
-urlpatterns: list[django.urls.URLPattern]
-```
-The list of all non-API urls for the website.
-
-## ./posts/views.py
-Contains the functions that serve the 404 and 500 pages.
-
-```py
-def _404(
-  request: django.core.handlers.wsgi.WSGIRequest,
-  exception: django.urls.exceptions.Resolver404
-) -> HttpResponse
-```
-The function called when you receive a 404 page. 404 pages only show up on
-production servers, and on development servers you instead see the django
-traceback 404 page.
-
-```py
-def _500(
-  request: django.core.handlers.wsgi.WSGIRequest
-) -> HttpResponse
-```
-The function called when an internal server error happens. Just like 404 pages,
-500s only show up on production servers, and on development servers you instead
-see the django error traceback page.
-
-## ./posts/tests.py
-This file doesn't need to ever be modified.
-
 ## ./posts/migrations/*
 These files don't need to ever be modified. These are auto-generated by
 `makemigrations` from manage.py and shouldn't ever be touched.
+
+## ./smiggins/api.py
+This contains all of the api routes and the method used on those routes.
+
+```py
+response_schema: dict[int, type]
+```
+The schema used for all responses. The number is the response code and the type
+is the type of the object returned.
 
 ## ./smiggins/asgi.py
 This file doesn't need to ever be modified.

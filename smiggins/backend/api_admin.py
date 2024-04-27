@@ -281,6 +281,12 @@ def api_admin_badge_add(request, data: UserBadge) -> tuple | dict:
                 "reason": "User not found!"
             }
 
+        if data.badge_name.lower() in ["administrator"]:
+            return 400, {
+                "success": False,
+                "reason": "Cannot set that badge as it is done automatically"
+            }
+
         if data.badge_name.lower() in BADGE_DATA:
             if data.badge_name.lower() not in (user.badges or []):
                 user.badges.append(data.badge_name.lower()) # type: ignore
@@ -326,6 +332,12 @@ def api_admin_badge_remove(request, data: UserBadge) -> tuple | dict:
             return 404, {
                 "success": False,
                 "reason": "User not found!"
+            }
+
+        if data.badge_name.lower() in ["administrator"]:
+            return 400, {
+                "success": False,
+                "reason": "Cannot remove that badge as it is done automatically"
             }
 
         if data.badge_name.lower() in BADGE_DATA:
@@ -407,16 +419,16 @@ def api_admin_account_save(request, data: SaveUser) -> tuple | dict:
                 "reason": "User not found!"
             }
 
-        if len(data.bio) > MAX_BIO_LENGTH:
+        if len(data.bio) > 65536:
             return {
                 "success": False,
-                "reason": f"User bio is too long! It should be between 0 and {MAX_BIO_LENGTH} characters."
+                "reason": f"User bio is too long! It should be between 0 and 65536 characters."
             }
 
-        if len(data.displ_name) == 0 or len(data.displ_name) > MAX_DISPL_NAME_LENGTH:
+        if len(data.displ_name) == 0 or len(data.displ_name) > 300:
             return {
                 "success": False,
-                "reason": f"Display name is too {'long' if len(data.displ_name) else 'short'}! It should be between 1 and {MAX_DISPL_NAME_LENGTH} characters."
+                "reason": f"Display name is too {'long' if len(data.displ_name) else 'short'}! It should be between 1 and 300 characters."
             }
 
         user.bio = trim_whitespace(data.bio, True)
