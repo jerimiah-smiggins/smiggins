@@ -1,6 +1,6 @@
 # For admin-related apis
 
-from ._settings import OWNER_USER_ID, MAX_BIO_LENGTH, MAX_DISPL_NAME_LENGTH
+from ._settings import OWNER_USER_ID
 from .variables import BADGE_DATA
 from .packages  import User, Comment, Post, Badge, Schema
 from .helper    import trim_whitespace
