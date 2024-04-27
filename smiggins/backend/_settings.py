@@ -8,6 +8,9 @@ VERSION: str = "0.6.0"
 # What to have the site name be.
 SITE_NAME: str = "Jerimiah Smiggins"
 
+# The user id of the instance owner. Can be found on the /django-admin page
+OWNER_USER_ID = 1
+
 # TURN THIS OFF for development servers!!!
 # Whether or not to refresh the server when code changes
 DEBUG = True

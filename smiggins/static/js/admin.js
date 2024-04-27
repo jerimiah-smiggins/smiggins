@@ -119,7 +119,7 @@ level >= 4 && dom("data-get").addEventListener("click", function() {
     .then((json) => {
       if (json.success) {
         dom("data-section").innerHTML = `
-          Current account: <code>${json.username}</code> (id: ${json.user_id})<br>
+          Current account: <a href="/u/${json.username}"><code>@${json.username}</code></a> (id: ${json.user_id})<br>
           <input maxlength="300" id="data-display-name" placeholder="Display name..." value="${escapeHTML(json.displ_name || "")}"><br>
           <textarea maxlength="65536" id="data-bio" placeholder="User bio...">${escapeHTML(json.bio || "")}</textarea><br>
           <button id="data-save" data-user-id="${json.user_id}">Save info</button><br>
