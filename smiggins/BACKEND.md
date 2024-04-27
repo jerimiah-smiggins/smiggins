@@ -400,7 +400,6 @@ Returns the token associated with a specific username and password hash.
 ```py
 def validate_username(
   username: str,
-  *,
   existing: bool = False
 ) -> int
 ```
