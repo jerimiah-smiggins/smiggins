@@ -43,7 +43,41 @@ level >= 2 && dom("account-delete").addEventListener("click", function() {
 });
 
 // Level 3
-// ...
+dom("badge-add").addEventListener("click", function() {
+  fetch("/api/admin/badge", {
+    method: "POST",
+    body: JSON.stringify({
+      identifier: dom("badge-identifier").value,
+      use_id: dom("badge-use-id").checked,
+      badge_name: dom("badge-name").value
+    })
+  }).then((response) => (response.json()))
+    .then((json) => {
+      if (json.success) {
+        showlog("Success!");
+      } else {
+        showlog("Something went wrong! Maybe the user doesn't exist?");
+      }
+    });
+});
+
+dom("badge-remove").addEventListener("click", function() {
+  fetch("/api/admin/badge", {
+    method: "DELETE",
+    body: JSON.stringify({
+      identifier: dom("badge-identifier").value,
+      use_id: dom("badge-use-id").checked,
+      badge_name: dom("badge-name").value
+    })
+  }).then((response) => (response.json()))
+    .then((json) => {
+      if (json.success) {
+        showlog("Success!");
+      } else {
+        showlog("Something went wrong! Maybe the user doesn't exist?");
+      }
+    });
+});
 
 // Level 4
 level >= 4 && dom("data-get").addEventListener("click", function() {
@@ -112,7 +146,7 @@ level >= 5 && dom("level-set").addEventListener("click", function() {
       if (json.success) {
         showlog("Success!");
       } else {
-        showlog("Something went wrong deleting the specified account! Maybe it doesn't exist?", 5000);
+        showlog("Something went wrong setting that account's level! Maybe it doesn't exist?", 5000);
       }
     });
 });

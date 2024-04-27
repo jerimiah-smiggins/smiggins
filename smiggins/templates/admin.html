@@ -51,25 +51,25 @@
           <h2>Level 3</h2>
 
           <h3>Add/remove Badges</h3>
-          <input placeholder="Account username/id..."><br>
-          Use id? <input type="checkbox"><br>
-          <select>
+          <input id="badge-identifier" placeholder="Account username/id..."><br>
+          Use id? <input id="badge-use-id" type="checkbox"><br>
+          <select id="badge-name">
             {% for BADGE in BADGE_DATA %}
-            <option value="{{BADGE}}">{{BADGE}}</option>
+            {% if BADGE != "administrator" %} <option value="{{BADGE}}">{{BADGE}}</option> {% endif %}
             {% empty %}
             <option value="">Somehow there are no existing badges? This shouldn't happen...</option>
             {% endfor %}
           </select><br>
-          <button>Add Badge</button> <button>Remove Badge</button>
+          <button id="badge-add">Add Badge</button> <button id="badge-remove">Remove Badge</button>
 
           <h3>Create/Override Badge</h3>
-          <input placeholder="Badge name..."><br>
-          <textarea placeholder="Badge svg data..."></textarea><br>
-          <button>Create Badge</button>
+          <input id="badge-create-name" placeholder="Badge name..."><br>
+          <textarea id="badge-create-data" placeholder="Badge svg data..."></textarea><br>
+          <button id="badge-create">Create Badge</button>
 
           <h3>Delete Badge</h3>
-          <input placeholder="Badge name..."><br>
-          <button>Delete Badge</button>
+          <input id="badge-delete-name" placeholder="Badge name..."><br>
+          <button id="badge-delete">Delete Badge</button>
         </div>
       {% endif %}
 

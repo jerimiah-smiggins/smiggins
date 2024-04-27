@@ -100,7 +100,46 @@ def api_admin_badge_create(request, data: newBadgeSchema) -> tuple | dict:
 
 def api_admin_badge_delete(request, data: badgeSchema) -> tuple | dict:
     # Deleting a badge (3+)
-    ...
+
+    token = request.COOKIES.get('token')
+
+    try:
+        self_user = User.objects.get(token=token)
+
+    except User.DoesNotExist:
+        return 400, {
+            "success": False
+        }
+
+    if self_user.admin_level >= 3 or self_user.user_id == OWNER_USER_ID:
+        try:
+            if data.use_id:
+                user = User.objects.get(user_id=int(data.identifier))
+            else:
+                user = User.objects.get(username=data.identifier)
+        except User.DoesNotExist:
+            return 404, {
+                "success": False,
+                "reason": "User not found!"
+            }
+
+        if data.badge_name.lower() in BADGE_DATA:
+            if data.badge_name.lower() in (user.badges or []):
+                user.badges.remove(data.badge_name.lower()) # type: ignore
+                user.save()
+
+            return {
+                "success": True
+            }
+
+        return 404, {
+            "success": False,
+            "reason": "Badge doesn't exist"
+        }
+
+    return 400, {
+        "success": False
+    }
 
 def api_admin_badge_add(request, data: badgeSchema) -> tuple | dict:
     # Adding a badge to a user (3+)
@@ -128,8 +167,9 @@ def api_admin_badge_add(request, data: badgeSchema) -> tuple | dict:
             }
 
         if data.badge_name.lower() in BADGE_DATA:
-            user.badges.append(data.badge_name.lower()) # type: ignore
-            user.save()
+            if data.badge_name.lower() not in (user.badges or []):
+                user.badges.append(data.badge_name.lower()) # type: ignore
+                user.save()
 
             return {
                 "success": True
