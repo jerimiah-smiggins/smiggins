@@ -23,6 +23,15 @@ for post in ALL_POSTS:
     parent_object = Post.objects.get(post_id=post_id)
     invalid_comments = []
 
+    x = [i for i in parent_object.likes or []]
+    for like in x:
+        try:
+            user = User.objects.get(user_id=like)
+            user.likes.append([post_id, False])
+            user.save()
+        except User.DoesNotExist:
+            parent_object.likes.remove(like)
+
     for comment in (parent_object.comments or []):
         try:
             comment_object = Comment.objects.get(comment_id=comment)
@@ -46,6 +55,15 @@ for comment in ALL_COMMENTS:
     comment_id = comment.comment_id
     parent_object = Comment.objects.get(comment_id=comment_id)
     invalid_comments = []
+
+    x = [i for i in parent_object.likes or []]
+    for like in x:
+        try:
+            user = User.objects.get(user_id=like)
+            user.likes.append([comment_id, False])
+            user.save()
+        except User.DoesNotExist:
+            parent_object.likes.remove(like)
 
     try:
         creator = User.objects.get(user_id=comment.creator)

@@ -33,6 +33,11 @@ def api_admin_user_delete(request, data: adminAccountSchema) -> tuple | dict:
         }
 
     if user.user_id == OWNER_USER_ID or user.admin_level >= 2:
+        for badge in (account.badges or []):
+            b = Badge.objects.get(name=badge)
+            b.users.remove(user.user_id)
+            b.save()
+
         for post_id in account.posts:
             try:
                 post = Post.objects.get(post_id=post_id)
@@ -165,8 +170,66 @@ def api_admin_badge_create(request, data: newBadgeSchema) -> tuple | dict:
     }
 
 def api_admin_badge_delete(request, data: deleteBadgeSchema) -> tuple | dict:
-    # Deleting a badge (3+)
-    ...
+    # Creating a badge (3+)
+
+    token = request.COOKIES.get('token')
+
+    try:
+        self_user = User.objects.get(token=token)
+
+    except User.DoesNotExist:
+        return 400, {
+            "success": False
+        }
+
+    if self_user.admin_level >= 3 or self_user.user_id == OWNER_USER_ID:
+        badge_name = data.badge_name.lower().replace(" ", "")
+
+        if len(badge_name) > 64 or len(badge_name) <= 0:
+            return 400, {
+                "success": False,
+                "reason": "Badge name must be between 1 and 64 characters in length"
+            }
+
+        for i in badge_name:
+            if i not in "abcdefghijklmnopqrstuvxyz0123456789_":
+                return 400, {
+                    "success": False,
+                    "reason": "Badge name can only contain a-z, 0-9, and underscores"
+                }
+
+        if badge_name in ["administrator"]:
+            return 400, {
+                "success": False,
+                "reason": "Cannot delete that badge"
+            }
+
+        try:
+            badge = Badge.objects.get(
+                name=badge_name
+            )
+        except Badge.DoesNotExist:
+            return 400, {
+                "success": False,
+                "reason": "A badge with the name " + badge_name + " doesn't exist!"
+            }
+
+        for i in badge.users:
+            user = User.objects.get(user_id=i)
+            user.badges.remove(badge_name) # type: ignore
+            user.save()
+
+        badge.delete()
+
+        del BADGE_DATA[badge_name]
+
+        return {
+            "success": True
+        }
+
+    return 400, {
+        "success": False
+    }
 
 def api_admin_badge_add(request, data: badgeSchema) -> tuple | dict:
     # Adding a badge to a user (3+)
@@ -197,6 +260,10 @@ def api_admin_badge_add(request, data: badgeSchema) -> tuple | dict:
             if data.badge_name.lower() not in (user.badges or []):
                 user.badges.append(data.badge_name.lower()) # type: ignore
                 user.save()
+
+                badge = Badge.objects.get(name=data.badge_name)
+                badge.users.append(user.user_id)
+                badge.save()
 
             return {
                 "success": True
@@ -240,6 +307,10 @@ def api_admin_badge_remove(request, data: badgeSchema) -> tuple | dict:
             if data.badge_name.lower() in (user.badges or []):
                 user.badges.remove(data.badge_name.lower()) # type: ignore
                 user.save()
+
+                badge = Badge.objects.get(name=data.badge_name)
+                badge.users.remove(user.user_id)
+                badge.save()
 
             return {
                 "success": True

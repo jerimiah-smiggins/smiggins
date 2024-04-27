@@ -96,21 +96,21 @@ dom("badge-create").addEventListener("click", function() {
     });
 });
 
-// dom("badge-delete").addEventListener("click", function() {
-//   fetch("/api/admin/badge", {
-//     method: "DELETE",
-//     body: JSON.stringify({
-//       badge_name: dom("badge-delete-name").value
-//     })
-//   }).then((response) => (response.json()))
-//     .then((json) => {
-//       if (json.success) {
-//         showlog("Success!");
-//       } else {
-//         showlog("Something went wrong! Reason: " + json.reason);
-//       }
-//     });
-// });
+dom("badge-delete").addEventListener("click", function() {
+  fetch("/api/admin/badge", {
+    method: "DELETE",
+    body: JSON.stringify({
+      badge_name: dom("badge-delete-name").value
+    })
+  }).then((response) => (response.json()))
+    .then((json) => {
+      if (json.success) {
+        showlog("Success!");
+      } else {
+        showlog("Something went wrong! Reason: " + json.reason);
+      }
+    });
+});
 
 // Level 4
 level >= 4 && dom("data-get").addEventListener("click", function() {

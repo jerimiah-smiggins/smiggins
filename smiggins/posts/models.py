@@ -22,11 +22,13 @@ class User(models.Model):
     gradient     = models.BooleanField(default=False)
     private      = models.BooleanField()
 
-    following    = models.JSONField(default=list)
-    followers    = models.JSONField(default=list, null=True, blank=True)
-    badges       = models.JSONField(default=list, null=True, blank=True)
-    posts        = models.JSONField(default=list)
-    comments     = models.JSONField(default=list)
+    following = models.JSONField(default=list)
+    followers = models.JSONField(default=list, null=True, blank=True)
+    badges    = models.JSONField(default=list, null=True, blank=True)
+
+    posts    = models.JSONField(default=list)
+    comments = models.JSONField(default=list)
+    likes    = models.JSONField(default=list)
 
     def __str__(self):
         return self.username
@@ -64,6 +66,7 @@ class Comment(models.Model):
 class Badge(models.Model):
     name     = models.CharField(max_length=64, primary_key=True, unique=True)
     svg_data = models.CharField(max_length=65536)
+    users    = models.JSONField(default=list)
 
     def __str__(self):
         return self.name
