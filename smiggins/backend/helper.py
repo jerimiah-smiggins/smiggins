@@ -89,7 +89,7 @@ def generate_token(username: str, password: str) -> str:
 
     return sha(sha(f"{username}:{password}") + PRIVATE_AUTHENTICATOR_KEY)
 
-def validate_username(username: str, *, existing: bool=True) -> int:
+def validate_username(username: str, existing: bool=True) -> int:
     # Ensures the specified username is valid. If existing is true, then it checks
     # if the specified username exists, and if it is false, then it checks to make
     # sure it doesn't already exist and that it is valid.
