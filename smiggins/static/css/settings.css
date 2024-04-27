@@ -1,8 +1,13 @@
-#color-container {
+hr {
+  max-width: 12em;
+}
+
+.settings-container {
   display: flex;
   flex-direction: row;
-  justify-content: center;
   flex-wrap: wrap;
+  justify-content: center;
+  gap: 4em;
 }
 
 #banner {
@@ -31,12 +36,14 @@
   .post { width: calc(94vw - 3.5em - (3em / 7)); }
 }
 
-.small-mw {
+.settings-side {
   display: inline-block;
-  max-width: 25em;
+  width: 20em;
 }
 
-.large-mw {
-  display: inline-block;
-  max-width: 100em;
+.big-button {
+  font-size: 1.5em;
+  width: 6em;
+  height: 2em;
+  border-radius: 1em;
 }
