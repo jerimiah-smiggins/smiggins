@@ -9,10 +9,12 @@ import time
 import sys
 import os
 
-from typing import Union, Callable
-from posts.models import User, Post, Comment
-from ninja.errors import HttpError
+from typing import Union, Callable, Any
+from posts.models import User, Post, Comment, Badge
 
 from django.shortcuts import render
 from django.http import HttpResponse, HttpResponseRedirect
 from django.template import loader
+
+from ninja.errors import HttpError
+from ninja import Schema

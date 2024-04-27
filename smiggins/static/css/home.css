@@ -32,8 +32,13 @@ button { width: 5em; }
   bottom: calc(2px + 2.5em);
 }
 
-#switch { width: 6em; }
-#more { width: 8em; }
+#switch {
+  width: 6em;
+}
+
+#more {
+  width: 8em;
+}
 
 .main-content {
   word-break: break-word;
@@ -62,12 +67,30 @@ button { width: 5em; }
   width: 23.5em;
 }
 
-.upper-content { cursor: pointer; }
-.upper-lower-opacity { color: var(--accent-50); }
-.username, .timestamp, .displ-name { display: inline-block;  }
-.bottom-content { text-align: center; }
+.upper-content {
+  cursor: pointer;
+}
 
-.like svg, .comment, .priv, .quote-button svg {
+.upper-lower-opacity {
+  color: var(--accent-50);
+}
+
+.username,
+.timestamp,
+.displ-name {
+  display: inline-block;
+}
+
+.bottom-content {
+  text-align: center;
+}
+
+.like svg,
+.comment,
+.priv,
+.user-badge svg,
+.quote-button svg,
+.delete svg {
   width: 1.2em;
   height: 1.2em;
   display: inline-block;
@@ -76,7 +99,9 @@ button { width: 5em; }
   fill: var(--text);
 }
 
-.like, .quote-button {
+.like,
+.quote-button,
+.delete {
   white-space: nowrap;
   cursor: pointer;
   display: inline-block;
@@ -89,9 +114,17 @@ button { width: 5em; }
   height: unset;
 }
 
-.priv { scale: 75%; }
-.comment { padding-right: 0.3em; }
-.like[data-liked="true"] svg { fill: var(--accent); }
+.priv {
+  scale: 75%;
+}
+
+.comment {
+  padding-right: 0.3em;
+}
+
+.like[data-liked="true"] svg {
+  fill: var(--accent);
+}
 
 .bottom-spacing {
   display: inline-block;
@@ -99,11 +132,11 @@ button { width: 5em; }
 }
 
 @media screen and (max-width: 565px) {
-  #post-text { width: calc(94vw - (2em / 7) - 17px); }
-  .post-text { width: calc(94vw - (2em / 7) - 90px); }
-  .post { width: calc(94vw - 3.5em - (3em / 7)); }
-  #post { left: calc(47vw - 2.5em - 5px); }
-  .post-button { left: calc(97vw - 11.5em - 5px); }
-  .cancel-button { left: calc(97vw - 17em - 2px); }
+  #post-text        { width: calc(94vw - (2em / 7) - 17px);  }
+  .post-text        { width: calc(94vw - (2em / 7) - 90px);  }
+  .post             { width: calc(94vw - 3.5em - (3em / 7)); }
+  #post             { left:  calc(47vw - 2.5em - 5px);       }
+  .post-button      { left:  calc(97vw - 11.5em - 5px);      }
+  .cancel-button    { left:  calc(97vw - 17em - 2px);        }
   .quote-area .post { width: calc(94vw - (2em / 7) - 120px); }
 }

@@ -1,0 +1,113 @@
+{% load static %}
+<!DOCTYPE html>
+
+<html>
+  <head>
+    <title>Admin Panel - {{SITE_NAME}} v{{VERSION}}</title>
+    {% autoescape off %}
+    {{HTML_HEADERS}}
+    {% endautoescape %}
+    <link rel="stylesheet" href="{% static "/css/admin.css" %}">
+
+    <script>
+      const level = {{LEVEL}};
+    </script>
+  </head>
+
+  <body data-theme="{{THEME}}">
+    <h1>Admin Panel: Level {{LEVEL}}/5</h1>
+    <div>&nbsp;<span id="error"></span>&nbsp;</div>
+
+    <hr>
+
+    <div class="actions-container">
+      <div>
+        <h2>Level 1</h2>
+
+        <h3>Post Deletion</h3>
+        <div id="post-deletion">
+          <input id="post-id" placeholder="Post/comment id..."><br>
+          Comment? <input id="comment-toggle"type="checkbox"><br>
+          <button id="post-delete">Delete Post</button>
+        </div>
+      </div>
+
+      {% if LEVEL >= 2 %}
+        <div>
+          <h2>Level 2</h2>
+
+          <h3>Account Deletion</h3>
+          <div>
+            <input id="account-del-identifier" placeholder="Account username/id..."><br>
+            Use id? <input id="delete-id-toggle" type="checkbox"><br>
+            <button id="account-delete">Delete Account</button>
+          </div>
+        </div>
+      {% endif %}
+
+      {% if LEVEL >= 3 %}
+        <div>
+          <h2>Level 3</h2>
+
+          <h3>Add/remove Badges</h3>
+          <input id="badge-identifier" placeholder="Account username/id..."><br>
+          Use id? <input id="badge-use-id" type="checkbox"><br>
+          <select id="badge-name">
+            {% for BADGE in BADGE_DATA %}
+            {% if BADGE != "administrator" %} <option value="{{BADGE}}">{{BADGE}}</option> {% endif %}
+            {% empty %}
+            <option value="">Somehow there are no existing badges? This shouldn't happen...</option>
+            {% endfor %}
+          </select><br>
+          <button id="badge-add">Add Badge</button> <button id="badge-remove">Remove Badge</button>
+
+          <h3>Create/Override Badge</h3>
+          <input id="badge-create-name" placeholder="Badge name..." maxlength="64"><br>
+          <textarea id="badge-create-data" placeholder="Badge svg data..." maxlength="65536"></textarea><br>
+          <button id="badge-create">Create Badge</button>
+
+          <h3>Delete Badge</h3>
+          <input id="badge-delete-name" placeholder="Badge name..."><br>
+          <button id="badge-delete">Delete Badge</button>
+        </div>
+      {% endif %}
+
+      {% if LEVEL >= 4 %}
+        <div>
+          <h2>Level 4</h2>
+
+          <h3>Modify Account Info</h3>
+          <input id="data-identifier" placeholder="Account username/id..."><br>
+          Use id? <input type="checkbox" id="data-use-id"><br>
+          <button id="data-get">Get Data</button><br><br>
+
+          <div id="data-section"></div>
+        </div>
+      {% endif %}
+
+      {% if LEVEL >= 5 %}
+        <div>
+          <h2>Level 5</h2>
+
+          <h3>Change Admin Perms</h3>
+          <input id="level-identifier" placeholder="Account username/id..."><br>
+          Use id? <input id="level-use-id" type="checkbox"><br>
+          <select id="level-selection">
+            <option value="0">No admin permissions (lvl 0)</option>
+            <option value="1">Delete posts/comments (lvl 1)</option>
+            <option value="2">Delete accounts (lvl 2)</option>
+            <option value="3">Manage badges (lvl 3)</option>
+            <option value="4">Modify user data (lvl 4)</option>
+            <option value="5">Create new admins (lvl 5)</option>
+          </select><br>
+          <button id="level-set">Set admin level</button>
+        </div>
+      {% endif %}
+    </div>
+
+    <script src="{% static '/js/admin.js' %}"></script>
+    {% autoescape off %}
+    {{HTML_FOOTERS}}
+    {% endautoescape %}
+  </body>
+</html>

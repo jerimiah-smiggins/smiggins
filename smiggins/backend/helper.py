@@ -1,8 +1,8 @@
 # Contains helper functions. These aren't for routing, instead doing something that can be used in other places in the code.
 
-from ._settings import *
-from .packages import *
-from .variables import *
+from ._settings import SITE_NAME, VERSION, SOURCE_CODE, MAX_DISPL_NAME_LENGTH, MAX_POST_LENGTH, MAX_USERNAME_LENGTH, RATELIMIT, OWNER_USER_ID
+from .variables import HTML_FOOTERS, HTML_HEADERS, PRIVATE_AUTHENTICATOR_KEY, timeout_handler
+from .packages  import Union, Callable, Any, HttpResponse, HttpResponseRedirect, loader, User, Comment, Post, threading, hashlib
 
 def sha(string: Union[str, bytes]) -> str:
     # Returns the sha256 hash of a string.
@@ -25,7 +25,7 @@ def set_timeout(callback: Callable, delay_ms: Union[int, float]) -> None:
     thread = threading.Thread(target=wrapper)
     thread.start()
 
-def get_HTTP_response(request, file: str, **kwargs: str) -> HttpResponse:
+def get_HTTP_response(request, file: str, **kwargs: Any) -> HttpResponse:
     context = {
         "SITE_NAME" : SITE_NAME,
         "VERSION" : VERSION,
@@ -61,7 +61,7 @@ def create_simple_return(
     # This creates a response object. This was made so that its standardized
     # and creates less repeated code.
     x = lambda request: \
-            HttpResponseRedirect("/home" if redirect_logged_in else "/", status=307) \
+            HttpResponseRedirect("/home/" if redirect_logged_in else "/", status=307) \
         if (redirect_logged_in and validate_token(request.COOKIES.get("token"))) or (redirect_logged_out and not validate_token(request.COOKIES.get("token"))) \
         else (HttpResponse(content_override, content_type=content_type) if content_override else get_HTTP_response(request, template_path))
 
@@ -89,7 +89,7 @@ def generate_token(username: str, password: str) -> str:
 
     return sha(sha(f"{username}:{password}") + PRIVATE_AUTHENTICATOR_KEY)
 
-def validate_username(username: str, *, existing: bool=True) -> int:
+def validate_username(username: str, existing: bool=True) -> int:
     # Ensures the specified username is valid. If existing is true, then it checks
     # if the specified username exists, and if it is false, then it checks to make
     # sure it doesn't already exist and that it is valid.
@@ -146,12 +146,19 @@ def ensure_ratelimit(api_id: str, identifier: Union[str, None]) -> bool:
 
     return (not RATELIMIT) or not (api_id in timeout_handler and str(identifier) in timeout_handler[api_id])
 
+def get_badges(user: User) -> list[str]:
+    # Returns the list of badges for the specified user
+
+    return (user.badges or []) + (["administrator"] if user.admin_level >= 1 or user.user_id == OWNER_USER_ID else [])
+
 def get_post_json(post_id: int, current_user_id: int=0, comment: bool=False) -> dict[str, str | int | dict]:
     if comment:
         post = Comment.objects.get(comment_id=post_id)
     else:
         post = Post.objects.get(post_id=post_id)
     creator = User.objects.get(user_id=post.creator)
+
+    can_delete_all = current_user_id != 0 and (current_user_id == OWNER_USER_ID or User.objects.get(pk=current_user_id).admin_level >= 1)
 
     if creator.private and current_user_id not in creator.following:
         return {
@@ -160,50 +167,66 @@ def get_post_json(post_id: int, current_user_id: int=0, comment: bool=False) -> 
         }
 
     post_json = {
+        "creator": {
+            "display_name": creator.display_name,
+            "username": creator.username,
+            "badges": get_badges(creator),
+            "private": creator.private
+        },
         "post_id": post_id,
-        "creator_id": post.creator,
-        "display_name": creator.display_name,
-        "creator_username": creator.username,
         "content": post.content,
         "timestamp": post.timestamp,
-        "liked": current_user_id in post.likes,
-        "likes": len(post.likes),
-        "comments": len(post.comments),
-        "quotes": len(post.quotes),
-        "private_acc": creator.private,
+        "liked": current_user_id in (post.likes or []),
+        "likes": len(post.likes or []),
+        "comments": len(post.comments or []),
+        "quotes": len(post.quotes or []),
+        "owner": can_delete_all or creator.user_id == current_user_id,
         "can_view": True
     }
 
     if not comment and post.quote != 0: # type: ignore
-        if post.quote_is_comment: # type: ignore
-            quote = Comment.objects.get(comment_id=post.quote) # type: ignore
-        else:
-            quote = Post.objects.get(post_id=post.quote) # type: ignore
+        try:
+            if post.quote_is_comment: # type: ignore
+                quote = Comment.objects.get(comment_id=post.quote) # type: ignore
+            else:
+                quote = Post.objects.get(post_id=post.quote) # type: ignore
+            quote_creator = User.objects.get(user_id=quote.creator)
 
-        quote_creator = User.objects.get(user_id=quote.creator)
+            if quote_creator.private and current_user_id not in quote_creator.following:
+                quote_info = {
+                    "deleted": False,
+                    "private_acc": True,
+                    "can_view": False
+                }
 
-        if quote_creator.private and current_user_id not in quote_creator.following:
+            else:
+                quote_info = {
+                    "creator": {
+                        "display_name": quote_creator.display_name,
+                        "username": quote_creator.username,
+                        "badges": get_badges(quote_creator),
+                        "private": quote_creator.private
+                    },
+                    "deleted": False,
+                    "comment": post.quote_is_comment, # type: ignore
+                    "post_id": quote.post_id if isinstance(quote, Post) else quote.comment_id,
+                    "content": quote.content,
+                    "timestamp": quote.timestamp,
+                    "liked": current_user_id in (quote.likes or []),
+                    "likes": len(quote.likes or []),
+                    "comments": len(quote.comments or []),
+                    "quotes": len(post.quotes or []),
+                    "can_view": True,
+                    "has_quote": not post.quote_is_comment and quote.quote # type: ignore
+                }
+
+        except Comment.DoesNotExist:
             quote_info = {
-                "private_acc": True,
-                "can_view": False
+                "deleted": True
             }
-
-        else:
+        except Post.DoesNotExist:
             quote_info = {
-                "comment": post.quote_is_comment, # type: ignore
-                "post_id": quote.post_id if isinstance(quote, Post) else quote.comment_id,
-                "creator_id": quote.creator,
-                "display_name": quote_creator.display_name,
-                "creator_username": quote_creator.username,
-                "content": quote.content,
-                "timestamp": quote.timestamp,
-                "liked": current_user_id in quote.likes,
-                "likes": len(quote.likes),
-                "comments": len(quote.comments),
-                "quotes": len(post.quotes),
-                "private_acc": quote_creator.private,
-                "can_view": True,
-                "has_quote": not post.quote_is_comment and quote.quote # type: ignore
+                "deleted": True
             }
 
         post_json["quote"] = quote_info
@@ -211,12 +234,12 @@ def get_post_json(post_id: int, current_user_id: int=0, comment: bool=False) -> 
     return post_json
 
 def trim_whitespace(string: str, purge_newlines: bool=False) -> str:
-    string = string.replace("\r", "")
+    string = string.replace("\x0d", "")
 
     if purge_newlines:
-        string = string.replace("\n", " ")
+        string = string.replace("\x0a", " ").replace("\x85", "")
 
-    for i in ["\t", "\u2000", "\u2001", "\u2002", "\u2003", "\u2004", "\u2005", "\u2006", "\u2007", "\u2008", "\u2009", "\u200a", "\u200b", "\u200c", "\u200d", "\u200e", "\u200f", "\u2800"]:
+    for i in ["\x09", "\x0b", "\x0c", "\xa0", "\u1680", "\u2000", "\u2001", "\u2002", "\u2003", "\u2004", "\u2005", "\u2006", "\u2007", "\u2008", "\u2009", "\u200a", "\u200b", "\u2028", "\u2029", "\u202f", "\u205f", "\u2800", "\u3000", "\ufeff"]:
         string = string.replace(i, " ")
 
     while "\n "    in string: string = string.replace("\n ", "\n")
