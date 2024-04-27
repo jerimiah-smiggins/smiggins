@@ -25,7 +25,15 @@
 
   <body data-theme="{{THEME}}" data-username="{{USERNAME}}" style="--banner: {{BANNER_COLOR}}; --banner-two: {{BANNER_COLOR_TWO}}">
     <div id="banner" class="{{GRADIENT}}"></div>
-    <div><div id="username-main">{{DISPLAY_NAME}}<span data-show-on-priv hidden><div class="priv" data-add-icon="lock"></div></span></div></div>
+    <div>
+      <div id="username-main">
+        {{DISPLAY_NAME}}
+        <span data-show-on-priv hidden><div class="priv" data-add-icon="lock"></div></span>
+        {% autoescape off %}
+        {{BADGES}}
+        {% endautoescape %}
+      </div>
+    </div>
     <div id="username-lower">@{{USERNAME}}</div>
     <div id="follow"></div>
     <div id="user-bio"></div>

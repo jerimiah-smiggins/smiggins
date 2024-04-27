@@ -47,4 +47,8 @@ if (logged_in && typeof(profile) === "undefined") {
 
 [...document.querySelectorAll("[data-add-icon]")].forEach((val) => {
   val.innerHTML = icons[val.dataset.addIcon];
-})
+});
+
+[...document.querySelectorAll("[data-add-badge]")].forEach((val) => {
+  val.innerHTML = badges[val.dataset.addBadge];
+});

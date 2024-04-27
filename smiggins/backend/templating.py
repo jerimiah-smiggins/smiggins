@@ -3,7 +3,7 @@
 from ._settings import DEFAULT_BANNER_COLOR, MAX_BIO_LENGTH, OWNER_USER_ID, CONTACT_INFO
 from .variables import BADGE_DATA
 from .packages  import User, Post, Comment, HttpResponse, HttpResponseRedirect, json
-from .helper    import validate_token, get_HTTP_response, get_post_json
+from .helper    import validate_token, get_HTTP_response, get_post_json, get_badges
 
 def settings(request) -> HttpResponse:
     try:
@@ -67,6 +67,8 @@ def user(request, username: str) -> HttpResponse:
         USERNAME     = user.username,
         DISPLAY_NAME = user.display_name,
         USER_BIO     = user.bio or "",
+
+        BADGES = "".join([f"<span class='user-badge' data-add-badge='{i}'></span> " for i in get_badges(user)]),
 
         GRADIENT     = "gradient" if user.gradient else "",
         BANNER_COLOR = user.color or DEFAULT_BANNER_COLOR,

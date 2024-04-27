@@ -149,8 +149,8 @@ function getPostHTML(
       <div class="upper-content">
         ${includeUserLink ? `<a href="/u/${username}" class="no-underline text">` : ""}
           <div class="displ-name">
-            ${escapeHTML(displayName)} ${isPrivate ? `<div class="user-badge">${icons.lock}</div>` : ""}
-            ${badgeData.length ? `<div class="user-badge">${badgeData.map((icon) => (badges[icon])).join("</div> <div class=\"user-badge\">")}</div>` : ""}
+            ${escapeHTML(displayName)} ${isPrivate ? `<span class="user-badge">${icons.lock}</span>` : ""}
+            ${badgeData.length ? `<span class="user-badge">${badgeData.map((icon) => (badges[icon])).join("</span> <span class=\"user-badge\">")}</span>` : ""}
           </div>
           <span class="upper-lower-opacity"> -
             <div class="username">@${username}</div> -
@@ -182,7 +182,8 @@ function getPostHTML(
                   <div class="upper-content">
                     ${includeUserLink || username !== quote.creator.username ? `<a href="/u/${quote.creator.username}" class="no-underline text">` : ""}
                       <div class="displ-name">
-                        ${escapeHTML(quote.creator.display_name)} ${quote.creator.private ? `<div class="priv">${icons.lock}</div>` : ""}
+                        ${escapeHTML(quote.creator.display_name)} ${quote.creator.private ? `<span class="user-badge">${icons.lock}</span>` : ""}
+                        ${badgeData.length ? `<span class="user-badge">${quote.creator.badges.map((icon) => (badges[icon])).join("</span> <span class=\"user-badge\">")}</span>` : ""}
                       </div>
                       <span class="upper-lower-opacity"> -
                         <div class="username">@${quote.creator.username}</div> -
