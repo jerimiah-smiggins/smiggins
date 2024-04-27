@@ -159,7 +159,7 @@ def api_admin_badge_create(request, data: NewBadge) -> tuple | dict:
 
     if self_user.admin_level >= 3 or self_user.user_id == OWNER_USER_ID:
         badge_name = data.badge_name.lower().replace(" ", "")
-        badge_data = data.badge_data
+        badge_data = trim_whitespace(data.badge_data, True)
 
         if len(badge_name) > 64 or len(badge_name) <= 0:
             return 400, {
