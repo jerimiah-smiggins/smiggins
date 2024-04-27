@@ -30,7 +30,6 @@
           Comment? <input id="comment-toggle"type="checkbox"><br>
           <button id="post-delete">Delete Post</button>
         </div>
-
       </div>
 
       {% if LEVEL >= 2 %}
@@ -63,13 +62,14 @@
           <button id="badge-add">Add Badge</button> <button id="badge-remove">Remove Badge</button>
 
           <h3>Create/Override Badge</h3>
-          <input id="badge-create-name" placeholder="Badge name..."><br>
-          <textarea id="badge-create-data" placeholder="Badge svg data..."></textarea><br>
+          <input id="badge-create-name" placeholder="Badge name..." maxlength="64"><br>
+          <textarea id="badge-create-data" placeholder="Badge svg data..." maxlength="65536"></textarea><br>
           <button id="badge-create">Create Badge</button>
 
           <h3>Delete Badge</h3>
-          <input id="badge-delete-name" placeholder="Badge name..."><br>
-          <button id="badge-delete">Delete Badge</button>
+          this hasn't been implemented yet lmao<br>
+          <input id="badge-delete-name" placeholder="Badge name..." disabled><br>
+          <button id="badge-delete" disabled>Delete Badge</button>
         </div>
       {% endif %}
 

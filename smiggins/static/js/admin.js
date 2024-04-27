@@ -63,7 +63,7 @@ dom("badge-add").addEventListener("click", function() {
 
 dom("badge-remove").addEventListener("click", function() {
   fetch("/api/admin/badge", {
-    method: "DELETE",
+    method: "PATCH",
     body: JSON.stringify({
       identifier: dom("badge-identifier").value,
       use_id: dom("badge-use-id").checked,
@@ -78,6 +78,39 @@ dom("badge-remove").addEventListener("click", function() {
       }
     });
 });
+
+dom("badge-create").addEventListener("click", function() {
+  fetch("/api/admin/badge", {
+    method: "PUT",
+    body: JSON.stringify({
+      badge_name: dom("badge-create-name").value,
+      badge_data: dom("badge-create-data").value
+    })
+  }).then((response) => (response.json()))
+    .then((json) => {
+      if (json.success) {
+        showlog("Success! Reload for your changes to apply!");
+      } else {
+        showlog("Something went wrong! Reason: " + json.reason);
+      }
+    });
+});
+
+// dom("badge-delete").addEventListener("click", function() {
+//   fetch("/api/admin/badge", {
+//     method: "DELETE",
+//     body: JSON.stringify({
+//       badge_name: dom("badge-delete-name").value
+//     })
+//   }).then((response) => (response.json()))
+//     .then((json) => {
+//       if (json.success) {
+//         showlog("Success!");
+//       } else {
+//         showlog("Something went wrong! Reason: " + json.reason);
+//       }
+//     });
+// });
 
 // Level 4
 level >= 4 && dom("data-get").addEventListener("click", function() {

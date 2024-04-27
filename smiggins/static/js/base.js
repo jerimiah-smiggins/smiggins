@@ -143,7 +143,6 @@ function getPostHTML(
   badgeData,
   fakeMentions=false,
 ) {
-  console.log(badgeData)
   return `<div class="post-container" data-${isComment ? "comment" : "post"}-id="${postID}">
     <div class="post">
       <div class="upper-content">

@@ -66,7 +66,7 @@ api.patch ("admin/level",    response=response_schema)(api_admin_set_level)
 
 api.post  ("admin/badge", response=response_schema)(api_admin_badge_add)    # Add badge to user
 api.put   ("admin/badge", response=response_schema)(api_admin_badge_create) # New badge
-api.delete("admin/badge", response=response_schema)(api_admin_badge_delete) # Delete badge
+# api.delete("admin/badge", response=response_schema)(api_admin_badge_delete) # Delete badge
 api.patch ("admin/badge", response=response_schema)(api_admin_badge_remove) # Remove badge from user
 
 # Information

@@ -49,18 +49,20 @@
       dom("top").innerHTML = getPostHTML(
         post.content,          // content
         post.post_id,          // postID
-        post.creator_username, // username
-        post.display_name,     // displayName
+        post.creator.username, // username
+        post.creator.display_name, // displayName
         post.timestamp,        // timestamp
         post.comments,         // commentCount
         post.likes,            // likeCount
         post.quotes,           // quoteCount
         post.quote,            // quote
         post.liked,            // isLiked
-        post.private_acc,      // isPrivate
+        post.creator.private,  // isPrivate
         {{COMMENT}},           // isComment
         true,                  // includeUserLink
-        false                  // includePostLink
+        false,                 // includePostLink
+        false,                 // isOwner
+        post.creator.badges    // badgeData
       );
     </script>
 

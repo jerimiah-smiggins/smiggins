@@ -47,5 +47,8 @@ class adminLevelSchema(adminAccountSchema):
 class badgeSchema(adminAccountSchema):
     badge_name: str
 
-class newBadgeSchema(badgeSchema):
+class deleteBadgeSchema(Schema):
+    badge_name: str
+
+class newBadgeSchema(deleteBadgeSchema):
     badge_data: str
