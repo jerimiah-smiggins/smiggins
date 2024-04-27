@@ -49,8 +49,9 @@ for comment in ALL_COMMENTS:
 
     try:
         creator = User.objects.get(user_id=comment.creator)
-        creator.comments.append(comment_id)
-        creator.save()
+        if comment_id not in creator.comments:
+            creator.comments.append(comment_id)
+            creator.save()
     except User.DoesNotExist:
         pass
 
