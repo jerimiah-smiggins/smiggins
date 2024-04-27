@@ -1,9 +1,9 @@
 # For getting pages, not api.
 
-from ._settings import DEFAULT_BANNER_COLOR
-from .helper import *
-from .packages import *
-from .variables import *
+from ._settings import DEFAULT_BANNER_COLOR, MAX_BIO_LENGTH, OWNER_USER_ID, CONTACT_INFO
+from .variables import BADGE_DATA
+from .packages  import User, Post, Comment, HttpResponse, HttpResponseRedirect, json
+from .helper    import validate_token, get_HTTP_response, get_post_json
 
 def settings(request) -> HttpResponse:
     try:

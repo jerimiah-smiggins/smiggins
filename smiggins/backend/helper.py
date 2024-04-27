@@ -1,8 +1,8 @@
 # Contains helper functions. These aren't for routing, instead doing something that can be used in other places in the code.
 
-from ._settings import *
-from .packages import *
-from .variables import *
+from ._settings import SITE_NAME, VERSION, SOURCE_CODE, MAX_DISPL_NAME_LENGTH, MAX_POST_LENGTH, MAX_USERNAME_LENGTH, RATELIMIT, OWNER_USER_ID
+from .variables import HTML_FOOTERS, HTML_HEADERS, PRIVATE_AUTHENTICATOR_KEY, timeout_handler
+from .packages  import Union, Callable, Any, HttpResponse, HttpResponseRedirect, loader, User, Comment, Post, threading, hashlib
 
 def sha(string: Union[str, bytes]) -> str:
     # Returns the sha256 hash of a string.
@@ -228,7 +228,7 @@ def trim_whitespace(string: str, purge_newlines: bool=False) -> str:
     string = string.replace("\x0d", "")
 
     if purge_newlines:
-        string = string.replace("\x0a", " ").replace("\x85")
+        string = string.replace("\x0a", " ").replace("\x85", "")
 
     for i in ["\x09", "\x0b", "\x0c", "\xa0", "\u1680", "\u2000", "\u2001", "\u2002", "\u2003", "\u2004", "\u2005", "\u2006", "\u2007", "\u2008", "\u2009", "\u200a", "\u200b", "\u2028", "\u2029", "\u202f", "\u205f", "\u2800", "\u3000", "\ufeff"]:
         string = string.replace(i, " ")

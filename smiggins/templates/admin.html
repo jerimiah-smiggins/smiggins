@@ -38,7 +38,7 @@
           <h2>Level 2</h2>
 
           <h3>Account Deletion</h3>
-          <div id="account-deletion">
+          <div>
             <input id="account-del-identifier" placeholder="Account username/id..."><br>
             Use id? <input id="delete-id-toggle" type="checkbox"><br>
             <button id="account-delete">Delete Account</button>
@@ -91,9 +91,9 @@
           <h2>Level 5</h2>
 
           <h3>Change Admin Perms</h3>
-          <input placeholder="Account username/id..."><br>
-          Use id? <input type="checkbox"><br>
-          <select>
+          <input id="level-identifier" placeholder="Account username/id..."><br>
+          Use id? <input id="level-use-id" type="checkbox"><br>
+          <select id="level-selection">
             <option value="0">No admin permissions (lvl 0)</option>
             <option value="1">Delete posts/comments (lvl 1)</option>
             <option value="2">Delete accounts (lvl 2)</option>
@@ -101,7 +101,7 @@
             <option value="4">Modify user data (lvl 4)</option>
             <option value="5">Create new admins (lvl 5)</option>
           </select><br>
-          <button>Set admin level</button>
+          <button id="level-set">Set admin level</button>
         </div>
       {% endif %}
     </div>

@@ -1,9 +1,9 @@
 # For API functions that relate to comments, for example liking, creating, etc.
 
-from ._settings import *
-from .packages import *
-from .schema import *
-from .helper import *
+from ._settings import MAX_POST_LENGTH, API_TIMINGS, OWNER_USER_ID, POSTS_PER_REQUEST
+from .packages  import Comment, User, Post, time
+from .schema    import commentSchema, likeSchema
+from .helper    import trim_whitespace, create_api_ratelimit, ensure_ratelimit, validate_token, get_post_json
 
 def api_comment_create(request, data: commentSchema) -> tuple | dict:
     # Called when a new comment is created.

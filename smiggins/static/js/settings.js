@@ -88,7 +88,7 @@ dom("color").addEventListener("change", function() {
 dom("theme").addEventListener("change", function() {
   dom("theme").setAttribute("disabled", "");
   fetch("/api/user/settings/theme", {
-    method: "POST",
+    method: "PATCH",
     headers: {
       "Content-Type": "application/json"
     },

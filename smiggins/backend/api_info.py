@@ -1,9 +1,7 @@
 # This is to get information about the client, like ip, username, etc.
 # Do NOT add telemetry here.
 
-from ._settings import *
-from .packages import *
-from .helper import *
+from .packages import User
 
 def api_info_username(request) -> tuple | dict:
     # Returns the username from token

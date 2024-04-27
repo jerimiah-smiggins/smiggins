@@ -2,10 +2,9 @@
 # This isn't for any settings. You can ignore
 # this file if you want.
 
-from .packages import hashlib
-from ._api_keys import *
+from ._api_keys import auth_key
 from ._settings import MAX_POST_LENGTH
-from posts.models import Badge
+from .packages  import Badge, hashlib
 from django.db.utils import OperationalError
 
 try:

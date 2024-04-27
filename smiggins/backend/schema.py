@@ -46,3 +46,6 @@ class adminAccountSaveSchema(Schema):
 class adminAccountSchema(Schema):
     identifier: str | int
     use_id: bool
+
+class adminLevelSchema(adminAccountSchema):
+    level: int
