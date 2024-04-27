@@ -39,7 +39,6 @@ def api_comment_create(request, data: NewComment) -> tuple | dict:
     create_api_ratelimit("api_comment_create", API_TIMINGS["create comment"], token)
 
     timestamp = round(time.time())
-
     user = User.objects.get(token=token)
 
     comment = Comment(
@@ -59,6 +58,9 @@ def api_comment_create(request, data: NewComment) -> tuple | dict:
         creator=user.user_id,
         content=content
     )
+
+    user.comments.append(comment.comment_id)
+    user.save()
 
     if is_comment:
         parent = Comment.objects.get(comment_id=id)
@@ -122,7 +124,12 @@ def api_comment_list(request, id: int, comment: bool, offset: int=-1) -> tuple |
             offset += 1
             continue
 
-        creator = User.objects.get(pk=comment_object.creator)
+        try:
+            creator = User.objects.get(pk=comment_object.creator)
+
+        except User.DoesNotExist:
+            offset += 1
+            continue
 
         if creator.private and user_id not in creator.following:
             offset += 1
@@ -190,10 +197,13 @@ def api_comment_like_remove(request, data: CommentID):
     comment = Comment.objects.get(comment_id=id)
 
     if user.user_id in (comment.likes or []):
-        user.likes.remove([id, True])
-        comment.likes.remove(user.user_id) # type: ignore
+        try:
+            user.likes.remove([id, True])
+            user.save()
+        except ValueError:
+            pass
 
-        user.save()
+        comment.likes.remove(user.user_id) # type: ignore
         comment.save()
 
     return 200, {

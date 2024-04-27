@@ -158,7 +158,7 @@ def get_post_json(post_id: int, current_user_id: int=0, comment: bool=False) -> 
         post = Post.objects.get(post_id=post_id)
     creator = User.objects.get(user_id=post.creator)
 
-    can_delete_all = current_user_id == OWNER_USER_ID or User.objects.get(pk=current_user_id).admin_level >= 1
+    can_delete_all = current_user_id != 0 and (current_user_id == OWNER_USER_ID or User.objects.get(pk=current_user_id).admin_level >= 1)
 
     if creator.private and current_user_id not in creator.following:
         return {

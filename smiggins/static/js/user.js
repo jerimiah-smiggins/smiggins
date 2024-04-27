@@ -12,6 +12,10 @@ function extra(json) {
     formatHref: { mention: (href) => "/u" + href }
   });
 
+  if (!json.can_view) {
+    dom("toggle").setAttribute("hidden", "");
+  }
+
   [...document.querySelectorAll("[data-show-on-priv]")].forEach((val) => {
     if (json.private) {
       val.removeAttribute("hidden");

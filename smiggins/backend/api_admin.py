@@ -55,53 +55,68 @@ def api_admin_user_delete(request, data: AccountIdentifier) -> tuple | dict:
     if user.user_id == OWNER_USER_ID or user.admin_level >= 2:
         for badge in (account.badges or []):
             b = Badge.objects.get(name=badge)
-            b.users.remove(user.user_id)
+            b.users.remove(account.user_id)
             b.save()
 
         for post_id in account.posts:
             try:
                 post = Post.objects.get(post_id=post_id)
+
+                if post.quote:
+                    try:
+                        quoted_post = (Comment if post.quote_is_comment else Post).objects.get(pk=post.quote)
+                        quoted_post.quotes.remove(post.post_id) # type: ignore
+                        quoted_post.save()
+                    except Post.DoesNotExist:
+                        pass
+                    except Comment.DoesNotExist:
+                        pass
+
+                for quote_id in (post.quotes or []):
+                    quoting_post = Post.objects.get(post_id=quote_id)
+                    quoting_post.quote = -1
+                    quoting_post.save()
+
+                post.delete()
+
             except Post.DoesNotExist:
                 pass
 
-            if post.quote:
+        for comment_id in account.comments:
+            try:
+                comment = Comment.objects.get(comment_id=comment_id)
+
                 try:
-                    quoted_post = (Comment if post.quote_is_comment else Post).objects.get(pk=post.quote)
-                    quoted_post.quotes.remove(post.post_id) # type: ignore
-                    quoted_post.save()
+                    commented_post = (Comment if comment.parent_is_comment else Post).objects.get(pk=comment.parent)
+                    commented_post.comments.remove(comment.comment_id) # type: ignore
+                    commented_post.save()
+
                 except Post.DoesNotExist:
                     pass
                 except Comment.DoesNotExist:
                     pass
 
-            for quote_id in (post.quotes or []):
-                quoting_post = Post.objects.get(post_id=quote_id)
-                quoting_post.quote = 0
-                quoting_post.save()
+                comment.delete()
 
-            post.delete()
-
-        for comment_id in account.comments:
-            try:
-                comment = Comment.objects.get(post_id=comment_id)
             except Comment.DoesNotExist:
                 pass
 
+        for like in account.likes:
+            post = (Comment if like[1] else Post).objects.get(pk=like[0])
+            print(account.user_id, type(account.user_id), post.likes, post.content, like)
+            post.likes.remove(account.user_id) # type: ignore
+            post.save()
             try:
-                commented_post = (Comment if comment.parent_is_comment else Post).objects.get(pk=comment.parent)
-                commented_post.comments.remove(comment.comment_id) # type: ignore
-                commented_post.save()
+                post = (Comment if like[1] else Post).objects.get(pk=like[0])
+                post.likes.remove(account.user_id) # type: ignore
+                post.save()
+
             except Post.DoesNotExist:
                 pass
             except Comment.DoesNotExist:
                 pass
-
-            comment.delete()
-
-        for like in user.likes:
-            post = (Comment if like[1] else Post).objects.get(pk=like[0])
-            post.likes.remove(account.user_id) # type: ignore
-            post.save()
+            except ValueError:
+                pass
 
         for followed_id in account.following:
             if followed_id == account.user_id:

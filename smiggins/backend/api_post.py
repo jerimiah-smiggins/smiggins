@@ -321,10 +321,13 @@ def api_post_like_remove(request, data: PostID) -> tuple | dict:
     post = Post.objects.get(post_id=id)
 
     if user.user_id in (post.likes or []):
-        user.likes.remove([id, False])
-        post.likes.remove(user.user_id) # type: ignore
+        try:
+            user.likes.remove([id, False])
+            user.save()
+        except ValueError:
+            pass
 
-        user.save()
+        post.likes.remove(user.user_id) # type: ignore
         post.save()
 
     return {

@@ -55,8 +55,17 @@ function refresh(force_offset=false) {
       x.innerHTML = output;
       dom("posts").append(x);
 
-      if (force_offset !== true) { dom("more").removeAttribute("hidden"); }
-      if (json.end) { dom("more").setAttribute("hidden", ""); } else { dom("more").removeAttribute("hidden"); }
+      if (dom("more")) {
+        if (force_offset !== true) {
+          dom("more").removeAttribute("hidden");
+        }
+
+        if (json.end) {
+          dom("more").setAttribute("hidden", "");
+        } else {
+          dom("more").removeAttribute("hidden");
+        }
+      }
     })
     .catch((err) => {
       showlog("Something went wrong loading the posts! Try again in a few moments...", 5000);
