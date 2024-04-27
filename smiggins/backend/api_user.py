@@ -1,11 +1,27 @@
 # For API functions that are user-specific, like settings, following, etc.
 
 from ._settings import API_TIMINGS, DEFAULT_BANNER_COLOR, MAX_USERNAME_LENGTH, MAX_BIO_LENGTH, MAX_DISPL_NAME_LENGTH
-from .packages  import User
-from .schema    import accountSchema, themeSchema, settingsSchema, userSchema
-from .helper    import create_api_ratelimit, ensure_ratelimit, generate_token, trim_whitespace, validate_username
+from .packages  import User, Schema
+from .helper    import validate_username, trim_whitespace, create_api_ratelimit, ensure_ratelimit, generate_token
 
-def api_account_signup(request, data: accountSchema) -> tuple | dict:
+class Username(Schema):
+    username: str
+
+class Account(Username):
+    password: str
+
+class Theme(Schema):
+    theme: str
+
+class Settings(Schema):
+    bio: str
+    priv: bool
+    color: str
+    color_two: str
+    displ_name : str
+    is_gradient: bool
+
+def api_account_signup(request, data: Account) -> tuple | dict:
     # Called when someone requests to follow another account.
 
     if not ensure_ratelimit("api_account_signup", request.META.get("REMOTE_ADDR")):
@@ -78,7 +94,7 @@ def api_account_signup(request, data: accountSchema) -> tuple | dict:
         "reason": f"Username must be between 1 and {MAX_USERNAME_LENGTH} characters in length."
     }
 
-def api_account_login(request, data: accountSchema) -> tuple | dict:
+def api_account_login(request, data: Account) -> tuple | dict:
     # Called when someone attempts to log in.
 
     if not ensure_ratelimit("api_account_login", request.META.get("REMOTE_ADDR")):
@@ -113,7 +129,7 @@ def api_account_login(request, data: accountSchema) -> tuple | dict:
             "reason": f"Account with username {username} doesn't exist."
         }
 
-def api_user_settings_theme(request, data: themeSchema) -> tuple | dict:
+def api_user_settings_theme(request, data: Theme) -> tuple | dict:
     # Called when the user changes their theme.
 
     token = request.COOKIES.get('token')
@@ -133,7 +149,7 @@ def api_user_settings_theme(request, data: themeSchema) -> tuple | dict:
         "success": True
     }
 
-def api_user_settings(request, data: settingsSchema) -> tuple | dict:
+def api_user_settings(request, data: Settings) -> tuple | dict:
     # Called when someone saves their settings
 
     token = request.COOKIES.get('token')
@@ -184,7 +200,7 @@ def api_user_settings(request, data: settingsSchema) -> tuple | dict:
         "success": True
     }
 
-def api_user_follower_add(request, data: userSchema) -> tuple | dict:
+def api_user_follower_add(request, data: Username) -> tuple | dict:
     # Called when someone requests to follow another account.
 
     token = request.COOKIES.get('token')
@@ -210,7 +226,7 @@ def api_user_follower_add(request, data: userSchema) -> tuple | dict:
         "success": True
     }
 
-def api_user_follower_remove(request, data: userSchema) -> tuple | dict:
+def api_user_follower_remove(request, data: Username) -> tuple | dict:
     # Called when someone requests to unfollow another account.
 
     token = request.COOKIES.get('token')

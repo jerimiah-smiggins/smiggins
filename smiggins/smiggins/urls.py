@@ -4,7 +4,7 @@ from django.urls import include, path
 from backend._settings import CONTACT_INFO
 from backend.variables import ROBOTS, BADGE_DATA
 from backend.helper import create_simple_return
-from backend.templating import *
+from backend.templating import contact, settings, user, post, comment, admin
 
 urlpatterns = [
     path("api/", include("smiggins.api")),

@@ -66,8 +66,8 @@ function toggleGradient() {
 let x = new DocumentFragment();
 for (const acc of accounts) {
   let y = document.createElement("option");
-  y.innerHTML = acc[0];
-  y.value = acc[1];
+  y.innerText = acc[0];
+  y.value = acc[1] + "-" + acc[0];
 
   if (currentAccount == acc[1]) {
     y.setAttribute("selected", "");
@@ -79,7 +79,6 @@ for (const acc of accounts) {
 dom("accs").append(x);
 
 toggleGradient();
-
 dom("color").addEventListener("change", function() {
   localStorage.setItem('color', dom("color").value);
   document.body.setAttribute('data-color', dom("color").value);
@@ -148,7 +147,7 @@ dom("save").addEventListener("click", function() {
       dom("banner-color").removeAttribute("disabled");
       dom("banner-color-two").removeAttribute("disabled");
       dom("banner-is-gradient").removeAttribute("disabled");
-    })
+    });
 });
 
 dom("banner-color").addEventListener("input", function() {
@@ -162,24 +161,25 @@ dom("banner-color-two").addEventListener("input", function() {
 dom("banner-is-gradient").addEventListener("input", toggleGradient);
 
 dom("acc-switch").addEventListener("click", function() {
-  setCookie("token", dom("accs").value);
-  localStorage.setItem("username", document.querySelector("#accs [selected]").innerHTML);
+  let val = dom("accs").value.split("-", 2);
+  setCookie("token", val[0]);
+  localStorage.setItem("username", val[1]);
   window.location.reload();
-})
+});
 
 dom("acc-remove").addEventListener("click", function() {
-  let removed = dom("accs").value;
-  if (removed == currentAccount) {
+  let removed = dom("accs").value.split("-", 2);
+  if (removed[0] == currentAccount) {
     showlog("You can't remove the account you're currently signed into!");
   } else {
     for (let i = 0; i < accounts.length; i++) {
-      if (accounts[i][1] == removed) {
+      if (accounts[i][1] == removed[0]) {
         accounts.splice(i, 1);
         --i;
       }
     }
 
-    dom("accs").querySelector(`option[value="${removed}"]`).remove();
+    dom("accs").querySelector(`option[value="${dom("accs").value}"]`).remove();
     localStorage.setItem("acc-switcher", JSON.stringify(accounts));
   }
-})
+});

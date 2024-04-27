@@ -1,11 +1,18 @@
 # For API functions that relate to comments, for example liking, creating, etc.
 
 from ._settings import MAX_POST_LENGTH, API_TIMINGS, OWNER_USER_ID, POSTS_PER_REQUEST
-from .packages  import Comment, User, Post, time
-from .schema    import commentSchema, likeSchema
+from .packages  import Comment, User, Post, time, Schema
 from .helper    import trim_whitespace, create_api_ratelimit, ensure_ratelimit, validate_token, get_post_json
 
-def api_comment_create(request, data: commentSchema) -> tuple | dict:
+class NewComment(Schema):
+    content: str
+    comment: bool
+    id: int
+
+class CommentID(Schema):
+    id: int
+
+def api_comment_create(request, data: NewComment) -> tuple | dict:
     # Called when a new comment is created.
 
     token = request.COOKIES.get('token')
@@ -132,7 +139,7 @@ def api_comment_list(request, id: int, comment: bool, offset: int=-1) -> tuple |
         "end": len(parent.comments or []) - offset <= POSTS_PER_REQUEST
     }
 
-def api_comment_like_add(request, data: likeSchema):
+def api_comment_like_add(request, data: CommentID):
     # Called when someone likes a comment.
 
     token = request.COOKIES.get('token')
@@ -163,7 +170,7 @@ def api_comment_like_add(request, data: likeSchema):
         "success": True
     }
 
-def api_comment_like_remove(request, data: likeSchema):
+def api_comment_like_remove(request, data: CommentID):
     # Called when someone unlikes a comment.
 
     token = request.COOKIES.get('token')
@@ -193,7 +200,7 @@ def api_comment_like_remove(request, data: likeSchema):
         "success": True
     }
 
-def api_comment_delete(request, data: likeSchema) -> tuple | dict:
+def api_comment_delete(request, data: CommentID) -> tuple | dict:
     # Called when someone deletes a post.
 
     token = request.COOKIES.get('token')

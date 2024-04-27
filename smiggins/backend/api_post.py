@@ -1,11 +1,20 @@
 # For API functions that relate to posts, for example creating, fetching home lists, etc.
 
 from ._settings import API_TIMINGS, MAX_POST_LENGTH, POSTS_PER_REQUEST, OWNER_USER_ID
-from .packages  import User, Post, Comment, time, sys
-from .schema    import postSchema, quoteSchema, likeSchema
+from .packages  import User, Post, Comment, time, sys, Schema
 from .helper    import ensure_ratelimit, create_api_ratelimit, trim_whitespace, get_post_json, validate_username, validate_token
 
-def api_post_create(request, data: postSchema) -> tuple | dict:
+class NewPost(Schema):
+    content: str
+
+class NewQuote(NewPost):
+    quote_id: int
+    quote_is_comment: bool
+
+class PostID(Schema):
+    id: int
+
+def api_post_create(request, data: NewPost) -> tuple | dict:
     # Called when a new post is created.
 
     token = request.COOKIES.get('token')
@@ -53,7 +62,7 @@ def api_post_create(request, data: postSchema) -> tuple | dict:
         "post_id": post.post_id
     }
 
-def api_quote_create(request, data: quoteSchema) -> tuple | dict:
+def api_quote_create(request, data: NewQuote) -> tuple | dict:
     # Called when a post is quoted.
 
     token = request.COOKIES.get('token')
@@ -261,7 +270,7 @@ def api_post_list_user(request, username: str, offset: int=-1) -> tuple | dict:
         "self": False if not logged_in else self_user.username == username # type: ignore
     }
 
-def api_post_like_add(request, data: likeSchema) -> tuple | dict:
+def api_post_like_add(request, data: PostID) -> tuple | dict:
     # Called when someone likes a post.
 
     token = request.COOKIES.get('token')
@@ -292,7 +301,7 @@ def api_post_like_add(request, data: likeSchema) -> tuple | dict:
         "success": True
     }
 
-def api_post_like_remove(request, data: likeSchema) -> tuple | dict:
+def api_post_like_remove(request, data: PostID) -> tuple | dict:
     # Called when someone unlikes a post.
 
     token = request.COOKIES.get('token')
@@ -322,7 +331,7 @@ def api_post_like_remove(request, data: likeSchema) -> tuple | dict:
         "success": True
     }
 
-def api_post_delete(request, data: likeSchema) -> tuple | dict:
+def api_post_delete(request, data: PostID) -> tuple | dict:
     # Called when someone deletes a post.
 
     token = request.COOKIES.get('token')

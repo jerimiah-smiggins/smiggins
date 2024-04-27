@@ -2,11 +2,31 @@
 
 from ._settings import OWNER_USER_ID, MAX_BIO_LENGTH, MAX_DISPL_NAME_LENGTH
 from .variables import BADGE_DATA
-from .packages  import User, Comment, Post, Badge
+from .packages  import User, Comment, Post, Badge, Schema
 from .helper    import trim_whitespace
-from .schema    import newBadgeSchema, badgeSchema, adminAccountSchema, adminAccountSaveSchema, adminLevelSchema, deleteBadgeSchema
 
-def api_admin_user_delete(request, data: adminAccountSchema) -> tuple | dict:
+class AccountIdentifier(Schema):
+    identifier: str | int
+    use_id: bool
+
+class DeleteBadge(Schema):
+    badge_name: str
+
+class NewBadge(DeleteBadge):
+    badge_data: str
+
+class UserBadge(AccountIdentifier):
+    badge_name: str
+
+class SaveUser(Schema):
+    displ_name: str
+    bio: str
+    id: int
+
+class UserLevel(AccountIdentifier):
+    level: int
+
+def api_admin_user_delete(request, data: AccountIdentifier) -> tuple | dict:
     # Deleting an account (2+)
 
     token = request.COOKIES.get('token')
@@ -109,7 +129,7 @@ def api_admin_user_delete(request, data: adminAccountSchema) -> tuple | dict:
         "success": False
     }
 
-def api_admin_badge_create(request, data: newBadgeSchema) -> tuple | dict:
+def api_admin_badge_create(request, data: NewBadge) -> tuple | dict:
     # Creating a badge (3+)
 
     token = request.COOKIES.get('token')
@@ -174,7 +194,7 @@ def api_admin_badge_create(request, data: newBadgeSchema) -> tuple | dict:
         "success": False
     }
 
-def api_admin_badge_delete(request, data: deleteBadgeSchema) -> tuple | dict:
+def api_admin_badge_delete(request, data: DeleteBadge) -> tuple | dict:
     # Deleting a badge (3+)
 
     token = request.COOKIES.get('token')
@@ -236,7 +256,7 @@ def api_admin_badge_delete(request, data: deleteBadgeSchema) -> tuple | dict:
         "success": False
     }
 
-def api_admin_badge_add(request, data: badgeSchema) -> tuple | dict:
+def api_admin_badge_add(request, data: UserBadge) -> tuple | dict:
     # Adding a badge to a user (3+)
 
     token = request.COOKIES.get('token')
@@ -283,7 +303,7 @@ def api_admin_badge_add(request, data: badgeSchema) -> tuple | dict:
         "success": False
     }
 
-def api_admin_badge_remove(request, data: badgeSchema) -> tuple | dict:
+def api_admin_badge_remove(request, data: UserBadge) -> tuple | dict:
     # Removing a badge from a user (3+)
 
     token = request.COOKIES.get('token')
@@ -368,7 +388,7 @@ def api_admin_account_info(request, identifier: int | str, use_id: bool) -> tupl
         "success": False
     }
 
-def api_admin_account_save(request, data: adminAccountSaveSchema) -> tuple | dict:
+def api_admin_account_save(request, data: SaveUser) -> tuple | dict:
     # Save account information (4+)
 
     try:
@@ -411,7 +431,7 @@ def api_admin_account_save(request, data: adminAccountSaveSchema) -> tuple | dic
         "success": False
     }
 
-def api_admin_set_level(request, data: adminLevelSchema) -> tuple | dict:
+def api_admin_set_level(request, data: UserLevel) -> tuple | dict:
     # Set the admin level for a different person (5+)
 
     try:
