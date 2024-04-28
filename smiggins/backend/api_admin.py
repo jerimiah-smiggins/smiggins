@@ -181,22 +181,18 @@ def api_admin_badge_create(request, data: NewBadge) -> tuple | dict:
             }
 
         try:
-            Badge.objects.get(
+            badge = Badge.objects.get(
                 name=badge_name
             )
 
-            return 400, {
-                "success": False,
-                "reason": "A badge with the name " + badge_name + " already exists!"
-            }
+            badge.svg_data = badge_data
 
         except Badge.DoesNotExist:
-            pass
+            badge = Badge.objects.create(
+                name=badge_name,
+                svg_data=badge_data
+            )
 
-        badge = Badge.objects.create(
-            name=badge_name,
-            svg_data=badge_data
-        )
         badge.save()
 
         BADGE_DATA[badge_name] = badge_data
