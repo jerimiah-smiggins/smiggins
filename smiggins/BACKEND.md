@@ -653,6 +653,13 @@ production servers, and on development servers you instead see the django
 traceback 404 page.
 
 ```py
+def badges(
+  request: django.core.handlers.wsgi.WSGIRequest
+) -> HttpResponse
+```
+Returns the javascript file for the badges list.
+
+```py
 def _500(
   request: django.core.handlers.wsgi.WSGIRequest
 ) -> HttpResponse

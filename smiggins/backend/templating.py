@@ -196,11 +196,10 @@ def admin(request) -> HttpResponse | HttpResponseRedirect:
     )
 
 def badges(request) -> HttpResponse:
-    content = "const badges={" + (",".join(["\"" + i.replace("\\", "\\\\").replace("\"", "\\\"") + "\":'" + BADGE_DATA[i].replace("'", "\"") + "'" for i in BADGE_DATA])) + "}"
-    response = HttpResponse(content, content_type="text/javascript")
-
-    response.__name__ = ""
-    return response
+    return HttpResponse(
+        "const badges={" + (",".join(["\"" + i.replace("\\", "\\\\").replace("\"", "\\\"") + "\":'" + BADGE_DATA[i].replace("'", "\"") + "'" for i in BADGE_DATA])) + "}",
+        content_type="text/javascript"
+    )
 
 # These two functions are referenced in smiggins/urls.py
 def _404(request, exception) -> HttpResponse:
