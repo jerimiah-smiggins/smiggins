@@ -4,7 +4,7 @@ from django.urls import include, path
 from backend._settings import CONTACT_INFO
 from backend.variables import ROBOTS, BADGE_DATA
 from backend.helper import create_simple_return
-from backend.templating import contact, settings, user, post, comment, admin
+from backend.templating import contact, settings, user, post, comment, admin, badges
 
 urlpatterns = [
     path("api/", include("smiggins.api")),
@@ -24,7 +24,7 @@ urlpatterns = [
     path("admin/", admin),
     path("django-admin/", django_admin.site.urls),
 
-    path("badges.js", create_simple_return("", content_type="text/javascript", content_override="const badges={" + (",".join(["\"" + i.replace("\\", "\\\\").replace("\"", "\\\"") + "\":'" + BADGE_DATA[i].replace("'", "\"") + "'" for i in BADGE_DATA])) + "}")),
+    path("badges.js", badges),
     path("robots.txt", create_simple_return("", content_type="text/plain", content_override=ROBOTS)),
     path(".well-known/security.txt", create_simple_return("", content_type="text/plain", content_override="\n".join([{"email": "Email", "text": "Other", "url": "Link"}[i[0]] + f": {i[1]}" for i in CONTACT_INFO]) + "\n"))
 ]
