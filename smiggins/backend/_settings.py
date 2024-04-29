@@ -3,7 +3,7 @@
 # This file is meant to have settings that are easy to understand.
 
 # Version displayed.
-VERSION: str = "0.6.1"
+VERSION: str = "0.6.3"
 
 # What to have the site name be.
 SITE_NAME: str = "Jerimiah Smiggins"
@@ -13,7 +13,8 @@ OWNER_USER_ID = 1
 
 # TURN THIS OFF for production servers!!!
 # Whether or not to refresh the server when code changes
-# Turning this off (and going into production) means you need a web server like Nginx or Apache to serve static files securely among other things
+# Turning this off (and going into production) means you need a web server like
+# Nginx or Apache to serve static files securely among other things
 DEBUG = True
 
 # 1-200

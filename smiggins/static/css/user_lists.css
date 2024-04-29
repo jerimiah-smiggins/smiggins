@@ -1,0 +1,16 @@
+.lists-container {
+  display: flex;
+  flex-direction: row;
+  flex-wrap: wrap;
+  justify-content: center;
+}
+
+.lists-container > div {
+  width: 100%;
+  max-width: 25em;
+  margin: 0 3em;
+}
+
+.lists-container .post {
+  width: 22.125em;
+}

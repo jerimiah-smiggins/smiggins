@@ -1,0 +1,121 @@
+{% load static %}
+<!DOCTYPE html>
+
+<html>
+  <head>
+    <title>{{DISPLAY_NAME}} - {{SITE_NAME}} v{{VERSION}}</title>
+    {% autoescape off %}
+    {{HTML_HEADERS}}
+    {% endautoescape %}
+
+    <link rel="stylesheet" href="{% static '/css/home.css' %}">
+    <link rel="stylesheet" href="{% static '/css/user.css' %}">
+    <link rel="stylesheet" href="{% static '/css/user_lists.css' %}">
+  </head>
+
+  <body data-theme="{{THEME}}" data-username="{{USERNAME}}" style="--banner: {{BANNER_COLOR}}; --banner-two: {{BANNER_COLOR_TWO}}">
+    <div id="banner" class="{{GRADIENT}}"></div>
+    <div>
+      <div id="username-main">
+        {{DISPLAY_NAME}}
+        <span data-show-on-priv hidden><div class="priv" data-add-icon="lock"></div></span>
+        {% autoescape off %}
+        {{BADGES}}
+        {% endautoescape %}
+      </div>
+    </div>
+    <a href="/u/{{USERNAME}}" class="no-underline text">
+      <div id="username-lower">@{{USERNAME}}</div>
+      <div id="follow">Followers: {{FOLLOWER_COUNT}} - Following: {{FOLLOWING_COUNT}}</div>
+    </a>
+    <div id="user-bio" data-linkify>{{USER_BIO}}</div>
+
+    <div class="lists-container">
+      <div>
+        <h2>Following</h2>
+        {% for USER in FOLLOWING %}
+          <div class="post">
+            <div class="upper-content">
+              <a href="/u/{{USER.username}}" class="no-underline text">
+                <div class="displ-name">
+                  {{USER.display_name}}
+                  {% if USER.private == 'true' %}
+                    <span class="user-badge" data-add-icon="lock"></span>
+                  {% endif %}
+                  {% for BADGE in USER.badges %}
+                    <span class="user-badge" data-add-badge="{{BADGE}}"></span>
+                  {% endfor %}
+                </div>
+                <span class="upper-lower-opacity"> -
+                  <div class="username">@{{USER.username}}</div>
+                </span>
+              </a>
+            </div>
+
+            <div class="main-content">
+              {% if USER.bio == EMPTY %}
+                <i>No bio set</i>
+              {% else %}
+                <div data-linkify>
+                  {{USER.bio}}
+                </div>
+              {% endif %}
+            </div>
+          </div><br>
+        {% empty %}
+          <i>None</i>
+        {% endfor %}
+      </div>
+
+      <div>
+        <h2>Followers</h2>
+        {% for USER in FOLLOWERS %}
+          <div class="post">
+            <div class="upper-content">
+              <a href="/u/{{USER.username}}" class="no-underline text">
+                <div class="displ-name">
+                  {{USER.display_name}}
+                  {% if USER.private == 'true' %}
+                    <span class="user-badge" data-add-icon="lock"></span>
+                  {% endif %}
+                  {% for BADGE in USER.badges %}
+                    <span class="user-badge" data-add-badge="{{BADGE}}"></span>
+                  {% endfor %}
+                </div>
+                <span class="upper-lower-opacity"> -
+                  <div class="username">@{{USER.username}}</div>
+                </span>
+              </a>
+            </div>
+
+            <div class="main-content">
+              {% if USER.bio == EMPTY %}
+                <i>No bio set</i>
+              {% else %}
+                <div data-linkify>
+                  {{USER.bio}}
+                </div>
+              {% endif %}
+            </div>
+          </div><br>
+        {% empty %}
+          <i>None</i>
+        {% endfor %}
+      </div>
+    </div>
+
+    <script>
+      [...document.querySelectorAll("[data-linkify]")].forEach((val, index) => {
+        val.innerHTML = linkifyHtml(val.innerHTML, {
+          formatHref: { mention: (href) => "/u" + href }
+        });
+      });
+      let home = true;
+      let share = window.location.href.split("/lists/")[0] + "/";
+    </script>
+
+    {% autoescape off %}
+    {{HTML_FOOTERS}}
+    {% endautoescape %}
+  </body>
+</html>

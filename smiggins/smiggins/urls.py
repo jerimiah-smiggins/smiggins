@@ -4,7 +4,14 @@ from django.urls import include, path
 from backend._settings import CONTACT_INFO
 from backend.variables import ROBOTS, BADGE_DATA
 from backend.helper import create_simple_return
-from backend.templating import contact, settings, user, post, comment, admin, badges
+from backend.templating import contact, settings, user, user_lists, post, comment, admin, badges
+
+from posts.models import User, Post, Comment, Badge
+
+django_admin.site.register(User)
+django_admin.site.register(Post)
+django_admin.site.register(Comment)
+django_admin.site.register(Badge)
 
 urlpatterns = [
     path("api/", include("smiggins.api")),
@@ -18,6 +25,7 @@ urlpatterns = [
     path("contact/", contact),
     path("settings/", settings),
     path("u/<str:username>/", user),
+    path("u/<str:username>/lists/", user_lists),
     path("p/<int:post_id>/", post),
     path("c/<int:comment_id>/", comment),
 

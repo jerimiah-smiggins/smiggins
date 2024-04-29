@@ -34,8 +34,10 @@
         {% endautoescape %}
       </div>
     </div>
-    <div id="username-lower">@{{USERNAME}}</div>
-    <div id="follow"></div>
+    <a href="/u/{{USERNAME}}/lists" class="no-underline text">
+      <div id="username-lower">@{{USERNAME}}</div>
+      <div id="follow"></div>
+    </a>
     <div id="user-bio"></div>
     <button onclick="refresh()">Refresh</button>
     <button id="toggle" {{IS_HIDDEN}} data-followed="{% if IS_FOLLOWING == "true" %}1{% else %}0{% endif %}" onclick="toggle_follow()">{% if IS_FOLLOWING == "true" %}Unfollow{% else %}Follow{% endif %}</button>
