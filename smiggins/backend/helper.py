@@ -151,12 +151,17 @@ def get_badges(user: User) -> list[str]:
 
     return (user.badges or []) + (["administrator"] if user.admin_level >= 1 or user.user_id == OWNER_USER_ID else [])
 
-def get_post_json(post_id: int, current_user_id: int=0, comment: bool=False) -> dict[str, str | int | dict]:
+def get_post_json(post_id: int, current_user_id: int=0, comment: bool=False, cache: dict[int, User]={}) -> dict[str, str | int | dict]:
     if comment:
         post = Comment.objects.get(comment_id=post_id)
     else:
         post = Post.objects.get(post_id=post_id)
-    creator = User.objects.get(user_id=post.creator)
+
+    if post.creator in cache:
+        creator = cache[post.creator]
+    else:
+        creator = User.objects.get(user_id=post.creator)
+        cache[post.creator] = creator
 
     can_delete_all = current_user_id != 0 and (current_user_id == OWNER_USER_ID or User.objects.get(pk=current_user_id).admin_level >= 1)
 
@@ -190,7 +195,12 @@ def get_post_json(post_id: int, current_user_id: int=0, comment: bool=False) -> 
                 quote = Comment.objects.get(comment_id=post.quote) # type: ignore
             else:
                 quote = Post.objects.get(post_id=post.quote) # type: ignore
-            quote_creator = User.objects.get(user_id=quote.creator)
+
+            if quote.creator in cache:
+                quote_creator = cache[quote.creator]
+            else:
+                quote_creator = User.objects.get(user_id=quote.creator)
+                cache[quote.creator] = quote_creator
 
             if quote_creator.private and current_user_id not in quote_creator.following:
                 quote_info = {

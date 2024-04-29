@@ -117,6 +117,8 @@ def api_comment_list(request, id: int, comment: bool, offset: int=-1) -> tuple |
 
     outputList = []
     offset = 0
+    cache = {}
+
     for i in (parent.comments or []):
         try:
             comment_object = Comment.objects.get(pk=i)
@@ -136,7 +138,7 @@ def api_comment_list(request, id: int, comment: bool, offset: int=-1) -> tuple |
             continue
 
         else:
-            outputList.append(get_post_json(i, user_id, True))
+            outputList.append(get_post_json(i, user_id, True, cache=cache))
 
         if len(outputList) >= POSTS_PER_REQUEST:
             break
