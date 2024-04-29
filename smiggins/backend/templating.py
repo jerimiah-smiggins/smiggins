@@ -39,6 +39,45 @@ def settings(request) -> HttpResponse:
     )
 
 def user(request, username: str) -> HttpResponse:
+    username = username.lower()
+
+    try:
+        if not validate_token(request.COOKIES["token"]):
+            HttpResponseRedirect("/", status=307)
+    except KeyError:
+        HttpResponseRedirect("/", status=307)
+
+    self_object = User.objects.get(token=request.COOKIES["token"])
+    self_id = self_object.user_id
+
+    try:
+        user = User.objects.get(username=username)
+    except User.DoesNotExist:
+        return get_HTTP_response(
+            request, "404_user.html"
+        )
+
+    if user.private and self_id not in user.following:
+        return get_HTTP_response(
+            request, "404_user.html"
+        )
+
+    return get_HTTP_response(
+        request, "user.html",
+
+        USERNAME = user.username,
+        DISPLAY_NAME = user.display_name,
+
+        BADGES = "".join([f"<span class='user-badge' data-add-badge='{i}'></span> " for i in get_badges(user)]),
+
+        GRADIENT = "gradient" if user.gradient else "",
+        BANNER_COLOR = user.color or DEFAULT_BANNER_COLOR,
+        BANNER_COLOR_TWO = user.color_two or DEFAULT_BANNER_COLOR,
+
+        IS_FOLLOWING = str(user.user_id in self_object.following).lower()
+    )
+
+def user_lists(request, username: str) -> HttpResponse | HttpResponseRedirect:
     logged_in = True
     username = username.lower()
 
@@ -61,12 +100,46 @@ def user(request, username: str) -> HttpResponse:
             request, "404_user.html"
         )
 
+    followers = []
+    for i in user.followers:
+        if i != user.user_id:
+            f_user = User.objects.get(user_id=i)
+            followers.append({
+                "user_id": i,
+                "username": f_user.username,
+                "display_name": f_user.display_name,
+                "bio": f_user.bio or "\n\n\n",
+                "private": str(f_user.private).lower(),
+                "badges": get_badges(f_user)
+            })
+
+    following = []
+    for i in user.following:
+        if i != user.user_id:
+            f_user = User.objects.get(user_id=i)
+            following.append({
+                "user_id": i,
+                "username": f_user.username,
+                "display_name": f_user.display_name,
+                "bio": f_user.bio or "\n\n\n",
+                "private": str(f_user.private).lower(),
+                "badges": get_badges(f_user)
+            })
+
     return get_HTTP_response(
-        request, "user.html",
+        request, "user_lists.html",
 
         USERNAME     = user.username,
         DISPLAY_NAME = user.display_name,
         USER_BIO     = user.bio or "",
+
+        EMPTY = "\n\n\n",
+
+        FOLLOWING = following,
+        FOLLOWERS = followers,
+
+        FOLLOWER_COUNT = len(user.followers),
+        FOLLOWING_COUNT = len(user.following) - 1,
 
         BADGES = "".join([f"<span class='user-badge' data-add-badge='{i}'></span> " for i in get_badges(user)]),
 
