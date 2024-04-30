@@ -256,3 +256,54 @@ def api_user_follower_remove(request, data: Username) -> tuple | dict:
     return 201, {
         "success": True
     }
+
+def api_user_block_add(request, data: Username) -> tuple | dict:
+    # Called when someone requests to follow another account.
+
+    token = request.COOKIES.get('token')
+    username = data.username.lower()
+
+    if not validate_username(username):
+        return 400, {
+            "valid": False,
+            "reason": f"Account with username {username} doesn't exist."
+        }
+
+    user = User.objects.get(token=token)
+    blocked = User.objects.get(username=username)
+    if blocked.user_id not in (user.blocking or []):
+        user.following.append(blocked.user_id)
+        user.save()
+
+    return 201, {
+        "success": True
+    }
+
+def api_user_block_remove(request, data: Username) -> tuple | dict:
+    # Called when someone requests to unfollow another account.
+
+    token = request.COOKIES.get('token')
+    username = data.username.lower()
+
+    if not validate_username(username):
+        return 400, {
+            "valid": False,
+            "reason": f"Account with username {username} doesn't exist."
+        }
+
+    user = User.objects.get(token=token)
+    blocked = User.objects.get(username=username)
+    if user.user_id != blocked.user_id:
+        if blocked.user_id in user.following :
+            user.following.remove(blocked.user_id)
+            user.save()
+
+    else:
+        return 400, {
+            "success": False
+        }
+
+    return 201, {
+        "success": True
+    }
+

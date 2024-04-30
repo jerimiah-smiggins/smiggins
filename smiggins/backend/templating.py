@@ -74,7 +74,8 @@ def user(request, username: str) -> HttpResponse:
         BANNER_COLOR = user.color or DEFAULT_BANNER_COLOR,
         BANNER_COLOR_TWO = user.color_two or DEFAULT_BANNER_COLOR,
 
-        IS_FOLLOWING = str(user.user_id in self_object.following).lower()
+        IS_FOLLOWING = str(user.user_id in self_object.following).lower(),
+        IS_BLOCKED = str(user.user_id in (self_object.blocking or [])).lower()
     )
 
 def user_lists(request, username: str) -> HttpResponse | HttpResponseRedirect:
@@ -101,7 +102,7 @@ def user_lists(request, username: str) -> HttpResponse | HttpResponseRedirect:
         )
 
     followers = []
-    for i in user.followers:
+    for i in (user.followers or []):
         if i != user.user_id:
             f_user = User.objects.get(user_id=i)
             followers.append({
@@ -138,7 +139,7 @@ def user_lists(request, username: str) -> HttpResponse | HttpResponseRedirect:
         FOLLOWING = following,
         FOLLOWERS = followers,
 
-        FOLLOWER_COUNT = len(user.followers),
+        FOLLOWER_COUNT = len(user.followers or []),
         FOLLOWING_COUNT = len(user.following) - 1,
 
         BADGES = "".join([f"<span class='user-badge' data-add-badge='{i}'></span> " for i in get_badges(user)]),
