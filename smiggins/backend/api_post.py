@@ -143,9 +143,10 @@ def api_post_list_following(request, offset: int=-1) -> tuple | dict:
             break
 
     potential = potential[index::]
-
     offset = 0
     outputList = []
+    cache = {}
+
     for i in potential:
         try:
             current_post = Post.objects.get(pk=i)
@@ -159,7 +160,7 @@ def api_post_list_following(request, offset: int=-1) -> tuple | dict:
             offset += 1
 
         else:
-            outputList.append(get_post_json(i, user.user_id))
+            outputList.append(get_post_json(i, user.user_id, cache=cache))
 
             if len(outputList) >= POSTS_PER_REQUEST:
                 break
@@ -191,6 +192,7 @@ def api_post_list_recent(request, offset: int=-1) -> tuple | dict:
     outputList = []
     offset = 0
     i = next_id
+    cache = {}
 
     while i > next_id - POSTS_PER_REQUEST - offset and i > 0:
         try:
@@ -205,7 +207,7 @@ def api_post_list_recent(request, offset: int=-1) -> tuple | dict:
             offset += 1
 
         else:
-            outputList.append(get_post_json(i, user.user_id))
+            outputList.append(get_post_json(i, user.user_id, cache=cache))
 
         i -= 1
 
@@ -254,10 +256,11 @@ def api_post_list_user(request, username: str, offset: int=-1) -> tuple | dict:
     potential = potential[index::]
     end = len(potential) <= POSTS_PER_REQUEST
     potential = potential[:POSTS_PER_REQUEST:]
+    cache = {}
 
     outputList = []
     for i in potential:
-        outputList.append(get_post_json(i, self_user.user_id if logged_in else 0)) # type: ignore
+        outputList.append(get_post_json(i, self_user.user_id if logged_in else 0, cache=cache)) # type: ignore
 
     return {
         "posts": outputList,
