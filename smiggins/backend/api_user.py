@@ -136,7 +136,7 @@ def api_user_settings_theme(request, data: Theme) -> tuple | dict:
     token = request.COOKIES.get('token')
     theme = data.theme.lower()
 
-    if theme.lower() not in ["light", "gray", "dark", "black"]:
+    if theme.lower() not in ["light", "gray", "dark", "black", "oled"]:
         return 400, {
             "success": False,
             "reason": "That's not a vailid theme, idiot.",
