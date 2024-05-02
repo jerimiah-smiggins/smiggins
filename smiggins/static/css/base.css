@@ -42,8 +42,6 @@ hr { border-color: var(--accent); }
 button {
   background-color: var(--crust);
   color: var(--text);
-  border: 1.5px solid var(--surface0);
-  margin: -1.5px;
   padding: 5px 7px;
   border-radius: 10px;
   cursor: pointer;
