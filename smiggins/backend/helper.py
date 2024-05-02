@@ -1,8 +1,8 @@
 # Contains helper functions. These aren't for routing, instead doing something that can be used in other places in the code.
 
-from ._settings import SITE_NAME, VERSION, SOURCE_CODE, MAX_DISPL_NAME_LENGTH, MAX_POST_LENGTH, MAX_USERNAME_LENGTH, RATELIMIT, OWNER_USER_ID
+from ._settings import SITE_NAME, VERSION, SOURCE_CODE, MAX_DISPL_NAME_LENGTH, MAX_POST_LENGTH, MAX_USERNAME_LENGTH, RATELIMIT, OWNER_USER_ID, ADMIN_LOG_PATH, MAX_ADMIN_LOG_LINES
 from .variables import HTML_FOOTERS, HTML_HEADERS, PRIVATE_AUTHENTICATOR_KEY, timeout_handler
-from .packages  import Union, Callable, Any, HttpResponse, HttpResponseRedirect, loader, User, Comment, Post, threading, hashlib
+from .packages  import Union, Callable, Any, HttpResponse, HttpResponseRedirect, loader, User, Comment, Post, threading, hashlib, time
 
 def sha(string: Union[str, bytes]) -> str:
     # Returns the sha256 hash of a string.
@@ -287,3 +287,14 @@ def trim_whitespace(string: str, purge_newlines: bool=False) -> str:
         string = string[:-1:]
 
     return string
+
+def log_admin_action(
+    action_name: str,
+    admin_user_object: User,
+    log_info: str
+) -> None:
+    old_log = "\n".join(open(ADMIN_LOG_PATH, "r").read().split("\n")[:MAX_ADMIN_LOG_LINES - 1:])
+
+    f = open(ADMIN_LOG_PATH, "w")
+    f.write(f"{round(time.time())} - {action_name}, done by {admin_user_object.username} (id: {admin_user_object.user_id}) - {log_info}\n" + old_log)
+    f.close()

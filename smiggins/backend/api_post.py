@@ -2,7 +2,7 @@
 
 from ._settings import API_TIMINGS, MAX_POST_LENGTH, POSTS_PER_REQUEST, OWNER_USER_ID
 from .packages  import User, Post, Comment, time, sys, Schema
-from .helper    import ensure_ratelimit, create_api_ratelimit, trim_whitespace, get_post_json, validate_username, validate_token
+from .helper    import ensure_ratelimit, create_api_ratelimit, trim_whitespace, get_post_json, validate_username, validate_token, log_admin_action
 
 class NewPost(Schema):
     content: str
@@ -351,7 +351,13 @@ def api_post_delete(request, data: PostID) -> tuple | dict:
             "success": False
         }
 
-    if post.creator == user.user_id or user.user_id == OWNER_USER_ID or user.admin_level >= 1:
+    admin = user.user_id == OWNER_USER_ID or user.admin_level >= 1
+    creator = post.creator == user.user_id
+
+    if admin and not creator:
+        log_admin_action("Delete post", user, f"Deleted post {id} (content: {post.content})")
+
+    if creator or admin:
         creator = User.objects.get(user_id=post.creator)
         creator.posts.remove(id) # type: ignore
         creator.save()
