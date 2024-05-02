@@ -272,7 +272,7 @@ def api_user_block_add(request, data: Username) -> tuple | dict:
 
     if not validate_username(username):
         return 400, {
-            "valid": False,
+            "success": False,
             "reason": f"Account with username {username} doesn't exist."
         }
 
@@ -280,12 +280,15 @@ def api_user_block_add(request, data: Username) -> tuple | dict:
 
     if user.username == username:
         return 400, {
-            "valid": False,
+            "success": False,
             "reason": "You cannot block yourself, iditot!"
         }
 
     blocked = User.objects.get(username=username)
     if blocked.user_id not in (user.blocking or []):
+        if blocked.user_id in user.following:
+            user.following.remove(blocked.user_id)
+
         user.blocking.append(blocked.user_id) # type: ignore
         user.save()
 
@@ -301,7 +304,7 @@ def api_user_block_remove(request, data: Username) -> tuple | dict:
 
     if not validate_username(username):
         return 400, {
-            "valid": False,
+            "success": False,
             "reason": f"Account with username {username} doesn't exist."
         }
 
@@ -309,13 +312,13 @@ def api_user_block_remove(request, data: Username) -> tuple | dict:
 
     if user.username == username:
         return 400, {
-            "valid": False,
+            "success": False,
             "reason": "You cannot block yourself, itdiot!!"
         }
 
     blocked = User.objects.get(username=username)
     if user.user_id != blocked.user_id:
-        if blocked.user_id in user.following :
+        if blocked.user_id in user.blocking:
             user.blocking.remove(blocked.user_id) # type: ignore
             user.save()
 

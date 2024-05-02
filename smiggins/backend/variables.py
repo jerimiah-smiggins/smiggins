@@ -79,5 +79,4 @@ except Badge.DoesNotExist:
         BADGE_DATA[i.name] = i.svg_data
 
 except OperationalError:
-    print("You need to migrate your database! Do this by running 'manage.py migrate'. If you are already doing that, ignore this message.")
     print("\x1b[91mYou need to migrate your database! Do this by running 'manage.py migrate'. If you are already doing that, ignore this message.\x1b[0m")

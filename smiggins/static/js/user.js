@@ -56,7 +56,7 @@ function toggle_follow() {
       dom("toggle").innerText = x ? "Follow" : "Unfollow";
     })
     .catch((err) => {
-      showlog("Something went wrong loading the posts! Try again in a few moments...", 5000);
+      showlog("Something went wrong when trying to toggle the follow! Try again in a few moments...", 5000);
       throw(err);
     });
 }
@@ -78,7 +78,7 @@ function toggle_block() {
       dom("block").innerText = x ? "Block" : "Unblock";
     })
     .catch((err) => {
-      showlog("Something went wrong loading the posts! Try again in a few moments...", 5000);
+      showlog("Something went wrong when trying to toggle the block! Try again in a few moments...", 5000);
       throw(err);
     });
 }

@@ -139,4 +139,5 @@ button { width: 5em; }
   .post-button      { left:  calc(97vw - 11.5em - 5px);      }
   .cancel-button    { left:  calc(97vw - 17em - 2px);        }
   .quote-area .post { width: calc(94vw - (2em / 7) - 120px); }
+  .bottom-spacing   { width: 1.5em;                          }
 }
