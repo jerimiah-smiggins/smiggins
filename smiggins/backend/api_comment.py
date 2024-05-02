@@ -119,6 +119,10 @@ def api_comment_list(request, id: int, comment: bool, offset: int=-1) -> tuple |
     offset = 0
     cache = {}
 
+    self_blocking = []
+    if logged_in:
+        self_blocking = User.objects.get(token=token).blocking or []
+
     for i in (parent.comments or []):
         try:
             comment_object = Comment.objects.get(pk=i)
@@ -133,7 +137,7 @@ def api_comment_list(request, id: int, comment: bool, offset: int=-1) -> tuple |
             offset += 1
             continue
 
-        if creator.private and user_id not in creator.following:
+        if creator.user_id in self_blocking or creator.private and user_id not in creator.following:
             offset += 1
             continue
 

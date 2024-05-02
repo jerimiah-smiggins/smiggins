@@ -2,8 +2,6 @@
 Docs for the backend. This contains descriptions of every function defined in
 any of the files in the backend.
 
-<!-- i rearranged a lot so that's fun ill do that later -->
-
 ## ./manage.py
 This file is auto-created when making a django project. To see what this file
 does, you can read the django docs or run the file like you would a normal
@@ -456,6 +454,24 @@ def api_user_follower_remove(
 This handles unfollowing someone. Called on a DELETE request to
 `/api/user/follower`.
 
+```py
+def api_user_block_add(
+  request: django.core.handlers.wsgi.WSGIRequest,
+  data: Username
+) -> tuple[int, dict] | dict
+```
+This handles blocking someone. Called on a POST request to
+`/api/user/block`.
+
+```py
+def api_user_block_remove(
+  request: django.core.handlers.wsgi.WSGIRequest,
+  data: Username
+) -> tuple[int, dict] | dict
+```
+This handles unblocking someone. Called on a DELETE request to
+`/api/user/block`.
+
 ## ./backend/helper.py
 This is for any helper function that could be used across the backend. This is
 for utility functions, things that make an action easier, and other stuff like
@@ -613,6 +629,14 @@ def user(
 For `/u/...` pages
 
 ```py
+def user_lists(
+  request: django.core.handlers.wsgi.WSGIRequest,
+  username: str
+) -> HttpResponse
+```
+For `/u/.../lists` pages
+
+```py
 def post(
   request: django.core.handlers.wsgi.WSGIRequest,
   post_id: int
@@ -632,7 +656,7 @@ For `/c/...` pages
 def contact(
   request: django.core.handlers.wsgi.WSGIRequest
 ) -> HttpResponse
-```
+````
 For the `/contact` page
 
 ```py

@@ -4,7 +4,7 @@ from backend.api_admin   import api_admin_account_info, api_admin_account_save, 
 from backend.api_comment import api_comment_create, api_comment_delete, api_comment_like_add, api_comment_like_remove, api_comment_list
 from backend.api_info    import api_info_username
 from backend.api_post    import api_post_create, api_post_delete, api_post_like_add, api_post_like_remove, api_post_list_following, api_post_list_recent, api_post_list_user, api_quote_create
-from backend.api_user    import api_account_login, api_account_signup, api_user_follower_add, api_user_follower_remove, api_user_settings, api_user_settings_theme
+from backend.api_user    import api_account_login, api_account_signup, api_user_follower_add, api_user_follower_remove, api_user_settings, api_user_settings_theme, api_user_block_add, api_user_block_remove
 from backend.packages    import json
 
 from ninja.renderers import BaseRenderer
@@ -39,6 +39,8 @@ api.patch ("user/settings/theme", response=response_schema)(api_user_settings_th
 api.patch ("user/settings", response=response_schema)(api_user_settings)
 api.post  ("user/follower", response=response_schema)(api_user_follower_add)
 api.delete("user/follower", response=response_schema)(api_user_follower_remove)
+api.post  ("user/block", response=response_schema)(api_user_block_add)
+api.delete("user/block", response=response_schema)(api_user_block_remove)
 
 # Post stuff
 api.put("post/create",    response=response_schema)(api_post_create)

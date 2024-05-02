@@ -214,6 +214,13 @@ def api_user_follower_add(request, data: Username) -> tuple | dict:
 
     user = User.objects.get(token=token)
     followed = User.objects.get(username=username)
+
+    if followed.user_id in (user.blocking or []):
+        return 400, {
+            "valid": False,
+            "reason": "You can't follow an account you're blocking!"
+        }
+
     if followed.user_id not in user.following:
         user.following.append(followed.user_id)
         user.save()
@@ -248,6 +255,73 @@ def api_user_follower_remove(request, data: Username) -> tuple | dict:
         if user.user_id in (followed.followers or []):
             followed.followers.remove(user.user_id) # type: ignore
             followed.save()
+    else:
+        return 400, {
+            "success": False
+        }
+
+    return 201, {
+        "success": True
+    }
+
+def api_user_block_add(request, data: Username) -> tuple | dict:
+    # Called when someone requests to block another account.
+
+    token = request.COOKIES.get('token')
+    username = data.username.lower()
+
+    if not validate_username(username):
+        return 400, {
+            "success": False,
+            "reason": f"Account with username {username} doesn't exist."
+        }
+
+    user = User.objects.get(token=token)
+
+    if user.username == username:
+        return 400, {
+            "success": False,
+            "reason": "You cannot block yourself, iditot!"
+        }
+
+    blocked = User.objects.get(username=username)
+    if blocked.user_id not in (user.blocking or []):
+        if blocked.user_id in user.following:
+            user.following.remove(blocked.user_id)
+
+        user.blocking.append(blocked.user_id) # type: ignore
+        user.save()
+
+    return 201, {
+        "success": True
+    }
+
+def api_user_block_remove(request, data: Username) -> tuple | dict:
+    # Called when someone requests to unblock another account.
+
+    token = request.COOKIES.get('token')
+    username = data.username.lower()
+
+    if not validate_username(username):
+        return 400, {
+            "success": False,
+            "reason": f"Account with username {username} doesn't exist."
+        }
+
+    user = User.objects.get(token=token)
+
+    if user.username == username:
+        return 400, {
+            "success": False,
+            "reason": "You cannot block yourself, itdiot!!"
+        }
+
+    blocked = User.objects.get(username=username)
+    if user.user_id != blocked.user_id:
+        if blocked.user_id in user.blocking:
+            user.blocking.remove(blocked.user_id) # type: ignore
+            user.save()
+
     else:
         return 400, {
             "success": False

@@ -203,7 +203,7 @@ def api_post_list_recent(request, offset: int=-1) -> tuple | dict:
             continue
 
         current_user = User.objects.get(pk=current_post.creator)
-        if current_user.private and user.user_id not in current_user.following:
+        if current_user.user_id in (user.blocking or []) or (current_user.private and user.user_id not in current_user.following) or (current_user.user_id in (user.blocking or [])):
             offset += 1
 
         else:

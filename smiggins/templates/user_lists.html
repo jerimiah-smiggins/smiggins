@@ -31,6 +31,44 @@
     <div id="user-bio" data-linkify>{{USER_BIO}}</div>
 
     <div class="lists-container">
+      {% if INCLUDE_BLOCKS == "true" %}
+        <div>
+          <h2>Blocks</h2>
+          {% for USER in BLOCKS %}
+            <div class="post">
+              <div class="upper-content">
+                <a href="/u/{{USER.username}}" class="no-underline text">
+                  <div class="displ-name">
+                    {{USER.display_name}}
+                    {% if USER.private == 'true' %}
+                      <span class="user-badge" data-add-icon="lock"></span>
+                    {% endif %}
+                    {% for BADGE in USER.badges %}
+                      <span class="user-badge" data-add-badge="{{BADGE}}"></span>
+                    {% endfor %}
+                  </div>
+                  <span class="upper-lower-opacity"> -
+                    <div class="username">@{{USER.username}}</div>
+                  </span>
+                </a>
+              </div>
+
+              <div class="main-content">
+                {% if USER.bio == EMPTY %}
+                  <i>No bio set</i>
+                {% else %}
+                  <div data-linkify>
+                    {{USER.bio}}
+                  </div>
+                {% endif %}
+              </div>
+            </div><br>
+          {% empty %}
+            <i>None</i>
+          {% endfor %}
+        </div>
+      {% endif %}
+
       <div>
         <h2>Following</h2>
         {% for USER in FOLLOWING %}
