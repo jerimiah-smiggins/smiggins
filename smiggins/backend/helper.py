@@ -163,11 +163,15 @@ def get_post_json(post_id: int, current_user_id: int=0, comment: bool=False, cac
         creator = User.objects.get(user_id=post.creator)
         cache[post.creator] = creator
 
-    if current_user_id in cache:
-        user = cache[current_user_id]
-    else:
-        user = User.objects.get(user_id=current_user_id)
-        cache[current_user_id] = user
+    try:
+        if current_user_id in cache:
+            user = cache[current_user_id]
+        else:
+            user = User.objects.get(user_id=current_user_id)
+            cache[current_user_id] = user
+        logged_in = True
+    except User.DoesNotExist:
+        logged_in = False
 
     can_delete_all = current_user_id != 0 and (current_user_id == OWNER_USER_ID or User.objects.get(pk=current_user_id).admin_level >= 1)
 
@@ -209,7 +213,7 @@ def get_post_json(post_id: int, current_user_id: int=0, comment: bool=False, cac
                 quote_creator = User.objects.get(user_id=quote.creator)
                 cache[quote.creator] = quote_creator
 
-            if quote_creator.user_id in user.blocking:
+            if logged_in and quote_creator.user_id in user.blocking:
                 quote_info = {
                     "deleted": False,
                     "blocked": True
