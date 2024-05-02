@@ -65,9 +65,7 @@ def user(request, username: str) -> HttpResponse:
         )
 
     if user.private and self_id not in user.following:
-        return get_HTTP_response(
-            request, "404_user.html"
-        )
+        logged_in = False
 
     return get_HTTP_response(
         request, "user.html",

@@ -242,7 +242,7 @@ def api_post_list_user(request, username: str, offset: int=-1) -> tuple | dict:
             "can_view": False,
             "following": len(user.following or []) - 1,
             "followers": len(user.followers or []),
-            "bio": user.bio
+            "bio": user.bio or ""
         }
 
     potential = user.posts[::-1]
