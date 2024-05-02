@@ -15,6 +15,17 @@ const validColors = [
   "teal", "sky", "sapphire", "blue", "lavender"
 ]
 
+const pronouns = {
+  _a: "ask pronouns",
+  _o: "other pronouns",
+  _v: "avoid pronouns",
+  aa: "any/all",  af: "any/she",  ai: "any/all",   am: "any/he",  an: "any/they",  ao: "any/its", ax: "any/other",
+  fa: "she/any",  ff: "she/her",  fi: "she/her",   fm: "she/he",  fn: "she/they",  fo: "she/it",  fx: "she/other",
+  ma: "he/all",   mf: "he/her",   mi: "he/him",    mm: "he/him",  mn: "he/they",   mo: "he/it",   mx: "he/other",
+  na: "they/any", nf: "they/she", ni: "they/them", nm: "they/he", nn: "they/them", no: "they/it", nx: "they/other",
+  oa: "it/any",   of: "it/she",   oi: "it/its",    om: "it/he",   on: "it/they",   oo: "it/its",  ox: "it/other"
+}
+
 // Placeholder
 let showlog = (str, time=0) => { };
 
@@ -129,6 +140,7 @@ function getPostHTML(
   postID,
   username,
   displayName,
+  userPronouns,
   timestamp,
   commentCount,
   likeCount,
@@ -153,6 +165,7 @@ function getPostHTML(
           </div>
           <span class="upper-lower-opacity"> -
             <div class="username">@${username}</div> -
+            ${pronouns[userPronouns] ? `<div class="pronouns">${pronouns[userPronouns]}</div> -` : ""}
             <div class="timestamp">${timeSince(timestamp)} ago</div>
           </span>
         ${includeUserLink ? "</a>" : ""}
@@ -186,6 +199,7 @@ function getPostHTML(
                       </div>
                       <span class="upper-lower-opacity"> -
                         <div class="username">@${quote.creator.username}</div> -
+                        ${pronouns[quote.creator.pronouns] ? `<div class="pronouns">${pronouns[quote.creator.pronouns]}</div> -` : ""}
                         <div class="timestamp">${timeSince(quote.timestamp)} ago</div>
                       </span>
                     ${includeUserLink || username !== quote.creator.username ? "</a>" : ""}

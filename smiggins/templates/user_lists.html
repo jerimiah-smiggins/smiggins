@@ -25,7 +25,7 @@
       </div>
     </div>
     <a href="/u/{{USERNAME}}" class="no-underline text">
-      <div id="username-lower">@{{USERNAME}}</div>
+      <div id="username-lower">@{{USERNAME}} - <span id="pronouns"></div>
       <div id="follow">Followers: {{FOLLOWER_COUNT}} - Following: {{FOLLOWING_COUNT}}</div>
     </a>
     <div id="user-bio" data-linkify>{{USER_BIO}}</div>
@@ -150,6 +150,10 @@
       });
       let home = true;
       let share = window.location.href.split("/lists/")[0] + "/";
+
+      if (pronouns.{{PRONOUNS}}) {
+        dom("pronouns").innerText = pronouns.{{PRONOUNS}};
+      }
     </script>
 
     {% autoescape off %}

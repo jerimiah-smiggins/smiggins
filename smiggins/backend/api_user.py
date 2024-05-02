@@ -17,6 +17,7 @@ class Settings(Schema):
     bio: str
     priv: bool
     color: str
+    pronouns: str
     color_two: str
     displ_name : str
     is_gradient: bool
@@ -158,6 +159,13 @@ def api_user_settings(request, data: Settings) -> tuple | dict:
     color_two = data.color_two.lower()
     displ_name = trim_whitespace(data.displ_name, True)
     bio = trim_whitespace(data.bio, True)
+    pronouns = data.pronouns.lower()
+
+    if len(pronouns) != 2 or pronouns not in ["__", "_a", "_o", "_v", "aa", "af", "ai", "am", "an", "ao", "ax", "fa", "ff", "fi", "fm", "fn", "fo", "fx", "ma", "mf", "mi", "mm", "mn", "mo", "mx", "na", "nf", "ni", "nm", "nn", "no", "nx", "oa", "of", "oi", "om", "on", "oo", "ox"]:
+        return 400, {
+            "success": False,
+            "reason": f"Invalid pronoun string '{pronouns}'. If this is a bug, please report this."
+        }
 
     if (len(displ_name) > MAX_DISPL_NAME_LENGTH or len(displ_name) < 1) or (len(bio) > MAX_BIO_LENGTH):
         return 400, {
@@ -192,6 +200,7 @@ def api_user_settings(request, data: Settings) -> tuple | dict:
     user.gradient = data.is_gradient
     user.private = data.priv
     user.display_name = displ_name
+    user.pronouns = pronouns
     user.bio = bio
 
     user.save()
@@ -318,7 +327,7 @@ def api_user_block_remove(request, data: Username) -> tuple | dict:
 
     blocked = User.objects.get(username=username)
     if user.user_id != blocked.user_id:
-        if blocked.user_id in user.blocking:
+        if blocked.user_id in (user.blocking or []):
             user.blocking.remove(blocked.user_id) # type: ignore
             user.save()
 

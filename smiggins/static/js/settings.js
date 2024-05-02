@@ -7,6 +7,15 @@ for (color of validColors) {
 }
 output += "</select><br><br>";
 
+if (user_pronouns.includes("_")) {
+  dom("pronouns-secondary-container").setAttribute("hidden", "");
+  document.querySelector(`#pronouns-primary option[value="${user_pronouns}"]`).setAttribute("selected", "");
+} else {
+  dom("pronouns-secondary-container").removeAttribute("hidden");
+  document.querySelector(`#pronouns-primary option[value="${user_pronouns[0]}"]`).setAttribute("selected", "");
+  document.querySelector(`#pronouns-secondary option[value="${user_pronouns[1]}"]`).setAttribute("selected", "");
+}
+
 let currentAccount = document.cookie.match(/token=([a-f0-9]{64})/)[0].split("=")[1];
 let accounts = JSON.parse(localStorage.getItem("acc-switcher") || JSON.stringify([[localStorage.getItem("username"), currentAccount]]));
 if (!localStorage.getItem("username")) {
@@ -37,7 +46,7 @@ localStorage.setItem("acc-switcher", JSON.stringify(accounts));
 dom("color-selector").innerHTML = output;
 dom("post-example").innerHTML = getPostHTML(
   "This is an example post. I am @example.",
-  0, "example", "Example",
+  0, "example", "Example", "aa",
   Date.now() / 1000 - Math.random() * 86400,
   Math.floor(Math.random() * 100),
   Math.floor(Math.random() * 99) + 1,
@@ -60,6 +69,20 @@ function toggleGradient() {
   } else {
     dom("banner-color-two").setAttribute("hidden", "");
     dom("banner").classList.remove("gradient");
+  }
+}
+
+function updatePronouns() {
+  if (this.id == "pronouns-primary") {
+    if (this.value.length != 1) {
+      user_pronouns = this.value;
+      dom("pronouns-secondary-container").setAttribute("hidden", "");
+    } else {
+      user_pronouns = this.value + dom("pronouns-secondary").value;
+      dom("pronouns-secondary-container").removeAttribute("hidden");
+    }
+  } else {
+    user_pronouns = user_pronouns[0] + this.value;
   }
 }
 
@@ -125,6 +148,7 @@ dom("save").addEventListener("click", function() {
       bio: dom("bio").value,
       priv: dom("priv").checked,
       color: dom("banner-color").value,
+      pronouns: user_pronouns,
       color_two: dom("banner-color-two").value,
       displ_name: dom("displ-name").value,
       is_gradient: dom("banner-is-gradient").checked
@@ -183,3 +207,6 @@ dom("acc-remove").addEventListener("click", function() {
     localStorage.setItem("acc-switcher", JSON.stringify(accounts));
   }
 });
+
+dom("pronouns-primary").addEventListener("input", updatePronouns);
+dom("pronouns-secondary").addEventListener("input", updatePronouns);

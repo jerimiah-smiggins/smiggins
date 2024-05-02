@@ -187,7 +187,8 @@ def get_post_json(post_id: int, current_user_id: int=0, comment: bool=False, cac
             "display_name": creator.display_name,
             "username": creator.username,
             "badges": get_badges(creator),
-            "private": creator.private
+            "private": creator.private,
+            "pronouns": creator.pronouns
         },
         "post_id": post_id,
         "content": post.content,
@@ -197,7 +198,7 @@ def get_post_json(post_id: int, current_user_id: int=0, comment: bool=False, cac
         "comments": len(post.comments or []),
         "quotes": len(post.quotes or []),
         "owner": can_delete_all or creator.user_id == current_user_id,
-        "can_view": True,
+        "can_view": True
     }
 
     if not comment and post.quote != 0: # type: ignore
@@ -213,7 +214,7 @@ def get_post_json(post_id: int, current_user_id: int=0, comment: bool=False, cac
                 quote_creator = User.objects.get(user_id=quote.creator)
                 cache[quote.creator] = quote_creator
 
-            if logged_in and quote_creator.user_id in user.blocking:
+            if logged_in and quote_creator.user_id in (user.blocking or []):
                 quote_info = {
                     "deleted": False,
                     "blocked": True
@@ -233,7 +234,8 @@ def get_post_json(post_id: int, current_user_id: int=0, comment: bool=False, cac
                         "display_name": quote_creator.display_name,
                         "username": quote_creator.username,
                         "badges": get_badges(quote_creator),
-                        "private": quote_creator.private
+                        "private": quote_creator.private,
+                        "pronouns": quote_creator.pronouns
                     },
                     "deleted": False,
                     "comment": post.quote_is_comment, # type: ignore

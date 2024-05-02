@@ -35,7 +35,7 @@
       </div>
     </div>
     <a href="/u/{{USERNAME}}/lists" class="no-underline text">
-      <div id="username-lower">@{{USERNAME}}</div>
+      <div id="username-lower">@{{USERNAME}} - <span id="pronouns"></div>
       <div id="follow"></div>
     </a>
 
@@ -52,6 +52,10 @@
 
     <script>
       const logged_in = {{LOGGED_IN}};
+
+      if (pronouns.{{PRONOUNS}}) {
+        dom("pronouns").innerText = pronouns.{{PRONOUNS}};
+      }
     </script>
 
     <script src="{% static '/js/user.js' %}"></script>

@@ -27,6 +27,8 @@ def settings(request) -> HttpResponse:
         CHECKED_IF_GRADIENT = "checked" if user.gradient else "",
         CHECKED_IF_PRIV     = "checked" if user.private  else "",
 
+        PRONOUNS = user.pronouns,
+
         MAX_BIO_LENGTH = str(MAX_BIO_LENGTH),
         USER_BIO       = user.bio or "",
 
@@ -74,6 +76,7 @@ def user(request, username: str) -> HttpResponse:
 
         USERNAME = user.username,
         DISPLAY_NAME = user.display_name,
+        PRONOUNS = user.pronouns,
 
         BADGES = "".join([f"<span class='user-badge' data-add-badge='{i}'></span> " for i in get_badges(user)]),
 
@@ -153,6 +156,7 @@ def user_lists(request, username: str) -> HttpResponse | HttpResponseRedirect:
 
         USERNAME     = user.username,
         DISPLAY_NAME = user.display_name,
+        PRONOUNS     = user.pronouns,
         USER_BIO     = user.bio or "",
 
         EMPTY = "\n\n\n",

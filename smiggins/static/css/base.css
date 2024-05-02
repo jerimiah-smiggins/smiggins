@@ -109,6 +109,11 @@ svg.accent     { fill: var(--accent); }
 .center { text-align: center; }
 .right  { text-align: right;  }
 
+table.center {
+  margin-left: auto;
+  margin-right: auto;
+}
+
 .invis  { opacity: 0%; }
 .hidden { display: none; }
 .mono   { font-family: 'Cousine'; }

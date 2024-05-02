@@ -16,6 +16,7 @@ class User(models.Model):
 
     display_name = models.CharField(max_length=300)
     bio          = models.CharField(max_length=65536, null=True, blank=True)
+    pronouns     = models.CharField(max_length=2, default="__")
     theme        = models.CharField(max_length=30)
     color        = models.CharField(max_length=7)
     color_two    = models.CharField(max_length=7, null=True, blank=True)
