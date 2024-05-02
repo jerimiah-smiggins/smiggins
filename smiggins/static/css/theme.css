@@ -32,8 +32,8 @@
 
 [data-theme="oled"] {
   --base: #000000;
-  --mantle: #010101;
-  --crust: #020202;
+  --mantle: #080810;
+  --crust: #11111b;
 }
 
 [data-theme="oled"][data-color="rosewater"], [data-theme="oled"] [data-color="rosewater"], [data-color="rosewater"] [data-theme="oled"], [data-theme="black"][data-color="rosewater"], [data-theme="black"] [data-color="rosewater"], [data-color="rosewater"] [data-theme="black"] { --accent: #f5e0dc; --accent-50: #f5e0dc80; }
