@@ -261,8 +261,8 @@ function trimWhitespace(string, purge_newlines=false) {
     string = string.replaceAll(char, " ");
   }
 
-  while (string.includes("\n ") || string.includes("  ") || string.includes("\n\n\n")) {
-    string = string.replaceAll("\n ", "\n").replaceAll("  ", " ").replaceAll("\n\n\n", "\n\n");
+  while (string.includes("\n ") || string.includes("   ") || string.includes("\n\n\n")) {
+    string = string.replaceAll("\n ", "\n").replaceAll("   ", "  ").replaceAll("\n\n\n", "\n\n");
   }
 
   return string;
