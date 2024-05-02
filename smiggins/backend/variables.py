@@ -10,10 +10,10 @@ from django.db.utils import OperationalError
 try:
     f = open("latest_scr", "r").read()
     if f != "add_comment_parent":
-        print("The script 'add_comment_parent' doesn't seem to have been ran! If it has, you can ignore this message.")
+        print("\x1b[91mThe script 'add_comment_parent' doesn't seem to have been ran! If it has, you can ignore this message.\x1b[0m")
     del f
 except FileNotFoundError:
-    print("Couldn't determine the latest ran script! Try running the most recent one in the scripts folder.")
+    print("\x1b[91mCouldn't determine the latest ran script! Try running the most recent one in the scripts folder.\x1b[0m")
 
 # Headers set at the top of every html file.
 HTML_HEADERS: str = f"""
@@ -80,3 +80,4 @@ except Badge.DoesNotExist:
 
 except OperationalError:
     print("You need to migrate your database! Do this by running 'manage.py migrate'. If you are already doing that, ignore this message.")
+    print("\x1b[91mYou need to migrate your database! Do this by running 'manage.py migrate'. If you are already doing that, ignore this message.\x1b[0m")
