@@ -163,12 +163,19 @@ def get_post_json(post_id: int, current_user_id: int=0, comment: bool=False, cac
         creator = User.objects.get(user_id=post.creator)
         cache[post.creator] = creator
 
+    if current_user_id in cache:
+        user = cache[current_user_id]
+    else:
+        user = User.objects.get(user_id=current_user_id)
+        cache[current_user_id] = user
+
     can_delete_all = current_user_id != 0 and (current_user_id == OWNER_USER_ID or User.objects.get(pk=current_user_id).admin_level >= 1)
 
     if creator.private and current_user_id not in creator.following:
         return {
             "private_acc": True,
-            "can_view": False
+            "can_view": False,
+            "blocked": False
         }
 
     post_json = {
@@ -186,7 +193,7 @@ def get_post_json(post_id: int, current_user_id: int=0, comment: bool=False, cac
         "comments": len(post.comments or []),
         "quotes": len(post.quotes or []),
         "owner": can_delete_all or creator.user_id == current_user_id,
-        "can_view": True
+        "can_view": True,
     }
 
     if not comment and post.quote != 0: # type: ignore
@@ -202,11 +209,18 @@ def get_post_json(post_id: int, current_user_id: int=0, comment: bool=False, cac
                 quote_creator = User.objects.get(user_id=quote.creator)
                 cache[quote.creator] = quote_creator
 
-            if quote_creator.private and current_user_id not in quote_creator.following:
+            if quote_creator.user_id in user.blocking:
+                quote_info = {
+                    "deleted": False,
+                    "blocked": True
+                }
+
+            elif quote_creator.private and current_user_id not in quote_creator.following:
                 quote_info = {
                     "deleted": False,
                     "private_acc": True,
-                    "can_view": False
+                    "can_view": False,
+                    "blocked": False
                 }
 
             else:
@@ -227,6 +241,7 @@ def get_post_json(post_id: int, current_user_id: int=0, comment: bool=False, cac
                     "comments": len(quote.comments or []),
                     "quotes": len(post.quotes or []),
                     "can_view": True,
+                    "blocked": False,
                     "has_quote": not post.quote_is_comment and quote.quote # type: ignore
                 }
 
