@@ -151,7 +151,10 @@ def get_badges(user: User) -> list[str]:
 
     return (user.badges or []) + (["administrator"] if user.admin_level >= 1 or user.user_id == OWNER_USER_ID else [])
 
-def get_post_json(post_id: int, current_user_id: int=0, comment: bool=False, cache: dict[int, User]={}) -> dict[str, str | int | dict]:
+def get_post_json(post_id: int, current_user_id: int=0, comment: bool=False, cache: dict[int, User] | None=None) -> dict[str, str | int | dict]:
+    if cache is None:
+        cache = {}
+
     if comment:
         post = Comment.objects.get(comment_id=post_id)
     else:
