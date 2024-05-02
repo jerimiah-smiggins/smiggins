@@ -2,7 +2,12 @@
 Docs for the backend. This contains descriptions of every function defined in
 any of the files in the backend.
 
-<!-- i rearranged a lot so that's fun ill do that later -->
+<!--
+  todo:
+  [backend.templating].user_lists
+  [backend.api_user].api_user_block_add
+  [backend.api_user].api_user_block_remove
+-->
 
 ## ./manage.py
 This file is auto-created when making a django project. To see what this file
