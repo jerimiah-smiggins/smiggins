@@ -1,5 +1,0 @@
-User-agent: *
-Allow: *
-Disallow: /settings
-Disallow: /home
-Disallow: /api

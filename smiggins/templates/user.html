@@ -38,9 +38,13 @@
       <div id="username-lower">@{{USERNAME}}</div>
       <div id="follow"></div>
     </a>
+
     <div id="user-bio"></div>
+
     <button onclick="refresh()">Refresh</button>
     <button id="toggle" {{IS_HIDDEN}} data-followed="{% if IS_FOLLOWING == "true" %}1{% else %}0{% endif %}" onclick="toggle_follow()">{% if IS_FOLLOWING == "true" %}Unfollow{% else %}Follow{% endif %}</button>
+    <button id="block" {{IS_HIDDEN}} data-blocked="{% if IS_BLOCKING == "true" %}1{% else %}0{% endif %}" onclick="toggle_block()">{% if IS_BLOCKING == "true" %}Unblock{% else %}Block{% endif %}</button>
+
     <div data-show-on-view hidden>This account is private. Only users that they follow can see their posts.</div><br><br>
     <div id="error"></div>
     <div id="posts"></div>

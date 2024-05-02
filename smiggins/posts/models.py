@@ -25,7 +25,6 @@ class User(models.Model):
     following = models.JSONField(default=list)
     followers = models.JSONField(default=list, null=True, blank=True)
     blocking  = models.JSONField(default=list, null=True, blank=True)
-    # blockers  = models.JSONField(default=list, null=True, blank=True)
     badges    = models.JSONField(default=list, null=True, blank=True)
 
     posts    = models.JSONField(default=list)

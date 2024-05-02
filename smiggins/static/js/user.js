@@ -60,3 +60,25 @@ function toggle_follow() {
       throw(err);
     });
 }
+
+function toggle_block() {
+  let x = dom("block").getAttribute("data-blocked") === "1";
+  fetch(`/api/user/block`, {
+    method: x ? "DELETE" : "POST",
+    headers: {
+      "Content-Type": "application/json"
+    },
+    body: JSON.stringify({
+      "username": document.querySelector("body").getAttribute("data-username")
+    })
+  })
+    .then((response) => (response.json()))
+    .then((json) => {
+      dom("block").setAttribute("data-blocked", x ? "0" : "1");
+      dom("block").innerText = x ? "Block" : "Unblock";
+    })
+    .catch((err) => {
+      showlog("Something went wrong loading the posts! Try again in a few moments...", 5000);
+      throw(err);
+    });
+}

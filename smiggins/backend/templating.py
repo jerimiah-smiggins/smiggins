@@ -47,8 +47,12 @@ def user(request, username: str) -> HttpResponse:
     except KeyError:
         HttpResponseRedirect("/", status=307)
 
-    self_object = User.objects.get(token=request.COOKIES["token"])
-    self_id = self_object.user_id
+    try:
+        self_object = User.objects.get(token=request.COOKIES["token"])
+        self_id = self_object.user_id
+        logged_in = True
+    except:
+        logged_in = False
 
     try:
         user = User.objects.get(username=username)
@@ -65,6 +69,9 @@ def user(request, username: str) -> HttpResponse:
     return get_HTTP_response(
         request, "user.html",
 
+        IS_HIDDEN = "hidden" if not logged_in or username == self_object.username else "",
+        LOGGED_IN = str(logged_in).lower(),
+
         USERNAME = user.username,
         DISPLAY_NAME = user.display_name,
 
@@ -74,8 +81,8 @@ def user(request, username: str) -> HttpResponse:
         BANNER_COLOR = user.color or DEFAULT_BANNER_COLOR,
         BANNER_COLOR_TWO = user.color_two or DEFAULT_BANNER_COLOR,
 
-        IS_FOLLOWING = str(user.user_id in self_object.following).lower(),
-        IS_BLOCKED = str(user.user_id in (self_object.blocking or [])).lower()
+        IS_FOLLOWING = "false" if not logged_in else str(user.user_id in self_object.following).lower(),
+        IS_BLOCKING = "false" if not logged_in else str(user.user_id in (self_object.blocking or [])).lower()
     )
 
 def user_lists(request, username: str) -> HttpResponse | HttpResponseRedirect:
@@ -127,6 +134,20 @@ def user_lists(request, username: str) -> HttpResponse | HttpResponseRedirect:
                 "badges": get_badges(f_user)
             })
 
+    blocking = []
+    if logged_in and username == self_object.username:
+        for i in (user.blocking or []):
+            if i != user.user_id:
+                f_user = User.objects.get(user_id=i)
+                blocking.append({
+                    "user_id": i,
+                    "username": f_user.username,
+                    "display_name": f_user.display_name,
+                    "bio": f_user.bio or "\n\n\n",
+                    "private": str(f_user.private).lower(),
+                    "badges": get_badges(f_user)
+                })
+
     return get_HTTP_response(
         request, "user_lists.html",
 
@@ -138,6 +159,7 @@ def user_lists(request, username: str) -> HttpResponse | HttpResponseRedirect:
 
         FOLLOWING = following,
         FOLLOWERS = followers,
+        BLOCKS = blocking,
 
         FOLLOWER_COUNT = len(user.followers or []),
         FOLLOWING_COUNT = len(user.following) - 1,
@@ -151,6 +173,7 @@ def user_lists(request, username: str) -> HttpResponse | HttpResponseRedirect:
         IS_FOLLOWING = str(user.user_id in self_object.following).lower() if logged_in else "false", # type: ignore
         IS_HIDDEN    = "hidden" if user.user_id == self_id else "",
 
+        INCLUDE_BLOCKS = str(logged_in and username == self_object.username).lower(),
         LOGGED_IN = str(logged_in).lower()
     )
 

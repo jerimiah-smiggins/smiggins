@@ -214,6 +214,13 @@ def api_user_follower_add(request, data: Username) -> tuple | dict:
 
     user = User.objects.get(token=token)
     followed = User.objects.get(username=username)
+
+    if followed.user_id in (user.blocking or []):
+        return 400, {
+            "valid": False,
+            "reason": "You can't follow an account you're blocking!"
+        }
+
     if followed.user_id not in user.following:
         user.following.append(followed.user_id)
         user.save()
@@ -258,7 +265,7 @@ def api_user_follower_remove(request, data: Username) -> tuple | dict:
     }
 
 def api_user_block_add(request, data: Username) -> tuple | dict:
-    # Called when someone requests to follow another account.
+    # Called when someone requests to block another account.
 
     token = request.COOKIES.get('token')
     username = data.username.lower()
@@ -270,9 +277,16 @@ def api_user_block_add(request, data: Username) -> tuple | dict:
         }
 
     user = User.objects.get(token=token)
+
+    if user.username == username:
+        return 400, {
+            "valid": False,
+            "reason": "You cannot block yourself, iditot!"
+        }
+
     blocked = User.objects.get(username=username)
     if blocked.user_id not in (user.blocking or []):
-        user.following.append(blocked.user_id)
+        user.blocking.append(blocked.user_id) # type: ignore
         user.save()
 
     return 201, {
@@ -280,7 +294,7 @@ def api_user_block_add(request, data: Username) -> tuple | dict:
     }
 
 def api_user_block_remove(request, data: Username) -> tuple | dict:
-    # Called when someone requests to unfollow another account.
+    # Called when someone requests to unblock another account.
 
     token = request.COOKIES.get('token')
     username = data.username.lower()
@@ -292,10 +306,17 @@ def api_user_block_remove(request, data: Username) -> tuple | dict:
         }
 
     user = User.objects.get(token=token)
+
+    if user.username == username:
+        return 400, {
+            "valid": False,
+            "reason": "You cannot block yourself, itdiot!!"
+        }
+
     blocked = User.objects.get(username=username)
     if user.user_id != blocked.user_id:
         if blocked.user_id in user.following :
-            user.following.remove(blocked.user_id)
+            user.blocking.remove(blocked.user_id) # type: ignore
             user.save()
 
     else:
@@ -306,4 +327,3 @@ def api_user_block_remove(request, data: Username) -> tuple | dict:
     return 201, {
         "success": True
     }
-
