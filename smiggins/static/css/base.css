@@ -43,6 +43,7 @@ button {
   background-color: var(--crust);
   color: var(--text);
   padding: 5px 7px;
+  border: none;
   border-radius: 10px;
   cursor: pointer;
   transition-property: color;
