@@ -62,6 +62,16 @@ Whether or not to automatically reload the server when the backend files change.
 This should be `False` on development servers.
 
 ```py
+ADMIN_LOG_PATH: str
+```
+The path of the admin log file. Set to `None` to not log any admin activity
+
+```py
+MAX_ADMIN_LOG_LINES: int
+```
+The maximum of lines of logs to store in the admin file at once. Minimum is one
+
+```py
 MAX_USERNAME_LENGTH: int
 ```
 The maximum length for a username. Must be between 1 and 200.
@@ -126,7 +136,7 @@ is the type, which can be `email`, `url`, or `text`. `email` is for emails,
 `url` for links, and `text` for other text that wouldn't fit with either of the
 other options.
 
-## ./backend/admin.py
+## ./backend/api_admin.py
 This file contains all admin-related functions.
 
 ```py
@@ -605,9 +615,18 @@ Trims whitespace and replaces invisible characters with normal spaces. Used when
 creating posts of any kind, or when changing display names. If `purge_newlines`
 is true, then all newlines will be replaced with spaces.
 
+```py
+def log_admin_action(
+    action_name: str,
+    admin_user_object: posts.models.User,
+    log_info: str
+) -> NoReturn
+```
+Logs an administrative action.
+
 ## ./backend/packages.py
 This file is just for importing packages and libraries to be used across the
-program. That's literally all this file is used for. Not much explaining needed.
+program. That's all this file is used for.
 
 ## ./backend/templating.py
 This is for creating request objects that need templating beyond what

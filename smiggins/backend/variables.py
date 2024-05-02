@@ -81,4 +81,5 @@ except Badge.DoesNotExist:
 except OperationalError:
     print("\x1b[91mYou need to migrate your database! Do this by running 'manage.py migrate'. If you are already doing that, ignore this message.\x1b[0m")
 
-ensure_file(ADMIN_LOG_PATH)
+if ADMIN_LOG_PATH is not None:
+    ensure_file(ADMIN_LOG_PATH)
