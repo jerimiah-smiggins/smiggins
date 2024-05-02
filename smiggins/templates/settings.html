@@ -27,13 +27,52 @@
         <input id="displ-name" placeholder="Display name..." value="{{DISPLAY_NAME}}" maxlength="{{MAX_DISPL_NAME_LENGTH}}"><br>
         <textarea id="bio" placeholder="User bio..." maxlength="{{MAX_BIO_LENGTH}}">{{USER_BIO}}</textarea><br><br>
 
-        Banner color:<br>
+        Pronouns<br>
+        <table class="center">
+          <tr>
+            <td class="right">Primary:</td>
+            <td>
+              <select id="pronouns-primary">
+                <option value="__">unset</option>
+                <option value="m">he/him</option>
+                <option value="o">it/its</option>
+                <option value="f">she/her</option>
+                <option value="n">they/them</option>
+                <option value="a">any/all</option>
+                <option value="_a">ask pronouns</option>
+                <option value="_v">avoid pronouns</option>
+                <option value="_o">other</option>
+              </select>
+            </td>
+          </tr>
+
+          <tr id="pronouns-secondary-container">
+            <td class="right">Secondary:</td>
+            <td>
+              <select id="pronouns-secondary">
+                <option value="i">same as primary</option>
+                <option value="m">he/him</option>
+                <option value="o">it/its</option>
+                <option value="f">she/her</option>
+                <option value="n">they/them</option>
+                <option value="a">any/all</option>
+                <option value="x">other</option>
+              </select>
+            </td>
+          </tr>
+        </table><br>
+
+        <script>
+          let user_pronouns = "{{PRONOUNS}}";
+        </script>
+
+        Banner color<br>
         <div id="banner"></div><br>
         <input id="banner-color" value="{{BANNER_COLOR}}" type="color">
         <input hidden id="banner-color-two" value="{{BANNER_COLOR_TWO}}" type="color"><br>
-        Gradient banner: <input id="banner-is-gradient" {{CHECKED_IF_GRADIENT}} type="checkbox"><br><br>
+        Gradient banner? <input id="banner-is-gradient" {{CHECKED_IF_GRADIENT}} type="checkbox"><br><br>
 
-        Private account: <input type="checkbox" id="priv" {{CHECKED_IF_PRIV}}><br>
+        Private account? <input type="checkbox" id="priv" {{CHECKED_IF_PRIV}}><br>
         <div class="small-mw">If your account is private, that means only you and people you follow can see your posts.</div>
       </div>
 
@@ -41,10 +80,11 @@
         <h2>Cosmetic</h2>
         Theme:<br>
         <select id="theme">
-          <option {{SELECTED_IF_LIGHT}} value="light">Light</option>
-          <option {{SELECTED_IF_GRAY}} value="gray">Gray</option>
-          <option {{SELECTED_IF_DARK}} value="dark">Dark</option>
-          <option {{SELECTED_IF_BLACK}} value="black">Black</option>
+          <option {{SELECTED_IF_LIGHT}} value="light">Dawn</option>
+          <option {{SELECTED_IF_GRAY}}  value="gray" >Dusk</option>
+          <option {{SELECTED_IF_DARK}}  value="dark" >Dark</option>
+          <option {{SELECTED_IF_BLACK}} value="black">Midnight</option>
+          <option {{SELECTED_IF_OLED}}  value="oled" >Black</option>
         </select><br><br>
 
         Color:<br>

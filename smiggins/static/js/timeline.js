@@ -31,6 +31,7 @@ function refresh(force_offset=false) {
           post.post_id,          // postID
           post.creator.username, // username
           post.creator.display_name, // displayName
+          post.creator.pronouns, // userPronouns
           post.timestamp,        // timestamp
           post.comments,         // commentCount
           post.likes,            // likeCount

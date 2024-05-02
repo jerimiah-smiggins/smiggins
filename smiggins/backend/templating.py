@@ -27,6 +27,8 @@ def settings(request) -> HttpResponse:
         CHECKED_IF_GRADIENT = "checked" if user.gradient else "",
         CHECKED_IF_PRIV     = "checked" if user.private  else "",
 
+        PRONOUNS = user.pronouns,
+
         MAX_BIO_LENGTH = str(MAX_BIO_LENGTH),
         USER_BIO       = user.bio or "",
 
@@ -34,6 +36,7 @@ def settings(request) -> HttpResponse:
         SELECTED_IF_GRAY  = "selected" if user.theme == "gray"  else "",
         SELECTED_IF_DARK  = "selected" if user.theme == "dark"  else "",
         SELECTED_IF_BLACK = "selected" if user.theme == "black" else "",
+        SELECTED_IF_OLED  = "selected" if user.theme == "oled"  else "",
 
         ADMIN = "<a href='/admin'>Admin page</a><br>" if user.user_id == OWNER_USER_ID or user.admin_level >= 1 else ""
     )
@@ -74,6 +77,7 @@ def user(request, username: str) -> HttpResponse:
 
         USERNAME = user.username,
         DISPLAY_NAME = user.display_name,
+        PRONOUNS = user.pronouns,
 
         BADGES = "".join([f"<span class='user-badge' data-add-badge='{i}'></span> " for i in get_badges(user)]),
 
@@ -153,6 +157,7 @@ def user_lists(request, username: str) -> HttpResponse | HttpResponseRedirect:
 
         USERNAME     = user.username,
         DISPLAY_NAME = user.display_name,
+        PRONOUNS     = user.pronouns,
         USER_BIO     = user.bio or "",
 
         EMPTY = "\n\n\n",
