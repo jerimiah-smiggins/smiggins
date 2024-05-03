@@ -33,7 +33,9 @@ hr {
 }
 
 @media screen and (max-width: 565px) {
-  .post { width: calc(94vw - 3.5em - (3em / 7)); }
+  .post {
+    width: calc(94vw - 3.5em - (3em / 7));
+  }
 }
 
 .settings-side {

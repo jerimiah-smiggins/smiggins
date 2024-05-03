@@ -16,9 +16,14 @@ hr {
 
 .admin-logs {
   margin: 0 auto;
+  max-width: calc(100vw - 2em);
 }
 
-.admin-logs td,
 .admin-logs th {
   padding: 0.3em;
+}
+
+.admin-logs td {
+  padding: 0.3em;
+  text-align: left;
 }

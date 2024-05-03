@@ -3,47 +3,47 @@
 
 <html>
   <head>
-    <title>{{DISPLAY_NAME}} - {{SITE_NAME}} v{{VERSION}}</title>
+    <title>{{ DISPLAY_NAME }} - {{ SITE_NAME }} v{{ VERSION }}</title>
     {% autoescape off %}
-    {{HTML_HEADERS}}
+    {{ HTML_HEADERS }}
     {% endautoescape %}
 
-    <meta name="description" content="{{USER_BIO}}">
-    <meta name="author" content="{{DISPLAY_NAME}}">
+    <meta name="description" content="{{ USER_BIO }}">
+    <meta name="author" content="{{ DISPLAY_NAME }}">
 
     <meta property="og:type" content="website">
-    <meta property="og:title" content="{{DISPLAY_NAME}} on {{SITE_NAME}}">
-    <meta property="og:description" content="{{USER_BIO}}">
+    <meta property="og:title" content="{{ DISPLAY_NAME }} on {{ SITE_NAME }}">
+    <meta property="og:description" content="{{ USER_BIO }}">
 
     <meta name="twitter:card" content="summary_large_image">
-    <meta name="twitter:title" content="{{DISPLAY_NAME}} on {{SITE_NAME}}">
-    <meta name="twitter:description" content="{{USER_BIO}}">
+    <meta name="twitter:title" content="{{ DISPLAY_NAME }} on {{ SITE_NAME }}">
+    <meta name="twitter:description" content="{{ USER_BIO }}">
 
     <link rel="stylesheet" href="{% static '/css/home.css' %}">
     <link rel="stylesheet" href="{% static '/css/user.css' %}">
   </head>
 
-  <body data-theme="{{THEME}}" data-username="{{USERNAME}}" style="--banner: {{BANNER_COLOR}}; --banner-two: {{BANNER_COLOR_TWO}}">
-    <div id="banner" class="{{GRADIENT}}"></div>
+  <body data-theme="{{ THEME }}" data-username="{{ USERNAME }}" style="--banner: {{ BANNER_COLOR }}; --banner-two: {{ BANNER_COLOR_TWO }}">
+    <div id="banner" class="{{ GRADIENT }}"></div>
     <div>
       <div id="username-main">
-        {{DISPLAY_NAME}}
+        {{ DISPLAY_NAME }}
         <span data-show-on-priv hidden><div class="priv" data-add-icon="lock"></div></span>
         {% autoescape off %}
-        {{BADGES}}
+        {{ BADGES }}
         {% endautoescape %}
       </div>
     </div>
-    <a href="/u/{{USERNAME}}/lists" class="no-underline text">
-      <div id="username-lower">@{{USERNAME}}<span id="pronouns"></div>
+    <a href="/u/{{ USERNAME }}/lists" class="no-underline text">
+      <div id="username-lower">@{{ USERNAME }}<span id="pronouns"></div>
       <div id="follow"></div>
     </a>
 
     <div id="user-bio"></div>
 
     <button onclick="refresh()">Refresh</button>
-    <button id="toggle" {{IS_HIDDEN}} data-followed="{% if IS_FOLLOWING == "true" %}1{% else %}0{% endif %}" onclick="toggle_follow()">{% if IS_FOLLOWING == "true" %}Unfollow{% else %}Follow{% endif %}</button>
-    <button id="block" {{IS_HIDDEN}} data-blocked="{% if IS_BLOCKING == "true" %}1{% else %}0{% endif %}" onclick="toggle_block()">{% if IS_BLOCKING == "true" %}Unblock{% else %}Block{% endif %}</button>
+    <button id="toggle" {{ IS_HIDDEN }} data-followed="{% if IS_FOLLOWING == "true" %}1{% else %}0{% endif %}" onclick="toggle_follow()">{% if IS_FOLLOWING == "true" %}Unfollow{% else %}Follow{% endif %}</button>
+    <button id="block" {{ IS_HIDDEN }} data-blocked="{% if IS_BLOCKING == "true" %}1{% else %}0{% endif %}" onclick="toggle_block()">{% if IS_BLOCKING == "true" %}Unblock{% else %}Block{% endif %}</button>
 
     <div data-show-on-private hidden>This account is private. Only users that they follow can see their posts.</div><br><br>
     <div id="error"></div>
@@ -51,17 +51,17 @@
     <div id="more-container"><button id="more" onclick="refresh(true)" hidden>Load more...</button></div>
 
     <script>
-      const logged_in = {{LOGGED_IN}};
+      const logged_in = {{ LOGGED_IN }};
 
-      if (pronouns.{{PRONOUNS}}) {
-        dom("pronouns").innerText = " - " + pronouns.{{PRONOUNS}};
+      if (pronouns.{{ PRONOUNS }}) {
+        dom("pronouns").innerText = " - " + pronouns.{{ PRONOUNS }};
       }
     </script>
 
     <script src="{% static '/js/user.js' %}"></script>
     <script src="{% static '/js/timeline.js' %}"></script>
     {% autoescape off %}
-    {{HTML_FOOTERS}}
+    {{ HTML_FOOTERS }}
     {% endautoescape %}
   </body>
 </html>

@@ -19,16 +19,11 @@
   font-size: 2em;
   position: relative;
   top: -1em;
-  text-shadow: 0 0 20px var(--base),
-               0 0 19px var(--base),
-               0 0 18px var(--base),
-               0 0 17px var(--base),
-               0 0 16px var(--base),
-               0 0 15px var(--base),
-               0 0 14px var(--base),
-               0 0 13px var(--base),
-               0 0 12px var(--base),
-               0 0 11px var(--base);
+  text-shadow: 0 0 20px var(--base), 0 0 19px var(--base),
+               0 0 18px var(--base), 0 0 17px var(--base),
+               0 0 16px var(--base), 0 0 15px var(--base),
+               0 0 14px var(--base), 0 0 13px var(--base),
+               0 0 12px var(--base), 0 0 11px var(--base);
 }
 
 #follow {
@@ -54,8 +49,13 @@
 }
 
 @media screen and (max-width: 565px) {
-  #banner { width: 94vw; }
-  #user-bio { max-width: 94em; }
+  #banner {
+    width: 94vw;
+  }
+
+  #user-bio {
+    max-width: 94em;
+  }
 
   #username-main {
     font-size: 1.5em;

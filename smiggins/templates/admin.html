@@ -3,19 +3,19 @@
 
 <html>
   <head>
-    <title>Admin Panel - {{SITE_NAME}} v{{VERSION}}</title>
+    <title>Admin Panel - {{ SITE_NAME }} v{{ VERSION }}</title>
     {% autoescape off %}
-    {{HTML_HEADERS}}
+    {{ HTML_HEADERS }}
     {% endautoescape %}
     <link rel="stylesheet" href="{% static "/css/admin.css" %}">
 
     <script>
-      const level = {{LEVEL}};
+      const level = {{ LEVEL }};
     </script>
   </head>
 
-  <body data-theme="{{THEME}}">
-    <h1>Admin Panel: Level {{LEVEL}}/5</h1>
+  <body data-theme="{{ THEME }}">
+    <h1>Admin Panel: Level {{ LEVEL }}/5</h1>
     <div>&nbsp;<span id="error"></span>&nbsp;</div>
 
     <hr>
@@ -54,7 +54,7 @@
           Use id? <input id="badge-use-id" type="checkbox"><br>
           <select id="badge-name">
             {% for BADGE in BADGE_DATA %}
-            {% if BADGE != "administrator" %} <option value="{{BADGE}}">{{BADGE}}</option> {% endif %}
+            {% if BADGE != "administrator" %} <option value="{{ BADGE }}">{{ BADGE }}</option> {% endif %}
             {% empty %}
             <option value="">Somehow there are no existing badges? This shouldn't happen...</option>
             {% endfor %}
@@ -106,12 +106,13 @@
     </div>
 
     {% if LEVEL >= 4 %}
+      <br><br>
       <div id="debug"><button id="debug-button">Load Logs</button></div>
     {% endif %}
 
     <script src="{% static '/js/admin.js' %}"></script>
     {% autoescape off %}
-    {{HTML_FOOTERS}}
+    {{ HTML_FOOTERS }}
     {% endautoescape %}
   </body>
 </html>

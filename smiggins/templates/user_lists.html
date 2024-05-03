@@ -3,9 +3,9 @@
 
 <html>
   <head>
-    <title>{{DISPLAY_NAME}} - {{SITE_NAME}} v{{VERSION}}</title>
+    <title>{{ DISPLAY_NAME }} - {{ SITE_NAME }} v{{ VERSION }}</title>
     {% autoescape off %}
-    {{HTML_HEADERS}}
+    {{ HTML_HEADERS }}
     {% endautoescape %}
 
     <link rel="stylesheet" href="{% static '/css/home.css' %}">
@@ -13,22 +13,22 @@
     <link rel="stylesheet" href="{% static '/css/user_lists.css' %}">
   </head>
 
-  <body data-theme="{{THEME}}" data-username="{{USERNAME}}" style="--banner: {{BANNER_COLOR}}; --banner-two: {{BANNER_COLOR_TWO}}">
-    <div id="banner" class="{{GRADIENT}}"></div>
+  <body data-theme="{{ THEME }}" data-username="{{ USERNAME }}" style="--banner: {{ BANNER_COLOR }}; --banner-two: {{ BANNER_COLOR_TWO }}">
+    <div id="banner" class="{{ GRADIENT }}"></div>
     <div>
       <div id="username-main">
-        {{DISPLAY_NAME}}
+        {{ DISPLAY_NAME }}
         <span data-show-on-priv hidden><div class="priv" data-add-icon="lock"></div></span>
         {% autoescape off %}
-        {{BADGES}}
+        {{ BADGES }}
         {% endautoescape %}
       </div>
     </div>
-    <a href="/u/{{USERNAME}}" class="no-underline text">
-      <div id="username-lower">@{{USERNAME}}<span id="pronouns"></div>
-      <div id="follow">Followers: {{FOLLOWER_COUNT}} - Following: {{FOLLOWING_COUNT}}</div>
+    <a href="/u/{{ USERNAME }}" class="no-underline text">
+      <div id="username-lower">@{{ USERNAME }}<span id="pronouns"></div>
+      <div id="follow">Followers: {{ FOLLOWER_COUNT }} - Following: {{ FOLLOWING_COUNT }}</div>
     </a>
-    <div id="user-bio" data-linkify>{{USER_BIO}}</div>
+    <div id="user-bio" data-linkify>{{ USER_BIO }}</div>
 
     <div class="lists-container">
       {% if INCLUDE_BLOCKS == "true" %}
@@ -37,18 +37,18 @@
           {% for USER in BLOCKS %}
             <div class="post">
               <div class="upper-content">
-                <a href="/u/{{USER.username}}" class="no-underline text">
+                <a href="/u/{{ USER.username }}" class="no-underline text">
                   <div class="displ-name">
-                    {{USER.display_name}}
+                    {{ USER.display_name }}
                     {% if USER.private == 'true' %}
                       <span class="user-badge" data-add-icon="lock"></span>
                     {% endif %}
                     {% for BADGE in USER.badges %}
-                      <span class="user-badge" data-add-badge="{{BADGE}}"></span>
+                      <span class="user-badge" data-add-badge="{{ BADGE }}"></span>
                     {% endfor %}
                   </div>
                   <span class="upper-lower-opacity"> -
-                    <div class="username">@{{USER.username}}</div>
+                    <div class="username">@{{ USER.username }}</div>
                   </span>
                 </a>
               </div>
@@ -58,7 +58,7 @@
                   <i>No bio set</i>
                 {% else %}
                   <div data-linkify>
-                    {{USER.bio}}
+                    {{ USER.bio }}
                   </div>
                 {% endif %}
               </div>
@@ -74,18 +74,18 @@
         {% for USER in FOLLOWING %}
           <div class="post">
             <div class="upper-content">
-              <a href="/u/{{USER.username}}" class="no-underline text">
+              <a href="/u/{{ USER.username }}" class="no-underline text">
                 <div class="displ-name">
-                  {{USER.display_name}}
+                  {{ USER.display_name }}
                   {% if USER.private == 'true' %}
                     <span class="user-badge" data-add-icon="lock"></span>
                   {% endif %}
                   {% for BADGE in USER.badges %}
-                    <span class="user-badge" data-add-badge="{{BADGE}}"></span>
+                    <span class="user-badge" data-add-badge="{{ BADGE }}"></span>
                   {% endfor %}
                 </div>
                 <span class="upper-lower-opacity"> -
-                  <div class="username">@{{USER.username}}</div>
+                  <div class="username">@{{ USER.username }}</div>
                 </span>
               </a>
             </div>
@@ -95,7 +95,7 @@
                 <i>No bio set</i>
               {% else %}
                 <div data-linkify>
-                  {{USER.bio}}
+                  {{ USER.bio }}
                 </div>
               {% endif %}
             </div>
@@ -110,18 +110,18 @@
         {% for USER in FOLLOWERS %}
           <div class="post">
             <div class="upper-content">
-              <a href="/u/{{USER.username}}" class="no-underline text">
+              <a href="/u/{{ USER.username }}" class="no-underline text">
                 <div class="displ-name">
-                  {{USER.display_name}}
+                  {{ USER.display_name }}
                   {% if USER.private == 'true' %}
                     <span class="user-badge" data-add-icon="lock"></span>
                   {% endif %}
                   {% for BADGE in USER.badges %}
-                    <span class="user-badge" data-add-badge="{{BADGE}}"></span>
+                    <span class="user-badge" data-add-badge="{{ BADGE }}"></span>
                   {% endfor %}
                 </div>
                 <span class="upper-lower-opacity"> -
-                  <div class="username">@{{USER.username}}</div>
+                  <div class="username">@{{ USER.username }}</div>
                 </span>
               </a>
             </div>
@@ -131,7 +131,7 @@
                 <i>No bio set</i>
               {% else %}
                 <div data-linkify>
-                  {{USER.bio}}
+                  {{ USER.bio }}
                 </div>
               {% endif %}
             </div>
@@ -151,13 +151,13 @@
       let home = true;
       let share = window.location.href.split("/lists/")[0] + "/";
 
-      if (pronouns.{{PRONOUNS}}) {
-        dom("pronouns").innerText = " - " + pronouns.{{PRONOUNS}};
+      if (pronouns.{{ PRONOUNS }}) {
+        dom("pronouns").innerText = " - " + pronouns.{{ PRONOUNS }};
       }
     </script>
 
     {% autoescape off %}
-    {{HTML_FOOTERS}}
+    {{ HTML_FOOTERS }}
     {% endautoescape %}
   </body>
 </html>

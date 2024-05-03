@@ -1,4 +1,6 @@
-button { width: 5em; }
+button {
+  width: 5em;
+}
 
 .post-text {
   resize: none;
@@ -133,12 +135,35 @@ button { width: 5em; }
 }
 
 @media screen and (max-width: 565px) {
-  #post-text        { width: calc(94vw - (2em / 7) - 17px);  }
-  .post-text        { width: calc(94vw - (2em / 7) - 90px);  }
-  .post             { width: calc(94vw - 3.5em - (3em / 7)); }
-  #post             { left:  calc(47vw - 2.5em - 5px);       }
-  .post-button      { left:  calc(97vw - 11.5em - 5px);      }
-  .cancel-button    { left:  calc(97vw - 17em - 2px);        }
-  .quote-area .post { width: calc(94vw - (2em / 7) - 120px); }
-  .bottom-spacing   { width: 1.5em;                          }
+  #post-text {
+    width: calc(94vw - (2em / 7) - 17px);
+  }
+
+  .post-text {
+    width: calc(94vw - (2em / 7) - 90px);
+  }
+
+  .post {
+    width: calc(94vw - 3.5em - (3em / 7));
+  }
+
+  #post {
+    left: calc(47vw - 2.5em - 5px);
+  }
+
+  .post-button {
+    left: calc(97vw - 11.5em - 5px);
+  }
+
+  .cancel-button {
+    left: calc(97vw - 17em - 2px);
+  }
+
+  .quote-area .post {
+    width: calc(94vw - (2em / 7) - 120px);
+  }
+
+  .bottom-spacing {
+    width: 1.5em;
+  }
 }

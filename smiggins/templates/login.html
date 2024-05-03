@@ -3,26 +3,26 @@
 
 <html>
   <head>
-    <title>Log In - {{SITE_NAME}} v{{VERSION}}</title>
+    <title>Log In - {{ SITE_NAME }} v{{ VERSION }}</title>
     {% autoescape off %}
-    {{HTML_HEADERS}}
+    {{ HTML_HEADERS }}
     {% endautoescape %}
 
     <meta name="description" content="Login page">
-    <meta name="author" content="{{SITE_NAME}} v{{VERSION}}">
+    <meta name="author" content="{{ SITE_NAME }} v{{ VERSION }}">
 
     <meta property="og:type" content="website">
-    <meta property="og:title" content="{{SITE_NAME}} v{{VERSION}}">
+    <meta property="og:title" content="{{ SITE_NAME }} v{{ VERSION }}">
     <meta property="og:description" content="Login page">
 
     <meta name="twitter:card" content="summary_large_image">
-    <meta name="twitter:title" content="{{SITE_NAME}} v{{VERSION}}">
+    <meta name="twitter:title" content="{{ SITE_NAME }} v{{ VERSION }}">
     <meta name="twitter:description" content="Login page">
   </head>
 
-  <body data-theme="{{THEME}}">
+  <body data-theme="{{ THEME }}">
     <h1>Log In</h1>
-    <input id="username" maxlength="{{MAX_USERNAME_LENGTH}}" placeholder="Username..."><br>
+    <input id="username" maxlength="{{ MAX_USERNAME_LENGTH }}" placeholder="Username..."><br>
     <input id="password" placeholder="Password..." type="password"><br><br>
     <button id="submit">Log In</button><br><br>
     <button id="toggle-password">Show/Hide Password</button><br><br>
