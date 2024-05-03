@@ -154,6 +154,7 @@ function getPostHTML(
   isOwner,
   badgeData,
   fakeMentions=false,
+  pageFocus=false
 ) {
   return `<div class="post-container" data-${isComment ? "comment" : "post"}-id="${postID}">
     <div class="post">
@@ -245,7 +246,7 @@ function getPostHTML(
         ${
           isOwner ? `
           <div class="bottom-spacing"></div>
-          <button class="delete" tabindex="0" onclick="deletePost(${postID})">
+          <button class="delete" tabindex="0" onclick="deletePost(${postID}, ${isComment}, ${pageFocus})">
             ${icons.delete}
           </button>` : ""
         }

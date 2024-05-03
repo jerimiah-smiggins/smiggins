@@ -1,6 +1,6 @@
 # For admin-related apis
 
-from ._settings import OWNER_USER_ID
+from ._settings import OWNER_USER_ID, ADMIN_LOG_PATH
 from .variables import BADGE_DATA
 from .packages  import User, Comment, Post, Badge, Schema
 from .helper    import trim_whitespace, log_admin_action
@@ -544,6 +544,24 @@ def api_admin_set_level(request, data: UserLevel) -> tuple | dict:
         }
 
     log_admin_action("Set admin level", self_user, f"Tried to give level {data.level} to {identifier} (use_id: {use_id}), but too low of an admin level")
+    return 400, {
+        "success": False
+    }
+
+def api_admin_logs(request) -> tuple | dict:
+    try:
+        self_user = User.objects.get(token=request.COOKIES.get("token"))
+    except User.DoesNotExist:
+        return 400, {
+            "success": False
+        }
+
+    if self_user.admin_level >= 4 or self_user.user_id == OWNER_USER_ID:
+        return {
+            "success": True,
+            "content": open(ADMIN_LOG_PATH, "r").read()
+        }
+
     return 400, {
         "success": False
     }

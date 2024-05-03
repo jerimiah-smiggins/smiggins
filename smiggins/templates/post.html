@@ -64,8 +64,10 @@
         {{COMMENT}},           // isComment
         true,                  // includeUserLink
         false,                 // includePostLink
-        false,                 // isOwner
-        post.creator.badges    // badgeData
+        post.owner,            // isOwner
+        post.creator.badges,   // badgeData
+        false,                 // fakeMentions
+        true                   // pageFocus
       );
     </script>
 
