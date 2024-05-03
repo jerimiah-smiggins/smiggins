@@ -105,6 +105,10 @@
       {% endif %}
     </div>
 
+    {% if LELEL >= 4 %}
+      <div id="debug"><button id="debug-button">Load Logs</button></div>
+    {% endif %}
+
     <script src="{% static '/js/admin.js' %}"></script>
     {% autoescape off %}
     {{HTML_FOOTERS}}

@@ -98,6 +98,15 @@ p {
   padding: 2px;
 }
 
+table.bordered {
+  border-collapse: collapse;
+}
+
+table.bordered th,
+table.bordered td {
+  border: 1.5px solid var(--surface0);
+}
+
 .text:not(svg)       { color: var(--text);   }
 .background:not(svg) { color: var(--base);   }
 .accent:not(svg)     { color: var(--accent); }
