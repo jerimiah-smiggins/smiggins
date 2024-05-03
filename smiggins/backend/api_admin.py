@@ -2,7 +2,7 @@
 
 from ._settings import OWNER_USER_ID, ADMIN_LOG_PATH
 from .variables import BADGE_DATA
-from .packages  import User, Comment, Post, Badge, Schema
+from .packages  import User, Comment, Post, Badge, Schema, base64
 from .helper    import trim_whitespace, log_admin_action
 
 class AccountIdentifier(Schema):
@@ -559,7 +559,7 @@ def api_admin_logs(request) -> tuple | dict:
     if self_user.admin_level >= 4 or self_user.user_id == OWNER_USER_ID:
         return {
             "success": True,
-            "content": open(ADMIN_LOG_PATH, "r").read()
+            "content": base64.b64encode(open(ADMIN_LOG_PATH, "rb").read())
         }
 
     return 400, {

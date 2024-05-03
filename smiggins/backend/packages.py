@@ -3,6 +3,7 @@
 
 import threading
 import hashlib
+import base64
 import shutil
 import json
 import time

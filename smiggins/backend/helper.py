@@ -294,8 +294,8 @@ def log_admin_action(
     log_info: str
 ) -> None:
     if ADMIN_LOG_PATH is not None:
-        old_log = "\n".join(open(ADMIN_LOG_PATH, "r").read().split("\n")[:MAX_ADMIN_LOG_LINES - 1:])
+        old_log = "\n".join(open(ADMIN_LOG_PATH, "rb").read().split(b"\n")[:MAX_ADMIN_LOG_LINES - 1:])
 
-        f = open(ADMIN_LOG_PATH, "w")
-        f.write(f"{round(time.time())} - {action_name}, done by {admin_user_object.username} (id: {admin_user_object.user_id}) - {log_info}\n" + old_log)
+        f = open(ADMIN_LOG_PATH, "wb")
+        f.write(str.encode(f"{round(time.time())} - {action_name}, done by {admin_user_object.username} (id: {admin_user_object.user_id}) - {log_info}\n") + old_log)
         f.close()
