@@ -172,12 +172,12 @@ level >= 4 && dom("debug-button").addEventListener("click", function() {
     .then((response) => (response.json()))
     .then((json) => {
       if (json.success) {
-        let lines = json.content.split("\n");
+        let lines = atob(json.content).split("\n");
 
-        output = "<table class=\"bordered\"><tr><th>Timestanp</th><th>Action</th><th>Who</th><th>More Info</th></tr>"
+        output = "<table class=\"admin-logs bordered\"><tr><th>Timestamp</th><th>Action</th><th>Who</th><th>More Info</th></tr>"
         for (const line of lines) {
           try {
-            output += `<tr><td>${timeSince(line.split(" ", 2)[0])}</td><td>${line.split(",", 2)[0]}</td><td>${line.split(",", 2)[1].split(") - ", 2)[0]})</td><td>${escapeHTML(line.split(",", 2)[1].split(") - ", 2)[1])}</td></tr>`;
+            output += `<tr><td>${timeSince(line.split(" ", 2)[0])}</td><td>${line.split(",", 2)[0].split("- ", 2)[1]}</td><td>${line.split(",")[1].split(") - ", 2)[0]})</td><td>${escapeHTML(line.split(",").slice(1).join(",").split(") - ", 2)[1])}</td></tr>`;
           } catch(err) {
             //
           }
