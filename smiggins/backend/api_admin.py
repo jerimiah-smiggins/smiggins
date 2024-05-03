@@ -559,7 +559,7 @@ def api_admin_logs(request) -> tuple | dict:
     if self_user.admin_level >= 4 or self_user.user_id == OWNER_USER_ID:
         return {
             "success": True,
-            "content": base64.b64encode(open(ADMIN_LOG_PATH, "rb").read())
+            "content": bytes.decode(base64.b64encode(open(ADMIN_LOG_PATH, "rb").read()))
         }
 
     return 400, {
