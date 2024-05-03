@@ -3,19 +3,25 @@
 # This file is meant to have settings that are easy to understand.
 
 # Version displayed.
-VERSION: str = "0.6.7"
+VERSION: str = "0.6.8"
 
 # What to have the site name be.
 SITE_NAME: str = "Jerimiah Smiggins"
 
 # The user id of the instance owner. Can be found on the /django-admin page
-OWNER_USER_ID = 1
+OWNER_USER_ID: int = 1
 
 # TURN THIS OFF for production servers!!!
 # Whether or not to refresh the server when code changes
 # Turning this off (and going into production) means you need a web server like
 # Nginx or Apache to serve static files securely among other things
-DEBUG = True
+DEBUG: bool = True
+
+# The path of the admin log file. Set to `None` to not log any admin activity
+ADMIN_LOG_PATH: str = "./admin.log"
+
+# The maximum of lines of logs to store in the admin file at once. Minimum one
+MAX_ADMIN_LOG_LINES: int = 1000
 
 # 1-200
 MAX_USERNAME_LENGTH: int = 18
@@ -53,7 +59,7 @@ API_TIMINGS: dict[str, int] = {
 POSTS_PER_REQUEST: int = 20
 
 # Contact information. Can be email, url, or text
-CONTACT_INFO = [
+CONTACT_INFO: list[list[str]] = [
     ["email", "trinkey@duck.com"],
     ["url",   "https://github.com/trinkey/social-media-thing/issues"],
     ["url",   "https://discord.gg/tH7QnHApwu"],

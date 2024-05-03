@@ -2,24 +2,24 @@
 
 <html>
   <head>
-    <title>Page Not Found - {{SITE_NAME}} v{{VERSION}}</title>
+    <title>Page Not Found - {{ SITE_NAME }} v{{ VERSION }}</title>
     {% autoescape off %}
-    {{HTML_HEADERS}}
+    {{ HTML_HEADERS }}
     {% endautoescape %}
 
     <meta name="description" content="Page not found">
-    <meta name="author" content="{{SITE_NAME}} v{{VERSION}}">
+    <meta name="author" content="{{ SITE_NAME }} v{{ VERSION }}">
 
     <meta property="og:type" content="website">
-    <meta property="og:title" content="{{SITE_NAME}} v{{VERSION}}">
+    <meta property="og:title" content="{{ SITE_NAME }} v{{ VERSION }}">
     <meta property="og:description" content="Page not found">
 
     <meta name="twitter:card" content="summary_large_image">
-    <meta name="twitter:title" content="{{SITE_NAME}} v{{VERSION}}">
+    <meta name="twitter:title" content="{{ SITE_NAME }} v{{ VERSION }}">
     <meta name="twitter:description" content="Page not found">
   </head>
 
-  <body data-theme="{{THEME}}" class="center">
+  <body data-theme="{{ THEME }}" class="center">
     <h1>Page Not Found!!</h1>
     <h3>The url wasn't found.</h3>
     <a href="/home">Return Home</a>

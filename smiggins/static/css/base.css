@@ -1,11 +1,6 @@
 @import url("fonts.css");
 @import url("theme.css");
 
-::-moz-selection {
-  background-color: var(--accent-50);
-  color: var(--text);
-}
-
 ::selection {
   background-color: var(--accent-50);
   color: var(--text);
@@ -15,12 +10,14 @@
   outline: calc(2em / 14) var(--accent) solid;
 }
 
-body::-webkit-scrollbar { display: none; }
+::-webkit-scrollbar {
+  display: none;
+}
 
 body {
   background-color: var(--base);
   color: var(--text);
-  font-family: 'Poppins', 'Arial';
+  font-family: "Poppins", "Arial";
   padding: 5vh 0;
   text-align: center;
   font-size: 14px;
@@ -29,14 +26,21 @@ body {
   word-wrap: break-word;
 }
 
-hr { border-color: var(--accent); }
+hr {
+  border-color: var(--accent);
+}
 
 @media screen and (min-width: 1025px) {
-  body { font-size: 16px; }
+  body {
+    font-size: 16px;
+  }
 }
 
 @media screen and (max-width: 565px) {
-  body { font-size: 18px; padding: 5vh 3vw; }
+  body {
+    font-size: 18px;
+    padding: 5vh 3vw;
+  }
 }
 
 button {
@@ -49,16 +53,39 @@ button {
   transition-property: color;
   transition: 0.15s;
   font-size: 0.8em;
-  transition: scale 0.15s,
-              background-color 0.15s;
+  transition: scale 0.15s, background-color 0.15s;
 }
 
-button:disabled { opacity: 60%; pointer-events: none; }
-button:active { scale: 90%; background-color: var(--mantle); }
-button.inverted { background-color: var(--base); }
-button.inverted:hover { background-color: var(--mantle); }
+button:disabled {
+  opacity: 60%;
+  pointer-events: none;
+}
 
-input, textarea, option, select{
+button:active {
+  scale: 90%;
+  background-color: var(--mantle);
+}
+
+button.inverted {
+  background-color: var(--base);
+}
+
+button.inverted:hover {
+  background-color: var(--mantle);
+}
+
+button.primary,
+button.primary:hover {
+  background-color: var(--accent);
+  color: var(--base);
+  border-color: var(--surface0);
+  outline-color: var(--surface0);
+}
+
+input,
+textarea,
+option,
+select {
   background-color: var(--crust);
   color: var(--text);
   border: 1.5px solid var(--surface0);
@@ -70,56 +97,129 @@ input, textarea, option, select{
   resize: vertical;
 }
 
-input, textarea, select {
-  font-family: 'Poppins';
+input,
+textarea,
+select {
+  font-family: "Poppins";
 }
 
 option {
-  font-family: 'Poppins', sans-serif;
+  font-family: "Poppins", sans-serif;
   font-size: 1.1em;
 }
 
-input::placeholder, textarea::placeholder {
+input::placeholder,
+textarea::placeholder {
   color: var(--text-muted);
 }
 
-textarea:disabled { opacity: 70%; pointer-events: none; }
+textarea:disabled {
+  opacity: 70%;
+  pointer-events: none;
+}
 
-a:link       { color: var(--accent); text-decoration: none; }
-a:visited    { color: var(--accent); text-decoration: none; }
-a:hover      { text-decoration: underline; }
-a::-moz-selection { text-decoration-color: var(--text); }
-a::selection { -webkit-text-decoration-color: var(--text); text-decoration-color: var(--text); }
+a:link {
+  color: var(--accent);
+  text-decoration: none;
+}
 
-i { opacity: 80%; }
+a:visited {
+  color: var(--accent);
+  text-decoration: none;
+}
+
+a:hover {
+  text-decoration: underline;
+}
+
+a::selection {
+  -webkit-text-decoration-color: var(--text);
+  text-decoration-color: var(--text);
+}
+
+i {
+  opacity: 80%;
+}
 
 p {
   margin: 0px;
   padding: 2px;
 }
 
-.text:not(svg)       { color: var(--text);   }
-.background:not(svg) { color: var(--base);   }
-.accent:not(svg)     { color: var(--accent); }
+table.bordered {
+  border-collapse: collapse;
+}
 
-svg.text       { fill: var(--text);   }
-svg.background { fill: var(--base);   }
-svg.accent     { fill: var(--accent); }
+table.bordered th,
+table.bordered td {
+  border: 1.5px solid var(--surface0);
+}
 
-.left   { text-align: left;   }
-.center { text-align: center; }
-.right  { text-align: right;  }
+.text:not(svg) {
+  color: var(--text);
+}
+
+.background:not(svg) {
+  color: var(--base);
+}
+
+.accent:not(svg) {
+  color: var(--accent);
+}
+
+svg.text {
+  fill: var(--text);
+}
+
+svg.background {
+  fill: var(--base);
+}
+
+svg.accent {
+  fill: var(--accent);
+}
+
+.nowrap {
+  white-space: nowrap;
+}
+
+.left {
+  text-align: left;
+}
+
+.center {
+  text-align: center;
+}
 
 table.center {
   margin-left: auto;
   margin-right: auto;
 }
 
-.invis  { opacity: 0%; }
-.hidden { display: none; }
-.mono   { font-family: 'Cousine'; }
-.no-underline { text-decoration: none !important; }
-.no-underline:focus { outline: none !important; }
+.right {
+  text-align: right;
+}
+
+.invis {
+  opacity: 0%;
+}
+
+.hidden {
+  display: none;
+}
+
+.mono {
+  font-family: "Cousine";
+}
+
+.no-underline {
+  text-decoration: none !important;
+}
+
+.no-underline:focus {
+  outline: none !important;
+}
+
 .icons {
   display: flex;
   flex-direction: column;
@@ -127,7 +227,7 @@ table.center {
   position: fixed;
   top: 1em;
   left: 1em;
-  gap: .5em;
+  gap: 0.5em;
 }
 
 .icons svg {
@@ -138,5 +238,10 @@ table.center {
   stroke: none;
 }
 
-.icons svg:active { scale: 0.9; }
-.icons svg { cursor: pointer; }
+.icons svg:active {
+  scale: 0.9;
+}
+
+.icons svg {
+  cursor: pointer;
+}

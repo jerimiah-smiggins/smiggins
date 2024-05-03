@@ -3,8 +3,8 @@
 # this file if you want.
 
 from ._api_keys import auth_key
-from ._settings import MAX_POST_LENGTH
-from .packages  import Badge, hashlib
+from ._settings import MAX_POST_LENGTH, ADMIN_LOG_PATH
+from .packages  import Badge, hashlib, ensure_file
 from django.db.utils import OperationalError
 
 try:
@@ -80,3 +80,6 @@ except Badge.DoesNotExist:
 
 except OperationalError:
     print("\x1b[91mYou need to migrate your database! Do this by running 'manage.py migrate'. If you are already doing that, ignore this message.\x1b[0m")
+
+if ADMIN_LOG_PATH is not None:
+    ensure_file(ADMIN_LOG_PATH)

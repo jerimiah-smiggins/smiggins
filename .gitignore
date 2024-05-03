@@ -8,3 +8,4 @@ smiggins/backend/_api_keys.py
 smiggins/db.sqlite3
 smiggins/collected-static/
 smiggins/latest_scr
+smiggins/admin.log

@@ -3,11 +3,14 @@
 
 import threading
 import hashlib
+import base64
 import shutil
 import json
 import time
 import sys
 import os
+
+from ensure_file import ensure_file
 
 from typing import Union, Callable, Any
 from posts.models import User, Post, Comment, Badge

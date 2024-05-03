@@ -2,7 +2,7 @@
 
 from ._settings import MAX_POST_LENGTH, API_TIMINGS, OWNER_USER_ID, POSTS_PER_REQUEST
 from .packages  import Comment, User, Post, time, Schema
-from .helper    import trim_whitespace, create_api_ratelimit, ensure_ratelimit, validate_token, get_post_json
+from .helper    import trim_whitespace, create_api_ratelimit, ensure_ratelimit, validate_token, get_post_json, log_admin_action
 
 class NewComment(Schema):
     content: str
@@ -235,7 +235,13 @@ def api_comment_delete(request, data: CommentID) -> tuple | dict:
         comment_parent.comments.remove(id) # type: ignore
         comment_parent.save()
 
-    if comment.creator == user.user_id or user.user_id == OWNER_USER_ID or user.admin_level >= 1:
+    admin = user.user_id == OWNER_USER_ID or user.admin_level >= 1
+    creator = comment.creator == user.user_id
+
+    if admin and not creator:
+        log_admin_action("Delete comment", user, f"Deleted comment {id} (parent: {comment.parent} (is_comment: {comment.parent_is_comment}), content: {comment.content})")
+
+    if creator or admin:
         comment.delete()
 
         return {

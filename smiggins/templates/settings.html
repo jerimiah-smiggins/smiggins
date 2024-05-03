@@ -3,29 +3,29 @@
 
 <html>
   <head>
-    <title>Settings - {{SITE_NAME}} v{{VERSION}}</title>
+    <title>Settings - {{ SITE_NAME }} v{{ VERSION }}</title>
     {% autoescape off %}
-    {{HTML_HEADERS}}
+    {{ HTML_HEADERS }}
     {% endautoescape %}
     <link rel="stylesheet" href="{% static '/css/home.css' %}">
     <link rel="stylesheet" href="{% static '/css/settings.css' %}">
   </head>
 
-  <body data-theme="{{THEME}}" style="--banner: {{BANNER_COLOR}}; --banner-two: {{BANNER_COLOR_TWO}}">
+  <body data-theme="{{ THEME }}" style="--banner: {{ BANNER_COLOR }}; --banner-two: {{ BANNER_COLOR_TWO }}">
     <h1>Settings</h1>
     <div>&nbsp;<span id="error"></span>&nbsp;</div>
 
     <hr><br>
 
-    <button class="big-button" id="save">Save</button>
+    <button class="big-button primary" id="save">Save</button>
 
     <div class="settings-container">
       <div class="settings-side">
         <h2>Profile</h2>
 
         Basic information<br>
-        <input id="displ-name" placeholder="Display name..." value="{{DISPLAY_NAME}}" maxlength="{{MAX_DISPL_NAME_LENGTH}}"><br>
-        <textarea id="bio" placeholder="User bio..." maxlength="{{MAX_BIO_LENGTH}}">{{USER_BIO}}</textarea><br><br>
+        <input id="displ-name" placeholder="Display name..." value="{{ DISPLAY_NAME }}" maxlength="{{ MAX_DISPL_NAME_LENGTH }}"><br>
+        <textarea id="bio" placeholder="User bio..." maxlength="{{ MAX_BIO_LENGTH }}">{{ USER_BIO }}</textarea><br><br>
 
         Pronouns<br>
         <table class="center">
@@ -63,16 +63,16 @@
         </table><br>
 
         <script>
-          let user_pronouns = "{{PRONOUNS}}";
+          let user_pronouns = "{{ PRONOUNS }}";
         </script>
 
         Banner color<br>
         <div id="banner"></div><br>
-        <input id="banner-color" value="{{BANNER_COLOR}}" type="color">
-        <input hidden id="banner-color-two" value="{{BANNER_COLOR_TWO}}" type="color"><br>
-        Gradient banner? <input id="banner-is-gradient" {{CHECKED_IF_GRADIENT}} type="checkbox"><br><br>
+        <input id="banner-color" value="{{ BANNER_COLOR }}" type="color">
+        <input hidden id="banner-color-two" value="{{ BANNER_COLOR_TWO }}" type="color"><br>
+        Gradient banner? <input id="banner-is-gradient" {{ CHECKED_IF_GRADIENT }} type="checkbox"><br><br>
 
-        Private account? <input type="checkbox" id="priv" {{CHECKED_IF_PRIV}}><br>
+        Private account? <input type="checkbox" id="priv" {{ CHECKED_IF_PRIV }}><br>
         <div class="small-mw">If your account is private, that means only you and people you follow can see your posts.</div>
       </div>
 
@@ -80,11 +80,11 @@
         <h2>Cosmetic</h2>
         Theme:<br>
         <select id="theme">
-          <option {{SELECTED_IF_LIGHT}} value="light">Dawn</option>
-          <option {{SELECTED_IF_GRAY}}  value="gray" >Dusk</option>
-          <option {{SELECTED_IF_DARK}}  value="dark" >Dark</option>
-          <option {{SELECTED_IF_BLACK}} value="black">Midnight</option>
-          <option {{SELECTED_IF_OLED}}  value="oled" >Black</option>
+          <option {{ SELECTED_IF_LIGHT }} value="light">Dawn</option>
+          <option {{ SELECTED_IF_GRAY }}  value="gray" >Dusk</option>
+          <option {{ SELECTED_IF_DARK }}  value="dark" >Dark</option>
+          <option {{ SELECTED_IF_BLACK }} value="black">Midnight</option>
+          <option {{ SELECTED_IF_OLED }}  value="oled" >Black</option>
         </select><br><br>
 
         Color:<br>
@@ -103,14 +103,14 @@
     </div>
 
     {% autoescape off %}
-    {{ADMIN}}
+    {{ ADMIN }}
     {% endautoescape %}
-    <a href="https://github.com/trinkey/social-media-thing" target="_blank" {{HIDE_SOURCE}}>Source code</a><br {{HIDE_SOURCE}}>
+    <a href="https://github.com/trinkey/social-media-thing" target="_blank" {{ HIDE_SOURCE }}>Source code</a><br {{ HIDE_SOURCE }}>
     <a href="/logout">Log out of ALL accounts</a>
 
     <script src="{% static '/js/settings.js' %}"></script>
     {% autoescape off %}
-    {{HTML_FOOTERS}}
+    {{ HTML_FOOTERS }}
     {% endautoescape %}
   </body>
 </html>

@@ -65,9 +65,7 @@ def user(request, username: str) -> HttpResponse:
         )
 
     if user.private and self_id not in user.following:
-        return get_HTTP_response(
-            request, "404_user.html"
-        )
+        logged_in = False
 
     return get_HTTP_response(
         request, "user.html",
@@ -208,6 +206,8 @@ def post(request, post_id: int) -> HttpResponse:
             request, "404_post.html"
         )
 
+    post_json = get_post_json(post_id, User.objects.get(token=token).user_id if logged_in else 0)
+
     return get_HTTP_response(
         request, "post.html",
 
@@ -215,8 +215,12 @@ def post(request, post_id: int) -> HttpResponse:
         LOGGED_IN = str(logged_in).lower(),
         POST_ID   = str(post_id),
         COMMENT   = "false",
-        POST_JSON = json.dumps(get_post_json(post_id, User.objects.get(token=token).user_id if logged_in else 0)),
-        CONTENT   = post.content
+        POST_JSON = json.dumps(post_json),
+        CONTENT   = post.content,
+
+        LIKES = post_json["likes"],
+        COMMENTS = post_json["comments"],
+        QUOTES = post_json["quotes"]
     )
 
 def comment(request, comment_id: int) -> HttpResponse:
@@ -251,6 +255,8 @@ def comment(request, comment_id: int) -> HttpResponse:
             request, "404_post.html"
         )
 
+    comment_json = get_post_json(comment_id, User.objects.get(token=token).user_id if logged_in else 0, True)
+
     return get_HTTP_response(
         request, "post.html",
 
@@ -258,8 +264,12 @@ def comment(request, comment_id: int) -> HttpResponse:
         LOGGED_IN = str(logged_in).lower(),
         POST_ID   = str(comment_id),
         COMMENT   = "true",
-        POST_JSON = json.dumps(get_post_json(comment_id, User.objects.get(token=token).user_id if logged_in else 0, True)),
-        CONTENT   = comment.content
+        POST_JSON = json.dumps(comment_json),
+        CONTENT   = comment.content,
+
+        LIKES = comment_json["likes"],
+        COMMENTS = comment_json["comments"],
+        QUOTES = comment_json["quotes"]
     )
 
 def contact(request) -> HttpResponse:

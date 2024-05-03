@@ -2,13 +2,13 @@
 
 <html>
   <head>
-    <title>Internal Server Error - {{SITE_NAME}} v{{VERSION}}</title>
+    <title>Internal Server Error - {{ SITE_NAME }} v{{ VERSION }}</title>
     {% autoescape off %}
-    {{HTML_HEADERS}}
+    {{ HTML_HEADERS }}
     {% endautoescape %}
   </head>
 
-  <body data-theme="{{THEME}}" class="center">
+  <body data-theme="{{ THEME }}" class="center">
     <h1>Internal Server Error</h1>
     <h3>Something happened in the server that prevents you from viewing this page.</h3>
     This <em>shouldn't</em> be your fault<br>

@@ -2,24 +2,24 @@
 
 <html>
   <head>
-    <title>Post Not Found - {{SITE_NAME}} v{{VERSION}}</title>
+    <title>Post Not Found - {{ SITE_NAME }} v{{ VERSION }}</title>
     {% autoescape off %}
-    {{HTML_HEADERS}}
+    {{ HTML_HEADERS }}
     {% endautoescape %}
 
-    <meta name="description" content="Page not found">
-    <meta name="author" content="{{SITE_NAME}} v{{VERSION}}">
+    <meta name="description" content="Post not found">
+    <meta name="author" content="{{ SITE_NAME }} v{{ VERSION }}">
 
     <meta property="og:type" content="website">
-    <meta property="og:title" content="{{SITE_NAME}} v{{VERSION}}">
-    <meta property="og:description" content="Page not found">
+    <meta property="og:title" content="{{ SITE_NAME }} v{{ VERSION }}">
+    <meta property="og:description" content="Post not found">
 
     <meta name="twitter:card" content="summary_large_image">
-    <meta name="twitter:title" content="{{SITE_NAME}} v{{VERSION}}">
-    <meta name="twitter:description" content="Page not found">
+    <meta name="twitter:title" content="{{ SITE_NAME }} v{{ VERSION }}">
+    <meta name="twitter:description" content="Post not found">
   </head>
 
-  <body data-theme="{{THEME}}" class="center">
+  <body data-theme="{{ THEME }}" class="center">
     <h1>Post Not Found!!</h1>
     This post doesn't exist!<br>
     <a href="/home">Return Home</a>

@@ -43,7 +43,7 @@ level >= 2 && dom("account-delete").addEventListener("click", function() {
 });
 
 // Level 3
-dom("badge-add").addEventListener("click", function() {
+level >= 3 && dom("badge-add").addEventListener("click", function() {
   fetch("/api/admin/badge", {
     method: "POST",
     body: JSON.stringify({
@@ -61,7 +61,7 @@ dom("badge-add").addEventListener("click", function() {
     });
 });
 
-dom("badge-remove").addEventListener("click", function() {
+level >= 3 && dom("badge-remove").addEventListener("click", function() {
   fetch("/api/admin/badge", {
     method: "PATCH",
     body: JSON.stringify({
@@ -79,7 +79,7 @@ dom("badge-remove").addEventListener("click", function() {
     });
 });
 
-dom("badge-create").addEventListener("click", function() {
+level >= 3 && dom("badge-create").addEventListener("click", function() {
   fetch("/api/admin/badge", {
     method: "PUT",
     body: JSON.stringify({
@@ -96,7 +96,7 @@ dom("badge-create").addEventListener("click", function() {
     });
 });
 
-dom("badge-delete").addEventListener("click", function() {
+level >= 3 && dom("badge-delete").addEventListener("click", function() {
   fetch("/api/admin/badge", {
     method: "DELETE",
     body: JSON.stringify({
@@ -163,6 +163,35 @@ level >= 4 && dom("data-get").addEventListener("click", function() {
         showlog(`Something went wrong! ${json.reason}`);
       }
     })
+});
+
+level >= 4 && dom("debug-button").addEventListener("click", function() {
+  this.setAttribute("disabled", "");
+
+  fetch("/api/admin/logs")
+    .then((response) => (response.json()))
+    .then((json) => {
+      if (json.success) {
+        let lines = atob(json.content).split("\n");
+
+        output = "<table class=\"admin-logs bordered\"><tr><th>Timestamp</th><th>Action</th><th>Who</th><th class=\"nowrap\">More Info</th></tr>"
+        for (const line of lines) {
+          try {
+            output += `<tr><td class="nowrap">${timeSince(line.split(" ", 2)[0])} ago</td><td class="nowrap">${line.split(",", 2)[0].split("- ", 2)[1]}</td><td class="nowrap">${line.split(",")[1].split(") - ", 2)[0]})</td><td>${escapeHTML(line.split(",").slice(1).join(",").split(") - ", 2)[1])}</td></tr>`;
+          } catch(err) {
+            //
+          }
+        }
+
+        dom("debug").innerHTML = output + "</table>";
+      } else {
+        showlog("Something went wrong loading the logs!");
+        this.removeAttribute("disabled");
+      }
+    }).catch((err) => {
+      showlog("Something went wrong loading the logs!");
+      this.removeAttribute("disabled")
+    });
 });
 
 // Level 5

@@ -103,8 +103,8 @@ function toggleLike(post_id, type) {
   }
 }
 
-function deletePost(post_id) {
-  fetch(`/api/${type}`, {
+function deletePost(post_id, isComment, pageFocus) {
+  fetch(`/api/${isComment ? "comment" : "post"}`, {
     method: "DELETE",
     body: JSON.stringify({
       "id": post_id
@@ -112,7 +112,11 @@ function deletePost(post_id) {
   }).then((response) => (response.json()))
     .then((json) => {
       if (json.success) {
-        document.querySelector(`.post-container[data-${type}-id="${post_id}"]`).remove();
+        if (pageFocus) {
+          window.location.href = "/home";
+        } else {
+          document.querySelector(`.post-container[data-${isComment ? "comment" : "post"}-id="${post_id}"]`).remove();
+        }
       }
     });
 }
