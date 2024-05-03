@@ -57,6 +57,7 @@ button:disabled { opacity: 60%; pointer-events: none; }
 button:active { scale: 90%; background-color: var(--mantle); }
 button.inverted { background-color: var(--base); }
 button.inverted:hover { background-color: var(--mantle); }
+button.primary, button.primary:hover { background-color: var(--accent); color: var(--base); }
 
 input, textarea, option, select{
   background-color: var(--crust);
