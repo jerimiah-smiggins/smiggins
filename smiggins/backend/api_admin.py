@@ -2,8 +2,11 @@
 
 from ._settings import OWNER_USER_ID, ADMIN_LOG_PATH
 from .variables import BADGE_DATA
-from .packages  import User, Comment, Post, Badge, Schema, base64
+from .packages  import User, Comment, Post, Badge, Schema, base64, pathlib
 from .helper    import trim_whitespace, log_admin_action
+
+if ADMIN_LOG_PATH[:2:] == "./":
+    ADMIN_LOG_PATH = str(pathlib.Path(__file__).parent.absolute()) + "/../" + ADMIN_LOG_PATH[2::]
 
 class AccountIdentifier(Schema):
     identifier: str | int

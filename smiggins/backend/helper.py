@@ -2,7 +2,10 @@
 
 from ._settings import SITE_NAME, VERSION, SOURCE_CODE, MAX_DISPL_NAME_LENGTH, MAX_POST_LENGTH, MAX_USERNAME_LENGTH, RATELIMIT, OWNER_USER_ID, ADMIN_LOG_PATH, MAX_ADMIN_LOG_LINES, MAX_NOTIFICATIONS
 from .variables import HTML_FOOTERS, HTML_HEADERS, PRIVATE_AUTHENTICATOR_KEY, timeout_handler
-from .packages  import Union, Callable, Any, HttpResponse, HttpResponseRedirect, loader, User, Comment, Post, Notification, threading, hashlib, time
+from .packages  import Union, Callable, Any, HttpResponse, HttpResponseRedirect, loader, User, Comment, Post, Notification, threading, hashlib, pathlib, time, re
+
+if ADMIN_LOG_PATH[:2:] == "./":
+    ADMIN_LOG_PATH = str(pathlib.Path(__file__).parent.absolute()) + "/../" + ADMIN_LOG_PATH[2::]
 
 def sha(string: Union[str, bytes]) -> str:
     # Returns the sha256 hash of a string.
@@ -152,6 +155,8 @@ def get_badges(user: User) -> list[str]:
     return user.badges + (["administrator"] if user.admin_level >= 1 or user.user_id == OWNER_USER_ID else [])
 
 def get_post_json(post_id: int, current_user_id: int=0, comment: bool=False, cache: dict[int, User] | None=None) -> dict[str, str | int | dict]:
+    # Returns a dict object that includes information about the specified post
+
     if cache is None:
         cache = {}
 
@@ -201,7 +206,9 @@ def get_post_json(post_id: int, current_user_id: int=0, comment: bool=False, cac
         "comments": len(post.comments),
         "quotes": len(post.quotes),
         "owner": can_delete_all or creator.user_id == current_user_id,
-        "can_view": True
+        "can_view": True,
+        "parent": post.parent if isinstance(post, Comment) else -1,
+        "parent_is_comment": post.parent_is_comment if isinstance(post, Comment) else False
     }
 
     if isinstance(post, Post) and post.quote != 0:
@@ -268,6 +275,8 @@ def get_post_json(post_id: int, current_user_id: int=0, comment: bool=False, cac
     return post_json
 
 def trim_whitespace(string: str, purge_newlines: bool=False) -> str:
+    # Trims whitespace from strings
+
     string = string.replace("\x0d", "")
 
     if purge_newlines:
@@ -293,6 +302,8 @@ def log_admin_action(
     admin_user_object: User,
     log_info: str
 ) -> None:
+    # Logs an administrative action
+
     if ADMIN_LOG_PATH is not None:
         old_log = b"\n".join(open(ADMIN_LOG_PATH, "rb").read().split(b"\n")[:MAX_ADMIN_LOG_LINES - 1:])
 
@@ -300,11 +311,18 @@ def log_admin_action(
         f.write(str.encode(f"{round(time.time())} - {action_name}, done by {admin_user_object.username} (id: {admin_user_object.user_id}) - {log_info}\n") + old_log)
         f.close()
 
+def find_mentions(message: str, exclude_users: list[str]=[]) -> list[str]:
+    # Returns a list of all mentioned users in a string. Used for notifications
+
+    return list(set([i for i in re.findall(r"@([a-zA-Z0-9\-_]{1," + str(MAX_USERNAME_LENGTH) + r"})", message) if i not in exclude_users]))
+
 def create_notification(
     is_for: User,
     event_type: str, # "comment", "quote", "ping_p", or "ping_c"
     event_id: int # comment id or post id
 ) -> None:
+    # Creates a new notification for the specified user
+
     timestamp = round(time.time())
 
     x = Notification.objects.create(
@@ -325,7 +343,7 @@ def create_notification(
     is_for.notifications.append(x.notif_id)
 
     if len(is_for.notifications) >= MAX_NOTIFICATIONS:
-        for i in is_for.notifications[-MAX_NOTIFICATIONS::]:
+        for i in is_for.notifications[:-MAX_NOTIFICATIONS:]:
             is_for.notifications.remove(i)
             Notification.objects.get(notif_id=i).delete()
 

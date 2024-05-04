@@ -35,7 +35,7 @@ class User(models.Model):
     likes    = models.JSONField(default=list, blank=True) # list[list[id: int, is_comment: bool]]
 
     def __str__(self):
-        return self.username
+        return f"({self.user_id}) {self.username}"
 
 class Post(models.Model):
     post_id   = models.IntegerField(primary_key=True)
@@ -50,7 +50,7 @@ class Post(models.Model):
     quotes   = models.JSONField(default=list, blank=True)
 
     def __str__(self):
-        return self.content
+        return f"({self.post_id}) {self.content}"
 
 class Comment(models.Model):
     comment_id = models.IntegerField(primary_key=True, unique=True)
@@ -65,7 +65,7 @@ class Comment(models.Model):
     quotes   = models.JSONField(default=list, blank=True)
 
     def __str__(self):
-        return self.content
+        return f"({self.comment_id}) {self.content}"
 
 class Badge(models.Model):
     name     = models.CharField(max_length=64, primary_key=True, unique=True)
@@ -73,7 +73,7 @@ class Badge(models.Model):
     users    = models.JSONField(default=list, blank=True)
 
     def __str__(self):
-        return self.name
+        return f"{self.name} ({', '.join([str(i) for i in self.users]) or 'No users'})"
 
 class Notification(models.Model):
     notif_id  = models.IntegerField(primary_key=True, unique=True)
@@ -90,11 +90,13 @@ class Notification(models.Model):
 
     # The id for whatever happened.
     # - comment: it would be a comment id
-    # - quote_p: the post id of the quote
-    # - quote_c: the comment id of the quote
+    # - quote: the post id of the quote
     # - ping_p: it would be the post the ping came from
     # - ping_c: it would be the comment id from where the ping came from
     event_id = models.IntegerField()
 
     # The user object for who the notification is for
     is_for = models.ForeignKey(User, on_delete=models.CASCADE)
+
+    def __str__(self):
+        return f"({'' if self.read else 'un'}read) {self.event_type} ({self.event_id}) for {self.is_for.username}"

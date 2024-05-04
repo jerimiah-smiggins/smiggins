@@ -3,7 +3,7 @@
 # This file is meant to have settings that are easy to understand.
 
 # Version displayed.
-VERSION: str = "0.6.8"
+VERSION: str = "0.7.0"
 
 # What to have the site name be.
 SITE_NAME: str = "Jerimiah Smiggins"
@@ -61,7 +61,7 @@ POSTS_PER_REQUEST: int = 20
 # The maximum number of notifications to be stored per user. Whenever
 # this limit is exceeded, it will remove the oldest notifications for
 # that user.
-MAX_NOTIFICATIONS: int = 2
+MAX_NOTIFICATIONS: int = 1000
 
 # Contact information. Can be email, url, or text
 CONTACT_INFO: list[list[str]] = [

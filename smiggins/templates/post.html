@@ -26,15 +26,11 @@ Likes: {{ LIKES }} / Quotes: {{ QUOTES }} / Comments: {{ COMMENTS }}">
 Likes: {{ LIKES }} / Quotes: {{ QUOTES }} / Comments: {{ COMMENTS }}">
 
     <link rel="stylesheet" href="{% static '/css/home.css' %}">
-    <link rel="stylesheet" href="{% static '/css/user.css' %}">
-    <style>
-      #top .main-content {
-        -webkit-line-clamp: unset;
-      }
-    </style>
+    <link rel="stylesheet" href="{% static '/css/post.css' %}">
   </head>
 
   <body data-theme="{{ THEME }}">
+    <div id="parent" hidden><a id="parent-link" href="#">Go to original post...</a></div>
     <div id="top" data-post-id="{{ POST_ID }}"></div>
     <textarea id="post-text" style="height: 3em;" maxlength="{{ MAX_POST_LENGTH }}" placeholder="Enter your reply here..."></textarea><br id="hide-me">
     <button id="post">Post</button><br>
@@ -53,6 +49,11 @@ Likes: {{ LIKES }} / Quotes: {{ QUOTES }} / Comments: {{ COMMENTS }}">
       {% autoescape off %}
       const post = {{ POST_JSON }};
       {% endautoescape %}
+
+      if (post.parent && post.parent > 0) {
+        dom("parent-link").href = `/${post.parent_is_comment ? 'c' : 'p'}/${post.parent}`;
+        dom("parent").removeAttribute("hidden");
+      }
 
       dom("top").innerHTML = getPostHTML(
         post.content,          // content

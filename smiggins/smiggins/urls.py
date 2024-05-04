@@ -6,12 +6,13 @@ from backend.variables import ROBOTS, BADGE_DATA
 from backend.helper import create_simple_return
 from backend.templating import contact, settings, user, user_lists, post, comment, admin, badges, notifications
 
-from posts.models import User, Post, Comment, Badge
+from posts.models import User, Post, Comment, Badge, Notification
 
 django_admin.site.register(User)
 django_admin.site.register(Post)
 django_admin.site.register(Comment)
 django_admin.site.register(Badge)
+django_admin.site.register(Notification)
 
 urlpatterns = [
     path("api/", include("smiggins.api")),

@@ -2,7 +2,7 @@
 
 from ._settings import MAX_POST_LENGTH, API_TIMINGS, OWNER_USER_ID, POSTS_PER_REQUEST
 from .packages  import Comment, User, Post, time, Schema
-from .helper    import trim_whitespace, create_api_ratelimit, ensure_ratelimit, validate_token, get_post_json, log_admin_action, create_notification
+from .helper    import trim_whitespace, create_api_ratelimit, ensure_ratelimit, validate_token, get_post_json, log_admin_action, create_notification, find_mentions
 
 class NewComment(Schema):
     content: str
@@ -81,6 +81,12 @@ def comment_create(request, data: NewComment) -> tuple | dict:
             )
     except User.DoesNotExist:
         print("how")
+
+    for i in find_mentions(content, [user.username, User.objects.get(user_id=parent.creator).username]):
+        try:
+            create_notification(User.objects.get(username=i.lower()), "ping_c", comment.comment_id)
+        except User.DoesNotExist:
+            pass
 
     return 201, {
         "success": True,

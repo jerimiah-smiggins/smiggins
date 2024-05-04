@@ -2,7 +2,7 @@
 
 from ._settings import API_TIMINGS, MAX_POST_LENGTH, POSTS_PER_REQUEST, OWNER_USER_ID
 from .packages  import User, Post, Comment, time, sys, Schema
-from .helper    import ensure_ratelimit, create_api_ratelimit, trim_whitespace, get_post_json, validate_username, validate_token, log_admin_action, create_notification
+from .helper    import ensure_ratelimit, create_api_ratelimit, trim_whitespace, get_post_json, validate_username, validate_token, log_admin_action, create_notification, find_mentions
 
 class NewPost(Schema):
     content: str
@@ -55,6 +55,12 @@ def post_create(request, data: NewPost) -> tuple | dict:
 
     user.posts.append(post.post_id)
     user.save()
+
+    for i in find_mentions(content, [user.username]):
+        try:
+            create_notification(User.objects.get(username=i.lower()), "ping_p", post.post_id)
+        except User.DoesNotExist:
+            pass
 
     return 201, {
         "success": True,
