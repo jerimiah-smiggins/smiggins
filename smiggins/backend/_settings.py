@@ -70,11 +70,3 @@ CONTACT_INFO: list[list[str]] = [
     ["url",   "https://discord.gg/tH7QnHApwu"],
     ["text",  "DM me on discord (@trinkey_)"]
 ]
-
-# Content of the robots.txt file
-ROBOTS: str = """User-agent: *
-Allow: *
-Disallow: /settings
-Disallow: /home
-Disallow: /api
-"""

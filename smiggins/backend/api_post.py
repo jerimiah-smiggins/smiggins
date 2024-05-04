@@ -58,7 +58,10 @@ def post_create(request, data: NewPost) -> tuple | dict:
 
     for i in find_mentions(content, [user.username]):
         try:
-            create_notification(User.objects.get(username=i.lower()), "ping_p", post.post_id)
+            notif_for = User.objects.get(username=i.lower())
+            if user.user_id not in notif_for.blocking:
+                create_notification(notif_for, "ping_p", post.post_id)
+
         except User.DoesNotExist:
             pass
 
