@@ -2,7 +2,7 @@
 
 from ._settings import MAX_POST_LENGTH, API_TIMINGS, OWNER_USER_ID, POSTS_PER_REQUEST
 from .packages  import Comment, User, Post, time, Schema
-from .helper    import trim_whitespace, create_api_ratelimit, ensure_ratelimit, validate_token, get_post_json, log_admin_action
+from .helper    import trim_whitespace, create_api_ratelimit, ensure_ratelimit, validate_token, get_post_json, log_admin_action, create_notification
 
 class NewComment(Schema):
     content: str
@@ -12,7 +12,7 @@ class NewComment(Schema):
 class CommentID(Schema):
     id: int
 
-def api_comment_create(request, data: NewComment) -> tuple | dict:
+def comment_create(request, data: NewComment) -> tuple | dict:
     # Called when a new comment is created.
 
     token = request.COOKIES.get('token')
@@ -67,17 +67,27 @@ def api_comment_create(request, data: NewComment) -> tuple | dict:
     else:
         parent = Post.objects.get(post_id=id)
 
-    if comment.comment_id not in (parent.comments or []):
-        parent.comments.append(comment.comment_id) # type: ignore
+    if comment.comment_id not in parent.comments:
+        parent.comments.append(comment.comment_id)
 
     parent.save()
+
+    try:
+        if parent.creator != user.user_id:
+            create_notification(
+                User.objects.get(user_id=parent.creator),
+                "comment",
+                comment.comment_id
+            )
+    except User.DoesNotExist:
+        print("how")
 
     return 201, {
         "success": True,
         "comment_id": comment.comment_id
     }
 
-def api_comment_list(request, id: int, comment: bool, offset: int=-1) -> tuple | dict:
+def comment_list(request, id: int, comment: bool, offset: int=-1) -> tuple | dict:
     # Called when the comments for a post are refreshed.
 
     token = request.COOKIES.get('token')
@@ -112,8 +122,8 @@ def api_comment_list(request, id: int, comment: bool, offset: int=-1) -> tuple |
             "end": True
         }
 
-    while len(parent.comments or []) and parent.comments[0] < offset: # type: ignore
-        parent.comments.pop(0) # type: ignore
+    while len(parent.comments) and parent.comments[0] < offset:
+        parent.comments.pop(0)
 
     outputList = []
     offset = 0
@@ -121,9 +131,9 @@ def api_comment_list(request, id: int, comment: bool, offset: int=-1) -> tuple |
 
     self_blocking = []
     if logged_in:
-        self_blocking = User.objects.get(token=token).blocking or []
+        self_blocking = User.objects.get(token=token).blocking
 
-    for i in (parent.comments or []):
+    for i in parent.comments:
         try:
             comment_object = Comment.objects.get(pk=i)
         except Comment.DoesNotExist:
@@ -149,10 +159,10 @@ def api_comment_list(request, id: int, comment: bool, offset: int=-1) -> tuple |
 
     return 200, {
         "posts": outputList,
-        "end": len(parent.comments or []) - offset <= POSTS_PER_REQUEST
+        "end": len(parent.comments) - offset <= POSTS_PER_REQUEST
     }
 
-def api_comment_like_add(request, data: CommentID):
+def comment_like_add(request, data: CommentID):
     # Called when someone likes a comment.
 
     token = request.COOKIES.get('token')
@@ -172,9 +182,9 @@ def api_comment_like_add(request, data: CommentID):
     user = User.objects.get(token=token)
     comment = Comment.objects.get(comment_id=id)
 
-    if user.user_id not in (comment.likes or []):
+    if user.user_id not in comment.likes:
         user.likes.append([id, True])
-        comment.likes.append(user.user_id) # type: ignore
+        comment.likes.append(user.user_id)
 
         user.save()
         comment.save()
@@ -183,7 +193,7 @@ def api_comment_like_add(request, data: CommentID):
         "success": True
     }
 
-def api_comment_like_remove(request, data: CommentID):
+def comment_like_remove(request, data: CommentID):
     # Called when someone unlikes a comment.
 
     token = request.COOKIES.get('token')
@@ -202,21 +212,21 @@ def api_comment_like_remove(request, data: CommentID):
     user = User.objects.get(token=token)
     comment = Comment.objects.get(comment_id=id)
 
-    if user.user_id in (comment.likes or []):
+    if user.user_id in comment.likes:
         try:
             user.likes.remove([id, True])
             user.save()
         except ValueError:
             pass
 
-        comment.likes.remove(user.user_id) # type: ignore
+        comment.likes.remove(user.user_id)
         comment.save()
 
     return 200, {
         "success": True
     }
 
-def api_comment_delete(request, data: CommentID) -> tuple | dict:
+def comment_delete(request, data: CommentID) -> tuple | dict:
     # Called when someone deletes a post.
 
     token = request.COOKIES.get('token')
@@ -232,7 +242,7 @@ def api_comment_delete(request, data: CommentID) -> tuple | dict:
 
     if comment.parent:
         comment_parent = (Comment if comment.parent_is_comment else Post).objects.get(pk=comment.parent)
-        comment_parent.comments.remove(id) # type: ignore
+        comment_parent.comments.remove(id)
         comment_parent.save()
 
     admin = user.user_id == OWNER_USER_ID or user.admin_level >= 1

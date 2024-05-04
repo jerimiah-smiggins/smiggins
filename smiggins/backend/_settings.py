@@ -58,6 +58,11 @@ API_TIMINGS: dict[str, int] = {
 # and cpu usage however it will likely improve the user experience
 POSTS_PER_REQUEST: int = 20
 
+# The maximum number of notifications to be stored per user. Whenever
+# this limit is exceeded, it will remove the oldest notifications for
+# that user.
+MAX_NOTIFICATIONS: int = 2
+
 # Contact information. Can be email, url, or text
 CONTACT_INFO: list[list[str]] = [
     ["email", "trinkey@duck.com"],

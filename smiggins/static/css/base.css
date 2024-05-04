@@ -245,3 +245,14 @@ table.center {
 .icons svg {
   cursor: pointer;
 }
+
+.icons .dot::after {
+  position: absolute;
+  display: inline-block;
+  width: 0.5em;
+  height: 0.5em;
+  border-radius: 0.25em;
+  transform: translate(-0.3em, 0px);
+  background-color: var(--accent);
+  content: "";
+}

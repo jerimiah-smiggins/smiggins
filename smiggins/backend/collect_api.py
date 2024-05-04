@@ -1,0 +1,49 @@
+from .api_admin import account_info, account_save, badge_add, badge_create, badge_delete, badge_remove, logs, set_level, user_delete
+from .api_comment import comment_create, comment_delete, comment_like_add, comment_like_remove, comment_list
+from .api_info import notifications, username
+from .api_post import post_create, post_delete, post_like_add, post_like_remove, post_list_following, post_list_recent, post_list_user, quote_create
+from .api_user import block_add, block_remove, follower_add, follower_remove, login, notifications_list, read_notifs, settings, settings_theme, signup
+
+class ApiAdmin:
+    account_info = account_info
+    account_save = account_save
+    badge_add = badge_add
+    badge_create = badge_create
+    badge_delete = badge_delete
+    badge_remove = badge_remove
+    logs = logs
+    set_level = set_level
+    user_delete = user_delete
+
+class ApiComment:
+    comment_create = comment_create
+    comment_delete = comment_delete
+    comment_like_add = comment_like_add
+    comment_like_remove = comment_like_remove
+    comment_list = comment_list
+
+class ApiInfo:
+    notifications = notifications
+    username = username
+
+class ApiPost:
+    post_create = post_create
+    post_delete = post_delete
+    post_like_add = post_like_add
+    post_like_remove = post_like_remove
+    post_list_following = post_list_following
+    post_list_recent = post_list_recent
+    post_list_user = post_list_user
+    quote_create = quote_create
+
+class ApiUser:
+    block_add = block_add
+    block_remove = block_remove
+    follower_add = follower_add
+    follower_remove = follower_remove
+    login = login
+    notifications_list = notifications_list
+    read_notifs = read_notifs
+    settings = settings
+    settings_theme = settings_theme
+    signup = signup

@@ -10,9 +10,12 @@ document.querySelector("body").setAttribute("data-color", validColors.indexOf(lo
 
 if (logged_in) {
   x.innerHTML = icons.settings;
+
   if (typeof(home) !== 'undefined') {
     x.innerHTML += icons.home;
   }
+
+  x.innerHTML += `<div data-add-notification-dot>${icons.bell}</div>`;
 }
 
 if (typeof(share) !== 'undefined') {
@@ -21,26 +24,40 @@ if (typeof(share) !== 'undefined') {
 
 document.querySelector("body").append(x);
 
-if (logged_in && typeof(profile) === "undefined") {
-  if (localStorage.getItem("username") === null) {
-    fetch("/api/info/username")
-      .then((response) => (response.json()))
-      .then((username) => {
-        username = username.username;
+if (logged_in) {
+  fetch("/api/info/notifications")
+    .then((response) => (response.json()))
+    .then((json) => {
+      console.log(json);
+      if (json.success && json.notifications) {
+        [...document.querySelectorAll("[data-add-notification-dot]")].forEach((val, index) => {
+          console.log(val);
+          val.classList.add("dot");
+        });
+      }
+    });
 
-        if (usernameRegexFull.test(username)) {
-          localStorage.setItem("username", username);
-          dom("icons").innerHTML += `<a title="Profile" href="/u/${username}">${icons.user}</a>`;
-        } else {
-          console.log("Username returned from /api/info/username is invalid.");
-        }
-      });
-  } else {
-    if (usernameRegexFull.test(localStorage.getItem("username"))) {
-      dom("icons").innerHTML += `<a title="Profile" href="/u/${localStorage.getItem("username")}">${icons.user}</a>`;
+  if (typeof(profile) === "undefined") {
+    if (localStorage.getItem("username") === null) {
+      fetch("/api/info/username")
+        .then((response) => (response.json()))
+        .then((username) => {
+          username = username.username;
+
+          if (usernameRegexFull.test(username)) {
+            localStorage.setItem("username", username);
+            dom("icons").innerHTML += `<a title="Profile" href="/u/${username}">${icons.user}</a>`;
+          } else {
+            console.log("Username returned from /api/info/username is invalid.");
+          }
+        });
     } else {
-      console.log("Username in localStorage is invalid.");
-      localStorage.removeItem("username");
+      if (usernameRegexFull.test(localStorage.getItem("username"))) {
+        dom("icons").innerHTML += `<a title="Profile" href="/u/${localStorage.getItem("username")}">${icons.user}</a>`;
+      } else {
+        console.log("Username in localStorage is invalid.");
+        localStorage.removeItem("username");
+      }
     }
   }
 }

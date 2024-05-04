@@ -12,3 +12,4 @@ the following svgs are from fontawesome:
 * user (`fa-solid fa-user`)
 * quote (`fa-regular fa-quote-left`)
 * delete (`fa-regular fa-trash-can`)
+* bell (`fa-solid fa-bell`)

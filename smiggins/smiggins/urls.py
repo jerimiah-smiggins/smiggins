@@ -4,7 +4,7 @@ from django.urls import include, path
 from backend._settings import CONTACT_INFO
 from backend.variables import ROBOTS, BADGE_DATA
 from backend.helper import create_simple_return
-from backend.templating import contact, settings, user, user_lists, post, comment, admin, badges
+from backend.templating import contact, settings, user, user_lists, post, comment, admin, badges, notifications
 
 from posts.models import User, Post, Comment, Badge
 
@@ -24,6 +24,8 @@ urlpatterns = [
 
     path("contact/", contact),
     path("settings/", settings),
+    path("notifications/", notifications),
+
     path("u/<str:username>/", user),
     path("u/<str:username>/lists/", user_lists),
     path("p/<int:post_id>/", post),
