@@ -1,8 +1,8 @@
 # For API functions that are user-specific, like settings, following, etc.
 
 from ._settings import API_TIMINGS, DEFAULT_BANNER_COLOR, MAX_USERNAME_LENGTH, MAX_BIO_LENGTH, MAX_DISPL_NAME_LENGTH
-from .packages  import User, Schema
-from .helper    import validate_username, trim_whitespace, create_api_ratelimit, ensure_ratelimit, generate_token
+from .packages  import User, Post, Comment, Notification, Schema
+from .helper    import validate_username, trim_whitespace, create_api_ratelimit, ensure_ratelimit, generate_token, get_post_json
 
 class Username(Schema):
     username: str
@@ -19,10 +19,10 @@ class Settings(Schema):
     color: str
     pronouns: str
     color_two: str
-    displ_name : str
+    displ_name: str
     is_gradient: bool
 
-def api_account_signup(request, data: Account) -> tuple | dict:
+def signup(request, data: Account) -> tuple | dict:
     # Called when someone requests to follow another account.
 
     if not ensure_ratelimit("api_account_signup", request.META.get("REMOTE_ADDR")):
@@ -95,7 +95,7 @@ def api_account_signup(request, data: Account) -> tuple | dict:
         "reason": f"Username must be between 1 and {MAX_USERNAME_LENGTH} characters in length."
     }
 
-def api_account_login(request, data: Account) -> tuple | dict:
+def login(request, data: Account) -> tuple | dict:
     # Called when someone attempts to log in.
 
     if not ensure_ratelimit("api_account_login", request.META.get("REMOTE_ADDR")):
@@ -127,10 +127,10 @@ def api_account_login(request, data: Account) -> tuple | dict:
         create_api_ratelimit("api_account_login", API_TIMINGS["login unsuccessful"], request.META.get('REMOTE_ADDR'))
         return {
             "valid": False,
-            "reason": f"Account with username {username} doesn't exist."
+            "reason": f"Account with username '{username}' doesn't exist."
         }
 
-def api_user_settings_theme(request, data: Theme) -> tuple | dict:
+def settings_theme(request, data: Theme) -> tuple | dict:
     # Called when the user changes their theme.
 
     token = request.COOKIES.get('token')
@@ -150,7 +150,7 @@ def api_user_settings_theme(request, data: Theme) -> tuple | dict:
         "success": True
     }
 
-def api_user_settings(request, data: Settings) -> tuple | dict:
+def settings(request, data: Settings) -> tuple | dict:
     # Called when someone saves their settings
 
     token = request.COOKIES.get('token')
@@ -209,7 +209,7 @@ def api_user_settings(request, data: Settings) -> tuple | dict:
         "success": True
     }
 
-def api_user_follower_add(request, data: Username) -> tuple | dict:
+def follower_add(request, data: Username) -> tuple | dict:
     # Called when someone requests to follow another account.
 
     token = request.COOKIES.get('token')
@@ -218,13 +218,13 @@ def api_user_follower_add(request, data: Username) -> tuple | dict:
     if not validate_username(username):
         return 400, {
             "valid": False,
-            "reason": f"Account with username {username} doesn't exist."
+            "reason": f"Account with username '{username}' doesn't exist."
         }
 
     user = User.objects.get(token=token)
     followed = User.objects.get(username=username)
 
-    if followed.user_id in (user.blocking or []):
+    if followed.user_id in user.blocking:
         return 400, {
             "valid": False,
             "reason": "You can't follow an account you're blocking!"
@@ -234,7 +234,7 @@ def api_user_follower_add(request, data: Username) -> tuple | dict:
         user.following.append(followed.user_id)
         user.save()
 
-    if user.user_id not in (followed.followers or []):
+    if user.user_id not in followed.followers:
         followed.followers.append(user.user_id) # type: ignore
         followed.save()
 
@@ -242,7 +242,7 @@ def api_user_follower_add(request, data: Username) -> tuple | dict:
         "success": True
     }
 
-def api_user_follower_remove(request, data: Username) -> tuple | dict:
+def follower_remove(request, data: Username) -> tuple | dict:
     # Called when someone requests to unfollow another account.
 
     token = request.COOKIES.get('token')
@@ -251,7 +251,7 @@ def api_user_follower_remove(request, data: Username) -> tuple | dict:
     if not validate_username(username):
         return 400, {
             "valid": False,
-            "reason": f"Account with username {username} doesn't exist."
+            "reason": f"Account with username '{username}' doesn't exist."
         }
 
     user = User.objects.get(token=token)
@@ -261,8 +261,8 @@ def api_user_follower_remove(request, data: Username) -> tuple | dict:
             user.following.remove(followed.user_id)
             user.save()
 
-        if user.user_id in (followed.followers or []):
-            followed.followers.remove(user.user_id) # type: ignore
+        if user.user_id in followed.followers:
+            followed.followers.remove(user.user_id)
             followed.save()
     else:
         return 400, {
@@ -273,7 +273,7 @@ def api_user_follower_remove(request, data: Username) -> tuple | dict:
         "success": True
     }
 
-def api_user_block_add(request, data: Username) -> tuple | dict:
+def block_add(request, data: Username) -> tuple | dict:
     # Called when someone requests to block another account.
 
     token = request.COOKIES.get('token')
@@ -282,7 +282,7 @@ def api_user_block_add(request, data: Username) -> tuple | dict:
     if not validate_username(username):
         return 400, {
             "success": False,
-            "reason": f"Account with username {username} doesn't exist."
+            "reason": f"Account with username '{username}' doesn't exist."
         }
 
     user = User.objects.get(token=token)
@@ -290,13 +290,18 @@ def api_user_block_add(request, data: Username) -> tuple | dict:
     if user.username == username:
         return 400, {
             "success": False,
-            "reason": "You cannot block yourself, iditot!"
+            "reason": "Huh? Look, I get you hate yourself, but I can't let you do that."
         }
 
     blocked = User.objects.get(username=username)
-    if blocked.user_id not in (user.blocking or []):
+
+    if blocked.user_id not in user.blocking:
         if blocked.user_id in user.following:
             user.following.remove(blocked.user_id)
+
+        if user.user_id in blocked.followers:
+            blocked.followers.remove(user.user_id)
+            blocked.save()
 
         user.blocking.append(blocked.user_id) # type: ignore
         user.save()
@@ -305,7 +310,7 @@ def api_user_block_add(request, data: Username) -> tuple | dict:
         "success": True
     }
 
-def api_user_block_remove(request, data: Username) -> tuple | dict:
+def block_remove(request, data: Username) -> tuple | dict:
     # Called when someone requests to unblock another account.
 
     token = request.COOKIES.get('token')
@@ -314,7 +319,7 @@ def api_user_block_remove(request, data: Username) -> tuple | dict:
     if not validate_username(username):
         return 400, {
             "success": False,
-            "reason": f"Account with username {username} doesn't exist."
+            "reason": f"Account with username '{username}' doesn't exist."
         }
 
     user = User.objects.get(token=token)
@@ -322,13 +327,13 @@ def api_user_block_remove(request, data: Username) -> tuple | dict:
     if user.username == username:
         return 400, {
             "success": False,
-            "reason": "You cannot block yourself, itdiot!!"
+            "reason": "You cannot block youritdiot!!"
         }
 
     blocked = User.objects.get(username=username)
     if user.user_id != blocked.user_id:
-        if blocked.user_id in (user.blocking or []):
-            user.blocking.remove(blocked.user_id) # type: ignore
+        if blocked.user_id in user.blocking:
+            user.blocking.remove(blocked.user_id)
             user.save()
 
     else:
@@ -338,4 +343,78 @@ def api_user_block_remove(request, data: Username) -> tuple | dict:
 
     return 201, {
         "success": True
+    }
+
+def read_notifs(request) -> tuple | dict:
+    try:
+        token = request.COOKIES.get('token')
+        self_user = User.objects.get(token=token)
+    except KeyError:
+        return 400, {
+            "success": False
+        }
+    except User.DoesNotExist:
+        return 400, {
+            "success": False
+        }
+
+    self_user.read_notifs = True
+    self_user.save()
+
+    for i in self_user.notifications[::-1]:
+        try:
+            notification = Notification.objects.get(pk=i)
+        except Notification.DoesNotExist:
+            continue
+
+        if notification.read:
+            break
+
+        notification.read = True
+        notification.save()
+
+    return {
+        "success": True
+    }
+
+def notifications_list(request) -> tuple | dict:
+    try:
+        token = request.COOKIES.get('token')
+        self_user = User.objects.get(token=token)
+    except KeyError:
+        return 400, {
+            "success": False
+        }
+    except User.DoesNotExist:
+        return 400, {
+            "success": False
+        }
+
+    cache = {
+        self_user.user_id: self_user
+    }
+
+    notifs_list = []
+
+    for i in self_user.notifications[::-1]:
+        try:
+            notification = Notification.objects.get(pk=i)
+        except Notification.DoesNotExist:
+            continue
+
+        try:
+            notifs_list.append({
+                "event_type": notification.event_type,
+                "read": notification.read,
+                "timestamp": notification.timestamp,
+                "data": get_post_json(notification.event_id, self_user.user_id, notification.event_type in ["comment", "ping_c"], cache)
+            })
+        except Post.DoesNotExist:
+            continue
+        except Comment.DoesNotExist:
+            continue
+
+    return {
+        "success": True,
+        "notifications": notifs_list
     }

@@ -3,7 +3,7 @@
 # This file is meant to have settings that are easy to understand.
 
 # Version displayed.
-VERSION: str = "0.6.8"
+VERSION: str = "0.7.0"
 
 # What to have the site name be.
 SITE_NAME: str = "Jerimiah Smiggins"
@@ -58,6 +58,11 @@ API_TIMINGS: dict[str, int] = {
 # and cpu usage however it will likely improve the user experience
 POSTS_PER_REQUEST: int = 20
 
+# The maximum number of notifications to be stored per user. Whenever
+# this limit is exceeded, it will remove the oldest notifications for
+# that user.
+MAX_NOTIFICATIONS: int = 1000
+
 # Contact information. Can be email, url, or text
 CONTACT_INFO: list[list[str]] = [
     ["email", "trinkey@duck.com"],
@@ -65,11 +70,3 @@ CONTACT_INFO: list[list[str]] = [
     ["url",   "https://discord.gg/tH7QnHApwu"],
     ["text",  "DM me on discord (@trinkey_)"]
 ]
-
-# Content of the robots.txt file
-ROBOTS: str = """User-agent: *
-Allow: *
-Disallow: /settings
-Disallow: /home
-Disallow: /api
-"""

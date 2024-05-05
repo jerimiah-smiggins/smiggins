@@ -1,0 +1,26 @@
+{% load static %}
+<!DOCTYPE html>
+
+<html>
+  <head>
+    <title>Settings - {{ SITE_NAME }} v{{ VERSION }}</title>
+    {% autoescape off %}
+    {{ HTML_HEADERS }}
+    {% endautoescape %}
+    <link rel="stylesheet" href="{% static '/css/home.css' %}">
+    <link rel="stylesheet" href="{% static '/css/notifications.css' %}">
+  </head>
+
+  <body data-theme="{{ THEME }}">
+    <h1>Notifications</h1>
+    <div>&nbsp;<span id="error"></span>&nbsp;</div>
+    <button id="refresh">Refresh</button> <button id="read">Mark as read</button><br><br>
+
+    <div id="notif-container"></div>
+
+    <script src="{% static '/js/notifications.js' %}"></script>
+    {% autoescape off %}
+    {{ HTML_FOOTERS }}
+    {% endautoescape %}
+  </body>
+</html>

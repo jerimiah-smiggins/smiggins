@@ -1,0 +1,7 @@
+#top .main-content {
+  -webkit-line-clamp: unset;
+}
+
+#parent {
+  margin-bottom: 1.5em;
+}

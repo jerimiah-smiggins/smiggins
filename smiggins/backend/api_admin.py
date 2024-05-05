@@ -2,8 +2,11 @@
 
 from ._settings import OWNER_USER_ID, ADMIN_LOG_PATH
 from .variables import BADGE_DATA
-from .packages  import User, Comment, Post, Badge, Schema, base64
+from .packages  import User, Comment, Post, Badge, Schema, base64, pathlib
 from .helper    import trim_whitespace, log_admin_action
+
+if ADMIN_LOG_PATH[:2:] == "./":
+    ADMIN_LOG_PATH = str(pathlib.Path(__file__).parent.absolute()) + "/../" + ADMIN_LOG_PATH[2::]
 
 class AccountIdentifier(Schema):
     identifier: str | int
@@ -26,7 +29,7 @@ class SaveUser(Schema):
 class UserLevel(AccountIdentifier):
     level: int
 
-def api_admin_user_delete(request, data: AccountIdentifier) -> tuple | dict:
+def user_delete(request, data: AccountIdentifier) -> tuple | dict:
     # Deleting an account (2+)
 
     token = request.COOKIES.get('token')
@@ -55,7 +58,7 @@ def api_admin_user_delete(request, data: AccountIdentifier) -> tuple | dict:
         }
 
     if user.user_id == OWNER_USER_ID or user.admin_level >= 2:
-        for badge in (account.badges or []):
+        for badge in account.badges:
             b = Badge.objects.get(name=badge)
             b.users.remove(account.user_id)
             b.save()
@@ -67,14 +70,14 @@ def api_admin_user_delete(request, data: AccountIdentifier) -> tuple | dict:
                 if post.quote:
                     try:
                         quoted_post = (Comment if post.quote_is_comment else Post).objects.get(pk=post.quote)
-                        quoted_post.quotes.remove(post.post_id) # type: ignore
+                        quoted_post.quotes.remove(post.post_id)
                         quoted_post.save()
                     except Post.DoesNotExist:
                         pass
                     except Comment.DoesNotExist:
                         pass
 
-                for quote_id in (post.quotes or []):
+                for quote_id in post.quotes:
                     quoting_post = Post.objects.get(post_id=quote_id)
                     quoting_post.quote = -1
                     quoting_post.save()
@@ -90,7 +93,7 @@ def api_admin_user_delete(request, data: AccountIdentifier) -> tuple | dict:
 
                 try:
                     commented_post = (Comment if comment.parent_is_comment else Post).objects.get(pk=comment.parent)
-                    commented_post.comments.remove(comment.comment_id) # type: ignore
+                    commented_post.comments.remove(comment.comment_id)
                     commented_post.save()
 
                 except Post.DoesNotExist:
@@ -106,11 +109,11 @@ def api_admin_user_delete(request, data: AccountIdentifier) -> tuple | dict:
         for like in account.likes:
             post = (Comment if like[1] else Post).objects.get(pk=like[0])
             print(account.user_id, type(account.user_id), post.likes, post.content, like)
-            post.likes.remove(account.user_id) # type: ignore
+            post.likes.remove(account.user_id)
             post.save()
             try:
                 post = (Comment if like[1] else Post).objects.get(pk=like[0])
-                post.likes.remove(account.user_id) # type: ignore
+                post.likes.remove(account.user_id)
                 post.save()
 
             except Post.DoesNotExist:
@@ -125,15 +128,15 @@ def api_admin_user_delete(request, data: AccountIdentifier) -> tuple | dict:
                 continue
 
             followed = User.objects.get(user_id=followed_id)
-            followed.followers.remove(account.user_id) # type: ignore
+            followed.followers.remove(account.user_id)
             followed.save()
 
-        for follower_id in (account.followers or []):
+        for follower_id in account.followers:
             if follower_id == account.user_id:
                 continue
 
             follower = User.objects.get(user_id=follower_id)
-            follower.following.remove(account.user_id) # type: ignore
+            follower.following.remove(account.user_id)
             follower.save()
 
         account.delete()
@@ -150,7 +153,7 @@ def api_admin_user_delete(request, data: AccountIdentifier) -> tuple | dict:
         "success": False
     }
 
-def api_admin_badge_create(request, data: NewBadge) -> tuple | dict:
+def badge_create(request, data: NewBadge) -> tuple | dict:
     # Creating a badge (3+)
 
     token = request.COOKIES.get('token')
@@ -216,7 +219,7 @@ def api_admin_badge_create(request, data: NewBadge) -> tuple | dict:
         "success": False
     }
 
-def api_admin_badge_delete(request, data: DeleteBadge) -> tuple | dict:
+def badge_delete(request, data: DeleteBadge) -> tuple | dict:
     # Deleting a badge (3+)
 
     token = request.COOKIES.get('token')
@@ -267,7 +270,7 @@ def api_admin_badge_delete(request, data: DeleteBadge) -> tuple | dict:
 
         for i in badge.users:
             user = User.objects.get(user_id=i)
-            user.badges.remove(badge_name) # type: ignore
+            user.badges.remove(badge_name)
             user.save()
 
         badge.delete()
@@ -284,7 +287,7 @@ def api_admin_badge_delete(request, data: DeleteBadge) -> tuple | dict:
         "success": False
     }
 
-def api_admin_badge_add(request, data: UserBadge) -> tuple | dict:
+def badge_add(request, data: UserBadge) -> tuple | dict:
     # Adding a badge to a user (3+)
 
     token = request.COOKIES.get('token')
@@ -318,8 +321,8 @@ def api_admin_badge_add(request, data: UserBadge) -> tuple | dict:
             }
 
         if data.badge_name.lower() in BADGE_DATA:
-            if data.badge_name.lower() not in (user.badges or []):
-                user.badges.append(data.badge_name.lower()) # type: ignore
+            if data.badge_name.lower() not in user.badges:
+                user.badges.append(data.badge_name.lower())
                 user.save()
 
                 badge = Badge.objects.get(name=data.badge_name)
@@ -342,7 +345,7 @@ def api_admin_badge_add(request, data: UserBadge) -> tuple | dict:
         "success": False
     }
 
-def api_admin_badge_remove(request, data: UserBadge) -> tuple | dict:
+def badge_remove(request, data: UserBadge) -> tuple | dict:
     # Removing a badge from a user (3+)
 
     token = request.COOKIES.get('token')
@@ -375,8 +378,8 @@ def api_admin_badge_remove(request, data: UserBadge) -> tuple | dict:
             }
 
         if data.badge_name.lower() in BADGE_DATA:
-            if data.badge_name.lower() in (user.badges or []):
-                user.badges.remove(data.badge_name.lower()) # type: ignore
+            if data.badge_name.lower() in user.badges:
+                user.badges.remove(data.badge_name.lower())
                 user.save()
 
                 badge = Badge.objects.get(name=data.badge_name)
@@ -399,7 +402,7 @@ def api_admin_badge_remove(request, data: UserBadge) -> tuple | dict:
         "success": False
     }
 
-def api_admin_account_info(request, identifier: int | str, use_id: bool) -> tuple | dict:
+def account_info(request, identifier: int | str, use_id: bool) -> tuple | dict:
     # Get account information (4+)
 
     token = request.COOKIES.get('token')
@@ -440,7 +443,7 @@ def api_admin_account_info(request, identifier: int | str, use_id: bool) -> tupl
         "success": False
     }
 
-def api_admin_account_save(request, data: SaveUser) -> tuple | dict:
+def account_save(request, data: SaveUser) -> tuple | dict:
     # Save account information (4+)
 
     try:
@@ -501,7 +504,7 @@ def api_admin_account_save(request, data: SaveUser) -> tuple | dict:
         "success": False
     }
 
-def api_admin_set_level(request, data: UserLevel) -> tuple | dict:
+def set_level(request, data: UserLevel) -> tuple | dict:
     # Set the admin level for a different person (5+)
 
     try:
@@ -548,20 +551,20 @@ def api_admin_set_level(request, data: UserLevel) -> tuple | dict:
         "success": False
     }
 
-def api_admin_logs(request) -> tuple | dict:
-    try:
-        self_user = User.objects.get(token=request.COOKIES.get("token"))
-    except User.DoesNotExist:
+def logs(request) -> tuple | dict:
+        try:
+            self_user = User.objects.get(token=request.COOKIES.get("token"))
+        except User.DoesNotExist:
+            return 400, {
+                "success": False
+            }
+
+        if self_user.admin_level >= 4 or self_user.user_id == OWNER_USER_ID:
+            return {
+                "success": True,
+                "content": bytes.decode(base64.b64encode(open(ADMIN_LOG_PATH, "rb").read()))
+            }
+
         return 400, {
             "success": False
         }
-
-    if self_user.admin_level >= 4 or self_user.user_id == OWNER_USER_ID:
-        return {
-            "success": True,
-            "content": bytes.decode(base64.b64encode(open(ADMIN_LOG_PATH, "rb").read()))
-        }
-
-    return 400, {
-        "success": False
-    }

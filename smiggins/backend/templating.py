@@ -8,8 +8,6 @@ from .helper    import validate_token, get_HTTP_response, get_post_json, get_bad
 def settings(request) -> HttpResponse:
     try:
         token: str = request.COOKIES["token"].lower()
-        if not validate_token(token):
-            return HttpResponseRedirect("/", status=307)
     except KeyError:
         return HttpResponseRedirect("/", status=307)
 
@@ -45,12 +43,6 @@ def user(request, username: str) -> HttpResponse:
     username = username.lower()
 
     try:
-        if not validate_token(request.COOKIES["token"]):
-            HttpResponseRedirect("/", status=307)
-    except KeyError:
-        HttpResponseRedirect("/", status=307)
-
-    try:
         self_object = User.objects.get(token=request.COOKIES["token"])
         self_id = self_object.user_id
         logged_in = True
@@ -84,7 +76,7 @@ def user(request, username: str) -> HttpResponse:
         BANNER_COLOR_TWO = user.color_two or DEFAULT_BANNER_COLOR,
 
         IS_FOLLOWING = "false" if not logged_in else str(user.user_id in self_object.following).lower(),
-        IS_BLOCKING = "false" if not logged_in else str(user.user_id in (self_object.blocking or [])).lower()
+        IS_BLOCKING = "false" if not logged_in else str(user.user_id in self_object.blocking).lower()
     )
 
 def user_lists(request, username: str) -> HttpResponse | HttpResponseRedirect:
@@ -111,7 +103,7 @@ def user_lists(request, username: str) -> HttpResponse | HttpResponseRedirect:
         )
 
     followers = []
-    for i in (user.followers or []):
+    for i in user.followers:
         if i != user.user_id:
             f_user = User.objects.get(user_id=i)
             followers.append({
@@ -138,7 +130,7 @@ def user_lists(request, username: str) -> HttpResponse | HttpResponseRedirect:
 
     blocking = []
     if logged_in and username == self_object.username:
-        for i in (user.blocking or []):
+        for i in user.blocking:
             if i != user.user_id:
                 f_user = User.objects.get(user_id=i)
                 blocking.append({
@@ -164,7 +156,7 @@ def user_lists(request, username: str) -> HttpResponse | HttpResponseRedirect:
         FOLLOWERS = followers,
         BLOCKS = blocking,
 
-        FOLLOWER_COUNT = len(user.followers or []),
+        FOLLOWER_COUNT = len(user.followers),
         FOLLOWING_COUNT = len(user.following) - 1,
 
         BADGES = "".join([f"<span class='user-badge' data-add-badge='{i}'></span> " for i in get_badges(user)]),
@@ -173,7 +165,7 @@ def user_lists(request, username: str) -> HttpResponse | HttpResponseRedirect:
         BANNER_COLOR = user.color or DEFAULT_BANNER_COLOR,
         BANNER_COLOR_TWO = user.color_two or DEFAULT_BANNER_COLOR,
 
-        IS_FOLLOWING = str(user.user_id in self_object.following).lower() if logged_in else "false", # type: ignore
+        IS_FOLLOWING = str(user.user_id in self_object.following).lower() if logged_in else "false",
         IS_HIDDEN    = "hidden" if user.user_id == self_id else "",
 
         INCLUDE_BLOCKS = str(logged_in and username == self_object.username).lower(),
@@ -311,6 +303,18 @@ def badges(request) -> HttpResponse:
     return HttpResponse(
         "const badges={" + (",".join(["\"" + i.replace("\\", "\\\\").replace("\"", "\\\"") + "\":'" + BADGE_DATA[i].replace("'", "\"") + "'" for i in BADGE_DATA])) + "}",
         content_type="text/javascript"
+    )
+
+def notifications(request) -> HttpResponse:
+    try:
+        token: str = request.COOKIES["token"].lower()
+        if not validate_token(token):
+            return HttpResponseRedirect("/", status=307)
+    except KeyError:
+        return HttpResponseRedirect("/", status=307)
+
+    return get_HTTP_response(
+        request, "notifications.html",
     )
 
 # These two functions are referenced in smiggins/urls.py

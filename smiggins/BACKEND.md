@@ -2,8 +2,6 @@
 Docs for the backend. This contains descriptions of every function defined in
 any of the files in the backend.
 
-<!-- doesn't have the admin set level function for some reason ill add that later -->
-
 ## ./manage.py
 This file is auto-created when making a django project. To see what this file
 does, you can read the django docs or run the file like you would a normal
@@ -130,6 +128,13 @@ larger number would result in more CPU usage and bandwidth, however may
 positively affect the user experience.
 
 ```py
+MAX_NOTIFICATIONS: int
+```
+The maximum notifications to store for a single user at a time. Whenever this
+number is exceeded, it will remove the oldest notifications for that user until
+the amount of notifications goes below the threshold.
+
+```py
 CONTACT_INFO: list[list[str]]
 ```
 A list containing contact information that would be put on the contact page.
@@ -172,52 +177,52 @@ class UserLevel(AccountIdentifier)
 The schema for setting the admin level of a user
 
 ```py
-def api_admin_user_delete(
+def user_delete(
   request: django.core.handlers.wsgi.WSGIRequest,
   data: AccountIdentifier
-) -> tuple[int, dict] | dict
+) -> tuple | dict
 ```
 Handles deleting a user (level 2+). Called from a DELETE request to
 `/api/admin/user`
 
 ```py
-def api_admin_badge_create(
+def badge_create(
   request: django.core.handlers.wsgi.WSGIRequest,
   data: NewBadge
-) -> tuple[int, dict] | dict
+) -> tuple | dict
 ```
 Handles creating a new badge (level 3+). Called from a PUT request to
 `/api/admin/badge`
 
 ```py
-def api_admin_badge_delete(
+def badge_delete(
   request: django.core.handlers.wsgi.WSGIRequest,
   data: NewBadge
-) -> tuple[int, dict] | dict
+) -> tuple | dict
 ```
 Handles deleting a badge (level 3+). Called from a PATCH request to
 `/api/admin/badge`
 
 ```py
-def api_admin_badge_add(
+def badge_add(
   request: django.core.handlers.wsgi.WSGIRequest,
   data: NewBadge
-) -> tuple[int, dict] | dict
+) -> tuple | dict
 ```
 Handles adding a badge to a user (level 3+). Called from a POST request to
 `/api/admin/badge`
 
 ```py
-def api_admin_badge_remove(
+def badge_remove(
   request: django.core.handlers.wsgi.WSGIRequest,
   data: NewBadge
-) -> tuple[int, dict] | dict
+) -> tuple | dict
 ```
 Handles removing a badge from a user (level 3+). Called from a PATCH request to
 `/api/admin/badge`
 
 ```py
-def api_admin_account_info(
+def account_info(
   request: django.core.handlers.wsgi.WSGIRequest,
   identifier: int | str,
   use_id: bool
@@ -227,7 +232,16 @@ Returns information about an account (level 4+). Called from a GET request to
 `/api/admin/info`
 
 ```py
-def api_admin_logs(
+def set_level(
+  request: django.core.handlers.wsgi.WSGIRequest,
+  data: UserLevel
+) -> tuple | dict
+```
+Sets the admin level for the specified user (level 5+). Called from a PATCH
+request to `/api/admin/level`
+
+```py
+def logs(
   request: django.core.handlers.wsgi.WSGIRequest
 ) -> tuple | dict
 ```
@@ -250,44 +264,44 @@ class CommentID(Schema)
 The schema that contains just a comment id
 
 ```py
-def api_comment_create(
+def comment_create(
   request: django.core.handlers.wsgi.WSGIRequest,
   data: NewComment
-) -> tuple[int, dict] | dict
+) -> tuple | dict
 ```
 Handles comment creation. Called from a PUT request to `/api/comment/create`.
 
 ```py
-def api_comment_list(
+def comment_list(
   request: django.core.handlers.wsgi.WSGIRequest,
   id: int,
   comment: bool,
   offset: int = -1
-) -> tuple[int, dict] | dict
+) -> tuple | dict
 ```
 Lists the comments on a post, up to `POSTS_PER_REQUESTS` comments at once.
 Called from a GET request to `/api/comments`.
 
 ```py
-def api_comment_like_add(
+def comment_like_add(
   request: django.core.handlers.wsgi.WSGIRequest,
   data: CommentID
-) -> tuple[int, dict] | dict
+) -> tuple | dict
 ```
 Handles adding a like to a comment. Called to a POST request to
 `/api/comment/like`.
 
 ```py
-def api_comment_like_remove(
+def comment_like_remove(
   request: django.core.handlers.wsgi.WSGIRequest,
   data: CommentID
-) -> tuple[int, dict] | dict
+) -> tuple | dict
 ```
 Handles removing a like from a comment. Called to a DELETE request to
 `/api/comment/like`.
 
 ```py
-def api_comment_delete(
+def comment_delete(
   request: django.core.handlers.wsgi.WSGIRequest,
   data: CommentID
 ) -> tuple[int | dict] | dict
@@ -299,12 +313,20 @@ This file is for any api calls that retrieve information for the client, for
 example getting a username from their token.
 
 ```py
-def api_info_username(
+def username(
   request: django.core.handlers.wsgi.WSGIRequest
-) -> tuple[int, dict] | dict
+) -> tuple | dict
 ```
 Returns the username of the user from the token cookie. Called from a GET
 request to `/api/info/username`.
+
+```py
+def notifications(
+  request: django.core.handlers.wsgi.WSGIRequest
+) -> tuple | dict
+```
+Returns whether or not you have unread notifications. Called from a GET request
+to `/api/info/notifications`.
 
 ## ./backend/api_post.py
 This file is for anything related to posts, including liking, creating, and
@@ -327,68 +349,68 @@ class PostID(Schema)
 The schema that contains just a post ID
 
 ```py
-def api_post_create(
+def post_create(
   request: django.core.handlers.wsgi.WSGIRequest,
   data: NewPost
-) -> tuple[int, dict] | dict
+) -> tuple | dict
 ```
 This handles creating a post. Called from a PUT request to `/api/post/create`.
 
 ```py
-def api_quote_create(
+def quote_create(
   request: django.core.handlers.wsgi.WSGIRequest,
   data: NewQuote
-) -> tuple[int, dict] | dict
+) -> tuple | dict
 ```
 This handles creating a post. Called from a PUT request to `/api/quote/create`.
 
 ```py
-def api_post_list_following(
+def post_list_following(
   request: django.core.handlers.wsgi.WSGIRequest,
   offset: int = -1
-) -> tuple[int, dict] | dict
+) -> tuple | dict
 ```
 This gets a list of recent posts for the following timeline. Called from a GET
 request to `/api/post/following`.
 
 ```py
-def api_post_list_recent(
+def post_list_recent(
   request: django.core.handlers.wsgi.WSGIRequest,
   offset: int = -1
-) -> tuple[int, dict] | dict
+) -> tuple | dict
 ```
 This gets a list of recent posts for the recent timeline. Called from a GET
 request to `/api/post/recent`.
 
 ```py
-def api_post_list_user(
+def post_list_user(
   request: django.core.handlers.wsgi.WSGIRequest,
   username: str,
   offset: int = -1
-) -> tuple[int, dict] | dict
+) -> tuple | dict
 ```
 This gets a list of recent posts for a specific user with a username of
 `username`. Called from a GET request to `/api/post/user/{str: username}`.
 
 ```py
-def api_post_like_add(
+def post_like_add(
   request: django.core.handlers.wsgi.WSGIRequest,
   data: PostID
-) -> tuple[int, dict] | dict
+) -> tuple | dict
 ```
 Handles adding a like to a post. Called from a POST request to `/api/post/like`.
 
 ```py
-def api_post_like_remove(
+def post_like_remove(
   request: django.core.handlers.wsgi.WSGIRequest,
   data: PostID
-) -> tuple[int, dict] | dict
+) -> tuple | dict
 ```
 Handles removing a like from a post. Called from a DELETE request to
 `/api/post/like`.
 
 ```py
-def api_post_delete(
+def post_delete(
   request: django.core.handlers.wsgi.WSGIRequest,
   data: PostID
 ) -> tuple[int | dict] | dict
@@ -421,76 +443,120 @@ class Settings(Schema)
 The schema that contains all of the settings
 
 ```py
-def api_account_signup(
+def signup(
   request: django.core.handlers.wsgi.WSGIRequest,
   data: Account
-) -> tuple[int, dict] | dict
+) -> tuple | dict
 ```
 This handles creating a new user on when signing up. Called on a POST request to
 `/api/user/signup`.
 
 ```py
-def api_account_login(
+def login(
   request: django.core.handlers.wsgi.WSGIRequest,
   data: Account
-) -> tuple[int, dict] | dict
+) -> tuple | dict
 ```
 This handles sending auth information when logging in. Called on a POST request
 to `/api/user/login`.
 
 ```py
-def api_user_settings_theme(
+def settings_theme(
   request: django.core.handlers.wsgi.WSGIRequest,
   data: Theme
-) -> tuple[int, dict] | dict
+) -> tuple | dict
 ```
 This handles changing the theme setting. Called on a POST request to
 `/api/user/settings/theme`.
 
 ```py
-def api_user_settings(
+def settings(
   request: django.core.handlers.wsgi.WSGIRequest,
   data: Settings
-) -> tuple[int, dict] | dict
+) -> tuple | dict
 ```
 This handles changing and saving (almost) all of the settings in the settings
 page. Called on a PATCH request to `/api/user/settings/text`.
 
 ```py
-def api_user_follower_add(
+def follower_add(
   request: django.core.handlers.wsgi.WSGIRequest,
   data: Username
-) -> tuple[int, dict] | dict
+) -> tuple | dict
 ```
 This handles following someone. Called on a POST request to
 `/api/user/follower`.
 
 ```py
-def api_user_follower_remove(
+def follower_remove(
   request: django.core.handlers.wsgi.WSGIRequest,
   data: Username
-) -> tuple[int, dict] | dict
+) -> tuple | dict
 ```
 This handles unfollowing someone. Called on a DELETE request to
 `/api/user/follower`.
 
 ```py
-def api_user_block_add(
+def block_add(
   request: django.core.handlers.wsgi.WSGIRequest,
   data: Username
-) -> tuple[int, dict] | dict
+) -> tuple | dict
 ```
 This handles blocking someone. Called on a POST request to
 `/api/user/block`.
 
 ```py
-def api_user_block_remove(
+def block_remove(
   request: django.core.handlers.wsgi.WSGIRequest,
   data: Username
-) -> tuple[int, dict] | dict
+) -> tuple | dict
 ```
 This handles unblocking someone. Called on a DELETE request to
 `/api/user/block`.
+
+```py
+def read_notifs(
+  request: django.core.handlers.wsgi.WSGIRequest
+) -> tuple | dict
+```
+This marks all of your notifications as read. Called on a DELETE request to
+`/api/user/notifications`.
+
+```py
+def notifications_list(
+  request: django.core.handlers.wsgi.WSGIRequest
+) -> tuple | dict
+```
+This returns a list of all of your notifications. Called on a GET request to
+`/api/user/notifications`.
+
+## ./backend/collect_api.py
+This file collects all of the api functions and turns them into sorted classes.
+
+```py
+class ApiAdmin
+```
+All the api functions from `./backend/api_admin.py`
+
+```py
+class ApiComment
+```
+All the api functions from `./backend/api_comment.py`
+
+```py
+class ApiInfo
+```
+All the api functions from `./backend/api_info.py`
+
+```py
+class ApiPost
+```
+All the api functions from `./backend/api_post.py`
+
+```py
+class ApiUser
+```
+All the api functions from `./backend/api_user.py`
 
 ## ./backend/helper.py
 This is for any helper function that could be used across the backend. This is
@@ -634,6 +700,25 @@ def log_admin_action(
 ```
 Logs an administrative action.
 
+```py
+def find_mentions(
+  message: str,
+  exclude_users: list[str] = []
+) -> str
+```
+Returns a list of users mentioned in the string `message`, excluding any of the
+users listed in `exclude_users`. For example, the string `"hi @trinkey"` would
+return `["trinkey"]`, assuming `"trinkey"` isn't in `exclude_users`.
+
+```py
+def create_notification(
+    is_for: User,
+    event_type: str,
+    event_id: int
+) -> NoReturn
+```
+Creates a new Notification object using the specified parameters.
+
 ## ./backend/packages.py
 This file is just for importing packages and libraries to be used across the
 program. That's all this file is used for.
@@ -685,7 +770,7 @@ For `/c/...` pages
 def contact(
   request: django.core.handlers.wsgi.WSGIRequest
 ) -> HttpResponse
-````
+```
 For the `/contact` page
 
 ```py
@@ -696,6 +781,20 @@ def admin(
 For the `/admin` page
 
 ```py
+def badges(
+  request: django.core.handlers.wsgi.WSGIRequest
+) -> HttpResponse
+```
+Returns the javascript file for the badges list.
+
+```py
+def notifications(
+  request: django.core.handlers.wsgi.WSGIRequest
+) -> HttpResponse
+```
+For the `/notifications` page
+
+```py
 def _404(
   request: django.core.handlers.wsgi.WSGIRequest,
   exception: django.urls.exceptions.Resolver404
@@ -704,13 +803,6 @@ def _404(
 The function called when you receive a 404 page. 404 pages only show up on
 production servers, and on development servers you instead see the django
 traceback 404 page.
-
-```py
-def badges(
-  request: django.core.handlers.wsgi.WSGIRequest
-) -> HttpResponse
-```
-Returns the javascript file for the badges list.
 
 ```py
 def _500(

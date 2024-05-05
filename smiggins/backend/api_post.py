@@ -2,7 +2,7 @@
 
 from ._settings import API_TIMINGS, MAX_POST_LENGTH, POSTS_PER_REQUEST, OWNER_USER_ID
 from .packages  import User, Post, Comment, time, sys, Schema
-from .helper    import ensure_ratelimit, create_api_ratelimit, trim_whitespace, get_post_json, validate_username, validate_token, log_admin_action
+from .helper    import ensure_ratelimit, create_api_ratelimit, trim_whitespace, get_post_json, validate_username, validate_token, log_admin_action, create_notification, find_mentions
 
 class NewPost(Schema):
     content: str
@@ -14,7 +14,7 @@ class NewQuote(NewPost):
 class PostID(Schema):
     id: int
 
-def api_post_create(request, data: NewPost) -> tuple | dict:
+def post_create(request, data: NewPost) -> tuple | dict:
     # Called when a new post is created.
 
     token = request.COOKIES.get('token')
@@ -38,7 +38,7 @@ def api_post_create(request, data: NewPost) -> tuple | dict:
 
     timestamp = round(time.time())
     user = User.objects.get(token=token)
-    post = Post(
+    post = Post.objects.create(
         content = content,
         creator = user.user_id,
         timestamp = timestamp,
@@ -46,7 +46,6 @@ def api_post_create(request, data: NewPost) -> tuple | dict:
         comments = [],
         quotes = []
     )
-    post.save()
 
     post = Post.objects.get(
         timestamp=timestamp,
@@ -57,12 +56,21 @@ def api_post_create(request, data: NewPost) -> tuple | dict:
     user.posts.append(post.post_id)
     user.save()
 
+    for i in find_mentions(content, [user.username]):
+        try:
+            notif_for = User.objects.get(username=i.lower())
+            if user.user_id not in notif_for.blocking:
+                create_notification(notif_for, "ping_p", post.post_id)
+
+        except User.DoesNotExist:
+            pass
+
     return 201, {
         "success": True,
         "post_id": post.post_id
     }
 
-def api_quote_create(request, data: NewQuote) -> tuple | dict:
+def quote_create(request, data: NewQuote) -> tuple | dict:
     # Called when a post is quoted.
 
     token = request.COOKIES.get('token')
@@ -71,6 +79,20 @@ def api_quote_create(request, data: NewQuote) -> tuple | dict:
         return 429, {
             "success": False,
             "reason": "Ratelimited"
+        }
+
+    try:
+        quoted_post = (Comment if data.quote_is_comment else Post).objects.get(pk=data.quote_id)
+
+    except Post.DoesNotExist:
+        return 400, {
+            "success": False,
+            "reason": "The post you're quoting doesn't exist!"
+        }
+    except Comment.DoesNotExist:
+        return 400, {
+            "success": False,
+            "reason": "The comment you're quoting doesn't exist!"
         }
 
     content = trim_whitespace(data.content)
@@ -86,7 +108,7 @@ def api_quote_create(request, data: NewQuote) -> tuple | dict:
 
     timestamp = round(time.time())
     user = User.objects.get(token=token)
-    post = Post(
+    post = Post.objects.create(
         content = content,
         creator = user.user_id,
         timestamp = timestamp,
@@ -96,7 +118,6 @@ def api_quote_create(request, data: NewQuote) -> tuple | dict:
         quote = data.quote_id,
         quote_is_comment = data.quote_is_comment
     )
-    post.save()
 
     post = Post.objects.get(
         timestamp=timestamp,
@@ -104,19 +125,28 @@ def api_quote_create(request, data: NewQuote) -> tuple | dict:
         content=content
     )
 
-    quoted_post = (Comment if data.quote_is_comment else Post).objects.get(pk=data.quote_id)
-    quoted_post.quotes.append(post.post_id) # type: ignore
+    quoted_post.quotes.append(post.post_id)
     quoted_post.save()
 
     user.posts.append(post.post_id)
     user.save()
+
+    try:
+        if quoted_post.creator != user.user_id and user.user_id not in User.objects.get(pk=quoted_post.creator).blocking:
+            create_notification(
+                User.objects.get(user_id=quoted_post.creator),
+                "quote",
+                post.post_id
+            )
+    except User.DoesNotExist:
+        pass
 
     return 201, {
         "success": True,
         "post_id": post.post_id
     }
 
-def api_post_list_following(request, offset: int=-1) -> tuple | dict:
+def post_list_following(request, offset: int=-1) -> tuple | dict:
     # Called when the following tab is refreshed.
 
     token = request.COOKIES.get('token')
@@ -170,7 +200,7 @@ def api_post_list_following(request, offset: int=-1) -> tuple | dict:
         "end": len(potential) - offset <= POSTS_PER_REQUEST
     }
 
-def api_post_list_recent(request, offset: int=-1) -> tuple | dict:
+def post_list_recent(request, offset: int=-1) -> tuple | dict:
     # Called when the recent posts tab is refreshed.
 
     token = request.COOKIES.get('token')
@@ -203,7 +233,7 @@ def api_post_list_recent(request, offset: int=-1) -> tuple | dict:
             continue
 
         current_user = User.objects.get(pk=current_post.creator)
-        if current_user.user_id in (user.blocking or []) or (current_user.private and user.user_id not in current_user.following) or (current_user.user_id in (user.blocking or [])):
+        if current_user.user_id in user.blocking or (current_user.private and user.user_id not in current_user.following):
             offset += 1
 
         else:
@@ -216,7 +246,7 @@ def api_post_list_recent(request, offset: int=-1) -> tuple | dict:
         "end": end
     }
 
-def api_post_list_user(request, username: str, offset: int=-1) -> tuple | dict:
+def post_list_user(request, username: str, offset: int=-1) -> tuple | dict:
     # Called when getting posts from a specific user.
 
     if not validate_username(username):
@@ -234,14 +264,14 @@ def api_post_list_user(request, username: str, offset: int=-1) -> tuple | dict:
     except User.DoesNotExist:
         logged_in = False
 
-    if user.private and (not logged_in or self_user.user_id not in user.following): # type: ignore
+    if user.private and (not logged_in or self_user.user_id not in user.following):
         return {
             "posts": [],
             "end": True,
             "private": True,
             "can_view": False,
-            "following": len(user.following or []) - 1,
-            "followers": len(user.followers or []),
+            "following": len(user.following) - 1,
+            "followers": len(user.followers),
             "bio": user.bio or ""
         }
 
@@ -260,20 +290,20 @@ def api_post_list_user(request, username: str, offset: int=-1) -> tuple | dict:
 
     outputList = []
     for i in potential:
-        outputList.append(get_post_json(i, self_user.user_id if logged_in else 0, cache=cache)) # type: ignore
+        outputList.append(get_post_json(i, self_user.user_id if logged_in else 0, cache=cache))
 
     return {
         "posts": outputList,
         "end": end,
         "private": user.private,
         "can_view": True,
-        "following": len(user.following or []) - 1,
-        "followers": len(user.followers or []),
+        "following": len(user.following) - 1,
+        "followers": len(user.followers),
         "bio": user.bio or "",
-        "self": False if not logged_in else self_user.username == username # type: ignore
+        "self": False if not logged_in else self_user.username == username
     }
 
-def api_post_like_add(request, data: PostID) -> tuple | dict:
+def post_like_add(request, data: PostID) -> tuple | dict:
     # Called when someone likes a post.
 
     token = request.COOKIES.get('token')
@@ -293,9 +323,9 @@ def api_post_like_add(request, data: PostID) -> tuple | dict:
     user = User.objects.get(token=token)
     post = Post.objects.get(post_id=id)
 
-    if user.user_id not in (post.likes or []):
+    if user.user_id not in post.likes:
         user.likes.append([id, False])
-        post.likes.append(user.user_id) # type: ignore
+        post.likes.append(user.user_id)
 
         user.save()
         post.save()
@@ -304,7 +334,7 @@ def api_post_like_add(request, data: PostID) -> tuple | dict:
         "success": True
     }
 
-def api_post_like_remove(request, data: PostID) -> tuple | dict:
+def post_like_remove(request, data: PostID) -> tuple | dict:
     # Called when someone unlikes a post.
 
     token = request.COOKIES.get('token')
@@ -323,21 +353,21 @@ def api_post_like_remove(request, data: PostID) -> tuple | dict:
     user = User.objects.get(token=token)
     post = Post.objects.get(post_id=id)
 
-    if user.user_id in (post.likes or []):
+    if user.user_id in post.likes:
         try:
             user.likes.remove([id, False])
             user.save()
         except ValueError:
             pass
 
-        post.likes.remove(user.user_id) # type: ignore
+        post.likes.remove(user.user_id)
         post.save()
 
     return {
         "success": True
     }
 
-def api_post_delete(request, data: PostID) -> tuple | dict:
+def post_delete(request, data: PostID) -> tuple | dict:
     # Called when someone deletes a post.
 
     token = request.COOKIES.get('token')
@@ -359,13 +389,13 @@ def api_post_delete(request, data: PostID) -> tuple | dict:
 
     if creator or admin:
         creator = User.objects.get(user_id=post.creator)
-        creator.posts.remove(id) # type: ignore
+        creator.posts.remove(id)
         creator.save()
 
         if post.quote:
             try:
                 quoted_post = (Comment if post.quote_is_comment else Post).objects.get(pk=post.quote)
-                quoted_post.quotes.remove(id) # type: ignore
+                quoted_post.quotes.remove(id)
                 quoted_post.save()
 
             except Post.DoesNotExist:

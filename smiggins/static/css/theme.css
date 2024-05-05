@@ -36,6 +36,7 @@
   --crust: #11111b;
 }
 
+[data-theme="oled"][data-color="gray"], [data-theme="oled"] [data-color="gray"], [data-color="gray"] [data-theme="oled"], [data-theme="black"][data-color="gray"], [data-theme="black"] [data-color="gray"], [data-color="gray"] [data-theme="black"] { --accent: #a6adc8; --accent-50: #a6adc880; }
 [data-theme="oled"][data-color="rosewater"], [data-theme="oled"] [data-color="rosewater"], [data-color="rosewater"] [data-theme="oled"], [data-theme="black"][data-color="rosewater"], [data-theme="black"] [data-color="rosewater"], [data-color="rosewater"] [data-theme="black"] { --accent: #f5e0dc; --accent-50: #f5e0dc80; }
 [data-theme="oled"][data-color="flamingo"], [data-theme="oled"] [data-color="flamingo"], [data-color="flamingo"] [data-theme="oled"], [data-theme="black"][data-color="flamingo"], [data-theme="black"] [data-color="flamingo"], [data-color="flamingo"] [data-theme="black"] { --accent: #f2cdcd; --accent-50: #f2cdcd80; }
 [data-theme="oled"][data-color="pink"], [data-theme="oled"] [data-color="pink"], [data-color="pink"] [data-theme="oled"], [data-theme="black"][data-color="pink"], [data-theme="black"] [data-color="pink"], [data-color="pink"] [data-theme="black"] { --accent: #f5c2e7; --accent-50: #f5c2e780; }
@@ -80,6 +81,7 @@ body:not([data-theme]), [data-theme="dark"] {
   --crust: #181926;
 }
 
+body:not([data-theme])[data-color="gray"], body:not([data-theme]) [data-color="gray"], [data-theme="dark"][data-color="gray"], [data-theme="dark"] [data-color="gray"], [data-color="gray"] [data-theme="dark"] { --accent: #a5adcb; --accent-50: #a5adcb80; }
 body:not([data-theme])[data-color="rosewater"], body:not([data-theme]) [data-color="rosewater"], [data-theme="dark"][data-color="rosewater"], [data-theme="dark"] [data-color="rosewater"], [data-color="rosewater"] [data-theme="dark"] { --accent: #f4dbd6; --accent-50: #f4dbd680; }
 body:not([data-theme])[data-color="flamingo"], body:not([data-theme]) [data-color="flamingo"], [data-theme="dark"][data-color="flamingo"], [data-theme="dark"] [data-color="flamingo"], [data-color="flamingo"] [data-theme="dark"] { --accent: #f0c6c6; --accent-50: #f0c6c680; }
 body:not([data-theme])[data-color="pink"], body:not([data-theme]) [data-color="pink"], [data-theme="dark"][data-color="pink"], [data-theme="dark"] [data-color="pink"], [data-color="pink"] [data-theme="dark"] { --accent: #f5bde6; --accent-50: #f5bde680; }
@@ -124,6 +126,7 @@ body:not([data-theme])[data-color="lavender"], body:not([data-theme]) [data-colo
   --crust: #232634;
 }
 
+[data-theme="gray"][data-color="gray"], [data-theme="gray"] [data-color="gray"], [data-color="gray"] [data-theme="gray"] { --accent: #a5adce; --accent-50: #a5adce80; }
 [data-theme="gray"][data-color="rosewater"], [data-theme="gray"] [data-color="rosewater"], [data-color="rosewater"] [data-theme="gray"] { --accent: #f2d5cf; --accent-50: #f2d5cf80; }
 [data-theme="gray"][data-color="flamingo"], [data-theme="gray"] [data-color="flamingo"], [data-color="flamingo"] [data-theme="gray"] { --accent: #eebebe; --accent-50: #eebebe80; }
 [data-theme="gray"][data-color="pink"], [data-theme="gray"] [data-color="pink"], [data-color="pink"] [data-theme="gray"] { --accent: #f4b8e4; --accent-50: #f4b8e480; }
@@ -168,6 +171,7 @@ body:not([data-theme])[data-color="lavender"], body:not([data-theme]) [data-colo
   --crust: #dce0e8;
 }
 
+[data-theme="light"][data-color="gray"], [data-theme="light"] [data-color="gray"], [data-color="gray"] [data-theme="light"] { --accent: #6c6f85; --accent-50: #6c6f8580; }
 [data-theme="light"][data-color="rosewater"], [data-theme="light"] [data-color="rosewater"], [data-color="rosewater"] [data-theme="light"] { --accent: #dc8a78; --accent-50: #dc8a7880; }
 [data-theme="light"][data-color="flamingo"], [data-theme="light"] [data-color="flamingo"], [data-color="flamingo"] [data-theme="light"] { --accent: #dd7878; --accent-50: #dd787880; }
 [data-theme="light"][data-color="pink"], [data-theme="light"] [data-color="pink"], [data-color="pink"] [data-theme="light"] { --accent: #ea76cb; --accent-50: #ea76cb80; }
