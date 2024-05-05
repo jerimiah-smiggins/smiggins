@@ -305,7 +305,7 @@ def badges(request) -> HttpResponse:
         content_type="text/javascript"
     )
 
-def notifications(request) -> HttpResponse: # TODO
+def notifications(request) -> HttpResponse:
     try:
         token: str = request.COOKIES["token"].lower()
         if not validate_token(token):

@@ -7,6 +7,13 @@ showlog = (str, time=3000) => {
   setTimeout(() => { req++; if (req == inc) { dom("error").innerText = ""; }}, time);
 };
 
+const stringMap = {
+  comment: (display_name) => (`${display_name} commented on your post:`),
+  quote: (display_name) => (`${display_name} quoted your post:`),
+  ping_p: (display_name) => (`${display_name} mentioned you in a post:`),
+  ping_c: (display_name) => (`${display_name} mentioned you in a comment:`)
+}
+
 function refresh() {
   dom("notif-container").innerHTML = "";
 
@@ -29,7 +36,7 @@ function refresh() {
             yourMother = true;
           }
 
-          first = false;
+          y.innerHTML += escapeHTML(stringMap[notif.event_type](notif.data.creator.display_name)) + "<br>";
 
           y.innerHTML += getPostHTML(
             notif.data.content,          // content
@@ -53,6 +60,8 @@ function refresh() {
 
           x.append(y);
           x.append(document.createElement("br"));
+
+          first = false;
         }
 
         dom("notif-container").append(x);

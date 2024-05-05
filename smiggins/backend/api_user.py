@@ -1,7 +1,7 @@
 # For API functions that are user-specific, like settings, following, etc.
 
 from ._settings import API_TIMINGS, DEFAULT_BANNER_COLOR, MAX_USERNAME_LENGTH, MAX_BIO_LENGTH, MAX_DISPL_NAME_LENGTH
-from .packages  import User, Notification, Schema
+from .packages  import User, Post, Comment, Notification, Schema
 from .helper    import validate_username, trim_whitespace, create_api_ratelimit, ensure_ratelimit, generate_token, get_post_json
 
 class Username(Schema):
@@ -345,7 +345,7 @@ def block_remove(request, data: Username) -> tuple | dict:
         "success": True
     }
 
-def read_notifs(request) -> tuple | dict: # TODO
+def read_notifs(request) -> tuple | dict:
     try:
         token = request.COOKIES.get('token')
         self_user = User.objects.get(token=token)
@@ -377,7 +377,7 @@ def read_notifs(request) -> tuple | dict: # TODO
         "success": True
     }
 
-def notifications_list(request) -> tuple | dict: # TODO
+def notifications_list(request) -> tuple | dict:
     try:
         token = request.COOKIES.get('token')
         self_user = User.objects.get(token=token)
@@ -402,12 +402,17 @@ def notifications_list(request) -> tuple | dict: # TODO
         except Notification.DoesNotExist:
             continue
 
-        notifs_list.append({
-            "event_type": notification.event_type,
-            "read": notification.read,
-            "timestamp": notification.timestamp,
-            "data": get_post_json(notification.event_id, self_user.user_id, notification.event_type in ["comment", "ping_c"], cache)
-        })
+        try:
+            notifs_list.append({
+                "event_type": notification.event_type,
+                "read": notification.read,
+                "timestamp": notification.timestamp,
+                "data": get_post_json(notification.event_id, self_user.user_id, notification.event_type in ["comment", "ping_c"], cache)
+            })
+        except Post.DoesNotExist:
+            continue
+        except Comment.DoesNotExist:
+            continue
 
     return {
         "success": True,

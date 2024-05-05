@@ -772,7 +772,7 @@ For `/c/...` pages
 def contact(
   request: django.core.handlers.wsgi.WSGIRequest
 ) -> HttpResponse
-````
+```
 For the `/contact` page
 
 ```py

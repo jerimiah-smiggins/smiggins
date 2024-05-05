@@ -132,18 +132,14 @@ def quote_create(request, data: NewQuote) -> tuple | dict:
     user.save()
 
     try:
-        print(user.user_id)
-        print(User.objects.get(pk = quoted_post.creator).blocking)
-
-        print(str(quoted_post.creator != user.user_id) + " and " + str(user.user_id not in User.objects.get(pk = quoted_post.creator).blocking))
-        if (quoted_post.creator != user.user_id) and (user.user_id not in User.objects.get(pk = quoted_post.creator).blocking):
+        if quoted_post.creator != user.user_id and user.user_id not in User.objects.get(pk=quoted_post.creator).blocking:
             create_notification(
                 User.objects.get(user_id=quoted_post.creator),
-                "quote_" + ("p" if isinstance(quoted_post, Post) else "c"),
+                "quote",
                 post.post_id
             )
     except User.DoesNotExist:
-        print("how")
+        pass
 
     return 201, {
         "success": True,

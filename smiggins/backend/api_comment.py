@@ -86,7 +86,7 @@ def comment_create(request, data: NewComment) -> tuple | dict:
         try:
             notif_for = User.objects.get(username=i.lower())
             if user.user_id not in notif_for.blocking:
-                create_notification(notif_for, "ping_p", comment.comment_id)
+                create_notification(notif_for, "ping_c", comment.comment_id)
 
         except User.DoesNotExist:
             pass
