@@ -8,19 +8,25 @@
     {{ HTML_HEADERS }}
     {% endautoescape %}
 
-    <meta name="description" content="{{ USER_BIO }}">
     <meta name="author" content="{{ DISPLAY_NAME }}">
+    <meta name="description" content="{{ BIO }}
+
+Followers: {{ FOLLOWERS }} // Following: {{ FOLLOWING }}">
 
     <meta property="og:type" content="website">
     <meta property="og:title" content="{{ DISPLAY_NAME }} on {{ SITE_NAME }}">
-    <meta property="og:description" content="{{ USER_BIO }}">
+    <meta property="og:description" content="{{ BIO }}
+
+Followers: {{ FOLLOWERS }} // Following: {{ FOLLOWING }}">
 
     <meta name="twitter:card" content="summary_large_image">
     <meta name="twitter:title" content="{{ DISPLAY_NAME }} on {{ SITE_NAME }}">
-    <meta name="twitter:description" content="{{ USER_BIO }}">
+    <meta name="twitter:description" content="{{ BIO }}
 
-    <link rel="stylesheet" href="{% static '/css/home.css' %}">
-    <link rel="stylesheet" href="{% static '/css/user.css' %}">
+Followers: {{ FOLLOWERS }} // Following: {{ FOLLOWING }}">
+
+    <link rel="stylesheet" href="{% static '/css/home.css' %}?v={{ VERSION }}">
+    <link rel="stylesheet" href="{% static '/css/user.css' %}?v={{ VERSION }}">
   </head>
 
   <body data-theme="{{ THEME }}" data-username="{{ USERNAME }}" style="--banner: {{ BANNER_COLOR }}; --banner-two: {{ BANNER_COLOR_TWO }}">
@@ -58,8 +64,8 @@
       }
     </script>
 
-    <script src="{% static '/js/user.js' %}"></script>
-    <script src="{% static '/js/timeline.js' %}"></script>
+    <script src="{% static '/js/user.js' %}?v={{ VERSION }}"></script>
+    <script src="{% static '/js/timeline.js' %}?v={{ VERSION }}"></script>
     {% autoescape off %}
     {{ HTML_FOOTERS }}
     {% endautoescape %}

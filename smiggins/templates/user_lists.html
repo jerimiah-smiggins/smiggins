@@ -8,9 +8,9 @@
     {{ HTML_HEADERS }}
     {% endautoescape %}
 
-    <link rel="stylesheet" href="{% static '/css/home.css' %}">
-    <link rel="stylesheet" href="{% static '/css/user.css' %}">
-    <link rel="stylesheet" href="{% static '/css/user_lists.css' %}">
+    <link rel="stylesheet" href="{% static '/css/home.css' %}?v={{ VERSION }}">
+    <link rel="stylesheet" href="{% static '/css/user.css' %}?v={{ VERSION }}">
+    <link rel="stylesheet" href="{% static '/css/user_lists.css' %}?v={{ VERSION }}">
   </head>
 
   <body data-theme="{{ THEME }}" data-username="{{ USERNAME }}" style="--banner: {{ BANNER_COLOR }}; --banner-two: {{ BANNER_COLOR_TWO }}">

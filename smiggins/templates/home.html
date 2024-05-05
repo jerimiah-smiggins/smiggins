@@ -7,7 +7,7 @@
     {% autoescape off %}
     {{ HTML_HEADERS }}
     {% endautoescape %}
-    <link rel="stylesheet" href="{% static '/css/home.css' %}">
+    <link rel="stylesheet" href="{% static '/css/home.css' %}?v={{ VERSION }}">
   </head>
 
   <body data-theme="{{ THEME }}">
@@ -19,8 +19,8 @@
     <div id="posts"></div>
     <button id="more" onclick="refresh(true)" hidden>Load more...</button>
 
-    <script src="{% static '/js/home.js' %}"></script>
-    <script src="{% static '/js/timeline.js' %}"></script>
+    <script src="{% static '/js/home.js' %}?v={{ VERSION }}"></script>
+    <script src="{% static '/js/timeline.js' %}?v={{ VERSION }}"></script>
     {% autoescape off %}
     {{ HTML_FOOTERS }}
     {% endautoescape %}
