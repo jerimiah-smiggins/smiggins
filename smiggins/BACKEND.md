@@ -2,8 +2,6 @@
 Docs for the backend. This contains descriptions of every function defined in
 any of the files in the backend.
 
-<!-- doesn't have the admin set level function for some reason ill add that later -->
-
 ## ./manage.py
 This file is auto-created when making a django project. To see what this file
 does, you can read the django docs or run the file like you would a normal
@@ -783,6 +781,20 @@ def admin(
 For the `/admin` page
 
 ```py
+def badges(
+  request: django.core.handlers.wsgi.WSGIRequest
+) -> HttpResponse
+```
+Returns the javascript file for the badges list.
+
+```py
+def notifications(
+  request: django.core.handlers.wsgi.WSGIRequest
+) -> HttpResponse
+```
+For the `/notifications` page
+
+```py
 def _404(
   request: django.core.handlers.wsgi.WSGIRequest,
   exception: django.urls.exceptions.Resolver404
@@ -791,13 +803,6 @@ def _404(
 The function called when you receive a 404 page. 404 pages only show up on
 production servers, and on development servers you instead see the django
 traceback 404 page.
-
-```py
-def badges(
-  request: django.core.handlers.wsgi.WSGIRequest
-) -> HttpResponse
-```
-Returns the javascript file for the badges list.
 
 ```py
 def _500(
