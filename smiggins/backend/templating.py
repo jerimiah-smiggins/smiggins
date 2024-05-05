@@ -133,18 +133,28 @@ def user_lists(request, username: str) -> HttpResponse | HttpResponseRedirect:
             })
 
     blocking = []
+    removed_deleted_accounts = []
     if logged_in and username == self_object.username:
         for i in user.blocking:
-            if i != user.user_id:
-                f_user = User.objects.get(user_id=i)
-                blocking.append({
-                    "user_id": i,
-                    "username": f_user.username,
-                    "display_name": f_user.display_name,
-                    "bio": f_user.bio or "\n\n\n",
-                    "private": str(f_user.private).lower(),
-                    "badges": get_badges(f_user)
-                })
+            try:
+                if i != user.user_id:
+                    f_user = User.objects.get(user_id=i)
+                    removed_deleted_accounts.append(i)
+                    blocking.append({
+                        "user_id": i,
+                        "username": f_user.username,
+                        "display_name": f_user.display_name,
+                        "bio": f_user.bio or "\n\n\n",
+                        "private": str(f_user.private).lower(),
+                        "badges": get_badges(f_user)
+                    })
+
+            except User.DoesNotExist:
+                continue
+
+        if removed_deleted_accounts != user.blocking:
+            user.blocking = removed_deleted_accounts
+            user.save()
 
     return get_HTTP_response(
         request, "user_lists.html",
