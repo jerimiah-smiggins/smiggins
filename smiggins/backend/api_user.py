@@ -262,7 +262,7 @@ def follower_remove(request, data: Username) -> tuple | dict:
             user.save()
 
         if user.user_id in followed.followers:
-            followed.followers.remove(user.user_id) # type: ignore
+            followed.followers.remove(user.user_id)
             followed.save()
     else:
         return 400, {
@@ -290,13 +290,18 @@ def block_add(request, data: Username) -> tuple | dict:
     if user.username == username:
         return 400, {
             "success": False,
-            "reason": "You cannot block youriditot!"
+            "reason": "Huh? Look, I get you hate yourself, but I can't let you do that."
         }
 
     blocked = User.objects.get(username=username)
+
     if blocked.user_id not in user.blocking:
         if blocked.user_id in user.following:
             user.following.remove(blocked.user_id)
+
+        if user.user_id in blocked.followers:
+            user.followers.remove(user.user_id)
+            user.save()
 
         user.blocking.append(blocked.user_id) # type: ignore
         user.save()

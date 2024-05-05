@@ -132,7 +132,7 @@ def quote_create(request, data: NewQuote) -> tuple | dict:
     user.save()
 
     try:
-        if quoted_post.creator != user.user_id:
+        if (quoted_post.creator != user.user_id) and (quoted_post.creator not in user.blocking):
             create_notification(
                 User.objects.get(user_id=quoted_post.creator),
                 "quote_" + ("p" if isinstance(quoted_post, Post) else "c"),
