@@ -70,8 +70,8 @@ def user(request, username: str) -> HttpResponse:
         PRONOUNS = user.pronouns,
 
         BIO = user.bio,
-        FOLLOWERS = user.followers,
-        FOLLOWING = user.following,
+        FOLLOWERS = len(user.followers),
+        FOLLOWING = len(user.following),
 
         BADGES = "".join([f"<span class='user-badge' data-add-badge='{i}'></span> " for i in get_badges(user)]),
 
