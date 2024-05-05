@@ -433,6 +433,11 @@ class Account(Username)
 The schema that has both a username and a password
 
 ```py
+class ChangePassword(Schema)
+```
+The schema used for changing passwords
+
+```py
 class Theme(Schema)
 ```
 The schema for changing themes
@@ -513,6 +518,15 @@ def block_remove(
 ```
 This handles unblocking someone. Called on a DELETE request to
 `/api/user/block`.
+
+```py
+def change_password(
+  request: django.core.handlers.wsgi.WSGIRequest,
+  data: ChangePassword
+) -> tuple | dict
+```
+This handles changing your password. Called on a PATCH request to
+`/api/user/password`
 
 ```py
 def read_notifs(
