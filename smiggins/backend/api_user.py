@@ -10,6 +10,10 @@ class Username(Schema):
 class Account(Username):
     password: str
 
+class ChangePassword(Schema):
+    password: str
+    new_password: str
+
 class Theme(Schema):
     theme: str
 
@@ -343,6 +347,47 @@ def block_remove(request, data: Username) -> tuple | dict:
 
     return 201, {
         "success": True
+    }
+
+def change_password(request, data: ChangePassword) -> tuple | dict:
+    try:
+        user = User.objects.get(token=request.COOKIES.get("token"))
+    except User.DoesNotExist:
+        return 400, {
+            "success": False
+        }
+
+    if len(data.password) != 64:
+        return 400, {
+            "success": False
+        }
+
+    for i in data.password:
+        if i not in "abcdef0123456789":
+            return 400, {
+                "success": False
+            }
+
+    if data.password == "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855":
+        return 400, {
+            "success": False,
+            "reason": "Password cannot be empty!"
+        }
+
+    if generate_token(user.username, data.password) != request.COOKIES.get("token"):
+        return 400, {
+            "success": False,
+            "reason": "Old password doesn't match!"
+        }
+
+    new_token = generate_token(user.username, data.new_password)
+
+    user.token = new_token
+    user.save()
+
+    return 200, {
+        "success": True,
+        "token": new_token
     }
 
 def read_notifs(request) -> tuple | dict:

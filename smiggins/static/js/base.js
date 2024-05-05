@@ -164,7 +164,7 @@ function getPostHTML(
             ${escapeHTML(displayName)} ${isPrivate ? `<span class="user-badge">${icons.lock}</span>` : ""}
             ${badgeData.length ? `<span class="user-badge">${badgeData.map((icon) => (badges[icon])).join("</span> <span class=\"user-badge\">")}</span>` : ""}
           </div>
-          <span class="upper-lower-opacity"> -
+          <span class="upper-lower-opacity">
             <div class="username">@${username}</div> -
             ${pronouns[userPronouns] ? `<div class="pronouns">${pronouns[userPronouns]}</div> -` : ""}
             <div class="timestamp">${timeSince(timestamp)} ago</div>
@@ -178,9 +178,9 @@ function getPostHTML(
             linkifyHtml(escapeHTML(content), {
               formatHref: { mention: (href) => fakeMentions ? "#" : "/u" + href }
             }).replaceAll("\n", "<br>")
-              .replaceAll("<a", includePostLink ? "  \n" : "<a")
+              .replaceAll("<a", includePostLink ? "  \n" : "<a target=\"_blank\"")
               .replaceAll("</a>", includePostLink ? `</a><a href="/${isComment ? "c" : "p"}/${postID}" tabindex="-1" class="text no-underline">` : "</a>")
-              .replaceAll("  \n", "</a><a")
+              .replaceAll("  \n", "</a><a target=\"_blank\"")
               .replaceAll(`<a href="/${isComment ? "c" : "p"}/${postID}" tabindex="-1" class="text no-underline"></a>`, "")
           }
         ${includePostLink ? "</a>" : ""}
@@ -198,7 +198,7 @@ function getPostHTML(
                         ${escapeHTML(quote.creator.display_name)} ${quote.creator.private ? `<span class="user-badge">${icons.lock}</span>` : ""}
                         ${badgeData.length ? `<span class="user-badge">${quote.creator.badges.map((icon) => (badges[icon])).join("</span> <span class=\"user-badge\">")}</span>` : ""}
                       </div>
-                      <span class="upper-lower-opacity"> -
+                      <span class="upper-lower-opacity">
                         <div class="username">@${quote.creator.username}</div> -
                         ${pronouns[quote.creator.pronouns] ? `<div class="pronouns">${pronouns[quote.creator.pronouns]}</div> -` : ""}
                         <div class="timestamp">${timeSince(quote.timestamp)} ago</div>
@@ -214,7 +214,7 @@ function getPostHTML(
                         }).replaceAll("\n", "<br>")
                           .replaceAll("<a", "  \n")
                           .replaceAll("</a>", `</a><a href="/${quote.comment ? "c" : "p"}/${quote.post_id}" class="text no-underline">`)
-                          .replaceAll("  \n", "</a><a")
+                          .replaceAll("  \n", "</a><a target=\"_blank\"")
                           .replaceAll(`<a href="/${quote.comment ? "c" : "p"}/${quote.post_id}" class="text no-underline"></a>`, "")
                       }
 

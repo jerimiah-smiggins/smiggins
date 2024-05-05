@@ -210,3 +210,72 @@ dom("acc-remove").addEventListener("click", function() {
 
 dom("pronouns-primary").addEventListener("input", updatePronouns);
 dom("pronouns-secondary").addEventListener("input", updatePronouns);
+
+dom("toggle-password").addEventListener("click", function() {
+  newType = dom("password").getAttribute("type") === "password" ? "text" : "password";
+
+  dom("current").setAttribute("type", newType);
+  dom("password").setAttribute("type", newType);
+  dom("confirm").setAttribute("type", newType);
+})
+
+dom("set-password").addEventListener("click", function() {
+  old_password = sha256(dom("current").value);
+  password = sha256(dom("password").value)
+
+  if (password !== sha256(dom("confirm").value)) {
+    showlog("Passwords don't match!");
+    return;
+  }
+
+  this.setAttribute("disabled", "");
+  fetch("/api/user/password", {
+    method: "PATCH",
+    body: JSON.stringify({
+      password: old_password,
+      new_password: password
+    })
+  }).then((response) => (response.json()))
+    .then((json) => {
+      if (json.success) {
+        setCookie("token", json.token);
+
+        let switcher = JSON.parse(localStorage.getItem("acc-switcher"));
+        for (let i = 0; i < switcher.length; i++) {
+          if (switcher[i][1] == currentAccount) {
+            switcher[i][1] = json.token;
+          }
+        }
+        localStorage.setItem("acc-switcher", JSON.stringify(switcher));
+
+        showlog("Your password has been changed!", 5000);
+      } else {
+        showlog(`Unable to set your password! ${json.reason}`);
+      }
+
+      this.removeAttribute("disabled");
+    }).catch((err) => {
+      this.removeAttribute("disabled");
+      showlog("Something went wrong! Try again in a few moments...");
+      throw err;
+    });
+});
+
+dom("current").addEventListener("keydown", function(event) {
+  if (event.key == "Enter" || event.keyCode == 18) {
+    dom("password").focus();
+  }
+});
+
+dom("password").addEventListener("keydown", function(event) {
+  if (event.key == "Enter" || event.keyCode == 18) {
+    dom("confirm").focus();
+  }
+});
+
+dom("confirm").addEventListener("keydown", function(event) {
+  if (event.key == "Enter" || event.keyCode == 18) {
+    dom("set-password").focus();
+    dom("set-password").click();
+  }
+});

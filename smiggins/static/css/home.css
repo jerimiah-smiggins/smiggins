@@ -7,12 +7,19 @@ button {
   width: calc(32em - 10px);
   position: relative;
   top: 2.6em;
-  height: 11em;
+  height: 6em;
+  transition: height 0.25s;
 }
 
 #post-text {
   width: 35em;
   resize: none;
+  height: 6em;
+  transition: height 0.25s;
+}
+
+#post-text:focus,
+.post-text:focus {
   height: 11em;
 }
 
@@ -79,8 +86,7 @@ button {
 
 .username,
 .pronouns,
-.timestamp,
-.displ-name {
+.timestamp {
   display: inline-block;
 }
 

@@ -30,18 +30,18 @@ def set_timeout(callback: Callable, delay_ms: Union[int, float]) -> None:
 
 def get_HTTP_response(request, file: str, **kwargs: Any) -> HttpResponse:
     context = {
-        "SITE_NAME" : SITE_NAME,
-        "VERSION" : VERSION,
-        "HIDE_SOURCE" : "" if SOURCE_CODE else "hidden",
+        "SITE_NAME": SITE_NAME,
+        "VERSION": VERSION,
+        "SOURCE": str(SOURCE_CODE).lower(),
 
-        "HTML_HEADERS" : HTML_HEADERS,
-        "HTML_FOOTERS" : HTML_FOOTERS,
+        "HTML_HEADERS": HTML_HEADERS,
+        "HTML_FOOTERS": HTML_FOOTERS,
 
-        "MAX_DISPL_NAME_LENGTH" : MAX_DISPL_NAME_LENGTH,
-        "MAX_POST_LENGTH" : MAX_POST_LENGTH,
-        "MAX_USERNAME_LENGTH" : MAX_USERNAME_LENGTH,
+        "MAX_DISPL_NAME_LENGTH": MAX_DISPL_NAME_LENGTH,
+        "MAX_POST_LENGTH": MAX_POST_LENGTH,
+        "MAX_USERNAME_LENGTH": MAX_USERNAME_LENGTH,
 
-        "THEME" : User.objects.get(token=request.COOKIES.get('token')).theme if validate_token(request.COOKIES.get('token')) else "dark"
+        "THEME": User.objects.get(token=request.COOKIES.get('token')).theme if validate_token(request.COOKIES.get('token')) else "dark"
     }
 
     for key, value in kwargs.items():

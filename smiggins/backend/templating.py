@@ -1,6 +1,6 @@
 # For getting pages, not api.
 
-from ._settings import DEFAULT_BANNER_COLOR, MAX_BIO_LENGTH, OWNER_USER_ID, CONTACT_INFO
+from ._settings import DEFAULT_BANNER_COLOR, MAX_BIO_LENGTH, OWNER_USER_ID, CONTACT_INFO, SOURCE_CODE
 from .variables import BADGE_DATA
 from .packages  import User, Post, Comment, HttpResponse, HttpResponseRedirect, json
 from .helper    import validate_token, get_HTTP_response, get_post_json, get_badges
@@ -36,7 +36,7 @@ def settings(request) -> HttpResponse:
         SELECTED_IF_BLACK = "selected" if user.theme == "black" else "",
         SELECTED_IF_OLED  = "selected" if user.theme == "oled"  else "",
 
-        ADMIN = "<a href='/admin'>Admin page</a><br>" if user.user_id == OWNER_USER_ID or user.admin_level >= 1 else ""
+        ADMIN = str(user.user_id == OWNER_USER_ID or user.admin_level >= 1).lower()
     )
 
 def user(request, username: str) -> HttpResponse:
@@ -133,18 +133,28 @@ def user_lists(request, username: str) -> HttpResponse | HttpResponseRedirect:
             })
 
     blocking = []
+    removed_deleted_accounts = []
     if logged_in and username == self_object.username:
         for i in user.blocking:
-            if i != user.user_id:
-                f_user = User.objects.get(user_id=i)
-                blocking.append({
-                    "user_id": i,
-                    "username": f_user.username,
-                    "display_name": f_user.display_name,
-                    "bio": f_user.bio or "\n\n\n",
-                    "private": str(f_user.private).lower(),
-                    "badges": get_badges(f_user)
-                })
+            try:
+                if i != user.user_id:
+                    f_user = User.objects.get(user_id=i)
+                    removed_deleted_accounts.append(i)
+                    blocking.append({
+                        "user_id": i,
+                        "username": f_user.username,
+                        "display_name": f_user.display_name,
+                        "bio": f_user.bio or "\n\n\n",
+                        "private": str(f_user.private).lower(),
+                        "badges": get_badges(f_user)
+                    })
+
+            except User.DoesNotExist:
+                continue
+
+        if removed_deleted_accounts != user.blocking:
+            user.blocking = removed_deleted_accounts
+            user.save()
 
     return get_HTTP_response(
         request, "user_lists.html",
