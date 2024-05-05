@@ -71,7 +71,7 @@ def user(request, username: str) -> HttpResponse:
 
         BIO = user.bio,
         FOLLOWERS = len(user.followers),
-        FOLLOWING = len(user.following),
+        FOLLOWING = len(user.following) - 1,
 
         BADGES = "".join([f"<span class='user-badge' data-add-badge='{i}'></span> " for i in get_badges(user)]),
 
