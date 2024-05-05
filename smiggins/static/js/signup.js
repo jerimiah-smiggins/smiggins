@@ -17,7 +17,6 @@ dom("toggle-password").addEventListener("click", function() {
 });
 
 dom("submit").addEventListener("click", function() {
-  this.setAttribute("disabled", "");
   username = dom("username").value;
   password = sha256(dom("password").value)
 
@@ -26,6 +25,7 @@ dom("submit").addEventListener("click", function() {
     return;
   }
 
+  this.setAttribute("disabled", "");
   fetch("/api/user/signup", {
     method: "POST",
     headers: {

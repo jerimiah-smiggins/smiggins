@@ -1,6 +1,6 @@
 # For getting pages, not api.
 
-from ._settings import DEFAULT_BANNER_COLOR, MAX_BIO_LENGTH, OWNER_USER_ID, CONTACT_INFO
+from ._settings import DEFAULT_BANNER_COLOR, MAX_BIO_LENGTH, OWNER_USER_ID, CONTACT_INFO, SOURCE_CODE
 from .variables import BADGE_DATA
 from .packages  import User, Post, Comment, HttpResponse, HttpResponseRedirect, json
 from .helper    import validate_token, get_HTTP_response, get_post_json, get_badges
@@ -36,7 +36,7 @@ def settings(request) -> HttpResponse:
         SELECTED_IF_BLACK = "selected" if user.theme == "black" else "",
         SELECTED_IF_OLED  = "selected" if user.theme == "oled"  else "",
 
-        ADMIN = "<a href='/admin'>Admin page</a><br>" if user.user_id == OWNER_USER_ID or user.admin_level >= 1 else ""
+        ADMIN = str(user.user_id == OWNER_USER_ID or user.admin_level >= 1).lower()
     )
 
 def user(request, username: str) -> HttpResponse:

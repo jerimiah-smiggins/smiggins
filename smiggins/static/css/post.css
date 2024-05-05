@@ -5,3 +5,12 @@
 #parent {
   margin-bottom: 1.5em;
 }
+
+#post-text {
+  height: 3em;
+  transition: height 0.25s;
+}
+
+#post-text:focus {
+  height: 6em;
+}

@@ -2,7 +2,7 @@ from .api_admin import account_info, account_save, badge_add, badge_create, badg
 from .api_comment import comment_create, comment_delete, comment_like_add, comment_like_remove, comment_list
 from .api_info import notifications, username
 from .api_post import post_create, post_delete, post_like_add, post_like_remove, post_list_following, post_list_recent, post_list_user, quote_create
-from .api_user import block_add, block_remove, follower_add, follower_remove, login, notifications_list, read_notifs, settings, settings_theme, signup
+from .api_user import block_add, block_remove, change_password, follower_add, follower_remove, login, notifications_list, read_notifs, settings, settings_theme, signup
 
 class ApiAdmin:
     account_info = account_info
@@ -39,6 +39,7 @@ class ApiPost:
 class ApiUser:
     block_add = block_add
     block_remove = block_remove
+    change_password = change_password
     follower_add = follower_add
     follower_remove = follower_remove
     login = login
