@@ -19,7 +19,7 @@ class Settings(Schema):
     color: str
     pronouns: str
     color_two: str
-    displ_name : str
+    displ_name: str
     is_gradient: bool
 
 def signup(request, data: Account) -> tuple | dict:
@@ -127,7 +127,7 @@ def login(request, data: Account) -> tuple | dict:
         create_api_ratelimit("api_account_login", API_TIMINGS["login unsuccessful"], request.META.get('REMOTE_ADDR'))
         return {
             "valid": False,
-            "reason": f"Account with username {username} doesn't exist."
+            "reason": f"Account with username '{username}' doesn't exist."
         }
 
 def settings_theme(request, data: Theme) -> tuple | dict:
@@ -218,7 +218,7 @@ def follower_add(request, data: Username) -> tuple | dict:
     if not validate_username(username):
         return 400, {
             "valid": False,
-            "reason": f"Account with username {username} doesn't exist."
+            "reason": f"Account with username '{username}' doesn't exist."
         }
 
     user = User.objects.get(token=token)
@@ -251,7 +251,7 @@ def follower_remove(request, data: Username) -> tuple | dict:
     if not validate_username(username):
         return 400, {
             "valid": False,
-            "reason": f"Account with username {username} doesn't exist."
+            "reason": f"Account with username '{username}' doesn't exist."
         }
 
     user = User.objects.get(token=token)
@@ -282,7 +282,7 @@ def block_add(request, data: Username) -> tuple | dict:
     if not validate_username(username):
         return 400, {
             "success": False,
-            "reason": f"Account with username {username} doesn't exist."
+            "reason": f"Account with username '{username}' doesn't exist."
         }
 
     user = User.objects.get(token=token)
@@ -319,7 +319,7 @@ def block_remove(request, data: Username) -> tuple | dict:
     if not validate_username(username):
         return 400, {
             "success": False,
-            "reason": f"Account with username {username} doesn't exist."
+            "reason": f"Account with username '{username}' doesn't exist."
         }
 
     user = User.objects.get(token=token)

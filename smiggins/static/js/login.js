@@ -51,3 +51,16 @@ dom("submit").addEventListener("click", function() {
       throw(err);
     });
 });
+
+dom("username").addEventListener("keydown", function(event) {
+  if (event.key == "Enter" || event.keyCode == 18) {
+    dom("password").focus();
+  }
+});
+
+dom("password").addEventListener("keydown", function(event) {
+  if (event.key == "Enter" || event.keyCode == 18) {
+    dom("submit").focus();
+    dom("submit").click();
+  }
+});
