@@ -300,8 +300,8 @@ def block_add(request, data: Username) -> tuple | dict:
             user.following.remove(blocked.user_id)
 
         if user.user_id in blocked.followers:
-            user.followers.remove(user.user_id)
-            user.save()
+            blocked.followers.remove(user.user_id)
+            blocked.save()
 
         user.blocking.append(blocked.user_id) # type: ignore
         user.save()
