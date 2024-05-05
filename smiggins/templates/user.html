@@ -25,8 +25,8 @@ Followers: {{ FOLLOWERS }} // Following: {{ FOLLOWING }}">
 
 Followers: {{ FOLLOWERS }} // Following: {{ FOLLOWING }}">
 
-    <link rel="stylesheet" href="{% static '/css/home.css' %}">
-    <link rel="stylesheet" href="{% static '/css/user.css' %}">
+    <link rel="stylesheet" href="{% static '/css/home.css' %}?v={{ VERSION }}">
+    <link rel="stylesheet" href="{% static '/css/user.css' %}?v={{ VERSION }}">
   </head>
 
   <body data-theme="{{ THEME }}" data-username="{{ USERNAME }}" style="--banner: {{ BANNER_COLOR }}; --banner-two: {{ BANNER_COLOR_TWO }}">
@@ -64,8 +64,8 @@ Followers: {{ FOLLOWERS }} // Following: {{ FOLLOWING }}">
       }
     </script>
 
-    <script src="{% static '/js/user.js' %}"></script>
-    <script src="{% static '/js/timeline.js' %}"></script>
+    <script src="{% static '/js/user.js' %}?v={{ VERSION }}"></script>
+    <script src="{% static '/js/timeline.js' %}?v={{ VERSION }}"></script>
     {% autoescape off %}
     {{ HTML_FOOTERS }}
     {% endautoescape %}

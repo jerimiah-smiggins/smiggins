@@ -7,8 +7,8 @@
     {% autoescape off %}
     {{ HTML_HEADERS }}
     {% endautoescape %}
-    <link rel="stylesheet" href="{% static '/css/home.css' %}">
-    <link rel="stylesheet" href="{% static '/css/settings.css' %}">
+    <link rel="stylesheet" href="{% static '/css/home.css' %}?v={{ VERSION }}">
+    <link rel="stylesheet" href="{% static '/css/settings.css' %}?v={{ VERSION }}">
   </head>
 
   <body data-theme="{{ THEME }}" style="--banner: {{ BANNER_COLOR }}; --banner-two: {{ BANNER_COLOR_TWO }}">
@@ -108,7 +108,7 @@
     <a href="https://github.com/trinkey/social-media-thing" target="_blank" {{ HIDE_SOURCE }}>Source code</a><br {{ HIDE_SOURCE }}>
     <a href="/logout">Log out of ALL accounts</a>
 
-    <script src="{% static '/js/settings.js' %}"></script>
+    <script src="{% static '/js/settings.js' %}?v={{ VERSION }}"></script>
     {% autoescape off %}
     {{ HTML_FOOTERS }}
     {% endautoescape %}

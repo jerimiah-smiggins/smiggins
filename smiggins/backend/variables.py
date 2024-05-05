@@ -3,7 +3,7 @@
 # this file if you want.
 
 from ._api_keys import auth_key
-from ._settings import MAX_POST_LENGTH, ADMIN_LOG_PATH
+from ._settings import MAX_POST_LENGTH, ADMIN_LOG_PATH, VERSION
 from .packages  import Badge, hashlib, ensure_file, pathlib
 from django.db.utils import OperationalError
 
@@ -19,21 +19,21 @@ except FileNotFoundError:
 HTML_HEADERS: str = f"""
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
-<link rel="stylesheet" href="/static/css/base.css">
-<link rel="icon" href="/static/img/favicon.ico" type="image/x-icon">
-<script src="/static/js/linkify-4.1.3.min.js"></script>
-<script src="/static/js/linkify-html-4.1.3.min.js"></script>
-<script src="/static/js/linkify-mentions-4.1.3.min.js"></script>
-<script src="/badges.js"></script>
-<script src="/static/js/base.js"></script>
+<link rel="stylesheet" href="/static/css/base.css?v={VERSION}">
+<link rel="icon" href="/static/img/favicon.ico?v={VERSION}" type="image/x-icon">
+<script src="/static/js/linkify-4.1.3.min.js?v={VERSION}"></script>
+<script src="/static/js/linkify-html-4.1.3.min.js?v={VERSION}"></script>
+<script src="/static/js/linkify-mentions-4.1.3.min.js?v={VERSION}"></script>
+<script src="/badges.js?v={VERSION}"></script>
+<script src="/static/js/base.js?v={VERSION}"></script>
 <script>
   const MAX_POST_LENGTH = {MAX_POST_LENGTH};
 </script>
 """
 
 # Headers set at the bottom of some html files.
-HTML_FOOTERS: str = """
-<script src="/static/js/base_footer.js"></script>
+HTML_FOOTERS: str = f"""
+<script src="/static/js/base_footer.js?v={VERSION}"></script>
 """
 
 # Used when hashing user tokens
