@@ -299,7 +299,7 @@ def post_list_user(request, username: str, offset: int=-1) -> tuple | dict:
         outputList.append(get_post_json(i, self_user.user_id if logged_in else 0, cache=cache))
 
     try:
-        pinned_post = get_post_json(user.pinned, self_user.user_id, False, cache)
+        pinned_post = get_post_json(user.pinned, self_user.user_id if logged_in else 0, False, cache)
     except Post.DoesNotExist:
         pinned_post = {}
 
