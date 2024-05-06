@@ -59,6 +59,9 @@ api.delete("post/like",    response=response_schema)(ApiPost.post_like_remove)
 api.post  ("comment/like", response=response_schema)(ApiComment.comment_like_add)
 api.delete("comment/like", response=response_schema)(ApiComment.comment_like_remove)
 
+api.patch ("user/pin", response=response_schema)(ApiPost.pin_post)
+api.delete("user/pin", response=response_schema)(ApiPost.unpin_post)
+
 # Admin stuff
 api.get   ("admin/info",     response=response_schema)(ApiAdmin.account_info)
 api.delete("admin/user",     response=response_schema)(ApiAdmin.user_delete)

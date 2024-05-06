@@ -28,10 +28,8 @@ if (logged_in) {
   fetch("/api/info/notifications")
     .then((response) => (response.json()))
     .then((json) => {
-      console.log(json);
       if (json.success && json.notifications) {
         [...document.querySelectorAll("[data-add-notification-dot]")].forEach((val, index) => {
-          console.log(val);
           val.classList.add("dot");
         });
       }

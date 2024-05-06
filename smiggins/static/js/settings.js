@@ -45,13 +45,27 @@ localStorage.setItem("acc-switcher", JSON.stringify(accounts));
 
 dom("color-selector").innerHTML = output;
 dom("post-example").innerHTML = getPostHTML(
-  "This is an example post. I am @example.",
-  0, "example", "Example", "aa",
-  Date.now() / 1000 - Math.random() * 86400,
-  Math.floor(Math.random() * 100),
-  Math.floor(Math.random() * 99) + 1,
-  Math.floor(Math.random() * 100), undefined,
-  true, false, false, false, false, false, ["administrator"], true
+  {
+    "creator": {
+      "display_name": "Example",
+      "username": "example",
+      "badges": ["administrator"],
+      "private": false,
+      "pronouns": "aa"
+    },
+    "post_id": 0,
+    "content": "This is an example post. I am @example.",
+    "timestamp": Date.now() / 1000 - Math.random() * 86400,
+    "liked": true,
+    "likes": Math.floor(Math.random() * 99) + 1,
+    "comments": Math.floor(Math.random() * 100),
+    "quotes": Math.floor(Math.random() * 100),
+    "can_delete": false,
+    "owner": false,
+    "can_view": true,
+    "parent": -1,
+    "parent_is_comment": false
+  }, false, false, false, true
 );
 
 dom("bio").addEventListener("input", postTextInputEvent);

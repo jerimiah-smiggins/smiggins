@@ -30,6 +30,7 @@ class User(models.Model):
     notifications = models.JSONField(default=list, blank=True)
     read_notifs = models.BooleanField(default=True)
 
+    pinned   = models.IntegerField(default=0)
     posts    = models.JSONField(default=list, blank=True)
     comments = models.JSONField(default=list, blank=True)
     likes    = models.JSONField(default=list, blank=True) # list[list[id: int, is_comment: bool]]

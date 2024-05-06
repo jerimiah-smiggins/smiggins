@@ -27,23 +27,10 @@ function refresh(force_offset=false) {
       let output = "";
       for (const post of json.posts) {
         output += getPostHTML(
-          post.content,          // content
-          post.post_id,          // postID
-          post.creator.username, // username
-          post.creator.display_name, // displayName
-          post.creator.pronouns, // userPronouns
-          post.timestamp,        // timestamp
-          post.comments,         // commentCount
-          post.likes,            // likeCount
-          post.quotes,           // quoteCount
-          post.quote,            // quote
-          post.liked,            // isLiked
-          post.creator.private,  // isPrivate
-          type == "comment",     // isComment
-          includeUserLink,       // includeUserLink
-          includePostLink,       // includePostLink
-          post.owner,            // isOwner
-          post.creator.badges    // badgeData
+          post,              // postJSON
+          type == "comment", // isComment
+          includeUserLink,   // includeUserLink
+          includePostLink,   // includePostLink
         );
         offset = post.post_id;
       }
@@ -189,8 +176,37 @@ if (typeof logged_in === "undefined" || logged_in) {
   function toggleLike(post_id, type) {}
 }
 
-function addQuoteFromKey(event) {
-  console.log(event);
+function pinPost(postID) {
+  fetch(`/api/user/pin`, {
+    "method": "PATCH",
+    "body": JSON.stringify({
+      "id": postID
+    })
+  }).then((response) => (response.json()))
+    .then((json) => {
+      if (json.success) {
+        if (window.location.href.includes("/u/")) {
+          refresh();
+        } else {
+          showlog("Success!");
+        }
+      } else {
+        showlog("Something went wrong!");
+      }
+    });
+}
+
+function unpinPost() {
+  fetch(`/api/user/pin`, {
+    "method": "DELETE",
+  }).then((response) => (response.json()))
+    .then((json) => {
+      if (json.success) {
+        refresh();
+      } else {
+        showlog("Something went wrong!");
+      }
+    });
 }
 
 refresh();

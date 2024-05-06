@@ -12,6 +12,20 @@ function extra(json) {
     formatHref: { mention: (href) => "/u" + href }
   });
 
+  if (json.pinned.content) {
+    dom("pinned").innerHTML = getPostHTML(
+      json.pinned, // postJSON
+      false, // isComment
+      false, // includeUserLink
+      true,  // includePostLink,
+      false, // fakeMentions
+      false, // pageFocus
+      true   // isPinned
+    ) + "<hr>";
+  } else {
+    dom("pinned").innerHTML = "";
+  }
+
   if (!json.can_view) {
     dom("toggle").setAttribute("hidden", "");
   }

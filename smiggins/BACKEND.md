@@ -415,7 +415,22 @@ def post_delete(
   data: PostID
 ) -> tuple[int | dict] | dict
 ```
-Handles deleting comments. Called from a DELETE request to `/api/comment`
+Handles deleting comments. Called from a DELETE request to `/api/post`
+
+```py
+def pin_post(
+  request: django.core.handlers.wsgi.WSGIRequest,
+  data: postID
+) -> tuple | int
+```
+Handles pinning a post. Called from a PATCH request to `/api/user/pin`
+
+```py
+def unpin_post(
+  request: django.core.handlers.wsgi.WSGIRequest
+) -> tuple | int
+```
+Handles unpinning a post. Called from a DELETE request to `/api/user/pin`
 
 ## ./backend/api_user.py
 This file is for api functions that are related to user profiles and account

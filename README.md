@@ -1,4 +1,4 @@
-# social-media-thing
+# smiggins
 official discord server: https://discord.gg/tH7QnHApwu
 
 online version (at least for now): https://trinkey.pythonanywhere.com
@@ -13,8 +13,8 @@ online version (at least for now): https://trinkey.pythonanywhere.com
 
   3. Create the `_api_keys.py` file:
       ```bash
-      touch ~/social-media-thing/smiggins/backend/_api_keys.py
-      echo "auth_key = b'some random text this can be anything'" > ~/social-media-thing/smiggins/backend/_api_keys.py
+      touch ~/smiggins/smiggins/backend/_api_keys.py
+      echo "auth_key = b'some random text this can be anything'" > ~/smiggins/smiggins/backend/_api_keys.py
       ```
       if you're on Windows then fuck you figure it out yourself
   4. In the folder REPO_BASE/smiggins run the command `python3 manage.py migrate`
@@ -57,7 +57,7 @@ online version (at least for now): https://trinkey.pythonanywhere.com
   5. Clone the github repo
       ```bash
       cd ~
-      git clone https://github.com/trinkey/social-media-thing.git
+      git clone https://github.com/jerimiah-smiggins/smiggins.git
       # Optional: Change branch
       git switch branch-name
       ```
@@ -68,7 +68,7 @@ online version (at least for now): https://trinkey.pythonanywhere.com
       import os
       import sys
 
-      path = '/home/USERNAME/social-media-thing/smiggins'
+      path = '/home/USERNAME/smiggins/smiggins'
       if path not in sys.path:
           sys.path.append(path)
 
@@ -79,22 +79,22 @@ online version (at least for now): https://trinkey.pythonanywhere.com
       ```
 
   7. Back on the webapp dashboard, in the "Static Files" section, make an entry
-  for `/static/` with the path set to `/home/USERNAME/social-media-thing/smiggins/collected-static`
+  for `/static/` with the path set to `/home/USERNAME/smiggins/smiggins/collected-static`
 
-  8. In the file at `/home/USERNAME/social-media-thing/smiggins/backend/_settings.py`,
+  8. In the file at `/home/USERNAME/smiggins/smiggins/backend/_settings.py`,
   make sure the following settings are set:
       - debug: `False`
 
   9. Create the `_api_keys.py` file:
       ```bash
-      touch ~/social-media-thing/smiggins/backend/_api_keys.py
-      echo "auth_key = b'some random text this can be anything'" > ~/social-media-thing/smiggins/backend/_api_keys.py
+      touch ~/smiggins/smiggins/backend/_api_keys.py
+      echo "auth_key = b'some random text this can be anything'" > ~/smiggins/smiggins/backend/_api_keys.py
       ```
 
   10. In your venv console, run the following commands to create the database
   and setup the static files:
       ```bash
-      cd ~/social-media-thing/smiggins
+      cd ~/smiggins/smiggins
       python manage.py collectstatic
       python manage.py migrate
       ```
@@ -115,7 +115,7 @@ online version (at least for now): https://trinkey.pythonanywhere.com
   3. Clone the github repo
       ```bash
       cd ~
-      git clone https://github.com/trinkey/social-media-thing.git
+      git clone https://github.com/jerimiah-smiggins/smiggins.git
       # Optional: Change branch
       git switch branch-name
       ```
@@ -126,7 +126,7 @@ online version (at least for now): https://trinkey.pythonanywhere.com
       import os
       import sys
 
-      path = '/home/USERNAME/social-media-thing/smiggins'
+      path = '/home/USERNAME/smiggins/smiggins'
       if path not in sys.path:
           sys.path.append(path)
 
@@ -139,22 +139,22 @@ online version (at least for now): https://trinkey.pythonanywhere.com
       https://www.pythonanywhere.com/user/USERNAME/files/var/www/USERNAME_pythonanywhere_com.wgsi.py
 
   6. Back on the webapp dashboard, in the "Static Files" section, make an entry
-  for `/static/` with the path set to `/home/USERNAME/social-media-thing/smiggins/collected-static`
+  for `/static/` with the path set to `/home/USERNAME/smiggins/smiggins/collected-static`
 
-  8. In the file at `/home/USERNAME/social-media-thing/smiggins/backend/_settings.py`,
+  8. In the file at `/home/USERNAME/smiggins/smiggins/backend/_settings.py`,
   make sure the following settings are set:
       - debug: `False`
 
   9. Create the `_api_keys.py` file:
       ```bash
-      touch ~/social-media-thing/smiggins/backend/_api_keys.py
-      echo "auth_key = b'some random text this can be anything'" > ~/social-media-thing/smiggins/backend/_api_keys.py
+      touch ~/smiggins/smiggins/backend/_api_keys.py
+      echo "auth_key = b'some random text this can be anything'" > ~/smiggins/smiggins/backend/_api_keys.py
       ```
 
   10. In your venv console, run the following commands to create the database
   and setup the static files:
       ```bash
-      cd ~/social-media-thing/smiggins
+      cd ~/smiggins/smiggins
       python3.10 manage.py collectstatic
       python3.10 manage.py migrate
       ```
@@ -164,14 +164,14 @@ online version (at least for now): https://trinkey.pythonanywhere.com
   <summary><h2 style="display: inline">How to upgrade versions on PythonAnywhere (using a venv)</summary>
 
   To clone the newest version, do the following commands in the
-  `~/social-media-thing` folder:
+  `~/smiggins` folder:
   ```bash
   git stash
   git pull
   git stash pop
   ```
 
-  Then, in the venv console, run these commands in the `~/social-media-thing/smiggins`
+  Then, in the venv console, run these commands in the `~/smiggins/smiggins`
   folder:
   ```bash
   python manage.py collectstatic
@@ -185,14 +185,14 @@ online version (at least for now): https://trinkey.pythonanywhere.com
   <summary><h2 style="display: inline">How to upgrade versions on PythonAnywhere (no venv)</summary>
 
   To clone the newest version, do the following commands in the
-  `~/social-media-thing` folder:
+  `~/smiggins` folder:
   ```bash
   git stash
   git pull
   git stash pop
   ```
 
-  Then, in the venv console, run these commands in the `~/social-media-thing/smiggins`
+  Then, in the venv console, run these commands in the `~/smiggins/smiggins`
   folder:
   ```bash
   python3.10 manage.py collectstatic
@@ -205,7 +205,7 @@ online version (at least for now): https://trinkey.pythonanywhere.com
 <details>
   <summary><h2 style="display: inline">Where can I report issues or suggest stuff</summary>
 
-  go to the [issues tab](https://github.com/trinkey/social-media-thing) and make
+  go to the [issues tab](https://github.com/jerimiah-smiggins/smiggins/issues) and make
   a new issue (make sure you're logged in with github)
 </details>
 
@@ -221,7 +221,7 @@ online version (at least for now): https://trinkey.pythonanywhere.com
   make a pull request with it.
 
   if you have contributed a lot to this project, you can message me on any
-  platform that i use (email: trinkey@duck.com, discord: `@trinkey_`, twitter:
-  `@trinkey_2`) and let me know your github username and stuff that you have
-  worked on and i'll consider adding you to the repository
+  platform that i use (email: trinkey@duck.com, discord: `@trinkey_`) and let me
+  know your github username and stuff that you have worked on and i'll consider
+  adding you to the repository
 </details>

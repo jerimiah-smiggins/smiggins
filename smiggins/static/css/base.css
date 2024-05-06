@@ -167,16 +167,28 @@ table.bordered td {
   color: var(--accent);
 }
 
-svg.text {
+.red:not(svg) {
+  color: var(--red);
+}
+
+svg.text,
+.text svg {
   fill: var(--text);
 }
 
-svg.background {
+svg.background,
+.background svg {
   fill: var(--base);
 }
 
-svg.accent {
+svg.accent,
+.accent svg {
   fill: var(--accent);
+}
+
+svg.red,
+.red svg {
+  fill: var(--red) !important;
 }
 
 .nowrap {

@@ -251,7 +251,7 @@ def post_list_user(request, username: str, offset: int=-1) -> tuple | dict:
 
     if not validate_username(username):
         return 404, {
-            "reason" : "Username is insvalbid"
+            "reason" : "Username is insvalagaeg... LOOK JUST SHUT UP"
         }
 
     token = request.COOKIES.get('token') if 'token' in request.COOKIES and validate_token(request.COOKIES.get('token')) else 0
@@ -272,7 +272,8 @@ def post_list_user(request, username: str, offset: int=-1) -> tuple | dict:
             "can_view": False,
             "following": len(user.following) - 1,
             "followers": len(user.followers),
-            "bio": user.bio or ""
+            "bio": user.bio or "",
+            "self": False
         }
 
     potential = user.posts[::-1]
@@ -286,11 +287,21 @@ def post_list_user(request, username: str, offset: int=-1) -> tuple | dict:
     potential = potential[index::]
     end = len(potential) <= POSTS_PER_REQUEST
     potential = potential[:POSTS_PER_REQUEST:]
-    cache = {}
+    cache = {
+        user.user_id: user
+    }
+
+    if logged_in:
+        cache[self_user.user_id] = self_user
 
     outputList = []
     for i in potential:
         outputList.append(get_post_json(i, self_user.user_id if logged_in else 0, cache=cache))
+
+    try:
+        pinned_post = get_post_json(user.pinned, self_user.user_id if logged_in else 0, False, cache)
+    except Post.DoesNotExist:
+        pinned_post = {}
 
     return {
         "posts": outputList,
@@ -300,7 +311,8 @@ def post_list_user(request, username: str, offset: int=-1) -> tuple | dict:
         "following": len(user.following) - 1,
         "followers": len(user.followers),
         "bio": user.bio or "",
-        "self": False if not logged_in else self_user.username == username
+        "self": False if not logged_in else self_user.username == username,
+        "pinned": pinned_post
     }
 
 def post_like_add(request, data: PostID) -> tuple | dict:
@@ -376,8 +388,12 @@ def post_delete(request, data: PostID) -> tuple | dict:
     try:
         post = Post.objects.get(post_id=id)
         user = User.objects.get(token=token)
-    except Post.DoesNotExist or User.DoesNotExist:
+    except Post.DoesNotExist:
         return 404, {
+            "success": False
+        }
+    except User.DoesNotExist:
+        return 400, {
             "success": False
         }
 
@@ -411,4 +427,53 @@ def post_delete(request, data: PostID) -> tuple | dict:
 
     return 400, {
         "success": False
+    }
+
+def pin_post(request, data: PostID) -> tuple | dict:
+    # Called when someone pins a post.
+
+    token = request.COOKIES.get('token')
+    id = data.id
+
+    try:
+        post = Post.objects.get(post_id=id)
+        user = User.objects.get(token=token)
+    except Post.DoesNotExist:
+        return 404, {
+            "success": False
+        }
+    except User.DoesNotExist:
+        return 400, {
+            "success": False
+        }
+
+    if post.creator == user.user_id:
+        user.pinned = post.post_id
+        user.save()
+
+        return {
+            "success": True
+        }
+
+    return 400, {
+        "success": False
+    }
+
+def unpin_post(request) -> tuple | dict:
+    # Called when someone unpins a post.
+
+    token = request.COOKIES.get('token')
+
+    try:
+        user = User.objects.get(token=token)
+    except User.DoesNotExist:
+        return 400, {
+            "success": False
+        }
+
+    user.pinned = 0
+    user.save()
+
+    return {
+        "success": True
     }

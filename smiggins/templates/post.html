@@ -56,25 +56,12 @@ Likes: {{ LIKES }} / Quotes: {{ QUOTES }} / Comments: {{ COMMENTS }}">
       }
 
       dom("top").innerHTML = getPostHTML(
-        post.content,          // content
-        post.post_id,          // postID
-        post.creator.username, // username
-        post.creator.display_name, // displayName
-        post.creator.pronouns, // userPronouns
-        post.timestamp,        // timestamp
-        post.comments,         // commentCount
-        post.likes,            // likeCount
-        post.quotes,           // quoteCount
-        post.quote,            // quote
-        post.liked,            // isLiked
-        post.creator.private,  // isPrivate
-        {{ COMMENT }},           // isComment
-        true,                  // includeUserLink
-        false,                 // includePostLink
-        post.owner,            // isOwner
-        post.creator.badges,   // badgeData
-        false,                 // fakeMentions
-        true                   // pageFocus
+        post,          // postJSON
+        {{ COMMENT }}, // isComment
+        true,          // includeUserLink
+        false,         // includePostLink
+        false,         // fakeMentions
+        true           // pageFocus
       );
     </script>
 
