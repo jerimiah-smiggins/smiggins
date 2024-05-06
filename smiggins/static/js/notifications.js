@@ -21,12 +21,12 @@ function refresh() {
     .then((response) => (response.json()))
     .then((json) => {
       if (json.success) {
-        x = document.createDocumentFragment();
+        let x = document.createDocumentFragment();
         let yourMother = false;
         let first = true;
 
         for (const notif of json.notifications) {
-          y = document.createElement("div");
+          let y = document.createElement("div");
 
           if (!yourMother && notif.read) {
             if (!first) {

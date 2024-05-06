@@ -17,8 +17,8 @@ dom("toggle-password").addEventListener("click", function() {
 });
 
 dom("submit").addEventListener("click", function() {
-  username = dom("username").value;
-  password = sha256(dom("password").value)
+  let username = dom("username").value;
+  let password = sha256(dom("password").value)
 
   if (password !== sha256(dom("confirm").value)) {
     showlog("Passwords don't match!");

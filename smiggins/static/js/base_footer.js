@@ -2,7 +2,7 @@ if (typeof(logged_in) != "boolean") {
   logged_in = document.cookie.indexOf("token=") != -1;
 }
 
-x = document.createElement("div");
+let x = document.createElement("div");
 x.setAttribute("class", "icons");
 x.setAttribute("id", "icons");
 
@@ -24,16 +24,23 @@ if (typeof(share) !== 'undefined') {
 
 document.querySelector("body").append(x);
 
-if (logged_in) {
+function getNotifications() {
   fetch("/api/info/notifications")
     .then((response) => (response.json()))
     .then((json) => {
-      if (json.success && json.notifications) {
-        [...document.querySelectorAll("[data-add-notification-dot]")].forEach((val, index) => {
+      [...document.querySelectorAll("[data-add-notification-dot]")].forEach((val, index) => {
+        if (json.success && json.notifications) {
           val.classList.add("dot");
-        });
-      }
+        } else {
+          val.classList.remove("dot");
+        }
+      });
     });
+}
+
+if (logged_in) {
+  getNotifications();
+  setInterval(getNotifications, 5 * 60 * 1000);
 
   if (typeof(profile) === "undefined") {
     if (localStorage.getItem("username") === null) {

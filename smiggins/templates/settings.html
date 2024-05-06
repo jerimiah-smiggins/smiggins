@@ -118,7 +118,9 @@
       <a href="https://github.com/jerimiah-smiggins/smiggins" target="_blank">Source code</a><br>
     {% endif %}
 
-    <a href="/logout">Log out of ALL accounts</a>
+    <a href="/logout">Log out of ALL accounts</a><br><br>
+
+    {{ SITE_NAME }} v{{ VERSION }}
 
     <script src="{% static '/js/settings.js' %}?v={{ VERSION }}"></script>
     {% autoescape off %}

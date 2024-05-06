@@ -2,7 +2,7 @@ let inc = 0, req = 0;
 let home = true;
 
 let output = "<select id=\"color\">";
-for (color of validColors) {
+for (const color of validColors) {
   output += `<option ${((localStorage.getItem("color") == color || (!localStorage.getItem("color") && color == "mauve")) ? "selected" : "")} value="${color}">${color.charAt(0).toUpperCase() + color.slice(1)}</option>`;
 }
 output += "</select><br><br>";
@@ -226,7 +226,7 @@ dom("pronouns-primary").addEventListener("input", updatePronouns);
 dom("pronouns-secondary").addEventListener("input", updatePronouns);
 
 dom("toggle-password").addEventListener("click", function() {
-  newType = dom("password").getAttribute("type") === "password" ? "text" : "password";
+  let newType = dom("password").getAttribute("type") === "password" ? "text" : "password";
 
   dom("current").setAttribute("type", newType);
   dom("password").setAttribute("type", newType);
@@ -234,8 +234,8 @@ dom("toggle-password").addEventListener("click", function() {
 })
 
 dom("set-password").addEventListener("click", function() {
-  old_password = sha256(dom("current").value);
-  password = sha256(dom("password").value)
+  let old_password = sha256(dom("current").value);
+  let password = sha256(dom("password").value)
 
   if (password !== sha256(dom("confirm").value)) {
     showlog("Passwords don't match!");

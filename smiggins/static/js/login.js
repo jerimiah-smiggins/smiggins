@@ -16,16 +16,17 @@ dom("toggle-password").addEventListener("click", function() {
 
 dom("submit").addEventListener("click", function() {
   this.setAttribute("disabled", "");
-  username = dom("username").value;
-  password = sha256(dom("password").value)
+  let username = dom("username").value;
+  let password = sha256(dom("password").value);
+
   fetch("/api/user/login", {
     method: "POST",
     headers: {
       "Content-Type": "application/json"
     },
     body: JSON.stringify({
-      "username": username,
-      "password": password
+      username: username,
+      password: password
     })
   })
     .then((response) => {
