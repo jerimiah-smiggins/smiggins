@@ -287,14 +287,17 @@ def post_list_user(request, username: str, offset: int=-1) -> tuple | dict:
     potential = potential[index::]
     end = len(potential) <= POSTS_PER_REQUEST
     potential = potential[:POSTS_PER_REQUEST:]
-    cache = {}
+    cache = {
+        self_user.user_id: self_user,
+        user.user_id: user
+    }
 
     outputList = []
     for i in potential:
         outputList.append(get_post_json(i, self_user.user_id if logged_in else 0, cache=cache))
 
     try:
-        pinned_post = get_post_json(user.pinned, user.user_id, False, cache)
+        pinned_post = get_post_json(user.pinned, self_user.user_id, False, cache)
     except Post.DoesNotExist:
         pinned_post = {}
 
