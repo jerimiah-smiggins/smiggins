@@ -12,6 +12,30 @@ function extra(json) {
     formatHref: { mention: (href) => "/u" + href }
   });
 
+  if (json.pinned) {
+    dom("pinned").innerHTML = getPostHTML(
+      json.pinned.content,          // content
+      json.pinned.post_id,          // postID
+      json.pinned.creator.username, // username
+      json.pinned.creator.display_name, // displayName
+      json.pinned.creator.pronouns, // userPronouns
+      json.pinned.timestamp,        // timestamp
+      json.pinned.comments,         // commentCount
+      json.pinned.likes,            // likeCount
+      json.pinned.quotes,           // quoteCount
+      json.pinned.quote,            // quote
+      json.pinned.liked,            // isLiked
+      json.pinned.creator.private,  // isPrivate
+      false,                        // isComment
+      false,                        // includeUserLink
+      true,                         // includePostLink
+      json.pinned.owner,            // isOwner
+      json.pinned.creator.badges    // badgeData
+    ) + "<hr>";
+  } else {
+    dom("pinned").innerHTML = "";
+  }
+
   if (!json.can_view) {
     dom("toggle").setAttribute("hidden", "");
   }
