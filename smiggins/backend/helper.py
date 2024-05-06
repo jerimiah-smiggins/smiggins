@@ -205,7 +205,8 @@ def get_post_json(post_id: int, current_user_id: int=0, comment: bool=False, cac
         "likes": len(post.likes),
         "comments": len(post.comments),
         "quotes": len(post.quotes),
-        "owner": can_delete_all or creator.user_id == current_user_id,
+        "can_delete": can_delete_all or creator.user_id == current_user_id,
+        "can_pin": not comment and creator.user_id == current_user_id,
         "can_view": True,
         "parent": post.parent if isinstance(post, Comment) else -1,
         "parent_is_comment": post.parent_is_comment if isinstance(post, Comment) else False

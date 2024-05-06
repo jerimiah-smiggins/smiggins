@@ -36,26 +36,16 @@ function refresh() {
             yourMother = true;
           }
 
-          y.innerHTML += escapeHTML(stringMap[notif.event_type](notif.data.creator.display_name)) + "<br>";
+          notif.data.can_delete = false;
+          notif.data.can_pin = false;
 
+          y.innerHTML += escapeHTML(stringMap[notif.event_type](notif.data.creator.display_name)) + "<br>";
           y.innerHTML += getPostHTML(
-            notif.data.content,          // content
-            notif.data.post_id,          // postID
-            notif.data.creator.username, // username
-            notif.data.creator.display_name, // displayName
-            notif.data.creator.pronouns, // userPronouns
-            notif.data.timestamp,        // timestamp
-            notif.data.comments,         // commentCount
-            notif.data.likes,            // likeCount
-            notif.data.quotes,           // quoteCount
-            notif.data.quote,            // quote
-            notif.data.liked,            // isLiked
-            notif.data.creator.private,  // isPrivate
+            notif.data, // postJSON
             ["comment", "ping_c"].includes(notif.event_type), // isComment
-            true,                        // includeUserLink
-            true,                        // includePostLink
-            false,                       // isOwner
-            notif.data.creator.badges    // badgeData
+            true,      // includeUserLink
+            true,      // includePostLink
+            false      // isOwner
           ).replace("\"post\"", yourMother ? "\"post\" data-color='gray'" : "\"post\"");
 
           x.append(y);

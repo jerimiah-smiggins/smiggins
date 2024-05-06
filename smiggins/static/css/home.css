@@ -94,12 +94,9 @@ button {
   text-align: center;
 }
 
-.like svg,
-.comment,
-.priv,
-.user-badge svg,
-.quote-button svg,
-.delete svg {
+.user-badge,
+.bottom-content-icon svg,
+svg.bottom-content-icon {
   width: 1.2em;
   height: 1.2em;
   display: inline-block;
@@ -108,9 +105,7 @@ button {
   fill: var(--text);
 }
 
-.like,
-.quote-button,
-.delete {
+button.bottom-content-icon {
   white-space: nowrap;
   cursor: pointer;
   display: inline-block;
@@ -123,11 +118,7 @@ button {
   height: unset;
 }
 
-.priv {
-  scale: 75%;
-}
-
-.comment {
+.comment-icon {
   padding-right: 0.3em;
 }
 
