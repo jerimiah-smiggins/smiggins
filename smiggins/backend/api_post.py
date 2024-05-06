@@ -288,9 +288,11 @@ def post_list_user(request, username: str, offset: int=-1) -> tuple | dict:
     end = len(potential) <= POSTS_PER_REQUEST
     potential = potential[:POSTS_PER_REQUEST:]
     cache = {
-        self_user.user_id: self_user,
         user.user_id: user
     }
+
+    if logged_in:
+        cache[self_user.user_id] = self_user
 
     outputList = []
     for i in potential:
