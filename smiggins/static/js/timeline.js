@@ -185,7 +185,7 @@ function pinPost(postID) {
   }).then((response) => (response.json()))
     .then((json) => {
       if (json.success) {
-        if (url.includes("/u/")) {
+        if (window.location.href.includes("/u/")) {
           refresh();
         } else {
           showlog("Success!");

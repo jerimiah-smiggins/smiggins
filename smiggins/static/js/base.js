@@ -235,7 +235,7 @@ function getPostHTML(
         ${
           postJSON.can_pin ? `
           <div class="bottom-spacing"></div>
-          <button class="bottom-content-icon ${isPinned ? "red" : ""}" tabindex="0" onclick="${isPinned ? "un" : ""}pinPost(${isPinned ? "" : postJSON.post_id})">
+          <button class="bottom-content-icon ${isPinned && postJSON.can_pin ? "red" : ""}" tabindex="0" onclick="${isPinned && postJSON.can_pin ? "un" : ""}pinPost(${isPinned && postJSON.can_pin ? "" : postJSON.post_id})">
             ${icons.pin}
           </button>` : ""
         }

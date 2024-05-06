@@ -14,7 +14,7 @@ function extra(json) {
 
   if (json.pinned.content) {
     dom("pinned").innerHTML = getPostHTML(
-      json.pinned, // isPrivate
+      json.pinned, // postJSON
       false, // isComment
       false, // includeUserLink
       true,  // includePostLink,
