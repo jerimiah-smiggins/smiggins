@@ -1,7 +1,7 @@
 # For API functions that relate to messages for example sending, deleting, etc.
 
 from ._settings import MAX_POST_LENGTH, MESSAGES_PER_REQUEST
-from .packages  import User, PrivateMessageContainer, PrivateMessage, time, Schema, sys
+from .packages  import User, PrivateMessageContainer, PrivateMessage, time, Schema
 from .helper    import trim_whitespace, get_container_id, get_badges
 
 class NewContainer(Schema):
@@ -59,26 +59,6 @@ def container_create(request, data: NewContainer) -> tuple | dict:
 
     return 201, {
         "success": True
-    }
-
-def messages_since(request, username: str, message_id: int) -> tuple | dict:
-    user = User.objects.get(token=request.COOKIES.get('token'))
-
-    if user.username == username:
-        return 400, {
-            "success": False
-        }
-
-    try:
-        messages = PrivateMessageContainer.objects.get(container_id=get_container_id(user.username, username)).messages
-    except PrivateMessageContainer.DoesNotExist:
-        return 404, {
-            "success": False
-        }
-
-    return {
-        "success": True,
-        "new": len(messages) and messages[-1] > message_id
     }
 
 def send_message(request, data: NewMessage) -> tuple | dict:

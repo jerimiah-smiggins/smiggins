@@ -325,8 +325,62 @@ def notifications(
   request: django.core.handlers.wsgi.WSGIRequest
 ) -> tuple | dict
 ```
-Returns whether or not you have unread notifications. Called from a GET request
-to `/api/info/notifications`.
+Returns whether or not you have unread notifications and private messages.
+Called from a GET request to `/api/info/notifications`.
+
+## ./backend/api_messages.py
+For api functions related to private messages.
+
+```py
+class NewContainer(Schema)
+```
+The schema for creating a new message container between yourself and another
+user
+
+```py
+class NewMessage(Schema)
+```
+The schema for sending a message to someone
+
+```py
+def container_create(
+  request: django.core.handlers.wsgi.WSGIRequest,
+  data: NewContainer
+) -> tuple | dict
+```
+Creates a new message container between yourself and another user. Called from a
+POST request to `/api/messages/new`.
+
+```py
+def send_message(
+  request: django.core.handlers.wsgi.WSGIRequest,
+  data: NewMessage
+) -> tuple | dict
+```
+Creates a new message object between yourself and the specified user. Called
+from a POST request to `/api/messages`.
+
+```py
+def messages_list(
+  request: django.core.handlers.wsgi.WSGIRequest,
+  username: str,
+  forward: bool = True,
+  offset: int = -1
+) -> tuple | dict
+```
+Returns a list of the messages between yourself and the specified user. It isn't
+easy to explain how it works, but it does, and that's all that matters. Called
+from a GET request to `/api/messages/list`.
+
+```py
+def recent_messages(
+  request: django.core.handlers.wsgi.WSGIRequest,
+  offset: int = -1
+) -> tuple | dict
+```
+Returns the list of the most recent messages between yourself and others. Offset
+is essentially what page you're looking for. Called from a GET request to
+`/api/messages`.
 
 ## ./backend/api_post.py
 This file is for anything related to posts, including liking, creating, and
