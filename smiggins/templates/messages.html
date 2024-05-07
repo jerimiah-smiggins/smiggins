@@ -1,0 +1,44 @@
+{% load static %}
+<!DOCTYPE html>
+
+<html>
+  <head>
+    <title>Messages - {{ SITE_NAME }} v{{ VERSION }}</title>
+    {% autoescape off %}
+    {{ HTML_HEADERS }}
+    {% endautoescape %}
+
+    <link rel="stylesheet" href="{% static '/css/messages.css' %}?v={{ VERSION }}">
+    <link rel="stylesheet" href="{% static '/css/home.css' %}?v={{ VERSION }}">
+  </head>
+
+  <body data-theme="{{ THEME }}">
+    <!--
+      <div class="post">
+        <div class="upper-content">
+          <a href="/m/username" class="no-underline text">
+            <div class="displ-name">
+              Display Name
+              <span class="upper-lower-opacity"> -
+                <div class="username">@username</div>
+              </span>
+            </div>
+          </a>
+        </div>
+
+        <div class="main-content">
+          <div data-linkify>
+            Recent message content
+          </div>
+        </div>
+      </div><br>
+    -->
+
+    <button id="more" hidden>Load More...</button>
+
+    <script src="{% static '/js/messages.js' %}?v={{ VERSION }}"></script>
+    {% autoescape off %}
+    {{ HTML_FOOTERS }}
+    {% endautoescape %}
+  </body>
+</html>

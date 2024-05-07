@@ -158,4 +158,7 @@ def send_message(request, data: NewMessage) -> tuple | dict:
     }
 
 def messages_list(request, username: str, forward: bool=True, offset: int=-1) -> tuple | dict:
-    ...
+    ... # Returns the list of recent messages for the specified user
+
+def recent_messages(request, offset: int=-1) -> tuple | dict:
+    ... # Returns the list of the most recent messages from users
