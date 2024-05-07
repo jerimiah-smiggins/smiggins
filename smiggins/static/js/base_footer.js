@@ -49,7 +49,7 @@ function getNotifications() {
 
 if (logged_in) {
   getNotifications();
-  setInterval(getNotifications, 5 * 60 * 1000);
+  setInterval(getNotifications, 2 * 60 * 1000);
 
   if (typeof(profile) === "undefined") {
     if (localStorage.getItem("username") === null) {

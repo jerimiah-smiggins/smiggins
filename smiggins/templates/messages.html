@@ -13,28 +13,13 @@
   </head>
 
   <body data-theme="{{ THEME }}">
-    <!--
-      <div class="post">
-        <div class="upper-content">
-          <a href="/m/username" class="no-underline text">
-            <div class="displ-name">
-              Display Name
-              <span class="upper-lower-opacity"> -
-                <div class="username">@username</div>
-              </span>
-            </div>
-          </a>
-        </div>
+    <h1>Recent Messages</h1>
+    <div id="error"></div>
+    <button onclick="refresh(true);">Refresh</button><br><br>
 
-        <div class="main-content">
-          <div data-linkify>
-            Recent message content
-          </div>
-        </div>
-      </div><br>
-    -->
+    <div id="recent-list"></div>
 
-    <button id="more" hidden>Load More...</button>
+    <button id="more" onclick="refresh();" hidden>Load More...</button>
 
     <script src="{% static '/js/messages.js' %}?v={{ VERSION }}"></script>
     {% autoescape off %}

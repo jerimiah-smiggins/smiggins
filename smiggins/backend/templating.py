@@ -2,8 +2,8 @@
 
 from ._settings import DEFAULT_BANNER_COLOR, MAX_BIO_LENGTH, OWNER_USER_ID, CONTACT_INFO, SOURCE_CODE
 from .variables import BADGE_DATA
-from .packages  import User, Post, Comment, HttpResponse, HttpResponseRedirect, json
-from .helper    import validate_token, get_HTTP_response, get_post_json, get_badges
+from .packages  import User, Post, Comment, PrivateMessageContainer, HttpResponse, HttpResponseRedirect, json
+from .helper    import validate_token, get_HTTP_response, get_post_json, get_badges, get_container_id
 
 def settings(request) -> HttpResponse:
     try:
@@ -319,7 +319,7 @@ def badges(request) -> HttpResponse:
         content_type="text/javascript"
     )
 
-def notifications(request) -> HttpResponse:
+def notifications(request) -> HttpResponse | HttpResponseRedirect:
     try:
         token: str = request.COOKIES["token"].lower()
         if not validate_token(token):
@@ -329,6 +329,33 @@ def notifications(request) -> HttpResponse:
 
     return get_HTTP_response(
         request, "notifications.html",
+    )
+
+def message(request, username: str) -> HttpResponse | HttpResponseRedirect:
+    try:
+        self_user = User.objects.get(
+            token = request.COOKIES.get("token")
+        )
+    except User.DoesNotExist:
+        return HttpResponseRedirect("/", status=307)
+
+    try:
+        PrivateMessageContainer.objects.get(
+            container_id = get_container_id(username, self_user.username)
+        )
+    except PrivateMessageContainer.DoesNotExist:
+        return HttpResponseRedirect(f"/u/{username}/", status=307)
+
+    try:
+        user = User.objects.get(username=username)
+    except User.DoesNotExist:
+        return get_HTTP_response(request, "404_user.html")
+
+    return get_HTTP_response(
+        request, "message.html",
+
+        USERNAME = username,
+        DISPLAY_NAME = user.display_name
     )
 
 # These two functions are referenced in smiggins/urls.py

@@ -3,7 +3,7 @@
 
 <html>
   <head>
-    <title>Messaging {{ USERNAME }} - {{ SITE_NAME }} v{{ VERSION }}</title>
+    <title>Messaging {{ DISPLAY_NAME }} - {{ SITE_NAME }} v{{ VERSION }}</title>
     {% autoescape off %}
     {{ HTML_HEADERS }}
     {% endautoescape %}
@@ -11,13 +11,12 @@
     <link rel="stylesheet" href="{% static '/css/messages.css' %}?v={{ VERSION }}">
   </head>
 
-  <body data-theme="{{ THEME }}">
+  <body data-theme="{{ THEME }}" data-username="{{ USERNAME }}">
+    <div class="header-container"><h1>Messaging {{ DISPLAY_NAME }}</div>
+
     <div class="messages-container">
-      <div class="messages">
-        <!-- <div class="message (send|recieve)">content</div> -->
-        <button id="more" hidden>Load More...</button>
-      </div>
-      <textarea id="your-mom" placeholder="Message input"></textarea>
+      <div id="messages-go-here-btw" class="messages"></div>
+      <textarea id="your-mom" placeholder="(Make sure to call them slurs)"></textarea>
     </div>
 
     <script src="{% static '/js/message.js' %}?v={{ VERSION }}"></script>

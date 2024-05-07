@@ -5,7 +5,7 @@
   border-radius: 0.25em;
   margin: 0 auto;
   padding: 1em;
-  height: calc(100vh - 6em);
+  height: calc(90vh - 2em);
 }
 
 .messages {
@@ -13,7 +13,7 @@
   flex-direction: column-reverse;
   gap: 0.5em;
   overflow: scroll;
-  height: calc(100vh - 12em);
+  height: calc(90vh - 8em - 9px);
 }
 
 .message {
@@ -27,12 +27,12 @@
   padding: 0.3em 0.6em;
 }
 
-.message.recieve {
+.message.receive {
   padding-right: 30%;
   text-align: left;
 }
 
-.message.recieve div {
+.message.receive div {
   background-color: var(--surface0);
   border-radius: 0.6em 0.6em 0.6em 0;
 }
@@ -49,9 +49,31 @@
   border-radius: 0.6em 0.6em 0 0.6em;
 }
 
+.header-container {
+  position: absolute;
+  width: 90vw;
+  left: 5vw;
+  top: 1vh;
+}
+
+.header-container h1 {
+  text-shadow: 0 0 20px var(--crust), 0 0 19px var(--crust),
+               0 0 18px var(--crust), 0 0 17px var(--crust),
+               0 0 16px var(--crust), 0 0 15px var(--crust),
+               0 0 14px var(--crust), 0 0 13px var(--crust),
+               0 0 12px var(--crust), 0 0 11px var(--crust);
+}
+
 #your-mom {
   height: 6em;
   width: calc(100vw - 2em);
   max-width: 40em;
   margin-top: 1em;
+  resize: none;
+}
+
+.timestamp {
+  display: block;
+  font-size: 0.7em;
+  color: var(--subtext0)
 }

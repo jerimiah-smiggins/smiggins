@@ -35,5 +35,5 @@ def notifications(request) -> tuple | dict:
     return {
         "success": True,
         "notifications": not user.read_notifs,
-        "messages": not user.read_messages
+        "messages": len(user.unread_messages) != 0
     }

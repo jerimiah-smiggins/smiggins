@@ -3,7 +3,7 @@
 # This file is meant to have settings that are easy to understand.
 
 # Version displayed.
-VERSION: str = "0.7.4"
+VERSION: str = "0.8.0"
 
 # What to have the site name be.
 SITE_NAME: str = "Jerimiah Smiggins"

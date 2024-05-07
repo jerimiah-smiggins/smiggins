@@ -1,8 +1,8 @@
 # For API functions that relate to messages for example sending, deleting, etc.
 
 from ._settings import MAX_POST_LENGTH, MESSAGES_PER_REQUEST
-from .packages  import User, PrivateMessageContainer, PrivateMessage, time, Schema
-from .helper    import trim_whitespace, get_container_id
+from .packages  import User, PrivateMessageContainer, PrivateMessage, time, Schema, sys
+from .helper    import trim_whitespace, get_container_id, get_badges
 
 class NewContainer(Schema):
     username: str
@@ -39,9 +39,8 @@ def container_create(request, data: NewContainer) -> tuple | dict:
 
     try:
         PrivateMessageContainer.objects.get(container_id=container_id)
-        return 400, {
-            "success": False,
-            "reason": "You're already talking to this person!"
+        return {
+            "success": True
         }
     except PrivateMessageContainer.DoesNotExist:
         pass
@@ -115,19 +114,17 @@ def send_message(request, data: NewMessage) -> tuple | dict:
         x.remove(container_id)
     except ValueError:
         pass
-    
     try:
         y.remove(container_id)
     except ValueError:
         pass
-    
     x.insert(0, container_id)
     y.insert(0, container_id)
 
     container.user_one.messages = x
     container.user_two.messages = y
 
-    if data.username == container_id.split(":")[1]:
+    if data.username == container_id.split(":")[0]:
         if container_id not in container.user_one.unread_messages:
             container.user_one.unread_messages.append(container_id)
     else:
@@ -158,7 +155,100 @@ def send_message(request, data: NewMessage) -> tuple | dict:
     }
 
 def messages_list(request, username: str, forward: bool=True, offset: int=-1) -> tuple | dict:
-    ... # Returns the list of recent messages for the specified user
+    user = User.objects.get(token=request.COOKIES.get("token"))
+
+    if user.username == username:
+        return 400, {
+            "success": False
+        }
+
+    container_id = get_container_id(username, user.username)
+    container = PrivateMessageContainer.objects.get(container_id=container_id)
+    container_messages = container.messages
+    is_user_one = username == container_id.split(":")[1]
+
+    if is_user_one and container_id in container.user_one.unread_messages:
+        container.user_one.unread_messages.remove(container_id)
+        container.user_one.save()
+
+    if not is_user_one and container_id in container.user_two.unread_messages:
+        container.user_two.unread_messages.remove(container_id)
+        container.user_two.save()
+
+    if forward:
+        try:
+            index = container_messages.index(offset)
+        except ValueError:
+            index = 0
+
+        list_of_messages = container_messages[-MESSAGES_PER_REQUEST + index : index if index else None :][::-1]
+        more = len(container_messages) - MESSAGES_PER_REQUEST * max(1, offset + 1) > 0
+
+    else:
+        try:
+            index = container_messages.index(offset)
+        except ValueError:
+            index = 0
+
+        list_of_messages = container_messages[index + 1 : index + MESSAGES_PER_REQUEST :][::-1]
+        more = len(list_of_messages) - index - MESSAGES_PER_REQUEST > 0
+
+    messages = []
+    for i in list_of_messages:
+        try:
+            message = PrivateMessage.objects.get(
+                message_id=i,
+            )
+
+            messages.append({
+                "timestamp": message.timestamp,
+                "content": message.content,
+                "from_self": is_user_one == message.from_user_one,
+                "id": i
+            })
+
+        except PrivateMessage.DoesNotExist:
+            ...
+
+    return 200, {
+        "success": True,
+        "messages": messages,
+        "more": more
+    }
 
 def recent_messages(request, offset: int=-1) -> tuple | dict:
-    ... # Returns the list of the most recent messages from users
+    user = User.objects.get(token=request.COOKIES.get("token"))
+
+    if offset == -1:
+        offset = 0
+
+    messages = user.messages[offset * MESSAGES_PER_REQUEST : (offset + 1) * MESSAGES_PER_REQUEST :]
+    message_json = []
+    self_username = user.username
+
+    for i in messages:
+        try:
+            container = PrivateMessageContainer.objects.get(
+                container_id=i
+            )
+
+            other_user = container.user_one if i.split(":")[1] == self_username else container.user_two
+            message = PrivateMessage.objects.get(message_id=container.messages[-1]) if len(container.messages) else ""
+
+            message_json.append({
+                "content": message.content if isinstance(message, PrivateMessage) else "",
+                "timestamp": message.timestamp if isinstance(message, PrivateMessage) else 0,
+                "username": other_user.username,
+                "display_name": other_user.display_name,
+                "badges": get_badges(other_user),
+                "unread": i in user.unread_messages
+            })
+
+        except PrivateMessageContainer.DoesNotExist:
+            ...
+
+    return {
+        "success": True,
+        "more": len(user.messages) - (offset + 1) * MESSAGES_PER_REQUEST > 0,
+        "messages": message_json
+    }

@@ -96,3 +96,19 @@ function toggle_block() {
       throw(err);
     });
 }
+
+function createMessage() {
+  fetch("/api/messages/new", {
+    "method": "POST",
+    "body": JSON.stringify({
+      "username": username
+    })
+  }).then((response) => response.json())
+    .then((json) => {
+      if (json.success) {
+        window.location.href = `/m/${username}`;
+      } else {
+        showlog(`Something went wrong! Reason: ${json.reason}`);
+      }
+    })
+}
