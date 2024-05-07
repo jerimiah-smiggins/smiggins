@@ -90,8 +90,10 @@ def send_message(request, data: NewMessage) -> tuple | dict:
             "success": False
         }
 
+    container_id = get_container_id(user.username, data.username)
+
     try:
-        container = PrivateMessageContainer.objects.get(container_id=get_container_id(user.username, data.username))
+        container = PrivateMessageContainer.objects.get(container_id=container_id)
     except PrivateMessageContainer.DoesNotExist:
         return 404, {
             "success": False
@@ -106,10 +108,39 @@ def send_message(request, data: NewMessage) -> tuple | dict:
 
     timestamp = round(time.time())
 
+    x = container.user_one.messages
+    y = container.user_two.messages
+
+    try:
+        x.remove(container_id)
+    except ValueError:
+        pass
+    
+    try:
+        y.remove(container_id)
+    except ValueError:
+        pass
+    
+    x.insert(0, container_id)
+    y.insert(0, container_id)
+
+    container.user_one.messages = x
+    container.user_two.messages = y
+
+    if data.username == container_id.split(":")[1]:
+        if container_id not in container.user_one.unread_messages:
+            container.user_one.unread_messages.append(container_id)
+    else:
+        if container_id not in container.user_two.unread_messages:
+            container.user_two.unread_messages.append(container_id)
+
+    container.user_one.save()
+    container.user_two.save()
+
     x = PrivateMessage.objects.create(
         timestamp = timestamp,
         content = content,
-        from_user_one = data.username == container.container_id.split(":")[1],
+        from_user_one = data.username == container_id.split(":")[1],
         message_container = container
     )
 

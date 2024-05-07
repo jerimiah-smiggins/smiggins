@@ -30,7 +30,7 @@ class User(models.Model):
     notifications = models.JSONField(default=list, blank=True)
     messages = models.JSONField(default=list, blank=True)
     read_notifs = models.BooleanField(default=True)
-    read_messages = models.IntegerField(default=0)
+    unread_messages = models.JSONField(default=list, blank=True)
 
     pinned   = models.IntegerField(default=0)
     posts    = models.JSONField(default=list, blank=True)
