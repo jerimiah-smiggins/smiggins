@@ -66,7 +66,7 @@ api.delete("user/pin", response=response_schema)(ApiPost.unpin_post)
 api.post("messages/new", response=response_schema)(ApiMessages.container_create)
 api.get ("messages/new", response=response_schema)(ApiMessages.messages_since)
 api.get ("messages", response=response_schema)(ApiMessages.messages_list)
-api.post("messages", response=response_schema)(ApiMessages.messages_since)
+api.post("messages", response=response_schema)(ApiMessages.send_message)
 
 # Admin stuff
 api.get   ("admin/info",     response=response_schema)(ApiAdmin.account_info)
