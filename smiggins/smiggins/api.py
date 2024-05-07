@@ -1,6 +1,6 @@
 from django.urls import path
 
-from backend.collect_api import ApiAdmin, ApiComment, ApiInfo, ApiPost, ApiUser
+from backend.collect_api import ApiAdmin, ApiComment, ApiInfo, ApiPost, ApiUser, ApiMessage
 from backend.packages    import json
 
 from ninja.renderers import BaseRenderer
@@ -61,6 +61,9 @@ api.delete("comment/like", response=response_schema)(ApiComment.comment_like_rem
 
 api.patch ("user/pin", response=response_schema)(ApiPost.pin_post)
 api.delete("user/pin", response=response_schema)(ApiPost.unpin_post)
+
+# Message stuff
+api.post  ("messages/new", response=response_schema)(ApiMessage.container_create)
 
 # Admin stuff
 api.get   ("admin/info",     response=response_schema)(ApiAdmin.account_info)

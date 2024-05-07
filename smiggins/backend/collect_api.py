@@ -3,6 +3,7 @@ from .api_comment import comment_create, comment_delete, comment_like_add, comme
 from .api_info import notifications, username
 from .api_post import post_create, post_delete, post_like_add, post_like_remove, post_list_following, post_list_recent, post_list_user, quote_create, pin_post, unpin_post
 from .api_user import block_add, block_remove, change_password, follower_add, follower_remove, login, notifications_list, read_notifs, settings, settings_theme, signup
+from .api_messages import container_create
 
 class ApiAdmin:
     account_info = account_info
@@ -50,3 +51,6 @@ class ApiUser:
     settings = settings
     settings_theme = settings_theme
     signup = signup
+
+class ApiMessage:
+    container_create = container_create
