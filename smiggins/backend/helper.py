@@ -350,5 +350,5 @@ def create_notification(
 
     is_for.save()
 
-def get_container_id(user_one: User, user_two: User) -> str:
-    return f"{user_one.username}-{user_two.username}" if user_two.username > user_one.username else f"{user_two.username}-{user_one.username}"
+def get_container_id(user_one: User | str, user_two: User | str) -> str:
+    return f"{user_one.username if isinstance(user_one, User) else user_one}:{user_two.username if isinstance(user_two, User) else user_two}" if (user_two.username if isinstance(user_two, User) else user_two) > (user_one.username if isinstance(user_one, User) else user_one) else f"{user_two.username if isinstance(user_two, User) else user_two}-{user_one.username if isinstance(user_one, User) else user_one}"

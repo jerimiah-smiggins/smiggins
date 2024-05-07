@@ -58,6 +58,9 @@ API_TIMINGS: dict[str, int] = {
 # and cpu usage however it will likely improve the user experience
 POSTS_PER_REQUEST: int = 20
 
+# This controls how many messages are sent at a time when loading them.
+MESSAGES_PER_REQUEST: int = POSTS_PER_REQUEST * 2
+
 # The maximum number of notifications to be stored per user. Whenever
 # this limit is exceeded, it will remove the oldest notifications for
 # that user.
