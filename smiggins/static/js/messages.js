@@ -41,7 +41,7 @@ function refresh(from_start=false) {
           y.innerHTML += `
             <div class="post" data-color="${message.unread ? "" : "gray"}">
               <div class="upper-content">
-                <a href="/m/${message.username}" class="no-underline text">
+                <a href="/u/${message.username}" class="no-underline text">
                   <div class="displ-name">
                     ${escapeHTML(message.display_name)}
                     <span class="upper-lower-opacity"> -

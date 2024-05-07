@@ -77,3 +77,8 @@
   font-size: 0.7em;
   color: var(--subtext0)
 }
+
+.messages-container button {
+  width: 9em;
+  margin: 0 auto;
+}

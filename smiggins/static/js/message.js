@@ -55,7 +55,8 @@ function refresh(start=false, forward=true) {
           if (json.more) {
             y = document.createElement("button");
             y.innerText = "Load more...";
-            y.onclick = "refresh();";
+            y.id = "more";
+            y.setAttribute("onclick", "refresh();");
 
             x.append(y);
           }

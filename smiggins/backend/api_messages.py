@@ -179,9 +179,9 @@ def messages_list(request, username: str, forward: bool=True, offset: int=-1) ->
         try:
             index = container_messages.index(offset)
         except ValueError:
-            index = 0
+            index = len(container_messages)
 
-        list_of_messages = container_messages[-MESSAGES_PER_REQUEST + index : index if index else None :][::-1]
+        list_of_messages = container_messages[max(0, index - MESSAGES_PER_REQUEST) : index if index else None :][::-1]
         more = len(container_messages) - MESSAGES_PER_REQUEST * max(1, offset + 1) > 0
 
     else:
