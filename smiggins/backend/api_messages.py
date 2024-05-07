@@ -79,7 +79,7 @@ def messages_since(request, username: str, message_id: int) -> tuple | dict:
 
     return {
         "success": True,
-        "new": len(messages) and messages[-1] > new_messages
+        "new": len(messages) and messages[-1] > message_id
     }
 
 def send_message(request, data: NewMessage) -> tuple | dict:
