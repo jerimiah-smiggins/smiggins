@@ -85,7 +85,7 @@ def messages_since(request, username: str, message_id: int) -> tuple | dict:
 def send_message(request, data: NewMessage) -> tuple | dict:
     user = User.objects.get(token=request.COOKIES.get("token"))
 
-    if user.username == username:
+    if user.username == data.username:
         return 400, {
             "success": False
         }
