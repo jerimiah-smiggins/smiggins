@@ -52,11 +52,11 @@ def container_create(request, data: NewContainer) -> tuple | dict:
         user_two = user if user.username > self_user.username else self_user
     )
 
-    user_one.messages.append(container_id)
-    user_two.messages.append(container_id)
+    user.messages.append(container_id)
+    self_user.messages.append(container_id)
 
-    user_one.save()
-    user_two.save()
+    user.save()
+    self_user.save()
 
     return 201, {
         "success": True
