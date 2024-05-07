@@ -91,7 +91,7 @@ def send_message(request, data: NewMessage) -> tuple | dict:
         }
 
     try:
-        container = PrivateMessageContainer.objects.get(container_id=get_container_id(user, username))
+        container = PrivateMessageContainer.objects.get(container_id=get_container_id(user, data.username))
     except PrivateMessageContainer.DoesNotExist:
         return 404, {
             "success": False
@@ -107,7 +107,7 @@ def send_message(request, data: NewMessage) -> tuple | dict:
     PrivateMessage.objects.create(
         timestamp = round(time.time()),
         content = content,
-        from_user_one = username == container.container_id.split(":")[1],
+        from_user_one = data.username == container.container_id.split(":")[1],
         message_container = container
     )
 
