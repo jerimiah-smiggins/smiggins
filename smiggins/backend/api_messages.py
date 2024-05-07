@@ -24,7 +24,7 @@ def container_create(request, data: NewContainer) -> tuple | dict:
         }
 
     user = User.objects.get(username=data.username)
-    container_id = get_container_id(user, self_user)
+    container_id = get_container_id(user.username, self_user.username)
 
     if user.user_id in self_user.blocking:
         return 400, {
@@ -71,7 +71,7 @@ def messages_since(request, username: str, message_id: int) -> tuple | dict:
         }
 
     try:
-        messages = PrivateMessageContainer.objects.get(container_id=get_container_id(user, username)).messages
+        messages = PrivateMessageContainer.objects.get(container_id=get_container_id(user.username, username)).messages
     except PrivateMessageContainer.DoesNotExist:
         return 404, {
             "success": False
@@ -91,7 +91,7 @@ def send_message(request, data: NewMessage) -> tuple | dict:
         }
 
     try:
-        container = PrivateMessageContainer.objects.get(container_id=get_container_id(user, data.username))
+        container = PrivateMessageContainer.objects.get(container_id=get_container_id(user.username, data.username))
     except PrivateMessageContainer.DoesNotExist:
         return 404, {
             "success": False
