@@ -104,17 +104,19 @@ def send_message(request, data: NewMessage) -> tuple | dict:
             "reason": "Invalid message size"
         }
 
+    timestamp = round(time.time())
+
     PrivateMessage.objects.create(
-        timestamp = round(time.time()),
+        timestamp = timestamp,
         content = content,
         from_user_one = data.username == container.container_id.split(":")[1],
         message_container = container
     )
 
     x = PrivateMessage.objects.get(
-        content=content,
-        timestamp=timestamp,
-        message_container=container
+        content = content,
+        timestamp = timestamp,
+        message_container = container
     )
 
     container.messages.append(x.message_id)
