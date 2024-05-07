@@ -349,3 +349,6 @@ def create_notification(
             Notification.objects.get(notif_id=i).delete()
 
     is_for.save()
+
+def get_container_id(user_one: User, user_two: User) -> str:
+    return f"{user_one.username}-{user_two.username}" if user_two.username > user_one.username else f"{user_two.username}-{user_one.username}"

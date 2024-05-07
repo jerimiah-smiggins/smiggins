@@ -2,7 +2,7 @@ if (typeof(logged_in) != "boolean") {
   logged_in = document.cookie.indexOf("token=") != -1;
 }
 
-let x = document.createElement("div");
+x = document.createElement("div");
 x.setAttribute("class", "icons");
 x.setAttribute("id", "icons");
 
@@ -16,6 +16,7 @@ if (logged_in) {
   }
 
   x.innerHTML += `<div data-add-notification-dot>${icons.bell}</div>`;
+  x.innerHTML += `<div data-add-message-dot>${icons.message}</div>`;
 }
 
 if (typeof(share) !== 'undefined') {
@@ -30,6 +31,14 @@ function getNotifications() {
     .then((json) => {
       [...document.querySelectorAll("[data-add-notification-dot]")].forEach((val, index) => {
         if (json.success && json.notifications) {
+          val.classList.add("dot");
+        } else {
+          val.classList.remove("dot");
+        }
+      });
+
+      [...document.querySelectorAll("[data-add-message-dot]")].forEach((val, index) => {
+        if (json.success && json.messages) {
           val.classList.add("dot");
         } else {
           val.classList.remove("dot");

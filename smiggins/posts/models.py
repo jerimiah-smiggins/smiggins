@@ -28,7 +28,9 @@ class User(models.Model):
     blocking  = models.JSONField(default=list, blank=True)
     badges    = models.JSONField(default=list, blank=True)
     notifications = models.JSONField(default=list, blank=True)
+    messages = models.JSONField(default=list, blank=True)
     read_notifs = models.BooleanField(default=True)
+    read_messages = models.BooleanField(default=True)
 
     pinned   = models.IntegerField(default=0)
     posts    = models.JSONField(default=list, blank=True)

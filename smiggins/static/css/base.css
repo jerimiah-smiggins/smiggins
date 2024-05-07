@@ -228,10 +228,6 @@ table.center {
   text-decoration: none !important;
 }
 
-.no-underline:focus {
-  outline: none !important;
-}
-
 .icons {
   display: flex;
   flex-direction: column;
