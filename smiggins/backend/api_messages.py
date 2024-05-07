@@ -106,7 +106,7 @@ def send_message(request, data: NewMessage) -> tuple | dict:
 
     timestamp = round(time.time())
 
-    PrivateMessage.objects.create(
+    x = PrivateMessage.objects.create(
         timestamp = timestamp,
         content = content,
         from_user_one = data.username == container.container_id.split(":")[1],
