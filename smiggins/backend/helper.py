@@ -351,4 +351,4 @@ def create_notification(
     is_for.save()
 
 def get_container_id(user_one: str, user_two: str) -> str:
-    return f"{user_one}:{user_two}" if user_two > user_one else f"{user_two}-{user_one}"
+    return f"{user_one}:{user_two}" if user_two > user_one else f"{user_two}:{user_one}"
