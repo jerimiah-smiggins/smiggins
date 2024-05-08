@@ -3,7 +3,7 @@
 # This file is meant to have settings that are easy to understand.
 
 # Version displayed.
-VERSION: str = "0.7.4"
+VERSION: str = "0.8.0"
 
 # What to have the site name be.
 SITE_NAME: str = "Jerimiah Smiggins"
@@ -57,6 +57,9 @@ API_TIMINGS: dict[str, int] = {
 # server to the client. Increasing the number can increase bandwidth
 # and cpu usage however it will likely improve the user experience
 POSTS_PER_REQUEST: int = 20
+
+# This controls how many messages are sent at a time when loading them.
+MESSAGES_PER_REQUEST: int = POSTS_PER_REQUEST * 2
 
 # The maximum number of notifications to be stored per user. Whenever
 # this limit is exceeded, it will remove the oldest notifications for

@@ -1,0 +1,27 @@
+{% load static %}
+<!DOCTYPE html>
+
+<html>
+  <head>
+    <title>Messaging {{ DISPLAY_NAME }} - {{ SITE_NAME }} v{{ VERSION }}</title>
+    {% autoescape off %}
+    {{ HTML_HEADERS }}
+    {% endautoescape %}
+
+    <link rel="stylesheet" href="{% static '/css/messages.css' %}?v={{ VERSION }}">
+  </head>
+
+  <body data-theme="{{ THEME }}" data-username="{{ USERNAME }}">
+    <div class="header-container"><h1>Messaging {{ DISPLAY_NAME }}</div>
+
+    <div class="messages-container">
+      <div id="messages-go-here-btw" class="messages"></div>
+      <textarea id="your-mom" placeholder="(Make sure to call them slurs)"></textarea>
+    </div>
+
+    <script src="{% static '/js/message.js' %}?v={{ VERSION }}"></script>
+    {% autoescape off %}
+    {{ HTML_FOOTERS }}
+    {% endautoescape %}
+  </body>
+</html>

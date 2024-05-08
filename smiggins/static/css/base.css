@@ -110,7 +110,8 @@ option {
 
 input::placeholder,
 textarea::placeholder {
-  color: var(--text-muted);
+  color: var(--surface2);
+  opacity: 100%;
 }
 
 textarea:disabled {
@@ -226,10 +227,6 @@ table.center {
 
 .no-underline {
   text-decoration: none !important;
-}
-
-.no-underline:focus {
-  outline: none !important;
 }
 
 .icons {

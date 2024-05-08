@@ -44,7 +44,8 @@
   color: var(--subtext0);
 }
 
-[data-followed] {
+#toggle,
+#message {
   width: 6em;
 }
 

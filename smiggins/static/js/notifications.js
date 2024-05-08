@@ -21,12 +21,12 @@ function refresh() {
     .then((response) => (response.json()))
     .then((json) => {
       if (json.success) {
-        x = document.createDocumentFragment();
+        let x = document.createDocumentFragment();
         let yourMother = false;
         let first = true;
 
         for (const notif of json.notifications) {
-          y = document.createElement("div");
+          let y = document.createElement("div");
 
           if (!yourMother && notif.read) {
             if (!first) {
@@ -46,7 +46,8 @@ function refresh() {
             true,      // includeUserLink
             true,      // includePostLink
             false      // isOwner
-          ).replace("\"post\"", yourMother ? "\"post\" data-color='gray'" : "\"post\"");
+          ).replaceAll("<button", "<button disabled")
+           .replace("\"post\"", yourMother ? "\"post\" data-color='gray'" : "\"post\"");
 
           x.append(y);
           x.append(document.createElement("br"));
@@ -64,10 +65,18 @@ function refresh() {
   });
 }
 
+function addQuote()   {}
+function toggleLike() {}
+
 dom("read").addEventListener("click", function() {
   fetch("/api/user/notifications", {
     "method": "DELETE"
-  }).then(() => { refresh(); });
+  }).then(() => {
+    refresh();
+    [...document.querySelectorAll("[data-add-notification-dot]")].forEach((val, index) => {
+      val.classList.remove("dot");
+    });
+  });
 });
 
 dom("refresh").addEventListener("click", refresh);

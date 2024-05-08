@@ -1,10 +1,15 @@
-let inc = 0, req = 0;
+let inc = 0;
 let home = true;
 
 showlog = (str, time=3000) => {
   inc++;
   dom("error").innerText = str;
-  setTimeout(() => { req++; if (req == inc) { dom("error").innerText = ""; }}, time);
+  setTimeout(() => {
+    --inc;
+    if (!inc) {
+      dom("error").innerText = "";
+    }
+  }, time);
 };
 
 // Level 1
@@ -174,7 +179,7 @@ level >= 4 && dom("debug-button").addEventListener("click", function() {
       if (json.success) {
         let lines = atob(json.content).split("\n");
 
-        output = "<table class=\"admin-logs bordered\"><tr><th>Timestamp</th><th>Action</th><th>Who</th><th class=\"nowrap\">More Info</th></tr>"
+        let output = "<table class=\"admin-logs bordered\"><tr><th>Timestamp</th><th>Action</th><th>Who</th><th class=\"nowrap\">More Info</th></tr>"
         for (const line of lines) {
           try {
             output += `<tr><td class="nowrap">${timeSince(line.split(" ", 2)[0])} ago</td><td class="nowrap">${line.split(",", 2)[0].split("- ", 2)[1]}</td><td class="nowrap">${line.split(",")[1].split(") - ", 2)[0]})</td><td>${escapeHTML(line.split(",").slice(1).join(",").split(") - ", 2)[1])}</td></tr>`;

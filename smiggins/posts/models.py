@@ -28,7 +28,9 @@ class User(models.Model):
     blocking  = models.JSONField(default=list, blank=True)
     badges    = models.JSONField(default=list, blank=True)
     notifications = models.JSONField(default=list, blank=True)
+    messages = models.JSONField(default=list, blank=True)
     read_notifs = models.BooleanField(default=True)
+    unread_messages = models.JSONField(default=list, blank=True)
 
     pinned   = models.IntegerField(default=0)
     posts    = models.JSONField(default=list, blank=True)
@@ -83,8 +85,7 @@ class Notification(models.Model):
 
     # The type of the event that caused the notification. Can be:
     # - comment (commenting on your post)
-    # - quote_p (your post being quoted)
-    # - quote_c (your comment being quoted)
+    # - quote (your post/comment being quoted)
     # - ping_p (ping from a post)
     # - ping_c (ping from a comment)
     event_type = models.CharField(max_length=7)
@@ -101,3 +102,32 @@ class Notification(models.Model):
 
     def __str__(self):
         return f"({'' if self.read else 'un'}read) {self.event_type} ({self.event_id}) for {self.is_for.username}"
+
+class PrivateMessageContainer(models.Model):
+    # Essentially f"{user_one.username}-{user_two.username}" where user_one
+    # is earlier in the alphabet than user_two
+    container_id = models.CharField(primary_key=True, unique=True, max_length=601)
+
+    user_one = models.ForeignKey(User, on_delete=models.CASCADE, related_name="container_reference_one")
+    user_two = models.ForeignKey(User, on_delete=models.CASCADE, related_name="container_reference_two")
+
+    messages = models.JSONField(default=list, blank=True)
+
+    def __str__(self):
+        return f"Message group between {self.user_one.username} and {self.user_two.username}"
+
+class PrivateMessage(models.Model):
+    message_id = models.IntegerField(primary_key=True, unique=True)
+    timestamp  = models.IntegerField()
+
+    content = models.CharField(max_length=65536)
+
+    # If True, then the message was sent from user one, defined in
+    # the PrivateMessageContainer. If False, then the message is from
+    # user two.
+    from_user_one = models.BooleanField()
+
+    message_container = models.ForeignKey(PrivateMessageContainer, on_delete=models.CASCADE)
+
+    def __str__(self):
+        return f"({self.message_id}) From {self.message_container.user_one.username if self.from_user_one else self.message_container.user_two.username} to {self.message_container.user_two.username if self.from_user_one else self.message_container.user_one.username} - {self.content}"

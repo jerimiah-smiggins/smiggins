@@ -164,3 +164,9 @@ button.bottom-content-icon {
     width: 1.5em;
   }
 }
+
+@media screen and (max-width: 385px) {
+  .bottom-spacing {
+    width: 0.5em;
+  }
+}

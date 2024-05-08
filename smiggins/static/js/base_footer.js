@@ -16,6 +16,7 @@ if (logged_in) {
   }
 
   x.innerHTML += `<div data-add-notification-dot>${icons.bell}</div>`;
+  x.innerHTML += `<div data-add-message-dot>${icons.message}</div>`;
 }
 
 if (typeof(share) !== 'undefined') {
@@ -24,16 +25,31 @@ if (typeof(share) !== 'undefined') {
 
 document.querySelector("body").append(x);
 
-if (logged_in) {
+function getNotifications() {
   fetch("/api/info/notifications")
     .then((response) => (response.json()))
     .then((json) => {
-      if (json.success && json.notifications) {
-        [...document.querySelectorAll("[data-add-notification-dot]")].forEach((val, index) => {
+      [...document.querySelectorAll("[data-add-notification-dot]")].forEach((val, index) => {
+        if (json.success && json.notifications) {
           val.classList.add("dot");
-        });
-      }
+        } else {
+          val.classList.remove("dot");
+        }
+      });
+
+      [...document.querySelectorAll("[data-add-message-dot]")].forEach((val, index) => {
+        if (json.success && json.messages) {
+          val.classList.add("dot");
+        } else {
+          val.classList.remove("dot");
+        }
+      });
     });
+}
+
+if (logged_in) {
+  getNotifications();
+  setInterval(getNotifications, 2 * 60 * 1000);
 
   if (typeof(profile) === "undefined") {
     if (localStorage.getItem("username") === null) {
