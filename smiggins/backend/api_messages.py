@@ -78,6 +78,12 @@ def send_message(request, data: NewMessage) -> tuple | dict:
             "success": False
         }
 
+    if container.user_one.user_id in container.user_two.blocking or container.user_two.user_id in container.user_one.blocking:
+        return 400, {
+            "success": False,
+            "reason": "You are blocked by/blocking this user"
+        }
+
     content = trim_whitespace(data.content, True)
     if len(content) == 0 or len(content) > MAX_POST_LENGTH:
         return 400, {
