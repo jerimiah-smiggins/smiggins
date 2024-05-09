@@ -43,7 +43,8 @@
 }
 
 .message.send a {
-  color: var(--surface0);
+  color: var(--crust);
+  text-decoration: underline;
 }
 
 .message.send div {
@@ -79,8 +80,7 @@
 .timestamp {
   display: block;
   font-size: 0.7em;
-  color: var(--base);
-  text-decoration: underline;
+  color: var(--text);
 }
 
 .messages-container button {
