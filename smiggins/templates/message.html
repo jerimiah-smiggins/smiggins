@@ -12,7 +12,13 @@
   </head>
 
   <body data-theme="{{ THEME }}" data-username="{{ USERNAME }}">
-    <div class="header-container"><h1>Messaging {{ DISPLAY_NAME }}</div>
+    <div class="header-container"><h1>
+      Messaging {{ DISPLAY_NAME }}
+      <span data-show-on-priv hidden><div class="user-badge" data-add-icon="lock"></div></span>
+      {% autoescape off %}
+      {{ BADGES }}
+      {% endautoescape %}
+    </h1></div>
 
     <div class="messages-container">
       <div id="messages-go-here-btw" class="messages"></div>

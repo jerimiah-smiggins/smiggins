@@ -1,5 +1,6 @@
 let offset = null;
 let inc = 0, end = false;
+let c = 0;
 
 showlog = (str, time=3000) => {
   inc++;
@@ -13,6 +14,7 @@ showlog = (str, time=3000) => {
 };
 
 function refresh(force_offset=false) {
+  c++;
   if (force_offset !== true) { dom("posts").innerHTML = ""; }
 
   fetch(`${url}${force_offset === true && !end ? `${url.includes("?") ? "&" : "?"}offset=${offset}` : ""}`, {
@@ -23,6 +25,11 @@ function refresh(force_offset=false) {
   })
     .then((response) => (response.json()))
     .then((json) => {
+      --c;
+      if (c) {
+        return;
+      }
+
       end = json.end;
       let output = "";
       for (const post of json.posts) {
@@ -56,6 +63,7 @@ function refresh(force_offset=false) {
       }
     })
     .catch((err) => {
+      --c;
       showlog("Something went wrong loading the posts! Try again in a few moments...", 5000);
       throw(err);
     });

@@ -280,6 +280,10 @@ function trimWhitespace(string, purge_newlines=false) {
 }
 
 function postTextInputEvent() {
+  if (typeof setUnload === "function") {
+    setUnload();
+  }
+
   let newCursorPosition = trimWhitespace(this.value.slice(0, this.selectionStart + 1)).length - (this.value.length > this.selectionStart ? 1 : 0);
   let newVal = trimWhitespace(this.value);
 

@@ -356,7 +356,8 @@ def message(request, username: str) -> HttpResponse | HttpResponseRedirect:
         request, "message.html",
 
         USERNAME = username,
-        DISPLAY_NAME = user.display_name
+        DISPLAY_NAME = user.display_name,
+        BADGES = "".join([f"<span class='user-badge' data-add-badge='{i}'></span> " for i in get_badges(user)])
     )
 
 # These two functions are referenced in smiggins/urls.py

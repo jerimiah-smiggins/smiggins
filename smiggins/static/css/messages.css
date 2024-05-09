@@ -43,16 +43,21 @@
   text-align: right;
 }
 
-.message.send a {
-  color: var(--crust);
-  text-decoration: underline;
-}
-
 .message.send div {
   text-align: left;
   background-color: var(--accent);
   color: var(--base);
   border-radius: 0.6em 0.6em 0 0.6em;
+}
+
+.message.send div::selection {
+  background-color: var(--subtext0);
+  color: var(--base);
+}
+
+.message.send div > a {
+  color: var(--crust);
+  text-decoration: underline;
 }
 
 .header-container {

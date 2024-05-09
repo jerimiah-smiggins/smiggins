@@ -156,6 +156,15 @@ table.bordered td {
   border: 1.5px solid var(--surface0);
 }
 
+.user-badge {
+  width: 1.2em;
+  height: 1.2em;
+  display: inline-block;
+  position: relative;
+  top: 0.2em;
+  fill: var(--text);
+}
+
 .text:not(svg) {
   color: var(--text);
 }

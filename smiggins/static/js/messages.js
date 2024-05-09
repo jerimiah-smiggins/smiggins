@@ -20,6 +20,9 @@ showlog = (string, timer=3000) => {
 };
 
 function refresh(from_start=false) {
+  dom("refresh").setAttribute("disabled", "");
+  dom("more").setAttribute("disabled", "");
+
   if (from_start) {
     offset = -1;
     dom("recent-list").innerHTML = "";
@@ -60,7 +63,10 @@ function refresh(from_start=false) {
             </div><br>`;
           x.append(y);
         }
+
         dom("recent-list").append(x);
+        dom("refresh").removeAttribute("disabled");
+        dom("more").removeAttribute("disabled");
 
         if (json.more) {
           dom("more").removeAttribute("hidden");
@@ -71,6 +77,8 @@ function refresh(from_start=false) {
     })
     .catch((err) => {
       showlog("Something went wrong loading recent messages! " + err);
+      dom("refresh").removeAttribute("disabled");
+      dom("more").removeAttribute("disabled");
     });
 }
 
