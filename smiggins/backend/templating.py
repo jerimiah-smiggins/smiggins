@@ -47,6 +47,7 @@ def user(request, username: str) -> HttpResponse:
         self_id = self_object.user_id
         logged_in = True
     except:
+        self_id = 0
         logged_in = False
 
     try:
