@@ -12,7 +12,7 @@ function extra(json) {
     formatHref: { mention: (href) => "/u" + href }
   });
 
-  if (json.pinned.content) {
+  if (json.pinned && json.pinned.content) {
     dom("pinned").innerHTML = getPostHTML(
       json.pinned, // postJSON
       false, // isComment
