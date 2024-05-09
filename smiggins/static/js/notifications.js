@@ -26,33 +26,35 @@ function refresh() {
         let first = true;
 
         for (const notif of json.notifications) {
-          let y = document.createElement("div");
+          if (notif.data.can_view) {
+            let y = document.createElement("div");
 
-          if (!yourMother && notif.read) {
-            if (!first) {
-              y.innerHTML = "<hr>";
+            if (!yourMother && notif.read) {
+              if (!first) {
+                y.innerHTML = "<hr>";
+              }
+
+              yourMother = true;
             }
 
-            yourMother = true;
+            notif.data.can_delete = false;
+            notif.data.can_pin = false;
+
+            y.innerHTML += escapeHTML(stringMap[notif.event_type](notif.data.creator.display_name)) + "<br>";
+            y.innerHTML += getPostHTML(
+              notif.data, // postJSON
+              ["comment", "ping_c"].includes(notif.event_type), // isComment
+              true,      // includeUserLink
+              true,      // includePostLink
+              false      // isOwner
+            ).replaceAll("<button", "<button disabled")
+            .replace("\"post\"", yourMother ? "\"post\" data-color='gray'" : "\"post\"");
+
+            x.append(y);
+            x.append(document.createElement("br"));
+
+            first = false;
           }
-
-          notif.data.can_delete = false;
-          notif.data.can_pin = false;
-
-          y.innerHTML += escapeHTML(stringMap[notif.event_type](notif.data.creator.display_name)) + "<br>";
-          y.innerHTML += getPostHTML(
-            notif.data, // postJSON
-            ["comment", "ping_c"].includes(notif.event_type), // isComment
-            true,      // includeUserLink
-            true,      // includePostLink
-            false      // isOwner
-          ).replaceAll("<button", "<button disabled")
-           .replace("\"post\"", yourMother ? "\"post\" data-color='gray'" : "\"post\"");
-
-          x.append(y);
-          x.append(document.createElement("br"));
-
-          first = false;
         }
 
         dom("notif-container").append(x);
