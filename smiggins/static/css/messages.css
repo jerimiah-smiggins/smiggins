@@ -79,7 +79,8 @@
 .timestamp {
   display: block;
   font-size: 0.7em;
-  color: var(--subtext0)
+  color: var(--base);
+  text-decoration: underline;
 }
 
 .messages-container button {
@@ -90,6 +91,6 @@
 
 @media screen and (max-width: 565px) {
   #your-mom {
-    width: calc(94vw - (2em / 7) - 17px);
+    width: calc(90vw - (4em / 7) - 17px);
   }
 }
