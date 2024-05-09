@@ -42,6 +42,10 @@
   text-align: right;
 }
 
+.message.send a {
+  color: var(--surface0);
+}
+
 .message.send div {
   text-align: left;
   background-color: var(--accent);
@@ -81,4 +85,11 @@
 .messages-container button {
   width: 9em;
   margin: 0 auto;
+}
+
+
+@media screen and (max-width: 565px) {
+  #your-mom {
+    width: calc(94vw - (2em / 7) - 17px);
+  }
 }
