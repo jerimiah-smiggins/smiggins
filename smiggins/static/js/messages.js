@@ -47,6 +47,8 @@ function refresh(from_start=false) {
                 <a href="/u/${message.username}" class="no-underline text">
                   <div class="displ-name">
                     ${escapeHTML(message.display_name)}
+                    ${message.private ? `<span class="user-badge">${icons.lock}</span>` : ""}
+                    ${message.badges.length ? `<span class="user-badge">${message.badges.map((icon) => (badges[icon])).join("</span> <span class=\"user-badge\">")}</span>` : ""}
                     <span class="upper-lower-opacity"> -
                       <div class="username">@${message.username}</div>
                       ${message.timestamp || message.content ? `- <div class="username">${timeSince(message.timestamp)} ago</div>` : ""}

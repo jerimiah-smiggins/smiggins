@@ -14,7 +14,7 @@
   <body data-theme="{{ THEME }}" data-username="{{ USERNAME }}">
     <div class="header-container"><h1>
       Messaging {{ DISPLAY_NAME }}
-      <span data-show-on-priv hidden><div class="user-badge" data-add-icon="lock"></div></span>
+      <span {% if PRIVATE == "false" %}hidden{% endif %}><div class="user-badge" data-add-icon="lock"></div></span>
       {% autoescape off %}
       {{ BADGES }}
       {% endautoescape %}

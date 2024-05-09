@@ -357,6 +357,7 @@ def message(request, username: str) -> HttpResponse | HttpResponseRedirect:
 
         USERNAME = username,
         DISPLAY_NAME = user.display_name,
+        PRIVATE = str(user.private).lower(),
         BADGES = "".join([f"<span class='user-badge' data-add-badge='{i}'></span> " for i in get_badges(user)])
     )
 
