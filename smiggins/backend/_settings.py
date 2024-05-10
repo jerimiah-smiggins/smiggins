@@ -2,6 +2,8 @@
 # Only modify the other files if you know what you're doing.
 # This file is meant to have settings that are easy to understand.
 
+# -- General Site Configuration --
+
 # Version displayed.
 VERSION: str = "0.8.3"
 
@@ -23,6 +25,8 @@ ADMIN_LOG_PATH: str = "./admin.log"
 # The maximum of lines of logs to store in the admin file at once. Minimum one
 MAX_ADMIN_LOG_LINES: int = 1000
 
+# -- Frontend Configuration --
+
 # 1-200
 MAX_USERNAME_LENGTH: int = 18
 MAX_DISPL_NAME_LENGTH: int = 32
@@ -32,6 +36,29 @@ MAX_POST_LENGTH: int = 280
 MAX_BIO_LENGTH: int = 280
 
 DEFAULT_BANNER_COLOR: str = "#3a1e93"
+
+# This controls how many posts can be sent at a time from the
+# server to the client. Increasing the number can increase bandwidth
+# and cpu usage however it will likely improve the user experience
+POSTS_PER_REQUEST: int = 20
+
+# This controls how many messages are sent at a time when loading them.
+MESSAGES_PER_REQUEST: int = POSTS_PER_REQUEST * 2
+
+# The maximum number of notifications to be stored per user. Whenever
+# this limit is exceeded, it will remove the oldest notifications for
+# that user.
+MAX_NOTIFICATIONS: int = 100
+
+# Contact information. Can be email, url, or text
+CONTACT_INFO: list[list[str]] = [
+    ["email", "trinkey@duck.com"],
+    ["url",   "https://github.com/trinkey/social-media-thing/issues"],
+    ["url",   "https://discord.gg/tH7QnHApwu"],
+    ["text",  "DM me on discord (@trinkey_)"]
+]
+
+# -- Feature Toggles --
 
 # False = hide links to the github source code
 SOURCE_CODE: bool = True
@@ -53,23 +80,18 @@ API_TIMINGS: dict[str, int] = {
     "create post failure": 1000,
 }
 
-# This controls how many posts can be sent at a time from the
-# server to the client. Increasing the number can increase bandwidth
-# and cpu usage however it will likely improve the user experience
-POSTS_PER_REQUEST: int = 20
+# Changing any of the following settings won't modify any existing
+# values in the database, instead ignoring them to meet the preferred
+# setting. This means if you enable one in the future, anything set
+# before it was disabled will persist.
 
-# This controls how many messages are sent at a time when loading them.
-MESSAGES_PER_REQUEST: int = POSTS_PER_REQUEST * 2
+# Setting toggles
+ENABLE_USER_BIOS: bool = True
+ENABLE_PRONOUNS: bool = True
+ENABLE_GRADIENT_BANNERS: bool = True
+ENABLE_BADGES: bool = True # The private account icon will still show if this is off
 
-# The maximum number of notifications to be stored per user. Whenever
-# this limit is exceeded, it will remove the oldest notifications for
-# that user.
-MAX_NOTIFICATIONS: int = 1000
-
-# Contact information. Can be email, url, or text
-CONTACT_INFO: list[list[str]] = [
-    ["email", "trinkey@duck.com"],
-    ["url",   "https://github.com/trinkey/social-media-thing/issues"],
-    ["url",   "https://discord.gg/tH7QnHApwu"],
-    ["text",  "DM me on discord (@trinkey_)"]
-]
+# Larger feature toggles
+ENABLE_PRIVATE_MESSAGES: bool = False
+ENABLE_QUOTES: bool = True # Posts that are already quotes still show up as a quote
+ENABLE_POST_DELETION: bool = True

@@ -1,6 +1,6 @@
 # Contains helper functions. These aren't for routing, instead doing something that can be used in other places in the code.
 
-from ._settings import SITE_NAME, VERSION, SOURCE_CODE, MAX_DISPL_NAME_LENGTH, MAX_POST_LENGTH, MAX_USERNAME_LENGTH, RATELIMIT, OWNER_USER_ID, ADMIN_LOG_PATH, MAX_ADMIN_LOG_LINES, MAX_NOTIFICATIONS
+from ._settings import SITE_NAME, VERSION, SOURCE_CODE, MAX_DISPL_NAME_LENGTH, MAX_POST_LENGTH, MAX_USERNAME_LENGTH, RATELIMIT, OWNER_USER_ID, ADMIN_LOG_PATH, MAX_ADMIN_LOG_LINES, MAX_NOTIFICATIONS, MAX_BIO_LENGTH, ENABLE_USER_BIOS, ENABLE_PRONOUNS, ENABLE_GRADIENT_BANNERS, ENABLE_BADGES, ENABLE_PRIVATE_MESSAGES, ENABLE_QUOTES, ENABLE_POST_DELETION
 from .variables import HTML_FOOTERS, HTML_HEADERS, PRIVATE_AUTHENTICATOR_KEY, timeout_handler
 from .packages  import Union, Callable, Any, HttpResponse, HttpResponseRedirect, loader, User, Comment, Post, Notification, threading, hashlib, pathlib, time, re
 
@@ -37,9 +37,16 @@ def get_HTTP_response(request, file: str, **kwargs: Any) -> HttpResponse:
         "HTML_HEADERS": HTML_HEADERS,
         "HTML_FOOTERS": HTML_FOOTERS,
 
-        "MAX_DISPL_NAME_LENGTH": MAX_DISPL_NAME_LENGTH,
         "MAX_POST_LENGTH": MAX_POST_LENGTH,
-        "MAX_USERNAME_LENGTH": MAX_USERNAME_LENGTH,
+        "MAX_DISPL_NAME_LENGTH": MAX_DISPL_NAME_LENGTH,
+        "MAX_BIO_LENGTH": MAX_BIO_LENGTH,
+        "ENABLE_USER_BIOS": str(ENABLE_USER_BIOS).lower(),
+        "ENABLE_PRONOUNS": str(ENABLE_PRONOUNS).lower(),
+        "ENABLE_GRADIENT_BANNERS": str(ENABLE_GRADIENT_BANNERS).lower(),
+        "ENABLE_BADGES": str(ENABLE_BADGES).lower(),
+        "ENABLE_PRIVATE_MESSAGES": str(ENABLE_PRIVATE_MESSAGES).lower(),
+        "ENABLE_QUOTES": str(ENABLE_QUOTES).lower(),
+        "ENABLE_POST_DELETION": str(ENABLE_POST_DELETION).lower(),
 
         "THEME": User.objects.get(token=request.COOKIES.get('token')).theme if validate_token(request.COOKIES.get('token')) else "dark"
     }
@@ -152,7 +159,7 @@ def ensure_ratelimit(api_id: str, identifier: Union[str, None]) -> bool:
 def get_badges(user: User) -> list[str]:
     # Returns the list of badges for the specified user
 
-    return user.badges + (["administrator"] if user.admin_level >= 1 or user.user_id == OWNER_USER_ID else [])
+    return user.badges + (["administrator"] if user.admin_level >= 1 or user.user_id == OWNER_USER_ID else []) if ENABLE_BADGES else []
 
 def get_post_json(post_id: int, current_user_id: int=0, comment: bool=False, cache: dict[int, User] | None=None) -> dict[str, str | int | dict]:
     # Returns a dict object that includes information about the specified post
@@ -196,7 +203,7 @@ def get_post_json(post_id: int, current_user_id: int=0, comment: bool=False, cac
             "username": creator.username,
             "badges": get_badges(creator),
             "private": creator.private,
-            "pronouns": creator.pronouns
+            "pronouns": creator.pronouns if ENABLE_PRONOUNS else "__"
         },
         "post_id": post_id,
         "content": post.content,

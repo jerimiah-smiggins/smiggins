@@ -3,7 +3,7 @@
 # this file if you want.
 
 from ._api_keys import auth_key
-from ._settings import MAX_POST_LENGTH, ADMIN_LOG_PATH, VERSION
+from ._settings import MAX_USERNAME_LENGTH, MAX_POST_LENGTH, MAX_DISPL_NAME_LENGTH, MAX_POST_LENGTH, MAX_BIO_LENGTH, ADMIN_LOG_PATH, VERSION, ENABLE_USER_BIOS, ENABLE_PRONOUNS, ENABLE_GRADIENT_BANNERS, ENABLE_BADGES, ENABLE_PRIVATE_MESSAGES, ENABLE_QUOTES, ENABLE_POST_DELETION
 from .packages  import Badge, hashlib, ensure_file, pathlib
 from django.db.utils import OperationalError
 
@@ -19,16 +19,31 @@ except FileNotFoundError:
 HTML_HEADERS: str = f"""
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="pronouns" content="she/her">
+
 <link rel="stylesheet" href="/static/css/base.css?v={VERSION}">
 <link rel="icon" href="/static/img/favicon.ico?v={VERSION}" type="image/x-icon">
+
 <script src="/static/js/linkify-4.1.3.min.js?v={VERSION}"></script>
 <script src="/static/js/linkify-html-4.1.3.min.js?v={VERSION}"></script>
 <script src="/static/js/linkify-mentions-4.1.3.min.js?v={VERSION}"></script>
-<script src="/badges.js?v={VERSION}"></script>
-<script src="/static/js/base.js?v={VERSION}"></script>
+
 <script>
+  const MAX_USERNAME_LENGTH = {MAX_USERNAME_LENGTH};
   const MAX_POST_LENGTH = {MAX_POST_LENGTH};
+  const MAX_DISPL_NAME_LENGTH = {MAX_DISPL_NAME_LENGTH};
+  const MAX_BIO_LENGTH = {str(MAX_BIO_LENGTH).lower()};
+  const ENABLE_USER_BIOS = {str(ENABLE_USER_BIOS).lower()};
+  const ENABLE_PRONOUNS = {str(ENABLE_PRONOUNS).lower()};
+  const ENABLE_GRADIENT_BANNERS = {str(ENABLE_GRADIENT_BANNERS).lower()};
+  const ENABLE_BADGES = {str(ENABLE_BADGES).lower()};
+  const ENABLE_PRIVATE_MESSAGES = {str(ENABLE_PRIVATE_MESSAGES).lower()};
+  const ENABLE_QUOTES = {str(ENABLE_QUOTES).lower()};
+  const ENABLE_POST_DELETION = {str(ENABLE_POST_DELETION).lower()}
 </script>
+
+{f'<script src="/badges.js?v={VERSION}"></script>' if ENABLE_BADGES else ''}
+<script src="/static/js/base.js?v={VERSION}"></script>
 """
 
 # Headers set at the bottom of some html files.

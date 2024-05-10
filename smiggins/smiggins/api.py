@@ -2,6 +2,7 @@ from django.urls import path
 
 from backend.collect_api import ApiAdmin, ApiComment, ApiInfo, ApiPost, ApiUser, ApiMessages
 from backend.packages    import json
+from backend._settings   import ENABLE_PRIVATE_MESSAGES, ENABLE_QUOTES, ENABLE_POST_DELETION
 
 from ninja.renderers import BaseRenderer
 from ninja import NinjaAPI
@@ -44,15 +45,18 @@ api.delete("user/block", response=response_schema)(ApiUser.block_remove)
 # Post stuff
 api.put("post/create",    response=response_schema)(ApiPost.post_create)
 api.put("comment/create", response=response_schema)(ApiComment.comment_create)
-api.put("quote/create",   response=response_schema)(ApiPost.quote_create)
+
+if ENABLE_QUOTES:
+    api.put("quote/create",   response=response_schema)(ApiPost.quote_create)
 
 api.get("post/user/{str:username}", response=response_schema)(ApiPost.post_list_user)
 api.get("post/following", response=response_schema)(ApiPost.post_list_following)
 api.get("post/recent",    response=response_schema)(ApiPost.post_list_recent)
 api.get("comments",       response=response_schema)(ApiComment.comment_list)
 
-api.delete("post",    response=response_schema)(ApiPost.post_delete)
-api.delete("comment", response=response_schema)(ApiComment.comment_delete)
+if ENABLE_POST_DELETION:
+    api.delete("post",    response=response_schema)(ApiPost.post_delete)
+    api.delete("comment", response=response_schema)(ApiComment.comment_delete)
 
 api.post  ("post/like",    response=response_schema)(ApiPost.post_like_add)
 api.delete("post/like",    response=response_schema)(ApiPost.post_like_remove)
@@ -63,10 +67,11 @@ api.patch ("user/pin", response=response_schema)(ApiPost.pin_post)
 api.delete("user/pin", response=response_schema)(ApiPost.unpin_post)
 
 # Message stuff
-api.get ("messages/list", response=response_schema)(ApiMessages.recent_messages)
-api.post("messages/new", response=response_schema)(ApiMessages.container_create)
-api.get ("messages", response=response_schema)(ApiMessages.messages_list)
-api.post("messages", response=response_schema)(ApiMessages.send_message)
+if ENABLE_PRIVATE_MESSAGES:
+    api.get ("messages/list", response=response_schema)(ApiMessages.recent_messages)
+    api.post("messages/new", response=response_schema)(ApiMessages.container_create)
+    api.get ("messages", response=response_schema)(ApiMessages.messages_list)
+    api.post("messages", response=response_schema)(ApiMessages.send_message)
 
 # Admin stuff
 api.get   ("admin/info",     response=response_schema)(ApiAdmin.account_info)

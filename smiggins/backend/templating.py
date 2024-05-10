@@ -1,6 +1,6 @@
 # For getting pages, not api.
 
-from ._settings import DEFAULT_BANNER_COLOR, MAX_BIO_LENGTH, OWNER_USER_ID, CONTACT_INFO, SOURCE_CODE
+from ._settings import DEFAULT_BANNER_COLOR, MAX_BIO_LENGTH, OWNER_USER_ID, CONTACT_INFO, ENABLE_GRADIENT_BANNERS
 from .variables import BADGE_DATA
 from .packages  import User, Post, Comment, PrivateMessageContainer, HttpResponse, HttpResponseRedirect, json
 from .helper    import validate_token, get_HTTP_response, get_post_json, get_badges, get_container_id
@@ -76,7 +76,7 @@ def user(request, username: str) -> HttpResponse:
 
         BADGES = "".join([f"<span class='user-badge' data-add-badge='{i}'></span> " for i in get_badges(user)]),
 
-        GRADIENT = "gradient" if user.gradient else "",
+        GRADIENT = "gradient" if ENABLE_GRADIENT_BANNERS and user.gradient else "",
         BANNER_COLOR = user.color or DEFAULT_BANNER_COLOR,
         BANNER_COLOR_TWO = user.color_two or DEFAULT_BANNER_COLOR,
 
@@ -160,10 +160,10 @@ def user_lists(request, username: str) -> HttpResponse | HttpResponseRedirect:
     return get_HTTP_response(
         request, "user_lists.html",
 
-        USERNAME     = user.username,
+        USERNAME = user.username,
         DISPLAY_NAME = user.display_name,
-        PRONOUNS     = user.pronouns,
-        USER_BIO     = user.bio or "",
+        PRONOUNS = user.pronouns,
+        USER_BIO = user.bio or "",
 
         EMPTY = "\n\n\n",
 
@@ -176,12 +176,12 @@ def user_lists(request, username: str) -> HttpResponse | HttpResponseRedirect:
 
         BADGES = "".join([f"<span class='user-badge' data-add-badge='{i}'></span> " for i in get_badges(user)]),
 
-        GRADIENT     = "gradient" if user.gradient else "",
+        GRADIENT = "gradient" if ENABLE_GRADIENT_BANNERS and user.gradient else "",
         BANNER_COLOR = user.color or DEFAULT_BANNER_COLOR,
         BANNER_COLOR_TWO = user.color_two or DEFAULT_BANNER_COLOR,
 
         IS_FOLLOWING = str(user.user_id in self_object.following).lower() if logged_in else "false",
-        IS_HIDDEN    = "hidden" if user.user_id == self_id else "",
+        IS_HIDDEN = "hidden" if user.user_id == self_id else "",
 
         INCLUDE_BLOCKS = str(logged_in and username == self_object.username).lower(),
         LOGGED_IN = str(logged_in).lower()

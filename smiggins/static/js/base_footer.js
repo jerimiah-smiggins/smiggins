@@ -18,7 +18,9 @@ if (logged_in) {
   }
 
   x.innerHTML += `<div data-add-notification-dot>${icons.bell}</div>`;
-  x.innerHTML += `<div data-add-message-dot>${icons.message}</div>`;
+  if (ENABLE_PRIVATE_MESSAGES) {
+    x.innerHTML += `<div data-add-message-dot>${icons.message}</div>`;
+  }
 }
 
 if (typeof(share) !== 'undefined') {
@@ -39,7 +41,7 @@ function getNotifications() {
         }
       });
 
-      [...document.querySelectorAll("[data-add-message-dot]")].forEach((val, index) => {
+      ENABLE_PRIVATE_MESSAGES && [...document.querySelectorAll("[data-add-message-dot]")].forEach((val, index) => {
         if (json.success && json.messages) {
           val.classList.add("dot");
         } else {
@@ -47,7 +49,7 @@ function getNotifications() {
         }
       });
 
-      if (json.messages || json.notifications) {
+      if ((json.messages && ENABLE_PRIVATE_MESSAGES) || json.notifications) {
         if (!titleNotificationIndicator) {
           titleNotificationIndicator = true;
           document.title = "[ ! ] " + document.title;

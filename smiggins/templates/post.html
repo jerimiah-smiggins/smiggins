@@ -10,20 +10,20 @@
 
     <meta name="description" content="{{ CONTENT }}
 
-Likes: {{ LIKES }} / Quotes: {{ QUOTES }} / Comments: {{ COMMENTS }}">
+Likes: {{ LIKES }} {% if ENABLE_QUOTES == 'true' %}/ Quotes: {{ QUOTES }} {% endif %}/ Comments: {{ COMMENTS }}">
     <meta name="author" content="{{ DISPLAY_NAME }} on {{ SITE_NAME }}">
 
     <meta property="og:type" content="website">
     <meta property="og:title" content="{{ DISPLAY_NAME }} on {{ SITE_NAME }}">
     <meta property="og:description" content="{{ CONTENT }}
 
-Likes: {{ LIKES }} / Quotes: {{ QUOTES }} / Comments: {{ COMMENTS }}">
+Likes: {{ LIKES }} {% if ENABLE_QUOTES == 'true' %}/ Quotes: {{ QUOTES }} {% endif %}/ Comments: {{ COMMENTS }}">
 
     <meta name="twitter:card" content="summary_large_image">
     <meta name="twitter:title" content="{{ DISPLAY_NAME }} on {{ SITE_NAME }}">
     <meta name="twitter:description" content="{{ CONTENT }}
 
-Likes: {{ LIKES }} / Quotes: {{ QUOTES }} / Comments: {{ COMMENTS }}">
+Likes: {{ LIKES }} {% if ENABLE_QUOTES == 'true' %}/ Quotes: {{ QUOTES }} {% endif %}/ Comments: {{ COMMENTS }}">
 
     <link rel="stylesheet" href="{% static '/css/home.css' %}?v={{ VERSION }}">
     <link rel="stylesheet" href="{% static '/css/post.css' %}?v={{ VERSION }}">
