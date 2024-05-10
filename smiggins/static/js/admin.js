@@ -48,7 +48,7 @@ level >= 2 && dom("account-delete").addEventListener("click", function() {
 });
 
 // Level 3
-level >= 3 && dom("badge-add").addEventListener("click", function() {
+ENABLE_BADGES && level >= 3 && dom("badge-add").addEventListener("click", function() {
   fetch("/api/admin/badge", {
     method: "POST",
     body: JSON.stringify({
@@ -66,7 +66,7 @@ level >= 3 && dom("badge-add").addEventListener("click", function() {
     });
 });
 
-level >= 3 && dom("badge-remove").addEventListener("click", function() {
+ENABLE_BADGES && level >= 3 && dom("badge-remove").addEventListener("click", function() {
   fetch("/api/admin/badge", {
     method: "PATCH",
     body: JSON.stringify({
@@ -84,7 +84,7 @@ level >= 3 && dom("badge-remove").addEventListener("click", function() {
     });
 });
 
-level >= 3 && dom("badge-create").addEventListener("click", function() {
+ENABLE_BADGES && level >= 3 && dom("badge-create").addEventListener("click", function() {
   fetch("/api/admin/badge", {
     method: "PUT",
     body: JSON.stringify({
@@ -101,7 +101,7 @@ level >= 3 && dom("badge-create").addEventListener("click", function() {
     });
 });
 
-level >= 3 && dom("badge-delete").addEventListener("click", function() {
+ENABLE_BADGES && level >= 3 && dom("badge-delete").addEventListener("click", function() {
   fetch("/api/admin/badge", {
     method: "DELETE",
     body: JSON.stringify({
