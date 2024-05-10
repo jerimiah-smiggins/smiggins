@@ -7,8 +7,11 @@
 let forwardOffset = 0, reverseOffset = 0;
 let home = true;
 let username = document.body.dataset.username;
+let c = 0;
 
 function refresh(start=false, forward=true) {
+  c++;
+
   let params = {
     username: username,
     forward: start || forward,
@@ -24,7 +27,9 @@ function refresh(start=false, forward=true) {
   fetch(`/api/messages?username=${params.username}&forward=${params.forward}&offset=${params.offset}`)
     .then((response) => response.json())
     .then((json) => {
-      if (json.success) {
+      --c;
+
+      if (!c && json.success) {
         x = document.createDocumentFragment();
         for (const message of json.messages) {
           y = document.createElement("div");
@@ -66,6 +71,9 @@ function refresh(start=false, forward=true) {
           dom("messages-go-here-btw").prepend(x);
         }
       }
+    })
+    .catch((err) => {
+      --c;
     });
 }
 

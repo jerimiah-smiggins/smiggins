@@ -68,15 +68,17 @@ dom("post-example").innerHTML = getPostHTML(
   }, false, false, false, true
 );
 
-dom("bio").addEventListener("input", postTextInputEvent);
-
 showlog = (str, time=3000) => {
   inc++;
   dom("error").innerText = str;
   setTimeout(() => { req++; if (req == inc) { dom("error").innerText = ""; }}, time);
 };
 
-function toggleGradient() {
+function toggleGradient(setUnloadStatus) {
+  if (typeof setUnloadStatus !== "boolean" || setUnloadStatus) {
+    setUnload();
+  }
+
   if (dom("banner-is-gradient").checked) {
     dom("banner-color-two").removeAttribute("hidden");
     dom("banner").classList.add("gradient");
@@ -87,6 +89,7 @@ function toggleGradient() {
 }
 
 function updatePronouns() {
+  setUnload();
   if (this.id == "pronouns-primary") {
     if (this.value.length != 1) {
       user_pronouns = this.value;
@@ -113,13 +116,26 @@ for (const acc of accounts) {
   x.append(y);
 }
 
+function setUnload() {
+  throw "erm what the sigma";
+  if (!window.onbeforeunload) {
+    window.onbeforeunload = function() {
+      return 'You have unsaved changes! Are you sure you want to leave?';
+    };
+  }
+}
+
 dom("accs").append(x);
 
-toggleGradient();
+toggleGradient(false);
 dom("color").addEventListener("change", function() {
   localStorage.setItem('color', dom("color").value);
   document.body.setAttribute('data-color', dom("color").value);
 });
+
+dom("bio").addEventListener("input", postTextInputEvent);
+dom("displ-name").addEventListener("input", setUnload);
+dom("priv").addEventListener("input", setUnload);
 
 dom("theme").addEventListener("change", function() {
   dom("theme").setAttribute("disabled", "");
@@ -132,11 +148,11 @@ dom("theme").addEventListener("change", function() {
       "theme": dom("theme").value
     })
   })
-    .then((response) => (response.json()))
-    .then((json) => {
-      if (!json.success) {
-        showlog("Something went wrong! Try again in a few moments...");
-      }
+  .then((response) => (response.json()))
+  .then((json) => {
+    if (!json.success) {
+      showlog("Something went wrong! Try again in a few moments...");
+    }
       dom("theme").removeAttribute("disabled");
       document.querySelector("body").setAttribute("data-theme", dom("theme").value);
     })
@@ -170,6 +186,7 @@ dom("save").addEventListener("click", function() {
   }).then((response) => (response.json()))
     .then((json) => {
       if (json.success) {
+        window.onbeforeunload = null;
         showlog("Success!");
       } else {
         showlog(`Unable to save! Reason: ${json.reason}`);
@@ -189,10 +206,12 @@ dom("save").addEventListener("click", function() {
 });
 
 dom("banner-color").addEventListener("input", function() {
+  setUnload();
   document.body.style.setProperty("--banner", this.value);
 });
 
 dom("banner-color-two").addEventListener("input", function() {
+  setUnload();
   document.body.style.setProperty("--banner-two", this.value);
 });
 

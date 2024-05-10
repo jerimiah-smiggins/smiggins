@@ -2,6 +2,8 @@ if (typeof(logged_in) != "boolean") {
   logged_in = document.cookie.indexOf("token=") != -1;
 }
 
+let titleNotificationIndicator = false;
+
 x = document.createElement("div");
 x.setAttribute("class", "icons");
 x.setAttribute("id", "icons");
@@ -44,6 +46,18 @@ function getNotifications() {
           val.classList.remove("dot");
         }
       });
+
+      if (json.messages || json.notifications) {
+        if (!titleNotificationIndicator) {
+          titleNotificationIndicator = true;
+          document.title = "[ ! ] " + document.title;
+        }
+      } else {
+        if (titleNotificationIndicator) {
+          titleNotificationIndicator = false;
+          document.title = document.title.slice(6);
+        }
+      }
     });
 }
 

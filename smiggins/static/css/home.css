@@ -60,6 +60,10 @@ button {
   text-overflow: ellipsis;
 }
 
+.quote-area .main-content {
+  -webkit-line-clamp: 5;
+}
+
 .post {
   width: calc(26.95em - (3em / 7));
   border: calc(3em / 14) var(--accent-50) solid;
@@ -94,7 +98,6 @@ button {
   text-align: center;
 }
 
-.user-badge,
 .bottom-content-icon svg,
 svg.bottom-content-icon {
   width: 1.2em;

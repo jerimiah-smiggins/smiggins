@@ -227,7 +227,8 @@ def recent_messages(request, offset: int=-1) -> tuple | dict:
                 "username": other_user.username,
                 "display_name": other_user.display_name,
                 "badges": get_badges(other_user),
-                "unread": i in user.unread_messages
+                "unread": i in user.unread_messages,
+                "private": other_user.private
             })
 
         except PrivateMessageContainer.DoesNotExist:

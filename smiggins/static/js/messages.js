@@ -20,6 +20,9 @@ showlog = (string, timer=3000) => {
 };
 
 function refresh(from_start=false) {
+  dom("refresh").setAttribute("disabled", "");
+  dom("more").setAttribute("disabled", "");
+
   if (from_start) {
     offset = -1;
     dom("recent-list").innerHTML = "";
@@ -44,6 +47,8 @@ function refresh(from_start=false) {
                 <a href="/u/${message.username}" class="no-underline text">
                   <div class="displ-name">
                     ${escapeHTML(message.display_name)}
+                    ${message.private ? `<span class="user-badge">${icons.lock}</span>` : ""}
+                    ${message.badges.length ? `<span class="user-badge">${message.badges.map((icon) => (badges[icon])).join("</span> <span class=\"user-badge\">")}</span>` : ""}
                     <span class="upper-lower-opacity"> -
                       <div class="username">@${message.username}</div>
                       ${message.timestamp || message.content ? `- <div class="username">${timeSince(message.timestamp)} ago</div>` : ""}
@@ -60,7 +65,10 @@ function refresh(from_start=false) {
             </div><br>`;
           x.append(y);
         }
+
         dom("recent-list").append(x);
+        dom("refresh").removeAttribute("disabled");
+        dom("more").removeAttribute("disabled");
 
         if (json.more) {
           dom("more").removeAttribute("hidden");
@@ -71,6 +79,8 @@ function refresh(from_start=false) {
     })
     .catch((err) => {
       showlog("Something went wrong loading recent messages! " + err);
+      dom("refresh").removeAttribute("disabled");
+      dom("more").removeAttribute("disabled");
     });
 }
 
