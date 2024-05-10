@@ -117,7 +117,6 @@ for (const acc of accounts) {
 }
 
 function setUnload() {
-  throw "erm what the sigma";
   if (!window.onbeforeunload) {
     window.onbeforeunload = function() {
       return 'You have unsaved changes! Are you sure you want to leave?';
