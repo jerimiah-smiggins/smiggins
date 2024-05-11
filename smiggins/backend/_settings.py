@@ -92,6 +92,6 @@ ENABLE_GRADIENT_BANNERS: bool = True
 ENABLE_BADGES: bool = True # The private account icon will still show if this is off
 
 # Larger feature toggles
-ENABLE_PRIVATE_MESSAGES: bool = False
+ENABLE_PRIVATE_MESSAGES: bool = True
 ENABLE_QUOTES: bool = True # Posts that are already quotes still show up as a quote
 ENABLE_POST_DELETION: bool = True
