@@ -26,11 +26,6 @@
                0 0 12px var(--base), 0 0 11px var(--base);
 }
 
-#follow {
-  position: relative;
-  top: -2em;
-}
-
 #user-bio {
   position: relative;
   top: -1em;
@@ -38,9 +33,17 @@
   margin: 0 auto;
 }
 
-#username-lower {
+#secondary-username-container {
   position: relative;
   top: -2em;
+}
+
+#username-lower,
+#follow {
+  display: inline-block;
+}
+
+#username-lower {
   color: var(--subtext0);
 }
 
