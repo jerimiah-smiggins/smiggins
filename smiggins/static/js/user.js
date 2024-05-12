@@ -8,9 +8,9 @@ const includeUserLink = false;
 const includePostLink = true;
 
 function extra(json) {
-  dom("user-bio").innerHTML = linkifyHtml(escapeHTML(json.bio), {
+  ENABLE_USER_BIOS && (dom("user-bio").innerHTML = linkifyHtml(escapeHTML(json.bio), {
     formatHref: { mention: (href) => "/u" + href }
-  });
+  }));
 
   if (json.pinned && json.pinned.content) {
     dom("pinned").innerHTML = getPostHTML(

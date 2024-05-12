@@ -21,16 +21,18 @@
     <hr>
 
     <div class="actions-container">
-      <div>
-        <h2>Level 1</h2>
+      {% if ENABLE_POST_DELETION == 'true' %}
+        <div>
+          <h2>Level 1</h2>
 
-        <h3>Post Deletion</h3>
-        <div id="post-deletion">
-          <input id="post-id" placeholder="Post/comment id..."><br>
-          Comment? <input id="comment-toggle"type="checkbox"><br>
-          <button id="post-delete">Delete Post</button>
+          <h3>Post Deletion</h3>
+          <div id="post-deletion">
+            <input id="post-id" placeholder="Post/comment id..."><br>
+            Comment? <input id="comment-toggle"type="checkbox"><br>
+            <button id="post-delete">Delete Post</button>
+          </div>
         </div>
-      </div>
+      {% endif %}
 
       {% if LEVEL >= 2 %}
         <div>
@@ -45,7 +47,7 @@
         </div>
       {% endif %}
 
-      {% if LEVEL >= 3 %}
+      {% if LEVEL >= 3 and ENABLE_BADGES == 'true' %}
         <div>
           <h2>Level 3</h2>
 

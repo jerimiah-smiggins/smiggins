@@ -98,6 +98,34 @@ The default color for banners. This should be a hex code with the format
 `#XXXXXX` where an X is a number 0-9 or a letter a-f, case insensitive.
 
 ```py
+POSTS_PER_REQUEST: int
+```
+The amount of posts to send at a time when the client requests the list. A
+larger number would result in more CPU usage and bandwidth, however may
+positively affect the user experience.
+
+```py
+MESSAGES_PER_REQUEST: int
+```
+The maximum amount of private messages to send per request.
+
+```py
+MAX_NOTIFICATIONS: int
+```
+The maximum notifications to store for a single user at a time. Whenever this
+number is exceeded, it will remove the oldest notifications for that user until
+the amount of notifications goes below the threshold.
+
+```py
+CONTACT_INFO: list[list[str]]
+```
+A list containing contact information that would be put on the contact page.
+It is a list of lists, where the inside list has two strings. The first string
+is the type, which can be `email`, `url`, or `text`. `email` is for emails,
+`url` for links, and `text` for other text that wouldn't fit with either of the
+other options.
+
+```py
 SOURCE_CODE: bool
 ```
 Whether or not to include links to the github page.
@@ -121,27 +149,44 @@ The timing amounts (in ms) for ratelimits. Required keys:
 - `create post failure`
 
 ```py
-POSTS_PER_REQUEST: int
+ENABLE_USER_BIOS: bool
 ```
-The amount of posts to send at a time when the client requests the list. A
-larger number would result in more CPU usage and bandwidth, however may
-positively affect the user experience.
+Whether or not to enable user bios. If this gets disabled, any previously set
+bios will not be deleted and show up again if this is reenabled. (This applies
+to the next few settings up to `ENABLE_QUOTES`)
 
 ```py
-MAX_NOTIFICATIONS: int
+ENABLE_PRONOUNS: bool
 ```
-The maximum notifications to store for a single user at a time. Whenever this
-number is exceeded, it will remove the oldest notifications for that user until
-the amount of notifications goes below the threshold.
+Whether or not to enable pronouns.
 
 ```py
-CONTACT_INFO: list[list[str]]
+ENABLE_GRADIENT_BANNERS: bool
 ```
-A list containing contact information that would be put on the contact page.
-It is a list of lists, where the inside list has two strings. The first string
-is the type, which can be `email`, `url`, or `text`. `email` is for emails,
-`url` for links, and `text` for other text that wouldn't fit with either of the
-other options.
+Whether or not to enable gradient banners.
+
+```py
+ENABLE_BADGES: bool
+```
+Whether or not to enable badges. When disabled, this basically makes admin level
+three useless. Private account icons will still show up.
+
+```py
+ENABLE_PRIVATE_MESSAGES: bool
+```
+Whether or not to enable private messages.
+
+```py
+ENABLE_QUOTES: bool
+```
+Whether or not to allow quoting posts. If this gets disabled, any already quotes
+that already exist will stay and still show up normally.
+
+```py
+ENABLE_POST_DELETION: bool
+```
+Whether or not to allow deleting posts. This applies to BOTH admins AND normal
+users.
 
 ## ./backend/api_admin.py
 This file contains all admin-related functions.

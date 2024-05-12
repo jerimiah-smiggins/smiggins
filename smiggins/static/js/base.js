@@ -223,11 +223,13 @@ function getPostHTML(
           <span class="bottom-content-icon comment-icon">${icons.comment}</span>${postJSON.comments}
         ${includePostLink ? "</a>" : ""}
         <div class="bottom-spacing"></div>
-        <button class="bottom-content-icon" ${fakeMentions ? "" : `onclick="addQuote('${postJSON.post_id}', ${isComment})"`}>
-          ${icons.quote}
-          <span class="quote-number">${postJSON.quotes}</span>
-        </button>
-        <div class="bottom-spacing"></div>
+        ${
+          ENABLE_QUOTES ? `<button class="bottom-content-icon" ${fakeMentions ? "" : `onclick="addQuote('${postJSON.post_id}', ${isComment})"`}>
+            ${icons.quote}
+            <span class="quote-number">${postJSON.quotes}</span>
+          </button>
+          <div class="bottom-spacing"></div>` : ''
+        }
         <button class="bottom-content-icon like" tabindex="0" data-liked="${postJSON.liked}" ${fakeMentions ? "" : `onclick="toggleLike(${postJSON.post_id}, ${isComment ? "'comment'" : "'post'"})"`}>
           ${postJSON.liked ? icons.like : icons.unlike}
           <span class="like-number">${postJSON.likes}</span>
@@ -240,7 +242,7 @@ function getPostHTML(
           </button>` : ""
         }
         ${
-          postJSON.can_delete ? `
+          postJSON.can_delete && ENABLE_POST_DELETION ? `
           <div class="bottom-spacing"></div>
           <button class="bottom-content-icon red" tabindex="0" onclick="deletePost(${postJSON.post_id}, ${isComment}, ${pageFocus})">
             ${icons.delete}
