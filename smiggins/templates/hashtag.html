@@ -9,15 +9,17 @@
     {% endautoescape %}
 
     <meta name="description" content="social media thing">
-    <meta name="author" content="Contact - {{ SITE_NAME }} v{{ VERSION }}">
+    <meta name="author" content="#{{ HASHTAG }} - {{ SITE_NAME }} v{{ VERSION }}">
 
     <meta property="og:type" content="website">
-    <meta property="og:title" content="Contact - {{ SITE_NAME }} v{{ VERSION }}">
+    <meta property="og:title" content="#{{ HASHTAG }} - {{ SITE_NAME }} v{{ VERSION }}">
     <meta property="og:description" content="social media thing">
 
     <meta name="twitter:card" content="summary_large_image">
-    <meta name="twitter:title" content="Contact - {{ SITE_NAME }} v{{ VERSION }}">
+    <meta name="twitter:title" content="#{{ HASHTAG }} - {{ SITE_NAME }} v{{ VERSION }}">
     <meta name="twitter:description" content="social media thing">
+
+    <link rel="stylesheet" href="{% static '/css/home.css' %}?v={{ VERSION }}">
   </head>
 
   <body data-theme="{{ THEME }}">
