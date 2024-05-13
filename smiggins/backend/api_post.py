@@ -73,7 +73,7 @@ def post_create(request, data: NewPost) -> tuple | dict:
                 tag = i
             )
 
-        tag.posts.append([False, post.post_id])
+        tag.posts.append(post.post_id)
         tag.save()
 
     return 201, {
@@ -151,6 +151,17 @@ def quote_create(request, data: NewQuote) -> tuple | dict:
             )
     except User.DoesNotExist:
         pass
+
+    for i in find_hashtags(content):
+        try:
+            tag = Hashtag.objects.get(tag=i.lower())
+        except Hashtag.DoesNotExist:
+            tag = Hashtag(
+                tag = i
+            )
+
+        tag.posts.append(post.post_id)
+        tag.save()
 
     return 201, {
         "success": True,
