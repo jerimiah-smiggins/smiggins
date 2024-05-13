@@ -35,7 +35,7 @@ class User(models.Model):
     pinned   = models.IntegerField(default=0)
     posts    = models.JSONField(default=list, blank=True)
     comments = models.JSONField(default=list, blank=True)
-    likes    = models.JSONField(default=list, blank=True) # list[list[id: int, is_comment: bool]]
+    likes    = models.JSONField(default=list, blank=True)
 
     def __str__(self):
         return f"({self.user_id}) {self.username}"
