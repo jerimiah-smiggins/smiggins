@@ -322,7 +322,12 @@ def log_admin_action(
 def find_mentions(message: str, exclude_users: list[str]=[]) -> list[str]:
     # Returns a list of all mentioned users in a string. Used for notifications
 
-    return list(set([i for i in re.findall(r"@([a-zA-Z0-9\-_]{1," + str(MAX_USERNAME_LENGTH) + r"})", message) if i not in exclude_users]))
+    return list(set([i for i in re.findall(r"@([a-z0-9\-_]{1," + str(MAX_USERNAME_LENGTH) + r"})", message.lower()) if i not in exclude_users]))
+
+def find_hashtags(message: str) -> list[str]:
+    # Returns a list of all hashtags in a string.
+
+    return list(set(re.findall(r"#([a-z0-9_]{1,64})", message.lower())))
 
 def create_notification(
     is_for: User,

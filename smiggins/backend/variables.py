@@ -27,6 +27,7 @@ HTML_HEADERS: str = f"""
 <script src="/static/js/linkify-4.1.3.min.js?v={VERSION}"></script>
 <script src="/static/js/linkify-html-4.1.3.min.js?v={VERSION}"></script>
 <script src="/static/js/linkify-mentions-4.1.3.min.js?v={VERSION}"></script>
+<script src="/static/js/linkify-hashtags-4.1.3.min.js?v={VERSION}"></script>
 
 <script>
   const MAX_USERNAME_LENGTH = {MAX_USERNAME_LENGTH};

@@ -131,3 +131,10 @@ class PrivateMessage(models.Model):
 
     def __str__(self):
         return f"({self.message_id}) From {self.message_container.user_one.username if self.from_user_one else self.message_container.user_two.username} to {self.message_container.user_two.username if self.from_user_one else self.message_container.user_one.username} - {self.content}"
+
+class Hashtag(models.Model):
+    tag = models.CharField(max_length=64, unique=True, primary_key=True)
+    posts = models.JSONField(default=list, blank=True) # [[is_comment, post_id], ...]
+
+    def __str__(self):
+        return f"#{self.tag} ({len(self.posts)} posts)"

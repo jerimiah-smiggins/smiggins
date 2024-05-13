@@ -142,7 +142,8 @@ function getPostHTML(
   includePostLink=true,
   fakeMentions=false,
   pageFocus=false,
-  isPinned=false
+  isPinned=false,
+  fakeHashtags=false
 ) {
   return `<div class="post-container" data-${isComment ? "comment" : "post"}-id="${postJSON.post_id}">
     <div class="post">
@@ -164,7 +165,10 @@ function getPostHTML(
         ${includePostLink ? `<a href="/${isComment ? "c" : "p"}/${postJSON.post_id}" tabindex="-1" class="text no-underline">` : ""}
           ${
             linkifyHtml(escapeHTML(postJSON.content), {
-              formatHref: { mention: (href) => fakeMentions ? "#" : "/u" + href }
+              formatHref: {
+                mention: (href) => fakeMentions ? "#" : "/u" + href,
+                hashtag: (href) => fakeHashtags ? "#" : "/hashtag/" + href.slice(1)
+              }
             }).replaceAll("\n", "<br>")
               .replaceAll("<a", includePostLink ? "  \n" : "<a target=\"_blank\"")
               .replaceAll("</a>", includePostLink ? `</a><a href="/${isComment ? "c" : "p"}/${postJSON.post_id}" tabindex="-1" class="text no-underline">` : "</a>")
@@ -199,7 +203,10 @@ function getPostHTML(
                     <a href="/${postJSON.quote.comment ? "c" : "p"}/${postJSON.quote.post_id}" class="text no-underline">
                       ${
                         linkifyHtml(escapeHTML(postJSON.quote.content), {
-                          formatHref: { mention: (href) => fakeMentions ? "#" : "/u" + href }
+                          formatHref: {
+                            mention: (href) => fakeMentions ? "#" : "/u" + href,
+                            hashtag: (href) => "/hashtag/" + href.slice(1)
+                          }
                         }).replaceAll("\n", "<br>")
                           .replaceAll("<a", "  \n")
                           .replaceAll("</a>", `</a><a href="/${postJSON.quote.comment ? "c" : "p"}/${postJSON.quote.post_id}" class="text no-underline">`)

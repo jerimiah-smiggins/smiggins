@@ -154,7 +154,10 @@
     <script>
       [...document.querySelectorAll("[data-linkify]")].forEach((val, index) => {
         val.innerHTML = linkifyHtml(val.innerHTML, {
-          formatHref: { mention: (href) => "/u" + href }
+          formatHref: {
+            mention: (href) => "/u" + href,
+            hashtag: (href) => "/hashtag/" + href.slice(1)
+          }
         });
       });
       let home = true;

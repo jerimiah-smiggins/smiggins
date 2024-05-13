@@ -4,6 +4,7 @@
 import threading
 import hashlib
 import pathlib
+import random
 import base64
 import shutil
 import json
@@ -15,7 +16,7 @@ import re
 from ensure_file import ensure_file
 
 from typing import Union, Callable, Any
-from posts.models import User, Post, Comment, Badge, Notification, PrivateMessageContainer, PrivateMessage
+from posts.models import User, Post, Comment, Badge, Notification, PrivateMessageContainer, PrivateMessage, Hashtag
 
 from django.shortcuts import render
 from django.http import HttpResponse, HttpResponseRedirect

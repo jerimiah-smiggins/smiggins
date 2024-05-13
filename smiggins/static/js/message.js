@@ -35,7 +35,10 @@ function refresh(start=false, forward=true) {
           y = document.createElement("div");
           y.setAttribute("class", `message ${message.from_self ? "send" : "receive"}`);
           y.innerHTML = `<div>${linkifyHtml(escapeHTML(message.content), {
-            formatHref: { mention: (href) => "/u" + href }
+            formatHref: {
+              mention: (href) => "/u" + href,
+              hashtag: (href) => "/hashtag/" + href.slice(1)
+            },
           })}</div><span class="timestamp">${timeSince(message.timestamp)} ago</span>`;
 
           x.append(y);

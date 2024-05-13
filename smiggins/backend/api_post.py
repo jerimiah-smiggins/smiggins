@@ -1,8 +1,8 @@
 # For API functions that relate to posts, for example creating, fetching home lists, etc.
 
 from ._settings import API_TIMINGS, MAX_POST_LENGTH, POSTS_PER_REQUEST, OWNER_USER_ID
-from .packages  import User, Post, Comment, time, sys, Schema
-from .helper    import ensure_ratelimit, create_api_ratelimit, trim_whitespace, get_post_json, validate_username, validate_token, log_admin_action, create_notification, find_mentions
+from .packages  import User, Post, Comment, Hashtag, time, sys, Schema, random
+from .helper    import ensure_ratelimit, create_api_ratelimit, trim_whitespace, get_post_json, validate_username, validate_token, log_admin_action, create_notification, find_mentions, find_hashtags
 
 class NewPost(Schema):
     content: str
@@ -64,6 +64,17 @@ def post_create(request, data: NewPost) -> tuple | dict:
 
         except User.DoesNotExist:
             pass
+
+    for i in find_hashtags(content):
+        try:
+            tag = Hashtag.objects.get(tag=i.lower())
+        except Hashtag.DoesNotExist:
+            tag = Hashtag(
+                tag = i
+            )
+
+        tag.posts.append([False, post.post_id])
+        tag.save()
 
     return 201, {
         "success": True,
@@ -144,6 +155,44 @@ def quote_create(request, data: NewQuote) -> tuple | dict:
     return 201, {
         "success": True,
         "post_id": post.post_id
+    }
+
+def hashtag_list(request, hashtag, offset: int=-1) -> tuple | dict:
+    # Returns a list of hashtags. `offset` is a filler variable.
+
+    token = request.COOKIES.get("token")
+
+    try:
+        user = User.objects.get(token=token)
+        user_id = user.user_id
+        cache = { user_id: user }
+    except User.DoesNotExist:
+        user_id = 0
+        cache = {}
+
+    try:
+        posts = Hashtag.objects.get(tag=hashtag).posts
+        random.shuffle(posts)
+    except Hashtag.DoesNotExist:
+        return 400, {
+            "success": False,
+            "reason": "Hashtag not found"
+        }
+
+    post_list = []
+    for i in posts:
+        x = get_post_json(i, user_id, cache=cache)
+
+        if x["can_view"]:
+            post_list.append(x)
+
+            if len(post_list) >= POSTS_PER_REQUEST:
+                break
+
+    return {
+        "success": True,
+        "end": True,
+        "posts": post_list
     }
 
 def post_list_following(request, offset: int=-1) -> tuple | dict:
