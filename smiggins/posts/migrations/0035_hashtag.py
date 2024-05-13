@@ -13,7 +13,7 @@ class Migration(migrations.Migration):
         migrations.CreateModel(
             name='Hashtag',
             fields=[
-                ('tag', models.CharField(max_length=64, unique=True, primary_key=True)),
+                ('tag', models.CharField(max_length=64, primary_key=True, serialize=False, unique=True)),
                 ('posts', models.JSONField(blank=True, default=list)),
             ],
         ),
