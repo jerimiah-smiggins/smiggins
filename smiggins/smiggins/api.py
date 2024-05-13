@@ -2,7 +2,7 @@ from django.urls import path
 
 from backend.collect_api import ApiAdmin, ApiComment, ApiInfo, ApiPost, ApiUser, ApiMessages
 from backend.packages    import json
-from backend._settings   import ENABLE_PRIVATE_MESSAGES, ENABLE_QUOTES, ENABLE_POST_DELETION
+from backend._settings   import ENABLE_PRIVATE_MESSAGES, ENABLE_QUOTES, ENABLE_POST_DELETION, ENABLE_HASHTAGS
 
 from ninja.renderers import BaseRenderer
 from ninja import NinjaAPI
@@ -53,7 +53,9 @@ api.get("post/user/{str:username}", response=response_schema)(ApiPost.post_list_
 api.get("post/following", response=response_schema)(ApiPost.post_list_following)
 api.get("post/recent",    response=response_schema)(ApiPost.post_list_recent)
 api.get("comments",       response=response_schema)(ApiComment.comment_list)
-api.get("hashtag/{str:hashtag}", response=response_schema)(ApiPost.hashtag_list)
+
+if ENABLE_HASHTAGS:
+    api.get("hashtag/{str:hashtag}", response=response_schema)(ApiPost.hashtag_list)
 
 if ENABLE_POST_DELETION:
     api.delete("post",    response=response_schema)(ApiPost.post_delete)

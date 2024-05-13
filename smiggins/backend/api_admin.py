@@ -2,8 +2,8 @@
 
 from ._settings import OWNER_USER_ID, ADMIN_LOG_PATH
 from .variables import BADGE_DATA
-from .packages  import User, Comment, Post, Badge, Schema, base64, pathlib
-from .helper    import trim_whitespace, log_admin_action
+from .packages  import User, Comment, Post, Badge, Hashtag, Schema, base64, pathlib
+from .helper    import trim_whitespace, log_admin_action, find_hashtags
 
 if ADMIN_LOG_PATH[:2:] == "./":
     ADMIN_LOG_PATH = str(pathlib.Path(__file__).parent.absolute()) + "/../" + ADMIN_LOG_PATH[2::]
@@ -66,6 +66,17 @@ def user_delete(request, data: AccountIdentifier) -> tuple | dict:
         for post_id in account.posts:
             try:
                 post = Post.objects.get(post_id=post_id)
+
+                for tag in find_hashtags(post.content):
+                    try:
+                        tag_object = Hashtag.objects.get(tag=tag)
+                        tag_object.posts.remove(id)
+                        tag_object.save()
+
+                    except Hashtag.DoesNotExist:
+                        pass
+                    except ValueError:
+                        pass
 
                 if post.quote:
                     try:

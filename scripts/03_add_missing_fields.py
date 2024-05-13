@@ -94,7 +94,3 @@ for comment in ALL_COMMENTS:
             pass
 
     parent_object.save()
-
-f = open("latest_scr", "w")
-f.write("add_comment_parent")
-f.close()

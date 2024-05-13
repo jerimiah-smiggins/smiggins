@@ -38,8 +38,7 @@ function refresh(force_offset=false) {
           type == "comment",
           includeUserLink,
           includePostLink,
-          false, false, false,
-          !(typeof includeHashtagLink == 'undefined' ? true : includeHashtagLink)
+          false, false, false
         );
         offset = post.post_id;
       }

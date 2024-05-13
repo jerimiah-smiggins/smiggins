@@ -327,7 +327,7 @@ def find_mentions(message: str, exclude_users: list[str]=[]) -> list[str]:
 def find_hashtags(message: str) -> list[str]:
     # Returns a list of all hashtags in a string.
 
-    return list(set(re.findall(r"#([a-z0-9_]{1,64})", message.lower())))
+    return list(set(re.findall(r"#([a-z0-9_]{1,64})(?:\b|[^a-z0-9_])", message.lower())))
 
 def create_notification(
     is_for: User,

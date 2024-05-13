@@ -84,7 +84,7 @@ def user(request, username: str) -> HttpResponse:
         IS_BLOCKING = "false" if not logged_in else str(user.user_id in self_object.blocking).lower()
     )
 
-def user_lists(request, username: str) -> HttpResponse | HttpResponseRedirect:
+def user_lists(request, username: str) -> HttpResponse:
     logged_in = True
     username = username.lower()
 

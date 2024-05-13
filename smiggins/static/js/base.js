@@ -142,8 +142,7 @@ function getPostHTML(
   includePostLink=true,
   fakeMentions=false,
   pageFocus=false,
-  isPinned=false,
-  fakeHashtags=false
+  isPinned=false
 ) {
   return `<div class="post-container" data-${isComment ? "comment" : "post"}-id="${postJSON.post_id}">
     <div class="post">
@@ -167,7 +166,7 @@ function getPostHTML(
             linkifyHtml(escapeHTML(postJSON.content), {
               formatHref: {
                 mention: (href) => fakeMentions ? "#" : "/u" + href,
-                hashtag: (href) => fakeHashtags ? "#" : "/hashtag/" + href.slice(1)
+                hashtag: (href) => "/hashtag/" + href.slice(1)
               }
             }).replaceAll("\n", "<br>")
               .replaceAll("<a", includePostLink ? "  \n" : "<a target=\"_blank\"")

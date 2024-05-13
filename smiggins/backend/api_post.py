@@ -168,7 +168,7 @@ def quote_create(request, data: NewQuote) -> tuple | dict:
         "post_id": post.post_id
     }
 
-def hashtag_list(request, hashtag, offset: int=-1) -> tuple | dict:
+def hashtag_list(request, hashtag: str, offset: int=-1) -> tuple | dict:
     # Returns a list of hashtags. `offset` is a filler variable.
 
     token = request.COOKIES.get("token")
@@ -477,6 +477,17 @@ def post_delete(request, data: PostID) -> tuple | dict:
         creator = User.objects.get(user_id=post.creator)
         creator.posts.remove(id)
         creator.save()
+
+        for tag in find_hashtags(post.content):
+            try:
+                tag_object = Hashtag.objects.get(tag=tag)
+                tag_object.posts.remove(id)
+                tag_object.save()
+
+            except Hashtag.DoesNotExist:
+                pass
+            except ValueError:
+                pass
 
         if post.quote:
             try:
