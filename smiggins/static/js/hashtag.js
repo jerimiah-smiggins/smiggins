@@ -1,6 +1,6 @@
 let home = true;
 
-const url = `/api/hashtag/list/${hashtag}`;
+const url = `/api/hashtag/${hashtag}`;
 const type = "post";
 const includeUserLink = true;
 const includePostLink = true;

@@ -171,7 +171,9 @@ def hashtag_list(request, hashtag, offset: int=-1) -> tuple | dict:
         cache = {}
 
     try:
-        posts = Hashtag.objects.get(tag=hashtag).posts
+        tag = Hashtag.objects.get(tag=hashtag)
+        posts = tag.posts
+        p2 = [i for i in posts]
         random.shuffle(posts)
     except Hashtag.DoesNotExist:
         return 400, {
@@ -179,6 +181,7 @@ def hashtag_list(request, hashtag, offset: int=-1) -> tuple | dict:
             "reason": "Hashtag not found"
         }
 
+    removed = False
     post_list = []
     for i in posts:
         x = get_post_json(i, user_id, cache=cache)
@@ -188,6 +191,13 @@ def hashtag_list(request, hashtag, offset: int=-1) -> tuple | dict:
 
             if len(post_list) >= POSTS_PER_REQUEST:
                 break
+        else:
+            p2.remove(i)
+            removed = True
+
+    if removed:
+        tag.posts = p2
+        tag.save()
 
     return {
         "success": True,
