@@ -39,7 +39,7 @@ function refresh(force_offset=false) {
           includeUserLink,
           includePostLink,
           false, false, false,
-          typeof includeHashtagLink == 'undefined' ? true : includeHashtagLink
+          !(typeof includeHashtagLink == 'undefined' ? true : includeHashtagLink)
         );
         offset = post.post_id;
       }
