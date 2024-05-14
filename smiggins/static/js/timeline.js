@@ -34,10 +34,11 @@ function refresh(force_offset=false) {
       let output = "";
       for (const post of json.posts) {
         output += getPostHTML(
-          post,              // postJSON
-          type == "comment", // isComment
-          includeUserLink,   // includeUserLink
-          includePostLink,   // includePostLink
+          post,
+          type == "comment",
+          includeUserLink,
+          includePostLink,
+          false, false, false
         );
         offset = post.post_id;
       }
@@ -62,11 +63,11 @@ function refresh(force_offset=false) {
         }
       }
     })
-    .catch((err) => {
-      --c;
-      showlog("Something went wrong loading the posts! Try again in a few moments...", 5000);
-      throw(err);
-    });
+    // .catch((err) => {
+    //   --c;
+    //   showlog("Something went wrong loading the posts! Try again in a few moments...", 5000);
+    //   throw(err);
+    // });
 }
 
 function deletePost(post_id, isComment, pageFocus) {

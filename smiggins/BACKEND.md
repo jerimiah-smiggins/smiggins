@@ -188,6 +188,15 @@ ENABLE_POST_DELETION: bool
 Whether or not to allow deleting posts. This applies to BOTH admins AND normal
 users.
 
+```py
+ENABLE_HASHTAGS: bool
+```
+Whether or not to enable hashtags. Disabling this causes hashtags to not show up
+as links on the frontend, and the `/hashtag/...` pages not work. Hashtags are
+still logged like normal even if this is disabled, meaning that if you enable it,
+any posts posted while this was disabled that had hashtags will still show up on
+the hashtag pages.
+
 ## ./backend/api_admin.py
 This file contains all admin-related functions.
 
@@ -464,6 +473,16 @@ def quote_create(
 This handles creating a post. Called from a PUT request to `/api/quote/create`.
 
 ```py
+def hashtag_list(
+  request: django.core.handlers.wsgi.WSGIRequest,
+  hashtag: str,
+  offset: int = -1
+) -> tuple | dict
+```
+Returns a randomized list of posts with the specified hashtag hashtag. Called
+from a GET request to `/api/hashtag/{hashtag: str}`
+
+```py
 def post_list_following(
   request: django.core.handlers.wsgi.WSGIRequest,
   offset: int = -1
@@ -489,7 +508,7 @@ def post_list_user(
 ) -> tuple | dict
 ```
 This gets a list of recent posts for a specific user with a username of
-`username`. Called from a GET request to `/api/post/user/{str: username}`.
+`username`. Called from a GET request to `/api/post/user/{username: str}`.
 
 ```py
 def post_like_add(
@@ -832,11 +851,21 @@ Logs an administrative action.
 def find_mentions(
   message: str,
   exclude_users: list[str] = []
-) -> str
+) -> list[str]
 ```
 Returns a list of users mentioned in the string `message`, excluding any of the
 users listed in `exclude_users`. For example, the string `"hi @trinkey"` would
-return `["trinkey"]`, assuming `"trinkey"` isn't in `exclude_users`.
+return `["trinkey"]`, assuming `"trinkey"` isn't in `exclude_users`. Duplicates
+are automatically removed.
+
+```py
+def find_mentions(
+  message: str
+) -> list[str]
+```
+Returns a list of hashtags in the string `message`. For example, the string
+`"i love #cats! #CatPerson alert"` would return `["cats", "catperson"]`.
+Duplicates are automatically removed.
 
 ```py
 def create_notification(
@@ -918,9 +947,25 @@ Returns the javascript file for the badges list.
 ```py
 def notifications(
   request: django.core.handlers.wsgi.WSGIRequest
-) -> HttpResponse
+) -> HttpResponse | HttpResponseRedirect
 ```
 For the `/notifications` page
+
+```py
+def message(
+  request: django.core.handlers.wsgi.WSGIRequest,
+  username: str
+) -> HttpResponse | HttpResponseRedirect
+```
+For the `/m/...` pages
+
+```py
+def hashtag(
+  request: django.core.handlers.wsgi.WSGIRequest,
+  hashtag: str
+) -> HttpResponse
+```
+For the `/hashtag/...` pages
 
 ```py
 def _404(

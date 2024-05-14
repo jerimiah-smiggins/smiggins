@@ -2,7 +2,7 @@
 
 from ._settings import DEFAULT_BANNER_COLOR, MAX_BIO_LENGTH, OWNER_USER_ID, CONTACT_INFO, ENABLE_GRADIENT_BANNERS
 from .variables import BADGE_DATA
-from .packages  import User, Post, Comment, PrivateMessageContainer, HttpResponse, HttpResponseRedirect, json
+from .packages  import User, Post, Comment, Hashtag, PrivateMessageContainer, HttpResponse, HttpResponseRedirect, json
 from .helper    import validate_token, get_HTTP_response, get_post_json, get_badges, get_container_id
 
 def settings(request) -> HttpResponse:
@@ -84,7 +84,7 @@ def user(request, username: str) -> HttpResponse:
         IS_BLOCKING = "false" if not logged_in else str(user.user_id in self_object.blocking).lower()
     )
 
-def user_lists(request, username: str) -> HttpResponse | HttpResponseRedirect:
+def user_lists(request, username: str) -> HttpResponse:
     logged_in = True
     username = username.lower()
 
@@ -359,6 +359,19 @@ def message(request, username: str) -> HttpResponse | HttpResponseRedirect:
         DISPLAY_NAME = user.display_name,
         PRIVATE = str(user.private).lower(),
         BADGES = "".join([f"<span class='user-badge' data-add-badge='{i}'></span> " for i in get_badges(user)])
+    )
+
+def hashtag(request, hashtag: str) -> HttpResponse:
+    try:
+        num_posts = len(Hashtag.objects.get(tag=hashtag.lower()).posts)
+    except Hashtag.DoesNotExist:
+        num_posts = 0
+
+    return get_HTTP_response(
+        request, "hashtag.html",
+
+        HASHTAG = hashtag.lower(),
+        NUM_POSTS = num_posts
     )
 
 # These two functions are referenced in smiggins/urls.py

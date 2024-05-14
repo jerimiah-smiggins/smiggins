@@ -3,17 +3,9 @@
 # this file if you want.
 
 from ._api_keys import auth_key
-from ._settings import MAX_USERNAME_LENGTH, MAX_POST_LENGTH, MAX_DISPL_NAME_LENGTH, MAX_POST_LENGTH, MAX_BIO_LENGTH, ADMIN_LOG_PATH, VERSION, ENABLE_USER_BIOS, ENABLE_PRONOUNS, ENABLE_GRADIENT_BANNERS, ENABLE_BADGES, ENABLE_PRIVATE_MESSAGES, ENABLE_QUOTES, ENABLE_POST_DELETION
+from ._settings import MAX_USERNAME_LENGTH, MAX_POST_LENGTH, MAX_DISPL_NAME_LENGTH, MAX_POST_LENGTH, MAX_BIO_LENGTH, ADMIN_LOG_PATH, VERSION, ENABLE_USER_BIOS, ENABLE_PRONOUNS, ENABLE_GRADIENT_BANNERS, ENABLE_BADGES, ENABLE_PRIVATE_MESSAGES, ENABLE_QUOTES, ENABLE_POST_DELETION, ENABLE_HASHTAGS
 from .packages  import Badge, hashlib, ensure_file, pathlib
 from django.db.utils import OperationalError
-
-try:
-    f = open("latest_scr", "r").read()
-    if f != "add_comment_parent":
-        print("\x1b[91mThe script 'add_comment_parent' doesn't seem to have been ran! If it has, you can ignore this message.\x1b[0m")
-    del f
-except FileNotFoundError:
-    print("\x1b[91mCouldn't determine the latest ran script! Try running the most recent one in the scripts folder.\x1b[0m")
 
 # Headers set at the top of every html file.
 HTML_HEADERS: str = f"""
@@ -27,19 +19,22 @@ HTML_HEADERS: str = f"""
 <script src="/static/js/linkify-4.1.3.min.js?v={VERSION}"></script>
 <script src="/static/js/linkify-html-4.1.3.min.js?v={VERSION}"></script>
 <script src="/static/js/linkify-mentions-4.1.3.min.js?v={VERSION}"></script>
+{f'<script src="/static/js/linkify-hashtags-4.1.3.min.js?v={VERSION}"></script>' if ENABLE_HASHTAGS else ''}
 
 <script>
   const MAX_USERNAME_LENGTH = {MAX_USERNAME_LENGTH};
   const MAX_POST_LENGTH = {MAX_POST_LENGTH};
   const MAX_DISPL_NAME_LENGTH = {MAX_DISPL_NAME_LENGTH};
-  const MAX_BIO_LENGTH = {str(MAX_BIO_LENGTH).lower()};
+  const MAX_BIO_LENGTH = {MAX_BIO_LENGTH};
+
   const ENABLE_USER_BIOS = {str(ENABLE_USER_BIOS).lower()};
   const ENABLE_PRONOUNS = {str(ENABLE_PRONOUNS).lower()};
   const ENABLE_GRADIENT_BANNERS = {str(ENABLE_GRADIENT_BANNERS).lower()};
   const ENABLE_BADGES = {str(ENABLE_BADGES).lower()};
   const ENABLE_PRIVATE_MESSAGES = {str(ENABLE_PRIVATE_MESSAGES).lower()};
   const ENABLE_QUOTES = {str(ENABLE_QUOTES).lower()};
-  const ENABLE_POST_DELETION = {str(ENABLE_POST_DELETION).lower()}
+  const ENABLE_POST_DELETION = {str(ENABLE_POST_DELETION).lower()};
+  const ENABLE_HASHTAGS = {str(ENABLE_HASHTAGS).lower()};
 </script>
 
 {f'<script src="/badges.js?v={VERSION}"></script>' if ENABLE_BADGES else ''}

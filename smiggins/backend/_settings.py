@@ -5,7 +5,7 @@
 # -- General Site Configuration --
 
 # Version displayed.
-VERSION: str = "0.8.4"
+VERSION: str = "0.8.5"
 
 # What to have the site name be.
 SITE_NAME: str = "Jerimiah Smiggins"
@@ -95,3 +95,4 @@ ENABLE_BADGES: bool = True # The private account icon will still show if this is
 ENABLE_PRIVATE_MESSAGES: bool = True
 ENABLE_QUOTES: bool = True # Posts that are already quotes still show up as a quote
 ENABLE_POST_DELETION: bool = True
+ENABLE_HASHTAGS: bool = True

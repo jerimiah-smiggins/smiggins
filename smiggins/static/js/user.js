@@ -9,7 +9,10 @@ const includePostLink = true;
 
 function extra(json) {
   ENABLE_USER_BIOS && (dom("user-bio").innerHTML = linkifyHtml(escapeHTML(json.bio), {
-    formatHref: { mention: (href) => "/u" + href }
+    formatHref: {
+      mention: (href) => "/u" + href,
+      hashtag: (href) => "/hashtag/" + href.slice(1)
+    }
   }));
 
   if (json.pinned && json.pinned.content) {
