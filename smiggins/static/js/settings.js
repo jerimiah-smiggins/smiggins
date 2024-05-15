@@ -132,7 +132,7 @@ dom("color").addEventListener("change", function() {
   document.body.setAttribute('data-color', dom("color").value);
 });
 
-dom("bio").addEventListener("input", postTextInputEvent);
+ENABLE_USER_BIOS && dom("bio").addEventListener("input", postTextInputEvent);
 dom("displ-name").addEventListener("input", setUnload);
 dom("priv").addEventListener("input", setUnload);
 
@@ -163,24 +163,24 @@ dom("theme").addEventListener("change", function() {
 });
 
 dom("save").addEventListener("click", function() {
-  dom("bio").setAttribute("disabled", "");
+  ENABLE_USER_BIOS && dom("bio").setAttribute("disabled", "");
   dom("priv").setAttribute("disabled", "");
   dom("save").setAttribute("disabled", "");
   dom("displ-name").setAttribute("disabled", "");
   dom("banner-color").setAttribute("disabled", "");
-  dom("banner-color-two").setAttribute("disabled", "");
-  dom("banner-is-gradient").setAttribute("disabled", "");
+  ENABLE_GRADIENT_BANNERS && dom("banner-color-two").setAttribute("disabled", "");
+  ENABLE_GRADIENT_BANNERS && dom("banner-is-gradient").setAttribute("disabled", "");
 
   fetch("/api/user/settings", {
     method: "PATCH",
     body: JSON.stringify({
-      bio: dom("bio").value,
+      bio: ENABLE_USER_BIOS ? dom("bio").value : "",
       priv: dom("priv").checked,
       color: dom("banner-color").value,
-      pronouns: user_pronouns,
-      color_two: dom("banner-color-two").value,
+      pronouns: ENABLE_PRONOUNS ? user_pronouns : "__",
+      color_two: ENABLE_GRADIENT_BANNERS ? dom("banner-color-two").value : "",
       displ_name: dom("displ-name").value,
-      is_gradient: dom("banner-is-gradient").checked
+      is_gradient: ENABLE_GRADIENT_BANNERS ? dom("banner-is-gradient").checked : false
     })
   }).then((response) => (response.json()))
     .then((json) => {
@@ -194,13 +194,13 @@ dom("save").addEventListener("click", function() {
       throw "ermmm what the flip";
     })
     .catch((err) => {
-      dom("bio").removeAttribute("disabled");
+      ENABLE_USER_BIOS && dom("bio").removeAttribute("disabled");
       dom("priv").removeAttribute("disabled");
       dom("save").removeAttribute("disabled");
       dom("displ-name").removeAttribute("disabled");
       dom("banner-color").removeAttribute("disabled");
-      dom("banner-color-two").removeAttribute("disabled");
-      dom("banner-is-gradient").removeAttribute("disabled");
+      ENABLE_GRADIENT_BANNERS && dom("banner-color-two").removeAttribute("disabled");
+      ENABLE_GRADIENT_BANNERS && dom("banner-is-gradient").removeAttribute("disabled");
     });
 });
 
