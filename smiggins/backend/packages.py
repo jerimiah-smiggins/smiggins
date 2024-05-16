@@ -15,7 +15,7 @@ import re
 
 from ensure_file import ensure_file
 
-from typing import Union, Callable, Any
+from typing import Callable, Any
 from posts.models import User, Post, Comment, Badge, Notification, PrivateMessageContainer, PrivateMessage, Hashtag
 
 from django.shortcuts import render

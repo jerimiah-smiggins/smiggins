@@ -84,8 +84,23 @@ button {
   cursor: pointer;
 }
 
+.upper-content > * {
+  display: flex;
+  flex-direction: row;
+  flex-wrap: nowrap;
+  justify-content: left;
+  gap: 0.25em;
+}
+
 .upper-lower-opacity {
   color: var(--accent-50);
+}
+
+.banner-pfp {
+  height: 3em;
+  width: 3em;
+  border-radius: 1.5em;
+  background-image: linear-gradient(90deg, var(--color-one), var(--color-two));
 }
 
 .username,

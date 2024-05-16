@@ -3,16 +3,16 @@
 from ._settings import DEFAULT_BANNER_COLOR, MAX_BIO_LENGTH, OWNER_USER_ID, CONTACT_INFO, ENABLE_GRADIENT_BANNERS
 from .variables import BADGE_DATA
 from .packages  import User, Post, Comment, Hashtag, PrivateMessageContainer, HttpResponse, HttpResponseRedirect, json
-from .helper    import validate_token, get_HTTP_response, get_post_json, get_badges, get_container_id
+from .helper    import get_HTTP_response, get_post_json, get_badges, get_container_id
 
 def settings(request) -> HttpResponse:
     try:
-        token: str = request.COOKIES["token"].lower()
+        token: str = request.COOKIES.get("token").lower()
     except KeyError:
         return HttpResponseRedirect("/", status=307)
 
     try:
-        user = User.objects.get(token=token)
+        user = User.objects.get(token=request.COOKIES.get("token"))
     except User.DoesNotExist:
         return HttpResponseRedirect("/", status=307)
 
@@ -43,7 +43,7 @@ def user(request, username: str) -> HttpResponse:
     username = username.lower()
 
     try:
-        self_object = User.objects.get(token=request.COOKIES["token"])
+        self_object = User.objects.get(token=request.COOKIES.get("token"))
         self_id = self_object.user_id
         logged_in = True
     except:
@@ -89,13 +89,13 @@ def user_lists(request, username: str) -> HttpResponse:
     username = username.lower()
 
     try:
-        if not validate_token(request.COOKIES["token"]):
-            logged_in = False
-    except KeyError:
+        user = User.objects.get(token=request.COOKIES.get("token"))
+        logged_in = True
+    except User.DoesNotExist:
         logged_in = False
 
     if logged_in:
-        self_object = User.objects.get(token=request.COOKIES["token"])
+        self_object = User.objects.get(token=request.COOKIES.get("token"))
         self_id = self_object.user_id
     else:
         self_id = 0
@@ -188,17 +188,13 @@ def user_lists(request, username: str) -> HttpResponse:
     )
 
 def post(request, post_id: int) -> HttpResponse:
-    logged_in = True
-    token = ""
-
     try:
-        token = request.COOKIES["token"]
-        if not validate_token(token):
-            logged_in = False
-    except KeyError:
+        user = User.objects.get(token=request.COOKIES.get("token"))
+        logged_in = True
+    except User.DoesNotExist:
         logged_in = False
 
-    self_id = User.objects.get(token=token).user_id if logged_in else 0
+    self_id = user.user_id if logged_in else 0
 
     try:
         post = Post.objects.get(pk=post_id)
@@ -213,7 +209,7 @@ def post(request, post_id: int) -> HttpResponse:
             request, "404_post.html"
         )
 
-    post_json = get_post_json(post_id, User.objects.get(token=token).user_id if logged_in else 0)
+    post_json = get_post_json(post_id, user.user_id if logged_in else 0)
 
     return get_HTTP_response(
         request, "post.html",
@@ -231,17 +227,13 @@ def post(request, post_id: int) -> HttpResponse:
     )
 
 def comment(request, comment_id: int) -> HttpResponse:
-    logged_in = True
-    token = ""
-
     try:
-        token = request.COOKIES["token"]
-        if not validate_token(token):
-            logged_in = False
-    except KeyError:
+        user = User.objects.get(token=request.COOKIES.get("token"))
+        logged_in = True
+    except User.DoesNotExist:
         logged_in = False
 
-    self_id = User.objects.get(token=token).user_id if logged_in else 0
+    self_id = user.user_id if logged_in else 0
 
     try:
         comment = Comment.objects.get(pk=comment_id)
@@ -262,7 +254,7 @@ def comment(request, comment_id: int) -> HttpResponse:
             request, "404_post.html"
         )
 
-    comment_json = get_post_json(comment_id, User.objects.get(token=token).user_id if logged_in else 0, True)
+    comment_json = get_post_json(comment_id, user.user_id if logged_in else 0, True)
 
     return get_HTTP_response(
         request, "post.html",
@@ -288,17 +280,9 @@ def contact(request) -> HttpResponse:
 
 def admin(request) -> HttpResponse | HttpResponseRedirect:
     try:
-        token: str = request.COOKIES["token"].lower()
-
-        if not validate_token(token):
-            return get_HTTP_response(
-                request, "404.html"
-            )
-
-        user = User.objects.get(token=token)
-
-    except KeyError or User.DoesNotExist:
-        return get_HTTP_response(
+        user = User.objects.get(token=request.COOKIES.get("token"))
+    except User.DoesNotExist:
+        get_HTTP_response(
             request, "404.html"
         )
 
@@ -320,23 +304,9 @@ def badges(request) -> HttpResponse:
         content_type="text/javascript"
     )
 
-def notifications(request) -> HttpResponse | HttpResponseRedirect:
-    try:
-        token: str = request.COOKIES["token"].lower()
-        if not validate_token(token):
-            return HttpResponseRedirect("/", status=307)
-    except KeyError:
-        return HttpResponseRedirect("/", status=307)
-
-    return get_HTTP_response(
-        request, "notifications.html",
-    )
-
 def message(request, username: str) -> HttpResponse | HttpResponseRedirect:
     try:
-        self_user = User.objects.get(
-            token = request.COOKIES.get("token")
-        )
+        self_user = User.objects.get(token=request.COOKIES.get("token"))
     except User.DoesNotExist:
         return HttpResponseRedirect("/", status=307)
 

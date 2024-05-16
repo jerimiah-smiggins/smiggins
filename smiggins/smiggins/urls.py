@@ -4,7 +4,7 @@ from django.urls import include, path
 from backend._settings import CONTACT_INFO, ENABLE_PRIVATE_MESSAGES, ENABLE_HASHTAGS
 from backend.variables import ROBOTS
 from backend.helper import create_simple_return
-from backend.templating import contact, settings, user, user_lists, post, comment, admin, badges, notifications, message, hashtag
+from backend.templating import contact, settings, user, user_lists, post, comment, admin, badges, message, hashtag
 
 from posts.models import User, Post, Comment, Badge, Notification, PrivateMessageContainer, PrivateMessage, Hashtag
 
@@ -28,7 +28,7 @@ urlpatterns = list(filter(bool, [
 
     path("contact/", contact),
     path("settings/", settings),
-    path("notifications/", notifications),
+    path("notifications/", create_simple_return("notifications.html", redirect_logged_out=True)),
     path("messages/", create_simple_return("messages.html", redirect_logged_out=True)) if ENABLE_PRIVATE_MESSAGES else None,
 
     path("hashtag/<str:hashtag>/", hashtag) if ENABLE_HASHTAGS else None,

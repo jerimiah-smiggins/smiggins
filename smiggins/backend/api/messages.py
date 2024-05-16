@@ -1,8 +1,8 @@
 # For API functions that relate to messages for example sending, deleting, etc.
 
-from ._settings import MAX_POST_LENGTH, MESSAGES_PER_REQUEST
-from .packages  import User, PrivateMessageContainer, PrivateMessage, time, Schema
-from .helper    import trim_whitespace, get_container_id, get_badges
+from .._settings import MAX_POST_LENGTH, MESSAGES_PER_REQUEST
+from ..packages  import User, PrivateMessageContainer, PrivateMessage, time, Schema
+from ..helper    import trim_whitespace, get_container_id, get_badges
 
 class NewContainer(Schema):
     username: str
