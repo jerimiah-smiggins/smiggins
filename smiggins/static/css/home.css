@@ -92,6 +92,10 @@ button {
   gap: 0.25em;
 }
 
+.upper-content > * > div {
+  max-width: calc(100% - 3.25em)
+}
+
 .upper-lower-opacity {
   color: var(--accent-50);
 }
