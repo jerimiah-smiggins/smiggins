@@ -57,14 +57,13 @@ def user(request, username: str) -> HttpResponse:
             request, "404_user.html"
         )
 
-    if user.private and self_id not in user.following:
-        logged_in = False
-
     return get_HTTP_response(
         request, "user.html",
 
         IS_HIDDEN = "hidden" if not logged_in or username == self_object.username else "",
         LOGGED_IN = str(logged_in).lower(),
+        CAN_VIEW = str(not user.private or self_id in user.following).lower(),
+        PRIVATE = str(user.private).lower(),
 
         USERNAME = user.username,
         DISPLAY_NAME = user.display_name,
@@ -180,6 +179,7 @@ def user_lists(request, username: str) -> HttpResponse:
         BANNER_COLOR = user.color or DEFAULT_BANNER_COLOR,
         BANNER_COLOR_TWO = user.color_two or DEFAULT_BANNER_COLOR,
 
+        PRIVATE = str(user.private).lower(),
         IS_FOLLOWING = str(user.user_id in self_object.following).lower() if logged_in else "false",
         IS_HIDDEN = "hidden" if user.user_id == self_id else "",
 

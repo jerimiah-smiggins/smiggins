@@ -33,22 +33,6 @@ function extra(json) {
     dom("toggle").setAttribute("hidden", "");
   }
 
-  [...document.querySelectorAll("[data-show-on-priv]")].forEach((val) => {
-    if (json.private) {
-      val.removeAttribute("hidden");
-    } else {
-      val.setAttribute("hidden", "")
-    }
-  });
-
-  [...document.querySelectorAll("[data-show-on-view]")].forEach((val) => {
-    if (json.private && json.can_view) {
-      val.removeAttribute("hidden");
-    } else {
-      val.setAttribute("hidden", "")
-    }
-  });
-
   dom("follow").innerText = `Followers: ${json.followers} - Following: ${json.following}`;
 }
 

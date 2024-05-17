@@ -101,9 +101,7 @@ button {
 }
 
 .banner-pfp {
-  height: 3em;
-  width: 3em;
-  border-radius: 1.5em;
+  border-radius: 40%;
   background-image: linear-gradient(90deg, var(--color-one), var(--color-two));
 }
 
