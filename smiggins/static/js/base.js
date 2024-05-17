@@ -198,9 +198,9 @@ function getPostHTML(
                           ${postJSON.quote.creator.badges.length ? `<span class="user-badge">${postJSON.quote.creator.badges.map((icon) => (badges[icon])).join("</span> <span class=\"user-badge\">")}</span>` : ""}
                         </div>
                         <span class="upper-lower-opacity">
-                          <div class="username">@${postJSON.creator.username}</div> -
-                          ${pronouns[postJSON.creator.pronouns] ? `<div class="pronouns">${pronouns[postJSON.creator.pronouns]}</div> -` : ""}
-                          <div class="timestamp">${timeSince(postJSON.timestamp)} ago</div>
+                          <div class="username">@${postJSON.quote.creator.username}</div> -
+                          ${pronouns[postJSON.quote.creator.pronouns] ? `<div class="pronouns">${pronouns[postJSON.quote.creator.pronouns]}</div> -` : ""}
+                          <div class="timestamp">${timeSince(postJSON.quote.timestamp)} ago</div>
                         </span>
                       </div>
                     ${includeUserLink ? "</a>" : "</span>"}
