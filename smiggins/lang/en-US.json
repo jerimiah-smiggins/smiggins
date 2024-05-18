@@ -9,8 +9,6 @@
   "texts": {
     "http": {
       "404": {
-        "hashtag_title": "Hashtag Not Found",
-        "hashtag_description": "This hashtag doesn't exist!",
         "post_title": "Post Not Found",
         "post_description": "This post doesn't exist!",
         "standard_title": "Page Not Found",
@@ -18,11 +16,13 @@
         "user_title": "User Not Found",
         "user_description": "This username doesn't belong to any user!"
       },
+
       "500": {
         "title": "Internal Server Error",
         "description": "Something happened in the server that prevents you from viewing this page.",
         "alt_description": "This likely isn't your fault."
       },
+
       "home": "Return Home"
     },
 
@@ -60,7 +60,7 @@
         "fo": "she/it",
         "fx": "she/other",
         "ma": "he/all",
-        "mf": "he/her",
+        "mf": "he/she",
         "mi": "he/him",
         "mm": "he/him",
         "mn": "he/they",
@@ -140,6 +140,7 @@
       "modify_invalid_bio_size": "User bio is too long! It should be between 0 and 65536 characters.",
       "modify_invalid_display_name_long": "Display name is too long! It should be between 1 and 300 characters.",
       "modify_invalid_display_name_short": "Display name is too short! It should be between 1 and 300 characters.",
+      "modify_id": "id: %s",
 
       "level_title": "Change Admin Level",
       "level_zero": "No admin permissions (lvl 0)",
@@ -180,11 +181,6 @@
         "Yet another mistake to point out?",
         "Ugh... not again..."
       ]
-    },
-
-    "index": {
-      "sign_up": "Sign up",
-      "log_in": "Log in"
     },
 
     "account": {
