@@ -12,7 +12,7 @@
   </head>
 
   <body data-theme="{{ THEME }}" data-username="{{ USERNAME }}">
-    <div class="header-container"><h1>
+    <div class="header-container"><h1 style="pointer-events: none">
       Messaging {{ DISPLAY_NAME }}
       <span {% if PRIVATE == "false" %}hidden{% endif %}><div class="user-badge" data-add-icon="lock"></div></span>
       {% autoescape off %}
