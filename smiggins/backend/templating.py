@@ -7,11 +7,6 @@ from .helper    import get_HTTP_response, get_post_json, get_badges, get_contain
 
 def settings(request) -> HttpResponse:
     try:
-        token: str = request.COOKIES.get("token").lower()
-    except KeyError:
-        return HttpResponseRedirect("/", status=307)
-
-    try:
         user = User.objects.get(token=request.COOKIES.get("token"))
     except User.DoesNotExist:
         return HttpResponseRedirect("/", status=307)
@@ -302,7 +297,7 @@ def admin(request) -> HttpResponse | HttpResponseRedirect:
     try:
         user = User.objects.get(token=request.COOKIES.get("token"))
     except User.DoesNotExist:
-        get_HTTP_response(
+        return get_HTTP_response(
             request, "404.html"
         )
 
