@@ -6,7 +6,7 @@ const type = "post";
 const includeUserLink = true;
 const includePostLink = true;
 
-dom("switch").innerText = "Switch to " + (page == "recent" ? "following" : "recent") + "...";
+dom("switch").innerText = page == "recent" ? lang.home.switch_following : lang.home.switch_recent
 dom("post-text").addEventListener("input", postTextInputEvent);
 
 dom("post").addEventListener("click", function() {
@@ -27,14 +27,14 @@ dom("post").addEventListener("click", function() {
         dom("post").removeAttribute("disabled");
         dom("post-text").removeAttribute("disabled");
         if (response.status == 429) {
-          showlog("You are being ratelimited! Try again in a few moments...");
+          showlog(lang.generic.ratelimit_verbose);
         } else {
           response.json().then((json) => {
             if (json.success) {
               dom("post-text").value = "";
               refresh();
             } else {
-              showlog("Something went wrong! Try again in a few moments...");
+              showlog(lang.generic.something_went_wrong);
             }
           });
         }
@@ -42,7 +42,7 @@ dom("post").addEventListener("click", function() {
       .catch((err) => {
         dom("post").removeAttribute("disabled");
         dom("post-text").removeAttribute("disabled");
-        showlog("Something went wrong! Try again in a few moments...");
+        showlog(lang.generic.something_went_wrong);
         throw(err);
       });
   }
@@ -51,7 +51,7 @@ dom("post").addEventListener("click", function() {
 dom("switch").addEventListener("click", function() {
   page = page == "following" ? "recent" : "following"
   localStorage.setItem("home-page", page);
-  dom("switch").innerHTML = "Switch to " + (page == "recent" ? "following" : "recent") + "...";
+  dom("switch").innerHTML = page == "recent" ? lang.home.switch_following : lang.home.switch_recent
   url = `/api/post/${page}`;
   refresh();
 });

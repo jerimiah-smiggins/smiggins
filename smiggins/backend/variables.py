@@ -55,11 +55,13 @@ PRIVATE_AUTHENTICATOR_KEY: str = hashlib.sha256(auth_key).hexdigest()
 # for a list.
 timeout_handler: dict[str, dict[str, None]] = {}
 
-ROBOTS: str = """User-agent: *
+ROBOTS: str = """\
+User-agent: *
 Allow: *
-Disallow: /settings
-Disallow: /home
-Disallow: /api
+Disallow: /settings/
+Disallow: /home/
+Disallow: /api/
+Disallow: /static/
 """
 
 BADGE_DATA = {}

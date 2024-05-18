@@ -33,7 +33,7 @@ function refresh(start=false, forward=true) {
               mention: (href) => "/u" + href,
               hashtag: (href) => "/hashtag/" + href.slice(1)
             },
-          })}</div><span class="timestamp">${timeSince(message.timestamp)} ago</span>`;
+          })}</div><span class="timestamp">${timeSince(message.timestamp)}</span>`;
 
           x.append(y);
 
@@ -56,7 +56,7 @@ function refresh(start=false, forward=true) {
 
           if (json.more) {
             y = document.createElement("button");
-            y.innerText = "Load more...";
+            y.innerText = lang.generic.load_more;
             y.id = "more";
             y.setAttribute("onclick", "refresh();");
 

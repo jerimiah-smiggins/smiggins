@@ -5,7 +5,7 @@ from .variables import HTML_FOOTERS, HTML_HEADERS, PRIVATE_AUTHENTICATOR_KEY, ti
 from .packages  import Callable, Any, HttpResponse, HttpResponseRedirect, loader, User, Comment, Post, Notification, threading, hashlib, pathlib, time, re, json
 
 if ADMIN_LOG_PATH[:2:] == "./":
-    ADMIN_LOG_PATH = str(pathlib.Path(__file__).parent.absolute()) + "/../" + ADMIN_LOG_PATH[2::]
+    ADMIN_LOG_PATH = BASE_DIR / ADMIN_LOG_PATH[2::]
 
 def sha(string: str | bytes) -> str:
     # Returns the sha256 hash of a string.
@@ -36,12 +36,14 @@ def get_HTTP_response(request, file: str, lang_override: dict | None=None, **kwa
         user = None
         theme = "dark"
 
+    lang = get_lang(user) if lang_override is None else lang_override
+
     context = {
         "SITE_NAME": SITE_NAME,
         "VERSION": VERSION,
         "SOURCE": str(SOURCE_CODE).lower(),
 
-        "HTML_HEADERS": HTML_HEADERS,
+        "HTML_HEADERS": f"<script>const lang={json.dumps(lang)};</script>{HTML_HEADERS}",
         "HTML_FOOTERS": HTML_FOOTERS,
 
         "MAX_POST_LENGTH": MAX_POST_LENGTH,
@@ -56,8 +58,7 @@ def get_HTTP_response(request, file: str, lang_override: dict | None=None, **kwa
         "ENABLE_POST_DELETION": str(ENABLE_POST_DELETION).lower(),
 
         "THEME": theme,
-
-        "lang": get_lang(user) if lang_override is None else lang_override
+        "lang": lang
     }
 
     for key, value in kwargs.items():

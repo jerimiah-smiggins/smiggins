@@ -40,8 +40,11 @@
       "source_code": "Source code",
       "save": "Save",
       "none": "None",
-
+      "reason": "Reason: %s",
       "user_not_found": "User not found!",
+      "settings": "Share",
+      "copied": "Copied to clipboard!",
+      "see_more": "%s to see more!",
 
       "pronouns": {
         "a": "ask pronouns",
@@ -84,7 +87,30 @@
         "ox": "it/other"
       },
 
+      "colors": {
+        "rosewater": "Rosewater",
+        "flamingo": "Flamingo",
+        "pink": "Pink",
+        "mauve": "Mauve",
+        "red": "Red",
+        "maroon": "Maroon",
+        "peach": "Peach",
+        "yellow": "Yellow",
+        "green": "Green",
+        "teal": "Teal",
+        "sky": "Sky",
+        "sapphire": "Sapphire",
+        "blue": "Blue",
+        "lavender": "Lavender"
+      },
+
       "time": {
+        "months": [
+          "Jan", "Feb", "Mar", "Apr",
+          "May", "Jun", "Jul", "Aug",
+          "Sep", "Oct", "Nov", "Dec"
+        ],
+
         "second_singular": "second",
         "second_plural": "seconds",
         "minute_singular": "minute",
@@ -112,21 +138,26 @@
 
       "post_deletion_title": "Post Deletion",
       "post_deletion_button": "Delete Post",
+      "post_deletion_error": "deleting the specified post/comment",
 
       "account_deletion_title": "Account Deletion",
       "account_deletion_button": "Delete Account",
+      "account_deletion_error": "deleting the specified account",
 
       "badge_name_placeholder": "Badge name...",
       "badge_data_placeholder": "Badge SVG data...",
       "badge_manage_title": "Add/remove Badges",
       "badge_manage_empty": "Somehow there are no existing badges. This shouldn't happen.",
       "badge_manage_add_button": "Add Badge",
+      "badge_manage_add_error": "adding the badge",
       "badge_manage_remove_button": "Remove Badge",
+      "badge_manage_remove_error": "removing the badge",
       "badge_manage_add_protected": "Cannot set that badge as it is done automatically",
       "badge_manage_remove_protected": "Cannot remove that badge as it is done automatically",
       "badge_create_title": "Create/Override Badge",
       "badge_create_button": "Create Badge",
       "badge_create_invalid_data_size": "Badge data must be between 1 and 65536 characters in length",
+      "badge_create_success": "Reload for your changes to apply.",
       "badge_delete_title": "Delete Badge",
       "badge_delete_button": "Delete Badge",
       "badge_delete_protected": "Cannot delete that badge",
@@ -153,8 +184,14 @@
       "level_five": "Create new admins (lvl 5)",
       "level_button": "Set admin level",
       "level_invalid": "Invalid level",
+      "level_error": "setting that account's level",
 
-      "logs_button": "Load Logs"
+      "logs_button": "Load Logs",
+      "logs_error": "loading the logs",
+      "logs_timestamp": "Timestamp",
+      "logs_action": "Action",
+      "logs_who": "Who",
+      "logs_more_info": "More Info"
     },
 
     "contact": {
@@ -216,6 +253,7 @@
 
     "messages": {
       "title": "Messaging %s",
+      "error": "loading recent messages",
       "input_placeholder": "What would you like to tell them?",
 
       "no_messages": "No messages sent",
@@ -233,6 +271,7 @@
     "notifications": {
       "title": "Notifications",
       "read": "Mark as read",
+      "error": "loading the notifications list",
 
       "comment": "%s commented on your post:",
       "quote": "%s quoted your post:",
@@ -288,20 +327,6 @@
       "cosmetic_theme_oled": "Black",
       "cosmetic_theme_invalid": "That's not a vailid theme, idiot.",
       "cosmetic_color": "Color",
-      "cosmetic_color_rosewater": "Rosewater",
-      "cosmetic_color_flamingo": "Flamingo",
-      "cosmetic_color_pink": "Pink",
-      "cosmetic_color_mauve": "Mauve",
-      "cosmetic_color_red": "Red",
-      "cosmetic_color_maroon": "Maroon",
-      "cosmetic_color_peach": "Peach",
-      "cosmetic_color_yellow": "Yellow",
-      "cosmetic_color_green": "Green",
-      "cosmetic_color_teal": "Teal",
-      "cosmetic_color_sky": "Sky",
-      "cosmetic_color_sapphire": "Sapphire",
-      "cosmetic_color_blue": "Blue",
-      "cosmetic_color_lavender": "Lavender",
       "cosmetic_example_post_display_name": "Example",
       "cosmetic_example_post_username": "example",
       "cosmetic_example_post_content": "This is an example post. I am @example.",

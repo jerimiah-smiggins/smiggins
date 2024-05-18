@@ -55,7 +55,7 @@ function refresh(from_start=false) {
 
               <div class="main-content">
                 <a href="/m/${message.username}" class="no-underline text">
-                  ${message.timestamp || message.content ? escapeHTML(message.content) : "<i>No messages sent</i>"}
+                  ${message.timestamp || message.content ? escapeHTML(message.content) : `<i>${lang.messages.no_messages}</i>`}
                 </a>
               </div>
             </div><br>`;
@@ -74,7 +74,7 @@ function refresh(from_start=false) {
       }
     })
     .catch((err) => {
-      showlog("Something went wrong loading recent messages! " + err);
+      showlog(lang.generic.something_went_wrong_x.replaceAll("%s", lang.messages.error));
       dom("refresh").removeAttribute("disabled");
       dom("more").removeAttribute("disabled");
     });

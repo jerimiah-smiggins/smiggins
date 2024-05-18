@@ -7,13 +7,6 @@ showlog = (str, time=3000) => {
   setTimeout(() => { req++; if (req == inc) { dom("error").innerText = ""; }}, time);
 };
 
-const stringMap = {
-  comment: (display_name) => (`${display_name} commented on your post:`),
-  quote: (display_name) => (`${display_name} quoted your post:`),
-  ping_p: (display_name) => (`${display_name} mentioned you in a post:`),
-  ping_c: (display_name) => (`${display_name} mentioned you in a comment:`)
-}
-
 function refresh() {
   dom("notif-container").innerHTML = "";
 
@@ -40,7 +33,7 @@ function refresh() {
             notif.data.can_delete = false;
             notif.data.can_pin = false;
 
-            y.innerHTML += escapeHTML(stringMap[notif.event_type](notif.data.creator.display_name)) + "<br>";
+            y.innerHTML += escapeHTML(lang.notifications[notif.event_type].replaceAll("%s", notif.data.creator.display_name)) + "<br>";
             y.innerHTML += getPostHTML(
               notif.data, // postJSON
               ["comment", "ping_c"].includes(notif.event_type), // isComment
@@ -59,10 +52,10 @@ function refresh() {
 
         dom("notif-container").append(x);
       } else {
-        showlog("Something went wrong loading the notifications list!");
+        showlog(lang.generic.something_went_wrong_x.replaceAll("%s", lang.notifications.error));
       }
   }).catch((err) => {
-    showlog("Something went wrong loading the notification list!");
+    showlog(lang.generic.something_went_wrong_x.replaceAll("%s", lang.notifications.error));
     throw err;
   });
 }

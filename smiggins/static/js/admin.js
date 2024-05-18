@@ -22,9 +22,9 @@ level >= 1 && dom("post-delete").addEventListener("click", function() {
   }).then((response) => (response.json()))
     .then((json) => {
       if (json.success) {
-        showlog("Success!");
+        showlog(lang.generic.success);
       } else {
-        showlog("Something went wrong deleting the specified post/comment! Maybe it doesn't exist?", 5000);
+        showlog(lang.generic.something_went_wrong_x.replaceAll("%s", lang.admin.post_deletion_error), 5000);
       }
     });
 });
@@ -40,9 +40,9 @@ level >= 2 && dom("account-delete").addEventListener("click", function() {
   }).then((response) => (response.json()))
     .then((json) => {
       if (json.success) {
-        showlog("Success!");
+        showlog(lang.generic.success);
       } else {
-        showlog("Something went wrong deleting the specified account! Maybe it doesn't exist?", 5000);
+        showlog(lang.generic.something_went_wrong_x.replaceAll("%s", lang.admin.account_deletion_error), 5000);
       }
     });
 });
@@ -59,9 +59,9 @@ ENABLE_BADGES && level >= 3 && dom("badge-add").addEventListener("click", functi
   }).then((response) => (response.json()))
     .then((json) => {
       if (json.success) {
-        showlog("Success!");
+        showlog(lang.generic.success);
       } else {
-        showlog("Something went wrong! Maybe the user doesn't exist?");
+        showlog(lang.generic.something_went_wrong_x.replaceAll("%s", lang.admin.badge_manage_add_error));
       }
     });
 });
@@ -77,9 +77,9 @@ ENABLE_BADGES && level >= 3 && dom("badge-remove").addEventListener("click", fun
   }).then((response) => (response.json()))
     .then((json) => {
       if (json.success) {
-        showlog("Success!");
+        showlog(lang.generic.success);
       } else {
-        showlog("Something went wrong! Maybe the user doesn't exist?");
+        showlog(lang.generic.something_went_wrong_x.replaceAll("%s", lang.admin.badge_manage_remove_error));
       }
     });
 });
@@ -94,9 +94,9 @@ ENABLE_BADGES && level >= 3 && dom("badge-create").addEventListener("click", fun
   }).then((response) => (response.json()))
     .then((json) => {
       if (json.success) {
-        showlog("Success! Reload for your changes to apply!");
+        showlog(`${lang.generic.success} ${lang.admin.badge_create_success}`);
       } else {
-        showlog("Something went wrong! Reason: " + json.reason);
+        showlog(`${lang.generic.something_went_wrong} ${lang.generic.reason.replaceAll("%s", json.reason)}`);
       }
     });
 });
@@ -110,9 +110,9 @@ ENABLE_BADGES && level >= 3 && dom("badge-delete").addEventListener("click", fun
   }).then((response) => (response.json()))
     .then((json) => {
       if (json.success) {
-        showlog("Success!");
+        showlog(lang.generic.success);
       } else {
-        showlog("Something went wrong! Reason: " + json.reason);
+        showlog(`${lang.generic.something_went_wrong} ${lang.generic.reason.replaceAll("%s", json.reason)}`);
       }
     });
 });
@@ -124,11 +124,11 @@ level >= 4 && dom("data-get").addEventListener("click", function() {
     .then((json) => {
       if (json.success) {
         dom("data-section").innerHTML = `
-          Current account: <a href="/u/${json.username}"><code>@${json.username}</code></a> (id: ${json.user_id})<br>
-          <input maxlength="300" id="data-display-name" placeholder="Display name..." value="${escapeHTML(json.displ_name || "")}"><br>
-          <textarea maxlength="65536" id="data-bio" placeholder="User bio...">${escapeHTML(json.bio || "")}</textarea><br>
-          <button id="data-save" data-user-id="${json.user_id}">Save info</button><br>
-          <button id="data-switcher" data-token="${json.token}" data-username="${json.username}">Add to account switcher</button>
+          ${lang.admin.modify_current} <a href="/u/${json.username}"><code>@${json.username}</code></a> (${lang.admin.modify_id.replaceAll("%s", json.user_id)})<br>
+          <input maxlength="300" id="data-display-name" placeholder="${lang.settings.profile_display_name_placeholder}" value="${escapeHTML(json.displ_name || "")}"><br>
+          <textarea maxlength="65536" id="data-bio" placeholder="${lang.settings.profile_bio_placeholder}">${escapeHTML(json.bio || "")}</textarea><br>
+          <button id="data-save" data-user-id="${json.user_id}">${lang.admin.modify_save}</button><br>
+          <button id="data-switcher" data-token="${json.token}" data-username="${json.username}">${lang.admin.modify_switcher}</button>
         `;
 
         dom("data-display-name").addEventListener("input", postTextInputEvent);
@@ -144,7 +144,7 @@ level >= 4 && dom("data-get").addEventListener("click", function() {
             localStorage.setItem("acc-switcher", JSON.stringify(accounts));
           }
 
-          showlog("Success!");
+          showlog(lang.generic.success);
         });
 
         dom("data-save").addEventListener("click", function() {
@@ -160,12 +160,12 @@ level >= 4 && dom("data-get").addEventListener("click", function() {
               if (json.success) {
                 showlog("Saved!");
               } else {
-                showlog(`Something went wrong! ${json.reason}`);
+                showlog(`${lang.generic.something_went_wrong} ${lang.generic.reason.replaceAll("%s", json.reason)}`);
               }
             });
         });
       } else {
-        showlog(`Something went wrong! ${json.reason}`);
+        showlog(`${lang.generic.something_went_wrong} ${lang.generic.reason.replaceAll("%s", json.reason)}`);
       }
     })
 });
@@ -178,23 +178,21 @@ level >= 4 && dom("debug-button").addEventListener("click", function() {
     .then((json) => {
       if (json.success) {
         let lines = atob(json.content).split("\n");
+        let output = `<table class="admin-logs bordered"><tr><th>${lang.admin.logs_timestamp}</th><th>${lang.admin.logs_action}</th><th>${lang.admin.logs_who}</th><th class="nowrap">${lang.admin.logs_more_info}</th></tr>`
 
-        let output = "<table class=\"admin-logs bordered\"><tr><th>Timestamp</th><th>Action</th><th>Who</th><th class=\"nowrap\">More Info</th></tr>"
         for (const line of lines) {
           try {
             output += `<tr><td class="nowrap">${timeSince(line.split(" ", 2)[0])} ago</td><td class="nowrap">${line.split(",", 2)[0].split("- ", 2)[1]}</td><td class="nowrap">${line.split(",")[1].split(") - ", 2)[0]})</td><td>${escapeHTML(line.split(",").slice(1).join(",").split(") - ", 2)[1])}</td></tr>`;
-          } catch(err) {
-            //
-          }
+          } catch(err) { }
         }
 
         dom("debug").innerHTML = output + "</table>";
       } else {
-        showlog("Something went wrong loading the logs!");
+        showlog(lang.generic.something_went_wrong_x.replaceAll("%s", lang.admin.logs_error));
         this.removeAttribute("disabled");
       }
     }).catch((err) => {
-      showlog("Something went wrong loading the logs!");
+      showlog(lang.generic.something_went_wrong_x.replaceAll("%s", lang.admin.logs_error));
       this.removeAttribute("disabled")
     });
 });
@@ -211,9 +209,9 @@ level >= 5 && dom("level-set").addEventListener("click", function() {
   }).then((response) => (response.json()))
     .then((json) => {
       if (json.success) {
-        showlog("Success!");
+        showlog(lang.generic.success);
       } else {
-        showlog("Something went wrong setting that account's level! Maybe it doesn't exist?", 5000);
+        showlog(lang.generic.something_went_wrong_x.replaceAll("%s", lang.admin.level_error));
       }
     });
 });

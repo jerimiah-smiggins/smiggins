@@ -3,7 +3,7 @@ let home = true;
 
 let output = "<select id=\"color\">";
 for (const color of validColors) {
-  output += `<option ${((localStorage.getItem("color") == color || (!localStorage.getItem("color") && color == "mauve")) ? "selected" : "")} value="${color}">${color.charAt(0).toUpperCase() + color.slice(1)}</option>`;
+  output += `<option ${((localStorage.getItem("color") == color || (!localStorage.getItem("color") && color == "mauve")) ? "selected" : "")} value="${color}">${lang.generic.colors[color]}</option>`;
 }
 output += "</select><br><br>";
 
@@ -19,7 +19,6 @@ if (ENABLE_PRONOUNS && user_pronouns.includes("_")) {
 let currentAccount = document.cookie.match(/token=([a-f0-9]{64})/)[0].split("=")[1];
 let accounts = JSON.parse(localStorage.getItem("acc-switcher") || JSON.stringify([[localStorage.getItem("username"), currentAccount]]));
 if (!localStorage.getItem("username")) {
-  showlog("Username couldn't be loaded! Try reloading the page?", 10_000);
   dom("switcher").setAttribute("hidden", "");
 }
 
@@ -47,8 +46,8 @@ dom("color-selector").innerHTML = output;
 dom("post-example").innerHTML = getPostHTML(
   {
     "creator": {
-      "display_name": "Example",
-      "username": "example",
+      "display_name": lang.settings.cosmetic_example_post_display_name,
+      "username": lang.settings.cosmetic_example_post_username,
       "badges": ["administrator"],
       "private": false,
       "pronouns": "aa",
@@ -57,7 +56,7 @@ dom("post-example").innerHTML = getPostHTML(
       "gradient_banner": true
     },
     "post_id": 0,
-    "content": "This is an example post. I am @example.",
+    "content": lang.settings.cosmetic_example_post_content,
     "timestamp": Date.now() / 1000 - Math.random() * 86400,
     "liked": true,
     "likes": Math.floor(Math.random() * 99) + 1,
@@ -122,7 +121,7 @@ for (const acc of accounts) {
 function setUnload() {
   if (!window.onbeforeunload) {
     window.onbeforeunload = function() {
-      return 'You have unsaved changes! Are you sure you want to leave?';
+      return lang.settings.unload;
     };
   }
 }

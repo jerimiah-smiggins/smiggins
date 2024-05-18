@@ -14,20 +14,20 @@ document.querySelector("body").setAttribute(
 );
 
 if (logged_in) {
-  x.innerHTML = `<a title="Settings" href="/settings">${icons.settings}</a>`;
+  x.innerHTML = `<a title="${lang.settings.title}" href="/settings">${icons.settings}</a>`;
 
   if (typeof(home) !== 'undefined') {
-    x.innerHTML += `<a title="Home" href="/home">${icons.home}</a>`;
+    x.innerHTML += `<a title="${lang.home.title}" href="/home">${icons.home}</a>`;
   }
 
-  x.innerHTML += `<div data-add-notification-dot><a title="Notifications" href="/notifications">${icons.bell}</a></div>`;
+  x.innerHTML += `<div data-add-notification-dot><a title="${lang.notifications.title}" href="/notifications">${icons.bell}</a></div>`;
   if (ENABLE_PRIVATE_MESSAGES) {
-    x.innerHTML += `<div data-add-message-dot><a title="Messages" href="/messages">${icons.message}</a></div>`;
+    x.innerHTML += `<div data-add-message-dot><a title="${lang.messages.list_title}" href="/messages">${icons.message}</a></div>`;
   }
 }
 
 if (typeof(share) !== 'undefined') {
-  x.innerHTML += `<span title="Share" onclick="window.navigator.clipboard.writeText('${escapeHTML(share)}'); showlog('Copied to clipboard!');">${icons.share}</span>`;
+  x.innerHTML += `<span title="${lang.generic.share}" onclick="window.navigator.clipboard.writeText('${escapeHTML(share)}'); showlog('${lang.generic.copied}');">${icons.share}</span>`;
 }
 
 document.querySelector("body").append(x);
@@ -79,14 +79,14 @@ if (logged_in) {
 
           if (usernameRegexFull.test(username)) {
             localStorage.setItem("username", username);
-            dom("icons").innerHTML += `<a title="Profile" href="/u/${username}">${icons.user}</a>`;
+            dom("icons").innerHTML += `<a title="${lang.settings.profile_title}" href="/u/${username}">${icons.user}</a>`;
           } else {
             console.log("Username returned from /api/info/username is invalid.");
           }
         });
     } else {
       if (usernameRegexFull.test(localStorage.getItem("username"))) {
-        dom("icons").innerHTML += `<a title="Profile" href="/u/${localStorage.getItem("username")}">${icons.user}</a>`;
+        dom("icons").innerHTML += `<a title="${lang.settings.profile_title}" href="/u/${localStorage.getItem("username")}">${icons.user}</a>`;
       } else {
         console.log("Username in localStorage is invalid.");
         localStorage.removeItem("username");

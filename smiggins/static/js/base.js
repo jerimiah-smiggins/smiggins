@@ -3,11 +3,6 @@ const dom = (id) => (document.getElementById(id));
 const usernameRegex = /(@[a-zA-Z0-9_\-]+)/g;
 const usernameRegexFull = /^[a-z0-9_\-]+$/g;
 
-const months = [
-  "Jan", "Feb", "Mar", "Apr",
-  "May", "Jun", "Jul", "Aug",
-  "Sep", "Oct", "Nov", "Dec"
-];
 
 const validColors = [
   "rosewater", "flamingo", "pink", "mauve",
@@ -15,16 +10,11 @@ const validColors = [
   "teal", "sky", "sapphire", "blue", "lavender"
 ]
 
-const pronouns = {
-  _a: "ask pronouns",
-  _o: "other pronouns",
-  _v: "avoid pronouns",
-  aa: "any/all",  af: "any/she",  ai: "any/all",   am: "any/he",  an: "any/they",  ao: "any/its", ax: "any/other",
-  fa: "she/any",  ff: "she/her",  fi: "she/her",   fm: "she/he",  fn: "she/they",  fo: "she/it",  fx: "she/other",
-  ma: "he/all",   mf: "he/her",   mi: "he/him",    mm: "he/him",  mn: "he/they",   mo: "he/it",   mx: "he/other",
-  na: "they/any", nf: "they/she", ni: "they/them", nm: "they/he", nn: "they/them", no: "they/it", nx: "they/other",
-  oa: "it/any",   of: "it/she",   oi: "it/its",    om: "it/he",   on: "it/they",   oo: "it/its",  ox: "it/other"
-}
+const months = lang.generic.time.months;
+const pronouns = lang.generic.pronouns;
+pronouns._a = pronouns.a;
+pronouns._o = pronouns.o;
+pronouns._v = pronouns.v;
 
 // Placeholder
 let showlog = (str, time=0) => { };
@@ -128,7 +118,7 @@ function timeSince(date) {
     }
   }
 
-  return `<span data-timestamp="${date}" title="${dateString}">${Math.floor(amount)} ${unit}${Math.floor(amount) == 1 ? "" : "s"}</span>`;
+  return `<span data-timestamp="${date}" title="${dateString}">${lang.generic.time.ago.replaceAll("%s", `${Math.floor(amount)} ${lang.generic.time[unit + (Math.floor(amount) == 1 ? "_singular" : "_plural")]}`)}</span>`;
 }
 
 function escapeHTML(str) {
@@ -158,7 +148,7 @@ function getPostHTML(
             <span class="upper-lower-opacity">
               <div class="username">@${postJSON.creator.username}</div> -
               ${pronouns[postJSON.creator.pronouns] ? `<div class="pronouns">${pronouns[postJSON.creator.pronouns]}</div> -` : ""}
-              <div class="timestamp">${timeSince(postJSON.timestamp)} ago</div>
+              <div class="timestamp">${timeSince(postJSON.timestamp)}</div>
             </span>
           </div>
         ${includeUserLink ? "</a>" : "</span>"}
@@ -187,12 +177,12 @@ function getPostHTML(
           <div class="quote-area">
             <div class="post">
               ${
-                postJSON.quote.blocked ? "This post is from an account you've blocked" : postJSON.quote.deleted ? "The original post was deleted" : postJSON.quote.can_view ? `
+                postJSON.quote.blocked ? lang.home.quote_blocked : postJSON.quote.deleted ? lang.home.quote_deleted : postJSON.quote.can_view ? `
                   <div class="upper-content">
                     <a href="/u/${postJSON.quote.creator.username}" class="no-underline text">
                       <div class="main-area">
                         <div class="displ-name">
-                          <div style="--color-one: ${postJSON.quote.creator.color_one}; --color-two: ${postJSON.quote.creator[ENABLE_GRADIENT_BANNERS && postJSON.quote.creator.gradient_banner ? "color_two" : "color_one"]}" class=" user-badge banner-pfp"></div>
+                          <div style="--color-one: ${postJSON.quote.creator.color_one}; --color-two: ${postJSON.quote.creator[ENABLE_GRADIENT_BANNERS && postJSON.quote.creator.gradient_banner ? "color_two" : "color_one"]}" class="user-badge banner-pfp"></div>
                           ${escapeHTML(postJSON.quote.creator.display_name)}
                           ${postJSON.quote.creator.private ? `<span class="user-badge">${icons.lock}</span>` : ""}
                           ${postJSON.quote.creator.badges.length ? `<span class="user-badge">${postJSON.quote.creator.badges.map((icon) => (badges[icon])).join("</span> <span class=\"user-badge\">")}</span>` : ""}
@@ -200,7 +190,7 @@ function getPostHTML(
                         <span class="upper-lower-opacity">
                           <div class="username">@${postJSON.quote.creator.username}</div> -
                           ${pronouns[postJSON.quote.creator.pronouns] ? `<div class="pronouns">${pronouns[postJSON.quote.creator.pronouns]}</div> -` : ""}
-                          <div class="timestamp">${timeSince(postJSON.quote.timestamp)} ago</div>
+                          <div class="timestamp">${timeSince(postJSON.quote.timestamp)}</div>
                         </span>
                       </div>
                     </a>
@@ -222,10 +212,10 @@ function getPostHTML(
                           .replaceAll("<a target=\"_blank\" href=\"/", "<a href=\"/")
                       }
 
-                      ${postJSON.quote.has_quote ? "<br><i>Quoting another post...</i>" : ""}
+                      ${postJSON.quote.has_quote ? `<br><i>${lang.home.quote_recursive}</i>` : ""}
                     </a>
                   </div>
-                ` : "This person limits who can view their profile."
+                ` : lang.home.quote_private
               }
             </div>
           </div>

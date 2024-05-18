@@ -1,12 +1,12 @@
 # For admin-related apis
 
 from .._settings import OWNER_USER_ID, ADMIN_LOG_PATH
-from ..variables import BADGE_DATA
+from ..variables import BADGE_DATA, BASE_DIR
 from ..packages  import User, Comment, Post, Badge, Hashtag, Schema, base64, pathlib
 from ..helper    import trim_whitespace, log_admin_action, find_hashtags
 
 if ADMIN_LOG_PATH[:2:] == "./":
-    ADMIN_LOG_PATH = str(pathlib.Path(__file__).parent.absolute()) + "/../" + ADMIN_LOG_PATH[2::]
+    ADMIN_LOG_PATH = BASE_DIR / ADMIN_LOG_PATH[2::]
 
 class AccountIdentifier(Schema):
     identifier: str | int
