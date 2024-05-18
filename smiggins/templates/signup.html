@@ -3,31 +3,31 @@
 
 <html>
   <head>
-    <title>Sign Up - {{ SITE_NAME }} v{{ VERSION }}</title>
+    <title>{{ lang.account.sign_up_title }} - {{ SITE_NAME }} v{{ VERSION }}</title>
     {% autoescape off %}
     {{ HTML_HEADERS }}
     {% endautoescape %}
 
-    <meta name="description" content="Signup page">
+    <meta name="description" content="{{ lang.account.sign_up_title }}">
     <meta name="author" content="{{ SITE_NAME }} v{{ VERSION }}">
 
     <meta property="og:type" content="website">
     <meta property="og:title" content="{{ SITE_NAME }} v{{ VERSION }}">
-    <meta property="og:description" content="Signup page">
+    <meta property="og:description" content="{{ lang.account.sign_up_title }}">
 
     <meta name="twitter:card" content="summary_large_image">
     <meta name="twitter:title" content="{{ SITE_NAME }} v{{ VERSION }}">
-    <meta name="twitter:description" content="Signup page">
+    <meta name="twitter:description" content="{{ lang.account.sign_up_title }}">
   </head>
 
   <body data-theme="{{ THEME }}">
-    <h1>Sign Up</h1>
-    <input id="username" maxlength="{{ MAX_USERNAME_LENGTH }}" placeholder="Username..."><br>
-    <input id="password" placeholder="Password..." type="password"><br>
-    <input id="confirm" placeholder="Confirm password..." type="password"><br><br>
-    <button id="submit">Sign Up</button><br><br>
-    <button id="toggle-password">Show/Hide Password</button><br><br>
-    <a href="/login">Log in instead...</a>
+    <h1>{{ lang.account.sign_up_title }}</h1>
+    <input id="username" maxlength="{{ MAX_USERNAME_LENGTH }}" placeholder="{{ lang.account.username_placeholder }}"><br>
+    <input id="password" placeholder="{{ lang.account.password_placeholder }}" type="password"><br>
+    <input id="confirm" placeholder="{{ lang.account.confirm_placeholder }}" type="password"><br><br>
+    <button id="submit">{{ lang.account.sign_up_title }}</button><br><br>
+    <button id="toggle-password">{{ lang.account.toggle_password }}</button><br><br>
+    <a href="/login">{{ lang.account.log_in_instead }}</a>
     <div id="error"></div>
 
     <script src="{% static '/js/signup.js' %}?v={{ VERSION }}"></script>

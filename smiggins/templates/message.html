@@ -3,7 +3,7 @@
 
 <html>
   <head>
-    <title>Messaging {{ DISPLAY_NAME }} - {{ SITE_NAME }} v{{ VERSION }}</title>
+    <title>{{ TITLE }} - {{ SITE_NAME }} v{{ VERSION }}</title>
     {% autoescape off %}
     {{ HTML_HEADERS }}
     {% endautoescape %}
@@ -13,7 +13,7 @@
 
   <body data-theme="{{ THEME }}" data-username="{{ USERNAME }}">
     <div class="header-container"><h1 style="margin-bottom: 0;">
-      Messaging {{ DISPLAY_NAME }}
+      {{ TITLE }}
       <span {% if PRIVATE == "false" %}hidden{% endif %}><div class="user-badge" data-add-icon="lock"></div></span>
       {% autoescape off %}
       {{ BADGES }}

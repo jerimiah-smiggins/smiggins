@@ -2,16 +2,16 @@
 
 <html>
   <head>
-    <title>Internal Server Error - {{ SITE_NAME }} v{{ VERSION }}</title>
+    <title>{{ lang.http.500.title }} - {{ SITE_NAME }} v{{ VERSION }}</title>
     {% autoescape off %}
     {{ HTML_HEADERS }}
     {% endautoescape %}
   </head>
 
   <body data-theme="{{ THEME }}" class="center">
-    <h1>Internal Server Error</h1>
-    <h3>Something happened in the server that prevents you from viewing this page.</h3>
-    This <em>shouldn't</em> be your fault<br>
-    <a href="/home">Return Home</a>
+    <h1>{{ lang.http.500.title }}</h1>
+    <h3>{{ lang.http.500.description }}</h3>
+    {{ lang.http.500.alt_description }}<br>
+    <a href="/home">{{ lang.http.home }}</a>
   </body>
 </html>

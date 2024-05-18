@@ -3,7 +3,7 @@
 
 <html>
   <head>
-    <title>Messages - {{ SITE_NAME }} v{{ VERSION }}</title>
+    <title>{{ lang.messages.list_title }} - {{ SITE_NAME }} v{{ VERSION }}</title>
     {% autoescape off %}
     {{ HTML_HEADERS }}
     {% endautoescape %}
@@ -13,13 +13,13 @@
   </head>
 
   <body data-theme="{{ THEME }}">
-    <h1>Recent Messages</h1>
+    <h1>{{ lang.messages.list_subtitle }}</h1>
     <div id="error"></div>
-    <button id="refresh" onclick="refresh(true);">Refresh</button><br><br>
+    <button id="refresh" onclick="refresh(true);">{{ lang.generic.refresh }}</button><br><br>
 
     <div id="recent-list"></div>
 
-    <button id="more" onclick="refresh();" hidden>Load More...</button>
+    <button id="more" onclick="refresh();" hidden>{{ lang.generic.load_more }}</button>
 
     <script src="{% static '/js/messages.js' %}?v={{ VERSION }}"></script>
     {% autoescape off %}

@@ -3,7 +3,7 @@
 from ._settings import DEFAULT_BANNER_COLOR, MAX_BIO_LENGTH, OWNER_USER_ID, CONTACT_INFO, ENABLE_GRADIENT_BANNERS
 from .variables import BADGE_DATA
 from .packages  import User, Post, Comment, Hashtag, PrivateMessageContainer, HttpResponse, HttpResponseRedirect, json
-from .helper    import get_HTTP_response, get_post_json, get_badges, get_container_id
+from .helper    import get_HTTP_response, get_post_json, get_badges, get_container_id, get_lang
 
 def settings(request) -> HttpResponse:
     try:
@@ -331,11 +331,13 @@ def message(request, username: str) -> HttpResponse | HttpResponseRedirect:
     except User.DoesNotExist:
         return get_HTTP_response(request, "404_user.html")
 
-    return get_HTTP_response(
-        request, "message.html",
+    lang = get_lang(user)
 
+    return get_HTTP_response(
+        request, "message.html", lang,
+
+        TITLE = lang["messages"]["title"].replace("%s", user.display_name),
         USERNAME = username,
-        DISPLAY_NAME = user.display_name,
         PRIVATE = str(user.private).lower(),
         BADGES = "".join([f"<span class='user-badge' data-add-badge='{i}'></span> " for i in get_badges(user)])
     )

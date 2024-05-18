@@ -3,27 +3,27 @@
 
 <html>
   <head>
-    <title>Contact - {{ SITE_NAME }} v{{ VERSION }}</title>
+    <title>{{ lang.contact.title }} - {{ SITE_NAME }} v{{ VERSION }}</title>
     {% autoescape off %}
     {{ HTML_HEADERS }}
     {% endautoescape %}
 
     <meta name="description" content="social media thing">
-    <meta name="author" content="Contact - {{ SITE_NAME }} v{{ VERSION }}">
+    <meta name="author" content="{{ lang.contact.title }} - {{ SITE_NAME }} v{{ VERSION }}">
 
     <meta property="og:type" content="website">
-    <meta property="og:title" content="Contact - {{ SITE_NAME }} v{{ VERSION }}">
+    <meta property="og:title" content="{{ lang.contact.title }} - {{ SITE_NAME }} v{{ VERSION }}">
     <meta property="og:description" content="social media thing">
 
     <meta name="twitter:card" content="summary_large_image">
-    <meta name="twitter:title" content="Contact - {{ SITE_NAME }} v{{ VERSION }}">
+    <meta name="twitter:title" content="{{ lang.contact.title }} - {{ SITE_NAME }} v{{ VERSION }}">
     <meta name="twitter:description" content="social media thing">
 
     <link rel="stylesheet" href="{% static '/css/contact.css' %}?v={{ VERSION }}">
   </head>
 
   <body data-theme="{{ THEME }}">
-    <h1>Contact Us</h1>
+    <h1>{{ lang.contact.subtitle }}</h1>
     <h3>{{ SITE_NAME }} v{{ VERSION }}</h3>
     <ul>
       {% for CONTACT in CONTACT_INFO %}

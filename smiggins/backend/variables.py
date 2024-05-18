@@ -7,6 +7,8 @@ from ._settings import MAX_USERNAME_LENGTH, MAX_POST_LENGTH, MAX_DISPL_NAME_LENG
 from .packages  import Badge, hashlib, ensure_file, pathlib
 from django.db.utils import OperationalError
 
+BASE_DIR = pathlib.Path(__file__).resolve().parent.parent
+
 # Headers set at the top of every html file.
 HTML_HEADERS: str = f"""
 <meta charset="utf-8">
