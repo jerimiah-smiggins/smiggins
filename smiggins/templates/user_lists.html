@@ -42,6 +42,8 @@
               <div class="upper-content">
                 <a href="/u/{{ USER.username }}" class="no-underline text">
                   <div class="displ-name">
+                    <span style="--color-one: {{ USER.color_one }}; --color-two: {% if USER.is_gradient == 'true' %}{{ USER.color_two }}{% else %}{{ USER.color_one }}{% endif %}" class="user-badge banner-pfp"></span>
+
                     {{ USER.display_name }}
                     {% if USER.private == 'true' %}
                       <span class="user-badge" data-add-icon="lock"></span>
@@ -81,6 +83,8 @@
             <div class="upper-content">
               <a href="/u/{{ USER.username }}" class="no-underline text">
                 <div class="displ-name">
+                  <span style="--color-one: {{ USER.color_one }}; --color-two: {% if USER.is_gradient == 'true' %}{{ USER.color_two }}{% else %}{{ USER.color_one }}{% endif %}" class="user-badge banner-pfp"></span>
+
                   {{ USER.display_name }}
                   {% if USER.private == 'true' %}
                     <span class="user-badge" data-add-icon="lock"></span>
@@ -119,6 +123,8 @@
             <div class="upper-content">
               <a href="/u/{{ USER.username }}" class="no-underline text">
                 <div class="displ-name">
+                  <span style="--color-one: {{ USER.color_one }}; --color-two: {% if USER.is_gradient == 'true' %}{{ USER.color_two }}{% else %}{{ USER.color_one }}{% endif %}" class="user-badge banner-pfp"></span>
+
                   {{ USER.display_name }}
                   {% if USER.private == 'true' %}
                     <span class="user-badge" data-add-icon="lock"></span>

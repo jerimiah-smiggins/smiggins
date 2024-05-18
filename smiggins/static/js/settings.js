@@ -51,7 +51,10 @@ dom("post-example").innerHTML = getPostHTML(
       "username": "example",
       "badges": ["administrator"],
       "private": false,
-      "pronouns": "aa"
+      "pronouns": "aa",
+      "color_one": "#" + Math.floor(Math.random() * 16777216).toString(16).padStart(6, "0"),
+      "color_two": "#" + Math.floor(Math.random() * 16777216).toString(16).padStart(6, "0"),
+      "gradient_banner": true
     },
     "post_id": 0,
     "content": "This is an example post. I am @example.",

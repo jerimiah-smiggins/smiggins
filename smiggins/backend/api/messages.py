@@ -228,7 +228,10 @@ def recent_messages(request, offset: int=-1) -> tuple | dict:
                 "display_name": other_user.display_name,
                 "badges": get_badges(other_user),
                 "unread": i in user.unread_messages,
-                "private": other_user.private
+                "private": other_user.private,
+                "color_one": other_user.color,
+                "color_two": other_user.color_two,
+                "gradient_banner": other_user.gradient
             })
 
         except PrivateMessageContainer.DoesNotExist:

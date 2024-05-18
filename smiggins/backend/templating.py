@@ -116,7 +116,10 @@ def user_lists(request, username: str) -> HttpResponse:
                 "display_name": f_user.display_name,
                 "bio": f_user.bio or "\n\n\n",
                 "private": str(f_user.private).lower(),
-                "badges": get_badges(f_user)
+                "badges": get_badges(f_user),
+                "color_one": f_user.color,
+                "color_two": f_user.color_two,
+                "is_gradient": str(ENABLE_GRADIENT_BANNERS and f_user.gradient).lower()
             })
 
     following = []
@@ -129,7 +132,10 @@ def user_lists(request, username: str) -> HttpResponse:
                 "display_name": f_user.display_name,
                 "bio": f_user.bio or "\n\n\n",
                 "private": str(f_user.private).lower(),
-                "badges": get_badges(f_user)
+                "badges": get_badges(f_user),
+                "color_one": f_user.color,
+                "color_two": f_user.color_two,
+                "is_gradient": str(ENABLE_GRADIENT_BANNERS and f_user.gradient).lower()
             })
 
     blocking = []
@@ -146,7 +152,10 @@ def user_lists(request, username: str) -> HttpResponse:
                         "display_name": f_user.display_name,
                         "bio": f_user.bio or "\n\n\n",
                         "private": str(f_user.private).lower(),
-                        "badges": get_badges(f_user)
+                        "badges": get_badges(f_user),
+                        "color_one": f_user.color,
+                        "color_two": f_user.color_two,
+                        "is_gradient": str(ENABLE_GRADIENT_BANNERS and f_user.gradient).lower()
                     })
 
             except User.DoesNotExist:
