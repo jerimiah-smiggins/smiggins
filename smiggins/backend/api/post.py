@@ -1,8 +1,8 @@
 # For API functions that relate to posts, for example creating, fetching home lists, etc.
 
-from ._settings import API_TIMINGS, MAX_POST_LENGTH, POSTS_PER_REQUEST, OWNER_USER_ID
-from .packages  import User, Post, Comment, Hashtag, time, sys, Schema, random
-from .helper    import ensure_ratelimit, create_api_ratelimit, trim_whitespace, get_post_json, validate_username, validate_token, log_admin_action, create_notification, find_mentions, find_hashtags
+from .._settings import API_TIMINGS, MAX_POST_LENGTH, POSTS_PER_REQUEST, OWNER_USER_ID
+from ..packages  import User, Post, Comment, Hashtag, time, sys, Schema, random
+from ..helper    import ensure_ratelimit, create_api_ratelimit, validate_username, trim_whitespace, get_post_json, log_admin_action, create_notification, find_mentions, find_hashtags
 
 class NewPost(Schema):
     content: str
@@ -324,12 +324,11 @@ def post_list_user(request, username: str, offset: int=-1) -> tuple | dict:
             "reason" : "Username is insvalagaeg... LOOK JUST SHUT UP"
         }
 
-    token = request.COOKIES.get('token') if 'token' in request.COOKIES and validate_token(request.COOKIES.get('token')) else 0
     offset = sys.maxsize if offset == -1 or not isinstance(offset, int) else offset
-
     user = User.objects.get(username=username)
+
     try:
-        self_user = User.objects.get(token=token)
+        self_user = User.objects.get(token=request.COOKIES.get("token"))
         logged_in = True
     except User.DoesNotExist:
         logged_in = False

@@ -1,8 +1,8 @@
 # For API functions that are user-specific, like settings, following, etc.
 
-from ._settings import API_TIMINGS, DEFAULT_BANNER_COLOR, MAX_USERNAME_LENGTH, MAX_BIO_LENGTH, MAX_DISPL_NAME_LENGTH
-from .packages  import User, Post, Comment, Notification, Schema
-from .helper    import validate_username, trim_whitespace, create_api_ratelimit, ensure_ratelimit, generate_token, get_post_json
+from .._settings import API_TIMINGS, DEFAULT_BANNER_COLOR, MAX_USERNAME_LENGTH, MAX_BIO_LENGTH, MAX_DISPL_NAME_LENGTH, ENABLE_PRONOUNS, ENABLE_GRADIENT_BANNERS, ENABLE_USER_BIOS
+from ..packages  import User, Post, Comment, Notification, Schema
+from ..helper    import validate_username, trim_whitespace, create_api_ratelimit, ensure_ratelimit, generate_token, get_post_json
 
 class Username(Schema):
     username: str
@@ -165,19 +165,19 @@ def settings(request, data: Settings) -> tuple | dict:
     bio = trim_whitespace(data.bio, True)
     pronouns = data.pronouns.lower()
 
-    if len(pronouns) != 2 or pronouns not in ["__", "_a", "_o", "_v", "aa", "af", "ai", "am", "an", "ao", "ax", "fa", "ff", "fi", "fm", "fn", "fo", "fx", "ma", "mf", "mi", "mm", "mn", "mo", "mx", "na", "nf", "ni", "nm", "nn", "no", "nx", "oa", "of", "oi", "om", "on", "oo", "ox"]:
+    if ENABLE_PRONOUNS and (len(pronouns) != 2 or pronouns not in ["__", "_a", "_o", "_v", "aa", "af", "ai", "am", "an", "ao", "ax", "fa", "ff", "fi", "fm", "fn", "fo", "fx", "ma", "mf", "mi", "mm", "mn", "mo", "mx", "na", "nf", "ni", "nm", "nn", "no", "nx", "oa", "of", "oi", "om", "on", "oo", "ox"]):
         return 400, {
             "success": False,
             "reason": f"Invalid pronoun string '{pronouns}'. If this is a bug, please report this."
         }
 
-    if (len(displ_name) > MAX_DISPL_NAME_LENGTH or len(displ_name) < 1) or (len(bio) > MAX_BIO_LENGTH):
+    if (len(displ_name) > MAX_DISPL_NAME_LENGTH or len(displ_name) < 1) or (ENABLE_USER_BIOS and len(bio) > MAX_BIO_LENGTH):
         return 400, {
             "success": False,
             "reason": f"Invalid name length. Must be between 1 and {MAX_DISPL_NAME_LENGTH} characters after minifying whitespace."
         }
 
-    if color[0] != "#" or len(color) != 7 or color_two[0] != "#" or len(color_two) != 7:
+    if color[0] != "#" or len(color) != 7 or (ENABLE_GRADIENT_BANNERS and (color_two[0] != "#" or len(color_two) != 7)):
         return 400, {
         "success": False,
         "reason": "Color very no tasty"
@@ -190,22 +190,30 @@ def settings(request, data: Settings) -> tuple | dict:
                 "reason": "Color no tasty"
             }
 
-    for i in color_two[1::]:
-        if i not in "abcdef0123456789":
-            return 400, {
-                "success": False,
-                "reason": "Color no yummy"
-            }
+    if ENABLE_GRADIENT_BANNERS:
+        for i in color_two[1::]:
+            if i not in "abcdef0123456789":
+                return 400, {
+                    "success": False,
+                    "reason": "Color no yummy"
+                }
 
     user = User.objects.get(token=token)
 
     user.color = color
-    user.color_two = color_two
-    user.gradient = data.is_gradient
+
+    if ENABLE_GRADIENT_BANNERS:
+        user.color_two = color_two
+        user.gradient = data.is_gradient
+
     user.private = data.priv
     user.display_name = displ_name
-    user.pronouns = pronouns
-    user.bio = bio
+
+    if ENABLE_USER_BIOS:
+        user.bio = bio
+
+    if ENABLE_PRONOUNS:
+        user.pronouns = pronouns
 
     user.save()
 

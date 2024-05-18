@@ -84,8 +84,25 @@ button {
   cursor: pointer;
 }
 
+.upper-content > * {
+  display: flex;
+  flex-direction: row;
+  flex-wrap: nowrap;
+  justify-content: left;
+  gap: 0.25em;
+}
+
+.upper-content > * > div {
+  max-width: calc(100% - 3.25em)
+}
+
 .upper-lower-opacity {
   color: var(--accent-50);
+}
+
+.banner-pfp {
+  border-radius: 50%;
+  background-image: linear-gradient(90deg, var(--color-one), var(--color-two));
 }
 
 .username,

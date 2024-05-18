@@ -147,17 +147,21 @@ function getPostHTML(
   return `<div class="post-container" data-${isComment ? "comment" : "post"}-id="${postJSON.post_id}">
     <div class="post">
       <div class="upper-content">
-        ${includeUserLink ? `<a href="/u/${postJSON.creator.username}" class="no-underline text">` : ""}
-          <div class="displ-name">
-            ${escapeHTML(postJSON.creator.display_name)} ${postJSON.creator.private ? `<span class="user-badge">${icons.lock}</span>` : ""}
-            ${postJSON.creator.badges.length ? `<span class="user-badge">${postJSON.creator.badges.map((icon) => (badges[icon])).join("</span> <span class=\"user-badge\">")}</span>` : ""}
+        ${includeUserLink ? `<a href="/u/${postJSON.creator.username}" class="no-underline text">` : "<span>"}
+          <div class="main-area">
+            <div class="displ-name">
+              <div style="--color-one: ${postJSON.creator.color_one}; --color-two: ${postJSON.creator[ENABLE_GRADIENT_BANNERS && postJSON.creator.gradient_banner ? "color_two" : "color_one"]}" class="user-badge banner-pfp"></div>
+              ${escapeHTML(postJSON.creator.display_name)}
+              ${postJSON.creator.private ? `<span class="user-badge">${icons.lock}</span>` : ""}
+              ${postJSON.creator.badges.length ? `<span class="user-badge">${postJSON.creator.badges.map((icon) => (badges[icon])).join("</span> <span class=\"user-badge\">")}</span>` : ""}
+            </div>
+            <span class="upper-lower-opacity">
+              <div class="username">@${postJSON.creator.username}</div> -
+              ${pronouns[postJSON.creator.pronouns] ? `<div class="pronouns">${pronouns[postJSON.creator.pronouns]}</div> -` : ""}
+              <div class="timestamp">${timeSince(postJSON.timestamp)} ago</div>
+            </span>
           </div>
-          <span class="upper-lower-opacity">
-            <div class="username">@${postJSON.creator.username}</div> -
-            ${pronouns[postJSON.creator.pronouns] ? `<div class="pronouns">${pronouns[postJSON.creator.pronouns]}</div> -` : ""}
-            <div class="timestamp">${timeSince(postJSON.timestamp)} ago</div>
-          </span>
-        ${includeUserLink ? "</a>" : ""}
+        ${includeUserLink ? "</a>" : "</span>"}
       </div>
 
       <div class="main-content">
@@ -185,17 +189,21 @@ function getPostHTML(
               ${
                 postJSON.quote.blocked ? "This post is from an account you've blocked" : postJSON.quote.deleted ? "The original post was deleted" : postJSON.quote.can_view ? `
                   <div class="upper-content">
-                    ${includeUserLink || postJSON.creator.username !== postJSON.quote.creator.username ? `<a href="/u/${postJSON.quote.creator.username}" class="no-underline text">` : ""}
-                      <div class="displ-name">
-                        ${escapeHTML(postJSON.quote.creator.display_name)} ${postJSON.quote.creator.private ? `<span class="user-badge">${icons.lock}</span>` : ""}
-                        ${postJSON.quote.creator.badges.length ? `<span class="user-badge">${postJSON.quote.creator.badges.map((icon) => (badges[icon])).join("</span> <span class=\"user-badge\">")}</span>` : ""}
+                    ${includeUserLink ? `<a href="/u/${postJSON.creator.username}" class="no-underline text">` : "<span>"}
+                      <div class="main-area">
+                        <div class="displ-name">
+                          <div style="--color-one: ${postJSON.quote.creator.color_one}; --color-two: ${postJSON.quote.creator[ENABLE_GRADIENT_BANNERS && postJSON.quote.creator.gradient_banner ? "color_two" : "color_one"]}" class=" user-badge banner-pfp"></div>
+                          ${escapeHTML(postJSON.quote.creator.display_name)}
+                          ${postJSON.quote.creator.private ? `<span class="user-badge">${icons.lock}</span>` : ""}
+                          ${postJSON.quote.creator.badges.length ? `<span class="user-badge">${postJSON.quote.creator.badges.map((icon) => (badges[icon])).join("</span> <span class=\"user-badge\">")}</span>` : ""}
+                        </div>
+                        <span class="upper-lower-opacity">
+                          <div class="username">@${postJSON.quote.creator.username}</div> -
+                          ${pronouns[postJSON.quote.creator.pronouns] ? `<div class="pronouns">${pronouns[postJSON.quote.creator.pronouns]}</div> -` : ""}
+                          <div class="timestamp">${timeSince(postJSON.quote.timestamp)} ago</div>
+                        </span>
                       </div>
-                      <span class="upper-lower-opacity">
-                        <div class="username">@${postJSON.quote.creator.username}</div> -
-                        ${pronouns[postJSON.quote.creator.pronouns] ? `<div class="pronouns">${pronouns[postJSON.quote.creator.pronouns]}</div> -` : ""}
-                        <div class="timestamp">${timeSince(postJSON.quote.timestamp)} ago</div>
-                      </span>
-                    ${includeUserLink || postJSON.creator.username !== postJSON.quote.creator.username ? "</a>" : ""}
+                    ${includeUserLink ? "</a>" : "</span>"}
                   </div>
 
                   <div class="main-content">

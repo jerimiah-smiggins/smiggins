@@ -34,7 +34,7 @@ Followers: {{ FOLLOWERS }} // Following: {{ FOLLOWING }}">
     <div>
       <div id="username-main">
         {{ DISPLAY_NAME }}
-        <span data-show-on-priv hidden><div class="user-badge" data-add-icon="lock"></div></span>
+        <span {% if PRIVATE == 'false' %}hidden{% endif %}><div class="user-badge" data-add-icon="lock"></div></span>
         {% autoescape off %}
         {{ BADGES }}
         {% endautoescape %}
@@ -47,12 +47,14 @@ Followers: {{ FOLLOWERS }} // Following: {{ FOLLOWING }}">
 
     {% if ENABLE_USER_BIOS == 'true' %}<div id="user-bio"></div>{% endif %}
 
-    <button onclick="refresh()">Refresh</button>
-    <button id="toggle" {{ IS_HIDDEN }} data-followed="{% if IS_FOLLOWING == "true" %}1{% else %}0{% endif %}" onclick="toggle_follow()">{% if IS_FOLLOWING == "true" %}Unfollow{% else %}Follow{% endif %}</button>
-    <button id="block" {{ IS_HIDDEN }} data-blocked="{% if IS_BLOCKING == "true" %}1{% else %}0{% endif %}" onclick="toggle_block()">{% if IS_BLOCKING == "true" %}Unblock{% else %}Block{% endif %}</button>
-    {% if ENABLE_PRIVATE_MESSAGES == 'true' %}<button id="message" {{ IS_HIDDEN }} onclick="createMessage()">Message</button>{% endif %}
+    {% if CAN_VIEW == 'false' %}<div hidden>{% endif %}
+      <button onclick="refresh()">Refresh</button>
+      <button id="toggle" {{ IS_HIDDEN }} data-followed="{% if IS_FOLLOWING == "true" %}1{% else %}0{% endif %}" onclick="toggle_follow()">{% if IS_FOLLOWING == "true" %}Unfollow{% else %}Follow{% endif %}</button>
+      <button id="block" {{ IS_HIDDEN }} data-blocked="{% if IS_BLOCKING == "true" %}1{% else %}0{% endif %}" onclick="toggle_block()">{% if IS_BLOCKING == "true" %}Unblock{% else %}Block{% endif %}</button>
+      {% if ENABLE_PRIVATE_MESSAGES == 'true' %}<button id="message" {{ IS_HIDDEN }} onclick="createMessage()">Message</button>{% endif %}
+    {% if CAN_VIEW == 'false' %}</div>{% endif %}
 
-    <div data-show-on-private hidden>This account is private. Only users that they follow can see their posts.</div><br><br>
+    <div {% if PRIVATE == 'false' %}hidden{% endif %}>This account is private. Only users that they follow can see their posts.</div><br><br>
     <div id="error"></div>
     <div id="pinned"></div>
     <div id="posts"></div>
@@ -60,6 +62,7 @@ Followers: {{ FOLLOWERS }} // Following: {{ FOLLOWING }}">
 
     <script>
       const logged_in = {{ LOGGED_IN }};
+      const can_view = {{ CAN_VIEW }};
 
       {% if ENABLE_PRONOUNS == 'true' %}
         if (pronouns.{{ PRONOUNS }}) {
@@ -70,6 +73,7 @@ Followers: {{ FOLLOWERS }} // Following: {{ FOLLOWING }}">
 
     <script src="{% static '/js/user.js' %}?v={{ VERSION }}"></script>
     <script src="{% static '/js/timeline.js' %}?v={{ VERSION }}"></script>
+
     {% autoescape off %}
     {{ HTML_FOOTERS }}
     {% endautoescape %}

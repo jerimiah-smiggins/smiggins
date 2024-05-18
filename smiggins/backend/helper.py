@@ -2,12 +2,12 @@
 
 from ._settings import SITE_NAME, VERSION, SOURCE_CODE, MAX_DISPL_NAME_LENGTH, MAX_POST_LENGTH, MAX_USERNAME_LENGTH, RATELIMIT, OWNER_USER_ID, ADMIN_LOG_PATH, MAX_ADMIN_LOG_LINES, MAX_NOTIFICATIONS, MAX_BIO_LENGTH, ENABLE_USER_BIOS, ENABLE_PRONOUNS, ENABLE_GRADIENT_BANNERS, ENABLE_BADGES, ENABLE_PRIVATE_MESSAGES, ENABLE_QUOTES, ENABLE_POST_DELETION
 from .variables import HTML_FOOTERS, HTML_HEADERS, PRIVATE_AUTHENTICATOR_KEY, timeout_handler
-from .packages  import Union, Callable, Any, HttpResponse, HttpResponseRedirect, loader, User, Comment, Post, Notification, threading, hashlib, pathlib, time, re
+from .packages  import Callable, Any, HttpResponse, HttpResponseRedirect, loader, User, Comment, Post, Notification, threading, hashlib, pathlib, time, re
 
 if ADMIN_LOG_PATH[:2:] == "./":
     ADMIN_LOG_PATH = str(pathlib.Path(__file__).parent.absolute()) + "/../" + ADMIN_LOG_PATH[2::]
 
-def sha(string: Union[str, bytes]) -> str:
+def sha(string: str | bytes) -> str:
     # Returns the sha256 hash of a string.
 
     if isinstance(string, str):
@@ -16,7 +16,7 @@ def sha(string: Union[str, bytes]) -> str:
         return hashlib.sha256(string).hexdigest()
     return ""
 
-def set_timeout(callback: Callable, delay_ms: Union[int, float]) -> None:
+def set_timeout(callback: Callable, delay_ms: int | float) -> None:
     # Works like javascript's setTimeout function.
     # Callback is a callable which will be called after
     # delay_ms has passed.
@@ -29,6 +29,12 @@ def set_timeout(callback: Callable, delay_ms: Union[int, float]) -> None:
     thread.start()
 
 def get_HTTP_response(request, file: str, **kwargs: Any) -> HttpResponse:
+    try:
+        user = User.objects.get(token=request.COOKIES.get("token"))
+        theme = user.theme
+    except User.DoesNotExist:
+        theme = "dark"
+
     context = {
         "SITE_NAME": SITE_NAME,
         "VERSION": VERSION,
@@ -48,7 +54,7 @@ def get_HTTP_response(request, file: str, **kwargs: Any) -> HttpResponse:
         "ENABLE_QUOTES": str(ENABLE_QUOTES).lower(),
         "ENABLE_POST_DELETION": str(ENABLE_POST_DELETION).lower(),
 
-        "THEME": User.objects.get(token=request.COOKIES.get('token')).theme if validate_token(request.COOKIES.get('token')) else "dark"
+        "THEME": theme
     }
 
     for key, value in kwargs.items():
@@ -60,44 +66,6 @@ def get_HTTP_response(request, file: str, **kwargs: Any) -> HttpResponse:
             request
         )
     )
-
-def create_simple_return(
-    template_path: str,
-    redirect_logged_out: bool=False,
-    redirect_logged_in: bool=False,
-    content_type: str="text/html", # Only works with content_override
-    content_override: str | None=None
-) -> Callable[..., HttpResponse | HttpResponseRedirect]:
-    # This creates a response object. This was made so that its standardized
-    # and creates less repeated code.
-    x = lambda request: \
-            HttpResponseRedirect("/home/" if redirect_logged_in else "/", status=307) \
-        if (redirect_logged_in and validate_token(request.COOKIES.get("token"))) or (redirect_logged_out and not validate_token(request.COOKIES.get("token"))) \
-        else (HttpResponse(content_override, content_type=content_type) if content_override else get_HTTP_response(request, template_path))
-
-    x.__name__ = template_path
-    return x
-
-def validate_token(token: str) -> bool:
-    # Ensures that a specific token corresponds to an actual account.
-
-    if not token:
-        return False
-
-    for i in token:
-        if i not in "0123456789abcdef":
-            return False
-
-    try:
-        User.objects.get(token=token).token
-        return True
-    except User.DoesNotExist:
-        return False
-
-def generate_token(username: str, password: str) -> str:
-    # Generates a User' token given their username and hashed password.
-
-    return sha(sha(f"{username}:{password}") + PRIVATE_AUTHENTICATOR_KEY)
 
 def validate_username(username: str, existing: bool=True) -> int:
     # Ensures the specified username is valid. If existing is true, then it checks
@@ -131,7 +99,37 @@ def validate_username(username: str, existing: bool=True) -> int:
 
         return 1
 
-def create_api_ratelimit(api_id: str, time_ms: Union[int, float], identifier: Union[str, None]) -> None:
+def create_simple_return(
+    template_path: str,
+    redirect_logged_out: bool=False,
+    redirect_logged_in: bool=False,
+    content_type: str="text/html", # Only works with content_override
+    content_override: str | None=None
+) -> Callable[..., HttpResponse | HttpResponseRedirect]:
+    # This creates a response object. This was made so that its standardized
+    # and creates less repeated code.
+
+    def logged_in(request) -> bool:
+        try:
+            User.objects.get(token=request.COOKIES.get("token"))
+            return True
+        except User.DoesNotExist:
+            return False
+
+    x = lambda request: \
+            HttpResponseRedirect("/home/" if redirect_logged_in else "/", status=307) \
+        if (redirect_logged_in and logged_in(request)) or (redirect_logged_out and not logged_in(request)) \
+        else (HttpResponse(content_override, content_type=content_type) if content_override else get_HTTP_response(request, template_path))
+
+    x.__name__ = template_path
+    return x
+
+def generate_token(username: str, password: str) -> str:
+    # Generates a User' token given their username and hashed password.
+
+    return sha(sha(f"{username}:{password}") + PRIVATE_AUTHENTICATOR_KEY)
+
+def create_api_ratelimit(api_id: str, time_ms: int | float, identifier: str | None) -> None:
     # Creates a ratelimit timeout for a specific user via the identifier.
     # The identifier should be the request.META.REMOTE_ADDR ip address
     # api_id is the identifier for the api, for example "api_account_signup". You
@@ -150,7 +148,7 @@ def create_api_ratelimit(api_id: str, time_ms: Union[int, float], identifier: Un
     x.__name__ = f"{api_id}:{identifier}"
     set_timeout(x, time_ms)
 
-def ensure_ratelimit(api_id: str, identifier: Union[str, None]) -> bool:
+def ensure_ratelimit(api_id: str, identifier: str | None) -> bool:
     # Returns whether or not a certain api is ratelimited for the specified
     # identifier. True = not ratelimited, False = ratelimited
 
@@ -203,7 +201,10 @@ def get_post_json(post_id: int, current_user_id: int=0, comment: bool=False, cac
             "username": creator.username,
             "badges": get_badges(creator),
             "private": creator.private,
-            "pronouns": creator.pronouns if ENABLE_PRONOUNS else "__"
+            "pronouns": creator.pronouns if ENABLE_PRONOUNS else "__",
+            "color_one": creator.color,
+            "color_two": creator.color_two,
+            "gradient_banner": creator.gradient
         },
         "post_id": post_id,
         "content": post.content,
@@ -253,7 +254,10 @@ def get_post_json(post_id: int, current_user_id: int=0, comment: bool=False, cac
                         "username": quote_creator.username,
                         "badges": get_badges(quote_creator),
                         "private": quote_creator.private,
-                        "pronouns": quote_creator.pronouns
+                        "pronouns": quote_creator.pronouns if ENABLE_PRONOUNS else "__",
+                        "color_one": creator.color,
+                        "color_two": creator.color_two,
+                        "gradient_banner": creator.gradient
                     },
                     "deleted": False,
                     "comment": post.quote_is_comment,
@@ -315,8 +319,11 @@ def log_admin_action(
     if ADMIN_LOG_PATH is not None:
         old_log = b"\n".join(open(ADMIN_LOG_PATH, "rb").read().split(b"\n")[:MAX_ADMIN_LOG_LINES - 1:])
 
+        NL = "\n"
+        BS = "\\"
+
         f = open(ADMIN_LOG_PATH, "wb")
-        f.write(str.encode(f"{round(time.time())} - {action_name}, done by {admin_user_object.username} (id: {admin_user_object.user_id}) - {log_info}\n") + old_log)
+        f.write(str.encode(f"{round(time.time())} - {action_name}, done by {admin_user_object.username} (id: {admin_user_object.user_id}) - {log_info.replace(BS, BS * 2).replace(NL, f'{BS}n')}\n") + old_log)
         f.close()
 
 def find_mentions(message: str, exclude_users: list[str]=[]) -> list[str]:

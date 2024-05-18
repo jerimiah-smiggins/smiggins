@@ -1,8 +1,8 @@
 from django.urls import path
 
-from backend.collect_api import ApiAdmin, ApiComment, ApiInfo, ApiPost, ApiUser, ApiMessages
-from backend.packages    import json
-from backend._settings   import ENABLE_PRIVATE_MESSAGES, ENABLE_QUOTES, ENABLE_POST_DELETION, ENABLE_HASHTAGS
+from backend.api       import ApiAdmin, ApiComment, ApiInfo, ApiMessages, ApiPost, ApiUser
+from backend.packages  import json
+from backend._settings import ENABLE_PRIVATE_MESSAGES, ENABLE_QUOTES, ENABLE_POST_DELETION, ENABLE_HASHTAGS
 
 from ninja.renderers import BaseRenderer
 from ninja import NinjaAPI

@@ -123,7 +123,7 @@ setInterval(
     if (!document.visibilityState || document.visibilityState == "visible") {
       refresh(false, false);
     }
-  }, 15 * 1000
+  }, 10 * 1000
 );
 
 refresh(true);

@@ -1,8 +1,8 @@
 # For API functions that relate to comments, for example liking, creating, etc.
 
-from ._settings import MAX_POST_LENGTH, API_TIMINGS, OWNER_USER_ID, POSTS_PER_REQUEST
-from .packages  import Comment, User, Post, time, Schema
-from .helper    import trim_whitespace, create_api_ratelimit, ensure_ratelimit, validate_token, get_post_json, log_admin_action, create_notification, find_mentions
+from .._settings import MAX_POST_LENGTH, API_TIMINGS, OWNER_USER_ID, POSTS_PER_REQUEST
+from ..packages  import Comment, User, Post, time, Schema
+from ..helper    import trim_whitespace, create_api_ratelimit, ensure_ratelimit, get_post_json, log_admin_action, create_notification, find_mentions
 
 class NewComment(Schema):
     content: str
@@ -101,12 +101,11 @@ def comment_list(request, id: int, comment: bool, offset: int=-1) -> tuple | dic
 
     token = request.COOKIES.get('token')
     offset = 0 if offset == -1 else offset
-    logged_in = True
 
     try:
-        if not validate_token(token):
-            logged_in = False
-    except KeyError:
+        user = User.objects.get(token=token)
+        logged_in = True
+    except User.DoesNotExist:
         logged_in = False
 
     try:
@@ -124,7 +123,7 @@ def comment_list(request, id: int, comment: bool, offset: int=-1) -> tuple | dic
         parent = Comment.objects.get(pk=id)
     else:
         parent = Post.objects.get(pk=id)
-    user_id = User.objects.get(token=token).user_id if logged_in else 0
+    user_id = user.user_id if logged_in else 0
     if parent.comments == []:
         return 200, {
             "posts": [],
