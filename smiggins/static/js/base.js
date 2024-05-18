@@ -150,9 +150,9 @@ function getPostHTML(
         ${includeUserLink ? `<a href="/u/${postJSON.creator.username}" class="no-underline text">` : "<span>"}
           <div class="main-area">
             <div class="displ-name">
+              <div style="--color-one: ${postJSON.creator.color_one}; --color-two: ${postJSON.creator[ENABLE_GRADIENT_BANNERS && postJSON.creator.gradient_banner ? "color_two" : "color_one"]}" class=" user-badge banner-pfp"></div>
               ${escapeHTML(postJSON.creator.display_name)}
               ${postJSON.creator.private ? `<span class="user-badge">${icons.lock}</span>` : ""}
-              <div style="--color-one: ${postJSON.creator.color_one}; --color-two: ${postJSON.creator[ENABLE_GRADIENT_BANNERS && postJSON.creator.gradient_banner ? "color_two" : "color_one"]}" class=" user-badge banner-pfp"></div>
               ${postJSON.creator.badges.length ? `<span class="user-badge">${postJSON.creator.badges.map((icon) => (badges[icon])).join("</span> <span class=\"user-badge\">")}</span>` : ""}
             </div>
             <span class="upper-lower-opacity">
@@ -192,9 +192,9 @@ function getPostHTML(
                     ${includeUserLink ? `<a href="/u/${postJSON.creator.username}" class="no-underline text">` : "<span>"}
                       <div class="main-area">
                         <div class="displ-name">
+                          <div style="--color-one: ${postJSON.quote.creator.color_one}; --color-two: ${postJSON.quote.creator[ENABLE_GRADIENT_BANNERS && postJSON.quote.creator.gradient_banner ? "color_two" : "color_one"]}" class=" user-badge banner-pfp"></div>
                           ${escapeHTML(postJSON.quote.creator.display_name)}
                           ${postJSON.quote.creator.private ? `<span class="user-badge">${icons.lock}</span>` : ""}
-                          <div style="--color-one: ${postJSON.quote.creator.color_one}; --color-two: ${postJSON.quote.creator[ENABLE_GRADIENT_BANNERS && postJSON.quote.creator.gradient_banner ? "color_two" : "color_one"]}" class=" user-badge banner-pfp"></div>
                           ${postJSON.quote.creator.badges.length ? `<span class="user-badge">${postJSON.quote.creator.badges.map((icon) => (badges[icon])).join("</span> <span class=\"user-badge\">")}</span>` : ""}
                         </div>
                         <span class="upper-lower-opacity">
