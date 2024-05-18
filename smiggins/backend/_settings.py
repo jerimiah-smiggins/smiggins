@@ -25,6 +25,10 @@ ADMIN_LOG_PATH: str = "./admin.log"
 # The maximum of lines of logs to store in the admin file at once. Minimum one
 MAX_ADMIN_LOG_LINES: int = 1000
 
+# The default language for any new user. Choose from one of the files in the
+# lang/ folder, omitting the .json file extension.
+DEFAULT_LANGUAGE: str = "en-US"
+
 # -- Frontend Configuration --
 
 # 1-200

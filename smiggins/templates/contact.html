@@ -26,9 +26,17 @@
     <h1>Contact Us</h1>
     <h3>{{ SITE_NAME }} v{{ VERSION }}</h3>
     <ul>
-      {% autoescape off %}
-      {{ CONTACT_LIST }}
-      {% endautoescape %}
+      {% for CONTACT in CONTACT_INFO %}
+        <li>
+          {% if CONTACT.0 == "email" %}
+            <a href="mailto:{{ CONTACT.1 }}">{{ CONTACT.1 }}</a>
+          {% elif CONTACT.0 == "url" %}
+            <a href="{{ CONTACT.1 }}">{{ CONTACT.1 }}</a>
+          {% else %}
+            {{ CONTACT.1 }}
+          {% endif %}
+        </li>
+      {% endfor %}
     </ul>
   </body>
 </html>

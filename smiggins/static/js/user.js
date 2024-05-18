@@ -97,5 +97,5 @@ function createMessage() {
       } else {
         showlog(`Something went wrong! Reason: ${json.reason}`);
       }
-    })
+    });
 }

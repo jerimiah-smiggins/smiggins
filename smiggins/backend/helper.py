@@ -255,9 +255,9 @@ def get_post_json(post_id: int, current_user_id: int=0, comment: bool=False, cac
                         "badges": get_badges(quote_creator),
                         "private": quote_creator.private,
                         "pronouns": quote_creator.pronouns if ENABLE_PRONOUNS else "__",
-                        "color_one": creator.color,
-                        "color_two": creator.color_two,
-                        "gradient_banner": creator.gradient
+                        "color_one": quote_creator.color,
+                        "color_two": quote_creator.color_two,
+                        "gradient_banner": quote_creator.gradient
                     },
                     "deleted": False,
                     "comment": post.quote_is_comment,

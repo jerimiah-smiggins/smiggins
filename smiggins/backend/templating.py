@@ -284,7 +284,7 @@ def contact(request) -> HttpResponse:
     return get_HTTP_response(
         request, "contact.html",
 
-        CONTACT_LIST = "<li>" + "</li><li>".join([f'<a href="mailto:{i[1]}">{i[1]}</a>' if i[0] == "email" else f'<a href="{i[1]}">{i[1]}</a>' if i[0] == "url" else i[1] for i in CONTACT_INFO]) + "</li>"
+        CONTACT_INFO = CONTACT_INFO
     )
 
 def admin(request) -> HttpResponse | HttpResponseRedirect:

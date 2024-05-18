@@ -1,9 +1,3 @@
-// Handle:
-// - Sending
-// - Refreshing
-// - Load more button
-// - Displaying
-
 let forwardOffset = 0, reverseOffset = 0;
 let home = true;
 let username = document.body.dataset.username;

@@ -1,8 +1,3 @@
-// Handle:
-// - Listing
-// - Load more button
-// - Displaying
-
 let home = true;
 let offset = -1;
 let count = 0;

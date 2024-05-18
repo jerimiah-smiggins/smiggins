@@ -8,18 +8,21 @@ x = document.createElement("div");
 x.setAttribute("class", "icons");
 x.setAttribute("id", "icons");
 
-document.querySelector("body").setAttribute("data-color", validColors.indexOf(localStorage.getItem("color")) == -1 ? "mauve" : localStorage.getItem("color"));
+document.querySelector("body").setAttribute(
+  "data-color",
+  validColors.indexOf(localStorage.getItem("color")) == -1 ? "mauve" : localStorage.getItem("color")
+);
 
 if (logged_in) {
-  x.innerHTML = icons.settings;
+  x.innerHTML = `<a title="Settings" href="/settings">${icons.settings}</a>`;
 
   if (typeof(home) !== 'undefined') {
-    x.innerHTML += icons.home;
+    x.innerHTML += `<a title="Home" href="/home">${icons.home}</a>`;
   }
 
-  x.innerHTML += `<div data-add-notification-dot>${icons.bell}</div>`;
+  x.innerHTML += `<div data-add-notification-dot><a title="Notifications" href="/notifications">${icons.bell}</a></div>`;
   if (ENABLE_PRIVATE_MESSAGES) {
-    x.innerHTML += `<div data-add-message-dot>${icons.message}</div>`;
+    x.innerHTML += `<div data-add-message-dot><a title="Messages" href="/messages">${icons.message}</a></div>`;
   }
 }
 
