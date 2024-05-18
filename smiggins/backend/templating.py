@@ -1,6 +1,6 @@
 # For getting pages, not api.
 
-from ._settings import DEFAULT_BANNER_COLOR, MAX_BIO_LENGTH, OWNER_USER_ID, CONTACT_INFO, ENABLE_GRADIENT_BANNERS
+from ._settings import DEFAULT_BANNER_COLOR, MAX_BIO_LENGTH, OWNER_USER_ID, CONTACT_INFO, ENABLE_GRADIENT_BANNERS, SITE_NAME
 from .variables import BADGE_DATA
 from .packages  import User, Post, Comment, Hashtag, PrivateMessageContainer, HttpResponse, HttpResponseRedirect, json
 from .helper    import get_HTTP_response, get_post_json, get_badges, get_container_id, get_lang
@@ -57,8 +57,10 @@ def user(request, username: str) -> HttpResponse:
             request, "404_user.html"
         )
 
+    lang = get_lang(user)
+
     return get_HTTP_response(
-        request, "user.html",
+        request, "user.html", lang,
 
         IS_HIDDEN = "hidden" if not logged_in or username == self_object.username else "",
         LOGGED_IN = str(logged_in).lower(),
@@ -70,8 +72,11 @@ def user(request, username: str) -> HttpResponse:
         PRONOUNS = user.pronouns,
 
         BIO = user.bio,
-        FOLLOWERS = len(user.followers),
-        FOLLOWING = len(user.following) - 1,
+
+        FOLLOWER_COUNT = lang["user_page"]["followers"].replace("%s", str(len(user.followers))),
+        FOLLOWING_COUNT = lang["user_page"]["followers"].replace("%s", str(len(user.following) - 1)),
+
+        EMBED_TITLE = lang["user_page"]["user_on_smiggins"].replace("%t", SITE_NAME).replace("%s", user.display_name),
 
         BADGES = "".join([f"<span class='user-badge' data-add-badge='{i}'></span> " for i in get_badges(user)]),
 
@@ -165,8 +170,10 @@ def user_lists(request, username: str) -> HttpResponse:
             user.blocking = removed_deleted_accounts
             user.save()
 
+    lang = get_lang(user)
+
     return get_HTTP_response(
-        request, "user_lists.html",
+        request, "user_lists.html", lang,
 
         USERNAME = user.username,
         DISPLAY_NAME = user.display_name,
@@ -179,8 +186,8 @@ def user_lists(request, username: str) -> HttpResponse:
         FOLLOWERS = followers,
         BLOCKS = blocking,
 
-        FOLLOWER_COUNT = len(user.followers),
-        FOLLOWING_COUNT = len(user.following) - 1,
+        FOLLOWER_COUNT = lang["user_page"]["followers"].replace("%s", str(len(user.followers))),
+        FOLLOWING_COUNT = lang["user_page"]["followers"].replace("%s", str(len(user.following) - 1)),
 
         BADGES = "".join([f"<span class='user-badge' data-add-badge='{i}'></span> " for i in get_badges(user)]),
 
@@ -219,9 +226,10 @@ def post(request, post_id: int) -> HttpResponse:
         )
 
     post_json = get_post_json(post_id, user.user_id if logged_in else 0)
+    lang = get_lang(user)
 
     return get_HTTP_response(
-        request, "post.html",
+        request, "post.html", lang,
 
         DISPLAY_NAME = creator.display_name,
         LOGGED_IN = str(logged_in).lower(),
@@ -229,10 +237,11 @@ def post(request, post_id: int) -> HttpResponse:
         COMMENT   = "false",
         POST_JSON = json.dumps(post_json),
         CONTENT   = post.content,
+        EMBED_TITLE = lang["user_page"]["user_on_smiggins"].replace("%t", SITE_NAME).replace("%s", creator.display_name),
 
-        LIKES = post_json["likes"],
-        COMMENTS = post_json["comments"],
-        QUOTES = post_json["quotes"]
+        LIKES = lang["post_page"]["likes"].replace("%s", str(post_json["likes"])),
+        COMMENTS = lang["post_page"]["comments"].replace("%s", str(post_json["comments"])),
+        QUOTES = lang["post_page"]["quotes"].replace("%s", str(post_json["quotes"]))
     )
 
 def comment(request, comment_id: int) -> HttpResponse:
@@ -264,6 +273,7 @@ def comment(request, comment_id: int) -> HttpResponse:
         )
 
     comment_json = get_post_json(comment_id, user.user_id if logged_in else 0, True)
+    lang = get_lang(user)
 
     return get_HTTP_response(
         request, "post.html",
@@ -274,10 +284,11 @@ def comment(request, comment_id: int) -> HttpResponse:
         COMMENT   = "true",
         POST_JSON = json.dumps(comment_json),
         CONTENT   = comment.content,
+        EMBED_TITLE = lang["user_page"]["user_on_smiggins"].replace("%t", SITE_NAME).replace("%s", creator.display_name),
 
-        LIKES = comment_json["likes"],
-        COMMENTS = comment_json["comments"],
-        QUOTES = comment_json["quotes"]
+        LIKES = lang["post_page"]["likes"].replace("%s", str(comment_json["likes"])),
+        COMMENTS = lang["post_page"]["comments"].replace("%s", str(comment_json["comments"])),
+        QUOTES = lang["post_page"]["quotes"].replace("%s", str(comment_json["quotes"]))
     )
 
 def contact(request) -> HttpResponse:

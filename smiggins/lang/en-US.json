@@ -38,13 +38,15 @@
       "post": "Post",
       "cancel": "Cancel",
       "source_code": "Source code",
+      "save": "Save",
+      "none": "None",
 
       "user_not_found": "User not found!",
 
       "pronouns": {
-        "_a": "ask pronouns",
-        "_o": "other pronouns",
-        "_v": "avoid pronouns",
+        "a": "ask pronouns",
+        "o": "other pronouns",
+        "v": "avoid pronouns",
         "aa": "any/all",
         "af": "any/she",
         "ai": "any/all",
@@ -122,7 +124,7 @@
       "badge_manage_remove_button": "Remove Badge",
       "badge_manage_add_protected": "Cannot set that badge as it is done automatically",
       "badge_manage_remove_protected": "Cannot remove that badge as it is done automatically",
-      "badge_create_title": "Create/Override Bade",
+      "badge_create_title": "Create/Override Badge",
       "badge_create_button": "Create Badge",
       "badge_create_invalid_data_size": "Badge data must be between 1 and 65536 characters in length",
       "badge_delete_title": "Delete Badge",
@@ -269,6 +271,8 @@
       "profile_pronouns_primary": "Primary:",
       "profile_pronouns_secondary": "Secondary:",
       "profile_pronouns_invalid": "Invalid pronoun string '%s'. If this is a bug, please report this",
+      "profile_pronouns_unset": "unset",
+      "profile_pronouns_inherit": "same as primary",
       "profile_banner_title": "Banner color",
       "profile_banner_invalid_color": "Color no tasty",
       "profile_gradient": "Gradient banner?",
@@ -327,7 +331,11 @@
       "block": "Block",
       "unblock": "Unblock",
       "message": "Message",
-      "private_warning": "This account is private. Only users that they follow can see their posts."
+      "private_warning": "This account is private. Only users that they follow can see their posts.",
+      "lists_blocks": "Blocks",
+      "lists_following": "Following",
+      "lists_followers": "Followers",
+      "lists_no_bio": "No bio set"
     }
   }
 }
