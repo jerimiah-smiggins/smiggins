@@ -5,7 +5,7 @@
 # -- General Site Configuration --
 
 # Version displayed.
-VERSION: str = "0.8.6"
+VERSION: str = "0.9.0"
 
 # What to have the site name be.
 SITE_NAME: str = "Jerimiah Smiggins"
@@ -27,7 +27,7 @@ MAX_ADMIN_LOG_LINES: int = 1000
 
 # The default language for any new user. Choose from one of the files in the
 # lang/ folder, omitting the .json file extension.
-DEFAULT_LANGUAGE: str = "test"
+DEFAULT_LANGUAGE: str = "en-US"
 
 # -- Frontend Configuration --
 
