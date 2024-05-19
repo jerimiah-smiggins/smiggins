@@ -21,188 +21,6 @@ python file (`python3 manage.py`). The most useful commands are:
   folder. This should be used when creating a production server, and shouldn't
   ever need to be used in normal debugging.
 
-## ./backend/_api_keys.py
-This file holds any information that shouldn't be public. Currently, the only
-thing this is being used for is the extra string that is added to hashed
-passwords in order to make them harder to crack.
-
-```py
-auth_key: bytes
-```
-This is the string that is added to password hashes to make them harder to
-reverse engineer.
-
-## ./backend/_settings.py
-This file is for any settings that the server runner should be able to change.
-This shouldn't be anything that is overridden by the server when it is ran, nor
-should it contain variables that are meant to just exist as a global and aren't
-meant to be configured. Everything in the file is commented and should be easy
-enough to understand.
-
-```py
-VERSION: str
-```
-The version that's displayed on the frontend.
-
-```py
-SITE_NAME: str
-```
-The name of the site that is displayed on the frontend.
-
-```py
-OWNER_USER_ID: int
-```
-The user id of the instance owner. Defaults to one. This can be found on the
-`/django-admin` page, assuming you have a superuser account (see `./manage.py`)
-
-```py
-DEBUG: bool
-```
-Whether or not to automatically reload the server when the backend files change.
-This should be `False` on development servers.
-
-```py
-ADMIN_LOG_PATH: str
-```
-The path of the admin log file. Set to `None` to not log any admin activity
-
-```py
-MAX_ADMIN_LOG_LINES: int
-```
-The maximum of lines of logs to store in the admin file at once. Minimum is one
-
-```py
-DEFAULT_LANGUAGE: str
-```
-The default language of the server. Should be chosen from one of the files in
-the `./lang/` folder, omitting the `.json` file extension. Ex: `"en-US"`
-
-```py
-MAX_USERNAME_LENGTH: int
-```
-The maximum length for a username. Must be between 1 and 200.
-
-```py
-MAX_DISPL_NAME_LENGTH: int
-```
-The maximum length for a display name. Must be between 1 and 200.
-
-```py
-MAX_POST_LENGTH: int
-```
-The maximum length for a post. Must be between 1 and 65,536
-
-```py
-MAX_BIO_LENGTH: int
-```
-The maximum length for a user bio. Must be between 1 and 65,536
-
-```py
-DEFAULT_BANNER_COLOR; str
-```
-The default color for banners. This should be a hex code with the format
-`#XXXXXX` where an X is a number 0-9 or a letter a-f, case insensitive.
-
-```py
-POSTS_PER_REQUEST: int
-```
-The amount of posts to send at a time when the client requests the list. A
-larger number would result in more CPU usage and bandwidth, however may
-positively affect the user experience.
-
-```py
-MESSAGES_PER_REQUEST: int
-```
-The maximum amount of private messages to send per request.
-
-```py
-MAX_NOTIFICATIONS: int
-```
-The maximum notifications to store for a single user at a time. Whenever this
-number is exceeded, it will remove the oldest notifications for that user until
-the amount of notifications goes below the threshold.
-
-```py
-CONTACT_INFO: list[list[str]]
-```
-A list containing contact information that would be put on the contact page.
-It is a list of lists, where the inside list has two strings. The first string
-is the type, which can be `email`, `url`, or `text`. `email` is for emails,
-`url` for links, and `text` for other text that wouldn't fit with either of the
-other options.
-
-```py
-SOURCE_CODE: bool
-```
-Whether or not to include links to the github page.
-
-```py
-RATELIMIT: bool
-```
-Whether or not to enforce the rate limits.
-
-```py
-API_TIMINGS: dict[str, int]
-```
-The timing amounts (in ms) for ratelimits. Required keys:
-- `signup unsuccessful`
-- `signup successful`
-- `login unsuccessful`
-- `login successful`
-- `create comment`
-- `create comment failure`
-- `create post`
-- `create post failure`
-
-```py
-ENABLE_USER_BIOS: bool
-```
-Whether or not to enable user bios. If this gets disabled, any previously set
-bios will not be deleted and show up again if this is reenabled. (This applies
-to the next few settings up to `ENABLE_QUOTES`)
-
-```py
-ENABLE_PRONOUNS: bool
-```
-Whether or not to enable pronouns.
-
-```py
-ENABLE_GRADIENT_BANNERS: bool
-```
-Whether or not to enable gradient banners.
-
-```py
-ENABLE_BADGES: bool
-```
-Whether or not to enable badges. When disabled, this basically makes admin level
-three useless. Private account icons will still show up.
-
-```py
-ENABLE_PRIVATE_MESSAGES: bool
-```
-Whether or not to enable private messages.
-
-```py
-ENABLE_QUOTES: bool
-```
-Whether or not to allow quoting posts. If this gets disabled, any already quotes
-that already exist will stay and still show up normally.
-
-```py
-ENABLE_POST_DELETION: bool
-```
-Whether or not to allow deleting posts. This applies to BOTH admins AND normal
-users.
-
-```py
-ENABLE_HASHTAGS: bool
-```
-Whether or not to enable hashtags. Disabling this causes hashtags to not show up
-as links on the frontend, and the `/hashtag/...` pages not work. Hashtags are
-still logged like normal even if this is disabled, meaning that if you enable it,
-any posts posted while this was disabled that had hashtags will still show up on
-the hashtag pages.
-
 ## ./backend/api/__init__.py
 This file collects all of the api functions and turns them into sorted classes.
 
@@ -710,6 +528,188 @@ def notifications_list(
 ```
 This returns a list of all of your notifications. Called on a GET request to
 `/api/user/notifications`.
+
+## ./backend/_api_keys.py
+This file holds any information that shouldn't be public. Currently, the only
+thing this is being used for is the extra string that is added to hashed
+passwords in order to make them harder to crack.
+
+```py
+auth_key: bytes
+```
+This is the string that is added to password hashes to make them harder to
+reverse engineer.
+
+## ./backend/_settings.py
+This file is for any settings that the server runner should be able to change.
+This shouldn't be anything that is overridden by the server when it is ran, nor
+should it contain variables that are meant to just exist as a global and aren't
+meant to be configured. Everything in the file is commented and should be easy
+enough to understand.
+
+```py
+VERSION: str
+```
+The version that's displayed on the frontend.
+
+```py
+SITE_NAME: str
+```
+The name of the site that is displayed on the frontend.
+
+```py
+OWNER_USER_ID: int
+```
+The user id of the instance owner. Defaults to one. This can be found on the
+`/django-admin` page, assuming you have a superuser account (see `./manage.py`)
+
+```py
+DEBUG: bool
+```
+Whether or not to automatically reload the server when the backend files change.
+This should be `False` on development servers.
+
+```py
+ADMIN_LOG_PATH: str
+```
+The path of the admin log file. Set to `None` to not log any admin activity
+
+```py
+MAX_ADMIN_LOG_LINES: int
+```
+The maximum of lines of logs to store in the admin file at once. Minimum is one
+
+```py
+DEFAULT_LANGUAGE: str
+```
+The default language of the server. Should be chosen from one of the files in
+the `./lang/` folder, omitting the `.json` file extension. Ex: `"en-US"`
+
+```py
+MAX_USERNAME_LENGTH: int
+```
+The maximum length for a username. Must be between 1 and 200.
+
+```py
+MAX_DISPL_NAME_LENGTH: int
+```
+The maximum length for a display name. Must be between 1 and 200.
+
+```py
+MAX_POST_LENGTH: int
+```
+The maximum length for a post. Must be between 1 and 65,536
+
+```py
+MAX_BIO_LENGTH: int
+```
+The maximum length for a user bio. Must be between 1 and 65,536
+
+```py
+DEFAULT_BANNER_COLOR; str
+```
+The default color for banners. This should be a hex code with the format
+`#XXXXXX` where an X is a number 0-9 or a letter a-f, case insensitive.
+
+```py
+POSTS_PER_REQUEST: int
+```
+The amount of posts to send at a time when the client requests the list. A
+larger number would result in more CPU usage and bandwidth, however may
+positively affect the user experience.
+
+```py
+MESSAGES_PER_REQUEST: int
+```
+The maximum amount of private messages to send per request.
+
+```py
+MAX_NOTIFICATIONS: int
+```
+The maximum notifications to store for a single user at a time. Whenever this
+number is exceeded, it will remove the oldest notifications for that user until
+the amount of notifications goes below the threshold.
+
+```py
+CONTACT_INFO: list[list[str]]
+```
+A list containing contact information that would be put on the contact page.
+It is a list of lists, where the inside list has two strings. The first string
+is the type, which can be `email`, `url`, or `text`. `email` is for emails,
+`url` for links, and `text` for other text that wouldn't fit with either of the
+other options.
+
+```py
+SOURCE_CODE: bool
+```
+Whether or not to include links to the github page.
+
+```py
+RATELIMIT: bool
+```
+Whether or not to enforce the rate limits.
+
+```py
+API_TIMINGS: dict[str, int]
+```
+The timing amounts (in ms) for ratelimits. Required keys:
+- `signup unsuccessful`
+- `signup successful`
+- `login unsuccessful`
+- `login successful`
+- `create comment`
+- `create comment failure`
+- `create post`
+- `create post failure`
+
+```py
+ENABLE_USER_BIOS: bool
+```
+Whether or not to enable user bios. If this gets disabled, any previously set
+bios will not be deleted and show up again if this is reenabled. (This applies
+to the next few settings up to `ENABLE_QUOTES`)
+
+```py
+ENABLE_PRONOUNS: bool
+```
+Whether or not to enable pronouns.
+
+```py
+ENABLE_GRADIENT_BANNERS: bool
+```
+Whether or not to enable gradient banners.
+
+```py
+ENABLE_BADGES: bool
+```
+Whether or not to enable badges. When disabled, this basically makes admin level
+three useless. Private account icons will still show up.
+
+```py
+ENABLE_PRIVATE_MESSAGES: bool
+```
+Whether or not to enable private messages.
+
+```py
+ENABLE_QUOTES: bool
+```
+Whether or not to allow quoting posts. If this gets disabled, any already quotes
+that already exist will stay and still show up normally.
+
+```py
+ENABLE_POST_DELETION: bool
+```
+Whether or not to allow deleting posts. This applies to BOTH admins AND normal
+users.
+
+```py
+ENABLE_HASHTAGS: bool
+```
+Whether or not to enable hashtags. Disabling this causes hashtags to not show up
+as links on the frontend, and the `/hashtag/...` pages not work. Hashtags are
+still logged like normal even if this is disabled, meaning that if you enable it,
+any posts posted while this was disabled that had hashtags will still show up on
+the hashtag pages.
 
 ## ./backend/helper.py
 This is for any helper function that could be used across the backend. This is
