@@ -2,7 +2,7 @@
 
 from .._settings import MAX_POST_LENGTH, MESSAGES_PER_REQUEST
 from ..packages  import User, PrivateMessageContainer, PrivateMessage, time, Schema
-from ..helper    import trim_whitespace, get_container_id, get_badges
+from ..helper    import trim_whitespace, get_container_id, get_badges, get_lang
 
 class NewContainer(Schema):
     username: str
@@ -18,23 +18,26 @@ def container_create(request, data: NewContainer) -> tuple | dict:
     self_user = User.objects.get(token=token)
 
     if self_user.username == data.username:
+        lang = get_lang(self_user)
         return 400, {
             "success": False,
-            "reason": "Look, a lack of friends is a common issue, but you can't talk to yourself!"
+            "reason": lang["messages"]["yourself"]
         }
 
     user = User.objects.get(username=data.username)
     container_id = get_container_id(user.username, self_user.username)
 
     if user.user_id in self_user.blocking:
+        lang = get_lang(self_user)
         return 400, {
             "success": False,
-            "reason": "You are blocking this person!"
+            "reason": lang["messages"]["blocking"]
         }
     elif self_user.user_id in user.blocking:
+        lang = get_lang(self_user)
         return 400, {
             "success": False,
-            "reason": "You are blocked by this person!"
+            "reason": lang["messages"]["blocked"]
         }
 
     try:
@@ -79,16 +82,18 @@ def send_message(request, data: NewMessage) -> tuple | dict:
         }
 
     if container.user_one.user_id in container.user_two.blocking or container.user_two.user_id in container.user_one.blocking:
+        lang = get_lang(user)
         return 400, {
             "success": False,
-            "reason": "You are blocked by/blocking this user"
+            "reason": lang["messages"]["blocking_blocked"]
         }
 
     content = trim_whitespace(data.content, True)
     if len(content) == 0 or len(content) > MAX_POST_LENGTH:
+        lang = get_lang(user)
         return 400, {
             "success": False,
-            "reason": "Invalid message size"
+            "reason": lang["messages"]["invalid_size"]
         }
 
     timestamp = round(time.time())

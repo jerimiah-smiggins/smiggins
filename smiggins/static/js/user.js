@@ -33,11 +33,11 @@ function extra(json) {
     dom("toggle").setAttribute("hidden", "");
   }
 
-  dom("follow").innerText = `Followers: ${json.followers} - Following: ${json.following}`;
+  dom("follow").innerText = `${lang.user_page.followers.replaceAll("%s", json.followers)} - ${lang.user_page.following.replaceAll("%s", json.following)}`;
 }
 
 if (!logged_in) {
-  dom("more-container").innerHTML = "<a href=\"/signup\">Sign up</a> to see more!";
+  dom("more-container").innerHTML = lang.generic.see_more.replaceAll("%s", `<a href="/signup">${lang.account.sign_up_title}</a>`);
 }
 
 function toggle_follow() {
@@ -54,10 +54,10 @@ function toggle_follow() {
     .then((response) => (response.json()))
     .then((json) => {
       dom("toggle").setAttribute("data-followed", x ? "0" : "1");
-      dom("toggle").innerText = x ? "Follow" : "Unfollow";
+      dom("toggle").innerText = x ? lang.user_page.follow : lang.user_page.unfollow;
     })
     .catch((err) => {
-      showlog("Something went wrong when trying to toggle the follow! Try again in a few moments...", 5000);
+      showlog(lang.generic.something_went_wrong, 5000);
       throw(err);
     });
 }
@@ -76,10 +76,10 @@ function toggle_block() {
     .then((response) => (response.json()))
     .then((json) => {
       dom("block").setAttribute("data-blocked", x ? "0" : "1");
-      dom("block").innerText = x ? "Block" : "Unblock";
+      dom("block").innerText = x ? lang.user_page.block : lang.user_page.unblock;
     })
     .catch((err) => {
-      showlog("Something went wrong when trying to toggle the block! Try again in a few moments...", 5000);
+      showlog(lang.generic.something_went_wrong, 5000);
       throw(err);
     });
 }
@@ -95,7 +95,7 @@ function createMessage() {
       if (json.success) {
         window.location.href = `/m/${username}`;
       } else {
-        showlog(`Something went wrong! Reason: ${json.reason}`);
+        showlog(`${lang.generic.something_went_wrong} ${lang.generic.reason.replaceAll("%s", json.reason)}`);
       }
     });
 }

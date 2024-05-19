@@ -40,8 +40,11 @@
       "source_code": "Fontkodo",
       "save": "Savu",
       "none": "Neniu",
-
+      "reason": "Reason: %s", //
       "user_not_found": "Uzanto Estas Ne Trovita!",
+      "settings": "Share", //
+      "copied": "Copied to clipboard!", //
+      "see_more": "%s to see more!", //
 
       "pronouns": {
         "a": "demandu pronomojn",
@@ -84,7 +87,30 @@
         "ox": "ĝi/aliaj"
       },
 
+      "colors": { //
+        "rosewater": "Rosewater",
+        "flamingo": "Flamingo",
+        "pink": "Pink",
+        "mauve": "Mauve",
+        "red": "Red",
+        "maroon": "Maroon",
+        "peach": "Peach",
+        "yellow": "Yellow",
+        "green": "Green",
+        "teal": "Teal",
+        "sky": "Sky",
+        "sapphire": "Sapphire",
+        "blue": "Blue",
+        "lavender": "Lavender"
+      },
+
       "time": {
+        "months": [ //
+          "Jan", "Feb", "Mar", "Apr",
+          "May", "Jun", "Jul", "Aug",
+          "Sep", "Oct", "Nov", "Dec"
+        ],
+
         "second_singular": "sekundo",
         "second_plural": "sekundoj",
         "minute_singular": "minuto",
@@ -112,27 +138,32 @@
 
       "post_deletion_title": "Afiŝa Forigo",
       "post_deletion_button": "Forigas Afiŝa",
+      "post_deletion_error": "deleting the specified post/comment", //
 
       "account_deletion_title": "Konta Forigo",
       "account_deletion_button": "Forigas Konto",
+      "account_deletion_error": "deleting the specified account", //
 
       "badge_name_placeholder": "Insignia nomo...",
       "badge_data_placeholder": "Insigniaj SVG datumoj...",
       "badge_manage_title": "Aldonas/forigas Insignioj",
       "badge_manage_empty": "Kiel mankas insignoj... Kion vi faris?",
       "badge_manage_add_button": "Aldonu Insignio",
+      "badge_manage_add_error": "adding the badge", //
       "badge_manage_remove_button": "Forigu Insignio",
+      "badge_manage_remove_error": "removing the badge", //
       "badge_manage_add_protected": "Ne povas aldoni tiun insignon ĉar ĝi estas protektita",
       "badge_manage_remove_protected": "Ne povas forigi tiun insignon ĉar ĝi estas protektita",
       "badge_create_title": "Kreas/Superregas Insignio",
       "badge_create_button": "Kreu Badge",
       "badge_create_invalid_data_size": "Insignia datumoj devas esti inter 1 kaj 65536 signoj longaj",
+      "badge_create_success": "Reload for your changes to apply.", //
       "badge_delete_title": "Forigas Insignio",
       "badge_delete_button": "Forigu Insignio",
       "badge_delete_protected": "Ne povas forigi tiun insignon",
       "badge_invalid_name_size": "Insignia nomo devas esti inter 1 kaj 64 signoj longaj",
       "badge_invalid_name": "Insignia nomo devas nur enhavi a-z, 0-9, kaj substrekojn",
-      "badge_not_found": "Insignio kun la nomo \"%s\" ne ekzistas!",
+      "badge_not_found": "Insignio kun la nomo '%s' ne ekzistas!",
 
       "modify_title": "Modifas Konta Informoj",
       "modify_get_button": "Akiru Informoj",
@@ -153,8 +184,14 @@
       "level_five": "Kreas nova administrantoj (Nevelo 5)",
       "level_button": "Ŝanĝu administra nevelo",
       "level_invalid": "Nevalida nevelo",
+      "level_error": "setting that account's level", //
 
-      "logs_button": "Ŝargu ŝtipoj"
+      "logs_button": "Ŝargu ŝtipoj",
+      "logs_error": "loading the logs", //
+      "logs_timestamp": "Timestamp", //
+      "logs_action": "Action", //
+      "logs_who": "Who", //
+      "logs_more_info": "More Info" //
     },
 
     "contact": {
@@ -216,6 +253,7 @@
 
     "messages": {
       "title": "Messaging %s",
+      "error": "loading recent messages",
       "input_placeholder": "What would you like to tell them?",
 
       "no_messages": "No messages sent",
@@ -233,6 +271,7 @@
     "notifications": {
       "title": "Notifications",
       "read": "Mark as read",
+      "error": "loading the notifications list",
 
       "comment": "%s commented on your post:",
       "quote": "%s quoted your post:",
@@ -251,7 +290,7 @@
     "post": {
       "invalid_length": "Invalid post length. Must be between 1 and %s characters.",
       "invalid_comment_id": "Idk your id is not right at all",
-      "commend_id_does_not_exist": "Your id broke soemthing owo",
+      "comment_id_does_not_exist": "Your id broke soemthing owo",
       "invalid_quote_post": "The post you're quoting doesn't exist!",
       "invalid_quote_comment": "The comment you're quoting doesn't exist!",
       "invalid_username": "Username is insvalagaeg... LOOK JUST SHUT UP"
@@ -288,20 +327,6 @@
       "cosmetic_theme_oled": "Black",
       "cosmetic_theme_invalid": "That's not a vailid theme, idiot.",
       "cosmetic_color": "Color",
-      "cosmetic_color_rosewater": "Rosewater",
-      "cosmetic_color_flamingo": "Flamingo",
-      "cosmetic_color_pink": "Pink",
-      "cosmetic_color_mauve": "Mauve",
-      "cosmetic_color_red": "Red",
-      "cosmetic_color_maroon": "Maroon",
-      "cosmetic_color_peach": "Peach",
-      "cosmetic_color_yellow": "Yellow",
-      "cosmetic_color_green": "Green",
-      "cosmetic_color_teal": "Teal",
-      "cosmetic_color_sky": "Sky",
-      "cosmetic_color_sapphire": "Sapphire",
-      "cosmetic_color_blue": "Blue",
-      "cosmetic_color_lavender": "Lavender",
       "cosmetic_example_post_display_name": "Example",
       "cosmetic_example_post_username": "example",
       "cosmetic_example_post_content": "This is an example post. I am @example.",

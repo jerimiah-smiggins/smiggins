@@ -152,14 +152,14 @@ dom("theme").addEventListener("change", function() {
   .then((response) => (response.json()))
   .then((json) => {
     if (!json.success) {
-      showlog("Something went wrong! Try again in a few moments...");
+      showlog(lang.generic.something_went_wrong);
     }
       dom("theme").removeAttribute("disabled");
       document.querySelector("body").setAttribute("data-theme", dom("theme").value);
     })
     .catch((err) => {
       dom("theme").removeAttribute("disabled");
-      showlog("Something went wrong! Try again in a few moments...");
+      showlog(lang.generic.something_went_wrong);
       throw(err);
     });
 });
@@ -188,9 +188,9 @@ dom("save").addEventListener("click", function() {
     .then((json) => {
       if (json.success) {
         window.onbeforeunload = null;
-        showlog("Success!");
+        showlog(lang.generic.success);
       } else {
-        showlog(`Unable to save! Reason: ${json.reason}`);
+        showlog(`${lang.generic.something_went_wrong} ${lang.generic.reason.replaceAll("%s", json.reason)}`);
       }
 
       throw "ermmm what the flip";
@@ -228,7 +228,7 @@ dom("acc-switch").addEventListener("click", function() {
 dom("acc-remove").addEventListener("click", function() {
   let removed = dom("accs").value.split("-", 2);
   if (removed[0] == currentAccount) {
-    showlog("You can't remove the account you're currently signed into!");
+    showlog(lang.settings.account_switcher_remove_error);
   } else {
     for (let i = 0; i < accounts.length; i++) {
       if (accounts[i][1] == removed[0]) {
@@ -258,7 +258,7 @@ dom("set-password").addEventListener("click", function() {
   let password = sha256(dom("password").value)
 
   if (password !== sha256(dom("confirm").value)) {
-    showlog("Passwords don't match!");
+    showlog(lang.account.password_match_failure);
     return;
   }
 
@@ -282,15 +282,15 @@ dom("set-password").addEventListener("click", function() {
         }
         localStorage.setItem("acc-switcher", JSON.stringify(switcher));
 
-        showlog("Your password has been changed!", 5000);
+        showlog(lang.settings.account_password_success, 5000);
       } else {
-        showlog(`Unable to set your password! ${json.reason}`);
+        showlog(lang.settings.account_password_failure.replaceAll("%s", json.reason));
       }
 
       this.removeAttribute("disabled");
     }).catch((err) => {
       this.removeAttribute("disabled");
-      showlog("Something went wrong! Try again in a few moments...");
+      showlog(lang.generic.something_went_wrong);
       throw err;
     });
 });

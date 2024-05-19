@@ -2,8 +2,8 @@
 
 from .._settings import OWNER_USER_ID, ADMIN_LOG_PATH
 from ..variables import BADGE_DATA, BASE_DIR
-from ..packages  import User, Comment, Post, Badge, Hashtag, Schema, base64, pathlib
-from ..helper    import trim_whitespace, log_admin_action, find_hashtags
+from ..packages  import User, Comment, Post, Badge, Hashtag, Schema, base64
+from ..helper    import trim_whitespace, log_admin_action, find_hashtags, get_lang
 
 if ADMIN_LOG_PATH[:2:] == "./":
     ADMIN_LOG_PATH = BASE_DIR / ADMIN_LOG_PATH[2::]
@@ -51,10 +51,11 @@ def user_delete(request, data: AccountIdentifier) -> tuple | dict:
             account = User.objects.get(username=identifier)
     except User.DoesNotExist:
         log_admin_action("Delete user", user, f"User {identifier} (use_id: {use_id}) not found")
+        lang = get_lang(user)
 
         return 404, {
             "success": False,
-            "reason": "User not found!"
+            "reason": lang["generic"]["user_not_found"]
         }
 
     if user.user_id == OWNER_USER_ID or user.admin_level >= 2:
@@ -183,24 +184,27 @@ def badge_create(request, data: NewBadge) -> tuple | dict:
 
         if len(badge_name) > 64 or len(badge_name) <= 0:
             log_admin_action("Create badge", self_user, f"Invalid badge name {badge_name}")
+            lang = get_lang(self_user)
             return 400, {
                 "success": False,
-                "reason": "Badge name must be between 1 and 64 characters in length"
+                "reason": lang["admin"]["badge_invalid_name_size"]
             }
 
         for i in badge_name:
             if i not in "abcdefghijklmnopqrstuvxyz0123456789_":
                 log_admin_action("Create badge", self_user, f"Invalid badge name {badge_name}")
+                lang = get_lang(self_user)
                 return 400, {
                     "success": False,
-                    "reason": "Badge name can only contain a-z, 0-9, and underscores"
+                    "reason": lang["admin"]["badge_invalid_name"]
                 }
 
         if len(badge_data) > 65536 or len(badge_data) <= 0:
             log_admin_action("Create badge", self_user, f"Invalid badge data with length {len(badge_data)}")
+            lang = get_lang(self_user)
             return 400, {
                 "success": False,
-                "reason": "Badge data must be between 1 and 65536 characters in length"
+                "reason": lang["admin"]["badge_create_invalid_data_size"]
             }
 
         try:
@@ -248,24 +252,27 @@ def badge_delete(request, data: DeleteBadge) -> tuple | dict:
 
         if len(badge_name) > 64 or len(badge_name) <= 0:
             log_admin_action("Delete badge", self_user, f"Invalid badge name {badge_name}")
+            lang = get_lang(self_user)
             return 400, {
                 "success": False,
-                "reason": "Badge name must be between 1 and 64 characters in length"
+                "reason": lang["admin"]["badge_invalid_name_size"]
             }
 
         for i in badge_name:
             if i not in "abcdefghijklmnopqrstuvxyz0123456789_":
                 log_admin_action("Delete badge", self_user, f"Invalid badge name {badge_name}")
+                lang = get_lang(self_user)
                 return 400, {
                     "success": False,
-                    "reason": "Badge name can only contain a-z, 0-9, and underscores"
+                    "reason": lang["admin"]["badge_invalid_name"]
                 }
 
         if badge_name in ["administrator"]:
             log_admin_action("Delete badge", self_user, f"Badge {badge_name} can't be deleted")
+            lang = get_lang(self_user)
             return 400, {
                 "success": False,
-                "reason": "Cannot delete that badge"
+                "reason": lang["admin"]["badge_delete_protected"]
             }
 
         try:
@@ -274,9 +281,10 @@ def badge_delete(request, data: DeleteBadge) -> tuple | dict:
             )
         except Badge.DoesNotExist:
             log_admin_action("Delete badge", self_user, f"Badge {badge_name} doesn't exist")
+            lang = get_lang(self_user)
             return 400, {
                 "success": False,
-                "reason": "A badge with the name " + badge_name + " doesn't exist!"
+                "reason": lang["admin"]["badge_not_found"].replace("%s", badge_name)
             }
 
         for i in badge.users:
@@ -319,16 +327,18 @@ def badge_add(request, data: UserBadge) -> tuple | dict:
                 user = User.objects.get(username=data.identifier)
         except User.DoesNotExist:
             log_admin_action("Add badge", self_user, f"Couldn't add badge {data.badge_name} to {data.identifier} (use_id: {data.use_id}), user not found")
+            lang = get_lang(self_user)
             return 404, {
                 "success": False,
-                "reason": "User not found!"
+                "reason": lang["generic"]["user_not_found"]
             }
 
         if data.badge_name.lower() in ["administrator"]:
             log_admin_action("Add badge", self_user, f"Couldn't add badge {data.badge_name} to {data.identifier} (use_id: {data.use_id})")
+            lang = get_lang(self_user)
             return 400, {
                 "success": False,
-                "reason": "Cannot set that badge as it is done automatically"
+                "reason": lang["generic"]["badge_manage_add_protected"]
             }
 
         if data.badge_name.lower() in BADGE_DATA:
@@ -346,9 +356,10 @@ def badge_add(request, data: UserBadge) -> tuple | dict:
             }
 
         log_admin_action("Add badge", self_user, f"Tried to add badge {data.badge_name} to {data.identifier} (use_id: {data.use_id}), but badge doesn't exist")
+        lang = get_lang(self_user)
         return 404, {
             "success": False,
-            "reason": "Badge doesn't exist"
+            "reason": lang["admin"]["badge_not_found"].replace("%s", data.badge_name)
         }
 
     log_admin_action("Add badge", self_user, f"Tried to add badge {data.badge_name} to {data.identifier} (use_id: {data.use_id}), but too low of an admin level")
@@ -376,16 +387,18 @@ def badge_remove(request, data: UserBadge) -> tuple | dict:
             else:
                 user = User.objects.get(username=data.identifier)
         except User.DoesNotExist:
+            lang = get_lang(self_user)
             return 404, {
                 "success": False,
-                "reason": "User not found!"
+                "reason": lang["generic"]["user_not_found"]
             }
 
         if data.badge_name.lower() in ["administrator"]:
             log_admin_action("Remove badge", self_user, f"Couldn't remove badge {data.badge_name} to {data.identifier} (use_id: {data.use_id})")
+            lang = get_lang(self_user)
             return 400, {
                 "success": False,
-                "reason": "Cannot remove that badge as it is done automatically"
+                "reason": lang["generic"]["badge_manage_remove_protected"]
             }
 
         if data.badge_name.lower() in BADGE_DATA:
@@ -403,9 +416,10 @@ def badge_remove(request, data: UserBadge) -> tuple | dict:
             }
 
         log_admin_action("Remove badge", self_user, f"Tried to remove badge {data.badge_name} to {data.identifier} (use_id: {data.use_id}), but badge doesn't exist")
+        lang = get_lang(self_user)
         return 404, {
             "success": False,
-            "reason": "Badge doesn't exist"
+            "reason": lang["admin"]["badge_not_found"].replace("%s", data.badge_name)
         }
 
     log_admin_action("Remove badge", self_user, f"Tried to remove badge {data.badge_name} to {data.identifier} (use_id: {data.use_id}), but too low of an admin level")
@@ -434,9 +448,10 @@ def account_info(request, identifier: int | str, use_id: bool) -> tuple | dict:
                 user = User.objects.get(username=identifier)
         except User.DoesNotExist:
             log_admin_action("Get account info", self_user, f"User {identifier} (use_id: {use_id}), not found")
+            lang = get_lang(self_user)
             return 404, {
                 "success": False,
-                "reason": "User not found!"
+                "reason": lang["generic"]["user_not_found"]
             }
 
         log_admin_action("Get account info", self_user, f"Fetched info for {identifier} (use_id: {use_id}) successfully")
@@ -469,23 +484,26 @@ def account_save(request, data: SaveUser) -> tuple | dict:
             user = User.objects.get(user_id=data.id)
         except User.DoesNotExist:
             log_admin_action("Save account info", self_user, f"User id {data.id}, not found")
+            lang = get_lang(self_user)
             return 404, {
                 "success": False,
-                "reason": "User not found!"
+                "reason": lang["generic"]["user_not_found"]
             }
 
         if len(data.bio) > 65536:
             log_admin_action("Save account info", self_user, f"Tried to save info for id {data.id}, but bio (length {len(data.bio)}) is invalid")
+            lang = get_lang(self_user)
             return {
                 "success": False,
-                "reason": f"User bio is too long! It should be between 0 and 65536 characters."
+                "reason": lang["admin"]["modify_invalid_bio_size"]
             }
 
         if len(data.displ_name) == 0 or len(data.displ_name) > 300:
             log_admin_action("Save account info", self_user, f"Tried to save info for id {data.id}, but display name {data.displ_name} is invalid")
+            lang = get_lang(self_user)
             return {
                 "success": False,
-                "reason": f"Display name is too {'long' if len(data.displ_name) else 'short'}! It should be between 1 and 300 characters."
+                "reason": lang["admin"][f"modify_invalid_display_name_{'long' if len(data.displ_name) else 'short'}"]
             }
 
         old_bio = user.bio
@@ -532,9 +550,10 @@ def set_level(request, data: UserLevel) -> tuple | dict:
     if self_user.admin_level >= 5 or self_user.user_id == OWNER_USER_ID:
         if level > 5 or level < 0:
             log_admin_action("Set admin level", self_user, f"Tried to give level {data.level} to {identifier} (use_id: {use_id}), but the level was invalid")
+            lang = get_lang(self_user)
             return 400, {
                 "success": False,
-                "reason": "Invalid level"
+                "reason": lang["admin"]["level_invalid"]
             }
 
         try:
@@ -544,9 +563,10 @@ def set_level(request, data: UserLevel) -> tuple | dict:
                 user = User.objects.get(username=identifier)
         except User.DoesNotExist:
             log_admin_action("Set admin level", self_user, f"User {identifier} (use_id: {use_id}) doesn't exist")
+            lang = get_lang(self_user)
             return 404, {
                 "success": False,
-                "reason": "User not found!"
+                "reason": lang["generic"]["user_not_found"]
             }
 
         user.admin_level = level

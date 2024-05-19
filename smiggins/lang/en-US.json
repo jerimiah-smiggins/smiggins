@@ -163,7 +163,7 @@
       "badge_delete_protected": "Cannot delete that badge",
       "badge_invalid_name_size": "Badge name must be between 1 and 64 characters in length",
       "badge_invalid_name": "Badge name can only contain a-z, 0-9, and underscores",
-      "badge_not_found": "A badge with the name \"%s\" doesn't exist!",
+      "badge_not_found": "A badge with the name '%s' doesn't exist!",
 
       "modify_title": "Modify Account Info",
       "modify_get_button": "Get Data",
@@ -290,7 +290,7 @@
     "post": {
       "invalid_length": "Invalid post length. Must be between 1 and %s characters.",
       "invalid_comment_id": "Idk your id is not right at all",
-      "commend_id_does_not_exist": "Your id broke soemthing owo",
+      "comment_id_does_not_exist": "Your id broke soemthing owo",
       "invalid_quote_post": "The post you're quoting doesn't exist!",
       "invalid_quote_comment": "The comment you're quoting doesn't exist!",
       "invalid_username": "Username is insvalagaeg... LOOK JUST SHUT UP"

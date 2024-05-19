@@ -34,7 +34,6 @@ function refresh(from_start=false) {
       if (json.success) {
         x = document.createDocumentFragment();
         for (const message of json.messages) {
-          console.log(message);
           y = document.createElement("div");
           y.innerHTML += `
             <div class="post" data-color="${message.unread ? "" : "gray"}">
@@ -47,7 +46,7 @@ function refresh(from_start=false) {
                     ${message.badges.length ? `<span class="user-badge">${message.badges.map((icon) => (badges[icon])).join("</span> <span class=\"user-badge\">")}</span>` : ""}<br>
                     <span class="upper-lower-opacity">
                       <div class="username">@${message.username}</div>
-                      ${message.timestamp || message.content ? `- <div class="username">${timeSince(message.timestamp)} ago</div>` : ""}
+                      ${message.timestamp || message.content ? `- <div class="username">${timeSince(message.timestamp)}</div>` : ""}
                     </span>
                   </div>
                 </a>

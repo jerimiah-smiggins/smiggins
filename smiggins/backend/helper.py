@@ -419,3 +419,5 @@ def get_lang(user: User | None=None) -> dict[str, dict]:
         return context
 
     return resolve_dependencies(lang)
+
+DEFAULT_LANG = get_lang()
