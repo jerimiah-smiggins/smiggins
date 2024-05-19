@@ -3,6 +3,7 @@
 from .._settings import API_TIMINGS, DEFAULT_BANNER_COLOR, MAX_USERNAME_LENGTH, MAX_BIO_LENGTH, MAX_DISPL_NAME_LENGTH, ENABLE_PRONOUNS, ENABLE_GRADIENT_BANNERS, ENABLE_USER_BIOS
 from ..packages  import User, Post, Comment, Notification, Schema
 from ..helper    import validate_username, trim_whitespace, create_api_ratelimit, ensure_ratelimit, generate_token, get_post_json, get_lang, DEFAULT_LANG
+from ..variables import VALID_LANGUAGES
 
 class Username(Schema):
     username: str
@@ -19,6 +20,7 @@ class Theme(Schema):
 
 class Settings(Schema):
     bio: str
+    lang: str
     priv: bool
     color: str
     pronouns: str
@@ -167,6 +169,7 @@ def settings(request, data: Settings) -> tuple | dict:
     displ_name = trim_whitespace(data.displ_name, True)
     bio = trim_whitespace(data.bio, True)
     pronouns = data.pronouns.lower()
+    language = data.lang
 
     user = User.objects.get(token=token)
     lang = get_lang(user)
@@ -204,6 +207,12 @@ def settings(request, data: Settings) -> tuple | dict:
                     "reason": lang["settings"]["profile_color_invalid"]
                 }
 
+    if language not in [i["code"] for i in VALID_LANGUAGES]:
+        return 400, {
+            "success": False,
+            "reason": lang["settings"]["invalid_language"].replace("%s", language)
+        }
+
     user.color = color
 
     if ENABLE_GRADIENT_BANNERS:
@@ -218,6 +227,8 @@ def settings(request, data: Settings) -> tuple | dict:
 
     if ENABLE_PRONOUNS:
         user.pronouns = pronouns
+
+    user.language = language
 
     user.save()
 

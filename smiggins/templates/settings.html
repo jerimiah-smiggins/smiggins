@@ -94,6 +94,13 @@
           <option {{ SELECTED_IF_OLED }}  value="oled" >{{ lang.settings.cosmetic_theme_oled  }}</option>
         </select><br><br>
 
+        {{ lang.settings.cosmetic_language }}:<br>
+        <select id="lang">
+          {% for LANG in LANGUAGES %}
+            <option value="{{ LANG.code }}" {% if LANG.code == LANGUAGE %}selected{% endif %}>{{ LANG.name }}</option>
+          {% endfor %}
+        </select><br><br>
+
         {{ lang.settings.cosmetic_color }}:<br>
         <div id="color-selector"></div>
         <div id="post-example"></div><br><br>

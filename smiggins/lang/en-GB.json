@@ -1,9 +1,9 @@
 {
   "meta": {
     "fallback": ["en-US"],
-    "code": "en-GB",
     "name": "English (Great Britain)",
-    "version": "1.0"
+    "version": "1.0",
+    "maintainer": "trinkey"
   },
 
   "texts": {

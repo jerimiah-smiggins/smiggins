@@ -1,9 +1,9 @@
 {
   "meta": {
     "fallback": [],
-    "code": "en-US",
     "name": "English (United States)",
-    "version": "1.0"
+    "version": "1.0",
+    "maintainer": "trinkey"
   },
 
   "texts": {
@@ -42,7 +42,7 @@
       "none": "None",
       "reason": "Reason: %s",
       "user_not_found": "User not found!",
-      "settings": "Share",
+      "share": "Share",
       "copied": "Copied to clipboard!",
       "see_more": "%s to see more!",
 
@@ -326,6 +326,8 @@
       "cosmetic_theme_black": "Midnight",
       "cosmetic_theme_oled": "Black",
       "cosmetic_theme_invalid": "That's not a vailid theme, idiot.",
+      "cosmetic_language": "Language",
+      "cosmetic_language_invalid": "Invalid language '%s'",
       "cosmetic_color": "Color",
       "cosmetic_example_post_display_name": "Example",
       "cosmetic_example_post_username": "example",

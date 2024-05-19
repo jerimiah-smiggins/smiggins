@@ -1,7 +1,7 @@
 # For getting pages, not api.
 
-from ._settings import DEFAULT_BANNER_COLOR, MAX_BIO_LENGTH, OWNER_USER_ID, CONTACT_INFO, ENABLE_GRADIENT_BANNERS, SITE_NAME
-from .variables import BADGE_DATA
+from ._settings import DEFAULT_BANNER_COLOR, MAX_BIO_LENGTH, OWNER_USER_ID, CONTACT_INFO, ENABLE_GRADIENT_BANNERS, SITE_NAME, DEFAULT_LANGUAGE
+from .variables import BADGE_DATA, VALID_LANGUAGES
 from .packages  import User, Post, Comment, Hashtag, PrivateMessageContainer, HttpResponse, HttpResponseRedirect, json
 from .helper    import get_HTTP_response, get_post_json, get_badges, get_container_id, get_lang
 
@@ -30,6 +30,9 @@ def settings(request) -> HttpResponse:
         SELECTED_IF_DARK  = "selected" if user.theme == "dark"  else "",
         SELECTED_IF_BLACK = "selected" if user.theme == "black" else "",
         SELECTED_IF_OLED  = "selected" if user.theme == "oled"  else "",
+
+        LANGUAGE = user.language or DEFAULT_LANGUAGE,
+        LANGUAGES = VALID_LANGUAGES,
 
         ADMIN = str(user.user_id == OWNER_USER_ID or user.admin_level >= 1).lower()
     )
