@@ -72,6 +72,12 @@ MAX_ADMIN_LOG_LINES: int
 The maximum of lines of logs to store in the admin file at once. Minimum is one
 
 ```py
+DEFAULT_LANGUAGE: str
+```
+The default language of the server. Should be chosen from one of the files in
+the `./lang/` folder, omitting the `.json` file extension. Ex: `"en-US"`
+
+```py
 MAX_USERNAME_LENGTH: int
 ```
 The maximum length for a username. Must be between 1 and 200.
@@ -197,7 +203,35 @@ still logged like normal even if this is disabled, meaning that if you enable it
 any posts posted while this was disabled that had hashtags will still show up on
 the hashtag pages.
 
-## ./backend/api_admin.py
+## ./backend/api/__init__.py
+This file collects all of the api functions and turns them into sorted classes.
+
+```py
+class ApiAdmin
+```
+All the api functions from `./backend/api/admin.py`
+
+```py
+class ApiComment
+```
+All the api functions from `./backend/api/comment.py`
+
+```py
+class ApiInfo
+```
+All the api functions from `./backend/api/info.py`
+
+```py
+class ApiPost
+```
+All the api functions from `./backend/api/post.py`
+
+```py
+class ApiUser
+```
+All the api functions from `./backend/api/user.py`
+
+## ./backend/api/admin.py
 This file contains all admin-related functions.
 
 ```py
@@ -302,7 +336,7 @@ def logs(
 Returns the admin logs (level 4+). Called from a GET request to
 `/api/admin/logs`
 
-## ./backend/api_comment.py
+## ./backend/api/comment.py
 This file contains functions for any api calls to comment-related things, like
 creating them, getting a list of comments, or adding/removing a like from a
 comment.
@@ -362,7 +396,7 @@ def comment_delete(
 ```
 Handles deleting comments. Called from a DELETE request to `/api/comment`
 
-## ./backend/api_info.py
+## ./backend/api/info.py
 This file is for any api calls that retrieve information for the client, for
 example getting a username from their token.
 
@@ -382,7 +416,7 @@ def notifications(
 Returns whether or not you have unread notifications and private messages.
 Called from a GET request to `/api/info/notifications`.
 
-## ./backend/api_messages.py
+## ./backend/api/messages.py
 For api functions related to private messages.
 
 ```py
@@ -436,10 +470,10 @@ Returns the list of the most recent messages between yourself and others. Offset
 is essentially what page you're looking for. Called from a GET request to
 `/api/messages`.
 
-## ./backend/api_post.py
+## ./backend/api/post.py
 This file is for anything related to posts, including liking, creating, and
 getting lists of posts. Comment related things should go in
-`./backend/api_comment.py`.
+`./backend/api/comment.py`.
 
 ```py
 class NewPost(Schema)
@@ -550,10 +584,10 @@ def unpin_post(
 ```
 Handles unpinning a post. Called from a DELETE request to `/api/user/pin`
 
-## ./backend/api_user.py
+## ./backend/api/user.py
 This file is for api functions that are related to user profiles and account
 management. This doesn't include any post-related things, as those would go into
-`./backend/api_post.py`.
+`./backend/api/post.py`.
 
 ```py
 class Username(Schema)
@@ -676,34 +710,6 @@ def notifications_list(
 ```
 This returns a list of all of your notifications. Called on a GET request to
 `/api/user/notifications`.
-
-## ./backend/collect_api.py
-This file collects all of the api functions and turns them into sorted classes.
-
-```py
-class ApiAdmin
-```
-All the api functions from `./backend/api_admin.py`
-
-```py
-class ApiComment
-```
-All the api functions from `./backend/api_comment.py`
-
-```py
-class ApiInfo
-```
-All the api functions from `./backend/api_info.py`
-
-```py
-class ApiPost
-```
-All the api functions from `./backend/api_post.py`
-
-```py
-class ApiUser
-```
-All the api functions from `./backend/api_user.py`
 
 ## ./backend/helper.py
 This is for any helper function that could be used across the backend. This is
@@ -876,6 +882,14 @@ def create_notification(
 ```
 Creates a new Notification object using the specified parameters.
 
+```py
+def get_lang(
+  user: User | None = None
+) -> dict[str, Any]
+```
+Returns the language dict for the specified user, or the default configured in
+`./backend/_settings.py` if no user is specified.
+
 ## ./backend/packages.py
 This file is just for importing packages and libraries to be used across the
 program. That's all this file is used for.
@@ -1005,7 +1019,7 @@ and whatnot.
 ```py
 PRIVATE_AUTHENTICATOR_KEY: str
 ```
-The hashed version of `auth_key` from `./backend/_api_keys.py`.
+The hashed version of `auth_key` from `./backend/_api/keys.py`.
 
 ```py
 timeout_handler: dict[str, dict[str, None]]
