@@ -224,7 +224,7 @@ def post(request, post_id: int) -> HttpResponse:
         )
 
     post_json = get_post_json(post_id, user.user_id if logged_in else 0)
-    lang = get_lang(user)
+    lang = get_lang(user if logged_in else None)
 
     return get_HTTP_response(
         request, "post.html", lang,
@@ -271,7 +271,7 @@ def comment(request, comment_id: int) -> HttpResponse:
         )
 
     comment_json = get_post_json(comment_id, user.user_id if logged_in else 0, True)
-    lang = get_lang(user)
+    lang = get_lang(user if logged_in else None)
 
     return get_HTTP_response(
         request, "post.html",
