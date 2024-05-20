@@ -41,8 +41,8 @@ def user(request, username: str) -> HttpResponse:
     username = username.lower()
 
     try:
-        self_object = User.objects.get(token=request.COOKIES.get("token"))
-        self_id = self_object.user_id
+        self_user = User.objects.get(token=request.COOKIES.get("token"))
+        self_id = self_user.user_id
         logged_in = True
     except:
         self_id = 0
@@ -55,12 +55,12 @@ def user(request, username: str) -> HttpResponse:
             request, "404_user.html"
         )
 
-    lang = get_lang(user)
+    lang = get_lang(self_user)
 
     return get_HTTP_response(
         request, "user.html", lang,
 
-        IS_HIDDEN = "hidden" if not logged_in or username == self_object.username else "",
+        IS_HIDDEN = "hidden" if not logged_in or username == self_user.username else "",
         LOGGED_IN = str(logged_in).lower(),
         CAN_VIEW = str(not user.private or self_id in user.following).lower(),
         PRIVATE = str(user.private).lower(),
@@ -82,8 +82,8 @@ def user(request, username: str) -> HttpResponse:
         BANNER_COLOR = user.color or DEFAULT_BANNER_COLOR,
         BANNER_COLOR_TWO = user.color_two or DEFAULT_BANNER_COLOR,
 
-        IS_FOLLOWING = "false" if not logged_in else str(user.user_id in self_object.following).lower(),
-        IS_BLOCKING = "false" if not logged_in else str(user.user_id in self_object.blocking).lower()
+        IS_FOLLOWING = "false" if not logged_in else str(user.user_id in self_user.following).lower(),
+        IS_BLOCKING = "false" if not logged_in else str(user.user_id in self_user.blocking).lower()
     )
 
 def user_lists(request, username: str) -> HttpResponse:
@@ -97,8 +97,8 @@ def user_lists(request, username: str) -> HttpResponse:
         logged_in = False
 
     if logged_in:
-        self_object = User.objects.get(token=request.COOKIES.get("token"))
-        self_id = self_object.user_id
+        self_user = User.objects.get(token=request.COOKIES.get("token"))
+        self_id = self_user.user_id
     else:
         self_id = 0
 
@@ -143,7 +143,7 @@ def user_lists(request, username: str) -> HttpResponse:
 
     blocking = []
     removed_deleted_accounts = []
-    if logged_in and username == self_object.username:
+    if logged_in and username == self_user.username:
         for i in user.blocking:
             try:
                 if i != user.user_id:
@@ -168,7 +168,7 @@ def user_lists(request, username: str) -> HttpResponse:
             user.blocking = removed_deleted_accounts
             user.save()
 
-    lang = get_lang(user)
+    lang = get_lang(self_user)
 
     return get_HTTP_response(
         request, "user_lists.html", lang,
@@ -194,10 +194,10 @@ def user_lists(request, username: str) -> HttpResponse:
         BANNER_COLOR_TWO = user.color_two or DEFAULT_BANNER_COLOR,
 
         PRIVATE = str(user.private).lower(),
-        IS_FOLLOWING = str(user.user_id in self_object.following).lower() if logged_in else "false",
+        IS_FOLLOWING = str(user.user_id in self_user.following).lower() if logged_in else "false",
         IS_HIDDEN = "hidden" if user.user_id == self_id else "",
 
-        INCLUDE_BLOCKS = str(logged_in and username == self_object.username).lower(),
+        INCLUDE_BLOCKS = str(logged_in and username == self_user.username).lower(),
         LOGGED_IN = str(logged_in).lower()
     )
 
@@ -340,7 +340,7 @@ def message(request, username: str) -> HttpResponse | HttpResponseRedirect:
     except User.DoesNotExist:
         return get_HTTP_response(request, "404_user.html")
 
-    lang = get_lang(user)
+    lang = get_lang(self_user)
 
     return get_HTTP_response(
         request, "message.html", lang,
