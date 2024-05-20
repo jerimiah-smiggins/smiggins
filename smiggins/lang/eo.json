@@ -254,7 +254,7 @@
     "messages": {
       "title": "Sendante mesaĝojn al %s",
       "error": "ŝargi lastatempajn mesaĝojn",
-      "input_placeholder": "Kion vi volas diri al ri?",
+      "input_placeholder": "Kion vi volas diri al %s?",
 
       "no_messages": "Neniu mesaĝoj senditaj",
 

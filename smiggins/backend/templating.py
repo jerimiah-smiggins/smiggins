@@ -345,6 +345,7 @@ def message(request, username: str) -> HttpResponse | HttpResponseRedirect:
     return get_HTTP_response(
         request, "message.html", lang,
 
+        PLACEHOLDER = lang["messages"]["input_placeholder"].replace("%s", user.display_name),
         TITLE = lang["messages"]["title"].replace("%s", user.display_name),
         USERNAME = username,
         PRIVATE = str(user.private).lower(),

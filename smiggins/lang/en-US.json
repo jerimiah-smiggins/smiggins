@@ -254,7 +254,7 @@
     "messages": {
       "title": "Messaging %s",
       "error": "loading recent messages",
-      "input_placeholder": "What would you like to tell them?",
+      "input_placeholder": "What would you like to tell %s?",
 
       "no_messages": "No messages sent",
 
