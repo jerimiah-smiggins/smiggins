@@ -22,12 +22,12 @@
   <body data-theme="{{ THEME }}">
     <h1>{{ SITE_NAME }}</h1>
     <h3>v{{ VERSION }}</h3>
-    <a href="/signup">Sign up</a> -
-    <a href="/login">Log in</a>
+    <a href="/signup">{{ lang.account.sign_up_title }}</a> -
+    <a href="/login">{{ lang.account.log_in_title }}</a>
 
     {% if SOURCE == "true" %}
       <br><br>
-      <a href="https://github.com/jerimiah-smiggins/smiggins" target="_blank">Source code</a>
+      <a href="https://github.com/jerimiah-smiggins/smiggins" target="_blank">{{ lang.generic.source_code }}</a>
     {% endif %}
   </body>
 </html>

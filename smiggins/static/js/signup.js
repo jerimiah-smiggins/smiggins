@@ -21,7 +21,7 @@ dom("submit").addEventListener("click", function() {
   let password = sha256(dom("password").value)
 
   if (password !== sha256(dom("confirm").value)) {
-    showlog("Passwords don't match!");
+    showlog(lang.account.password_match_failure);
     return;
   }
 
@@ -40,7 +40,7 @@ dom("submit").addEventListener("click", function() {
       if (response.status == 429) {
         dom("post").removeAttribute("disabled");
         dom("post-text").removeAttribute("disabled");
-        showlog("You are being ratelimited! Try again in a few moments...");
+        showlog(lang.generic.ratelimit_verbose);
       } else {
         response.json().then((json) => {
           if (json.valid) {
@@ -48,14 +48,14 @@ dom("submit").addEventListener("click", function() {
             window.location.href = "/home";
           } else {
             dom("submit").removeAttribute("disabled");
-            showlog(`Unable to create account! Reason: ${json.reason}`);
+            showlog(lang.account.sign_up_failure.replaceAll("%s", json.reason));
           }
-        })
+        });
       }
     })
     .catch((err) => {
       dom("submit").removeAttribute("disabled");
-      showlog("Something went wrong! Try again in a few moments...");
+      showlog(lang.generic.something_went_wrong);
       throw(err);
     });
 });

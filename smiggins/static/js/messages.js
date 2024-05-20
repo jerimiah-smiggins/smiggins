@@ -1,8 +1,3 @@
-// Handle:
-// - Listing
-// - Load more button
-// - Displaying
-
 let home = true;
 let offset = -1;
 let count = 0;
@@ -39,7 +34,6 @@ function refresh(from_start=false) {
       if (json.success) {
         x = document.createDocumentFragment();
         for (const message of json.messages) {
-          console.log(message);
           y = document.createElement("div");
           y.innerHTML += `
             <div class="post" data-color="${message.unread ? "" : "gray"}">
@@ -52,7 +46,7 @@ function refresh(from_start=false) {
                     ${message.badges.length ? `<span class="user-badge">${message.badges.map((icon) => (badges[icon])).join("</span> <span class=\"user-badge\">")}</span>` : ""}<br>
                     <span class="upper-lower-opacity">
                       <div class="username">@${message.username}</div>
-                      ${message.timestamp || message.content ? `- <div class="username">${timeSince(message.timestamp)} ago</div>` : ""}
+                      ${message.timestamp || message.content ? `- <div class="username">${timeSince(message.timestamp)}</div>` : ""}
                     </span>
                   </div>
                 </a>
@@ -60,7 +54,7 @@ function refresh(from_start=false) {
 
               <div class="main-content">
                 <a href="/m/${message.username}" class="no-underline text">
-                  ${message.timestamp || message.content ? escapeHTML(message.content) : "<i>No messages sent</i>"}
+                  ${message.timestamp || message.content ? escapeHTML(message.content) : `<i>${lang.messages.no_messages}</i>`}
                 </a>
               </div>
             </div><br>`;
@@ -79,7 +73,7 @@ function refresh(from_start=false) {
       }
     })
     .catch((err) => {
-      showlog("Something went wrong loading recent messages! " + err);
+      showlog(lang.generic.something_went_wrong_x.replaceAll("%s", lang.messages.error));
       dom("refresh").removeAttribute("disabled");
       dom("more").removeAttribute("disabled");
     });

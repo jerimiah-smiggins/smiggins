@@ -1,5 +1,5 @@
-button {
-  width: 5em;
+button:not(.bottom-content-icon) {
+  min-width: 5em;
 }
 
 .post-text {
@@ -39,14 +39,6 @@ button {
   position: relative;
   left: calc(5px + 21.5em);
   bottom: calc(2px + 2.5em);
-}
-
-#switch {
-  width: 6em;
-}
-
-#more {
-  width: 8em;
 }
 
 .main-content {

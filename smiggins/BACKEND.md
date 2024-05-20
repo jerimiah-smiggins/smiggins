@@ -21,6 +21,514 @@ python file (`python3 manage.py`). The most useful commands are:
   folder. This should be used when creating a production server, and shouldn't
   ever need to be used in normal debugging.
 
+## ./backend/api/__init__.py
+This file collects all of the api functions and turns them into sorted classes.
+
+```py
+class ApiAdmin
+```
+All the api functions from `./backend/api/admin.py`
+
+```py
+class ApiComment
+```
+All the api functions from `./backend/api/comment.py`
+
+```py
+class ApiInfo
+```
+All the api functions from `./backend/api/info.py`
+
+```py
+class ApiPost
+```
+All the api functions from `./backend/api/post.py`
+
+```py
+class ApiUser
+```
+All the api functions from `./backend/api/user.py`
+
+## ./backend/api/admin.py
+This file contains all admin-related functions.
+
+```py
+class AccountIdentifier(Schema)
+```
+The schema for identifying accounts.
+
+```py
+class DeleteBadge(Schema)
+```
+The schema for badge deletion
+
+```py
+class NewBadge(DeleteBadge)
+```
+The schema for creating a badge
+
+```py
+class UserBadge(AccountIdentifier)
+```
+The schema for modifying the badges of a user
+
+```py
+class SaveUser(Schema)
+```
+The schema for saving the user info
+
+```py
+class UserLevel(AccountIdentifier)
+```
+The schema for setting the admin level of a user
+
+```py
+def user_delete(
+  request: django.core.handlers.wsgi.WSGIRequest,
+  data: AccountIdentifier
+) -> tuple | dict
+```
+Handles deleting a user (level 2+). Called from a DELETE request to
+`/api/admin/user`
+
+```py
+def badge_create(
+  request: django.core.handlers.wsgi.WSGIRequest,
+  data: NewBadge
+) -> tuple | dict
+```
+Handles creating a new badge (level 3+). Called from a PUT request to
+`/api/admin/badge`
+
+```py
+def badge_delete(
+  request: django.core.handlers.wsgi.WSGIRequest,
+  data: NewBadge
+) -> tuple | dict
+```
+Handles deleting a badge (level 3+). Called from a PATCH request to
+`/api/admin/badge`
+
+```py
+def badge_add(
+  request: django.core.handlers.wsgi.WSGIRequest,
+  data: NewBadge
+) -> tuple | dict
+```
+Handles adding a badge to a user (level 3+). Called from a POST request to
+`/api/admin/badge`
+
+```py
+def badge_remove(
+  request: django.core.handlers.wsgi.WSGIRequest,
+  data: NewBadge
+) -> tuple | dict
+```
+Handles removing a badge from a user (level 3+). Called from a PATCH request to
+`/api/admin/badge`
+
+```py
+def account_info(
+  request: django.core.handlers.wsgi.WSGIRequest,
+  identifier: int | str,
+  use_id: bool
+) -> tuple | dict
+```
+Returns information about an account (level 4+). Called from a GET request to
+`/api/admin/info`
+
+```py
+def set_level(
+  request: django.core.handlers.wsgi.WSGIRequest,
+  data: UserLevel
+) -> tuple | dict
+```
+Sets the admin level for the specified user (level 5+). Called from a PATCH
+request to `/api/admin/level`
+
+```py
+def logs(
+  request: django.core.handlers.wsgi.WSGIRequest
+) -> tuple | dict
+```
+Returns the admin logs (level 4+). Called from a GET request to
+`/api/admin/logs`
+
+## ./backend/api/comment.py
+This file contains functions for any api calls to comment-related things, like
+creating them, getting a list of comments, or adding/removing a like from a
+comment.
+
+```py
+class NewComment(Schema)
+```
+The schema for creating a new comment
+
+```py
+class CommentID(Schema)
+```
+The schema that contains just a comment id
+
+```py
+def comment_create(
+  request: django.core.handlers.wsgi.WSGIRequest,
+  data: NewComment
+) -> tuple | dict
+```
+Handles comment creation. Called from a PUT request to `/api/comment/create`.
+
+```py
+def comment_list(
+  request: django.core.handlers.wsgi.WSGIRequest,
+  id: int,
+  comment: bool,
+  offset: int = -1
+) -> tuple | dict
+```
+Lists the comments on a post, up to `POSTS_PER_REQUESTS` comments at once.
+Called from a GET request to `/api/comments`.
+
+```py
+def comment_like_add(
+  request: django.core.handlers.wsgi.WSGIRequest,
+  data: CommentID
+) -> tuple | dict
+```
+Handles adding a like to a comment. Called to a POST request to
+`/api/comment/like`.
+
+```py
+def comment_like_remove(
+  request: django.core.handlers.wsgi.WSGIRequest,
+  data: CommentID
+) -> tuple | dict
+```
+Handles removing a like from a comment. Called to a DELETE request to
+`/api/comment/like`.
+
+```py
+def comment_delete(
+  request: django.core.handlers.wsgi.WSGIRequest,
+  data: CommentID
+) -> tuple[int | dict] | dict
+```
+Handles deleting comments. Called from a DELETE request to `/api/comment`
+
+## ./backend/api/info.py
+This file is for any api calls that retrieve information for the client, for
+example getting a username from their token.
+
+```py
+def username(
+  request: django.core.handlers.wsgi.WSGIRequest
+) -> tuple | dict
+```
+Returns the username of the user from the token cookie. Called from a GET
+request to `/api/info/username`.
+
+```py
+def notifications(
+  request: django.core.handlers.wsgi.WSGIRequest
+) -> tuple | dict
+```
+Returns whether or not you have unread notifications and private messages.
+Called from a GET request to `/api/info/notifications`.
+
+## ./backend/api/messages.py
+For api functions related to private messages.
+
+```py
+class NewContainer(Schema)
+```
+The schema for creating a new message container between yourself and another
+user
+
+```py
+class NewMessage(Schema)
+```
+The schema for sending a message to someone
+
+```py
+def container_create(
+  request: django.core.handlers.wsgi.WSGIRequest,
+  data: NewContainer
+) -> tuple | dict
+```
+Creates a new message container between yourself and another user. Called from a
+POST request to `/api/messages/new`.
+
+```py
+def send_message(
+  request: django.core.handlers.wsgi.WSGIRequest,
+  data: NewMessage
+) -> tuple | dict
+```
+Creates a new message object between yourself and the specified user. Called
+from a POST request to `/api/messages`.
+
+```py
+def messages_list(
+  request: django.core.handlers.wsgi.WSGIRequest,
+  username: str,
+  forward: bool = True,
+  offset: int = -1
+) -> tuple | dict
+```
+Returns a list of the messages between yourself and the specified user. It isn't
+easy to explain how it works, but it does, and that's all that matters. Called
+from a GET request to `/api/messages/list`.
+
+```py
+def recent_messages(
+  request: django.core.handlers.wsgi.WSGIRequest,
+  offset: int = -1
+) -> tuple | dict
+```
+Returns the list of the most recent messages between yourself and others. Offset
+is essentially what page you're looking for. Called from a GET request to
+`/api/messages`.
+
+## ./backend/api/post.py
+This file is for anything related to posts, including liking, creating, and
+getting lists of posts. Comment related things should go in
+`./backend/api/comment.py`.
+
+```py
+class NewPost(Schema)
+```
+The schema for creating a new post
+
+```py
+class NewQuote(NewPost)
+```
+The schema for creating a new quote
+
+```py
+class PostID(Schema)
+```
+The schema that contains just a post ID
+
+```py
+def post_create(
+  request: django.core.handlers.wsgi.WSGIRequest,
+  data: NewPost
+) -> tuple | dict
+```
+This handles creating a post. Called from a PUT request to `/api/post/create`.
+
+```py
+def quote_create(
+  request: django.core.handlers.wsgi.WSGIRequest,
+  data: NewQuote
+) -> tuple | dict
+```
+This handles creating a post. Called from a PUT request to `/api/quote/create`.
+
+```py
+def hashtag_list(
+  request: django.core.handlers.wsgi.WSGIRequest,
+  hashtag: str,
+  offset: int = -1
+) -> tuple | dict
+```
+Returns a randomized list of posts with the specified hashtag hashtag. Called
+from a GET request to `/api/hashtag/{hashtag: str}`
+
+```py
+def post_list_following(
+  request: django.core.handlers.wsgi.WSGIRequest,
+  offset: int = -1
+) -> tuple | dict
+```
+This gets a list of recent posts for the following timeline. Called from a GET
+request to `/api/post/following`.
+
+```py
+def post_list_recent(
+  request: django.core.handlers.wsgi.WSGIRequest,
+  offset: int = -1
+) -> tuple | dict
+```
+This gets a list of recent posts for the recent timeline. Called from a GET
+request to `/api/post/recent`.
+
+```py
+def post_list_user(
+  request: django.core.handlers.wsgi.WSGIRequest,
+  username: str,
+  offset: int = -1
+) -> tuple | dict
+```
+This gets a list of recent posts for a specific user with a username of
+`username`. Called from a GET request to `/api/post/user/{username: str}`.
+
+```py
+def post_like_add(
+  request: django.core.handlers.wsgi.WSGIRequest,
+  data: PostID
+) -> tuple | dict
+```
+Handles adding a like to a post. Called from a POST request to `/api/post/like`.
+
+```py
+def post_like_remove(
+  request: django.core.handlers.wsgi.WSGIRequest,
+  data: PostID
+) -> tuple | dict
+```
+Handles removing a like from a post. Called from a DELETE request to
+`/api/post/like`.
+
+```py
+def post_delete(
+  request: django.core.handlers.wsgi.WSGIRequest,
+  data: PostID
+) -> tuple[int | dict] | dict
+```
+Handles deleting comments. Called from a DELETE request to `/api/post`
+
+```py
+def pin_post(
+  request: django.core.handlers.wsgi.WSGIRequest,
+  data: postID
+) -> tuple | int
+```
+Handles pinning a post. Called from a PATCH request to `/api/user/pin`
+
+```py
+def unpin_post(
+  request: django.core.handlers.wsgi.WSGIRequest
+) -> tuple | int
+```
+Handles unpinning a post. Called from a DELETE request to `/api/user/pin`
+
+## ./backend/api/user.py
+This file is for api functions that are related to user profiles and account
+management. This doesn't include any post-related things, as those would go into
+`./backend/api/post.py`.
+
+```py
+class Username(Schema)
+```
+The schema that contains just a username
+
+```py
+class Account(Username)
+```
+The schema that has both a username and a password
+
+```py
+class ChangePassword(Schema)
+```
+The schema used for changing passwords
+
+```py
+class Theme(Schema)
+```
+The schema for changing themes
+
+```py
+class Settings(Schema)
+```
+The schema that contains all of the settings
+
+```py
+def signup(
+  request: django.core.handlers.wsgi.WSGIRequest,
+  data: Account
+) -> tuple | dict
+```
+This handles creating a new user on when signing up. Called on a POST request to
+`/api/user/signup`.
+
+```py
+def login(
+  request: django.core.handlers.wsgi.WSGIRequest,
+  data: Account
+) -> tuple | dict
+```
+This handles sending auth information when logging in. Called on a POST request
+to `/api/user/login`.
+
+```py
+def settings_theme(
+  request: django.core.handlers.wsgi.WSGIRequest,
+  data: Theme
+) -> tuple | dict
+```
+This handles changing the theme setting. Called on a POST request to
+`/api/user/settings/theme`.
+
+```py
+def settings(
+  request: django.core.handlers.wsgi.WSGIRequest,
+  data: Settings
+) -> tuple | dict
+```
+This handles changing and saving (almost) all of the settings in the settings
+page. Called on a PATCH request to `/api/user/settings/text`.
+
+```py
+def follower_add(
+  request: django.core.handlers.wsgi.WSGIRequest,
+  data: Username
+) -> tuple | dict
+```
+This handles following someone. Called on a POST request to
+`/api/user/follower`.
+
+```py
+def follower_remove(
+  request: django.core.handlers.wsgi.WSGIRequest,
+  data: Username
+) -> tuple | dict
+```
+This handles unfollowing someone. Called on a DELETE request to
+`/api/user/follower`.
+
+```py
+def block_add(
+  request: django.core.handlers.wsgi.WSGIRequest,
+  data: Username
+) -> tuple | dict
+```
+This handles blocking someone. Called on a POST request to
+`/api/user/block`.
+
+```py
+def block_remove(
+  request: django.core.handlers.wsgi.WSGIRequest,
+  data: Username
+) -> tuple | dict
+```
+This handles unblocking someone. Called on a DELETE request to
+`/api/user/block`.
+
+```py
+def change_password(
+  request: django.core.handlers.wsgi.WSGIRequest,
+  data: ChangePassword
+) -> tuple | dict
+```
+This handles changing your password. Called on a PATCH request to
+`/api/user/password`
+
+```py
+def read_notifs(
+  request: django.core.handlers.wsgi.WSGIRequest
+) -> tuple | dict
+```
+This marks all of your notifications as read. Called on a DELETE request to
+`/api/user/notifications`.
+
+```py
+def notifications_list(
+  request: django.core.handlers.wsgi.WSGIRequest
+) -> tuple | dict
+```
+This returns a list of all of your notifications. Called on a GET request to
+`/api/user/notifications`.
+
 ## ./backend/_api_keys.py
 This file holds any information that shouldn't be public. Currently, the only
 thing this is being used for is the extra string that is added to hashed
@@ -70,6 +578,12 @@ The path of the admin log file. Set to `None` to not log any admin activity
 MAX_ADMIN_LOG_LINES: int
 ```
 The maximum of lines of logs to store in the admin file at once. Minimum is one
+
+```py
+DEFAULT_LANGUAGE: str
+```
+The default language of the server. Should be chosen from one of the files in
+the `./lang/` folder, omitting the `.json` file extension. Ex: `"en-US"`
 
 ```py
 MAX_USERNAME_LENGTH: int
@@ -196,514 +710,6 @@ as links on the frontend, and the `/hashtag/...` pages not work. Hashtags are
 still logged like normal even if this is disabled, meaning that if you enable it,
 any posts posted while this was disabled that had hashtags will still show up on
 the hashtag pages.
-
-## ./backend/api_admin.py
-This file contains all admin-related functions.
-
-```py
-class AccountIdentifier(Schema)
-```
-The schema for identifying accounts.
-
-```py
-class DeleteBadge(Schema)
-```
-The schema for badge deletion
-
-```py
-class NewBadge(DeleteBadge)
-```
-The schema for creating a badge
-
-```py
-class UserBadge(AccountIdentifier)
-```
-The schema for modifying the badges of a user
-
-```py
-class SaveUser(Schema)
-```
-The schema for saving the user info
-
-```py
-class UserLevel(AccountIdentifier)
-```
-The schema for setting the admin level of a user
-
-```py
-def user_delete(
-  request: django.core.handlers.wsgi.WSGIRequest,
-  data: AccountIdentifier
-) -> tuple | dict
-```
-Handles deleting a user (level 2+). Called from a DELETE request to
-`/api/admin/user`
-
-```py
-def badge_create(
-  request: django.core.handlers.wsgi.WSGIRequest,
-  data: NewBadge
-) -> tuple | dict
-```
-Handles creating a new badge (level 3+). Called from a PUT request to
-`/api/admin/badge`
-
-```py
-def badge_delete(
-  request: django.core.handlers.wsgi.WSGIRequest,
-  data: NewBadge
-) -> tuple | dict
-```
-Handles deleting a badge (level 3+). Called from a PATCH request to
-`/api/admin/badge`
-
-```py
-def badge_add(
-  request: django.core.handlers.wsgi.WSGIRequest,
-  data: NewBadge
-) -> tuple | dict
-```
-Handles adding a badge to a user (level 3+). Called from a POST request to
-`/api/admin/badge`
-
-```py
-def badge_remove(
-  request: django.core.handlers.wsgi.WSGIRequest,
-  data: NewBadge
-) -> tuple | dict
-```
-Handles removing a badge from a user (level 3+). Called from a PATCH request to
-`/api/admin/badge`
-
-```py
-def account_info(
-  request: django.core.handlers.wsgi.WSGIRequest,
-  identifier: int | str,
-  use_id: bool
-) -> tuple | dict
-```
-Returns information about an account (level 4+). Called from a GET request to
-`/api/admin/info`
-
-```py
-def set_level(
-  request: django.core.handlers.wsgi.WSGIRequest,
-  data: UserLevel
-) -> tuple | dict
-```
-Sets the admin level for the specified user (level 5+). Called from a PATCH
-request to `/api/admin/level`
-
-```py
-def logs(
-  request: django.core.handlers.wsgi.WSGIRequest
-) -> tuple | dict
-```
-Returns the admin logs (level 4+). Called from a GET request to
-`/api/admin/logs`
-
-## ./backend/api_comment.py
-This file contains functions for any api calls to comment-related things, like
-creating them, getting a list of comments, or adding/removing a like from a
-comment.
-
-```py
-class NewComment(Schema)
-```
-The schema for creating a new comment
-
-```py
-class CommentID(Schema)
-```
-The schema that contains just a comment id
-
-```py
-def comment_create(
-  request: django.core.handlers.wsgi.WSGIRequest,
-  data: NewComment
-) -> tuple | dict
-```
-Handles comment creation. Called from a PUT request to `/api/comment/create`.
-
-```py
-def comment_list(
-  request: django.core.handlers.wsgi.WSGIRequest,
-  id: int,
-  comment: bool,
-  offset: int = -1
-) -> tuple | dict
-```
-Lists the comments on a post, up to `POSTS_PER_REQUESTS` comments at once.
-Called from a GET request to `/api/comments`.
-
-```py
-def comment_like_add(
-  request: django.core.handlers.wsgi.WSGIRequest,
-  data: CommentID
-) -> tuple | dict
-```
-Handles adding a like to a comment. Called to a POST request to
-`/api/comment/like`.
-
-```py
-def comment_like_remove(
-  request: django.core.handlers.wsgi.WSGIRequest,
-  data: CommentID
-) -> tuple | dict
-```
-Handles removing a like from a comment. Called to a DELETE request to
-`/api/comment/like`.
-
-```py
-def comment_delete(
-  request: django.core.handlers.wsgi.WSGIRequest,
-  data: CommentID
-) -> tuple[int | dict] | dict
-```
-Handles deleting comments. Called from a DELETE request to `/api/comment`
-
-## ./backend/api_info.py
-This file is for any api calls that retrieve information for the client, for
-example getting a username from their token.
-
-```py
-def username(
-  request: django.core.handlers.wsgi.WSGIRequest
-) -> tuple | dict
-```
-Returns the username of the user from the token cookie. Called from a GET
-request to `/api/info/username`.
-
-```py
-def notifications(
-  request: django.core.handlers.wsgi.WSGIRequest
-) -> tuple | dict
-```
-Returns whether or not you have unread notifications and private messages.
-Called from a GET request to `/api/info/notifications`.
-
-## ./backend/api_messages.py
-For api functions related to private messages.
-
-```py
-class NewContainer(Schema)
-```
-The schema for creating a new message container between yourself and another
-user
-
-```py
-class NewMessage(Schema)
-```
-The schema for sending a message to someone
-
-```py
-def container_create(
-  request: django.core.handlers.wsgi.WSGIRequest,
-  data: NewContainer
-) -> tuple | dict
-```
-Creates a new message container between yourself and another user. Called from a
-POST request to `/api/messages/new`.
-
-```py
-def send_message(
-  request: django.core.handlers.wsgi.WSGIRequest,
-  data: NewMessage
-) -> tuple | dict
-```
-Creates a new message object between yourself and the specified user. Called
-from a POST request to `/api/messages`.
-
-```py
-def messages_list(
-  request: django.core.handlers.wsgi.WSGIRequest,
-  username: str,
-  forward: bool = True,
-  offset: int = -1
-) -> tuple | dict
-```
-Returns a list of the messages between yourself and the specified user. It isn't
-easy to explain how it works, but it does, and that's all that matters. Called
-from a GET request to `/api/messages/list`.
-
-```py
-def recent_messages(
-  request: django.core.handlers.wsgi.WSGIRequest,
-  offset: int = -1
-) -> tuple | dict
-```
-Returns the list of the most recent messages between yourself and others. Offset
-is essentially what page you're looking for. Called from a GET request to
-`/api/messages`.
-
-## ./backend/api_post.py
-This file is for anything related to posts, including liking, creating, and
-getting lists of posts. Comment related things should go in
-`./backend/api_comment.py`.
-
-```py
-class NewPost(Schema)
-```
-The schema for creating a new post
-
-```py
-class NewQuote(NewPost)
-```
-The schema for creating a new quote
-
-```py
-class PostID(Schema)
-```
-The schema that contains just a post ID
-
-```py
-def post_create(
-  request: django.core.handlers.wsgi.WSGIRequest,
-  data: NewPost
-) -> tuple | dict
-```
-This handles creating a post. Called from a PUT request to `/api/post/create`.
-
-```py
-def quote_create(
-  request: django.core.handlers.wsgi.WSGIRequest,
-  data: NewQuote
-) -> tuple | dict
-```
-This handles creating a post. Called from a PUT request to `/api/quote/create`.
-
-```py
-def hashtag_list(
-  request: django.core.handlers.wsgi.WSGIRequest,
-  hashtag: str,
-  offset: int = -1
-) -> tuple | dict
-```
-Returns a randomized list of posts with the specified hashtag hashtag. Called
-from a GET request to `/api/hashtag/{hashtag: str}`
-
-```py
-def post_list_following(
-  request: django.core.handlers.wsgi.WSGIRequest,
-  offset: int = -1
-) -> tuple | dict
-```
-This gets a list of recent posts for the following timeline. Called from a GET
-request to `/api/post/following`.
-
-```py
-def post_list_recent(
-  request: django.core.handlers.wsgi.WSGIRequest,
-  offset: int = -1
-) -> tuple | dict
-```
-This gets a list of recent posts for the recent timeline. Called from a GET
-request to `/api/post/recent`.
-
-```py
-def post_list_user(
-  request: django.core.handlers.wsgi.WSGIRequest,
-  username: str,
-  offset: int = -1
-) -> tuple | dict
-```
-This gets a list of recent posts for a specific user with a username of
-`username`. Called from a GET request to `/api/post/user/{username: str}`.
-
-```py
-def post_like_add(
-  request: django.core.handlers.wsgi.WSGIRequest,
-  data: PostID
-) -> tuple | dict
-```
-Handles adding a like to a post. Called from a POST request to `/api/post/like`.
-
-```py
-def post_like_remove(
-  request: django.core.handlers.wsgi.WSGIRequest,
-  data: PostID
-) -> tuple | dict
-```
-Handles removing a like from a post. Called from a DELETE request to
-`/api/post/like`.
-
-```py
-def post_delete(
-  request: django.core.handlers.wsgi.WSGIRequest,
-  data: PostID
-) -> tuple[int | dict] | dict
-```
-Handles deleting comments. Called from a DELETE request to `/api/post`
-
-```py
-def pin_post(
-  request: django.core.handlers.wsgi.WSGIRequest,
-  data: postID
-) -> tuple | int
-```
-Handles pinning a post. Called from a PATCH request to `/api/user/pin`
-
-```py
-def unpin_post(
-  request: django.core.handlers.wsgi.WSGIRequest
-) -> tuple | int
-```
-Handles unpinning a post. Called from a DELETE request to `/api/user/pin`
-
-## ./backend/api_user.py
-This file is for api functions that are related to user profiles and account
-management. This doesn't include any post-related things, as those would go into
-`./backend/api_post.py`.
-
-```py
-class Username(Schema)
-```
-The schema that contains just a username
-
-```py
-class Account(Username)
-```
-The schema that has both a username and a password
-
-```py
-class ChangePassword(Schema)
-```
-The schema used for changing passwords
-
-```py
-class Theme(Schema)
-```
-The schema for changing themes
-
-```py
-class Settings(Schema)
-```
-The schema that contains all of the settings
-
-```py
-def signup(
-  request: django.core.handlers.wsgi.WSGIRequest,
-  data: Account
-) -> tuple | dict
-```
-This handles creating a new user on when signing up. Called on a POST request to
-`/api/user/signup`.
-
-```py
-def login(
-  request: django.core.handlers.wsgi.WSGIRequest,
-  data: Account
-) -> tuple | dict
-```
-This handles sending auth information when logging in. Called on a POST request
-to `/api/user/login`.
-
-```py
-def settings_theme(
-  request: django.core.handlers.wsgi.WSGIRequest,
-  data: Theme
-) -> tuple | dict
-```
-This handles changing the theme setting. Called on a POST request to
-`/api/user/settings/theme`.
-
-```py
-def settings(
-  request: django.core.handlers.wsgi.WSGIRequest,
-  data: Settings
-) -> tuple | dict
-```
-This handles changing and saving (almost) all of the settings in the settings
-page. Called on a PATCH request to `/api/user/settings/text`.
-
-```py
-def follower_add(
-  request: django.core.handlers.wsgi.WSGIRequest,
-  data: Username
-) -> tuple | dict
-```
-This handles following someone. Called on a POST request to
-`/api/user/follower`.
-
-```py
-def follower_remove(
-  request: django.core.handlers.wsgi.WSGIRequest,
-  data: Username
-) -> tuple | dict
-```
-This handles unfollowing someone. Called on a DELETE request to
-`/api/user/follower`.
-
-```py
-def block_add(
-  request: django.core.handlers.wsgi.WSGIRequest,
-  data: Username
-) -> tuple | dict
-```
-This handles blocking someone. Called on a POST request to
-`/api/user/block`.
-
-```py
-def block_remove(
-  request: django.core.handlers.wsgi.WSGIRequest,
-  data: Username
-) -> tuple | dict
-```
-This handles unblocking someone. Called on a DELETE request to
-`/api/user/block`.
-
-```py
-def change_password(
-  request: django.core.handlers.wsgi.WSGIRequest,
-  data: ChangePassword
-) -> tuple | dict
-```
-This handles changing your password. Called on a PATCH request to
-`/api/user/password`
-
-```py
-def read_notifs(
-  request: django.core.handlers.wsgi.WSGIRequest
-) -> tuple | dict
-```
-This marks all of your notifications as read. Called on a DELETE request to
-`/api/user/notifications`.
-
-```py
-def notifications_list(
-  request: django.core.handlers.wsgi.WSGIRequest
-) -> tuple | dict
-```
-This returns a list of all of your notifications. Called on a GET request to
-`/api/user/notifications`.
-
-## ./backend/collect_api.py
-This file collects all of the api functions and turns them into sorted classes.
-
-```py
-class ApiAdmin
-```
-All the api functions from `./backend/api_admin.py`
-
-```py
-class ApiComment
-```
-All the api functions from `./backend/api_comment.py`
-
-```py
-class ApiInfo
-```
-All the api functions from `./backend/api_info.py`
-
-```py
-class ApiPost
-```
-All the api functions from `./backend/api_post.py`
-
-```py
-class ApiUser
-```
-All the api functions from `./backend/api_user.py`
 
 ## ./backend/helper.py
 This is for any helper function that could be used across the backend. This is
@@ -876,6 +882,14 @@ def create_notification(
 ```
 Creates a new Notification object using the specified parameters.
 
+```py
+def get_lang(
+  user: User | None = None
+) -> dict[str, Any]
+```
+Returns the language dict for the specified user, or the default configured in
+`./backend/_settings.py` if no user is specified.
+
 ## ./backend/packages.py
 This file is just for importing packages and libraries to be used across the
 program. That's all this file is used for.
@@ -1005,7 +1019,7 @@ and whatnot.
 ```py
 PRIVATE_AUTHENTICATOR_KEY: str
 ```
-The hashed version of `auth_key` from `./backend/_api_keys.py`.
+The hashed version of `auth_key` from `./backend/_api/keys.py`.
 
 ```py
 timeout_handler: dict[str, dict[str, None]]

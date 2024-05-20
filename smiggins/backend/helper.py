@@ -1,11 +1,11 @@
 # Contains helper functions. These aren't for routing, instead doing something that can be used in other places in the code.
 
-from ._settings import SITE_NAME, VERSION, SOURCE_CODE, MAX_DISPL_NAME_LENGTH, MAX_POST_LENGTH, MAX_USERNAME_LENGTH, RATELIMIT, OWNER_USER_ID, ADMIN_LOG_PATH, MAX_ADMIN_LOG_LINES, MAX_NOTIFICATIONS, MAX_BIO_LENGTH, ENABLE_USER_BIOS, ENABLE_PRONOUNS, ENABLE_GRADIENT_BANNERS, ENABLE_BADGES, ENABLE_PRIVATE_MESSAGES, ENABLE_QUOTES, ENABLE_POST_DELETION
-from .variables import HTML_FOOTERS, HTML_HEADERS, PRIVATE_AUTHENTICATOR_KEY, timeout_handler
-from .packages  import Callable, Any, HttpResponse, HttpResponseRedirect, loader, User, Comment, Post, Notification, threading, hashlib, pathlib, time, re
+from ._settings import SITE_NAME, VERSION, SOURCE_CODE, MAX_DISPL_NAME_LENGTH, MAX_POST_LENGTH, MAX_USERNAME_LENGTH, RATELIMIT, OWNER_USER_ID, ADMIN_LOG_PATH, MAX_ADMIN_LOG_LINES, MAX_NOTIFICATIONS, MAX_BIO_LENGTH, ENABLE_USER_BIOS, ENABLE_PRONOUNS, ENABLE_GRADIENT_BANNERS, ENABLE_BADGES, ENABLE_PRIVATE_MESSAGES, ENABLE_QUOTES, ENABLE_POST_DELETION, DEFAULT_LANGUAGE
+from .variables import HTML_FOOTERS, HTML_HEADERS, PRIVATE_AUTHENTICATOR_KEY, timeout_handler, BASE_DIR
+from .packages  import Callable, Any, HttpResponse, HttpResponseRedirect, loader, User, Comment, Post, Notification, threading, hashlib, pathlib, time, re, json
 
 if ADMIN_LOG_PATH[:2:] == "./":
-    ADMIN_LOG_PATH = str(pathlib.Path(__file__).parent.absolute()) + "/../" + ADMIN_LOG_PATH[2::]
+    ADMIN_LOG_PATH = BASE_DIR / ADMIN_LOG_PATH[2::]
 
 def sha(string: str | bytes) -> str:
     # Returns the sha256 hash of a string.
@@ -28,19 +28,22 @@ def set_timeout(callback: Callable, delay_ms: int | float) -> None:
     thread = threading.Thread(target=wrapper)
     thread.start()
 
-def get_HTTP_response(request, file: str, **kwargs: Any) -> HttpResponse:
+def get_HTTP_response(request, file: str, lang_override: dict | None=None, **kwargs: Any) -> HttpResponse:
     try:
         user = User.objects.get(token=request.COOKIES.get("token"))
         theme = user.theme
     except User.DoesNotExist:
+        user = None
         theme = "dark"
+
+    lang = get_lang(user) if lang_override is None else lang_override
 
     context = {
         "SITE_NAME": SITE_NAME,
         "VERSION": VERSION,
         "SOURCE": str(SOURCE_CODE).lower(),
 
-        "HTML_HEADERS": HTML_HEADERS,
+        "HTML_HEADERS": f"<script>const lang={json.dumps(lang)};</script>{HTML_HEADERS}",
         "HTML_FOOTERS": HTML_FOOTERS,
 
         "MAX_POST_LENGTH": MAX_POST_LENGTH,
@@ -54,7 +57,8 @@ def get_HTTP_response(request, file: str, **kwargs: Any) -> HttpResponse:
         "ENABLE_QUOTES": str(ENABLE_QUOTES).lower(),
         "ENABLE_POST_DELETION": str(ENABLE_POST_DELETION).lower(),
 
-        "THEME": theme
+        "THEME": theme,
+        "lang": lang
     }
 
     for key, value in kwargs.items():
@@ -255,9 +259,9 @@ def get_post_json(post_id: int, current_user_id: int=0, comment: bool=False, cac
                         "badges": get_badges(quote_creator),
                         "private": quote_creator.private,
                         "pronouns": quote_creator.pronouns if ENABLE_PRONOUNS else "__",
-                        "color_one": creator.color,
-                        "color_two": creator.color_two,
-                        "gradient_banner": creator.gradient
+                        "color_one": quote_creator.color,
+                        "color_two": quote_creator.color_two,
+                        "gradient_banner": quote_creator.gradient
                     },
                     "deleted": False,
                     "comment": post.quote_is_comment,
@@ -371,3 +375,49 @@ def create_notification(
 
 def get_container_id(user_one: str, user_two: str) -> str:
     return f"{user_one}:{user_two}" if user_two > user_one else f"{user_two}:{user_one}"
+
+def get_lang(user: User | None=None) -> dict[str, dict]:
+    # Gets the language file for the specified user
+
+    if isinstance(user, User):
+        lang = user.language or DEFAULT_LANGUAGE
+    else:
+        lang = DEFAULT_LANGUAGE
+
+    parsed = []
+
+    def loop_through(found: dict, context: dict) -> dict:
+        if isinstance(context, dict):
+            for i in context:
+                if isinstance(context[i], str):
+                    if i not in found:
+                        found[i] = context[i]
+                else:
+                    if i not in found:
+                        found[i] = context[i]
+                    else:
+                        found[i] = loop_through(found[i], context[i])
+        else:
+            if len(found) == 0:
+                found = context
+
+        return found
+
+    def resolve_dependencies(lang: str, context: dict | None=None) -> dict[str, dict]:
+        if context is None:
+            context = {}
+
+        f = json.load(open(BASE_DIR / f"lang/{lang}.json"))
+        parsed.append(lang)
+
+        context = loop_through(context, f["texts"])
+
+        for i in f["meta"]["fallback"]:
+            if i not in parsed:
+                resolve_dependencies(i, context)
+
+        return context
+
+    return resolve_dependencies(lang)
+
+DEFAULT_LANG = get_lang()

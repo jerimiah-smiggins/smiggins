@@ -2,7 +2,8 @@
 
 from .._settings import API_TIMINGS, DEFAULT_BANNER_COLOR, MAX_USERNAME_LENGTH, MAX_BIO_LENGTH, MAX_DISPL_NAME_LENGTH, ENABLE_PRONOUNS, ENABLE_GRADIENT_BANNERS, ENABLE_USER_BIOS
 from ..packages  import User, Post, Comment, Notification, Schema
-from ..helper    import validate_username, trim_whitespace, create_api_ratelimit, ensure_ratelimit, generate_token, get_post_json
+from ..helper    import validate_username, trim_whitespace, create_api_ratelimit, ensure_ratelimit, generate_token, get_post_json, get_lang, DEFAULT_LANG
+from ..variables import VALID_LANGUAGES
 
 class Username(Schema):
     username: str
@@ -19,6 +20,7 @@ class Theme(Schema):
 
 class Settings(Schema):
     bio: str
+    lang: str
     priv: bool
     color: str
     pronouns: str
@@ -32,7 +34,7 @@ def signup(request, data: Account) -> tuple | dict:
     if not ensure_ratelimit("api_account_signup", request.META.get("REMOTE_ADDR")):
         return 429, {
             "valid": False,
-            "reason": "Ratelimited"
+            "reason": DEFAULT_LANG["generic"]["ratelimit"]
         }
 
     username = data.username.lower().replace(" ", "")
@@ -42,14 +44,14 @@ def signup(request, data: Account) -> tuple | dict:
     if len(password) != 64 or password == "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855":
         return {
             "valid": False,
-            "reason": "Invalid Password"
+            "reason": DEFAULT_LANG["account"]["bad_password"]
         }
 
     for i in password:
         if i not in "abcdef0123456789":
             return {
                 "valid": False,
-                "reason": "Invalid Password"
+                "reason": DEFAULT_LANG["account"]["bad_password"]
             }
 
     user_valid = validate_username(username, existing=False)
@@ -85,18 +87,18 @@ def signup(request, data: Account) -> tuple | dict:
     if user_valid == -1:
         return {
             "valid": False,
-            "reason": "Username taken."
+            "reason": DEFAULT_LANG["account"]["username_taken"]
         }
 
     elif user_valid == -2:
         return {
             "valid": False,
-            "reason": "Username can only use A-Z, 0-9, underscores, and hyphens."
+            "reason": DEFAULT_LANG["account"]["invalid_username_chars"]
         }
 
     return {
         "valid": False,
-        "reason": f"Username must be between 1 and {MAX_USERNAME_LENGTH} characters in length."
+        "reason": DEFAULT_LANG["account"]["invalid_username_length"].replace("%s", str(MAX_USERNAME_LENGTH))
     }
 
 def login(request, data: Account) -> tuple | dict:
@@ -105,7 +107,7 @@ def login(request, data: Account) -> tuple | dict:
     if not ensure_ratelimit("api_account_login", request.META.get("REMOTE_ADDR")):
         return 429, {
             "valid": False,
-            "reason": "Ratelimited"
+            "reason": DEFAULT_LANG["generic"]["ratelimit"]
         }
 
     username = data.username.lower()
@@ -124,14 +126,14 @@ def login(request, data: Account) -> tuple | dict:
             create_api_ratelimit("api_account_login", API_TIMINGS["login unsuccessful"], request.META.get('REMOTE_ADDR'))
             return {
                 "valid": False,
-                "reason": "Invalid password."
+                "reason": DEFAULT_LANG["account"]["bad_password"]
             }
 
     else:
         create_api_ratelimit("api_account_login", API_TIMINGS["login unsuccessful"], request.META.get('REMOTE_ADDR'))
         return {
             "valid": False,
-            "reason": f"Account with username '{username}' doesn't exist."
+            "reason": DEFAULT_LANG["account"]["username_does_not_exist"].replaceAll("%s", data.username)
         }
 
 def settings_theme(request, data: Theme) -> tuple | dict:
@@ -140,13 +142,16 @@ def settings_theme(request, data: Theme) -> tuple | dict:
     token = request.COOKIES.get('token')
     theme = data.theme.lower()
 
+    user = User.objects.get(token=token)
+
+    lang = get_lang(user)
+
     if theme.lower() not in ["light", "gray", "dark", "black", "oled"]:
         return 400, {
             "success": False,
-            "reason": "That's not a vailid theme, idiot.",
+            "reason": lang["settings"]["cosmetic_theme_invalid"],
         }
 
-    user = User.objects.get(token=token)
     user.theme = theme
     user.save()
 
@@ -164,30 +169,34 @@ def settings(request, data: Settings) -> tuple | dict:
     displ_name = trim_whitespace(data.displ_name, True)
     bio = trim_whitespace(data.bio, True)
     pronouns = data.pronouns.lower()
+    language = data.lang
+
+    user = User.objects.get(token=token)
+    lang = get_lang(user)
 
     if ENABLE_PRONOUNS and (len(pronouns) != 2 or pronouns not in ["__", "_a", "_o", "_v", "aa", "af", "ai", "am", "an", "ao", "ax", "fa", "ff", "fi", "fm", "fn", "fo", "fx", "ma", "mf", "mi", "mm", "mn", "mo", "mx", "na", "nf", "ni", "nm", "nn", "no", "nx", "oa", "of", "oi", "om", "on", "oo", "ox"]):
         return 400, {
             "success": False,
-            "reason": f"Invalid pronoun string '{pronouns}'. If this is a bug, please report this."
+            "reason": lang["settings"]["profile_pronouns_invalid"].replace("%s", pronouns)
         }
 
     if (len(displ_name) > MAX_DISPL_NAME_LENGTH or len(displ_name) < 1) or (ENABLE_USER_BIOS and len(bio) > MAX_BIO_LENGTH):
         return 400, {
             "success": False,
-            "reason": f"Invalid name length. Must be between 1 and {MAX_DISPL_NAME_LENGTH} characters after minifying whitespace."
+            "reason": lang["settings"]["profile_display_name_invalid_length"].replace("%s", str(MAX_DISPL_NAME_LENGTH))
         }
 
     if color[0] != "#" or len(color) != 7 or (ENABLE_GRADIENT_BANNERS and (color_two[0] != "#" or len(color_two) != 7)):
         return 400, {
         "success": False,
-        "reason": "Color very no tasty"
+        "reason": lang["settings"]["profile_color_invalid"]
     }
 
     for i in color[1::]:
         if i not in "abcdef0123456789":
             return 400, {
                 "success": False,
-                "reason": "Color no tasty"
+                "reason": lang["settings"]["profile_color_invalid"]
             }
 
     if ENABLE_GRADIENT_BANNERS:
@@ -195,10 +204,14 @@ def settings(request, data: Settings) -> tuple | dict:
             if i not in "abcdef0123456789":
                 return 400, {
                     "success": False,
-                    "reason": "Color no yummy"
+                    "reason": lang["settings"]["profile_color_invalid"]
                 }
 
-    user = User.objects.get(token=token)
+    if language not in [i["code"] for i in VALID_LANGUAGES]:
+        return 400, {
+            "success": False,
+            "reason": lang["settings"]["invalid_language"].replace("%s", language)
+        }
 
     user.color = color
 
@@ -215,6 +228,8 @@ def settings(request, data: Settings) -> tuple | dict:
     if ENABLE_PRONOUNS:
         user.pronouns = pronouns
 
+    user.language = language
+
     user.save()
 
     return {
@@ -226,20 +241,22 @@ def follower_add(request, data: Username) -> tuple | dict:
 
     token = request.COOKIES.get('token')
     username = data.username.lower()
+    user = User.objects.get(token=token)
 
     if not validate_username(username):
+        lang = get_lang(user)
         return 400, {
             "valid": False,
-            "reason": f"Account with username '{username}' doesn't exist."
+            "reason": lang["account"]["username_does_not_exist"].replace("%s", data.username)
         }
 
-    user = User.objects.get(token=token)
     followed = User.objects.get(username=username)
 
     if followed.user_id in user.blocking:
+        lang = get_lang(user)
         return 400, {
             "valid": False,
-            "reason": "You can't follow an account you're blocking!"
+            "reason": lang["account"]["follow_blocking"]
         }
 
     if followed.user_id not in user.following:
@@ -247,7 +264,7 @@ def follower_add(request, data: Username) -> tuple | dict:
         user.save()
 
     if user.user_id not in followed.followers:
-        followed.followers.append(user.user_id) # type: ignore
+        followed.followers.append(user.user_id)
         followed.save()
 
     return 201, {
@@ -259,14 +276,15 @@ def follower_remove(request, data: Username) -> tuple | dict:
 
     token = request.COOKIES.get('token')
     username = data.username.lower()
+    user = User.objects.get(token=token)
 
     if not validate_username(username):
+        lang = get_lang(user)
         return 400, {
             "valid": False,
-            "reason": f"Account with username '{username}' doesn't exist."
+            "reason": lang["account"]["username_does_not_exist"].replace("%s", data.username)
         }
 
-    user = User.objects.get(token=token)
     followed = User.objects.get(username=username)
     if user.user_id != followed.user_id:
         if followed.user_id in user.following :
@@ -290,19 +308,20 @@ def block_add(request, data: Username) -> tuple | dict:
 
     token = request.COOKIES.get('token')
     username = data.username.lower()
-
-    if not validate_username(username):
-        return 400, {
-            "success": False,
-            "reason": f"Account with username '{username}' doesn't exist."
-        }
-
     user = User.objects.get(token=token)
 
-    if user.username == username:
+    if not validate_username(username):
+        lang = get_lang(user)
         return 400, {
             "success": False,
-            "reason": "Huh? Look, I get you hate yourself, but I can't let you do that."
+            "reason": lang["account"]["username_does_not_exist"].replace("%s", data.username)
+        }
+
+    if user.username == username:
+        lang = get_lang(user)
+        return 400, {
+            "success": False,
+            "reason": lang["account"]["block_self"]
         }
 
     blocked = User.objects.get(username=username)
@@ -327,19 +346,20 @@ def block_remove(request, data: Username) -> tuple | dict:
 
     token = request.COOKIES.get('token')
     username = data.username.lower()
-
-    if not validate_username(username):
-        return 400, {
-            "success": False,
-            "reason": f"Account with username '{username}' doesn't exist."
-        }
-
     user = User.objects.get(token=token)
 
-    if user.username == username:
+    if not validate_username(username):
+        lang = get_lang(user)
         return 400, {
             "success": False,
-            "reason": "You cannot block youritdiot!!"
+            "reason": lang["account"]["username_does_not_exist"].replace("%s", data.username)
+        }
+
+    if user.username == username:
+        lang = get_lang(user)
+        return 400, {
+            "success": False,
+            "reason": lang["account"]["block_self"]
         }
 
     blocked = User.objects.get(username=username)
@@ -377,15 +397,17 @@ def change_password(request, data: ChangePassword) -> tuple | dict:
             }
 
     if data.password == "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855":
+        lang = get_lang(user)
         return 400, {
             "success": False,
-            "reason": "Password cannot be empty!"
+            "reason": lang["account"]["password_empty"]
         }
 
     if generate_token(user.username, data.password) != request.COOKIES.get("token"):
+        lang = get_lang(user)
         return 400, {
             "success": False,
-            "reason": "Old password doesn't match!"
+            "reason": lang["account"]["password_match_failure"]
         }
 
     new_token = generate_token(user.username, data.new_password)

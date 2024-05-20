@@ -1,0 +1,16 @@
+{
+  "meta": {
+    "fallback": ["en-US"],
+    "name": "English (Great Britain)",
+    "version": "1.0",
+    "maintainers": ["trinkey"]
+  },
+
+  "texts": {
+    "settings": {
+      "profile_banner_title": "Banner colour",
+      "profile_banner_invalid_color": "Colour no tasty",
+      "cosmetic_color": "Colour"
+    }
+  }
+}

@@ -23,6 +23,8 @@ class User(models.Model):
     gradient  = models.BooleanField(default=False)
     private   = models.BooleanField()
 
+    language = models.CharField(max_length=5, blank=True)
+
     following = models.JSONField(default=list, blank=True)
     followers = models.JSONField(default=list, blank=True)
     blocking  = models.JSONField(default=list, blank=True)

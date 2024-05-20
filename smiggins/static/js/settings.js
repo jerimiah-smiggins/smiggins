@@ -3,7 +3,7 @@ let home = true;
 
 let output = "<select id=\"color\">";
 for (const color of validColors) {
-  output += `<option ${((localStorage.getItem("color") == color || (!localStorage.getItem("color") && color == "mauve")) ? "selected" : "")} value="${color}">${color.charAt(0).toUpperCase() + color.slice(1)}</option>`;
+  output += `<option ${((localStorage.getItem("color") == color || (!localStorage.getItem("color") && color == "mauve")) ? "selected" : "")} value="${color}">${lang.generic.colors[color]}</option>`;
 }
 output += "</select><br><br>";
 
@@ -19,7 +19,6 @@ if (ENABLE_PRONOUNS && user_pronouns.includes("_")) {
 let currentAccount = document.cookie.match(/token=([a-f0-9]{64})/)[0].split("=")[1];
 let accounts = JSON.parse(localStorage.getItem("acc-switcher") || JSON.stringify([[localStorage.getItem("username"), currentAccount]]));
 if (!localStorage.getItem("username")) {
-  showlog("Username couldn't be loaded! Try reloading the page?", 10_000);
   dom("switcher").setAttribute("hidden", "");
 }
 
@@ -47,8 +46,8 @@ dom("color-selector").innerHTML = output;
 dom("post-example").innerHTML = getPostHTML(
   {
     "creator": {
-      "display_name": "Example",
-      "username": "example",
+      "display_name": lang.settings.cosmetic_example_post_display_name,
+      "username": lang.settings.cosmetic_example_post_username,
       "badges": ["administrator"],
       "private": false,
       "pronouns": "aa",
@@ -57,7 +56,7 @@ dom("post-example").innerHTML = getPostHTML(
       "gradient_banner": true
     },
     "post_id": 0,
-    "content": "This is an example post. I am @example.",
+    "content": lang.settings.cosmetic_example_post_content,
     "timestamp": Date.now() / 1000 - Math.random() * 86400,
     "liked": true,
     "likes": Math.floor(Math.random() * 99) + 1,
@@ -122,7 +121,7 @@ for (const acc of accounts) {
 function setUnload() {
   if (!window.onbeforeunload) {
     window.onbeforeunload = function() {
-      return 'You have unsaved changes! Are you sure you want to leave?';
+      return lang.settings.unload;
     };
   }
 }
@@ -153,14 +152,14 @@ dom("theme").addEventListener("change", function() {
   .then((response) => (response.json()))
   .then((json) => {
     if (!json.success) {
-      showlog("Something went wrong! Try again in a few moments...");
+      showlog(lang.generic.something_went_wrong);
     }
       dom("theme").removeAttribute("disabled");
       document.querySelector("body").setAttribute("data-theme", dom("theme").value);
     })
     .catch((err) => {
       dom("theme").removeAttribute("disabled");
-      showlog("Something went wrong! Try again in a few moments...");
+      showlog(lang.generic.something_went_wrong);
       throw(err);
     });
 });
@@ -171,6 +170,7 @@ dom("save").addEventListener("click", function() {
   dom("save").setAttribute("disabled", "");
   dom("displ-name").setAttribute("disabled", "");
   dom("banner-color").setAttribute("disabled", "");
+  dom("lang").setAttribute("disabled", "");
   ENABLE_GRADIENT_BANNERS && dom("banner-color-two").setAttribute("disabled", "");
   ENABLE_GRADIENT_BANNERS && dom("banner-is-gradient").setAttribute("disabled", "");
 
@@ -178,6 +178,7 @@ dom("save").addEventListener("click", function() {
     method: "PATCH",
     body: JSON.stringify({
       bio: ENABLE_USER_BIOS ? dom("bio").value : "",
+      lang: dom("lang").value,
       priv: dom("priv").checked,
       color: dom("banner-color").value,
       pronouns: ENABLE_PRONOUNS ? user_pronouns : "__",
@@ -189,9 +190,9 @@ dom("save").addEventListener("click", function() {
     .then((json) => {
       if (json.success) {
         window.onbeforeunload = null;
-        showlog("Success!");
+        showlog(lang.generic.success);
       } else {
-        showlog(`Unable to save! Reason: ${json.reason}`);
+        showlog(`${lang.generic.something_went_wrong} ${lang.generic.reason.replaceAll("%s", json.reason)}`);
       }
 
       throw "ermmm what the flip";
@@ -202,6 +203,7 @@ dom("save").addEventListener("click", function() {
       dom("save").removeAttribute("disabled");
       dom("displ-name").removeAttribute("disabled");
       dom("banner-color").removeAttribute("disabled");
+      dom("lang").removeAttribute("disabled");
       ENABLE_GRADIENT_BANNERS && dom("banner-color-two").removeAttribute("disabled");
       ENABLE_GRADIENT_BANNERS && dom("banner-is-gradient").removeAttribute("disabled");
     });
@@ -229,7 +231,7 @@ dom("acc-switch").addEventListener("click", function() {
 dom("acc-remove").addEventListener("click", function() {
   let removed = dom("accs").value.split("-", 2);
   if (removed[0] == currentAccount) {
-    showlog("You can't remove the account you're currently signed into!");
+    showlog(lang.settings.account_switcher_remove_error);
   } else {
     for (let i = 0; i < accounts.length; i++) {
       if (accounts[i][1] == removed[0]) {
@@ -259,7 +261,7 @@ dom("set-password").addEventListener("click", function() {
   let password = sha256(dom("password").value)
 
   if (password !== sha256(dom("confirm").value)) {
-    showlog("Passwords don't match!");
+    showlog(lang.account.password_match_failure);
     return;
   }
 
@@ -283,15 +285,15 @@ dom("set-password").addEventListener("click", function() {
         }
         localStorage.setItem("acc-switcher", JSON.stringify(switcher));
 
-        showlog("Your password has been changed!", 5000);
+        showlog(lang.settings.account_password_success, 5000);
       } else {
-        showlog(`Unable to set your password! ${json.reason}`);
+        showlog(lang.settings.account_password_failure.replaceAll("%s", json.reason));
       }
 
       this.removeAttribute("disabled");
     }).catch((err) => {
       this.removeAttribute("disabled");
-      showlog("Something went wrong! Try again in a few moments...");
+      showlog(lang.generic.something_went_wrong);
       throw err;
     });
 });

@@ -4,7 +4,7 @@ const includeUserLink = true;
 const includePostLink = true;
 
 if (!logged_in) {
-  dom("more-container").innerHTML = "<a href=\"/signup\">Sign up</a> to see more!";
+  dom("more-container").innerHTML = lang.generic.see_more.replaceAll("%s", `<a href="/signup">${lang.account.sign_up_title}</a>`);
   dom("post-text").setAttribute("hidden", "");
   dom("post").setAttribute("hidden", "");
   dom("hide-me").setAttribute("hidden", "");
@@ -32,14 +32,14 @@ dom("post").addEventListener("click", function() {
         dom("post").removeAttribute("disabled");
         dom("post-text").removeAttribute("disabled");
         if (response.status == 429) {
-          showlog("You are being ratelimited! Try again in a few moments...");
+          showlog(lang.generic.ratelimit_verbose);
         } else {
           response.json().then((json) => {
             if (json.success) {
               dom("post-text").value = "";
               refresh();
             } else {
-              showlog("Something went wrong! Try again in a few moments...");
+              showlog(lang.generic.something_went_wrong);
             }
           })
         }
@@ -47,7 +47,7 @@ dom("post").addEventListener("click", function() {
       .catch((err) => {
         dom("post").removeAttribute("disabled");
         dom("post-text").removeAttribute("disabled");
-        showlog("Something went wrong! Try again in a few moments...");
+        showlog(lang.generic.something_went_wrong);
         throw(err);
       });
   }

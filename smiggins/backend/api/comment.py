@@ -2,7 +2,7 @@
 
 from .._settings import MAX_POST_LENGTH, API_TIMINGS, OWNER_USER_ID, POSTS_PER_REQUEST
 from ..packages  import Comment, User, Post, time, Schema
-from ..helper    import trim_whitespace, create_api_ratelimit, ensure_ratelimit, get_post_json, log_admin_action, create_notification, find_mentions
+from ..helper    import trim_whitespace, create_api_ratelimit, ensure_ratelimit, get_post_json, log_admin_action, create_notification, find_mentions, get_lang, DEFAULT_LANG
 
 class NewComment(Schema):
     content: str
@@ -104,19 +104,21 @@ def comment_list(request, id: int, comment: bool, offset: int=-1) -> tuple | dic
 
     try:
         user = User.objects.get(token=token)
+        lang = get_lang(user)
         logged_in = True
     except User.DoesNotExist:
+        lang = DEFAULT_LANG
         logged_in = False
 
     try:
         if id < 0 or (Comment.objects.latest('comment_id').comment_id if comment else Post.objects.latest('post_id').post_id) < id:
             return 400, {
-                "reason": "Idk your id is not right at all"
+                "reason": lang["post"]["commend_id_does_not_exist"]
             }
 
     except ValueError:
         return 400, {
-            "reason": "Your id broke soemthing owo"
+            "reason": lang["post"]["invalid_comment_id"]
         }
 
     if comment:

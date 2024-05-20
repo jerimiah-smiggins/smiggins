@@ -18,7 +18,7 @@ dom("submit").addEventListener("click", function() {
   this.setAttribute("disabled", "");
   let username = dom("username").value;
   let password = sha256(dom("password").value);
-
+0
   fetch("/api/user/login", {
     method: "POST",
     headers: {
@@ -33,7 +33,7 @@ dom("submit").addEventListener("click", function() {
       if (response.status == 429) {
         dom("post").removeAttribute("disabled");
         dom("post-text").removeAttribute("disabled");
-        showlog("You are being ratelimited! Try again in a few moments...");
+        showlog(lang.generic.ratelimit_verbose);
       } else {
         response.json().then((json) => {
           if (json.valid) {
@@ -41,14 +41,14 @@ dom("submit").addEventListener("click", function() {
             window.location.href = "/home";
           } else {
             dom("submit").removeAttribute("disabled")
-            showlog(`Unable to login! Reason: ${json.reason}`);
+            showlog(lang.account.log_in_failure.replaceAll("%s", json.reason));
           }
         })
       }
     })
     .catch((err) => {
       dom("submit").removeAttribute("disabled")
-      showlog("Something went wrong! Try again in a few moments...");
+      showlog(lang.generic.something_went_wrong);
       throw(err);
     });
 });

@@ -10,10 +10,6 @@
   background: linear-gradient(90deg, var(--banner), var(--banner-two));
 }
 
-#block {
-  width: 6em;
-}
-
 #username-main {
   display: inline-block;
   font-size: 2em;
@@ -45,11 +41,6 @@
 
 #username-lower {
   color: var(--subtext0);
-}
-
-#toggle,
-#message {
-  width: 6em;
 }
 
 @media screen and (max-width: 565px) {

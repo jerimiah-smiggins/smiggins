@@ -2,7 +2,7 @@
 
 <html>
   <head>
-    <title>Redirecting you shortly...</title>
+    <title>{{ lang.account.log_out_title }}</title>
     {% autoescape off %}
     {{ HTML_HEADERS }}
     {% endautoescape %}
@@ -20,7 +20,9 @@
   </head>
 
   <body data-theme="{{ THEME }}">
-    If you don't get redirected soon, click <a href="/">here...</a>
+    {% autoescape off %}
+    {{ lang.account.log_out_description }}
+    {% endautoescape %}
     <script>
       localStorage.removeItem("home-page");
       localStorage.removeItem("username")

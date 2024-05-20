@@ -6,13 +6,11 @@ from ..packages import User
 def username(request) -> tuple | dict:
     # Returns the username from token
 
-    token = request.COOKIES.get('token')
     try:
-        user = User.objects.get(token=token)
+        user = User.objects.get(token=request.COOKIES.get('token'))
     except User.DoesNotExist:
         return 400, {
             "success": False,
-            "reason": "Invalid token"
         }
 
     return {
@@ -23,13 +21,11 @@ def username(request) -> tuple | dict:
 def notifications(request) -> tuple | dict:
     # Returns whether or not you have unread notifications
 
-    token = request.COOKIES.get('token')
     try:
-        user = User.objects.get(token=token)
+        user = User.objects.get(token=request.COOKIES.get('token'))
     except User.DoesNotExist:
         return 400, {
             "success": False,
-            "reason": "Invalid token"
         }
 
     return {

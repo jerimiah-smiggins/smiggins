@@ -2,7 +2,7 @@
 
 from .._settings import API_TIMINGS, MAX_POST_LENGTH, POSTS_PER_REQUEST, OWNER_USER_ID
 from ..packages  import User, Post, Comment, Hashtag, time, sys, Schema, random
-from ..helper    import ensure_ratelimit, create_api_ratelimit, validate_username, trim_whitespace, get_post_json, log_admin_action, create_notification, find_mentions, find_hashtags
+from ..helper    import ensure_ratelimit, create_api_ratelimit, validate_username, trim_whitespace, get_post_json, log_admin_action, create_notification, find_mentions, find_hashtags, get_lang, DEFAULT_LANG
 
 class NewPost(Schema):
     content: str
@@ -18,26 +18,28 @@ def post_create(request, data: NewPost) -> tuple | dict:
     # Called when a new post is created.
 
     token = request.COOKIES.get('token')
+    user = User.objects.get(token=token)
 
     if not ensure_ratelimit("api_post_create", token):
+        lang = get_lang(user)
         return 429, {
             "success": False,
-            "reason": "Ratelimited"
+            "reason": lang["generic"]["ratelimit"]
         }
 
     content = trim_whitespace(data.content)
 
     if len(content) > MAX_POST_LENGTH or len(content) < 1:
         create_api_ratelimit("api_post_create", API_TIMINGS["create post failure"], token)
+        lang = get_lang(user)
         return 400, {
             "success": False,
-            "reason": f"Invalid post length. Must be between 1 and {MAX_POST_LENGTH} characters."
+            "reason": lang["post"]["invalid_length"].replace("%s", str(MAX_POST_LENGTH))
         }
 
     create_api_ratelimit("api_post_create", API_TIMINGS["create post"], token)
 
     timestamp = round(time.time())
-    user = User.objects.get(token=token)
     post = Post.objects.create(
         content = content,
         creator = user.user_id,
@@ -85,8 +87,10 @@ def quote_create(request, data: NewQuote) -> tuple | dict:
     # Called when a post is quoted.
 
     token = request.COOKIES.get('token')
+    user = User.objects.get(token=token)
 
     if not ensure_ratelimit("api_post_create", token):
+        lang = get_lang(user)
         return 429, {
             "success": False,
             "reason": "Ratelimited"
@@ -96,29 +100,31 @@ def quote_create(request, data: NewQuote) -> tuple | dict:
         quoted_post = (Comment if data.quote_is_comment else Post).objects.get(pk=data.quote_id)
 
     except Post.DoesNotExist:
+        lang = get_lang(user)
         return 400, {
             "success": False,
-            "reason": "The post you're quoting doesn't exist!"
+            "reason": lang["post"]["invalid_quote_post"]
         }
     except Comment.DoesNotExist:
+        lang = get_lang(user)
         return 400, {
             "success": False,
-            "reason": "The comment you're quoting doesn't exist!"
+            "reason": lang["post"]["invalid_quote_comment"]
         }
 
     content = trim_whitespace(data.content)
 
     if len(content) > MAX_POST_LENGTH or len(content) < 1:
         create_api_ratelimit("api_post_create", API_TIMINGS["create post failure"], token)
+        lang = get_lang(user)
         return 400, {
             "success": False,
-            "reason": f"Invalid post length. Must be between 1 and {MAX_POST_LENGTH} characters."
+            "reason": lang["post"]["invalid_length"].replace("%s", str(MAX_POST_LENGTH))
         }
 
     create_api_ratelimit("api_post_create", API_TIMINGS["create post"], token)
 
     timestamp = round(time.time())
-    user = User.objects.get(token=token)
     post = Post.objects.create(
         content = content,
         creator = user.user_id,
@@ -188,8 +194,7 @@ def hashtag_list(request, hashtag: str, offset: int=-1) -> tuple | dict:
         random.shuffle(posts)
     except Hashtag.DoesNotExist:
         return 400, {
-            "success": False,
-            "reason": "Hashtag not found"
+            "success": False
         }
 
     removed = False
@@ -220,15 +225,13 @@ def post_list_following(request, offset: int=-1) -> tuple | dict:
     # Called when the following tab is refreshed.
 
     token = request.COOKIES.get('token')
-
     offset = sys.maxsize if offset == -1 else offset
 
     try:
         user = User.objects.get(token=token)
     except User.DoesNotExist:
         return 400, {
-            "success": False,
-            "reason": "Invalid token"
+            "success": False
         }
 
     potential = []
@@ -319,19 +322,21 @@ def post_list_recent(request, offset: int=-1) -> tuple | dict:
 def post_list_user(request, username: str, offset: int=-1) -> tuple | dict:
     # Called when getting posts from a specific user.
 
+    try:
+        self_user = User.objects.get(token=request.COOKIES.get("token"))
+        lang = get_lang(self_user)
+        logged_in = True
+    except User.DoesNotExist:
+        lang = DEFAULT_LANG
+        logged_in = False
+
     if not validate_username(username):
         return 404, {
-            "reason" : "Username is insvalagaeg... LOOK JUST SHUT UP"
+            "reason" : lang["post"]["invalid_username"]
         }
 
     offset = sys.maxsize if offset == -1 or not isinstance(offset, int) else offset
     user = User.objects.get(username=username)
-
-    try:
-        self_user = User.objects.get(token=request.COOKIES.get("token"))
-        logged_in = True
-    except User.DoesNotExist:
-        logged_in = False
 
     if user.private and (not logged_in or self_user.user_id not in user.following):
         return {

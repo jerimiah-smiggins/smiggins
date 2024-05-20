@@ -63,11 +63,11 @@ function refresh(force_offset=false) {
         }
       }
     })
-    // .catch((err) => {
-    //   --c;
-    //   showlog("Something went wrong loading the posts! Try again in a few moments...", 5000);
-    //   throw(err);
-    // });
+    .catch((err) => {
+      --c;
+      showlog(lang.generic.something_went_wrong, 5000);
+      throw(err);
+    });
 }
 
 function deletePost(post_id, isComment, pageFocus) {
@@ -95,17 +95,11 @@ if (typeof logged_in === "undefined" || logged_in) {
 
     let c = 0;
 
-    const quotePlaceholders = [
-      "What did they do this time?",
-      "Yet another mistake to point out?",
-      "Ugh... not again..."
-    ];
-
     post.innerHTML = `
       <div class="log"></div>
-      <textarea class="post-text" maxlength="${MAX_POST_LENGTH}" placeholder="${quotePlaceholders[Math.floor(Math.random() * quotePlaceholders.length)]}"></textarea><br>
-      <button class="post-button inverted">Post</button>
-      <button class="cancel-button inverted">Cancel</button>
+      <textarea class="post-text" maxlength="${MAX_POST_LENGTH}" placeholder="${lang.home.quote_placeholders[Math.floor(Math.random() * lang.home.quote_placeholders.length)]}"></textarea><br>
+      <button class="post-button inverted">${lang.generic.post}</button>
+      <button class="cancel-button inverted">${lang.generic.cancel}</button>
     `;
 
     post.querySelector("button.post-button").addEventListener("click", function() {
@@ -197,10 +191,10 @@ function pinPost(postID) {
         if (window.location.href.includes("/u/")) {
           refresh();
         } else {
-          showlog("Success!");
+          showlog(lang.generic.success);
         }
       } else {
-        showlog("Something went wrong!");
+        showlog(lang.generic.something_went_wrong);
       }
     });
 }
@@ -213,7 +207,7 @@ function unpinPost() {
       if (json.success) {
         refresh();
       } else {
-        showlog("Something went wrong!");
+        showlog(lang.generic.something_went_wrong);
       }
     });
 }
