@@ -301,7 +301,7 @@ def badge_delete(request, data: DeleteBadge) -> tuple | dict:
             "success": True
         }
 
-    log_admin_action("Delete badge", self_user, f"Failed, too low of an admin level")
+    log_admin_action("Delete badge", self_user, "Failed, too low of an admin level")
     return 400, {
         "success": False
     }

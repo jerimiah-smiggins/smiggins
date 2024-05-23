@@ -1,5 +1,5 @@
 from pathlib import Path
-from backend._settings import DEBUG
+from backend._settings import DEBUG  # noqa: F401
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent

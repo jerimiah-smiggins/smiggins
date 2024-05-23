@@ -1,0 +1,7 @@
+{
+  "python.analysis.typeCheckingMode": "basic",
+
+  "[markdown]": {
+    "editor.rulers": [80]
+  }
+}
