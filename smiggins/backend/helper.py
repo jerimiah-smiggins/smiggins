@@ -46,6 +46,7 @@ def get_HTTP_response(request, file: str, lang_override: dict | None=None, **kwa
         "HTML_HEADERS": f"<script>const lang={json.dumps(lang)};</script>{HTML_HEADERS}",
         "HTML_FOOTERS": HTML_FOOTERS,
 
+        "MAX_USERNAME_LENGTH": MAX_USERNAME_LENGTH,
         "MAX_POST_LENGTH": MAX_POST_LENGTH,
         "MAX_DISPL_NAME_LENGTH": MAX_DISPL_NAME_LENGTH,
         "MAX_BIO_LENGTH": MAX_BIO_LENGTH,
