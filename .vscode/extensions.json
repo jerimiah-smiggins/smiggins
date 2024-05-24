@@ -1,3 +1,9 @@
 {
-  "recommendations": ["charliermarsh.ruff", "ms-python.vscode-pylance"]
+  "recommendations": [
+    "charliermarsh.ruff",
+    "ms-python.vscode-pylance",
+
+    "streetsidesoftware.code-spell-checker",
+    "streetsidesoftware.code-spell-checker-esperanto"
+  ]
 }

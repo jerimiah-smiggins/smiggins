@@ -15,7 +15,7 @@ if not os.path.exists("db.sqlite3"):
 os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'smiggins.settings')
 django.setup()
 
-from posts.models import User, Post, Comment # type: ignore
+from posts.models import User, Post, Comment # noqa: E402 # type: ignore
 
 for user in User.objects.all():
     user.likes = []

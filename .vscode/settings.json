@@ -3,5 +3,34 @@
 
   "[markdown]": {
     "editor.rulers": [80]
-  }
+  },
+
+  "cSpell.ignoreWords": [
+    // Site name
+    "smiggins",
+
+    // Backend variable names
+    "subcomment",
+    "displ",
+    "ratelimit",
+    "ratelimited",
+    "notif",
+    "notifs",
+
+    // Strings that get detected as words
+    "sfjl",
+    "gbdjm",
+    "nkcdd",
+    "ufeff",
+
+    // Frontend variable names
+    "showlog",
+    "maxlength"
+  ],
+
+  "cSpell.ignorePaths": [
+    ".vscode/"
+  ],
+
+  "cSpell.language": "en,en-GB,en-US,lorem,eo"
 }

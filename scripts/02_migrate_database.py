@@ -2,6 +2,8 @@
 # Run this file in the folder with the manage.py file
 
 import os
+import json
+import django
 
 if not os.path.exists("manage.py"):
     print("Make sure you are running this in the same folder as the manage.py file!")
@@ -24,13 +26,10 @@ if not os.path.isdir(save_folder):
 if save_folder[-1] == "/":
     save_folder = save_folder[:-1:]
 
-import json
-import django
-
 os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'smiggins.settings')
 django.setup()
 
-from posts.models import User, Post, Comment
+from posts.models import User, Post, Comment # noqa: E402 # type: ignore
 
 User.objects.all().delete()
 Post.objects.all().delete()
