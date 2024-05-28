@@ -133,7 +133,7 @@ def login(request, data: Account) -> tuple | dict:
         create_api_ratelimit("api_account_login", API_TIMINGS["login unsuccessful"], request.META.get('REMOTE_ADDR'))
         return {
             "valid": False,
-            "reason": DEFAULT_LANG["account"]["username_does_not_exist"].replaceAll("%s", data.username)
+            "reason": DEFAULT_LANG["account"]["username_does_not_exist"].replace("%s", data.username)
         }
 
 def settings_theme(request, data: Theme) -> tuple | dict:

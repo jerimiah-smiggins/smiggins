@@ -1,7 +1,7 @@
 # Contains helper functions. These aren't for routing, instead doing something that can be used in other places in the code.
 
-from ._settings import SITE_NAME, VERSION, SOURCE_CODE, MAX_DISPL_NAME_LENGTH, MAX_POST_LENGTH, MAX_USERNAME_LENGTH, RATELIMIT, OWNER_USER_ID, ADMIN_LOG_PATH, MAX_ADMIN_LOG_LINES, MAX_NOTIFICATIONS, MAX_BIO_LENGTH, ENABLE_USER_BIOS, ENABLE_PRONOUNS, ENABLE_GRADIENT_BANNERS, ENABLE_BADGES, ENABLE_PRIVATE_MESSAGES, ENABLE_QUOTES, ENABLE_POST_DELETION, DEFAULT_LANGUAGE
-from .variables import HTML_FOOTERS, HTML_HEADERS, PRIVATE_AUTHENTICATOR_KEY, timeout_handler, BASE_DIR
+from ._settings import SITE_NAME, VERSION, SOURCE_CODE, MAX_DISPL_NAME_LENGTH, MAX_POST_LENGTH, MAX_USERNAME_LENGTH, RATELIMIT, OWNER_USER_ID, ADMIN_LOG_PATH, MAX_ADMIN_LOG_LINES, MAX_NOTIFICATIONS, MAX_BIO_LENGTH, ENABLE_USER_BIOS, ENABLE_PRONOUNS, ENABLE_GRADIENT_BANNERS, ENABLE_BADGES, ENABLE_PRIVATE_MESSAGES, ENABLE_QUOTES, ENABLE_POST_DELETION, DEFAULT_LANGUAGE, CACHE_LANGUAGES
+from .variables import HTML_FOOTERS, HTML_HEADERS, PRIVATE_AUTHENTICATOR_KEY, timeout_handler, BASE_DIR, VALID_LANGUAGES
 from .packages  import Callable, Any, HttpResponse, HttpResponseRedirect, loader, User, Comment, Post, Notification, threading, hashlib, time, re, json
 
 if ADMIN_LOG_PATH[:2:] == "./":
@@ -385,13 +385,16 @@ def create_notification(
 def get_container_id(user_one: str, user_two: str) -> str:
     return f"{user_one}:{user_two}" if user_two > user_one else f"{user_two}:{user_one}"
 
-def get_lang(user: User | None=None) -> dict[str, dict]:
-    # Gets the language file for the specified user
+def get_lang(lang: User | str | None=None, override_cache=False) -> dict[str, dict]:
+    # Gets the language file for the specified user/language
 
-    if isinstance(user, User):
-        lang = user.language or DEFAULT_LANGUAGE
-    else:
+    if isinstance(lang, User):
+        lang = lang.language or DEFAULT_LANGUAGE
+    elif not isinstance(lang, str):
         lang = DEFAULT_LANGUAGE
+
+    if not override_cache and CACHE_LANGUAGES:
+        return LANGS[lang]
 
     parsed = []
 
@@ -428,5 +431,10 @@ def get_lang(user: User | None=None) -> dict[str, dict]:
         return context
 
     return resolve_dependencies(lang)
+
+LANGS = {}
+if CACHE_LANGUAGES:
+    for i in VALID_LANGUAGES:
+        LANGS[i["code"]] = get_lang(i["code"], True)
 
 DEFAULT_LANG = get_lang()

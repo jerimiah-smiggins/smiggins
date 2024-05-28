@@ -10,7 +10,7 @@ from django.db.utils import OperationalError
 BASE_DIR = pathlib.Path(__file__).resolve().parent.parent
 
 VALID_LANGUAGES_TEMP = [i for i in os.listdir(BASE_DIR / "lang") if len(i) <= 10 and i[-5::] == ".json"]
-VALID_LANGUAGES = []
+VALID_LANGUAGES: list[dict[str, str]] = []
 
 for i in sorted(VALID_LANGUAGES_TEMP):
     f = json.load(open(BASE_DIR / f"lang/{i}"))
