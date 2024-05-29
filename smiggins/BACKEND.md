@@ -21,7 +21,7 @@ python file (`python3 manage.py`). The most useful commands are:
   folder. This should be used when creating a production server, and shouldn't
   ever need to be used in normal debugging.
 
-## ./backend/api/__init__.py
+## ./backend/api/\_\_init\_\_.py
 This file collects all of the api functions and turns them into sorted classes.
 
 ```py
@@ -586,6 +586,22 @@ The default language of the server. Should be chosen from one of the files in
 the `./lang/` folder, omitting the `.json` file extension. Ex: `"en-US"`
 
 ```py
+CACHE_LANGUAGES: bool
+```
+Whether or not to cache languages. If this is on, then more ram will be used to
+store them, however in the long run it will take a bit less CPU usage and disk
+usage. If you are testing/creating a language, turn this OFF to make the
+language refresh automatically.
+
+```py
+ALLOW_SCRAPING: bool
+```
+Whether or not to legally allow other services to scrape your website. This does
+NOT affect indexing for search engines. This is done by setting the
+`TDM-Reservation` header to 0 if allowed, 1 if disallowed. Read more here:
+https://www.w3.org/community/reports/tdmrep/CG-FINAL-tdmrep-20240202/
+
+```py
 MAX_USERNAME_LENGTH: int
 ```
 The maximum length for a username. Must be between 1 and 200.
@@ -889,6 +905,15 @@ def get_lang(
 ```
 Returns the language dict for the specified user, or the default configured in
 `./backend/_settings.py` if no user is specified.
+
+## ./backend/middleware.py
+This file contains any scripts that are ran between requests
+
+```py
+class AddTDMReservation
+```
+Sets the `TDM-Reservation` header based on the setting specified in
+`./backend/settings.py`
 
 ## ./backend/packages.py
 This file is just for importing packages and libraries to be used across the
