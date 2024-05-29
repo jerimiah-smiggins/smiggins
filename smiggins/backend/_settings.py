@@ -5,7 +5,7 @@
 # -- General Site Configuration --
 
 # Version displayed.
-VERSION: str = "0.9.1"
+VERSION: str = "0.9.2"
 
 # What to have the site name be.
 SITE_NAME: str = "Jerimiah Smiggins"
