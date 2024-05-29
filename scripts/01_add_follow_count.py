@@ -9,10 +9,7 @@ followers = [-1 for _ in range(max([int(i) for i in user_list]))]
 
 for i in user_list:
     for o in json.loads(open(f"./users/{i}/settings.json", "r").read())["following"]:
-        try:
-            followers[o - 1] += 1
-        except:
-            print(i, o)
+        followers[o - 1] += 1
 
 for i in user_list:
     user_json = json.loads(open(f"./users/{i}/settings.json", "r").read())

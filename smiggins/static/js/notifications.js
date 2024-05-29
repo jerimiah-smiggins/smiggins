@@ -1,11 +1,5 @@
 let home = true;
-let req = 0, inc = 0;
-
-showlog = (str, time=3000) => {
-  inc++;
-  dom("error").innerText = str;
-  setTimeout(() => { req++; if (req == inc) { dom("error").innerText = ""; }}, time);
-};
+let disableTimeline = true;
 
 function refresh() {
   dom("notif-container").innerHTML = "";
@@ -30,18 +24,11 @@ function refresh() {
               yourMother = true;
             }
 
-            notif.data.can_delete = false;
-            notif.data.can_pin = false;
-
             y.innerHTML += escapeHTML(lang.notifications[notif.event_type].replaceAll("%s", notif.data.creator.display_name)) + "<br>";
             y.innerHTML += getPostHTML(
               notif.data, // postJSON
-              ["comment", "ping_c"].includes(notif.event_type), // isComment
-              true,      // includeUserLink
-              true,      // includePostLink
-              false      // isOwner
-            ).replaceAll("<button", "<button disabled")
-            .replace("\"post\"", yourMother ? "\"post\" data-color='gray'" : "\"post\"");
+              ["comment", "ping_c"].includes(notif.event_type),
+            ).replace("\"post\"", yourMother ? "\"post\" data-color='gray'" : "\"post\"");
 
             x.append(y);
             x.append(document.createElement("br"));

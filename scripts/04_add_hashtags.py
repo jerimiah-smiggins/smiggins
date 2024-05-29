@@ -18,8 +18,8 @@ if not os.path.exists("db.sqlite3"):
 os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'smiggins.settings')
 django.setup()
 
-from posts.models import Hashtag, Post # type: ignore
-from backend.helper import find_hashtags
+from posts.models import Hashtag, Post # noqa: E402 # type: ignore
+from backend.helper import find_hashtags # noqa: E402 # type: ignore
 
 Hashtag.objects.all().delete()
 all_posts = Post.objects.all()

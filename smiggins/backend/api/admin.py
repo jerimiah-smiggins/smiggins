@@ -191,7 +191,7 @@ def badge_create(request, data: NewBadge) -> tuple | dict:
             }
 
         for i in badge_name:
-            if i not in "abcdefghijklmnopqrstuvxyz0123456789_":
+            if i not in "abcdefghijklmnopqrstuvwxyz0123456789_":
                 log_admin_action("Create badge", self_user, f"Invalid badge name {badge_name}")
                 lang = get_lang(self_user)
                 return 400, {
@@ -259,7 +259,7 @@ def badge_delete(request, data: DeleteBadge) -> tuple | dict:
             }
 
         for i in badge_name:
-            if i not in "abcdefghijklmnopqrstuvxyz0123456789_":
+            if i not in "abcdefghijklmnopqrstuvwxyz0123456789_":
                 log_admin_action("Delete badge", self_user, f"Invalid badge name {badge_name}")
                 lang = get_lang(self_user)
                 return 400, {
@@ -301,7 +301,7 @@ def badge_delete(request, data: DeleteBadge) -> tuple | dict:
             "success": True
         }
 
-    log_admin_action("Delete badge", self_user, f"Failed, too low of an admin level")
+    log_admin_action("Delete badge", self_user, "Failed, too low of an admin level")
     return 400, {
         "success": False
     }

@@ -13,63 +13,6 @@ showlog = (str, time=3000) => {
   }, time);
 };
 
-function refresh(force_offset=false) {
-  c++;
-  if (force_offset !== true) { dom("posts").innerHTML = ""; }
-
-  fetch(`${url}${force_offset === true && !end ? `${url.includes("?") ? "&" : "?"}offset=${offset}` : ""}`, {
-    method: "GET",
-    headers: {
-      "Content-Type": "application/json"
-    }
-  })
-    .then((response) => (response.json()))
-    .then((json) => {
-      --c;
-      if (c) {
-        return;
-      }
-
-      end = json.end;
-      let output = "";
-      for (const post of json.posts) {
-        output += getPostHTML(
-          post,
-          type == "comment",
-          includeUserLink,
-          includePostLink,
-          false, false, false
-        );
-        offset = post.post_id;
-      }
-
-      if (typeof extra !== "undefined") {
-        extra(json);
-      }
-
-      let x = document.createElement("div");
-      x.innerHTML = output;
-      dom("posts").append(x);
-
-      if (dom("more")) {
-        if (force_offset !== true) {
-          dom("more").removeAttribute("hidden");
-        }
-
-        if (json.end) {
-          dom("more").setAttribute("hidden", "");
-        } else {
-          dom("more").removeAttribute("hidden");
-        }
-      }
-    })
-    .catch((err) => {
-      --c;
-      showlog(lang.generic.something_went_wrong, 5000);
-      throw(err);
-    });
-}
-
 function deletePost(post_id, isComment, pageFocus) {
   fetch(`/api/${isComment ? "comment" : "post"}`, {
     method: "DELETE",
@@ -84,6 +27,39 @@ function deletePost(post_id, isComment, pageFocus) {
         } else {
           document.querySelector(`.post-container[data-${isComment ? "comment" : "post"}-id="${post_id}"]`).remove();
         }
+      }
+    });
+}
+
+function pinPost(postID) {
+  fetch(`/api/user/pin`, {
+    "method": "PATCH",
+    "body": JSON.stringify({
+      "id": postID
+    })
+  }).then((response) => (response.json()))
+    .then((json) => {
+      if (json.success) {
+        if (window.location.href.includes("/u/")) {
+          refresh();
+        } else {
+          showlog(lang.generic.success);
+        }
+      } else {
+        showlog(lang.generic.something_went_wrong);
+      }
+    });
+}
+
+function unpinPost() {
+  fetch(`/api/user/pin`, {
+    "method": "DELETE",
+  }).then((response) => (response.json()))
+    .then((json) => {
+      if (json.success) {
+        refresh();
+      } else {
+        showlog(lang.generic.something_went_wrong);
       }
     });
 }
@@ -179,37 +155,63 @@ if (typeof logged_in === "undefined" || logged_in) {
   function toggleLike(post_id, type) {}
 }
 
-function pinPost(postID) {
-  fetch(`/api/user/pin`, {
-    "method": "PATCH",
-    "body": JSON.stringify({
-      "id": postID
+if (typeof disableTimeline === 'undefined' || !disableTimeline) {
+  function refresh(force_offset=false) {
+    c++;
+    if (force_offset !== true) { dom("posts").innerHTML = ""; }
+
+    fetch(`${url}${force_offset === true && !end ? `${url.includes("?") ? "&" : "?"}offset=${offset}` : ""}`, {
+      method: "GET",
+      headers: {
+        "Content-Type": "application/json"
+      }
     })
-  }).then((response) => (response.json()))
-    .then((json) => {
-      if (json.success) {
-        if (window.location.href.includes("/u/")) {
-          refresh();
-        } else {
-          showlog(lang.generic.success);
+      .then((response) => (response.json()))
+      .then((json) => {
+        --c;
+        if (c) {
+          return;
         }
-      } else {
-        showlog(lang.generic.something_went_wrong);
-      }
-    });
-}
 
-function unpinPost() {
-  fetch(`/api/user/pin`, {
-    "method": "DELETE",
-  }).then((response) => (response.json()))
-    .then((json) => {
-      if (json.success) {
-        refresh();
-      } else {
-        showlog(lang.generic.something_went_wrong);
-      }
-    });
-}
+        end = json.end;
+        let output = "";
+        for (const post of json.posts) {
+          output += getPostHTML(
+            post,
+            type == "comment",
+            includeUserLink,
+            includePostLink,
+            false, false, false
+          );
+          offset = post.post_id;
+        }
 
-refresh();
+        if (typeof extra !== "undefined") {
+          extra(json);
+        }
+
+        let x = document.createElement("div");
+        x.innerHTML = output;
+        dom("posts").append(x);
+
+        if (dom("more")) {
+          if (force_offset !== true) {
+            dom("more").removeAttribute("hidden");
+          }
+
+          if (json.end) {
+            dom("more").setAttribute("hidden", "");
+          } else {
+            dom("more").removeAttribute("hidden");
+          }
+        }
+      })
+      .catch((err) => {
+        --c;
+        showlog(lang.generic.something_went_wrong, 5000);
+        throw(err);
+      });
+  }
+
+  refresh();
+}

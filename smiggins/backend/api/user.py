@@ -133,7 +133,7 @@ def login(request, data: Account) -> tuple | dict:
         create_api_ratelimit("api_account_login", API_TIMINGS["login unsuccessful"], request.META.get('REMOTE_ADDR'))
         return {
             "valid": False,
-            "reason": DEFAULT_LANG["account"]["username_does_not_exist"].replaceAll("%s", data.username)
+            "reason": DEFAULT_LANG["account"]["username_does_not_exist"].replace("%s", data.username)
         }
 
 def settings_theme(request, data: Theme) -> tuple | dict:
@@ -470,6 +470,7 @@ def notifications_list(request) -> tuple | dict:
     }
 
     notifs_list = []
+    self_id = self_user.user_id
 
     for i in self_user.notifications[::-1]:
         try:
@@ -482,8 +483,9 @@ def notifications_list(request) -> tuple | dict:
                 "event_type": notification.event_type,
                 "read": notification.read,
                 "timestamp": notification.timestamp,
-                "data": get_post_json(notification.event_id, self_user.user_id, notification.event_type in ["comment", "ping_c"], cache)
+                "data": get_post_json(notification.event_id, self_id, notification.event_type in ["comment", "ping_c"], cache)
             })
+
         except Post.DoesNotExist:
             continue
         except Comment.DoesNotExist:

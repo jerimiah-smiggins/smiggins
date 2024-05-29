@@ -44,7 +44,7 @@ def user(request, username: str) -> HttpResponse:
         self_user = User.objects.get(token=request.COOKIES.get("token"))
         self_id = self_user.user_id
         logged_in = True
-    except:
+    except User.DoesNotExist:
         self_id = 0
         logged_in = False
 

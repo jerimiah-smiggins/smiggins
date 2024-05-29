@@ -1,8 +1,8 @@
 # Contains helper functions. These aren't for routing, instead doing something that can be used in other places in the code.
 
-from ._settings import SITE_NAME, VERSION, SOURCE_CODE, MAX_DISPL_NAME_LENGTH, MAX_POST_LENGTH, MAX_USERNAME_LENGTH, RATELIMIT, OWNER_USER_ID, ADMIN_LOG_PATH, MAX_ADMIN_LOG_LINES, MAX_NOTIFICATIONS, MAX_BIO_LENGTH, ENABLE_USER_BIOS, ENABLE_PRONOUNS, ENABLE_GRADIENT_BANNERS, ENABLE_BADGES, ENABLE_PRIVATE_MESSAGES, ENABLE_QUOTES, ENABLE_POST_DELETION, DEFAULT_LANGUAGE
-from .variables import HTML_FOOTERS, HTML_HEADERS, PRIVATE_AUTHENTICATOR_KEY, timeout_handler, BASE_DIR
-from .packages  import Callable, Any, HttpResponse, HttpResponseRedirect, loader, User, Comment, Post, Notification, threading, hashlib, pathlib, time, re, json
+from ._settings import SITE_NAME, VERSION, SOURCE_CODE, MAX_DISPL_NAME_LENGTH, MAX_POST_LENGTH, MAX_USERNAME_LENGTH, RATELIMIT, OWNER_USER_ID, ADMIN_LOG_PATH, MAX_ADMIN_LOG_LINES, MAX_NOTIFICATIONS, MAX_BIO_LENGTH, ENABLE_USER_BIOS, ENABLE_PRONOUNS, ENABLE_GRADIENT_BANNERS, ENABLE_BADGES, ENABLE_PRIVATE_MESSAGES, ENABLE_QUOTES, ENABLE_POST_DELETION, DEFAULT_LANGUAGE, CACHE_LANGUAGES
+from .variables import HTML_FOOTERS, HTML_HEADERS, PRIVATE_AUTHENTICATOR_KEY, timeout_handler, BASE_DIR, VALID_LANGUAGES
+from .packages  import Callable, Any, HttpResponse, HttpResponseRedirect, loader, User, Comment, Post, Notification, threading, hashlib, time, re, json
 
 if ADMIN_LOG_PATH[:2:] == "./":
     ADMIN_LOG_PATH = BASE_DIR / ADMIN_LOG_PATH[2::]
@@ -46,6 +46,7 @@ def get_HTTP_response(request, file: str, lang_override: dict | None=None, **kwa
         "HTML_HEADERS": f"<script>const lang={json.dumps(lang)};</script>{HTML_HEADERS}",
         "HTML_FOOTERS": HTML_FOOTERS,
 
+        "MAX_USERNAME_LENGTH": MAX_USERNAME_LENGTH,
         "MAX_POST_LENGTH": MAX_POST_LENGTH,
         "MAX_DISPL_NAME_LENGTH": MAX_DISPL_NAME_LENGTH,
         "MAX_BIO_LENGTH": MAX_BIO_LENGTH,
@@ -120,10 +121,11 @@ def create_simple_return(
         except User.DoesNotExist:
             return False
 
-    x = lambda request: \
-            HttpResponseRedirect("/home/" if redirect_logged_in else "/", status=307) \
-        if (redirect_logged_in and logged_in(request)) or (redirect_logged_out and not logged_in(request)) \
-        else (HttpResponse(content_override, content_type=content_type) if content_override else get_HTTP_response(request, template_path))
+    def x(request) -> HttpResponse | HttpResponseRedirect:
+        if (redirect_logged_in and logged_in(request)) or (redirect_logged_out and not logged_in(request)):
+            return HttpResponseRedirect("/home/" if redirect_logged_in else "/", status=307)
+        else:
+            return HttpResponse(content_override, content_type=content_type) if content_override else get_HTTP_response(request, template_path)
 
     x.__name__ = template_path
     return x
@@ -148,7 +150,9 @@ def create_api_ratelimit(api_id: str, time_ms: int | float, identifier: str | No
         timeout_handler[api_id] = {}
     timeout_handler[api_id][identifier] = None
 
-    x = lambda: timeout_handler[api_id].pop(identifier)
+    def x():
+        timeout_handler[api_id].pop(identifier)
+
     x.__name__ = f"{api_id}:{identifier}"
     set_timeout(x, time_ms)
 
@@ -301,9 +305,14 @@ def trim_whitespace(string: str, purge_newlines: bool=False) -> str:
     for i in ["\x09", "\x0b", "\x0c", "\xa0", "\u1680", "\u2000", "\u2001", "\u2002", "\u2003", "\u2004", "\u2005", "\u2006", "\u2007", "\u2008", "\u2009", "\u200a", "\u200b", "\u2028", "\u2029", "\u202f", "\u205f", "\u2800", "\u3000", "\ufeff"]:
         string = string.replace(i, " ")
 
-    while "\n "    in string: string = string.replace("\n ", "\n")
-    while "  "     in string: string = string.replace("  ", " ")
-    while "\n\n\n" in string: string = string.replace("\n\n\n", "\n\n")
+    while "\n " in string:
+        string = string.replace("\n ", "\n")
+
+    while "  " in string:
+        string = string.replace("  ", " ")
+
+    while "\n\n\n" in string:
+        string = string.replace("\n\n\n", "\n\n")
 
     while len(string) and string[0] in " \n":
         string = string[1::]
@@ -376,13 +385,16 @@ def create_notification(
 def get_container_id(user_one: str, user_two: str) -> str:
     return f"{user_one}:{user_two}" if user_two > user_one else f"{user_two}:{user_one}"
 
-def get_lang(user: User | None=None) -> dict[str, dict]:
-    # Gets the language file for the specified user
+def get_lang(lang: User | str | None=None, override_cache=False) -> dict[str, dict]:
+    # Gets the language file for the specified user/language
 
-    if isinstance(user, User):
-        lang = user.language or DEFAULT_LANGUAGE
-    else:
+    if isinstance(lang, User):
+        lang = lang.language or DEFAULT_LANGUAGE
+    elif not isinstance(lang, str):
         lang = DEFAULT_LANGUAGE
+
+    if not override_cache and CACHE_LANGUAGES:
+        return LANGS[lang]
 
     parsed = []
 
@@ -419,5 +431,10 @@ def get_lang(user: User | None=None) -> dict[str, dict]:
         return context
 
     return resolve_dependencies(lang)
+
+LANGS = {}
+if CACHE_LANGUAGES:
+    for i in VALID_LANGUAGES:
+        LANGS[i["code"]] = get_lang(i["code"], True)
 
 DEFAULT_LANG = get_lang()
