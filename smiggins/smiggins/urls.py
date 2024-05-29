@@ -28,6 +28,7 @@ urlpatterns = list(filter(bool, [
 
     path("contact/", contact),
     path("settings/", settings),
+    path("changelog/", create_simple_return("changelog.html")),
     path("notifications/", create_simple_return("notifications.html", redirect_logged_out=True)),
     path("messages/", create_simple_return("messages.html", redirect_logged_out=True)) if ENABLE_PRIVATE_MESSAGES else None,
 

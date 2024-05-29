@@ -8,10 +8,18 @@
     {% endautoescape %}
   </head>
 
-  <body data-theme="{{ THEME }}" class="center">
+  <body data-theme="{{ THEME }}">
     <h1>{{ lang.http.500.title }}</h1>
     <h3>{{ lang.http.500.description }}</h3>
     {{ lang.http.500.alt_description }}<br>
     <a href="/home">{{ lang.http.home }}</a>
+
+    <script>
+      let home = true;
+    </script>
+
+    {% autoescape off %}
+    {{ HTML_FOOTERS }}
+    {% endautoescape %}
   </body>
 </html>

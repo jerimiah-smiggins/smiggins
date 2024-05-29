@@ -33,7 +33,13 @@ DEFAULT_LANGUAGE: str = "en-US"
 # to store them, however in the long run it will take a bit less CPU usage and
 # disk usage. If you are testing/creating a language, turn this OFF to make the
 # language refresh automatically.
-CACHE_LANGUAGES: bool = True
+CACHE_LANGUAGES: bool = False
+
+# Whether or not to legally allow other services to scrape your website. This
+# does NOT affect indexing for search engines. This is done by setting the
+# TDM-Reservation header to 0 if allowed, 1 if disallowed.
+# Read more here: https://www.w3.org/community/reports/tdmrep/CG-FINAL-tdmrep-20240202/
+ALLOW_SCRAPING: bool = False
 
 # -- Frontend Configuration --
 

@@ -21,6 +21,7 @@ INSTALLED_APPS = [
 ]
 
 MIDDLEWARE = [
+    'backend.middleware.AddTDMReservation',
     'django.middleware.security.SecurityMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
@@ -78,7 +79,7 @@ LANGUAGE_CODE = 'en-us'
 TIME_ZONE = 'EST'
 USE_I18N = True
 USE_TZ = True
-STATIC_ROOT = str(BASE_DIR) + '/collected-static/'
+STATIC_ROOT = BASE_DIR / "collected-static"
 STATIC_URL = '/static/'
 STATICFILES_DIRS = [BASE_DIR / "static"]
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'

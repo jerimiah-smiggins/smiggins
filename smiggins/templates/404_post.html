@@ -19,9 +19,17 @@
     <meta name="twitter:description" content="{{ lang.http.404.post_title }}">
   </head>
 
-  <body data-theme="{{ THEME }}" class="center">
+  <body data-theme="{{ THEME }}">
     <h1>{{ lang.http.404.post_title }}</h1>
     {{ lang.http.404.post_description }}<br>
     <a href="/home">{{ lang.http.home }}</a>
+
+    <script>
+      let home = true;
+    </script>
+
+    {% autoescape off %}
+    {{ HTML_FOOTERS }}
+    {% endautoescape %}
   </body>
 </html>

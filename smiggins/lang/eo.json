@@ -2,7 +2,7 @@
   "meta": {
     "fallback": ["en-US"],
     "name": "Esperanto",
-    "version": "1.0",
+    "version": "1.0.0",
     "maintainers": ["Subroutine7901"]
   },
 
@@ -291,7 +291,7 @@
       "invalid_length": "Nevalida afiŝa longeco. Ĝi devas esti inter 1 kaj %s signoj longaj.",
       "invalid_comment_id": "Mns via legitimilo estas tre ne bona",
       "comment_id_does_not_exist": "Via legitimilo rompis iom owo",
-      "invalid_quote_post": "The post you're quoting doesn't exist!",              //finish later owowowoow owo
+      "invalid_quote_post": "The post you're quoting doesn't exist!",
       "invalid_quote_comment": "The comment you're quoting doesn't exist!",
       "invalid_username": "Uzantnomo estas nesvaligdeg... RIGARDU NUR SILENTU"
     },

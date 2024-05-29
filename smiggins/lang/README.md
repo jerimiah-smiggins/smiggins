@@ -28,7 +28,10 @@ languages need to be updated. (Make sure each one is in quotes)
 4. Start translating. Go through the file and add any translations needed. Note
 that for the colors (like rosewater), you can just describe them (like "dull
 pink" or "yellowish orange"). If you have any questions, feel free to ask about
-it in [the discord server](https://discord.gg/tH7QnHApwu).
+it in [the discord server](https://discord.gg/tH7QnHApwu). Note that
+**translating the changelogs is OPTIONAL.** You should do the title, however
+other than that, the rest of the changelogs don't need to be done for a language
+to be considered complete.
 5. When you're done, fork the github repository, add the file, and make a pull
 request **to the `dev` branch**. Your changes will likely be added to production
 by the next update.
@@ -43,8 +46,53 @@ to the `maintainers` section
 ---
 ## Version changes
 Updates for each language version are listed below:
+
 <details>
-<summary>1.0</summary>
+<summary>1.1.0</summary>
+
+```diff
++ changelog.title
++ changelog.unknown
++ changelog.logs v0.9.2
++ changelog.logs v0.9.1
++ changelog.logs v0.9.0
++ changelog.logs v0.8.6
++ changelog.logs v0.8.5
++ changelog.logs v0.8.4
++ changelog.logs v0.8.3
++ changelog.logs v0.8.2
++ changelog.logs v0.8.1
++ changelog.logs v0.8.0
++ changelog.logs v0.7.4
++ changelog.logs v0.7.3
++ changelog.logs v0.7.2
++ changelog.logs v0.7.1
++ changelog.logs v0.7.0
++ changelog.logs v0.6.8
++ changelog.logs v0.6.7
++ changelog.logs v0.6.6
++ changelog.logs v0.6.5
++ changelog.logs v0.6.4
++ changelog.logs v0.6.3
++ changelog.logs v0.6.2
++ changelog.logs v0.6.1
++ changelog.logs v0.6.0
++ changelog.logs v0.5.2
++ changelog.logs v0.5.1
++ changelog.logs v0.5.0
++ changelog.logs v0.4.3
++ changelog.logs v0.4.2
++ changelog.logs v0.4.1
++ changelog.logs v0.4.0
++ changelog.logs v0.3.8
++ changelog.logs v0.3.7
++ changelog.logs v0.0.1 - v0.3.6
+```
+</details>
+
+
+<details>
+<summary>1.0.0</summary>
 
 ```diff
 + http.404.post_title
