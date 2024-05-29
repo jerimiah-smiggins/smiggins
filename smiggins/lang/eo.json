@@ -244,7 +244,7 @@
       "bad_password": "Nevalida Pasvorton",
       "username_taken": "Prenitan Uzantnomon",
       "invalid_username_chars": "Uzantnomo devas nur enhavi a-z, 0-9, substrekojn, kaj streketojn",
-      "invalid_username_length": "Username devas esti inter 1 kaj %s signoj longaj.",
+      "invalid_username_length": "Uzantnomo devas esti inter 1 kaj %s signoj longaj.",
       "username_does_not_exist": "Konto kun uzantnomo '%s' ne ekzistas",
       "follow_blocking": "Vi ne povas sekvantari konto vi blokas!",
       "block_self": "Ĉu? Rigardu, mi scias, ke vi malamas vin, sed mi ne povas lasi vin fari tion.",
@@ -269,31 +269,31 @@
     },
 
     "notifications": {
-      "title": "Notifications",
-      "read": "Mark as read",
-      "error": "loading the notifications list",
+      "title": "Avizoj",
+      "read": "Marku kiel legitan",
+      "error": "ŝargi la avizajn listojn",
 
-      "comment": "%s commented on your post:",
-      "quote": "%s quoted your post:",
-      "ping_p": "%s mentioned you in a post:",
-      "ping_c": "%s mentioned you in a comment:"
+      "comment": "%s komentis vian afiŝon:",
+      "quote": "%s citis vian afiŝon:",
+      "ping_p": "%s mensiis vi en afiŝo:",
+      "ping_c": "%s mensiis vi en komento:"
     },
 
     "post_page": {
-      "likes": "Likes: %s",
-      "comments": "Comments: %s",
+      "likes": "Ŝatojn: %s",
+      "comments": "Komentojn: %s",
       "quotes": "Quotes: %s",
-      "comment_parent": "Go to original post...",
-      "comment_input_placeholder": "Got something to say about this?"
+      "comment_parent": "Iru al originala afiŝo...",
+      "comment_input_placeholder": "Ĉu vi havas ion por diri pri ĉi tio?"
     },
 
     "post": {
-      "invalid_length": "Invalid post length. Must be between 1 and %s characters.",
-      "invalid_comment_id": "Idk your id is not right at all",
-      "comment_id_does_not_exist": "Your id broke soemthing owo",
-      "invalid_quote_post": "The post you're quoting doesn't exist!",
+      "invalid_length": "Nevalida afiŝa longeco. Ĝi devas esti inter 1 kaj %s signoj longaj.",
+      "invalid_comment_id": "Mns via legitimilo estas tre ne bona",
+      "comment_id_does_not_exist": "Via legitimilo rompis iom owo",
+      "invalid_quote_post": "The post you're quoting doesn't exist!",              //finish later owowowoow owo
       "invalid_quote_comment": "The comment you're quoting doesn't exist!",
-      "invalid_username": "Username is insvalagaeg... LOOK JUST SHUT UP"
+      "invalid_username": "Uzantnomo estas nesvaligdeg... RIGARDU NUR SILENTU"
     },
 
     "settings": {
