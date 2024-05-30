@@ -374,7 +374,10 @@
           "name": "v0.9.2",
           "changes": [
             "Added changelogs page",
-            "Added option backend to disallow scraping"
+            "Added option backend to disallow scraping",
+            "Added an animation when liking a post",
+            "Added buttons to pages that previously didn't have them, like on the 404 page",
+            "Added links to the changelog and contact pages in settings"
           ]
         },
         {
