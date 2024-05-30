@@ -234,10 +234,16 @@ function getPostHTML(
           </button>
           <div class="bottom-spacing"></div>` : ''
         }
+
+        <span class="bottom-content-icon like-secondary">
+          ${icons.like}
+        </span>
+
         <button class="bottom-content-icon like" tabindex="0" data-liked="${postJSON.liked}" ${fakeMentions ? "" : `onclick="toggleLike(${postJSON.post_id}, ${isComment ? "'comment'" : "'post'"})"`}>
           ${postJSON.liked ? icons.like : icons.unlike}
           <span class="like-number">${postJSON.likes}</span>
         </button>
+
         ${
           postJSON.can_pin ? `
           <div class="bottom-spacing"></div>

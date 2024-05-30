@@ -134,7 +134,11 @@
 
     <a href="/logout">{{ lang.settings.logout }}</a><br><br>
 
-    {{ SITE_NAME }} v{{ VERSION }}
+    <hr><br>
+
+    {{ SITE_NAME }} v{{ VERSION }}<br>
+    <a href="/changelog">{{ lang.changelog.title }}</a><br>
+    <a href="/contact">{{ lang.contact.title }}</a>
 
     <script src="{% static '/js/settings.js' %}?v={{ VERSION }}"></script>
     {% autoescape off %}

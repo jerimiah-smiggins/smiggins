@@ -5,7 +5,7 @@
 # -- General Site Configuration --
 
 # Version displayed.
-VERSION: str = "0.9.1"
+VERSION: str = "0.9.2"
 
 # What to have the site name be.
 SITE_NAME: str = "Jerimiah Smiggins"
@@ -34,6 +34,12 @@ DEFAULT_LANGUAGE: str = "en-US"
 # disk usage. If you are testing/creating a language, turn this OFF to make the
 # language refresh automatically.
 CACHE_LANGUAGES: bool = True
+
+# Whether or not to legally allow other services to scrape your website. This
+# does NOT affect indexing for search engines. This is done by setting the
+# TDM-Reservation header to 0 if allowed, 1 if disallowed.
+# Read more here: https://www.w3.org/community/reports/tdmrep/CG-FINAL-tdmrep-20240202/
+ALLOW_SCRAPING: bool = False
 
 # -- Frontend Configuration --
 

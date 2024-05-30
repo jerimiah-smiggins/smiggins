@@ -38,5 +38,13 @@
         </li>
       {% endfor %}
     </ul>
+
+    <script>
+      let home = true;
+    </script>
+
+    {% autoescape off %}
+    {{ HTML_FOOTERS }}
+    {% endautoescape %}
   </body>
 </html>

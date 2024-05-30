@@ -107,6 +107,36 @@ button:not(.bottom-content-icon) {
   text-align: center;
 }
 
+.like-secondary {
+  position: absolute;
+  display: none;
+}
+
+@keyframes like-anim {
+  0% {
+    translate: 0 0;
+  }
+
+  20% {
+    opacity: 100%;
+  }
+
+  40% {
+    rotate: 0;
+  }
+
+  100% {
+    opacity: 0;
+    rotate: 30deg;
+    translate: -0.1em 3em;
+  }
+}
+
+.like-secondary:has(+ .like[data-liked="true"]) {
+  display: inline-block;
+  animation: like-anim 1s forwards ease-out;
+}
+
 .bottom-content-icon svg,
 svg.bottom-content-icon {
   width: 1.2em;
@@ -134,7 +164,8 @@ button.bottom-content-icon {
   padding-right: 0.3em;
 }
 
-.like[data-liked="true"] svg {
+.like[data-liked="true"] svg,
+.like-secondary svg {
   fill: var(--accent);
 }
 

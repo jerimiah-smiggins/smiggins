@@ -1,0 +1,50 @@
+{% load static %}
+<!DOCTYPE html>
+
+<html>
+  <head>
+    <title>{{ lang.changelog.title }} - {{ SITE_NAME }} v{{ VERSION }}</title>
+    {% autoescape off %}
+    {{ HTML_HEADERS }}
+    {% endautoescape %}
+
+    <meta name="description" content="{{ lang.changelog.title }}">
+    <meta name="author" content="{{ SITE_NAME }} v{{ VERSION }}">
+
+    <meta property="og:type" content="website">
+    <meta property="og:title" content="{{ SITE_NAME }} v{{ VERSION }}">
+    <meta property="og:description" content="{{ lang.changelog.title }}">
+
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:title" content="{{ SITE_NAME }} v{{ VERSION }}">
+    <meta name="twitter:description" content="{{ lang.changelog.title }}">
+  </head>
+
+  <body data-theme="{{ THEME }}">
+    <h1>{{ lang.changelog.title }}</h1>
+    <h3>{{ SITE_NAME }} v{{ VERSION }}</h3>
+
+    {% for VERSION in lang.changelog.logs %}
+      <div>
+        <div class="inline-block">
+          <h3>{{ VERSION.name }}</h3>
+          <ul class="left">
+            {% for CHANGE in VERSION.changes %}
+              <li>{{ CHANGE }}</li>
+            {% empty %}
+              <li>{{ lang.changelog.unknown}}</li>
+            {% endfor %}
+          </ul>
+        </div>
+      </div>
+    {% endfor %}
+
+    <script>
+      let home = true;
+    </script>
+
+    {% autoescape off %}
+    {{ HTML_FOOTERS }}
+    {% endautoescape %}
+  </body>
+</html>

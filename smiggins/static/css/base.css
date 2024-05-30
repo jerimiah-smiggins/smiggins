@@ -201,6 +201,10 @@ svg.red,
   fill: var(--red) !important;
 }
 
+.inline-block {
+  display: inline-block;
+}
+
 .nowrap {
   white-space: nowrap;
 }
