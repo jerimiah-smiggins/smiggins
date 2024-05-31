@@ -23,11 +23,30 @@
     "gbdjm",
     "nkcdd",
     "ufeff",
-    "trinkey",
 
     // Frontend variable names
     "showlog",
-    "maxlength"
+    "maxlength",
+
+    // Esperanto words not found in the deafult cspell dictionary
+    "nesvaligdeg",
+    "haŝetikedo",
+    "monanto",
+    "monantoj",
+    "insignioj",
+    "insignio",
+    "insigniaj",
+    "kontŝanĝilo",
+    "citaĵas",
+    "mensiis",
+
+    // Other
+    "trinkey",
+    "catppuccin",
+    "soemthing",
+    "insvalagaeg",
+    "vailid",
+    "hitboxes"
   ],
 
   "cSpell.ignorePaths": [
