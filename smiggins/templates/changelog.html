@@ -24,8 +24,23 @@
     <h1>{{ lang.changelog.title }}</h1>
     <h3>{{ SITE_NAME }} v{{ VERSION }}</h3>
 
-    {% for VERSION in lang.changelog.logs %}
+    {% for version, changes in lang.changelog.changes.items %}
       <div>
+        <div class="inline-block">
+          <h3>{{ version }}</h3>
+          <ul class="left">
+            {% for _, change in changes.items %}
+              <li>{{ change }}</li>
+            {% empty %}
+              <li>{{ lang.changelog.unknown }}</li>
+            {% endfor %}
+          </ul>
+        </div>
+      </div>
+    {% endfor %}
+
+    {% for VERSION in lang.changelog.logs %}
+      <div hidden>
         <div class="inline-block">
           <h3>{{ VERSION.name }}</h3>
           <ul class="left">

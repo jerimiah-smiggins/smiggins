@@ -50,6 +50,52 @@ Updates for each language version are listed below:
 <details>
 <summary>1.1.0</summary>
 
+Rewrote how changelogs are stored to make translating bit-by-bit easier
+
+```diff
+- changelog.logs
++ changelog.changes.v0.9.2 {1, 2, 3, 4, 5}
++ changelog.changes.v0.9.1 {1, 2, 3, 4, 5, 6, 7}
++ changelog.changes.v0.9.0 {1, 2, 3}
++ changelog.changes.v0.8.6 {1}
++ changelog.changes.v0.8.5 {1}
++ changelog.changes.v0.8.4 {1, 2}
++ changelog.changes.v0.8.3 {1, 2, 3, 4, 5}
++ changelog.changes.v0.8.2 {1}
++ changelog.changes.v0.8.1 {1, 2, 3}
++ changelog.changes.v0.8.0 {1}
++ changelog.changes.v0.7.4 {1, 2}
++ changelog.changes.v0.7.3 {1, 2, 3, 4, 5, 6}
++ changelog.changes.v0.7.2 {1}
++ changelog.changes.v0.7.1 {1}
++ changelog.changes.v0.7.0 {1, 2, 3}
++ changelog.changes.v0.6.8 {1, 2, 3, 4}
++ changelog.changes.v0.6.7 {1, 2, 3}
++ changelog.changes.v0.6.6 {1}
++ changelog.changes.v0.6.5 {1, 2, 3}
++ changelog.changes.v0.6.4 {1}
++ changelog.changes.v0.6.3 {1}
++ changelog.changes.v0.6.2 {1}
++ changelog.changes.v0.6.1 {1}
++ changelog.changes.v0.6.0 {1, 2, 3, 4, 5, 6}
++ changelog.changes.v0.5.2 {1, 2}
++ changelog.changes.v0.5.1 {1}
++ changelog.changes.v0.5.0 {1}
++ changelog.changes.v0.4.3 {1, 2}
++ changelog.changes.v0.4.2 {1, 2, 3}
++ changelog.changes.v0.4.1 {1, 2, 3}
++ changelog.changes.v0.4.0 {1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17}
++ changelog.changes.v0.3.8 {1}
++ changelog.changes.v0.3.7 {1}
++ changelog.changes.v0.0.1 - v0.3.6
+```
+</details>
+
+<details>
+<summary>1.1.0</summary>
+
+Added changelogs
+
 ```diff
 + changelog.title
 + changelog.unknown
@@ -90,9 +136,10 @@ Updates for each language version are listed below:
 ```
 </details>
 
-
 <details>
 <summary>1.0.0</summary>
+
+Initial commit
 
 ```diff
 + http.404.post_title

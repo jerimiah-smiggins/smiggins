@@ -430,7 +430,21 @@ def get_lang(lang: User | str | None=None, override_cache=False) -> dict[str, di
 
         return context
 
-    return resolve_dependencies(lang)
+    x = resolve_dependencies(lang)
+    x["meta"] = {
+        "language": lang
+    }
+
+    temp_lang = {}
+    for i in sorted(x["changelog"]["changes"], reverse=True):
+        temp_vals = {}
+        for o in sorted(x["changelog"]["changes"][i], key=int):
+            temp_vals[str(o)] = x["changelog"]["changes"][i][str(o)]
+        temp_lang[i] = temp_vals
+
+    x["changelog"]["changes"] = temp_lang
+
+    return x
 
 LANGS = {}
 if CACHE_LANGUAGES:
