@@ -40,11 +40,11 @@
     <div id="more-container"><button id="more" onclick="refresh(true)" hidden>{{ lang.generic.load_more }}</button></div>
 
     <script>
-      const post_id = {{ POST_ID }};
-      const comment = {{ COMMENT }};
-      const logged_in = {{ LOGGED_IN }};
-      let share = window.location.href;
-      let home = true;
+      post_id = {{ POST_ID }};
+      comment = {{ COMMENT }};
+      logged_in = {{ LOGGED_IN }};
+      share = window.location.href;
+      home = true;
 
       {% autoescape off %}
       const post = {{ POST_JSON }};

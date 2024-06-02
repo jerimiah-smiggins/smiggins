@@ -27,8 +27,9 @@
     // Frontend variable names
     "showlog",
     "maxlength",
+    "accs",
 
-    // Esperanto words not found in the deafult cspell dictionary
+    // Esperanto words not found in the default cspell dictionary
     "nesvaligdeg",
     "haŝetikedo",
     "monanto",
@@ -53,5 +54,10 @@
     ".vscode/"
   ],
 
-  "cSpell.language": "en,en-GB,en-US,lorem,eo"
+  "cSpell.language": "en,en-GB,en-US,lorem,eo",
+
+  "typescript.inlayHints.propertyDeclarationTypes.enabled": true,
+  "typescript.inlayHints.variableTypes.enabled": true,
+  "typescript.inlayHints.parameterTypes.enabled": true,
+  "typescript.inlayHints.functionLikeReturnTypes.enabled": true
 }

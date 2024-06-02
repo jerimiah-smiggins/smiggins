@@ -1,37 +1,54 @@
 home = true;
 offset = -1;
-function showlog(str, time = 3000) {
-    inc++;
-    dom("error").innerText = str;
-    setTimeout(() => {
-        --inc;
-        if (!inc) {
-            dom("error").innerText = "";
-        }
-    }, time);
-}
-;
-function refreshMessageList(fromStart = false) {
-    dom("refresh").setAttribute("disabled", "");
-    dom("more").setAttribute("disabled", "");
-    if (fromStart) {
-        offset = -1;
-        dom("recent-list").innerHTML = "";
+
+// @ts-ignore
+function showlog(str: string, time: number = 3000): void {
+  inc++;
+  dom("error").innerText = str;
+  setTimeout(() => {
+    --inc;
+    if (!inc) {
+      dom("error").innerText = "";
     }
-    else {
-        offset++;
-        if (!offset) {
-            offset++;
-        }
+  }, time);
+};
+
+function refreshMessageList(fromStart=false): void {
+  dom("refresh").setAttribute("disabled", "");
+  dom("more").setAttribute("disabled", "");
+
+  if (fromStart) {
+    offset = -1;
+    dom("recent-list").innerHTML = "";
+  } else {
+    offset++;
+    if (!offset) {
+      offset++;
     }
-    fetch(`/api/messages/list?offset=${offset}`)
-        .then((response) => response.json())
-        .then((json) => {
-        if (json.success) {
-            let x = document.createDocumentFragment();
-            for (const message of json.messages) {
-                let y = document.createElement("div");
-                y.innerHTML += `
+  }
+
+  fetch(`/api/messages/list?offset=${offset}`)
+    .then((response: Response) => response.json())
+    .then((json: {
+      messages: {
+        badges: string[],
+        color_one: string,
+        content: string,
+        display_name: string,
+        gradient_banner: boolean,
+        private: boolean,
+        timestamp: number,
+        unread: boolean,
+        username: string,
+      }[],
+      more: boolean,
+      success: boolean
+    }) => {
+      if (json.success) {
+        let x: DocumentFragment = document.createDocumentFragment();
+        for (const message of json.messages) {
+          let y: HTMLElement = document.createElement("div");
+          y.innerHTML += `
             <div class="post" data-color="${message.unread ? "" : "gray"}">
               <div class="upper-content">
                 <a href="/u/${message.username}" class="no-underline text">
@@ -54,23 +71,25 @@ function refreshMessageList(fromStart = false) {
                 </a>
               </div>
             </div><br>`;
-                x.append(y);
-            }
-            dom("recent-list").append(x);
-            dom("refresh").removeAttribute("disabled");
-            dom("more").removeAttribute("disabled");
-            if (json.more) {
-                dom("more").removeAttribute("hidden");
-            }
-            else {
-                dom("more").setAttribute("hidden", "");
-            }
+          x.append(y);
         }
-    })
-        .catch((err) => {
-        showlog(lang.generic.something_went_wrong_x.replaceAll("%s", lang.messages.error));
+
+        dom("recent-list").append(x);
         dom("refresh").removeAttribute("disabled");
         dom("more").removeAttribute("disabled");
+
+        if (json.more) {
+          dom("more").removeAttribute("hidden");
+        } else {
+          dom("more").setAttribute("hidden", "");
+        }
+      }
+    })
+    .catch((err: Error) => {
+      showlog(lang.generic.something_went_wrong_x.replaceAll("%s", lang.messages.error));
+      dom("refresh").removeAttribute("disabled");
+      dom("more").removeAttribute("disabled");
     });
 }
+
 refreshMessageList(true);

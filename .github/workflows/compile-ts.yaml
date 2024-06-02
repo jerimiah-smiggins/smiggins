@@ -1,0 +1,35 @@
+name: Compile TypeScript
+
+on:
+  push:
+    branches:
+      - main
+      - dev
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@v2
+
+    - name: Install node
+      uses: actions/setup-node@v2
+      with:
+        node-version: '16'
+
+    - name: Compile
+      run: npm i -g typescript && tsc
+
+    - name: Commit
+      run: |
+        git config --global user.name 'github-actions[bot]'
+        git config --global user.email 'github-actions[bot]@users.noreply.github.com'
+        git add dist
+        git commit -m 'Compile TypeScript'
+
+    - name: Push
+      run: git push
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

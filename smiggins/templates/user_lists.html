@@ -166,8 +166,8 @@
           }
         });
       });
-      let home = true;
-      let share = window.location.href.split("/lists/")[0] + "/";
+      home = true;
+      share = window.location.href.split("/lists/")[0] + "/";
 
       {% if ENABLE_PRONOUNS == 'true' %}
         if (pronouns.{{ PRONOUNS }}) {

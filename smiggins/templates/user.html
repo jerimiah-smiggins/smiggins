@@ -62,8 +62,7 @@
     <div id="more-container"><button id="more" onclick="refresh(true)" hidden>{{ lang.generic.load_more }}</button></div>
 
     <script>
-      const logged_in = {{ LOGGED_IN }};
-      const can_view = {{ CAN_VIEW }};
+      logged_in = {{ LOGGED_IN }};
 
       {% if ENABLE_PRONOUNS == 'true' %}
         if (pronouns.{{ PRONOUNS }}) {

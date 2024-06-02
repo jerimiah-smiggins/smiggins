@@ -370,6 +370,9 @@
       "unknown": "Unknown",
 
       "changes": {
+        "v0.9.3": {
+          "1": "Rewrote frontend with typescript"
+        },
         "v0.9.2": {
           "1": "Added changelogs page",
           "2": "Added option backend to disallow scraping",

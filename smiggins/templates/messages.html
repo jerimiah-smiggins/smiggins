@@ -15,11 +15,11 @@
   <body data-theme="{{ THEME }}">
     <h1>{{ lang.messages.list_subtitle }}</h1>
     <div id="error"></div>
-    <button id="refresh" onclick="refresh(true);">{{ lang.generic.refresh }}</button><br><br>
+    <button id="refresh" onclick="refreshMessageList(true);">{{ lang.generic.refresh }}</button><br><br>
 
     <div id="recent-list"></div>
 
-    <button id="more" onclick="refresh();" hidden>{{ lang.generic.load_more }}</button>
+    <button id="more" onclick="refreshMessageList();" hidden>{{ lang.generic.load_more }}</button>
 
     <script src="{% static '/js/messages.js' %}?v={{ VERSION }}"></script>
     {% autoescape off %}
