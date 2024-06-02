@@ -41,13 +41,27 @@
     "citaĵas",
     "mensiis",
 
+    // Stuff in backend docs
+    "makemigrations",
+    "addsuperuser",
+    "collectstatic",
+    "wsgi",
+    "signup",
+    "ratelimits",
+    "kwargs",
+    "catperson",
+    "traceback",
+    "asgi",
+
     // Other
     "trinkey",
     "catppuccin",
     "soemthing",
     "insvalagaeg",
     "vailid",
-    "hitboxes"
+    "hitboxes",
+    "noreply",
+    "canadien"
   ],
 
   "cSpell.ignorePaths": [

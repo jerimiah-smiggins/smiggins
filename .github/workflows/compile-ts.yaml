@@ -20,7 +20,9 @@ jobs:
         node-version: '16'
 
     - name: Compile
-      run: npm i -g typescript && tsc
+      run: |
+        npm i -g typescript
+        tsc
 
     - name: Commit
       run: |
