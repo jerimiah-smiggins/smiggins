@@ -371,7 +371,8 @@
 
       "changes": {
         "v0.9.3": {
-          "1": "Rewrote frontend with typescript"
+          "1": "Rewrote frontend with typescript",
+          "2": "Completely remade how changelogs are stored"
         },
         "v0.9.2": {
           "1": "Added changelogs page",
