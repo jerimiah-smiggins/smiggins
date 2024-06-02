@@ -50,9 +50,9 @@
         "a": "Demandu pronomojn",
         "o": "Aliaj pronomoj",
         "v": "Ne uzu pronomojn",
-        "aa": "Ajna/Ĉiuj",
+        "aa": "Ajna/Ĉia",
         "af": "Ajna/Ŝi",
-        "ai": "Ajna/Ĉiuj",
+        "ai": "Ajna/Ĉia",
         "am": "Ajna/Li",
         "an": "Ajna/Ri",
         "ao": "Ajna/Ĝi",
@@ -291,8 +291,8 @@
       "invalid_length": "Nevalida afiŝa longeco. Ĝi devas esti inter 1 kaj %s signoj longaj.",
       "invalid_comment_id": "Mns via legitimilo estas tre ne bona",
       "comment_id_does_not_exist": "Via legitimilo rompis iom owo",
-      "invalid_quote_post": "The post you're quoting doesn't exist!",
-      "invalid_quote_comment": "The comment you're quoting doesn't exist!",
+      "invalid_quote_post": "La afiŝo, kiun vi citas, ne ekzistas!",
+      "invalid_quote_comment": "La kommento, kiun vi citas, ne ekzistas!",
       "invalid_username": "Uzantnomo estas nesvaligdeg... RIGARDU NUR SILENTU"
     },
 
