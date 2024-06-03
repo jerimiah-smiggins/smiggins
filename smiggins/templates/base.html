@@ -1,0 +1,66 @@
+{% load static %}
+
+<!DOCTYPE html>
+
+<html>
+  <head>
+    <title>{% block title %}{{ SITE_NAME }} v{{ VERSION }}{% endblock %}</title>
+
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width,initial-scale=1">
+    <meta name="pronouns" content="she/her">
+
+    <meta property="og:type" content="website">
+    <meta name="twitter:card" content="summary_large_image">
+
+    {% block meta %}
+      <meta name="author" content="{{ SITE_NAME }} v{{ VERSION }}">
+      <meta name="description" content="">
+
+      <meta property="og:title" content="{{ SITE_NAME }} v{{ VERSION }}">
+      <meta property="og:description" content="">
+
+      <meta name="twitter:title" content="{{ SITE_NAME }} v{{ VERSION }}">
+      <meta name="twitter:description" content="">
+    {% endblock %}
+
+    <link rel="stylesheet" href="{% static "/css/base.css" %}?v={{VERSION}}">
+    <link rel="icon" href="{% static "/img/favicon.ico" %}?v={{VERSION}}" type="image/x-icon">
+
+    <script src="{% static "/js/linkify-4.1.3.min.js" %}?v={{VERSION}}"></script>
+    <script src="{% static "/js/linkify-html-4.1.3.min.js" %}?v={{VERSION}}"></script>
+    <script src="{% static "/js/linkify-mentions-4.1.3.min.js" %}?v={{VERSION}}"></script>
+    {% if ENABLE_HASHTAGS == "true" %}
+      <script src="{% static "/js/linkify-hashtags-4.1.3.min.js" %}?v={{VERSION}}"></script>
+    {% endif %}
+    {% if ENABLE_BADGES == "true" %}
+      <script src="/badges.js?v={VERSION}"></script>
+    {% endif %}
+
+    <script>
+      const MAX_USERNAME_LENGTH = {{ MAX_USERNAME_LENGTH }};
+      const MAX_POST_LENGTH = {{ MAX_POST_LENGTH }};
+      const MAX_DISPL_NAME_LENGTH = {{ MAX_DISPL_NAME_LENGTH }};
+      const MAX_BIO_LENGTH = {{ MAX_BIO_LENGTH }};
+
+      const ENABLE_USER_BIOS = {{ ENABLE_USER_BIOS }};
+      const ENABLE_PRONOUNS = {{ ENABLE_PRONOUNS }};
+      const ENABLE_GRADIENT_BANNERS = {{ ENABLE_GRADIENT_BANNERS }};
+      const ENABLE_BADGES = {{ ENABLE_BADGES }};
+      const ENABLE_PRIVATE_MESSAGES = {{ ENABLE_PRIVATE_MESSAGES }};
+      const ENABLE_QUOTES = {{ ENABLE_QUOTES }};
+      const ENABLE_POST_DELETION = {{ ENABLE_POST_DELETION }};
+      const ENABLE_HASHTAGS = {{ ENABLE_HASHTAGS }};
+    </script>
+
+    <script src="{% static "/js/base.js" %}?v={VERSION}"></script>
+
+    {% block head %}{% endblock %}
+  </head>
+
+  <body data-theme="{{ THEME }}">
+    {% block body %}{% endblock %}
+
+    <script src="{% static "/js/base_footer.js" %}?v={VERSION}"></script>
+  </body>
+</html>

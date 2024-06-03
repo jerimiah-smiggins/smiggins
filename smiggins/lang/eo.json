@@ -2,7 +2,7 @@
   "meta": {
     "fallback": ["en-US"],
     "name": "Esperanto",
-    "version": "1.0.0",
+    "version": "1.2.0",
     "maintainers": ["Subroutine7901"]
   },
 
@@ -363,6 +363,11 @@
       "lists_following": "Following",
       "lists_followers": "Followers",
       "lists_no_bio": "No bio set"
+    },
+
+    "changelog": {
+      "title": "Changelogs",
+      "unknown": "Unknown"
     }
   }
 }

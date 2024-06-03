@@ -4,21 +4,23 @@ official discord server: https://discord.gg/tH7QnHApwu
 online version (at least for now): https://trinkey.pythonanywhere.com
 
 <details>
-  <summary><h2 style="display: inline">How to run locally</summary>
+  <summary><h2 style="display: inline">How to run locally</h2></summary>
 
   1. Clone the github repo or download the files
 
-  2. With python, install the needed libraries (`python3 -m pip install --upgrade django django-ninja ensure-file`, `py -m ...`
-  on windows)
+  2. With python, install the needed libraries
+  (`python3 -m pip install --upgrade django django-ninja ensure-file`,
+  or use `py -m ...` on windows)
 
   3. Create the `_api_keys.py` file:
       ```bash
       touch ~/smiggins/smiggins/backend/_api_keys.py
       echo "auth_key = b'some random text this can be anything'" > ~/smiggins/smiggins/backend/_api_keys.py
       ```
-      if you're on Windows then fuck you figure it out yourself
-  4. In the folder REPO_BASE/smiggins run the command `python3 manage.py migrate`
-  (`py ...` for windows)
+      if you're on Windows then ~~fuck you~~ it's probably easier to do this
+      using file explorer
+  4. In the folder REPO_BASE/smiggins run the command
+  `python3 manage.py migrate` (once again `py ...` for windows)
 
   5. Then, to start the server, run `python3 manage.py runserver` (`py ...` on
   windows still). If you want to start the server but already have the files,
@@ -28,12 +30,15 @@ online version (at least for now): https://trinkey.pythonanywhere.com
 </details>
 
 <details>
-  <summary><h2 style="display: inline">How to set up the server on PythonAnywhere (using a venv)</h2></summary>
+  <summary><h2 style="display: inline">
+    How to set up the server on PythonAnywhere (using a venv)
+  </h2></summary>
 
   1. Create a venv (the name can be anything). if you already have one feel free
   to skip this step
-      ```bash
-      mkvirtualenv VENV_NAME --python=/usr/bin/python3.10 # the VENV_NAME can be anything
+    ```bash
+      # the VENV_NAME can be anything
+      mkvirtualenv VENV_NAME --python=/usr/bin/python3.10
       ```
 
   2. On the webapp setup page, create a new webapp. If you already have one,
@@ -46,7 +51,8 @@ online version (at least for now): https://trinkey.pythonanywhere.com
       - Next
 
   3. On the webapp dashboard, in the "Virtualenv" section, you are going to want
-  to enter the path to your venv. It should be `/home/USERNAME/.virtualenvs/VENV_NAME`.
+  to enter the path to your venv. It should be
+  `/home/USERNAME/.virtualenvs/VENV_NAME`.
 
   4. Click the "Start a console on this virtualenv" button to create a console
   in the venv. Then install needed libraries.
@@ -79,7 +85,8 @@ online version (at least for now): https://trinkey.pythonanywhere.com
       ```
 
   7. Back on the webapp dashboard, in the "Static Files" section, make an entry
-  for `/static/` with the path set to `/home/USERNAME/smiggins/smiggins/collected-static`
+  for `/static/` with the path set to
+  `/home/USERNAME/smiggins/smiggins/collected-static`
 
   8. In the file at `/home/USERNAME/smiggins/smiggins/backend/_settings.py`,
   make sure the following settings are set:
@@ -101,7 +108,9 @@ online version (at least for now): https://trinkey.pythonanywhere.com
 </details>
 
 <details>
-  <summary><h2 style="display: inline">How to set up the server on PythonAnywhere (no venv)</h2></summary>
+  <summary><h2 style="display: inline">
+    How to set up the server on PythonAnywhere (no venv)
+  </h2></summary>
 
   1. Create a new webapp using the following settings:
       - Manual configuration
@@ -135,11 +144,12 @@ online version (at least for now): https://trinkey.pythonanywhere.com
       from django.core.wsgi import get_wsgi_application
       application = get_wsgi_application()
       ```
-      This file can be went to with the url
+      This file can be found at the url
       https://www.pythonanywhere.com/user/USERNAME/files/var/www/USERNAME_pythonanywhere_com.wgsi.py
 
   6. Back on the webapp dashboard, in the "Static Files" section, make an entry
-  for `/static/` with the path set to `/home/USERNAME/smiggins/smiggins/collected-static`
+  for `/static/` with the path set to
+  `/home/USERNAME/smiggins/smiggins/collected-static`
 
   8. In the file at `/home/USERNAME/smiggins/smiggins/backend/_settings.py`,
   make sure the following settings are set:
@@ -161,7 +171,9 @@ online version (at least for now): https://trinkey.pythonanywhere.com
 </details>
 
 <details>
-  <summary><h2 style="display: inline">How to upgrade versions on PythonAnywhere (using a venv)</summary>
+  <summary><h2 style="display: inline">
+    How to upgrade versions on PythonAnywhere (using a venv)
+  </h2></summary>
 
   To clone the newest version, do the following commands in the
   `~/smiggins` folder:
@@ -182,7 +194,9 @@ online version (at least for now): https://trinkey.pythonanywhere.com
 </details>
 
 <details>
-  <summary><h2 style="display: inline">How to upgrade versions on PythonAnywhere (no venv)</summary>
+  <summary><h2 style="display: inline">
+    How to upgrade versions on PythonAnywhere (no venv)
+  </h2></summary>
 
   To clone the newest version, do the following commands in the
   `~/smiggins` folder:
@@ -203,25 +217,29 @@ online version (at least for now): https://trinkey.pythonanywhere.com
 </details>
 
 <details>
-  <summary><h2 style="display: inline">Where can I report issues or suggest stuff</summary>
+  <summary><h2 style="display: inline">
+    Where can I report issues or suggest stuff
+  </h2></summary>
 
-  go to the [issues tab](https://github.com/jerimiah-smiggins/smiggins/issues) and make
-  a new issue (make sure you're logged in with github)
+  go to the [issues tab](https://github.com/jerimiah-smiggins/smiggins/issues)
+  and make a new issue (make sure you're logged in with github)
 </details>
 
 <details>
-  <summary><h2 style="display: inline">How can I contribute to this project</h2></summary>
+  <summary><h2 style="display: inline">
+    How can I contribute to this project
+  </h2></summary>
+
+  if you would like to help tranlate this website, read
+  [this file](smiggins/lang/README.md)
 
   if there is a specific thing you want to do, you can make an issue (if a
-  duplicate doesn't already exist) and then assign yourself if you can. (if you
-  can't assign yourself as you're not a contributor, you can make a comment on
-  it stating that you are going to do it)
+  duplicate doesn't already exist).
 
   once you finish programming you can create a new fork with your code and then
   make a pull request with it.
 
-  if you have contributed a lot to this project, you can message me on any
-  platform that i use (email: trinkey@duck.com, discord: `@trinkey_`) and let me
-  know your github username and stuff that you have worked on and i'll consider
-  adding you to the repository
+  anyone who gets contributor access to the repository is decided by
+  [@trinkey](https://github.com/trinkey). if you think you are deserving of
+  getting it and don't currently have it, let her know.
 </details>

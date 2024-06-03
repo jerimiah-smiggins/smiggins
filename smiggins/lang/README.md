@@ -24,7 +24,9 @@ bottom of this document.
    - `maintainers`: The github username of the maintainers of the language. If
 the language needs to be updated, these are the people to do so. If you are
 willing to, you can put your github username there, and will be pinged whenever
-languages need to be updated. (Make sure each one is in quotes)
+languages need to be updated. (Make sure each one is in quotes) You will not be
+pinged if the only change to the language is for changelogs unless the language
+you maintain has changelogs translated.
 4. Start translating. Go through the file and add any translations needed. Note
 that for the colors (like rosewater), you can just describe them (like "dull
 pink" or "yellowish orange"). If you have any questions, feel free to ask about
@@ -48,7 +50,7 @@ to the `maintainers` section
 Updates for each language version are listed below:
 
 <details>
-<summary>1.1.0</summary>
+<summary>1.2.0</summary>
 
 Rewrote how changelogs are stored to make translating bit-by-bit easier
 
