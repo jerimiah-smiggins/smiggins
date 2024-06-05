@@ -1,28 +1,30 @@
 {
   "meta": {
-    "fallback": ["en-US"],
+    "fallback": [ "en-US" ],
     "name": "Esperanto",
     "version": "1.2.0",
-    "maintainers": ["Subroutine7901"]
+    "maintainers": [ "Subroutine7901" ]
   },
 
   "texts": {
     "http": {
       "404": {
-        "hashtag_title": "Haŝetikedo Estas Ne Trovita",
-        "hashtag_description": "Ĉi tiu haŝetikedo ne ekzistas!",
-        "post_title": "Afiŝo Ne Trovita",
-        "post_description": "Ĉi tiu afiŝo ne ekzistas!",
-        "standard_title": "Retpaĝo Ne Ekzistas",
+        "hashtag_title": "Ha\u015detikedo Estas Ne Trovita",
+        "hashtag_description": "\u0108i tiu ha\u015detikedo ne ekzistas!",
+        "post_title": "Afi\u015do Ne Trovita",
+        "post_description": "\u0108i tiu afi\u015do ne ekzistas!",
+        "standard_title": "Retpa\u011do Ne Ekzistas",
         "standard_description": "La Reteja Adreso Estas Ne Trovita.",
         "user_title": "Uzanto Estas Ne Trovita",
-        "user_description": "Ĉi tiu uzantnomo apartenas al neniu uzanto!"
+        "user_description": "\u0108i tiu uzantnomo apartenas al neniu uzanto!"
       },
+
       "500": {
         "title": "Interna Servila Eraro",
-        "description": "Okazis io en la servilo, kio malebligas al vi vidi ĉi tiun paĝon.",
-        "alt_description": "Ĉi tio verŝajne ne estas via kulpo."
+        "description": "Okazis io en la servilo, kio malebligas al vi vidi \u0109i tiun pa\u011don.",
+        "alt_description": "\u0108i tio ver\u015dajne ne estas via kulpo."
       },
+
       "home": "Hejmeniru"
     },
 
@@ -33,9 +35,9 @@
       "try_again": "Reprovu post iom...",
       "ratelimit_verbose": "Vi estas tariflimigita!",
       "ratelimit": "Tariflimigita",
-      "refresh": "Refreŝigu",
-      "load_more": "Ŝargu pli",
-      "post": "Afiŝu",
+      "refresh": "Refre\u015digu",
+      "load_more": "\u015cargu pli",
+      "post": "Afi\u015du",
       "cancel": "Nuligu",
       "source_code": "Fontkodo",
       "save": "Savu",
@@ -50,51 +52,51 @@
         "a": "Demandu pronomojn",
         "o": "Aliaj pronomoj",
         "v": "Ne uzu pronomojn",
-        "aa": "Ajna/Ĉia",
-        "af": "Ajna/Ŝi",
-        "ai": "Ajna/Ĉia",
+        "aa": "Ajna/\u0108ia",
+        "af": "Ajna/\u015ci",
+        "ai": "Ajna/\u0108ia",
         "am": "Ajna/Li",
         "an": "Ajna/Ri",
-        "ao": "Ajna/Ĝi",
+        "ao": "Ajna/\u011ci",
         "ax": "Ajna/Aliaj",
-        "fa": "Ŝi/Ajna",
-        "ff": "Ŝi/Ŝin",
-        "fi": "Ŝi/Ŝin",
-        "fm": "Ŝi/Li",
-        "fn": "Ŝi/Ri",
-        "fo": "Ŝi/Ĝi",
-        "fx": "Ŝi/Aliaj",
-        "ma": "Li/Ĉiuj",
-        "mf": "Li/Ŝi",
+        "fa": "\u015ci/Ajna",
+        "ff": "\u015ci/\u015cin",
+        "fi": "\u015ci/\u015cin",
+        "fm": "\u015ci/Li",
+        "fn": "\u015ci/Ri",
+        "fo": "\u015ci/\u011ci",
+        "fx": "\u015ci/Aliaj",
+        "ma": "Li/\u0108iuj",
+        "mf": "Li/\u015ci",
         "mi": "Li/Lin",
         "mm": "Li/Lin",
         "mn": "Li/Ri",
-        "mo": "Li/Ĝi",
+        "mo": "Li/\u011ci",
         "mx": "Li/Aliaj",
         "na": "Ri/Ajna",
-        "nf": "Ri/Ŝi",
+        "nf": "Ri/\u015ci",
         "ni": "Ri/Rin",
         "nm": "Ri/Li",
         "nn": "Ri/Rin",
-        "no": "Ri/Ĝi",
+        "no": "Ri/\u011ci",
         "nx": "Ri/Aliaj",
-        "oa": "Ĝi/Ajna",
-        "of": "Ĝi/Ŝi",
-        "oi": "Ĝi/Ĝin",
-        "om": "Ĝi/Li",
-        "on": "Ĝi/Ri",
-        "oo": "Ĝi/Ĝin",
-        "ox": "Ĝi/Aliaj"
+        "oa": "\u011ci/Ajna",
+        "of": "\u011ci/\u015ci",
+        "oi": "\u011ci/\u011cin",
+        "om": "\u011ci/Li",
+        "on": "\u011ci/Ri",
+        "oo": "\u011ci/\u011cin",
+        "ox": "\u011ci/Aliaj"
       },
 
       "colors": {
-        "rosewater": "Flavoranĝan",
-        "flamingo": "Rozoranĝan",
+        "rosewater": "Flavoran\u011dan",
+        "flamingo": "Rozoran\u011dan",
         "pink": "Rozkoloran",
         "mauve": "Purpuran",
-        "red": "Ruĝan",
-        "maroon": "Kaŝtanbrunan",
-        "peach": "Oranĝan",
+        "red": "Ru\u011dan",
+        "maroon": "Ka\u015dtanbrunan",
+        "peach": "Oran\u011dan",
         "yellow": "Flavan",
         "green": "Verdan",
         "teal": "Krekan",
@@ -107,7 +109,7 @@
       "time": {
         "months": [
           "Jan", "Feb", "Mar", "Apr",
-          "Maj", "Jun", "Jul", "Aŭg",
+          "Maj", "Jun", "Jul", "A\u016dg",
           "Sep", "Okt", "Nov", "Dec"
         ],
 
@@ -124,21 +126,20 @@
         "year_singular": "jaro",
         "year_plural": "jaroj",
 
-        "ago": "Antaŭ %s"
+        "ago": "Anta\u016d %s"
       }
     },
-
     "admin": {
       "title": "Administra Panelo",
       "level": "Nevelo",
       "is_comment_label": "Komento?",
       "use_id_label": "Uzas legitimilo?",
-      "post_id_placeholder": "Afiŝa/komenta legitimilo...",
+      "post_id_placeholder": "Afi\u015da/komenta legitimilo...",
       "user_id_placeholder": "Konta uzantnomo/legitimilo...",
 
-      "post_deletion_title": "Afiŝa Forigo",
-      "post_deletion_button": "Forigas Afiŝa",
-      "post_deletion_error": "forigi la precizigis afiŝa/komenta",
+      "post_deletion_title": "Afi\u015da Forigo",
+      "post_deletion_button": "Forigas Afi\u015da",
+      "post_deletion_error": "forigi la precizigis afi\u015da/komenta",
 
       "account_deletion_title": "Konta Forigo",
       "account_deletion_button": "Forigas Konto",
@@ -152,12 +153,12 @@
       "badge_manage_add_error": "aldoni la insignio",
       "badge_manage_remove_button": "Forigu Insignio",
       "badge_manage_remove_error": "forigi la insignio",
-      "badge_manage_add_protected": "Ne povas aldoni tiun insignon ĉar ĝi estas protektita",
-      "badge_manage_remove_protected": "Ne povas forigi tiun insignon ĉar ĝi estas protektita",
+      "badge_manage_add_protected": "Ne povas aldoni tiun insignon \u0109ar \u011di estas protektita",
+      "badge_manage_remove_protected": "Ne povas forigi tiun insignon \u0109ar \u011di estas protektita",
       "badge_create_title": "Kreas/Superregas Insignio",
       "badge_create_button": "Kreu Badge",
       "badge_create_invalid_data_size": "Insignia datumoj devas esti inter 1 kaj 65536 signoj longaj",
-      "badge_create_success": "Reŝargu por ke viaj ŝanĝoj efektiviĝu.",
+      "badge_create_success": "Re\u015dargu por ke viaj \u015dan\u011doj efektivi\u011du.",
       "badge_delete_title": "Forigas Insignio",
       "badge_delete_button": "Forigu Insignio",
       "badge_delete_protected": "Ne povas forigi tiun insignon",
@@ -169,25 +170,25 @@
       "modify_get_button": "Akiru Informoj",
       "modify_current": "Aktuala konta:",
       "modify_save": "Savu informoj",
-      "modify_switcher": "Aldonu al kontŝanĝilo",
-      "modify_invalid_bio_size": "La biografio de uzanto estas tro longa! Ĝi devas esti inter 1 kaj 65536 signoj longaj.",
-      "modify_invalid_display_name_long": "La Montrnomo estas tro longa! Ĝi devas esti inter 1 kaj 300 signoj longaj.",
-      "modify_invalid_display_name_short": "La Montrnomo estas tro mallonga! Ĝi devas esti inter 1 kaj 300 signoj longaj.",
+      "modify_switcher": "Aldonu al kont\u015dan\u011dilo",
+      "modify_invalid_bio_size": "La biografio de uzanto estas tro longa! \u011ci devas esti inter 1 kaj 65536 signoj longaj.",
+      "modify_invalid_display_name_long": "La Montrnomo estas tro longa! \u011ci devas esti inter 1 kaj 300 signoj longaj.",
+      "modify_invalid_display_name_short": "La Montrnomo estas tro mallonga! \u011ci devas esti inter 1 kaj 300 signoj longaj.",
       "modify_id": "legitimilo: %s",
 
-      "level_title": "Ŝanĝas Administra Nevelo",
+      "level_title": "\u015can\u011das Administra Nevelo",
       "level_zero": "Ne Administra Permesoj (Nevelo 0)",
-      "level_one": "Forigas afiŝoj/komentoj (Nevelo 1)",
+      "level_one": "Forigas afi\u015doj/komentoj (Nevelo 1)",
       "level_two": "Forigas kontoj (Nevelo 2)",
       "level_three": "Administras insignio (Nevelo 3)",
       "level_four": "Modifas uzanto datumoj (Nevelo 4)",
       "level_five": "Kreas nova administrantoj (Nevelo 5)",
-      "level_button": "Ŝanĝu administra nevelo",
+      "level_button": "\u015can\u011du administra nevelo",
       "level_invalid": "Nevalida nevelo",
-      "level_error": "ŝanĝi la nivelon de tiu konto",
+      "level_error": "\u015dan\u011di la nivelon de tiu konto",
 
-      "logs_button": "Ŝargu ŝtipoj",
-      "logs_error": "ŝargi la ŝtipoj",
+      "logs_button": "\u015cargu \u015dtipoj",
+      "logs_error": "\u015dargi la \u015dtipoj",
       "logs_timestamp": "Tempmarko",
       "logs_action": "Ago:",
       "logs_who": "Kiu",
@@ -200,46 +201,46 @@
     },
 
     "hashtag": {
-      "post_singular": "afiŝo",
-      "post_plural": "afiŝoj"
+      "post_singular": "afi\u015do",
+      "post_plural": "afi\u015doj"
     },
 
     "home": {
       "title": "Hejmo",
       "post_input_placeholder": "Kio estas en via menso?",
 
-      "switch_recent": "Ŝanĝu al lastatempaj afiŝoj...",
-      "switch_following": "Ŝanĝu al sekvantaraj afiŝoj...",
+      "switch_recent": "\u015can\u011du al lastatempaj afi\u015doj...",
+      "switch_following": "\u015can\u011du al sekvantaraj afi\u015doj...",
 
-      "quote_blocked": "Ĉi tiu afiŝo estas de konto, kiun vi blokis",
-      "quote_deleted": "La originala afiŝo forigis",
-      "quote_private": "Ĉi tiu persono limigas kiuj povas vidi sian profilon.",
-      "quote_recursive": "Citaĵas alia afiŝo...",
+      "quote_blocked": "\u0108i tiu afi\u015do estas de konto, kiun vi blokis",
+      "quote_deleted": "La originala afi\u015do forigis",
+      "quote_private": "\u0108i tiu persono limigas kiuj povas vidi sian profilon.",
+      "quote_recursive": "Cita\u0135as alia afi\u015do...",
       "quote_placeholders": [
-        "Kion ili faris ĉi-foje?",
-        "Ankoraŭ alia eraro por atentigi?",
+        "Kion ili faris \u0109i-foje?",
+        "Ankora\u016d alia eraro por atentigi?",
         "Uf... ne denove..."
       ]
     },
 
     "account": {
       "log_in_title": "Ensalutas",
-      "log_in_instead": "Ensalutu anstataŭe...",
+      "log_in_instead": "Ensalutu anstata\u016de...",
       "log_in_failure": "Ne povas ensaluti! Kialo: %s",
 
-      "sign_up_title": "Registriĝas",
-      "sign_up_instead": "Registriĝu anstataŭe...",
-      "sign_up_failure": "Ne povas registriĝi! Kialo: %s",
+      "sign_up_title": "Registri\u011das",
+      "sign_up_instead": "Registri\u011du anstata\u016de...",
+      "sign_up_failure": "Ne povas registri\u011di! Kialo: %s",
 
       "password_match_failure": "La pasvortoj ne kongruas!",
 
       "log_out_title": "Alidirektas vin",
-      "log_out_description": "Se vi ne estas alidirektita baldaŭ, klaku <a href=\"/\">ĉi tie...</a>",
+      "log_out_description": "Se vi ne estas alidirektita balda\u016d, klaku <a href=\"/\">\u0109i tie...</a>",
 
       "username_placeholder": "Uzantnomon...",
       "password_placeholder": "Pasvorton...",
       "confirm_placeholder": "Konfirmu pasvorton...",
-      "toggle_password": "Montru/Kaŝu Pasvorton",
+      "toggle_password": "Montru/Ka\u015du Pasvorton",
 
       "bad_password": "Nevalida Pasvorton",
       "username_taken": "Prenitan Uzantnomon",
@@ -247,51 +248,50 @@
       "invalid_username_length": "Uzantnomo devas esti inter 1 kaj %s signoj longaj.",
       "username_does_not_exist": "Konto kun uzantnomo '%s' ne ekzistas",
       "follow_blocking": "Vi ne povas sekvantari konto vi blokas!",
-      "block_self": "Ĉu? Rigardu, mi scias, ke vi malamas vin, sed mi ne povas lasi vin fari tion.",
+      "block_self": "\u0108u? Rigardu, mi scias, ke vi malamas vin, sed mi ne povas lasi vin fari tion.",
       "password_empty": "Pasvorton devas ne esti malplena!"
     },
 
     "messages": {
-      "title": "Sendante mesaĝojn al %s",
-      "error": "ŝargi lastatempajn mesaĝojn",
+      "title": "Sendante mesa\u011dojn al %s",
+      "error": "\u015dargi lastatempajn mesa\u011dojn",
       "input_placeholder": "Kion vi volas diri al %s?",
 
-      "no_messages": "Neniu mesaĝoj senditaj",
+      "no_messages": "Neniu mesa\u011doj senditaj",
 
-      "list_title": "Mesaĝojn",
-      "list_subtitle": "Lastatempajn Mesaĝojn",
-
+      "list_title": "Mesa\u011dojn",
+      "list_subtitle": "Lastatempajn Mesa\u011dojn",
       "yourself": "Rigardu, manki amikoj estas kutima afero, sed vi ne povas paroli kun vi mem.",
-      "blocking": "Vi blokas ĉi tiun personon!",
-      "blocked": "Ĉi tiun persono blokas vin!",
-      "blocking_blocked": "Ĉi tiun persono blokas vin/Vi blokas ĉi tiun personon.",
-      "invalid_size": "Nevalida mesaĝa grandeco"
+      "blocking": "Vi blokas \u0109i tiun personon!",
+      "blocked": "\u0108i tiun persono blokas vin!",
+      "blocking_blocked": "\u0108i tiun persono blokas vin/Vi blokas \u0109i tiun personon.",
+      "invalid_size": "Nevalida mesa\u011da grandeco"
     },
 
     "notifications": {
       "title": "Avizoj",
       "read": "Marku kiel legitan",
-      "error": "ŝargi la avizajn listojn",
+      "error": "\u015dargi la avizajn listojn",
 
-      "comment": "%s komentis vian afiŝon:",
-      "quote": "%s citis vian afiŝon:",
-      "ping_p": "%s mensiis vi en afiŝo:",
+      "comment": "%s komentis vian afi\u015don:",
+      "quote": "%s citis vian afi\u015don:",
+      "ping_p": "%s mensiis vi en afi\u015do:",
       "ping_c": "%s mensiis vi en komento:"
     },
 
     "post_page": {
-      "likes": "Ŝatojn: %s",
+      "likes": "\u015catojn: %s",
       "comments": "Komentojn: %s",
       "quotes": "Quotes: %s",
-      "comment_parent": "Iru al originala afiŝo...",
-      "comment_input_placeholder": "Ĉu vi havas ion por diri pri ĉi tio?"
+      "comment_parent": "Iru al originala afi\u015do...",
+      "comment_input_placeholder": "\u0108u vi havas ion por diri pri \u0109i tio?"
     },
 
     "post": {
-      "invalid_length": "Nevalida afiŝa longeco. Ĝi devas esti inter 1 kaj %s signoj longaj.",
+      "invalid_length": "Nevalida afi\u015da longeco. \u011ci devas esti inter 1 kaj %s signoj longaj.",
       "invalid_comment_id": "Mns via legitimilo estas tre ne bona",
       "comment_id_does_not_exist": "Via legitimilo rompis iom owo",
-      "invalid_quote_post": "La afiŝo, kiun vi citas, ne ekzistas!",
+      "invalid_quote_post": "La afi\u015co, kiun vi citas, ne ekzistas!",
       "invalid_quote_comment": "La kommento, kiun vi citas, ne ekzistas!",
       "invalid_username": "Uzantnomo estas nesvaligdeg... RIGARDU NUR SILENTU"
     },

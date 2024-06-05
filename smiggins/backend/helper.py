@@ -1,7 +1,7 @@
 # Contains helper functions. These aren't for routing, instead doing something that can be used in other places in the code.
 
 from ._settings import SITE_NAME, VERSION, SOURCE_CODE, MAX_DISPL_NAME_LENGTH, MAX_POST_LENGTH, MAX_USERNAME_LENGTH, RATELIMIT, OWNER_USER_ID, ADMIN_LOG_PATH, MAX_ADMIN_LOG_LINES, MAX_NOTIFICATIONS, MAX_BIO_LENGTH, ENABLE_USER_BIOS, ENABLE_PRONOUNS, ENABLE_GRADIENT_BANNERS, ENABLE_BADGES, ENABLE_PRIVATE_MESSAGES, ENABLE_QUOTES, ENABLE_POST_DELETION, DEFAULT_LANGUAGE, CACHE_LANGUAGES
-from .variables import HTML_FOOTERS, HTML_HEADERS, PRIVATE_AUTHENTICATOR_KEY, timeout_handler, BASE_DIR, VALID_LANGUAGES
+from .variables import PRIVATE_AUTHENTICATOR_KEY, timeout_handler, BASE_DIR, VALID_LANGUAGES
 from .packages  import Callable, Any, HttpResponse, HttpResponseRedirect, loader, User, Comment, Post, Notification, threading, hashlib, time, re, json
 
 if ADMIN_LOG_PATH[:2:] == "./":
@@ -42,9 +42,6 @@ def get_HTTP_response(request, file: str, lang_override: dict | None=None, **kwa
         "SITE_NAME": SITE_NAME,
         "VERSION": VERSION,
         "SOURCE": str(SOURCE_CODE).lower(),
-
-        "HTML_HEADERS": f"<script>const lang={json.dumps(lang)};</script>{HTML_HEADERS}",
-        "HTML_FOOTERS": HTML_FOOTERS,
 
         "MAX_USERNAME_LENGTH": MAX_USERNAME_LENGTH,
         "MAX_POST_LENGTH": MAX_POST_LENGTH,
