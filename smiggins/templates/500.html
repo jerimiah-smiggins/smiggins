@@ -1,25 +1,27 @@
-<!DOCTYPE html>
+{% extends "base.html" %}
 
-<html>
-  <head>
-    <title>{{ lang.http.500.title }} - {{ SITE_NAME }} v{{ VERSION }}</title>
-    {% autoescape off %}
-    {{ HTML_HEADERS }}
-    {% endautoescape %}
-  </head>
+{% block title %}
+  {{ lang.http.500.title  }} - {{ SITE_NAME }} v{{ VERSION }}
+{% endblock %}
 
-  <body data-theme="{{ THEME }}">
-    <h1>{{ lang.http.500.title }}</h1>
-    <h3>{{ lang.http.500.description }}</h3>
-    {{ lang.http.500.alt_description }}<br>
-    <a href="/home">{{ lang.http.home }}</a>
+{% block meta %}
+  <meta name="author" content="{{ lang.http.500.title }}">
+  <meta name="description" content="{{ SITE_NAME }} v{{ VERSION }}">
 
-    <script>
-      home = true;
-    </script>
+  <meta property="og:title" content="{{ lang.http.500.title }}">
+  <meta property="og:description" content="{{ SITE_NAME }} v{{ VERSION }}">
 
-    {% autoescape off %}
-    {{ HTML_FOOTERS }}
-    {% endautoescape %}
-  </body>
-</html>
+  <meta name="twitter:title" content="{{ lang.http.500.title }}">
+  <meta name="twitter:description" content="{{ SITE_NAME }} v{{ VERSION }}">
+{% endblock %}
+
+{% block body %}
+  <h1>{{ lang.http.500.title }}</h1>
+  {{ lang.http.500.description }}<br>
+  {{ lang.http.500.alt_description }}<br>
+  <a href="/home">{{ lang.http.home }}</a>
+
+  <script>
+    home = true;
+  </script>
+{% endblock %}

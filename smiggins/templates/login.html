@@ -1,34 +1,29 @@
+{% extends "base.html" %}
 {% load static %}
-<!DOCTYPE html>
 
-<html>
-  <head>
-    <title>{{ lang.account.log_in_title }} - {{ SITE_NAME }} v{{ VERSION }}</title>
-    {% autoescape off %}
-    {{ HTML_HEADERS }}
-    {% endautoescape %}
+{% block title %}
+  {{ lang.account.log_in_title }} - {{ SITE_NAME }} v{{ VERSION }}
+{% endblock %}
 
-    <meta name="description" content="{{ lang.account.log_in_title }}">
-    <meta name="author" content="{{ SITE_NAME }} v{{ VERSION }}">
+{% block meta %}
+  <meta name="description" content="{{ lang.account.log_in_title }}">
+  <meta name="author" content="{{ SITE_NAME }} v{{ VERSION }}">
 
-    <meta property="og:type" content="website">
-    <meta property="og:title" content="{{ SITE_NAME }} v{{ VERSION }}">
-    <meta property="og:description" content="{{ lang.account.log_in_title }}">
+  <meta property="og:title" content="{{ SITE_NAME }} v{{ VERSION }}">
+  <meta property="og:description" content="{{ lang.account.log_in_title }}">
 
-    <meta name="twitter:card" content="summary_large_image">
-    <meta name="twitter:title" content="{{ SITE_NAME }} v{{ VERSION }}">
-    <meta name="twitter:description" content="{{ lang.account.log_in_title }}">
-  </head>
+  <meta name="twitter:title" content="{{ SITE_NAME }} v{{ VERSION }}">
+  <meta name="twitter:description" content="{{ lang.account.log_in_title }}">
+{% endblock %}
 
-  <body data-theme="{{ THEME }}">
-    <h1>{{ lang.account.log_in_title }}</h1>
-    <input id="username" maxlength="{{ MAX_USERNAME_LENGTH }}" placeholder="{{ lang.account.username_placeholder }}"><br>
-    <input id="password" placeholder="{{ lang.account.password_placeholder }}" type="password"><br><br>
-    <button id="submit">{{ lang.account.log_in_title }}</button><br><br>
-    <button id="toggle-password">{{ lang.account.toggle_password }}</button><br><br>
-    <a href="/signup">{{ lang.account.sign_up_instead }}</a>
-    <div id="error"></div>
+{% block body %}
+  <h1>{{ lang.account.log_in_title }}</h1>
+  <input id="username" maxlength="{{ MAX_USERNAME_LENGTH }}" placeholder="{{ lang.account.username_placeholder }}"><br>
+  <input id="password" placeholder="{{ lang.account.password_placeholder }}" type="password"><br><br>
+  <button id="submit">{{ lang.account.log_in_title }}</button><br><br>
+  <button id="toggle-password">{{ lang.account.toggle_password }}</button><br><br>
+  <a href="/signup">{{ lang.account.sign_up_instead }}</a>
+  <div id="error"></div>
 
-    <script src="{% static '/js/login.js' %}?v={{ VERSION }}"></script>
-  </body>
-</html>
+  <script src="{% static '/js/login.js' %}?v={{ VERSION }}"></script>
+{% endblock %}

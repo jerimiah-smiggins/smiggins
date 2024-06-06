@@ -1,74 +1,68 @@
+{% extends "base.html" %}
 {% load static %}
-<!DOCTYPE html>
 
-<html>
-  <head>
-    <title>{{ DISPLAY_NAME }} - {{ SITE_NAME }} v{{ VERSION }}</title>
-    {% autoescape off %}
-    {{ HTML_HEADERS }}
-    {% endautoescape %}
+{% block title %}
+  {{ DISPLAY_NAME }} - {{ SITE_NAME }} v{{ VERSION }}
+{% endblock %}
 
-    <meta name="description" content="{{ CONTENT }}
+{% block meta %}
+  <meta name="description" content="{{ CONTENT }}
 
 {{ LIKES }} {% if ENABLE_QUOTES == 'true' %}/ {{ QUOTES }} {% endif %}/ {{ COMMENTS }}">
-    <meta name="author" content="{{ EMBED_TITLE }}">
+  <meta name="author" content="{{ EMBED_TITLE }}">
 
-    <meta property="og:type" content="website">
-    <meta property="og:title" content="{{ EMBED_TITLE }}">
-    <meta property="og:description" content="{{ CONTENT }}
+  <meta property="og:title" content="{{ EMBED_TITLE }}">
+  <meta property="og:description" content="{{ CONTENT }}
 
 {{ LIKES }} {% if ENABLE_QUOTES == 'true' %}/ {{ QUOTES }} {% endif %}/ {{ COMMENTS }}">
 
-    <meta name="twitter:card" content="summary_large_image">
-    <meta name="twitter:title" content="{{ EMBED_TITLE }}">
-    <meta name="twitter:description" content="{{ CONTENT }}
+  <meta name="twitter:title" content="{{ EMBED_TITLE }}">
+  <meta name="twitter:description" content="{{ CONTENT }}
 
 {{ LIKES }} {% if ENABLE_QUOTES == 'true' %}/ {{ QUOTES }} {% endif %}/ {{ COMMENTS }}">
+{% endblock %}
 
-    <link rel="stylesheet" href="{% static '/css/home.css' %}?v={{ VERSION }}">
-    <link rel="stylesheet" href="{% static '/css/post.css' %}?v={{ VERSION }}">
-  </head>
+{% block head %}
+  <link rel="stylesheet" href="{% static '/css/home.css' %}?v={{ VERSION }}">
+  <link rel="stylesheet" href="{% static '/css/post.css' %}?v={{ VERSION }}">
+{% endblock %}
 
-  <body data-theme="{{ THEME }}">
-    <div id="parent" hidden><a id="parent-link" href="#">{{ lang.post_page.comment_parent }}</a></div>
-    <div id="top" data-post-id="{{ POST_ID }}"></div>
-    <textarea id="post-text" maxlength="{{ MAX_POST_LENGTH }}" placeholder="{{ lang.post_page.comment_input_placeholder }}"></textarea><br id="hide-me">
-    <button id="post">{{ lang.generic.post }}</button><br>
-    <button onclick="refresh()">{{ lang.generic.refresh }}</button><br><br>
-    <div id="error"></div>
-    <div id="posts"></div>
-    <div id="more-container"><button id="more" onclick="refresh(true)" hidden>{{ lang.generic.load_more }}</button></div>
+{% block body %}
+  <div id="parent" hidden><a id="parent-link" href="#">{{ lang.post_page.comment_parent }}</a></div>
+  <div id="top" data-post-id="{{ POST_ID }}"></div>
+  <textarea id="post-text" maxlength="{{ MAX_POST_LENGTH }}" placeholder="{{ lang.post_page.comment_input_placeholder }}"></textarea><br id="hide-me">
+  <button id="post">{{ lang.generic.post }}</button><br>
+  <button onclick="refresh()">{{ lang.generic.refresh }}</button><br><br>
+  <div id="error"></div>
+  <div id="posts"></div>
+  <div id="more-container"><button id="more" onclick="refresh(true)" hidden>{{ lang.generic.load_more }}</button></div>
 
-    <script>
-      post_id = {{ POST_ID }};
-      comment = {{ COMMENT }};
-      logged_in = {{ LOGGED_IN }};
-      share = window.location.href;
-      home = true;
-
-      {% autoescape off %}
-      const post = {{ POST_JSON }};
-      {% endautoescape %}
-
-      if (post.parent && post.parent > 0) {
-        dom("parent-link").href = `/${post.parent_is_comment ? 'c' : 'p'}/${post.parent}`;
-        dom("parent").removeAttribute("hidden");
-      }
-
-      dom("top").innerHTML = getPostHTML(
-        post,          // postJSON
-        {{ COMMENT }}, // isComment
-        true,          // includeUserLink
-        false,         // includePostLink
-        false,         // fakeMentions
-        true           // pageFocus
-      );
-    </script>
+  <script>
+    post_id = {{ POST_ID }};
+    comment = {{ COMMENT }};
+    logged_in = {{ LOGGED_IN }};
+    share = window.location.href;
+    home = true;
 
     {% autoescape off %}
-    {{ HTML_FOOTERS }}
+    const post = {{ POST_JSON }};
     {% endautoescape %}
-    <script src="{% static '/js/post.js' %}?v={{ VERSION }}"></script>
-    <script src="{% static '/js/timeline.js' %}?v={{ VERSION }}"></script>
-  </body>
-</html>
+
+    if (post.parent && post.parent > 0) {
+      dom("parent-link").href = `/${post.parent_is_comment ? 'c' : 'p'}/${post.parent}`;
+      dom("parent").removeAttribute("hidden");
+    }
+
+    dom("top").innerHTML = getPostHTML(
+      post,          // postJSON
+      {{ COMMENT }}, // isComment
+      true,          // includeUserLink
+      false,         // includePostLink
+      false,         // fakeMentions
+      true           // pageFocus
+    );
+  </script>
+
+  <script src="{% static '/js/post.js' %}?v={{ VERSION }}"></script>
+  <script src="{% static '/js/timeline.js' %}?v={{ VERSION }}"></script>
+{% endblock %}

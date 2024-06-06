@@ -1,27 +1,22 @@
+{% extends "base.html" %}
 {% load static %}
-<!DOCTYPE html>
 
-<html>
-  <head>
-    <title>{{ lang.notifications.title }} - {{ SITE_NAME }} v{{ VERSION }}</title>
-    {% autoescape off %}
-    {{ HTML_HEADERS }}
-    {% endautoescape %}
-    <link rel="stylesheet" href="{% static '/css/home.css' %}?v={{ VERSION }}">
-    <link rel="stylesheet" href="{% static '/css/notifications.css' %}?v={{ VERSION }}">
-  </head>
+{% block title %}
+  {{ lang.notifications.title }} - {{ SITE_NAME }} v{{ VERSION }}
+{% endblock %}
 
-  <body data-theme="{{ THEME }}">
-    <h1>{{ lang.notifications.title }}</h1>
-    <div>&nbsp;<span id="error"></span>&nbsp;</div>
-    <button id="refresh">{{ lang.generic.refresh }}</button> <button id="read">{{ lang.notifications.read }}</button><br><br>
+{% block head %}
+  <link rel="stylesheet" href="{% static '/css/home.css' %}?v={{ VERSION }}">
+  <link rel="stylesheet" href="{% static '/css/notifications.css' %}?v={{ VERSION }}">
+{% endblock %}
 
-    <div id="notif-container"></div>
+{% block body %}
+  <h1>{{ lang.notifications.title }}</h1>
+  <div>&nbsp;<span id="error"></span>&nbsp;</div>
+  <button id="refresh">{{ lang.generic.refresh }}</button> <button id="read">{{ lang.notifications.read }}</button><br><br>
 
-    <script src="{% static '/js/notifications.js' %}?v={{ VERSION }}"></script>
-    <script src="{% static '/js/timeline.js' %}?v={{ VERSION }}"></script>
-    {% autoescape off %}
-    {{ HTML_FOOTERS }}
-    {% endautoescape %}
-  </body>
-</html>
+  <div id="notif-container"></div>
+
+  <script src="{% static '/js/notifications.js' %}?v={{ VERSION }}"></script>
+  <script src="{% static '/js/timeline.js' %}?v={{ VERSION }}"></script>
+{% endblock %}

@@ -44,9 +44,12 @@ def user(request, username: str) -> HttpResponse:
         self_user = User.objects.get(token=request.COOKIES.get("token"))
         self_id = self_user.user_id
         logged_in = True
+        lang = get_lang(self_user)
+
     except User.DoesNotExist:
         self_id = 0
         logged_in = False
+        lang = get_lang()
 
     try:
         user = User.objects.get(username=username)
@@ -54,8 +57,6 @@ def user(request, username: str) -> HttpResponse:
         return get_HTTP_response(
             request, "404_user.html"
         )
-
-    lang = get_lang(self_user)
 
     return get_HTTP_response(
         request, "user.html", lang,
@@ -93,8 +94,11 @@ def user_lists(request, username: str) -> HttpResponse:
     try:
         user = User.objects.get(token=request.COOKIES.get("token"))
         logged_in = True
+        lang = get_lang(self_user)
+
     except User.DoesNotExist:
         logged_in = False
+        lang = get_lang()
 
     if logged_in:
         self_user = User.objects.get(token=request.COOKIES.get("token"))
@@ -167,8 +171,6 @@ def user_lists(request, username: str) -> HttpResponse:
         if removed_deleted_accounts != user.blocking:
             user.blocking = removed_deleted_accounts
             user.save()
-
-    lang = get_lang(self_user)
 
     return get_HTTP_response(
         request, "user_lists.html", lang,

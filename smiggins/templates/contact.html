@@ -1,50 +1,43 @@
+{% extends "base.html" %}
 {% load static %}
-<!DOCTYPE html>
 
-<html>
-  <head>
-    <title>{{ lang.contact.title }} - {{ SITE_NAME }} v{{ VERSION }}</title>
-    {% autoescape off %}
-    {{ HTML_HEADERS }}
-    {% endautoescape %}
+{% block title %}
+  {{ lang.contact.title }} - {{ SITE_NAME }} v{{ VERSION }}
+{% endblock %}
 
-    <meta name="description" content="social media thing">
-    <meta name="author" content="{{ lang.contact.title }} - {{ SITE_NAME }} v{{ VERSION }}">
+{% block meta %}
+  <meta name="description" content="social media thing">
+  <meta name="author" content="{{ lang.contact.title }} - {{ SITE_NAME }} v{{ VERSION }}">
 
-    <meta property="og:type" content="website">
-    <meta property="og:title" content="{{ lang.contact.title }} - {{ SITE_NAME }} v{{ VERSION }}">
-    <meta property="og:description" content="social media thing">
+  <meta property="og:title" content="{{ lang.contact.title }} - {{ SITE_NAME }} v{{ VERSION }}">
+  <meta property="og:description" content="social media thing">
 
-    <meta name="twitter:card" content="summary_large_image">
-    <meta name="twitter:title" content="{{ lang.contact.title }} - {{ SITE_NAME }} v{{ VERSION }}">
-    <meta name="twitter:description" content="social media thing">
+  <meta name="twitter:title" content="{{ lang.contact.title }} - {{ SITE_NAME }} v{{ VERSION }}">
+  <meta name="twitter:description" content="social media thing">
+{% endblock %}
 
-    <link rel="stylesheet" href="{% static '/css/contact.css' %}?v={{ VERSION }}">
-  </head>
+{% block head %}
+  <link rel="stylesheet" href="{% static '/css/contact.css' %}?v={{ VERSION }}">
+{% endblock %}
 
-  <body data-theme="{{ THEME }}">
-    <h1>{{ lang.contact.subtitle }}</h1>
-    <h3>{{ SITE_NAME }} v{{ VERSION }}</h3>
-    <ul>
-      {% for CONTACT in CONTACT_INFO %}
-        <li>
-          {% if CONTACT.0 == "email" %}
-            <a href="mailto:{{ CONTACT.1 }}">{{ CONTACT.1 }}</a>
-          {% elif CONTACT.0 == "url" %}
-            <a href="{{ CONTACT.1 }}">{{ CONTACT.1 }}</a>
-          {% else %}
-            {{ CONTACT.1 }}
-          {% endif %}
-        </li>
-      {% endfor %}
-    </ul>
+{% block body %}
+  <h1>{{ lang.contact.subtitle }}</h1>
+  <h3>{{ SITE_NAME }} v{{ VERSION }}</h3>
+  <ul>
+    {% for CONTACT in CONTACT_INFO %}
+      <li>
+        {% if CONTACT.0 == "email" %}
+          <a href="mailto:{{ CONTACT.1 }}">{{ CONTACT.1 }}</a>
+        {% elif CONTACT.0 == "url" %}
+          <a href="{{ CONTACT.1 }}">{{ CONTACT.1 }}</a>
+        {% else %}
+          {{ CONTACT.1 }}
+        {% endif %}
+      </li>
+    {% endfor %}
+  </ul>
 
-    <script>
-      home = true;
-    </script>
-
-    {% autoescape off %}
-    {{ HTML_FOOTERS }}
-    {% endautoescape %}
-  </body>
-</html>
+  <script>
+    home = true;
+  </script>
+{% endblock %}
