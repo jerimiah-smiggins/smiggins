@@ -9,6 +9,10 @@
   <link rel="stylesheet" href="{% static '/css/messages.css' %}?v={{ VERSION }}">
 {% endblock %}
 
+{% block body_head %}
+  data-username="{{ USERNAME }}"
+{% endblock %}
+
 {% block body %}
   <div class="header-container"><h1 style="margin-bottom: 0;">
     {{ TITLE }}

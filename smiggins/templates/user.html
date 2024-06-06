@@ -27,6 +27,10 @@
   <link rel="stylesheet" href="{% static '/css/user.css' %}?v={{ VERSION }}">
 {% endblock %}
 
+{% block body_head %}
+  data-username="{{ USERNAME }}" style="--banner: {{ BANNER_COLOR }}; --banner-two: {{ BANNER_COLOR_TWO }}"
+{% endblock %}
+
 {% block body %}
   <div id="banner" class="{{ GRADIENT }}"></div>
   <div>

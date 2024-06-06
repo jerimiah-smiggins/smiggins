@@ -94,7 +94,7 @@ def user_lists(request, username: str) -> HttpResponse:
     try:
         user = User.objects.get(token=request.COOKIES.get("token"))
         logged_in = True
-        lang = get_lang(self_user)
+        lang = get_lang(user)
 
     except User.DoesNotExist:
         logged_in = False
