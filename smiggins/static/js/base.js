@@ -104,7 +104,7 @@ function timeSince(date) {
         { "name": "hour", "amount": 3600 },
         { "name": "day", "amount": 86400 },
         { "name": "month", "amount": 2592000 },
-        { "name": "year", "amount": 3153600 }
+        { "name": "year", "amount": 31536000 }
     ];
     for (const info of timeAmounts) {
         let interval = seconds / info.amount;
