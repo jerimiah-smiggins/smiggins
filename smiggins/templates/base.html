@@ -6,6 +6,10 @@
   <head>
     <title>{% block title %}{{ SITE_NAME }} v{{ VERSION }}{% endblock %}</title>
 
+    <script>
+      const lang = {% autoescape off %}{{ lang }}{% endautoescape %};
+    </script>
+
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width,initial-scale=1">
     <meta name="pronouns" content="she/her">
