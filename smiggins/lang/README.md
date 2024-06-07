@@ -24,7 +24,9 @@ bottom of this document.
    - `maintainers`: The github username of the maintainers of the language. If
 the language needs to be updated, these are the people to do so. If you are
 willing to, you can put your github username there, and will be pinged whenever
-languages need to be updated. (Make sure each one is in quotes)
+languages need to be updated. (Make sure each one is in quotes) You will not be
+pinged if the only change to the language is for changelogs unless the language
+you maintain has changelogs translated.
 4. Start translating. Go through the file and add any translations needed. Note
 that for the colors (like rosewater), you can just describe them (like "dull
 pink" or "yellowish orange"). If you have any questions, feel free to ask about
@@ -48,7 +50,54 @@ to the `maintainers` section
 Updates for each language version are listed below:
 
 <details>
+<summary>1.2.0</summary>
+
+Rewrote how changelogs are stored to make translating bit-by-bit easier
+
+```diff
+- changelog.logs
++ changelog.changes.v0.9.3 {1, 2, 3}
++ changelog.changes.v0.9.2 {1, 2, 3, 4, 5}
++ changelog.changes.v0.9.1 {1, 2, 3, 4, 5, 6, 7}
++ changelog.changes.v0.9.0 {1, 2, 3}
++ changelog.changes.v0.8.6 {1}
++ changelog.changes.v0.8.5 {1}
++ changelog.changes.v0.8.4 {1, 2}
++ changelog.changes.v0.8.3 {1, 2, 3, 4, 5}
++ changelog.changes.v0.8.2 {1}
++ changelog.changes.v0.8.1 {1, 2, 3}
++ changelog.changes.v0.8.0 {1}
++ changelog.changes.v0.7.4 {1, 2}
++ changelog.changes.v0.7.3 {1, 2, 3, 4, 5, 6}
++ changelog.changes.v0.7.2 {1}
++ changelog.changes.v0.7.1 {1}
++ changelog.changes.v0.7.0 {1, 2, 3}
++ changelog.changes.v0.6.8 {1, 2, 3, 4}
++ changelog.changes.v0.6.7 {1, 2, 3}
++ changelog.changes.v0.6.6 {1}
++ changelog.changes.v0.6.5 {1, 2, 3}
++ changelog.changes.v0.6.4 {1}
++ changelog.changes.v0.6.3 {1}
++ changelog.changes.v0.6.2 {1}
++ changelog.changes.v0.6.1 {1}
++ changelog.changes.v0.6.0 {1, 2, 3, 4, 5, 6}
++ changelog.changes.v0.5.2 {1, 2}
++ changelog.changes.v0.5.1 {1}
++ changelog.changes.v0.5.0 {1}
++ changelog.changes.v0.4.3 {1, 2}
++ changelog.changes.v0.4.2 {1, 2, 3}
++ changelog.changes.v0.4.1 {1, 2, 3}
++ changelog.changes.v0.4.0 {1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17}
++ changelog.changes.v0.3.8 {1}
++ changelog.changes.v0.3.7 {1}
++ changelog.changes.v0.0.1 - v0.3.6
+```
+</details>
+
+<details>
 <summary>1.1.0</summary>
+
+Added changelogs
 
 ```diff
 + changelog.title
@@ -90,9 +139,10 @@ Updates for each language version are listed below:
 ```
 </details>
 
-
 <details>
 <summary>1.0.0</summary>
+
+Initial commit
 
 ```diff
 + http.404.post_title

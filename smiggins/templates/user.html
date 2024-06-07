@@ -1,82 +1,78 @@
+{% extends "base.html" %}
 {% load static %}
-<!DOCTYPE html>
 
-<html>
-  <head>
-    <title>{{ DISPLAY_NAME }} - {{ SITE_NAME }} v{{ VERSION }}</title>
-    {% autoescape off %}
-    {{ HTML_HEADERS }}
-    {% endautoescape %}
+{% block title %}
+  {{ DISPLAY_NAME }} - {{ SITE_NAME }} v{{ VERSION }}
+{% endblock %}
 
-    <meta name="author" content="{{ DISPLAY_NAME }}">
-    <meta name="description" content="{{ BIO }}
+{% block meta %}
+  <meta name="author" content="{{ DISPLAY_NAME }}">
+  <meta name="description" content="{{ BIO }}
 
 {{ FOLLOWER_COUNT }} // {{ FOLLOWING_COUNT }}">
 
-    <meta property="og:type" content="website">
-    <meta property="og:title" content="{{ EMBED_TITLE }}">
-    <meta property="og:description" content="{{ BIO }}
+  <meta property="og:title" content="{{ EMBED_TITLE }}">
+  <meta property="og:description" content="{{ BIO }}
 
 {{ FOLLOWER_COUNT }} // {{ FOLLOWING_COUNT }}">
 
-    <meta name="twitter:card" content="summary_large_image">
-    <meta name="twitter:title" content="{{ EMBED_TITLE }}">
-    <meta name="twitter:description" content="{{ BIO }}
+  <meta name="twitter:title" content="{{ EMBED_TITLE }}">
+  <meta name="twitter:description" content="{{ BIO }}
 
 {{ FOLLOWER_COUNT }} // {{ FOLLOWING_COUNT }}">
+{% endblock %}
 
-    <link rel="stylesheet" href="{% static '/css/home.css' %}?v={{ VERSION }}">
-    <link rel="stylesheet" href="{% static '/css/user.css' %}?v={{ VERSION }}">
-  </head>
+{% block head %}
+  <link rel="stylesheet" href="{% static '/css/home.css' %}?v={{ VERSION }}">
+  <link rel="stylesheet" href="{% static '/css/user.css' %}?v={{ VERSION }}">
+{% endblock %}
 
-  <body data-theme="{{ THEME }}" data-username="{{ USERNAME }}" style="--banner: {{ BANNER_COLOR }}; --banner-two: {{ BANNER_COLOR_TWO }}">
-    <div id="banner" class="{{ GRADIENT }}"></div>
-    <div>
-      <div id="username-main">
-        {{ DISPLAY_NAME }}
-        <span {% if PRIVATE == 'false' %}hidden{% endif %}><div class="user-badge" data-add-icon="lock"></div></span>
-        {% autoescape off %}
-        {{ BADGES }}
-        {% endautoescape %}
-      </div>
+{% block body_head %}
+  data-username="{{ USERNAME }}" style="--banner: {{ BANNER_COLOR }}; --banner-two: {{ BANNER_COLOR_TWO }}"
+{% endblock %}
+
+{% block body %}
+  <div id="banner" class="{{ GRADIENT }}"></div>
+  <div>
+    <div id="username-main">
+      {{ DISPLAY_NAME }}
+      <span {% if PRIVATE == 'false' %}hidden{% endif %}><div class="user-badge" data-add-icon="lock"></div></span>
+      {% autoescape off %}
+      {{ BADGES }}
+      {% endautoescape %}
     </div>
+  </div>
 
-    <div><a href="/u/{{ USERNAME }}/lists" class="no-underline text" id="secondary-username-container">
-      <div id="username-lower">@{{ USERNAME }}<span id="pronouns"></span></div><br>
-      <div id="follow">{{ FOLLOWER_COUNT }} - {{ FOLLOWING_COUNT }}</div>
-    </a></div>
+  <div><a href="/u/{{ USERNAME }}/lists" class="no-underline text" id="secondary-username-container">
+    <div id="username-lower">@{{ USERNAME }}<span id="pronouns"></span></div><br>
+    <div id="follow">{{ FOLLOWER_COUNT }} - {{ FOLLOWING_COUNT }}</div>
+  </a></div>
 
-    {% if ENABLE_USER_BIOS == 'true' %}<div id="user-bio"></div>{% endif %}
+  {% if ENABLE_USER_BIOS == 'true' %}<div id="user-bio"></div>{% endif %}
 
-    {% if CAN_VIEW == 'false' %}<div hidden>{% endif %}
-      <button onclick="refresh()">{{ lang.generic.refresh }}</button>
-      <button id="toggle" {{ IS_HIDDEN }} data-followed="{% if IS_FOLLOWING == "true" %}1{% else %}0{% endif %}" onclick="toggle_follow()">{% if IS_FOLLOWING == "true" %}{{ lang.user_page.unfollow }}{% else %}{{ lang.user_page.follow }}{% endif %}</button>
-      <button id="block" {{ IS_HIDDEN }} data-blocked="{% if IS_BLOCKING == "true" %}1{% else %}0{% endif %}" onclick="toggle_block()">{% if IS_BLOCKING == "true" %}{{ lang.user_page.unblock }}{% else %}{{ lang.user_page.block }}{% endif %}</button>
-      {% if ENABLE_PRIVATE_MESSAGES == 'true' %}<button id="message" {{ IS_HIDDEN }} onclick="createMessage()">{{ lang.user_page.message }}</button>{% endif %}
-    {% if CAN_VIEW == 'false' %}</div>{% endif %}
+  {% if CAN_VIEW == 'false' %}<div hidden>{% endif %}
+    <button onclick="refresh()">{{ lang.generic.refresh }}</button>
+    <button id="toggle" {{ IS_HIDDEN }} data-followed="{% if IS_FOLLOWING == "true" %}1{% else %}0{% endif %}" onclick="toggle_follow()">{% if IS_FOLLOWING == "true" %}{{ lang.user_page.unfollow }}{% else %}{{ lang.user_page.follow }}{% endif %}</button>
+    <button id="block" {{ IS_HIDDEN }} data-blocked="{% if IS_BLOCKING == "true" %}1{% else %}0{% endif %}" onclick="toggle_block()">{% if IS_BLOCKING == "true" %}{{ lang.user_page.unblock }}{% else %}{{ lang.user_page.block }}{% endif %}</button>
+    {% if ENABLE_PRIVATE_MESSAGES == 'true' %}<button id="message" {{ IS_HIDDEN }} onclick="createMessage()">{{ lang.user_page.message }}</button>{% endif %}
+  {% if CAN_VIEW == 'false' %}</div>{% endif %}
 
-    <div {% if PRIVATE == 'false' %}hidden{% endif %}>{{ lang.user_page.private_warning }}</div><br><br>
-    <div id="error"></div>
-    <div id="pinned"></div>
-    <div id="posts"></div>
-    <div id="more-container"><button id="more" onclick="refresh(true)" hidden>{{ lang.generic.load_more }}</button></div>
+  <div {% if PRIVATE == 'false' %}hidden{% endif %}>{{ lang.user_page.private_warning }}</div><br><br>
+  <div id="error"></div>
+  <div id="pinned"></div>
+  <div id="posts"></div>
+  <div id="more-container"><button id="more" onclick="refresh(true)" hidden>{{ lang.generic.load_more }}</button></div>
 
-    <script>
-      const logged_in = {{ LOGGED_IN }};
-      const can_view = {{ CAN_VIEW }};
+  <script>
+    logged_in = {{ LOGGED_IN }};
 
-      {% if ENABLE_PRONOUNS == 'true' %}
-        if (pronouns.{{ PRONOUNS }}) {
-          dom("pronouns").innerText = " - " + pronouns.{{ PRONOUNS }};
-        }
-      {% endif %}
-    </script>
+    {% if ENABLE_PRONOUNS == 'true' %}
+      if (pronouns.{{ PRONOUNS }}) {
+        dom("pronouns").innerText = " - " + pronouns.{{ PRONOUNS }};
+      }
+    {% endif %}
+  </script>
 
-    <script src="{% static '/js/user.js' %}?v={{ VERSION }}"></script>
-    <script src="{% static '/js/timeline.js' %}?v={{ VERSION }}"></script>
-
-    {% autoescape off %}
-    {{ HTML_FOOTERS }}
-    {% endautoescape %}
-  </body>
-</html>
+  <script src="{% static '/js/user.js' %}?v={{ VERSION }}"></script>
+  <script src="{% static '/js/timeline.js' %}?v={{ VERSION }}"></script>
+{% endblock %}

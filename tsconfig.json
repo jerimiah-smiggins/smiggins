@@ -1,0 +1,13 @@
+{
+  "compilerOptions": {
+    "lib": [ "dom", "es2023" ],
+    "noUnusedLocals": false,
+    "outDir": "./smiggins/static/js/",
+    "removeComments": true,
+    "target": "es6"
+  },
+
+  "include": [
+    "./smiggins/static/ts/*.ts"
+  ]
+}

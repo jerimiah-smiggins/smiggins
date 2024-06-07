@@ -1,35 +1,26 @@
-<!DOCTYPE html>
+{% extends "base.html" %}
 
-<html>
-  <head>
-    <title>{{ lang.http.404.standard_title }} - {{ SITE_NAME }} v{{ VERSION }}</title>
-    {% autoescape off %}
-    {{ HTML_HEADERS }}
-    {% endautoescape %}
+{% block title %}
+  {{ lang.http.404.standard_title  }} - {{ SITE_NAME }} v{{ VERSION }}
+{% endblock %}
 
-    <meta name="description" content="{{ lang.http.404.standard_title }}">
-    <meta name="author" content="{{ SITE_NAME }} v{{ VERSION }}">
+{% block meta %}
+  <meta name="author" content="{{ lang.http.404.standard_title }}">
+  <meta name="description" content="{{ SITE_NAME }} v{{ VERSION }}">
 
-    <meta property="og:type" content="website">
-    <meta property="og:title" content="{{ SITE_NAME }} v{{ VERSION }}">
-    <meta property="og:description" content="{{ lang.http.404.standard_title }}">
+  <meta property="og:title" content="{{ lang.http.404.standard_title }}">
+  <meta property="og:description" content="{{ SITE_NAME }} v{{ VERSION }}">
 
-    <meta name="twitter:card" content="summary_large_image">
-    <meta name="twitter:title" content="{{ SITE_NAME }} v{{ VERSION }}">
-    <meta name="twitter:description" content="{{ lang.http.404.standard_title }}">
-  </head>
+  <meta name="twitter:title" content="{{ lang.http.404.standard_title }}">
+  <meta name="twitter:description" content="{{ SITE_NAME }} v{{ VERSION }}">
+{% endblock %}
 
-  <body data-theme="{{ THEME }}">
-    <h1>{{ lang.http.404.standard_title }}</h1>
-    {{ lang.http.404.standard_description }}<br>
-    <a href="/home">{{ lang.http.home }}</a>
+{% block body %}
+  <h1>{{ lang.http.404.standard_title }}</h1>
+  {{ lang.http.404.standard_description }}<br>
+  <a href="/home">{{ lang.http.home }}</a>
 
-    <script>
-      let home = true;
-    </script>
-
-    {% autoescape off %}
-    {{ HTML_FOOTERS }}
-    {% endautoescape %}
-  </body>
-</html>
+  <script>
+    home = true;
+  </script>
+{% endblock %}

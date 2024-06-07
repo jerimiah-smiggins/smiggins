@@ -1,39 +1,35 @@
-<!DOCTYPE html>
+{% extends "base.html" %}
 
-<html>
-  <head>
-    <title>{{ lang.account.log_out_title }}</title>
-    {% autoescape off %}
-    {{ HTML_HEADERS }}
-    {% endautoescape %}
+{% block title %}
+  {{ lang.account.log_out_title }} - {{ SITE_NAME }} v{{ VERSION }}
+{% endblock %}
 
-    <meta name="description" content="Logout page">
-    <meta name="author" content="{{ SITE_NAME }} v{{ VERSION }}">
+{% block meta %}
+  <meta name="description" content="{{ lang.account.log_out_title }}">
+  <meta name="author" content="{{ SITE_NAME }} v{{ VERSION }}">
 
-    <meta property="og:type" content="website">
-    <meta property="og:title" content="{{ SITE_NAME }} v{{ VERSION }}">
-    <meta property="og:description" content="Logout page">
+  <meta property="og:title" content="{{ SITE_NAME }} v{{ VERSION }}">
+  <meta property="og:description" content="{{ lang.account.log_out_title }}">
 
-    <meta name="twitter:card" content="summary_large_image">
-    <meta name="twitter:title" content="{{ SITE_NAME }} v{{ VERSION }}">
-    <meta name="twitter:description" content="Logout page">
-  </head>
+  <meta name="twitter:title" content="{{ SITE_NAME }} v{{ VERSION }}">
+  <meta name="twitter:description" content="{{ lang.account.log_out_title }}">
+{% endblock %}
 
-  <body data-theme="{{ THEME }}">
-    {% autoescape off %}
-    {{ lang.account.log_out_description }}
-    {% endautoescape %}
-    <script>
-      localStorage.removeItem("home-page");
-      localStorage.removeItem("username")
-      eraseCookie("token");
+{% block body %}
+  {% autoescape off %}
+  {{ lang.account.log_out_description }}
+  {% endautoescape %}
 
-      if (window.location.search == "?from=switcher") {
-        window.location.href = "/login";
-      } else {
-        localStorage.removeItem("acc-switcher");
-        window.location.href = "/";
-      }
-    </script>
-  </body>
-</html>
+  <script>
+    localStorage.removeItem("home-page");
+    localStorage.removeItem("username")
+    eraseCookie("token");
+
+    if (window.location.search == "?from=switcher") {
+      window.location.href = "/login";
+    } else {
+      localStorage.removeItem("acc-switcher");
+      window.location.href = "/";
+    }
+  </script>
+{% endblock %}

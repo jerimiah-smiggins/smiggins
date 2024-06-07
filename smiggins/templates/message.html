@@ -1,33 +1,31 @@
+{% extends "base.html" %}
 {% load static %}
-<!DOCTYPE html>
 
-<html>
-  <head>
-    <title>{{ TITLE }} - {{ SITE_NAME }} v{{ VERSION }}</title>
+{% block title %}
+  {{ TITLE }} - {{ SITE_NAME }} v{{ VERSION }}
+{% endblock %}
+
+{% block head %}
+  <link rel="stylesheet" href="{% static '/css/messages.css' %}?v={{ VERSION }}">
+{% endblock %}
+
+{% block body_head %}
+  data-username="{{ USERNAME }}"
+{% endblock %}
+
+{% block body %}
+  <div class="header-container"><h1 style="margin-bottom: 0;">
+    {{ TITLE }}
+    <span {% if PRIVATE == "false" %}hidden{% endif %}><div class="user-badge" data-add-icon="lock"></div></span>
     {% autoescape off %}
-    {{ HTML_HEADERS }}
+    {{ BADGES }}
     {% endautoescape %}
+  </h1></div>
 
-    <link rel="stylesheet" href="{% static '/css/messages.css' %}?v={{ VERSION }}">
-  </head>
+  <div class="messages-container">
+    <div id="messages-go-here-btw" class="messages"></div>
+    <textarea id="your-mom" maxlength="{{ MAX_POST_LENGTH }}" placeholder="{{ PLACEHOLDER }}"></textarea>
+  </div>
 
-  <body data-theme="{{ THEME }}" data-username="{{ USERNAME }}">
-    <div class="header-container"><h1 style="margin-bottom: 0;">
-      {{ TITLE }}
-      <span {% if PRIVATE == "false" %}hidden{% endif %}><div class="user-badge" data-add-icon="lock"></div></span>
-      {% autoescape off %}
-      {{ BADGES }}
-      {% endautoescape %}
-    </h1></div>
-
-    <div class="messages-container">
-      <div id="messages-go-here-btw" class="messages"></div>
-      <textarea id="your-mom" placeholder="{{ PLACEHOLDER }}"></textarea>
-    </div>
-
-    <script src="{% static '/js/message.js' %}?v={{ VERSION }}"></script>
-    {% autoescape off %}
-    {{ HTML_FOOTERS }}
-    {% endautoescape %}
-  </body>
-</html>
+  <script src="{% static '/js/message.js' %}?v={{ VERSION }}"></script>
+{% endblock %}\

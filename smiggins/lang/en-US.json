@@ -2,8 +2,8 @@
   "meta": {
     "fallback": [],
     "name": "English (United States)",
-    "version": "1.1.0",
-    "maintainers": ["trinkey"]
+    "version": "1.2.0",
+    "maintainers": [ "trinkey" ]
   },
 
   "texts": {
@@ -369,271 +369,174 @@
       "title": "Changelogs",
       "unknown": "Unknown",
 
-      "logs": [
-        {
-          "name": "v0.9.2",
-          "changes": [
-            "Added changelogs page",
-            "Added option backend to disallow scraping",
-            "Added an animation when liking a post",
-            "Added buttons to pages that previously didn't have them, like on the 404 page",
-            "Added links to the changelog and contact pages in settings"
-          ]
+      "changes": {
+        "v0.9.3": {
+          "1": "Rewrote frontend with typescript",
+          "2": "Completely remade how changelogs are stored",
+          "3": "Fixed a bug that made you not be able to view certain pages while logged out"
         },
-        {
-          "name": "v0.9.1",
-          "changes": [
-            "Added an option to cache languages",
-            "Badge names can now use \"w\"",
-            "The server no longer errors when trying to log in to an account that doesn't exist",
-            "The maxlength parameter is properly set on the username section on sign up and log in pages",
-            "Updates to the Esperanto language",
-            "Buttons on posts on the notifications page function properly",
-            "Removed exclamation marks on 404 pages"
-          ]
+        "v0.9.2": {
+          "1": "Added changelogs page",
+          "2": "Added option backend to disallow scraping",
+          "3": "Added an animation when liking a post",
+          "4": "Added buttons to pages that previously didn't have them, like on the 404 page",
+          "5": "Added links to the changelog and contact pages in settings"
         },
-        {
-          "name": "v0.9.0",
-          "changes": [
-            "Added support for multiple languages (currently there's only English US/UK and Esperanto created by Subroutine)",
-            "Fixed a bug with quotes",
-            "Other minor bugfixes"
-          ]
+        "v0.9.1": {
+          "1": "Added an option to cache languages",
+          "2": "Badge names can now use \"w\"",
+          "3": "The server no longer errors when trying to log in to an account that doesn't exist",
+          "4": "The maxlength parameter is properly set on the username section on sign up and log in pages",
+          "5": "Updates to the Esperanto language",
+          "6": "Buttons on posts on the notifications page function properly",
+          "7": "Removed exclamation marks on 404 pages"
         },
-        {
-          "name": "v0.8.6",
-          "changes": [
-            "Added a fake profile picture next to your name. This is based off of your banner color"
-          ]
+        "v0.9.0": {
+          "1": "Added support for multiple languages (currently there's only English US/UK and Esperanto created by Subroutine)",
+          "2": "Fixed a bug with quotes",
+          "3": "Other minor bugfixes"
         },
-        {
-          "name": "v0.8.5",
-          "changes": [
-            "Added hashtags"
-          ]
+        "v0.8.6": {
+          "1": "Added a fake profile picture next to your name. This is based off of your banner color"
         },
-        {
-          "name": "v0.8.4",
-          "changes": [
-            "Fixed an issue with the \"hitboxes\" of certain links on user pages",
-            "Added a lot of feature disabling options in the backend settings config"
-          ]
+        "v0.8.5": {
+          "1": "Added hashtags"
         },
-        {
-          "name": "v0.8.3",
-          "changes": [
-            "Clicking the refresh button quickly no longer loads duplicate posts",
-            "Max line limit on quotes is smaller",
-            "Added unsaved changes alert to settings page",
-            "Added text to title to signify unread notifications",
-            "Added badges to private messages"
-          ]
+        "v0.8.4": {
+          "1": "Fixed an issue with the \"hitboxes\" of certain links on user pages",
+          "2": "Added a lot of feature disabling options in the backend settings config"
         },
-        {
-          "name": "v0.8.2",
-          "changes": [
-            "Fixed an issue with the text color of timestamps on message pages"
-          ]
+        "v0.8.3": {
+          "1": "Clicking the refresh button quickly no longer loads duplicate posts",
+          "2": "Max line limit on quotes is smaller",
+          "3": "Added unsaved changes alert to settings page",
+          "4": "Added text to title to signify unread notifications",
+          "5": "Added badges to private messages"
         },
-        {
-          "name": "v0.8.1",
-          "changes": [
-            "The lock icon on private accounts on /u/... pages is properly styled",
-            "@ mentions in messages no longer break everything",
-            "The link color in messages you send has been changed to make them visible"
-          ]
+        "v0.8.2": {
+          "1": "Fixed an issue with the text color of timestamps on message pages"
         },
-        {
-          "name": "v0.8.0",
-          "changes": [
-            "Added private messages"
-          ]
+        "v0.8.1": {
+          "1": "The lock icon on private accounts on /u/... pages is properly styled",
+          "2": "@ mentions in messages no longer break everything",
+          "3": "The link color in messages you send has been changed to make them visible"
         },
-        {
-          "name": "v0.7.4",
-          "changes": [
-            "You can now pin one of your posts to your profile. This makes it show up before all of your other posts",
-            "The delete and unpin buttons are both colored red by default. In the future, there may be a setting to disable this"
-          ]
+        "v0.8.0": {
+          "1": "Added private messages"
         },
-        {
-          "name": "v0.7.3",
-          "changes": [
-            "You can change your password",
-            "Links on posts now open in new tab",
-            "Tweaks to post box heights",
-            "Changed the placeholder text on post boxes",
-            "Remade the top section of the post that has user info",
-            "Made quote and like buttons not work when logged out"
-          ]
+        "v0.7.4": {
+          "1": "You can now pin one of your posts to your profile. This makes it show up before all of your other posts",
+          "2": "The delete and unpin buttons are both colored red by default. In the future, there may be a setting to disable this"
         },
-        {
-          "name": "v0.7.2",
-          "changes": [
-            "Added an extra parameter to urls to hopefully prevent any unwanted caching between versions"
-          ]
+        "v0.7.3": {
+          "1": "You can change your password",
+          "2": "Links on posts now open in new tab",
+          "3": "Tweaks to post box heights",
+          "4": "Changed the placeholder text on post boxes",
+          "5": "Remade the top section of the post that has user info",
+          "6": "Made quote and like buttons not work when logged out"
         },
-        {
-          "name": "v0.7.1",
-          "changes": [
-            "Fixed the description on embeds for user profiles and added follower counts to it too"
-          ]
+        "v0.7.2": {
+          "1": "Added an extra parameter to urls to hopefully prevent any unwanted caching between versions"
         },
-        {
-          "name": "v0.7.0",
-          "changes": [
-            "Added notifications. These are triggered when you @ someone, when you comment on someone else's post, or when you quote someone else's post",
-            "You can view the post that a comment was commented on now via the link",
-            "Pressing enter on the log in and sign up pages submits the form now"
-          ]
+        "v0.7.1": {
+          "1": "Fixed the description on embeds for user profiles and added follower counts to it too"
         },
-        {
-          "name": "v0.6.8",
-          "changes": [
-            "Administrative actions now get logged",
-            "The save button in settings stands out more",
-            "Post stats are now shown in embeds",
-            "Delete buttons now show on focused posts"
-          ]
+        "v0.7.0": {
+          "1": "Added notifications. These are triggered when you @ someone, when you comment on someone else's post, or when you quote someone else's post",
+          "2": "You can view the post that a comment was commented on now via the link",
+          "3": "Pressing enter on the log in and sign up pages submits the form now"
         },
-        {
-          "name": "v0.6.7",
-          "changes": [
-            "Added pronouns",
-            "Renamed all themes",
-            "Added a new theme with a black base instead of a dark blueish color"
-          ]
+        "v0.6.8": {
+          "1": "Administrative actions now get logged",
+          "2": "The save button in settings stands out more",
+          "3": "Post stats are now shown in embeds",
+          "4": "Delete buttons now show on focused posts"
         },
-        {
-          "name": "v0.6.6",
-          "changes": [
-            "Fixed a small oversight with blocking that still showed quoted posts from blocked accounts"
-          ]
+        "v0.6.7": {
+          "1": "Added pronouns",
+          "2": "Renamed all themes",
+          "3": "Added a new theme with a black base instead of a dark blueish color"
         },
-        {
-          "name": "v0.6.5",
-          "changes": [
-            "Blocking accounts",
-            "Slight modification to post input boxes",
-            "Delete button on smaller screens should no longer wrap to the next line"
-          ]
+        "v0.6.6": {
+          "1": "Fixed a small oversight with blocking that still showed quoted posts from blocked accounts"
         },
-        {
-          "name": "v0.6.4",
-          "changes": [
-            "Added caching for getting post lists to improve performance"
-          ]
+        "v0.6.5": {
+          "1": "Blocking accounts",
+          "2": "Slight modification to post input boxes",
+          "3": "Delete button on smaller screens should no longer wrap to the next line"
         },
-        {
-          "name": "v0.6.3",
-          "changes": [
-            "You can now view who someone follows and who follows them by clicking on the followers/following text on their profile"
-          ]
+        "v0.6.4": {
+          "1": "Added caching for getting post lists to improve performance"
         },
-        {
-          "name": "v0.6.2",
-          "changes": [
-            "Sending a request to create a badge that already exists now updates the svg content instead of 400-ing"
-          ]
+        "v0.6.3": {
+          "1": "You can now view who someone follows and who follows them by clicking on the followers/following text on their profile"
         },
-        {
-          "name": "v0.6.1",
-          "changes": [
-            "Creating/deleting badges no longer requires a server restart to update frontend"
-          ]
+        "v0.6.2": {
+          "1": "Sending a request to create a badge that already exists now updates the svg content instead of 400-ing"
         },
-        {
-          "name": "v0.6.0",
-          "changes": [
-            "Added account switcher",
-            "Added badges",
-            "Added post deletion",
-            "Added an admin page",
-            "Revamped the settings page",
-            "Bug fixes"
-          ]
+        "v0.6.1": {
+          "1": "Creating/deleting badges no longer requires a server restart to update frontend"
         },
-        {
-          "name": "v0.5.2",
-          "changes": [
-            "Added user bios",
-            "Changed a couple variable and function names in the backend"
-          ]
+        "v0.6.0": {
+          "1": "Added account switcher",
+          "2": "Added badges",
+          "3": "Added post deletion",
+          "4": "Added an admin page",
+          "5": "Revamped the settings page",
+          "6": "Bug fixes"
         },
-        {
-          "name": "v0.5.1",
-          "changes": [
-            "Made the input box for posting/commenting/quoting a lot better to work with"
-          ]
+        "v0.5.2": {
+          "1": "Added user bios",
+          "2": "Changed a couple variable and function names in the backend"
         },
-        {
-          "name": "v0.5.0",
-          "changes": [
-            "Added quoting posts"
-          ]
+        "v0.5.1": {
+          "1": "Made the input box for posting/commenting/quoting a lot better to work with"
         },
-        {
-          "name": "v0.4.3",
-          "changes": [
-            "Added documentation to the whole backend",
-            "Some small error handling changes"
-          ]
+        "v0.5.0": {
+          "1": "Added quoting posts"
         },
-        {
-          "name": "v0.4.2",
-          "changes": [
-            "Private accounts now function properly",
-            "A lot of backend changes",
-            "Some small bugs have been fixed"
-          ]
+        "v0.4.3": {
+          "1": "Added documentation to the whole backend",
+          "2": "Some small error handling changes"
         },
-        {
-          "name": "v0.4.1",
-          "changes": [
-            "Added gradient banners!",
-            "Added a shadow behind usernames in profiles",
-            "A couple of bugfixes"
-          ]
+        "v0.4.2": {
+          "1": "Private accounts now function properly",
+          "2": "A lot of backend changes",
+          "3": "Some small bugs have been fixed"
         },
-        {
-          "name": "v0.4.0",
-          "changes": [
-            "Switched to an actual database",
-            "Added an admin page",
-            "Added a confirm password box on the sign up page",
-            "Random like counts on the settings page can no longer be zero",
-            "The share button now has the correct cursor",
-            "Added a border radius to posts in the settings page",
-            "Quotation marks no longer show as <code>&amp;amp;quo;</code> on posts",
-            "Added links to the home page on 404/500 pages",
-            "The recent tab is now the default tab for the home timeline",
-            "Removed the add/remove follower input",
-            "Remade all themes using catppuccin",
-            "Comments that have an id more than the most recent post can now load",
-            "Added a width limit to private text info on the settings page",
-            "The robots.txt file is now treated as plain text instead of html",
-            "Links and pings can no longer conflict",
-            "Static files are now served from /static/... by default",
-            "Banners are now shown at 100% opacity"
-          ]
+        "v0.4.1": {
+          "1": "Added gradient banners!",
+          "2": "Added a shadow behind usernames in profiles",
+          "3": "A couple of bugfixes"
         },
-        {
-          "name": "v0.3.8",
-          "changes": [
-            "Added a profile button on the sidebar"
-          ]
+        "v0.4.0": {
+          "1": "Switched to an actual database",
+          "2": "Added an admin page",
+          "3": "Added a confirm password box on the sign up page",
+          "4": "Random like counts on the settings page can no longer be zero",
+          "5": "The share button now has the correct cursor",
+          "6": "Added a border radius to posts in the settings page",
+          "7": "Quotation marks no longer show as <code>&amp;amp;quo;</code> on posts",
+          "8": "Added links to the home page on 404/500 pages",
+          "9": "The recent tab is now the default tab for the home timeline",
+          "10": "Removed the add/remove follower input",
+          "11": "Remade all themes using the catppuccin color scheme",
+          "12": "Comments that have an id more than the most recent post can now load",
+          "13": "Added a width limit to private text info on the settings page",
+          "14": "The robots.txt file is now treated as plain text instead of html",
+          "15": "Links and pings can no longer conflict",
+          "16": "Static files are now served from /static/... by default",
+          "17": "Banners are now shown at 100% opacity"
         },
-        {
-          "name": "v0.3.7",
-          "changes": [
-            "Added themes"
-          ]
+        "v0.3.8": {
+          "1": "Added a profile button on the sidebar"
         },
-        {
-          "name": "v0.0.1 - v0.3.6",
-          "changes": []
-        }
-      ]
+        "v0.3.7": {
+          "1": "Added themes"
+        },
+        "v0.0.1 - v0.3.6": {}
+      }
     }
   }
 }

@@ -1,46 +1,40 @@
+{% extends "base.html" %}
 {% load static %}
-<!DOCTYPE html>
 
-<html>
-  <head>
-    <title>#{{ HASHTAG }} - {{ SITE_NAME }} v{{ VERSION }}</title>
-    {% autoescape off %}
-    {{ HTML_HEADERS }}
-    {% endautoescape %}
+{% block title %}
+  #{{ HASHTAG }} - {{ SITE_NAME }} v{{ VERSION }}
+{% endblock %}
 
-    <meta name="description" content="social media thing">
-    <meta name="author" content="#{{ HASHTAG }} - {{ SITE_NAME }} v{{ VERSION }}">
+{% block meta %}
+  <meta name="description" content="social media thing">
+  <meta name="author" content="#{{ HASHTAG }} - {{ SITE_NAME }} v{{ VERSION }}">
 
-    <meta property="og:type" content="website">
-    <meta property="og:title" content="#{{ HASHTAG }} - {{ SITE_NAME }} v{{ VERSION }}">
-    <meta property="og:description" content="social media thing">
+  <meta property="og:title" content="#{{ HASHTAG }} - {{ SITE_NAME }} v{{ VERSION }}">
+  <meta property="og:description" content="social media thing">
 
-    <meta name="twitter:card" content="summary_large_image">
-    <meta name="twitter:title" content="#{{ HASHTAG }} - {{ SITE_NAME }} v{{ VERSION }}">
-    <meta name="twitter:description" content="social media thing">
+  <meta name="twitter:title" content="#{{ HASHTAG }} - {{ SITE_NAME }} v{{ VERSION }}">
+  <meta name="twitter:description" content="social media thing">
+{% endblock %}
 
-    <link rel="stylesheet" href="{% static '/css/home.css' %}?v={{ VERSION }}">
-  </head>
+{% block head %}
+  <link rel="stylesheet" href="{% static '/css/home.css' %}?v={{ VERSION }}">
+{% endblock %}
 
-  <body data-theme="{{ THEME }}">
-    <h1>#{{ HASHTAG }}</h1>
-    {{ NUM_POSTS }} {% if NUM_POSTS == 1 %}{{ lang.hashtag.post_singular }}{% else %}{{ lang.hashtag.post_plural }}{% endif %}<br><br>
+{% block body %}
+  <h1>#{{ HASHTAG }}</h1>
+  {{ NUM_POSTS }} {% if NUM_POSTS == 1 %}{{ lang.hashtag.post_singular }}{% else %}{{ lang.hashtag.post_plural }}{% endif %}<br><br>
 
-    <div id="error"></div>
+  <div id="error"></div>
 
-    <button onclick="refresh();">{{ lang.generic.refresh }}</button><br><br>
+  <button onclick="refresh();">{{ lang.generic.refresh }}</button><br><br>
 
-    <div id="posts"></div>
-    <i id="more" hidden></i>
+  <div id="posts"></div>
+  <i id="more" hidden></i>
 
-    <script>
-      const hashtag = "{{ HASHTAG }}";
-    </script>
+  <script>
+    const hashtag = "{{ HASHTAG }}";
+  </script>
 
-    <script src="{% static '/js/hashtag.js' %}?v={{ VERSION }}"></script>
-    <script src="{% static '/js/timeline.js' %}?v={{ VERSION }}"></script>
-    {% autoescape off %}
-    {{ HTML_FOOTERS }}
-    {% endautoescape %}
-  </body>
-</html>
+  <script src="{% static '/js/hashtag.js' %}?v={{ VERSION }}"></script>
+  <script src="{% static '/js/timeline.js' %}?v={{ VERSION }}"></script>
+{% endblock %}

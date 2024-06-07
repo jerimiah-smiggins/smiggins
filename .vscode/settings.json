@@ -5,6 +5,13 @@
     "editor.rulers": [80]
   },
 
+  "editor.tabSize": 2,
+  "[python]": {
+      "editor.tabSize": 4
+  },
+
+  "files.eol": "\n",
+
   "cSpell.ignoreWords": [
     // Site name
     "jerimiah",
@@ -23,16 +30,55 @@
     "gbdjm",
     "nkcdd",
     "ufeff",
-    "trinkey",
 
     // Frontend variable names
     "showlog",
-    "maxlength"
+    "maxlength",
+    "accs",
+
+    // Esperanto words not found in the default cspell dictionary
+    "nesvaligdeg",
+    "haŝetikedo",
+    "monanto",
+    "monantoj",
+    "insignioj",
+    "insignio",
+    "insigniaj",
+    "kontŝanĝilo",
+    "citaĵas",
+    "mensiis",
+
+    // Stuff in backend docs
+    "makemigrations",
+    "addsuperuser",
+    "collectstatic",
+    "wsgi",
+    "signup",
+    "ratelimits",
+    "kwargs",
+    "catperson",
+    "traceback",
+    "asgi",
+
+    // Other
+    "trinkey",
+    "catppuccin",
+    "soemthing",
+    "insvalagaeg",
+    "vailid",
+    "hitboxes",
+    "noreply",
+    "canadien"
   ],
 
   "cSpell.ignorePaths": [
     ".vscode/"
   ],
 
-  "cSpell.language": "en,en-GB,en-US,lorem,eo"
+  "cSpell.language": "en,en-GB,en-US,lorem,eo",
+
+  "typescript.inlayHints.propertyDeclarationTypes.enabled": true,
+  "typescript.inlayHints.variableTypes.enabled": true,
+  "typescript.inlayHints.parameterTypes.enabled": true,
+  "typescript.inlayHints.functionLikeReturnTypes.enabled": true
 }

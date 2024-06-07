@@ -1,148 +1,142 @@
+{% extends "base.html" %}
 {% load static %}
 
-<!DOCTYPE html>
+{% block title %}
+  {{ lang.settings.title }} - {{ SITE_NAME }} v{{ VERSION }}
+{% endblock %}
 
-<html>
-  <head>
-    <title>{{ lang.settings.title }} - {{ SITE_NAME }} v{{ VERSION }}</title>
-    {% autoescape off %}
-    {{ HTML_HEADERS }}
-    {% endautoescape %}
-    <link rel="stylesheet" href="{% static '/css/home.css' %}?v={{ VERSION }}">
-    <link rel="stylesheet" href="{% static '/css/settings.css' %}?v={{ VERSION }}">
-  </head>
+{% block head %}
+  <link rel="stylesheet" href="{% static '/css/home.css' %}?v={{ VERSION }}">
+  <link rel="stylesheet" href="{% static '/css/settings.css' %}?v={{ VERSION }}">
+{% endblock %}
 
-  <body data-theme="{{ THEME }}" style="--banner: {{ BANNER_COLOR }}; --banner-two: {{ BANNER_COLOR_TWO }}">
-    <h1>{{ lang.settings.title }}</h1>
-    <div>&nbsp;<span id="error"></span>&nbsp;</div>
+{% block body %}
+  <h1>{{ lang.settings.title }}</h1>
+  <div>&nbsp;<span id="error"></span>&nbsp;</div>
 
-    <hr><br>
+  <hr><br>
 
-    <button class="big-button primary" id="save">{{ lang.generic.save }}</button>
+  <button class="big-button primary" id="save">{{ lang.generic.save }}</button>
 
-    <div class="settings-container">
-      <div class="settings-side">
-        <h2>{{ lang.settings.profile_title }}</h2>
+  <div class="settings-container">
+    <div class="settings-side">
+      <h2>{{ lang.settings.profile_title }}</h2>
 
-        {{ lang.settings.profile_basic_title }}<br>
-        <input id="displ-name" autocomplete="off" placeholder="{{ lang.settings.profile_display_name_placeholder }}" value="{{ DISPLAY_NAME }}" maxlength="{{ MAX_DISPL_NAME_LENGTH }}"><br>
-        {% if ENABLE_USER_BIOS == 'true' %}
-          <textarea id="bio" placeholder="{{ lang.settings.profile_bio_placeholder }}" maxlength="{{ MAX_BIO_LENGTH }}">{{ USER_BIO }}</textarea>
-        {% endif %}<br><br>
+      {{ lang.settings.profile_basic_title }}<br>
+      <input id="displ-name" autocomplete="off" placeholder="{{ lang.settings.profile_display_name_placeholder }}" value="{{ DISPLAY_NAME }}" maxlength="{{ MAX_DISPL_NAME_LENGTH }}"><br>
+      {% if ENABLE_USER_BIOS == 'true' %}
+        <textarea id="bio" placeholder="{{ lang.settings.profile_bio_placeholder }}" maxlength="{{ MAX_BIO_LENGTH }}">{{ USER_BIO }}</textarea>
+      {% endif %}<br><br>
 
-        {% if ENABLE_PRONOUNS == 'true' %}
-          {{ lang.settings.profile_pronouns_title }}<br>
-          <table class="center">
-            <tr>
-              <td class="right">{{ lang.settings.profile_pronouns_primary }}</td>
-              <td>
-                <select id="pronouns-primary">
-                  <option value="__">{{ lang.settings.profile_pronouns_unset }}</option>
-                  <option value="m">{{ lang.generic.pronouns.mm }}</option>
-                  <option value="o">{{ lang.generic.pronouns.oo }}</option>
-                  <option value="f">{{ lang.generic.pronouns.ff }}</option>
-                  <option value="n">{{ lang.generic.pronouns.nn }}</option>
-                  <option value="a">{{ lang.generic.pronouns.aa }}</option>
-                  <option value="_a">{{ lang.generic.pronouns.a }}</option>
-                  <option value="_v">{{ lang.generic.pronouns.v }}</option>
-                  <option value="_o">{{ lang.generic.pronouns.o }}</option>
-                </select>
-              </td>
-            </tr>
+      {% if ENABLE_PRONOUNS == 'true' %}
+        {{ lang.settings.profile_pronouns_title }}<br>
+        <table class="center">
+          <tr>
+            <td class="right">{{ lang.settings.profile_pronouns_primary }}</td>
+            <td>
+              <select id="pronouns-primary">
+                <option value="__">{{ lang.settings.profile_pronouns_unset }}</option>
+                <option value="m">{{ lang.generic.pronouns.mm }}</option>
+                <option value="o">{{ lang.generic.pronouns.oo }}</option>
+                <option value="f">{{ lang.generic.pronouns.ff }}</option>
+                <option value="n">{{ lang.generic.pronouns.nn }}</option>
+                <option value="a">{{ lang.generic.pronouns.aa }}</option>
+                <option value="_a">{{ lang.generic.pronouns.a }}</option>
+                <option value="_v">{{ lang.generic.pronouns.v }}</option>
+                <option value="_o">{{ lang.generic.pronouns.o }}</option>
+              </select>
+            </td>
+          </tr>
 
-            <tr id="pronouns-secondary-container">
-              <td class="right">{{ lang.settings.profile_pronouns_secondary }}</td>
-              <td>
-                <select id="pronouns-secondary">
-                  <option value="i">{{ lang.settings.profile_pronouns_inherit }}</option>
-                  <option value="m">{{ lang.generic.pronouns.mm }}</option>
-                  <option value="o">{{ lang.generic.pronouns.oo }}</option>
-                  <option value="f">{{ lang.generic.pronouns.ff }}</option>
-                  <option value="n">{{ lang.generic.pronouns.nn }}</option>
-                  <option value="a">{{ lang.generic.pronouns.aa }}</option>
-                  <option value="x">{{ lang.generic.pronouns.o }}</option>
-                </select>
-              </td>
-            </tr>
-          </table><br>
+          <tr id="pronouns-secondary-container">
+            <td class="right">{{ lang.settings.profile_pronouns_secondary }}</td>
+            <td>
+              <select id="pronouns-secondary">
+                <option value="i">{{ lang.settings.profile_pronouns_inherit }}</option>
+                <option value="m">{{ lang.generic.pronouns.mm }}</option>
+                <option value="o">{{ lang.generic.pronouns.oo }}</option>
+                <option value="f">{{ lang.generic.pronouns.ff }}</option>
+                <option value="n">{{ lang.generic.pronouns.nn }}</option>
+                <option value="a">{{ lang.generic.pronouns.aa }}</option>
+                <option value="x">{{ lang.generic.pronouns.o }}</option>
+              </select>
+            </td>
+          </tr>
+        </table><br>
 
-          <script>
-            let user_pronouns = "{{ PRONOUNS }}";
-          </script>
-        {% endif %}
+        <script>
+          let user_pronouns = "{{ PRONOUNS }}";
+        </script>
+      {% endif %}
 
-        {{ lang.settings.profile_banner_title }}<br>
-        <div id="banner"></div><br>
-        <input id="banner-color" value="{{ BANNER_COLOR }}" type="color">
-        {% if ENABLE_GRADIENT_BANNERS == 'true' %}
-          <input hidden id="banner-color-two" value="{{ BANNER_COLOR_TWO }}" type="color"><br>
-          {{ lang.settings.profile_gradient }} <input id="banner-is-gradient" {{ CHECKED_IF_GRADIENT }} type="checkbox">
-        {% endif %}<br><br>
+      {{ lang.settings.profile_banner_title }}<br>
+      <div id="banner"></div><br>
+      <input id="banner-color" value="{{ BANNER_COLOR }}" type="color">
+      {% if ENABLE_GRADIENT_BANNERS == 'true' %}
+        <input hidden id="banner-color-two" value="{{ BANNER_COLOR_TWO }}" type="color"><br>
+        {{ lang.settings.profile_gradient }} <input id="banner-is-gradient" {{ CHECKED_IF_GRADIENT }} type="checkbox">
+      {% endif %}<br><br>
 
-        {{ lang.settings.profile_private }} <input type="checkbox" id="priv" {{ CHECKED_IF_PRIV }}><br>
-        <div class="small-mw">{{ lang.settings.profile_private_description }}</div>
-      </div>
-
-      <div>
-        <h2>{{ lang.settings.cosmetic_title }}</h2>
-        {{ lang.settings.cosmetic_theme }}:<br>
-        <select id="theme">
-          <option {{ SELECTED_IF_LIGHT }} value="light">{{ lang.settings.cosmetic_theme_light }}</option>
-          <option {{ SELECTED_IF_GRAY }}  value="gray" >{{ lang.settings.cosmetic_theme_gray  }}</option>
-          <option {{ SELECTED_IF_DARK }}  value="dark" >{{ lang.settings.cosmetic_theme_dark  }}</option>
-          <option {{ SELECTED_IF_BLACK }} value="black">{{ lang.settings.cosmetic_theme_black }}</option>
-          <option {{ SELECTED_IF_OLED }}  value="oled" >{{ lang.settings.cosmetic_theme_oled  }}</option>
-        </select><br><br>
-
-        {{ lang.settings.cosmetic_language }}:<br>
-        <select id="lang">
-          {% for LANG in LANGUAGES %}
-            <option value="{{ LANG.code }}" {% if LANG.code == LANGUAGE %}selected{% endif %}>{{ LANG.name }}</option>
-          {% endfor %}
-        </select><br><br>
-
-        {{ lang.settings.cosmetic_color }}:<br>
-        <div id="color-selector"></div>
-        <div id="post-example"></div><br><br>
-      </div>
-
-      <div id="switcher" class="settings-side">
-        <h2>{{ lang.settings.account_title }}</h2>
-        {{ lang.settings.account_password }}<br>
-        <input type="text" hidden disabled> <!-- this just prevents browsers from trying to autofill the display name box with the username even thoguh autocomplete is set to off -->
-        <input type="password" autocomplete="off" placeholder="{{ lang.settings.account_password_current }}" id="current"><br>
-        <input type="password" autocomplete="off" placeholder="{{ lang.settings.account_password_new }}" id="password"><br>
-        <input type="password" autocomplete="off" placeholder="{{ lang.account.confirm_placeholder }}" id="confirm"><br>
-        <button id="toggle-password">{{ lang.account.toggle_password }}</button>
-        <button id="set-password">{{ lang.generic.save }}</button><br><br>
-
-        {{ lang.settings.account_switcher }}<br>
-        <select id="accs"></select><br>
-        <button id="acc-switch">{{ lang.settings.account_switcher_switch }}</button>
-        <button id="acc-remove">{{ lang.settings.account_switcher_remove}}</button><br><br>
-        <a href="/logout?from=switcher">{{ lang.settings.account_switcher_add }}</a>
-      </div>
+      {{ lang.settings.profile_private }} <input type="checkbox" id="priv" {{ CHECKED_IF_PRIV }}><br>
+      <div class="small-mw">{{ lang.settings.profile_private_description }}</div>
     </div>
 
-    {% if ADMIN == "true" %}
-      <a href='/admin'>{{ lang.settings.admin }}</a><br>
-    {% endif %}
+    <div>
+      <h2>{{ lang.settings.cosmetic_title }}</h2>
+      {{ lang.settings.cosmetic_theme }}:<br>
+      <select id="theme">
+        <option {{ SELECTED_IF_LIGHT }} value="light">{{ lang.settings.cosmetic_theme_light }}</option>
+        <option {{ SELECTED_IF_GRAY }}  value="gray" >{{ lang.settings.cosmetic_theme_gray  }}</option>
+        <option {{ SELECTED_IF_DARK }}  value="dark" >{{ lang.settings.cosmetic_theme_dark  }}</option>
+        <option {{ SELECTED_IF_BLACK }} value="black">{{ lang.settings.cosmetic_theme_black }}</option>
+        <option {{ SELECTED_IF_OLED }}  value="oled" >{{ lang.settings.cosmetic_theme_oled  }}</option>
+      </select><br><br>
 
-    {% if SOURCE == "true" %}
-      <a href="https://github.com/jerimiah-smiggins/smiggins" target="_blank">{{ lang.generic.source_code }}</a><br>
-    {% endif %}
+      {{ lang.settings.cosmetic_language }}:<br>
+      <select id="lang">
+        {% for LANG in LANGUAGES %}
+          <option value="{{ LANG.code }}" {% if LANG.code == LANGUAGE %}selected{% endif %}>{{ LANG.name }}</option>
+        {% endfor %}
+      </select><br><br>
 
-    <a href="/logout">{{ lang.settings.logout }}</a><br><br>
+      {{ lang.settings.cosmetic_color }}:<br>
+      <div id="color-selector"></div>
+      <div id="post-example"></div><br><br>
+    </div>
 
-    <hr><br>
+    <div id="switcher" class="settings-side">
+      <h2>{{ lang.settings.account_title }}</h2>
+      {{ lang.settings.account_password }}<br>
+      <input type="text" hidden disabled> <!-- this just prevents browsers from trying to autofill the display name box with the username even thoguh autocomplete is set to off -->
+      <input type="password" autocomplete="off" placeholder="{{ lang.settings.account_password_current }}" id="current"><br>
+      <input type="password" autocomplete="off" placeholder="{{ lang.settings.account_password_new }}" id="password"><br>
+      <input type="password" autocomplete="off" placeholder="{{ lang.account.confirm_placeholder }}" id="confirm"><br>
+      <button id="toggle-password">{{ lang.account.toggle_password }}</button>
+      <button id="set-password">{{ lang.generic.save }}</button><br><br>
 
-    {{ SITE_NAME }} v{{ VERSION }}<br>
-    <a href="/changelog">{{ lang.changelog.title }}</a><br>
-    <a href="/contact">{{ lang.contact.title }}</a>
+      {{ lang.settings.account_switcher }}<br>
+      <select id="accs"></select><br>
+      <button id="acc-switch">{{ lang.settings.account_switcher_switch }}</button>
+      <button id="acc-remove">{{ lang.settings.account_switcher_remove}}</button><br><br>
+      <a href="/logout?from=switcher">{{ lang.settings.account_switcher_add }}</a>
+    </div>
+  </div>
 
-    <script src="{% static '/js/settings.js' %}?v={{ VERSION }}"></script>
-    {% autoescape off %}
-    {{ HTML_FOOTERS }}
-    {% endautoescape %}
-  </body>
-</html>
+  {% if ADMIN == "true" %}
+    <a href='/admin'>{{ lang.settings.admin }}</a><br>
+  {% endif %}
+
+  {% if SOURCE == "true" %}
+    <a href="https://github.com/jerimiah-smiggins/smiggins" target="_blank">{{ lang.generic.source_code }}</a><br>
+  {% endif %}
+
+  <a href="/logout">{{ lang.settings.logout }}</a><br><br>
+
+  <hr><br>
+
+  {{ SITE_NAME }} v{{ VERSION }}<br>
+  <a href="/changelog">{{ lang.changelog.title }}</a><br>
+  <a href="/contact">{{ lang.contact.title }}</a>
+
+  <script src="{% static '/js/settings.js' %}?v={{ VERSION }}"></script>
+{% endblock %}

@@ -1,29 +1,23 @@
+{% extends "base.html" %}
 {% load static %}
-<!DOCTYPE html>
 
-<html>
-  <head>
-    <title>{{ lang.messages.list_title }} - {{ SITE_NAME }} v{{ VERSION }}</title>
-    {% autoescape off %}
-    {{ HTML_HEADERS }}
-    {% endautoescape %}
+{% block title %}
+  {{ lang.messages.list_title }} - {{ SITE_NAME }} v{{ VERSION }}
+{% endblock %}
 
-    <link rel="stylesheet" href="{% static '/css/messages.css' %}?v={{ VERSION }}">
-    <link rel="stylesheet" href="{% static '/css/home.css' %}?v={{ VERSION }}">
-  </head>
+{% block head %}
+  <link rel="stylesheet" href="{% static '/css/messages.css' %}?v={{ VERSION }}">
+  <link rel="stylesheet" href="{% static '/css/home.css' %}?v={{ VERSION }}">
+{% endblock %}
 
-  <body data-theme="{{ THEME }}">
-    <h1>{{ lang.messages.list_subtitle }}</h1>
-    <div id="error"></div>
-    <button id="refresh" onclick="refresh(true);">{{ lang.generic.refresh }}</button><br><br>
+{% block body %}
+  <h1>{{ lang.messages.list_subtitle }}</h1>
+  <div id="error"></div>
+  <button id="refresh" onclick="refreshMessageList(true);">{{ lang.generic.refresh }}</button><br><br>
 
-    <div id="recent-list"></div>
+  <div id="recent-list"></div>
 
-    <button id="more" onclick="refresh();" hidden>{{ lang.generic.load_more }}</button>
+  <button id="more" onclick="refreshMessageList();" hidden>{{ lang.generic.load_more }}</button>
 
-    <script src="{% static '/js/messages.js' %}?v={{ VERSION }}"></script>
-    {% autoescape off %}
-    {{ HTML_FOOTERS }}
-    {% endautoescape %}
-  </body>
-</html>
+  <script src="{% static '/js/messages.js' %}?v={{ VERSION }}"></script>
+{% endblock %}

@@ -1,50 +1,41 @@
+{% extends "base.html" %}
 {% load static %}
-<!DOCTYPE html>
 
-<html>
-  <head>
-    <title>{{ lang.changelog.title }} - {{ SITE_NAME }} v{{ VERSION }}</title>
-    {% autoescape off %}
-    {{ HTML_HEADERS }}
-    {% endautoescape %}
+{% block title %}
+  {{ lang.changelog.title }} - {{ SITE_NAME }} v{{ VERSION }}
+{% endblock %}
 
-    <meta name="description" content="{{ lang.changelog.title }}">
-    <meta name="author" content="{{ SITE_NAME }} v{{ VERSION }}">
+{% block meta %}
+  <meta name="description" content="{{ lang.changelog.title }}">
+  <meta name="author" content="{{ SITE_NAME }} v{{ VERSION }}">
 
-    <meta property="og:type" content="website">
-    <meta property="og:title" content="{{ SITE_NAME }} v{{ VERSION }}">
-    <meta property="og:description" content="{{ lang.changelog.title }}">
+  <meta property="og:title" content="{{ SITE_NAME }} v{{ VERSION }}">
+  <meta property="og:description" content="{{ lang.changelog.title }}">
 
-    <meta name="twitter:card" content="summary_large_image">
-    <meta name="twitter:title" content="{{ SITE_NAME }} v{{ VERSION }}">
-    <meta name="twitter:description" content="{{ lang.changelog.title }}">
-  </head>
+  <meta name="twitter:title" content="{{ SITE_NAME }} v{{ VERSION }}">
+  <meta name="twitter:description" content="{{ lang.changelog.title }}">
+{% endblock %}
 
-  <body data-theme="{{ THEME }}">
-    <h1>{{ lang.changelog.title }}</h1>
-    <h3>{{ SITE_NAME }} v{{ VERSION }}</h3>
+{% block body %}
+  <h1>{{ lang.changelog.title }}</h1>
+  <h3>{{ SITE_NAME }} v{{ VERSION }}</h3>
 
-    {% for VERSION in lang.changelog.logs %}
-      <div>
-        <div class="inline-block">
-          <h3>{{ VERSION.name }}</h3>
-          <ul class="left">
-            {% for CHANGE in VERSION.changes %}
-              <li>{{ CHANGE }}</li>
-            {% empty %}
-              <li>{{ lang.changelog.unknown}}</li>
-            {% endfor %}
-          </ul>
-        </div>
+  {% for version, changes in lang.changelog.changes.items %}
+    <div>
+      <div class="inline-block">
+        <h3>{{ version }}</h3>
+        <ul class="left">
+          {% for _, change in changes.items %}
+            <li>{{ change }}</li>
+          {% empty %}
+            <li>{{ lang.changelog.unknown }}</li>
+          {% endfor %}
+        </ul>
       </div>
-    {% endfor %}
+    </div>
+  {% endfor %}
 
-    <script>
-      let home = true;
-    </script>
-
-    {% autoescape off %}
-    {{ HTML_FOOTERS }}
-    {% endautoescape %}
-  </body>
-</html>
+  <script>
+    home = true;
+  </script>
+{% endblock %}

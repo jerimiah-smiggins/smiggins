@@ -20,45 +20,6 @@ for i in sorted(VALID_LANGUAGES_TEMP):
         "code": i[:-5:]
     })
 
-# Headers set at the top of every html file.
-HTML_HEADERS: str = f"""
-<meta charset="utf-8">
-<meta name="viewport" content="width=device-width,initial-scale=1">
-<meta name="pronouns" content="she/her">
-
-<link rel="stylesheet" href="/static/css/base.css?v={VERSION}">
-<link rel="icon" href="/static/img/favicon.ico?v={VERSION}" type="image/x-icon">
-
-<script src="/static/js/linkify-4.1.3.min.js?v={VERSION}"></script>
-<script src="/static/js/linkify-html-4.1.3.min.js?v={VERSION}"></script>
-<script src="/static/js/linkify-mentions-4.1.3.min.js?v={VERSION}"></script>
-{f'<script src="/static/js/linkify-hashtags-4.1.3.min.js?v={VERSION}"></script>' if ENABLE_HASHTAGS else ''}
-
-<script>
-  const MAX_USERNAME_LENGTH = {MAX_USERNAME_LENGTH};
-  const MAX_POST_LENGTH = {MAX_POST_LENGTH};
-  const MAX_DISPL_NAME_LENGTH = {MAX_DISPL_NAME_LENGTH};
-  const MAX_BIO_LENGTH = {MAX_BIO_LENGTH};
-
-  const ENABLE_USER_BIOS = {str(ENABLE_USER_BIOS).lower()};
-  const ENABLE_PRONOUNS = {str(ENABLE_PRONOUNS).lower()};
-  const ENABLE_GRADIENT_BANNERS = {str(ENABLE_GRADIENT_BANNERS).lower()};
-  const ENABLE_BADGES = {str(ENABLE_BADGES).lower()};
-  const ENABLE_PRIVATE_MESSAGES = {str(ENABLE_PRIVATE_MESSAGES).lower()};
-  const ENABLE_QUOTES = {str(ENABLE_QUOTES).lower()};
-  const ENABLE_POST_DELETION = {str(ENABLE_POST_DELETION).lower()};
-  const ENABLE_HASHTAGS = {str(ENABLE_HASHTAGS).lower()};
-</script>
-
-{f'<script src="/badges.js?v={VERSION}"></script>' if ENABLE_BADGES else ''}
-<script src="/static/js/base.js?v={VERSION}"></script>
-"""
-
-# Headers set at the bottom of some html files.
-HTML_FOOTERS: str = f"""
-<script src="/static/js/base_footer.js?v={VERSION}"></script>
-"""
-
 # Used when hashing user tokens
 PRIVATE_AUTHENTICATOR_KEY: str = hashlib.sha256(auth_key).hexdigest()
 

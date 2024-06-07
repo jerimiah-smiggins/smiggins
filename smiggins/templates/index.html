@@ -1,33 +1,13 @@
-<!DOCTYPE html>
+{% extends "base.html" %}
 
-<html>
-  <head>
-    <title>{{ SITE_NAME }} v{{ VERSION }}</title>
-    {% autoescape off %}
-    {{ HTML_HEADERS }}
-    {% endautoescape %}
+{% block body %}
+  <h1>{{ SITE_NAME }}</h1>
+  <h3>v{{ VERSION }}</h3>
+  <a href="/signup">{{ lang.account.sign_up_title }}</a> -
+  <a href="/login">{{ lang.account.log_in_title }}</a>
 
-    <meta name="description" content="social media thing">
-    <meta name="author" content="{{ SITE_NAME }} v{{ VERSION }}">
-
-    <meta property="og:type" content="website">
-    <meta property="og:title" content="{{ SITE_NAME }} v{{ VERSION }}">
-    <meta property="og:description" content="social media thing">
-
-    <meta name="twitter:card" content="summary_large_image">
-    <meta name="twitter:title" content="{{ SITE_NAME }} v{{ VERSION }}">
-    <meta name="twitter:description" content="social media thing">
-  </head>
-
-  <body data-theme="{{ THEME }}">
-    <h1>{{ SITE_NAME }}</h1>
-    <h3>v{{ VERSION }}</h3>
-    <a href="/signup">{{ lang.account.sign_up_title }}</a> -
-    <a href="/login">{{ lang.account.log_in_title }}</a>
-
-    {% if SOURCE == "true" %}
-      <br><br>
-      <a href="https://github.com/jerimiah-smiggins/smiggins" target="_blank">{{ lang.generic.source_code }}</a>
-    {% endif %}
-  </body>
-</html>
+  {% if SOURCE == "true" %}
+    <br><br>
+    <a href="https://github.com/jerimiah-smiggins/smiggins" target="_blank">{{ lang.generic.source_code }}</a>
+  {% endif %}
+{% endblock %}

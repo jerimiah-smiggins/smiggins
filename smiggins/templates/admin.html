@@ -1,122 +1,117 @@
+
+{% extends "base.html" %}
 {% load static %}
-<!DOCTYPE html>
 
-<html>
-  <head>
-    <title>{{ lang.admin.title }} - {{ SITE_NAME }} v{{ VERSION }}</title>
-    {% autoescape off %}
-    {{ HTML_HEADERS }}
-    {% endautoescape %}
-    <link rel="stylesheet" href="{% static "/css/admin.css" %}">
+{% block title %}
+  {{ lang.admin.title }} - {{ SITE_NAME }} v{{ VERSION }}
+{% endblock %}
 
-    <script>
-      const level = {{ LEVEL }};
-    </script>
-  </head>
+{% block head %}
+  <link rel="stylesheet" href="{% static "/css/admin.css" %}?v={{ VERSION }}">
+  <script>
+    const adminLevel = {{ LEVEL }};
+  </script>
+{% endblock %}
 
-  <body data-theme="{{ THEME }}">
-    <h1>{{ lang.admin.title }}: {{ lang.admin.level }} {{ LEVEL }}/5</h1>
-    <div>&nbsp;<span id="error"></span>&nbsp;</div>
+{% block body %}
+  <h1>{{ lang.admin.title }}: {{ lang.admin.level }} {{ LEVEL }}/5</h1>
+  <div>&nbsp;<span id="error"></span>&nbsp;</div>
 
-    <hr>
+  <hr>
 
-    <div class="actions-container">
-      {% if ENABLE_POST_DELETION == 'true' %}
-        <div>
-          <h2>{{ lang.admin.level }} 1</h2>
+  <div class="actions-container">
+    {% if ENABLE_POST_DELETION == 'true' %}
+      <div>
+        <h2>{{ lang.admin.level }} 1</h2>
 
-          <h3>{{ lang.admin.post_deletion_title }}</h3>
-          <div id="post-deletion">
-            <input id="post-id" placeholder="{{ lang.admin.post_id_placeholder }}"><br>
-            {{ lang.admin.is_comment_label }} <input id="comment-toggle" type="checkbox"><br>
-            <button id="post-delete">{{ lang.admin.post_deletion_button }}</button>
-          </div>
+        <h3>{{ lang.admin.post_deletion_title }}</h3>
+        <div id="post-deletion">
+          <input id="post-id" placeholder="{{ lang.admin.post_id_placeholder }}"><br>
+          {{ lang.admin.is_comment_label }} <input id="comment-toggle" type="checkbox"><br>
+          <button id="post-delete">{{ lang.admin.post_deletion_button }}</button>
         </div>
-      {% endif %}
-
-      {% if LEVEL >= 2 %}
-        <div>
-          <h2>{{ lang.admin.level }} 2</h2>
-
-          <h3>{{ lang.admin.account_deletion_title }}</h3>
-          <div>
-            <input id="account-del-identifier" placeholder="{{ lang.admin.user_id_placeholder }}"><br>
-            {{ lang.admin.use_id_label }} <input id="delete-id-toggle" type="checkbox"><br>
-            <button id="account-delete">{{ lang.admin.account_deletion_button }}</button>
-          </div>
-        </div>
-      {% endif %}
-
-      {% if LEVEL >= 3 and ENABLE_BADGES == 'true' %}
-        <div>
-          <h2>{{ lang.admin.level }} 3</h2>
-
-          <h3>{{ lang.admin.badge_manage_title }}</h3>
-          <input id="badge-identifier" placeholder="{{ lang.admin.user_id_placeholder }}"><br>
-          {{ lang.admin.use_id_label }} <input id="badge-use-id" type="checkbox"><br>
-          <select id="badge-name">
-            {% for BADGE in BADGE_DATA %}
-              {% if BADGE != "administrator" %}
-                <option value="{{ BADGE }}">{{ BADGE }}</option>
-              {% endif %}
-            {% empty %}
-              <option value="">{{ lang.admin.badge_manage_empty }}</option>
-            {% endfor %}
-          </select><br>
-          <button id="badge-add">{{ lang.admin.badge_manage_add_button }}</button> <button id="badge-remove">{{ lang.admin.badge_manage_remove_button }}</button>
-
-          <h3>{{ lang.admin.badge_create_title }}</h3>
-          <input id="badge-create-name" placeholder="{{ lang.admin.badge_name_placeholder }}" maxlength="64"><br>
-          <textarea id="badge-create-data" placeholder="{{ lang.admin.badge_data_placeholder }}" maxlength="65536"></textarea><br>
-          <button id="badge-create">{{ lang.admin.badge_create_button }}</button>
-
-          <h3>{{ lang.admin.badge_delete_title }}</h3>
-          <input id="badge-delete-name" placeholder="{{ lang.admin.badge_name_placeholder }}"><br>
-          <button id="badge-delete">{{ lang.admin.badge_delete_button }}</button>
-        </div>
-      {% endif %}
-
-      {% if LEVEL >= 4 %}
-        <div>
-          <h2>{{ lang.admin.level }} 4</h2>
-
-          <h3>{{ lang.admin.modify_title }}</h3>
-          <input id="data-identifier" placeholder="{{ lang.admin.user_id_placeholder }}"><br>
-          {{ lang.admin.use_id_label }} <input type="checkbox" id="data-use-id"><br>
-          <button id="data-get">{{ lang.admin.modify_get_button }}</button><br><br>
-
-          <div id="data-section"></div>
-        </div>
-      {% endif %}
-
-      {% if LEVEL >= 5 %}
-        <div>
-          <h2>{{ lang.admin.level }} 5</h2>
-
-          <h3>{{ lang.admin.level_title }}</h3>
-          <input id="level-identifier" placeholder="{{ lang.admin.user_id_placeholder }}"><br>
-          {{ lang.admin.use_id_label }} <input id="level-use-id" type="checkbox"><br>
-          <select id="level-selection">
-            <option value="0">{{ lang.admin.level_zero }}</option>
-            <option value="1">{{ lang.admin.level_one }}</option>
-            <option value="2">{{ lang.admin.level_two }}</option>
-            <option value="3">{{ lang.admin.level_three }}</option>
-            <option value="4">{{ lang.admin.level_four }}</option>
-            <option value="5">{{ lang.admin.level_five }}</option>
-          </select><br>
-          <button id="level-set">{{ lang.admin.level_button }}</button>
-        </div>
-      {% endif %}
-    </div>
-
-    {% if LEVEL >= 4 %}
-      <br><br>
-      <div id="debug"><button id="debug-button">{{ lang.admin.logs_button }}</button></div>
+      </div>
     {% endif %}
 
-    <script src="{% static '/js/admin.js' %}?v={{ VERSION }}"></script>
-    {% autoescape off %}
-    {{ HTML_FOOTERS }}
-    {% endautoescape %}
-  </body>
-</html>
+    {% if LEVEL >= 2 %}
+      <div>
+        <h2>{{ lang.admin.level }} 2</h2>
+
+        <h3>{{ lang.admin.account_deletion_title }}</h3>
+        <div>
+          <input id="account-del-identifier" placeholder="{{ lang.admin.user_id_placeholder }}"><br>
+          {{ lang.admin.use_id_label }} <input id="delete-id-toggle" type="checkbox"><br>
+          <button id="account-delete">{{ lang.admin.account_deletion_button }}</button>
+        </div>
+      </div>
+    {% endif %}
+
+    {% if LEVEL >= 3 and ENABLE_BADGES == 'true' %}
+      <div>
+        <h2>{{ lang.admin.level }} 3</h2>
+
+        <h3>{{ lang.admin.badge_manage_title }}</h3>
+        <input id="badge-identifier" placeholder="{{ lang.admin.user_id_placeholder }}"><br>
+        {{ lang.admin.use_id_label }} <input id="badge-use-id" type="checkbox"><br>
+        <select id="badge-name">
+          {% for BADGE in BADGE_DATA %}
+            {% if BADGE != "administrator" %}
+              <option value="{{ BADGE }}">{{ BADGE }}</option>
+            {% endif %}
+          {% empty %}
+            <option value="">{{ lang.admin.badge_manage_empty }}</option>
+          {% endfor %}
+        </select><br>
+        <button id="badge-add">{{ lang.admin.badge_manage_add_button }}</button> <button id="badge-remove">{{ lang.admin.badge_manage_remove_button }}</button>
+
+        <h3>{{ lang.admin.badge_create_title }}</h3>
+        <input id="badge-create-name" placeholder="{{ lang.admin.badge_name_placeholder }}" maxlength="64"><br>
+        <textarea id="badge-create-data" placeholder="{{ lang.admin.badge_data_placeholder }}" maxlength="65536"></textarea><br>
+        <button id="badge-create">{{ lang.admin.badge_create_button }}</button>
+
+        <h3>{{ lang.admin.badge_delete_title }}</h3>
+        <input id="badge-delete-name" placeholder="{{ lang.admin.badge_name_placeholder }}"><br>
+        <button id="badge-delete">{{ lang.admin.badge_delete_button }}</button>
+      </div>
+    {% endif %}
+
+    {% if LEVEL >= 4 %}
+      <div>
+        <h2>{{ lang.admin.level }} 4</h2>
+
+        <h3>{{ lang.admin.modify_title }}</h3>
+        <input id="data-identifier" placeholder="{{ lang.admin.user_id_placeholder }}"><br>
+        {{ lang.admin.use_id_label }} <input type="checkbox" id="data-use-id"><br>
+        <button id="data-get">{{ lang.admin.modify_get_button }}</button><br><br>
+
+        <div id="data-section"></div>
+      </div>
+    {% endif %}
+
+    {% if LEVEL >= 5 %}
+      <div>
+        <h2>{{ lang.admin.level }} 5</h2>
+
+        <h3>{{ lang.admin.level_title }}</h3>
+        <input id="level-identifier" placeholder="{{ lang.admin.user_id_placeholder }}"><br>
+        {{ lang.admin.use_id_label }} <input id="level-use-id" type="checkbox"><br>
+        <select id="level-selection">
+          <option value="0">{{ lang.admin.level_zero }}</option>
+          <option value="1">{{ lang.admin.level_one }}</option>
+          <option value="2">{{ lang.admin.level_two }}</option>
+          <option value="3">{{ lang.admin.level_three }}</option>
+          <option value="4">{{ lang.admin.level_four }}</option>
+          <option value="5">{{ lang.admin.level_five }}</option>
+        </select><br>
+        <button id="level-set">{{ lang.admin.level_button }}</button>
+      </div>
+    {% endif %}
+  </div>
+
+  {% if LEVEL >= 4 %}
+    <br><br>
+    <div id="debug"><button id="debug-button">{{ lang.admin.logs_button }}</button></div>
+  {% endif %}
+
+  <script src="{% static '/js/admin.js' %}?v={{ VERSION }}"></script>
+{% endblock %}
