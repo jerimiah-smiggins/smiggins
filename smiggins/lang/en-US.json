@@ -372,7 +372,8 @@
       "changes": {
         "v0.9.3": {
           "1": "Rewrote frontend with typescript",
-          "2": "Completely remade how changelogs are stored"
+          "2": "Completely remade how changelogs are stored",
+          "3": "Fixed a bug that made you not be able to view certain pages while logged out"
         },
         "v0.9.2": {
           "1": "Added changelogs page",

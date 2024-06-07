@@ -56,6 +56,7 @@ Rewrote how changelogs are stored to make translating bit-by-bit easier
 
 ```diff
 - changelog.logs
++ changelog.changes.v0.9.3 {1, 2, 3}
 + changelog.changes.v0.9.2 {1, 2, 3, 4, 5}
 + changelog.changes.v0.9.1 {1, 2, 3, 4, 5, 6, 7}
 + changelog.changes.v0.9.0 {1, 2, 3}
