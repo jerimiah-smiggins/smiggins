@@ -47,6 +47,7 @@ type _postJSON = {
   quote?: _postJSON,
   quotes: number,
   timestamp: number,
+  logged_in: boolean,
 
   poll: {
     votes: number,

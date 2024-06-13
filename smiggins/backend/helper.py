@@ -243,7 +243,8 @@ def get_post_json(post_id: int, current_user_id: int=0, comment: bool=False, cac
         "can_view": True,
         "parent": post.parent if isinstance(post, Comment) else -1,
         "parent_is_comment": post.parent_is_comment if isinstance(post, Comment) else False,
-        "poll": poll
+        "poll": poll,
+        "logged_in": logged_in
     }
 
     if isinstance(post, Post) and post.quote != 0:

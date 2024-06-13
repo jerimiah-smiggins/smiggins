@@ -59,29 +59,30 @@ localStorage.setItem("acc-switcher", JSON.stringify(accounts));
 dom("color-selector").innerHTML = output;
 dom("post-example").innerHTML = getPostHTML(
   {
-    "creator": {
-      "badges": ["administrator"],
-      "color_one": "#" + Math.floor(Math.random() * 16777216).toString(16).padStart(6, "0"),
-      "color_two": "#" + Math.floor(Math.random() * 16777216).toString(16).padStart(6, "0"),
-      "display_name": lang.settings.cosmetic_example_post_display_name,
-      "gradient_banner": true,
-      "private": false,
-      "pronouns": "aa",
-      "username": lang.settings.cosmetic_example_post_username,
+    creator: {
+      badges: ["administrator"],
+      color_one: "#" + Math.floor(Math.random() * 16777216).toString(16).padStart(6, "0"),
+      color_two: "#" + Math.floor(Math.random() * 16777216).toString(16).padStart(6, "0"),
+      display_name: lang.settings.cosmetic_example_post_display_name,
+      gradient_banner: true,
+      private: false,
+      pronouns: "aa",
+      username: lang.settings.cosmetic_example_post_username,
     },
-    "can_delete": false,
-    "can_view": true,
-    "comments": Math.floor(Math.random() * 100),
-    "content": lang.settings.cosmetic_example_post_content,
-    "liked": true,
-    "likes": Math.floor(Math.random() * 99) + 1,
-    "owner": false,
-    "parent_is_comment": false,
-    "parent": -1,
-    "post_id": 0,
-    "quotes": Math.floor(Math.random() * 100),
-    "timestamp": Date.now() / 1000 - Math.random() * 86400,
-    "poll": null
+    can_delete: false,
+    can_view: true,
+    comments: Math.floor(Math.random() * 100),
+    content: lang.settings.cosmetic_example_post_content,
+    liked: true,
+    likes: Math.floor(Math.random() * 99) + 1,
+    owner: false,
+    parent_is_comment: false,
+    parent: -1,
+    post_id: 0,
+    quotes: Math.floor(Math.random() * 100),
+    timestamp: Date.now() / 1000 - Math.random() * 86400,
+    poll: null,
+    logged_in: true
   }, false, false, false, true
 );
 

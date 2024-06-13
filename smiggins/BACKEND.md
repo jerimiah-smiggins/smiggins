@@ -299,7 +299,7 @@ class NewPost(Schema)
 The schema for creating a new post
 
 ```py
-class NewQuote(NewPost)
+class NewQuote(Schema)
 ```
 The schema for creating a new quote
 
@@ -307,6 +307,11 @@ The schema for creating a new quote
 class PostID(Schema)
 ```
 The schema that contains just a post ID
+
+```py
+class Poll(Schema)
+```
+The schema for voting on a poll
 
 ```py
 def post_create(
@@ -327,8 +332,7 @@ This handles creating a post. Called from a PUT request to `/api/quote/create`.
 ```py
 def hashtag_list(
   request: django.core.handlers.wsgi.WSGIRequest,
-  hashtag: str,
-  offset: int = -1
+  hashtag: str
 ) -> tuple | dict
 ```
 Returns a randomized list of posts with the specified hashtag hashtag. Called
@@ -401,6 +405,14 @@ def unpin_post(
 ) -> tuple | int
 ```
 Handles unpinning a post. Called from a DELETE request to `/api/user/pin`
+
+```py
+def poll_vote(
+  request: django.core.handlers.wsgi.WSGIRequest,
+  data: Poll
+)
+```
+Handles voting on a poll. Called from a POST request to `/api/post/vote`
 
 ## ./backend/api/user.py
 This file is for api functions that are related to user profiles and account

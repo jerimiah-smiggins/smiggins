@@ -204,7 +204,7 @@ function getPostHTML(postJSON, isComment = false, includeUserLink = true, includ
       ${postJSON.poll && typeof postJSON.poll == "object" ? (() => {
         let output = `<div id="gi-${globalIncrement}">`;
         let c = 0;
-        if (postJSON.poll.voted) {
+        if (postJSON.poll.voted || !postJSON.logged_in) {
             for (const option of postJSON.poll.content) {
                 c++;
                 output += `<div class="poll-bar-container">

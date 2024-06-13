@@ -30,6 +30,12 @@ hr {
   border-color: var(--accent);
 }
 
+small {
+  display: block;
+  font-size: 0.7em;
+  color: var(--subtext0);
+}
+
 @media screen and (min-width: 1025px) {
   body {
     font-size: 16px;

@@ -40,6 +40,7 @@ def post_create(request, data: NewPost) -> tuple | dict:
 
     poll = []
     for i in data.poll:
+        i = trim_whitespace(i, True)
         if i:
             if len(i) > MAX_POLL_OPTION_LENGTH:
                 return 400, {

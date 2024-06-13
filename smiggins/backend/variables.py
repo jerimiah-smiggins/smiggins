@@ -3,7 +3,7 @@
 # this file if you want.
 
 from ._api_keys import auth_key
-from ._settings import MAX_USERNAME_LENGTH, MAX_POST_LENGTH, MAX_DISPL_NAME_LENGTH, MAX_BIO_LENGTH, ADMIN_LOG_PATH, VERSION, ENABLE_USER_BIOS, ENABLE_PRONOUNS, ENABLE_GRADIENT_BANNERS, ENABLE_BADGES, ENABLE_PRIVATE_MESSAGES, ENABLE_QUOTES, ENABLE_POST_DELETION, ENABLE_HASHTAGS
+from ._settings import ADMIN_LOG_PATH
 from .packages  import Badge, hashlib, ensure_file, pathlib, os, json
 from django.db.utils import OperationalError
 
