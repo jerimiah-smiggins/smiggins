@@ -236,7 +236,7 @@ def post(request, post_id: int) -> HttpResponse:
         POST_ID   = str(post_id),
         COMMENT   = "false",
         POST_JSON = json.dumps(post_json),
-        CONTENT   = post.content,
+        CONTENT   = post.content + ("\n" + lang["home"]["quote_poll"] if post.poll else "\n" + lang["home"]["quote_recursive"] if post.quote else ""),
         EMBED_TITLE = lang["user_page"]["user_on_smiggins"].replace("%t", SITE_NAME).replace("%s", creator.display_name),
 
         LIKES = lang["post_page"]["likes"].replace("%s", str(post_json["likes"])),
