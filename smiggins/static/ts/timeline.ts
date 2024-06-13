@@ -13,11 +13,11 @@ function showlog(str: string, time: number = 3000): void {
   }, time);
 };
 
-function deletePost(post_id: number, isComment: boolean, pageFocus: boolean): void {
+function deletePost(postId: number, isComment: boolean, pageFocus: boolean): void {
   fetch(`/api/${isComment ? "comment" : "post"}`, {
     method: "DELETE",
     body: JSON.stringify({
-      "id": post_id
+      "id": postId
     })
   }).then((response: Response) => (response.json()))
     .then((json: {
@@ -27,7 +27,7 @@ function deletePost(post_id: number, isComment: boolean, pageFocus: boolean): vo
         if (pageFocus) {
           window.location.href = "/home";
         } else {
-          document.querySelector(`.post-container[data-${isComment ? "comment" : "post"}-id="${post_id}"]`).remove();
+          document.querySelector(`.post-container[data-${isComment ? "comment" : "post"}-id="${postId}"]`).remove();
         }
       }
     });
@@ -108,12 +108,12 @@ function addQuote(postID: number, isComment: boolean): void {
           post.innerHTML = "";
           refresh();
         } else {
-          (post.querySelector("log") as HTMLElement).innerText = json.reason;
+          (post.querySelector(".log") as HTMLElement).innerText = json.reason;
           c++;
           setTimeout(function() {
             --c;
             if (!c) {
-              (post.querySelector("log") as HTMLElement).innerText = "";
+              (post.querySelector(".log") as HTMLElement).innerText = "";
             }
           });
           throw json.reason;
@@ -132,20 +132,21 @@ function addQuote(postID: number, isComment: boolean): void {
   });
 }
 
-function toggleLike(post_id: number, type: string): void {
+function toggleLike(postId: number, type: string): void {
   if (typeof logged_in !== "undefined" && !logged_in) { return; }
 
-  let q: HTMLElement = document.querySelector(`div[data-${type}-id="${post_id}"] span.like-number`) as HTMLElement;
-  let h: HTMLElement = document.querySelector(`div[data-${type}-id="${post_id}"] button.like`) as HTMLElement;
-  let x: HTMLElement = document.querySelector(`div[data-${type}-id="${post_id}"] button.like svg`) as HTMLElement;
+  let q: HTMLElement = document.querySelector(`div[data-${type}-id="${postId}"] span.like-number`) as HTMLElement;
+  let h: HTMLElement = document.querySelector(`div[data-${type}-id="${postId}"] button.like`) as HTMLElement;
+  let x: HTMLElement = document.querySelector(`div[data-${type}-id="${postId}"] button.like svg`) as HTMLElement;
 
   if (h.dataset["liked"] == "true") {
     fetch(`/api/${type}/like`, {
       "method": "DELETE",
       "body": JSON.stringify({
-        "id": post_id
+        id: postId
       })
     });
+
     h.setAttribute("data-liked", "false");
     x.innerHTML = icons.unlike;
     q.innerHTML = String(+q.innerHTML - 1);
@@ -153,13 +154,46 @@ function toggleLike(post_id: number, type: string): void {
     fetch(`/api/${type}/like`, {
       "method": "POST",
       "body": JSON.stringify({
-        "id": post_id
+        id: postId
       })
     });
+
     h.setAttribute("data-liked", "true");
     x.innerHTML = icons.like;
     q.innerHTML = String(+q.innerHTML + 1);
   }
+}
+
+function vote(option: number, postID: number, gInc: number): void {
+  fetch("/api/post/vote", {
+    "method": "POST",
+    "body": JSON.stringify({
+      id: postID,
+      option: option
+    })
+  }).then((response: Response) => (response.json()))
+    .then((json: {
+      success: boolean
+    }) => {
+      if (json.success) {
+        let v: HTMLElement;
+        forEach(dom(`gi-${gInc}`).querySelectorAll(".poll-bar-container"), function(val: Element, index: number) {
+          let el: HTMLElement = val as HTMLElement;
+          let isVoted: boolean = +el.dataset.index == option;
+
+          v = el;
+          val.innerHTML = `<div class="poll-bar ${isVoted ? "voted" : ""}">
+            <div style="width:${(+el.dataset.votes + (isVoted ? 1 : 0)) / (+el.dataset.totalVotes + 1) * 100}%">
+              🥖
+            </div>
+          </div>
+          <div class="poll-text">
+            ${Math.round(((+el.dataset.votes + (isVoted ? 1 : 0))) / (+el.dataset.totalVotes + 1) * 1000) / 10}% - ` + val.innerHTML.replace('<div class="poll-text">', "");
+        });
+
+        dom(`gi-${gInc}`).querySelector("small").innerHTML = (+v.dataset.totalVotes ? lang.home.poll_total_plural : lang.home.poll_total_singular).replaceAll("%s", +v.dataset.totalVotes + 1);
+      }
+    });
 }
 
 if (typeof disableTimeline === 'undefined' || !disableTimeline) {
@@ -224,6 +258,7 @@ if (typeof disableTimeline === 'undefined' || !disableTimeline) {
       .catch((err: Error) => {
         --c;
         showlog(lang.generic.something_went_wrong, 5000);
+        throw err;
       });
   }
 

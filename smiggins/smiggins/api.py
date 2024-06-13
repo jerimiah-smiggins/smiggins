@@ -66,6 +66,8 @@ api.delete("post/like",    response=response_schema)(ApiPost.post_like_remove)
 api.post  ("comment/like", response=response_schema)(ApiComment.comment_like_add)
 api.delete("comment/like", response=response_schema)(ApiComment.comment_like_remove)
 
+api.post("post/vote", response=response_schema)(ApiPost.poll_vote)
+
 api.patch ("user/pin", response=response_schema)(ApiPost.pin_post)
 api.delete("user/pin", response=response_schema)(ApiPost.unpin_post)
 

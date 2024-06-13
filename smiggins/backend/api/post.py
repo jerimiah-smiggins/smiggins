@@ -1,18 +1,24 @@
 # For API functions that relate to posts, for example creating, fetching home lists, etc.
 
-from .._settings import API_TIMINGS, MAX_POST_LENGTH, POSTS_PER_REQUEST, OWNER_USER_ID
+from .._settings import API_TIMINGS, MAX_POST_LENGTH, POSTS_PER_REQUEST, OWNER_USER_ID, MAX_POLL_OPTIONS, MAX_POLL_OPTION_LENGTH
 from ..packages  import User, Post, Comment, Hashtag, time, sys, Schema, random
 from ..helper    import ensure_ratelimit, create_api_ratelimit, validate_username, trim_whitespace, get_post_json, log_admin_action, create_notification, find_mentions, find_hashtags, get_lang, DEFAULT_LANG
 
 class NewPost(Schema):
     content: str
+    poll: list[str]
 
-class NewQuote(NewPost):
+class NewQuote(Schema):
+    content: str
     quote_id: int
     quote_is_comment: bool
 
 class PostID(Schema):
     id: int
+
+class Poll(Schema):
+    id: int
+    option: int
 
 def post_create(request, data: NewPost) -> tuple | dict:
     # Called when a new post is created.
@@ -27,9 +33,31 @@ def post_create(request, data: NewPost) -> tuple | dict:
             "reason": lang["generic"]["ratelimit"]
         }
 
+    if len(data.poll) > MAX_POLL_OPTIONS:
+        return 400, {
+            "success": False
+        }
+
+    poll = []
+    for i in data.poll:
+        if i:
+            if len(i) > MAX_POLL_OPTION_LENGTH:
+                return 400, {
+                    "success": False
+                }
+
+            poll.append(i)
+
+    if len(poll) == 1:
+        lang = get_lang(user)
+        return 400, {
+            "success": False,
+            "reason": lang["post"]["invalid_poll"]
+        }
+
     content = trim_whitespace(data.content)
 
-    if len(content) > MAX_POST_LENGTH or len(content) < 1:
+    if len(content) > MAX_POST_LENGTH or len(content) < (0 if len(poll) else 1):
         create_api_ratelimit("api_post_create", API_TIMINGS["create post failure"], token)
         lang = get_lang(user)
         return 400, {
@@ -46,7 +74,12 @@ def post_create(request, data: NewPost) -> tuple | dict:
         timestamp = timestamp,
         likes = [],
         comments = [],
-        quotes = []
+        quotes = [],
+        poll = {
+            "votes": [],
+            "choices": len(poll),
+            "content": [{ "value": i, "votes": [] } for i in poll]
+        } if poll else None
     )
 
     post = Post.objects.get(
@@ -174,7 +207,7 @@ def quote_create(request, data: NewQuote) -> tuple | dict:
         "post_id": post.post_id
     }
 
-def hashtag_list(request, hashtag: str, offset: int=-1) -> tuple | dict:
+def hashtag_list(request, hashtag: str) -> tuple | dict:
     # Returns a list of hashtags. `offset` is a filler variable.
 
     token = request.COOKIES.get("token")
@@ -561,4 +594,36 @@ def unpin_post(request) -> tuple | dict:
 
     return {
         "success": True
+    }
+
+def poll_vote(request, data: Poll):
+    post = Post.objects.get(post_id=data.id)
+    poll = post.poll
+
+    if isinstance(poll, dict):
+        if (poll["choices"] < data.option or data.option <= 0):
+            return 400, {
+                "success": False
+            }
+
+        user = User.objects.get(token=request.COOKIES.get('token'))
+        user_id = user.user_id
+
+        if user_id in poll["votes"]:
+            return 400, {
+                "success": False
+            }
+
+        poll["votes"].append(user_id)
+        poll["content"][data.option - 1]["votes"].append(user_id)
+
+        post.poll = poll
+        post.save()
+
+        return 200, {
+            "success": True
+        }
+
+    return 400, {
+        "success": False
     }

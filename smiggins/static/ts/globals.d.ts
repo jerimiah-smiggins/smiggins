@@ -3,6 +3,9 @@ declare const MAX_USERNAME_LENGTH: number;
 declare const MAX_POST_LENGTH: number;
 declare const MAX_DISPL_NAME_LENGTH: number;
 declare const MAX_BIO_LENGTH: number;
+declare const MAX_POLL_OPTION_LENGTH: number;
+declare const MAX_POLL_OPTIONS: number;
+
 declare const ENABLE_USER_BIOS: boolean;
 declare const ENABLE_PRONOUNS: boolean;
 declare const ENABLE_GRADIENT_BANNERS: boolean;
@@ -44,6 +47,16 @@ type _postJSON = {
   quote?: _postJSON,
   quotes: number,
   timestamp: number,
+
+  poll: {
+    votes: number,
+    voted: boolean,
+    content: {
+      value: string,
+      votes: number,
+      voted: boolean
+    }[],
+  } | boolean | null,
 
   // Quote-specific
   blocked?: boolean,

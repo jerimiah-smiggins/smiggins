@@ -34,9 +34,11 @@
     <script src="{% static "/js/linkify-4.1.3.min.js" %}?v={{ VERSION }}"></script>
     <script src="{% static "/js/linkify-html-4.1.3.min.js" %}?v={{ VERSION }}"></script>
     <script src="{% static "/js/linkify-mentions-4.1.3.min.js" %}?v={{ VERSION }}"></script>
+
     {% if ENABLE_HASHTAGS == "true" %}
       <script src="{% static "/js/linkify-hashtags-4.1.3.min.js" %}?v={{ VERSION }}"></script>
     {% endif %}
+
     {% if ENABLE_BADGES == "true" %}
       <script src="/badges.js?v={{ VERSION }}"></script>
     {% endif %}
@@ -46,6 +48,8 @@
       const MAX_POST_LENGTH = {{ MAX_POST_LENGTH }};
       const MAX_DISPL_NAME_LENGTH = {{ MAX_DISPL_NAME_LENGTH }};
       const MAX_BIO_LENGTH = {{ MAX_BIO_LENGTH }};
+      const MAX_POLL_OPTION_LENGTH = {{ MAX_POLL_OPTION_LENGTH }};
+      const MAX_POLL_OPTIONS = {{ MAX_POLL_OPTIONS }};
 
       const ENABLE_USER_BIOS = {{ ENABLE_USER_BIOS }};
       const ENABLE_PRONOUNS = {{ ENABLE_PRONOUNS }};

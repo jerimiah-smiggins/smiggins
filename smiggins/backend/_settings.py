@@ -5,7 +5,7 @@
 # -- General Site Configuration --
 
 # Version displayed.
-VERSION: str = "0.9.3"
+VERSION: str = "0.10.0"
 
 # What to have the site name be.
 SITE_NAME: str = "Jerimiah Smiggins"
@@ -50,6 +50,12 @@ MAX_DISPL_NAME_LENGTH: int = 32
 # 1-65,536
 MAX_POST_LENGTH: int = 280
 MAX_BIO_LENGTH: int = 280
+
+# 1+
+MAX_POLL_OPTION_LENGTH: int = 64
+
+# 2+
+MAX_POLL_OPTIONS: int = 8 # Doesn't change existing polls
 
 DEFAULT_BANNER_COLOR: str = "#3a1e93"
 

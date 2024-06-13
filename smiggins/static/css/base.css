@@ -50,10 +50,8 @@ button {
   border: none;
   border-radius: 10px;
   cursor: pointer;
-  transition-property: color;
-  transition: 0.15s;
   font-size: 0.8em;
-  transition: scale 0.15s, background-color 0.15s;
+  transition: color 0.15s, scale 0.15s, background-color 0.15s;
 }
 
 button:disabled {

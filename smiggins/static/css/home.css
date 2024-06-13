@@ -2,25 +2,66 @@ button:not(.bottom-content-icon) {
   min-width: 5em;
 }
 
+.poll-bar-container {
+  margin: 0.25em 0;
+  border-radius: 0.5em;
+  height: 2.2em;
+}
+
+.poll-text {
+  margin: 0.25em;
+  padding: 0.1em 0.35em;
+  border-radius: 0.3em;
+  position: absolute;
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+  max-width: calc(25.75em - (3em / 7));
+}
+
+.poll-bar ~ .poll-text {
+  background-color: var(--crust);
+}
+
+.poll-bar-container:not(:has(.poll-bar)) {
+  background-color: var(--mantle);
+  cursor: pointer;
+}
+
+.poll-bar-container:not(:has(.poll-bar)):hover,
+.poll-bar-container:has(.poll-bar) {
+  background-color: var(--crust);
+}
+
+.poll-bar {
+  color: transparent;
+  user-select: none;
+  position: absolute;
+}
+
+.poll-bar div {
+  background-color: var(--accent-50);
+  border-radius: 0.5em;
+  height: 2.2em;
+}
+
+.poll-bar.voted div {
+  background-color: var(--accent);
+}
+
 .post-text {
   resize: none;
   width: calc(32em - 10px);
   position: relative;
   top: 2.6em;
-  height: 6em;
+  height: 9em;
   transition: height 0.25s;
 }
 
 #post-text {
   width: 35em;
   resize: none;
-  height: 6em;
-  transition: height 0.25s;
-}
-
-#post-text:focus,
-.post-text:focus {
-  height: 11em;
+  height: 9em;
 }
 
 #post {
@@ -41,6 +82,21 @@ button:not(.bottom-content-icon) {
   bottom: calc(2px + 2.5em);
 }
 
+#toggle-poll {
+  position: relative;
+  left: calc(15em + 3px);
+  bottom: calc(2px + 7.1em);
+}
+
+#poll {
+  position: relative;
+  bottom: 3em;
+}
+
+#poll input {
+  width: 35em;
+}
+
 .main-content {
   word-break: break-word;
   display: -webkit-box;
@@ -56,8 +112,12 @@ button:not(.bottom-content-icon) {
   -webkit-line-clamp: 5;
 }
 
-.post {
+.post,
+.poll-bar {
   width: calc(26.95em - (3em / 7));
+}
+
+.post {
   border: calc(3em / 14) var(--accent-50) solid;
   padding: 1.25em;
   margin-bottom: 1.75em;
@@ -175,7 +235,8 @@ button.bottom-content-icon {
 }
 
 @media screen and (max-width: 565px) {
-  #post-text {
+  #post-text,
+  #poll input {
     width: calc(94vw - (2em / 7) - 17px);
   }
 
@@ -183,11 +244,17 @@ button.bottom-content-icon {
     width: calc(94vw - (2em / 7) - 90px);
   }
 
-  .post {
+  .post,
+  .poll-bar {
     width: calc(94vw - 3.5em - (3em / 7));
   }
 
-  #post {
+  .poll-text {
+    max-width: calc(94vw - 4.7em - (3em / 7));
+  }
+
+  #post,
+  #toggle-poll {
     left: calc(47vw - 2.5em - 5px);
   }
 

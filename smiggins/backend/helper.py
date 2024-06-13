@@ -1,6 +1,6 @@
 # Contains helper functions. These aren't for routing, instead doing something that can be used in other places in the code.
 
-from ._settings import SITE_NAME, VERSION, SOURCE_CODE, MAX_DISPL_NAME_LENGTH, MAX_POST_LENGTH, MAX_USERNAME_LENGTH, RATELIMIT, OWNER_USER_ID, ADMIN_LOG_PATH, MAX_ADMIN_LOG_LINES, MAX_NOTIFICATIONS, MAX_BIO_LENGTH, ENABLE_USER_BIOS, ENABLE_PRONOUNS, ENABLE_GRADIENT_BANNERS, ENABLE_BADGES, ENABLE_PRIVATE_MESSAGES, ENABLE_QUOTES, ENABLE_POST_DELETION, DEFAULT_LANGUAGE, CACHE_LANGUAGES, ENABLE_HASHTAGS
+from ._settings import SITE_NAME, VERSION, SOURCE_CODE, MAX_DISPL_NAME_LENGTH, MAX_POST_LENGTH, MAX_USERNAME_LENGTH, RATELIMIT, OWNER_USER_ID, ADMIN_LOG_PATH, MAX_ADMIN_LOG_LINES, MAX_NOTIFICATIONS, MAX_BIO_LENGTH, ENABLE_USER_BIOS, ENABLE_PRONOUNS, ENABLE_GRADIENT_BANNERS, ENABLE_BADGES, ENABLE_PRIVATE_MESSAGES, ENABLE_QUOTES, ENABLE_POST_DELETION, DEFAULT_LANGUAGE, CACHE_LANGUAGES, ENABLE_HASHTAGS, MAX_POLL_OPTION_LENGTH, MAX_POLL_OPTIONS
 from .variables import PRIVATE_AUTHENTICATOR_KEY, timeout_handler, BASE_DIR, VALID_LANGUAGES
 from .packages  import Callable, Any, HttpResponse, HttpResponseRedirect, loader, User, Comment, Post, Notification, threading, hashlib, time, re, json
 
@@ -47,6 +47,9 @@ def get_HTTP_response(request, file: str, lang_override: dict | None=None, **kwa
         "MAX_POST_LENGTH": MAX_POST_LENGTH,
         "MAX_DISPL_NAME_LENGTH": MAX_DISPL_NAME_LENGTH,
         "MAX_BIO_LENGTH": MAX_BIO_LENGTH,
+        "MAX_POLL_OPTION_LENGTH": MAX_POLL_OPTION_LENGTH,
+        "MAX_POLL_OPTIONS": MAX_POLL_OPTIONS,
+
         "ENABLE_USER_BIOS": str(ENABLE_USER_BIOS).lower(),
         "ENABLE_PRONOUNS": str(ENABLE_PRONOUNS).lower(),
         "ENABLE_GRADIENT_BANNERS": str(ENABLE_GRADIENT_BANNERS).lower(),
@@ -201,6 +204,22 @@ def get_post_json(post_id: int, current_user_id: int=0, comment: bool=False, cac
             "blocked": False
         }
 
+    if isinstance(post, Post) and isinstance(post.poll, dict):
+        tmp_poll: dict[str, Any] = post.poll
+
+        poll = {
+            "votes": len(tmp_poll["votes"]),
+            "voted": current_user_id in tmp_poll["votes"],
+            "content": [{
+                "value": i["value"],
+                "votes": len(i["votes"]),
+                "voted": current_user_id in i["votes"]
+            } for i in tmp_poll["content"]], # type: ignore
+        }
+
+    else:
+        poll = None
+
     post_json = {
         "creator": {
             "display_name": creator.display_name,
@@ -223,7 +242,8 @@ def get_post_json(post_id: int, current_user_id: int=0, comment: bool=False, cac
         "can_pin": not comment and creator.user_id == current_user_id,
         "can_view": True,
         "parent": post.parent if isinstance(post, Comment) else -1,
-        "parent_is_comment": post.parent_is_comment if isinstance(post, Comment) else False
+        "parent_is_comment": post.parent_is_comment if isinstance(post, Comment) else False,
+        "poll": poll
     }
 
     if isinstance(post, Post) and post.quote != 0:
@@ -273,10 +293,11 @@ def get_post_json(post_id: int, current_user_id: int=0, comment: bool=False, cac
                     "liked": current_user_id in (quote.likes),
                     "likes": len(quote.likes),
                     "comments": len(quote.comments),
-                    "quotes": len(post.quotes),
+                    "quotes": len(quote.quotes),
                     "can_view": True,
                     "blocked": False,
-                    "has_quote": isinstance(quote, Post) and quote.quote
+                    "has_quote": isinstance(quote, Post) and quote.quote,
+                    "poll": bool(quote.poll) if isinstance(quote, Post) else False
                 }
 
         except Comment.DoesNotExist:

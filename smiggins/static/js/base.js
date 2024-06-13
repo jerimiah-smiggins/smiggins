@@ -10,6 +10,7 @@ let inc;
 let disableTimeline;
 let c;
 let offset;
+let globalIncrement = 0;
 function dom(id) {
     return document.getElementById(id);
 }
@@ -192,12 +193,47 @@ function getPostHTML(postJSON, isComment = false, includeUserLink = true, includ
         .replaceAll("<a target=\"_blank\" href=\"/", "<a href=\"/")}
 
                       ${postJSON.quote.has_quote ? `<br><i>${lang.home.quote_recursive}</i>` : ""}
+                      ${postJSON.quote.poll ? `<br><i>${lang.home.quote_poll}</i>` : ""}
                     </a>
                   </div>
                 ` : lang.home.quote_private}
             </div>
           </div>
         ` : ""}
+
+      ${postJSON.poll && typeof postJSON.poll == "object" ? (() => {
+        let output = `<div id="gi-${globalIncrement}">`;
+        let c = 0;
+        if (postJSON.poll.voted) {
+            for (const option of postJSON.poll.content) {
+                c++;
+                output += `<div class="poll-bar-container">
+                <div class="poll-bar ${option.voted ? "voted" : ""}">
+                  <div style="width:${option.votes / postJSON.poll.votes * 100}%">
+                    🥖
+                  </div>
+                </div>
+                <div class="poll-text">
+                  ${Math.round(option.votes / postJSON.poll.votes * 1000) / 10}% - ${escapeHTML(option.value)}
+                </div>
+              </div>`;
+            }
+        }
+        else {
+            for (const option of postJSON.poll.content) {
+                c++;
+                output += `<div data-index="${c}"
+                         data-total-votes="${postJSON.poll.votes}"
+                         data-votes="${option.votes}"
+                         class="poll-bar-container"
+                         onclick="vote(${c}, ${postJSON.post_id}, ${globalIncrement})">
+                <div class="poll-text">${escapeHTML(option.value)}</div>
+              </div>`;
+            }
+        }
+        globalIncrement++;
+        return output + `<small>${(postJSON.poll.votes == 1 ? lang.home.poll_total_singular : lang.home.poll_total_plural).replaceAll("%s", postJSON.poll.votes)}</small></div>`;
+    })() : ""}
 
       <div class="bottom-content">
         ${includePostLink ? `<a href="/${isComment ? "c" : "p"}/${postJSON.post_id}" class="text no-underline">` : ""}

@@ -54,6 +54,20 @@ class Post(models.Model):
     comments = models.JSONField(default=list, blank=True)
     quotes   = models.JSONField(default=list, blank=True)
 
+    # type == None: no poll
+    # type == dict: yes poll
+    # Format:
+    # {
+    #   "votes": [1, 2, 3, 4...], // list of user ids that have voted
+    #   "choices": 4 // number, 2 - MAX_POLL_OPTIONS
+    #   "content": [
+    #     { "value": "Option 1", "votes": [1, 2...] },
+    #     { "value": "Option 2", "votes": [3, 4...] },
+    #     ...
+    #   ]
+    # }
+    poll = models.JSONField(default=None, null=True)
+
     def __str__(self):
         return f"({self.post_id}) {self.content}"
 
