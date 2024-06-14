@@ -22,13 +22,10 @@ dom("post").addEventListener("click", function() {
 
     fetch("/api/comment/create", {
       method: "PUT",
-      headers: {
-        "Content-Type": "application/json"
-      },
       body: JSON.stringify({
-        "content": (dom("post-text") as HTMLButtonElement).value,
-        "id": post_id,
-        "comment": comment
+        content: (dom("post-text") as HTMLButtonElement).value,
+        id: post_id,
+        comment: comment
     })
     })
       .then((response: Response) => {

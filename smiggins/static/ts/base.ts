@@ -119,12 +119,12 @@ function timeSince(date: number): string {
   let unit: string = "second"
   let amount: number = seconds > 0 ? seconds : 0;
 
-  const timeAmounts: { "name": string, "amount": number }[] = [
-    { "name": "minute", "amount": 60 },
-    { "name": "hour", "amount": 3600 },
-    { "name": "day", "amount": 86400 },
-    { "name": "month", "amount": 2592000 },
-    { "name": "year", "amount": 31536000 }
+  const timeAmounts: { name: string, amount: number }[] = [
+    { name: "minute", amount: 60 },
+    { name: "hour",   amount: 3600 },
+    { name: "day",    amount: 86400 },
+    { name: "month",  amount: 2592000 },
+    { name: "year",   amount: 31536000 }
   ]
 
   for (const info of timeAmounts) {

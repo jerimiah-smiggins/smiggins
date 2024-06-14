@@ -33,9 +33,6 @@ dom("post").addEventListener("click", function(): void {
 
     fetch("/api/post/create", {
       method: "PUT",
-      headers: {
-        "Content-Type": "application/json"
-      },
       body: JSON.stringify({
         content: (dom("post-text") as HTMLInputElement).value,
         poll: getPollText()

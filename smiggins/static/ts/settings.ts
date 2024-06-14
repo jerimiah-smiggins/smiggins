@@ -152,11 +152,8 @@ dom("theme").addEventListener("change", function(): void {
   dom("theme").setAttribute("disabled", "");
   fetch("/api/user/settings/theme", {
     method: "PATCH",
-    headers: {
-      "Content-Type": "application/json"
-    },
     body: JSON.stringify({
-      "theme": (dom("theme") as HTMLInputElement).value
+      theme: (dom("theme") as HTMLInputElement).value
     })
   })
   .then((response: Response) => (response.json()))
