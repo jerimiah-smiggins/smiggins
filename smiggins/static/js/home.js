@@ -26,9 +26,6 @@ dom("post").addEventListener("click", function () {
         dom("post-text").setAttribute("disabled", "");
         fetch("/api/post/create", {
             method: "PUT",
-            headers: {
-                "Content-Type": "application/json"
-            },
             body: JSON.stringify({
                 content: dom("post-text").value,
                 poll: getPollText()
