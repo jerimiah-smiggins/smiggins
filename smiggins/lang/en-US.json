@@ -381,7 +381,8 @@
         "v0.10.0": {
           "1": "Reverted tweaks to post box heights from v0.7.3",
           "2": "Added polls",
-          "3": "Fixed a bug that caused some errors not appearing when quoting a post"
+          "3": "Fixed a bug that caused some errors not appearing when quoting a post",
+          "4": "Adds an option to the backend to automatically post to webhooks for a specified user"
         },
         "v0.9.3": {
           "1": "Rewrote frontend with typescript",
