@@ -101,11 +101,11 @@ function timeSince(date) {
     let unit = "second";
     let amount = seconds > 0 ? seconds : 0;
     const timeAmounts = [
-        { "name": "minute", "amount": 60 },
-        { "name": "hour", "amount": 3600 },
-        { "name": "day", "amount": 86400 },
-        { "name": "month", "amount": 2592000 },
-        { "name": "year", "amount": 31536000 }
+        { name: "minute", amount: 60 },
+        { name: "hour", amount: 3600 },
+        { name: "day", amount: 86400 },
+        { name: "month", amount: 2592000 },
+        { name: "year", amount: 31536000 }
     ];
     for (const info of timeAmounts) {
         let interval = seconds / info.amount;

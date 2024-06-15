@@ -15,7 +15,7 @@ adminLevel >= 1 && dom("post-delete").addEventListener("click", function () {
     fetch(`/api/${dom("comment-toggle").checked ? "comment" : "post"}`, {
         method: "DELETE",
         body: JSON.stringify({
-            "id": Number(dom("post-id").value)
+            id: Number(dom("post-id").value)
         })
     }).then((response) => (response.json()))
         .then((json) => {

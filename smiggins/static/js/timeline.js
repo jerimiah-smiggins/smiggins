@@ -15,7 +15,7 @@ function deletePost(postId, isComment, pageFocus) {
     fetch(`/api/${isComment ? "comment" : "post"}`, {
         method: "DELETE",
         body: JSON.stringify({
-            "id": postId
+            id: postId
         })
     }).then((response) => (response.json()))
         .then((json) => {
@@ -31,9 +31,9 @@ function deletePost(postId, isComment, pageFocus) {
 }
 function pinPost(postID) {
     fetch(`/api/user/pin`, {
-        "method": "PATCH",
-        "body": JSON.stringify({
-            "id": postID
+        method: "PATCH",
+        body: JSON.stringify({
+            id: postID
         })
     }).then((response) => (response.json()))
         .then((json) => {
@@ -52,7 +52,7 @@ function pinPost(postID) {
 }
 function unpinPost() {
     fetch(`/api/user/pin`, {
-        "method": "DELETE",
+        method: "DELETE",
     }).then((response) => (response.json()))
         .then((json) => {
         if (json.success) {
@@ -129,8 +129,8 @@ function toggleLike(postId, type) {
     let x = document.querySelector(`div[data-${type}-id="${postId}"] button.like svg`);
     if (h.dataset["liked"] == "true") {
         fetch(`/api/${type}/like`, {
-            "method": "DELETE",
-            "body": JSON.stringify({
+            method: "DELETE",
+            body: JSON.stringify({
                 id: postId
             })
         });
@@ -140,8 +140,8 @@ function toggleLike(postId, type) {
     }
     else {
         fetch(`/api/${type}/like`, {
-            "method": "POST",
-            "body": JSON.stringify({
+            method: "POST",
+            body: JSON.stringify({
                 id: postId
             })
         });
@@ -152,8 +152,8 @@ function toggleLike(postId, type) {
 }
 function vote(option, postID, gInc) {
     fetch("/api/post/vote", {
-        "method": "POST",
-        "body": JSON.stringify({
+        method: "POST",
+        body: JSON.stringify({
             id: postID,
             option: option
         })
@@ -184,10 +184,7 @@ if (typeof disableTimeline === 'undefined' || !disableTimeline) {
             dom("posts").innerHTML = "";
         }
         fetch(`${url}${force_offset === true && !end ? `${url.includes("?") ? "&" : "?"}offset=${offset}` : ""}`, {
-            method: "GET",
-            headers: {
-                "Content-Type": "application/json"
-            }
+            method: "GET"
         })
             .then((response) => (response.json()))
             .then((json) => {
