@@ -1,7 +1,7 @@
 # For API functions that relate to posts, for example creating, fetching home lists, etc.
 
-from .._settings import API_TIMINGS, MAX_POST_LENGTH, POSTS_PER_REQUEST, OWNER_USER_ID, MAX_POLL_OPTIONS, MAX_POLL_OPTION_LENGTH
-from ..packages  import User, Post, Comment, Hashtag, time, sys, Schema, random
+from .._settings import API_TIMINGS, MAX_POST_LENGTH, POSTS_PER_REQUEST, OWNER_USER_ID, MAX_POLL_OPTIONS, MAX_POLL_OPTION_LENGTH, POST_WEBHOOKS, SITE_NAME, VERSION
+from ..packages  import User, Post, Comment, Hashtag, time, sys, Schema, random, requests, threading
 from ..helper    import ensure_ratelimit, create_api_ratelimit, validate_username, trim_whitespace, get_post_json, log_admin_action, create_notification, find_mentions, find_hashtags, get_lang, DEFAULT_LANG
 
 class NewPost(Schema):
@@ -19,6 +19,42 @@ class PostID(Schema):
 class Poll(Schema):
     id: int
     option: int
+
+def post_hook(request, user: User, post: Post):
+    def post_inside(request, user: User, post: Post):
+        meta = POST_WEBHOOKS[user.username]
+        lang = get_lang()
+
+        content = post.content + (f"\n\n{lang['home']['quote_recursive']}" if post.quote else f"\n\n{lang['home']['quote_poll']}" if post.poll else "")
+
+        if meta[1] == "discord":
+            body = {
+                "content": None,
+                "embeds": [{
+                    "description": content,
+                    "color": int(user.color[1::], 16),
+                    "author": {
+                        "name": user.display_name,
+                        "url": f"http://{request.META['HTTP_HOST']}/u/{user.username}"
+                    },
+                    "footer": {
+                        "text": f"{SITE_NAME} v{VERSION}"
+                    }
+                }]
+            }
+
+        else:
+            body = {
+                "content": content
+            }
+
+        requests.post(meta[0], json=body, timeout=5)
+
+    threading.Thread(target=post_inside, kwargs={
+        "request": request,
+        "user": user,
+        "post": post
+    }).start()
 
 def post_create(request, data: NewPost) -> tuple | dict:
     # Called when a new post is created.
@@ -112,6 +148,9 @@ def post_create(request, data: NewPost) -> tuple | dict:
         tag.posts.append(post.post_id)
         tag.save()
 
+    if user.username in POST_WEBHOOKS:
+        post_hook(request, user, post)
+
     return 201, {
         "success": True,
         "post_id": post.post_id
@@ -202,6 +241,9 @@ def quote_create(request, data: NewQuote) -> tuple | dict:
 
         tag.posts.append(post.post_id)
         tag.save()
+
+    if user.username in POST_WEBHOOKS:
+        post_hook(request, user, post)
 
     return 201, {
         "success": True,

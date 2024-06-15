@@ -80,6 +80,15 @@ CONTACT_INFO: list[list[str]] = [
     ["text",  "DM me on discord (@trinkey_)"]
 ]
 
+# Automatically sends a request to the specified webhook when a user posts a
+# post (comments aren't included). Format below. Type should be either "raw"
+# (sends the data with a POST request with the data in the "content" json
+# parameter) or "discord" (sends the data in a discord style embed). Webhooks
+# may be subject to ratelimits by external servers depending on frequency
+POST_WEBHOOKS: dict[str, list[str]] = {
+#   "username": ["https://example.com/webhook", "type"]
+}
+
 # -- Feature Toggles --
 
 # False = hide links to the github source code
