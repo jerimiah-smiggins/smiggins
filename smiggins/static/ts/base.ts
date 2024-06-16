@@ -37,7 +37,7 @@ function showlog(str: string, time: number = 0): void {};
 function setCookie(name: string, value: string): void {
   let date = new Date();
   date.setTime(date.getTime() + (356 * 24 * 60 * 60 * 1000));
-  document.cookie = `${name}=${value};Path=/;Expires=${date.toUTCString()}`;
+  document.cookie = `${name}=${value};Path=/;SameSite=Lax;Expires=${date.toUTCString()}`;
 }
 
 function eraseCookie(name: string): void {
@@ -302,7 +302,7 @@ function getPostHTML(
         </button>
 
         ${
-          postJSON.can_pin ? `
+          postJSON.can_pin && ENABLE_PINNED_POSTS ? `
           <div class="bottom-spacing"></div>
           <button class="bottom-content-icon ${isPinned && postJSON.can_pin ? "red" : ""}" tabindex="0" onclick="${isPinned && postJSON.can_pin ? "un" : ""}pinPost(${isPinned && postJSON.can_pin ? "" : postJSON.post_id})">
             ${icons.pin}

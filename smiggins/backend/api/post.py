@@ -1,6 +1,6 @@
 # For API functions that relate to posts, for example creating, fetching home lists, etc.
 
-from .._settings import API_TIMINGS, MAX_POST_LENGTH, POSTS_PER_REQUEST, OWNER_USER_ID, MAX_POLL_OPTIONS, MAX_POLL_OPTION_LENGTH, POST_WEBHOOKS, SITE_NAME, VERSION
+from .._settings import API_TIMINGS, MAX_POST_LENGTH, POSTS_PER_REQUEST, OWNER_USER_ID, MAX_POLL_OPTIONS, MAX_POLL_OPTION_LENGTH, POST_WEBHOOKS, SITE_NAME, VERSION, ENABLE_PINNED_POSTS, ENABLE_POLLS, ENABLE_LOGGED_OUT_CONTENT
 from ..packages  import User, Post, Comment, Hashtag, time, sys, Schema, random, requests, threading
 from ..helper    import ensure_ratelimit, create_api_ratelimit, validate_username, trim_whitespace, get_post_json, log_admin_action, create_notification, find_mentions, find_hashtags, get_lang, DEFAULT_LANG
 
@@ -61,6 +61,9 @@ def post_create(request, data: NewPost) -> tuple | dict:
 
     token = request.COOKIES.get('token')
     user = User.objects.get(token=token)
+
+    if not ENABLE_POLLS:
+        data.poll = []
 
     if not ensure_ratelimit("api_post_create", token):
         lang = get_lang(user)
@@ -403,6 +406,11 @@ def post_list_user(request, username: str, offset: int=-1) -> tuple | dict:
         lang = get_lang(self_user)
         logged_in = True
     except User.DoesNotExist:
+        if not ENABLE_LOGGED_OUT_CONTENT:
+            return 400, {
+                "success": False
+            }
+
         lang = DEFAULT_LANG
         logged_in = False
 
@@ -448,9 +456,12 @@ def post_list_user(request, username: str, offset: int=-1) -> tuple | dict:
     for i in potential:
         outputList.append(get_post_json(i, self_user.user_id if logged_in else 0, cache=cache))
 
-    try:
-        pinned_post = get_post_json(user.pinned, self_user.user_id if logged_in else 0, False, cache)
-    except Post.DoesNotExist:
+    if ENABLE_PINNED_POSTS:
+        try:
+            pinned_post = get_post_json(user.pinned, self_user.user_id if logged_in else 0, False, cache)
+        except Post.DoesNotExist:
+            pinned_post = {}
+    else:
         pinned_post = {}
 
     return {

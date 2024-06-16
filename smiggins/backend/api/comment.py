@@ -1,6 +1,6 @@
 # For API functions that relate to comments, for example liking, creating, etc.
 
-from .._settings import MAX_POST_LENGTH, API_TIMINGS, OWNER_USER_ID, POSTS_PER_REQUEST
+from .._settings import MAX_POST_LENGTH, API_TIMINGS, OWNER_USER_ID, POSTS_PER_REQUEST, ENABLE_LOGGED_OUT_CONTENT
 from ..packages  import Comment, User, Post, time, Schema
 from ..helper    import trim_whitespace, create_api_ratelimit, ensure_ratelimit, get_post_json, log_admin_action, create_notification, find_mentions, get_lang, DEFAULT_LANG
 
@@ -107,6 +107,11 @@ def comment_list(request, id: int, comment: bool, offset: int=-1) -> tuple | dic
         lang = get_lang(user)
         logged_in = True
     except User.DoesNotExist:
+        if not ENABLE_LOGGED_OUT_CONTENT:
+            return 400, {
+                "success": False
+            }
+
         lang = DEFAULT_LANG
         logged_in = False
 

@@ -4,6 +4,10 @@ if (typeof(logged_in) != "boolean") {
   logged_in = document.cookie.indexOf("token=") != -1;
 }
 
+if (logged_in) {
+  setCookie("token", document.cookie.split(/\btoken=/)[1].split(";")[0]);
+}
+
 let titleNotificationIndicator: boolean = false;
 
 let iconsElement: HTMLElement = document.createElement("div");

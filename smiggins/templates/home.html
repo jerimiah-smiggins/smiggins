@@ -12,8 +12,11 @@
 {% block body %}
   <textarea id="post-text" maxlength="{{ MAX_POST_LENGTH }}" placeholder="{{ lang.home.post_input_placeholder }}"></textarea><br>
   <button id="post" class="inverted">{{ lang.generic.post }}</button><br>
-  <button id="toggle-poll" class="inverted">{{ lang.home.poll }}</button><br>
-  <div hidden id="poll"></div>
+
+  {% if ENABLE_POLLS == 'true' %}
+    <button id="toggle-poll" class="inverted">{{ lang.home.poll }}</button><br>
+    <div hidden id="poll"></div>
+  {% endif %}
 
   <button onclick="refresh()">{{ lang.generic.refresh }}</button><br>
   <a id="switch" href="#"></a><br><br>

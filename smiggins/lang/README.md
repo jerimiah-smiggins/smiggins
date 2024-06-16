@@ -62,8 +62,9 @@ Added polls
 + home.poll_optional
 + home.poll_total_plural
 + home.poll_total_singular
++ account.no_new
 + post.invalid_poll
-+ changelog.changes.v0.10.0 {1, 2, 3}
++ changelog.changes.v0.10.0 {1, 2, 3, 4, 5}
 ```
 </details>
 

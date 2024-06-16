@@ -2,7 +2,7 @@ from django.urls import path
 
 from backend.api       import ApiAdmin, ApiComment, ApiInfo, ApiMessages, ApiPost, ApiUser
 from backend.packages  import json
-from backend._settings import ENABLE_PRIVATE_MESSAGES, ENABLE_QUOTES, ENABLE_POST_DELETION, ENABLE_HASHTAGS
+from backend._settings import ENABLE_PRIVATE_MESSAGES, ENABLE_QUOTES, ENABLE_POST_DELETION, ENABLE_HASHTAGS, ENABLE_NEW_ACCOUNTS
 
 from ninja.renderers import BaseRenderer
 from ninja import NinjaAPI
@@ -28,7 +28,9 @@ class JSONRenderer(BaseRenderer):
 api = NinjaAPI(renderer=JSONRenderer())
 
 # Account stuff
-api.post("user/signup", response=response_schema)(ApiUser.signup)
+if ENABLE_NEW_ACCOUNTS:
+    api.post("user/signup", response=response_schema)(ApiUser.signup)
+
 api.post("user/login",  response=response_schema)(ApiUser.login)
 
 # User stuff

@@ -14,6 +14,13 @@ declare const ENABLE_PRIVATE_MESSAGES: boolean;
 declare const ENABLE_QUOTES: boolean;
 declare const ENABLE_POST_DELETION: boolean;
 declare const ENABLE_HASHTAGS: boolean;
+declare const ENABLE_CHANGELOG_PAGE: boolean;
+declare const ENABLE_CONTACT_PAGE: boolean;
+declare const ENABLE_PINNED_POSTS: boolean;
+declare const ENABLE_ACCOUNT_SWITCHER: boolean;
+declare const ENABLE_POLLS: boolean;
+declare const ENABLE_LOGGED_OUT_CONTENT: boolean;
+declare const ENABLE_NEW_ACCOUNTS: boolean;
 
 // Global variables
 declare const lang: { [key: string]: any };

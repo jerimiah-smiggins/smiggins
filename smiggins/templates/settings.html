@@ -118,11 +118,13 @@
       <button id="toggle-password">{{ lang.account.toggle_password }}</button>
       <button id="set-password">{{ lang.generic.save }}</button><br><br>
 
-      {{ lang.settings.account_switcher }}<br>
-      <select id="accs"></select><br>
-      <button id="acc-switch">{{ lang.settings.account_switcher_switch }}</button>
-      <button id="acc-remove">{{ lang.settings.account_switcher_remove}}</button><br><br>
-      <a href="/logout?from=switcher">{{ lang.settings.account_switcher_add }}</a>
+      {% if ENABLE_ACCOUNT_SWITCHER == 'true' %}
+        {{ lang.settings.account_switcher }}<br>
+        <select id="accs"></select><br>
+        <button id="acc-switch">{{ lang.settings.account_switcher_switch }}</button>
+        <button id="acc-remove">{{ lang.settings.account_switcher_remove}}</button><br><br>
+        <a href="/logout?from=switcher">{{ lang.settings.account_switcher_add }}</a>
+      {% endif %}
     </div>
   </div>
 
@@ -139,8 +141,14 @@
   <hr><br>
 
   {{ SITE_NAME }} v{{ VERSION }}<br>
-  <a href="/changelog">{{ lang.changelog.title }}</a><br>
-  <a href="/contact">{{ lang.contact.title }}</a>
+
+  {% if ENABLE_CHANGELOG_PAGE == 'true' %}
+    <a href="/changelog">{{ lang.changelog.title }}</a><br>
+  {% endif %}
+
+  {% if ENABLE_CONTACT_PAGE == 'true' %}
+    <a href="/contact">{{ lang.contact.title }}</a>
+  {% endif %}
 
   <script src="{% static '/js/settings.js' %}?v={{ VERSION }}"></script>
 {% endblock %}

@@ -116,14 +116,31 @@ API_TIMINGS: dict[str, int] = {
 # setting. This means if you enable one in the future, anything set
 # before it was disabled will persist.
 
-# Setting toggles
 ENABLE_USER_BIOS: bool = True
 ENABLE_PRONOUNS: bool = True
 ENABLE_GRADIENT_BANNERS: bool = True
-ENABLE_BADGES: bool = True # The private account icon will still show if this is off
-
-# Larger feature toggles
 ENABLE_PRIVATE_MESSAGES: bool = True
-ENABLE_QUOTES: bool = True # Posts that are already quotes still show up as a quote
 ENABLE_POST_DELETION: bool = True
 ENABLE_HASHTAGS: bool = True
+ENABLE_CHANGELOG_PAGE: bool = True
+ENABLE_CONTACT_PAGE: bool = True
+ENABLE_PINNED_POSTS: bool = True
+ENABLE_ACCOUNT_SWITCHER: bool = True
+
+# The private account icon is always shown
+ENABLE_BADGES: bool = True
+
+# Existing quotes will remain unchanged
+ENABLE_QUOTES: bool = True
+
+# Existing polls will remain unchanged
+ENABLE_POLLS: bool = True
+
+# If off, people who are logged out won't be able to see any user profiles,
+# posts, or comments. This also affects causes embeds for sites like discord to
+# not work.
+ENABLE_LOGGED_OUT_CONTENT: bool = True
+
+# If off, there will be an indication on the signup and index pages
+# that says the instance isn't accepting any new members
+ENABLE_NEW_ACCOUNTS: bool = False # TODO

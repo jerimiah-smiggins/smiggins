@@ -30,31 +30,52 @@ if (ENABLE_PRONOUNS && user_pronouns.includes("_")) {
   document.querySelector(`#pronouns-secondary option[value="${user_pronouns[1]}"]`).setAttribute("selected", "");
 }
 
-let currentAccount: string = document.cookie.match(/token=([a-f0-9]{64})/)[0].split("=")[1];
-let accounts: string[][] = JSON.parse(localStorage.getItem("acc-switcher") || JSON.stringify([[localStorage.getItem("username"), currentAccount]]));
-if (!localStorage.getItem("username")) {
-  dom("switcher").setAttribute("hidden", "");
-}
+let currentAccount: string;
+let accounts: string[][];
+let hasCurrent: boolean;
 
-let hasCurrent: boolean = false;
-for (const acc of accounts) {
-  if (currentAccount == acc[1]) {
-    hasCurrent = true;
+if (ENABLE_ACCOUNT_SWITCHER) {
+  currentAccount = document.cookie.match(/token=([a-f0-9]{64})/)[0].split("=")[1];
+  accounts = JSON.parse(localStorage.getItem("acc-switcher") || JSON.stringify([[localStorage.getItem("username"), currentAccount]]));
+  if (!localStorage.getItem("username")) {
+    dom("switcher").setAttribute("hidden", "");
   }
+
+  hasCurrent = false;
+  for (const acc of accounts) {
+    if (currentAccount == acc[1]) {
+      hasCurrent = true;
+    }
+  }
+
+  if (!hasCurrent) {
+    accounts.push([
+      localStorage.getItem("username"),
+      document.cookie.match(/token=([a-f0-9]{64})/)[0].split("=")[1]
+    ]);
+  }
+
+  accounts = accounts.sort(
+    (a: string[], b: string[]): number => (a[0].toLowerCase() > b[0].toLowerCase() ? 1 : 0)
+  );
+
+  localStorage.setItem("acc-switcher", JSON.stringify(accounts));
+
+  let x: DocumentFragment = new DocumentFragment();
+  for (const acc of accounts) {
+    let y: HTMLOptionElement = document.createElement("option");
+    y.innerText = acc[0];
+    y.value = acc[1] + "-" + acc[0];
+
+    if (currentAccount == acc[1]) {
+      y.setAttribute("selected", "");
+    }
+
+    x.append(y);
+  }
+
+  dom("accs").append(x);
 }
-
-if (!hasCurrent) {
-  accounts.push([
-    localStorage.getItem("username"),
-    document.cookie.match(/token=([a-f0-9]{64})/)[0].split("=")[1]
-  ]);
-}
-
-accounts = accounts.sort(
-  (a: string[], b: string[]): number => (a[0].toLowerCase() > b[0].toLowerCase() ? 1 : 0)
-);
-
-localStorage.setItem("acc-switcher", JSON.stringify(accounts));
 
 dom("color-selector").innerHTML = output;
 dom("post-example").innerHTML = getPostHTML(
@@ -115,19 +136,6 @@ function updatePronouns(): void {
   }
 }
 
-let x: DocumentFragment = new DocumentFragment();
-for (const acc of accounts) {
-  let y: HTMLOptionElement = document.createElement("option");
-  y.innerText = acc[0];
-  y.value = acc[1] + "-" + acc[0];
-
-  if (currentAccount == acc[1]) {
-    y.setAttribute("selected", "");
-  }
-
-  x.append(y);
-}
-
 function setUnload(): void {
   if (!window.onbeforeunload) {
     window.onbeforeunload = function(): string {
@@ -135,8 +143,6 @@ function setUnload(): void {
     };
   }
 }
-
-dom("accs").append(x);
 
 toggleGradient(false);
 dom("color").addEventListener("change", function(): void {
@@ -232,14 +238,14 @@ ENABLE_GRADIENT_BANNERS && dom("banner-color-two").addEventListener("input", fun
 
 ENABLE_GRADIENT_BANNERS && dom("banner-is-gradient").addEventListener("input", toggleGradient);
 
-dom("acc-switch").addEventListener("click", function(): void {
+ENABLE_ACCOUNT_SWITCHER && dom("acc-switch").addEventListener("click", function(): void {
   let val: string[] = (dom("accs") as HTMLInputElement).value.split("-", 2);
   setCookie("token", val[0]);
   localStorage.setItem("username", val[1]);
   window.location.reload();
 });
 
-dom("acc-remove").addEventListener("click", function(): void {
+ENABLE_ACCOUNT_SWITCHER && dom("acc-remove").addEventListener("click", function(): void {
   let removed: string[] = (dom("accs") as HTMLInputElement).value.split("-", 2);
   if (removed[0] == currentAccount) {
     showlog(lang.settings.account_switcher_remove_error);
@@ -292,13 +298,16 @@ dom("set-password").addEventListener("click", function(): void {
       if (json.success) {
         setCookie("token", json.token);
 
-        let switcher: string[][] = JSON.parse(localStorage.getItem("acc-switcher"));
-        for (let i: number = 0; i < switcher.length; i++) {
-          if (switcher[i][1] == currentAccount) {
-            switcher[i][1] = json.token;
+        if (ENABLE_ACCOUNT_SWITCHER) {
+          let switcher: string[][] = JSON.parse(localStorage.getItem("acc-switcher"));
+          for (let i: number = 0; i < switcher.length; i++) {
+            if (switcher[i][1] == currentAccount) {
+              switcher[i][1] = json.token;
+            }
           }
+
+          localStorage.setItem("acc-switcher", JSON.stringify(switcher));
         }
-        localStorage.setItem("acc-switcher", JSON.stringify(switcher));
 
         showlog(lang.settings.account_password_success, 5000);
       } else {

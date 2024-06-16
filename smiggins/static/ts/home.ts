@@ -78,18 +78,19 @@ dom("switch").addEventListener("click", function(): void {
   refresh();
 });
 
-dom("toggle-poll").addEventListener("click", function(): void {
-  if (dom("poll").hasAttribute("hidden")) {
-    dom("poll").removeAttribute("hidden");
-  } else {
-    dom("poll").setAttribute("hidden", "");
+if (ENABLE_POLLS) {
+  dom("toggle-poll").addEventListener("click", function(): void {
+    if (dom("poll").hasAttribute("hidden")) {
+      dom("poll").removeAttribute("hidden");
+    } else {
+      dom("poll").setAttribute("hidden", "");
+    }
+  })
+
+  output = "";
+  for (let i: number = 1; i <= MAX_POLL_OPTIONS; i++) {
+    output += `<input placeholder="${(i > 2 ? lang.home.poll_optional : lang.home.poll_option).replaceAll("%s", i)}" maxlength="${MAX_POLL_OPTION_LENGTH}"></br>`;
   }
-})
 
-output = "";
-
-for (let i: number = 1; i <= MAX_POLL_OPTIONS; i++) {
-  output += `<input placeholder="${(i > 2 ? lang.home.poll_optional : lang.home.poll_option).replaceAll("%s", i)}" maxlength="${MAX_POLL_OPTION_LENGTH}"></br>`;
+  dom("poll").innerHTML = output;
 }
-
-dom("poll").innerHTML = output;

@@ -238,6 +238,7 @@
       "sign_up_instead": "Sign up instead...",
       "sign_up_failure": "Unable to sign up! Reason: %s",
 
+      "no_new": "This instance isn't accepting any new users.",
       "password_match_failure": "Passwords don't match!",
 
       "log_out_title": "Redirecting you shortly...",
@@ -382,7 +383,8 @@
           "1": "Reverted tweaks to post box heights from v0.7.3",
           "2": "Added polls",
           "3": "Fixed a bug that caused some errors not appearing when quoting a post",
-          "4": "Adds an option to the backend to automatically post to webhooks for a specified user"
+          "4": "Added an option to the backend to automatically post to webhooks for a specified user",
+          "5": "Added several options to the backend to disable features such as the changelog and contact pages, pinned posts, the account switcher, polls, viewing content while logged out, and creating new accounts"
         },
         "v0.9.3": {
           "1": "Rewrote frontend with typescript",
@@ -548,8 +550,7 @@
         },
         "v0.3.7": {
           "1": "Added themes"
-        },
-        "v0.0.1 - v0.3.6": {}
+        }
       }
     }
   }

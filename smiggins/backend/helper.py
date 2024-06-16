@@ -1,6 +1,6 @@
 # Contains helper functions. These aren't for routing, instead doing something that can be used in other places in the code.
 
-from ._settings import SITE_NAME, VERSION, SOURCE_CODE, MAX_DISPL_NAME_LENGTH, MAX_POST_LENGTH, MAX_USERNAME_LENGTH, RATELIMIT, OWNER_USER_ID, ADMIN_LOG_PATH, MAX_ADMIN_LOG_LINES, MAX_NOTIFICATIONS, MAX_BIO_LENGTH, ENABLE_USER_BIOS, ENABLE_PRONOUNS, ENABLE_GRADIENT_BANNERS, ENABLE_BADGES, ENABLE_PRIVATE_MESSAGES, ENABLE_QUOTES, ENABLE_POST_DELETION, DEFAULT_LANGUAGE, CACHE_LANGUAGES, ENABLE_HASHTAGS, MAX_POLL_OPTION_LENGTH, MAX_POLL_OPTIONS
+from ._settings import SITE_NAME, VERSION, SOURCE_CODE, MAX_DISPL_NAME_LENGTH, MAX_POST_LENGTH, MAX_USERNAME_LENGTH, RATELIMIT, OWNER_USER_ID, ADMIN_LOG_PATH, MAX_ADMIN_LOG_LINES, MAX_NOTIFICATIONS, MAX_BIO_LENGTH, ENABLE_USER_BIOS, ENABLE_PRONOUNS, ENABLE_GRADIENT_BANNERS, ENABLE_BADGES, ENABLE_PRIVATE_MESSAGES, ENABLE_QUOTES, ENABLE_POST_DELETION, DEFAULT_LANGUAGE, CACHE_LANGUAGES, ENABLE_HASHTAGS, MAX_POLL_OPTION_LENGTH, MAX_POLL_OPTIONS,ENABLE_CHANGELOG_PAGE, ENABLE_CONTACT_PAGE, ENABLE_PINNED_POSTS, ENABLE_ACCOUNT_SWITCHER, ENABLE_POLLS, ENABLE_LOGGED_OUT_CONTENT, ENABLE_NEW_ACCOUNTS
 from .variables import PRIVATE_AUTHENTICATOR_KEY, timeout_handler, BASE_DIR, VALID_LANGUAGES
 from .packages  import Callable, Any, HttpResponse, HttpResponseRedirect, loader, User, Comment, Post, Notification, threading, hashlib, time, re, json
 
@@ -58,6 +58,13 @@ def get_HTTP_response(request, file: str, lang_override: dict | None=None, **kwa
         "ENABLE_QUOTES": str(ENABLE_QUOTES).lower(),
         "ENABLE_POST_DELETION": str(ENABLE_POST_DELETION).lower(),
         "ENABLE_HASHTAGS": str(ENABLE_HASHTAGS).lower(),
+        "ENABLE_CHANGELOG_PAGE": str(ENABLE_CHANGELOG_PAGE).lower(),
+        "ENABLE_CONTACT_PAGE": str(ENABLE_CONTACT_PAGE).lower(),
+        "ENABLE_PINNED_POSTS": str(ENABLE_PINNED_POSTS).lower(),
+        "ENABLE_ACCOUNT_SWITCHER": str(ENABLE_ACCOUNT_SWITCHER).lower(),
+        "ENABLE_POLLS": str(ENABLE_POLLS).lower(),
+        "ENABLE_LOGGED_OUT_CONTENT": str(ENABLE_LOGGED_OUT_CONTENT).lower(),
+        "ENABLE_NEW_ACCOUNTS": str(ENABLE_NEW_ACCOUNTS).lower(),
 
         "THEME": theme,
         "lang": lang
@@ -456,7 +463,7 @@ def get_lang(lang: User | str | None=None, override_cache=False) -> dict[str, di
     }
 
     temp_lang = {}
-    for i in sorted(x["changelog"]["changes"], reverse=True):
+    for i in sorted(x["changelog"]["changes"], reverse=True, key=lambda a: tuple(map(int, a[1::].split('.')))):
         temp_vals = {}
         for o in sorted(x["changelog"]["changes"][i], key=int):
             temp_vals[str(o)] = x["changelog"]["changes"][i][str(o)]
