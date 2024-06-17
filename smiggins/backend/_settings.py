@@ -143,4 +143,4 @@ ENABLE_LOGGED_OUT_CONTENT: bool = True
 
 # If off, there will be an indication on the signup and index pages
 # that says the instance isn't accepting any new members
-ENABLE_NEW_ACCOUNTS: bool = False # TODO
+ENABLE_NEW_ACCOUNTS: bool = True
