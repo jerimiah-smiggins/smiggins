@@ -366,7 +366,7 @@ def post_list_recent(request, offset: int=-1) -> tuple | dict:
                 "end": True
             }
     else:
-        next_id = offset - 10
+        next_id = offset - 1
 
     end = next_id <= POSTS_PER_REQUEST
     user = User.objects.get(token=token)
@@ -454,7 +454,11 @@ def post_list_user(request, username: str, offset: int=-1) -> tuple | dict:
 
     outputList = []
     for i in potential:
-        outputList.append(get_post_json(i, self_user.user_id if logged_in else 0, cache=cache))
+        try:
+            outputList.append(get_post_json(i, self_user.user_id if logged_in else 0, cache=cache))
+        except Post.DoesNotExist:
+            user.posts.remove(i)
+            user.save()
 
     if ENABLE_PINNED_POSTS:
         try:
