@@ -2,6 +2,7 @@
 # Only change this if there is a required module not imported.
 
 import threading # noqa: F401
+import requests # noqa: F401
 import hashlib # noqa: F401
 import pathlib # noqa: F401
 import random # noqa: F401

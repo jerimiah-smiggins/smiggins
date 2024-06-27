@@ -15,13 +15,10 @@ dom("post").addEventListener("click", function () {
         dom("post-text").setAttribute("disabled", "");
         fetch("/api/comment/create", {
             method: "PUT",
-            headers: {
-                "Content-Type": "application/json"
-            },
             body: JSON.stringify({
-                "content": dom("post-text").value,
-                "id": post_id,
-                "comment": comment
+                content: dom("post-text").value,
+                id: post_id,
+                comment: comment
             })
         })
             .then((response) => {

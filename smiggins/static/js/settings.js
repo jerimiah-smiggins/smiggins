@@ -25,49 +25,67 @@ else if (ENABLE_PRONOUNS) {
     document.querySelector(`#pronouns-primary option[value="${user_pronouns[0]}"]`).setAttribute("selected", "");
     document.querySelector(`#pronouns-secondary option[value="${user_pronouns[1]}"]`).setAttribute("selected", "");
 }
-let currentAccount = document.cookie.match(/token=([a-f0-9]{64})/)[0].split("=")[1];
-let accounts = JSON.parse(localStorage.getItem("acc-switcher") || JSON.stringify([[localStorage.getItem("username"), currentAccount]]));
-if (!localStorage.getItem("username")) {
-    dom("switcher").setAttribute("hidden", "");
-}
-let hasCurrent = false;
-for (const acc of accounts) {
-    if (currentAccount == acc[1]) {
-        hasCurrent = true;
+let currentAccount;
+let accounts;
+let hasCurrent;
+if (ENABLE_ACCOUNT_SWITCHER) {
+    currentAccount = document.cookie.match(/token=([a-f0-9]{64})/)[0].split("=")[1];
+    accounts = JSON.parse(localStorage.getItem("acc-switcher") || JSON.stringify([[localStorage.getItem("username"), currentAccount]]));
+    if (!localStorage.getItem("username")) {
+        dom("switcher").setAttribute("hidden", "");
     }
+    hasCurrent = false;
+    for (const acc of accounts) {
+        if (currentAccount == acc[1]) {
+            hasCurrent = true;
+        }
+    }
+    if (!hasCurrent) {
+        accounts.push([
+            localStorage.getItem("username"),
+            document.cookie.match(/token=([a-f0-9]{64})/)[0].split("=")[1]
+        ]);
+    }
+    accounts = accounts.sort((a, b) => (a[0].toLowerCase() > b[0].toLowerCase() ? 1 : 0));
+    localStorage.setItem("acc-switcher", JSON.stringify(accounts));
+    let x = new DocumentFragment();
+    for (const acc of accounts) {
+        let y = document.createElement("option");
+        y.innerText = acc[0];
+        y.value = acc[1] + "-" + acc[0];
+        if (currentAccount == acc[1]) {
+            y.setAttribute("selected", "");
+        }
+        x.append(y);
+    }
+    dom("accs").append(x);
 }
-if (!hasCurrent) {
-    accounts.push([
-        localStorage.getItem("username"),
-        document.cookie.match(/token=([a-f0-9]{64})/)[0].split("=")[1]
-    ]);
-}
-accounts = accounts.sort((a, b) => (a[0].toLowerCase() > b[0].toLowerCase() ? 1 : 0));
-localStorage.setItem("acc-switcher", JSON.stringify(accounts));
 dom("color-selector").innerHTML = output;
 dom("post-example").innerHTML = getPostHTML({
-    "creator": {
-        "badges": ["administrator"],
-        "color_one": "#" + Math.floor(Math.random() * 16777216).toString(16).padStart(6, "0"),
-        "color_two": "#" + Math.floor(Math.random() * 16777216).toString(16).padStart(6, "0"),
-        "display_name": lang.settings.cosmetic_example_post_display_name,
-        "gradient_banner": true,
-        "private": false,
-        "pronouns": "aa",
-        "username": lang.settings.cosmetic_example_post_username,
+    creator: {
+        badges: ["administrator"],
+        color_one: "#" + Math.floor(Math.random() * 16777216).toString(16).padStart(6, "0"),
+        color_two: "#" + Math.floor(Math.random() * 16777216).toString(16).padStart(6, "0"),
+        display_name: lang.settings.cosmetic_example_post_display_name,
+        gradient_banner: true,
+        private: false,
+        pronouns: "aa",
+        username: lang.settings.cosmetic_example_post_username,
     },
-    "can_delete": false,
-    "can_view": true,
-    "comments": Math.floor(Math.random() * 100),
-    "content": lang.settings.cosmetic_example_post_content,
-    "liked": true,
-    "likes": Math.floor(Math.random() * 99) + 1,
-    "owner": false,
-    "parent_is_comment": false,
-    "parent": -1,
-    "post_id": 0,
-    "quotes": Math.floor(Math.random() * 100),
-    "timestamp": Date.now() / 1000 - Math.random() * 86400
+    can_delete: false,
+    can_view: true,
+    comments: Math.floor(Math.random() * 100),
+    content: lang.settings.cosmetic_example_post_content,
+    liked: true,
+    likes: Math.floor(Math.random() * 99) + 1,
+    owner: false,
+    parent_is_comment: false,
+    parent: -1,
+    post_id: 0,
+    quotes: Math.floor(Math.random() * 100),
+    timestamp: Date.now() / 1000 - Math.random() * 86400,
+    poll: null,
+    logged_in: true
 }, false, false, false, true);
 function toggleGradient(setUnloadStatus) {
     if (typeof setUnloadStatus !== "boolean" || setUnloadStatus) {
@@ -98,16 +116,6 @@ function updatePronouns() {
         user_pronouns = user_pronouns[0] + this.value;
     }
 }
-let x = new DocumentFragment();
-for (const acc of accounts) {
-    let y = document.createElement("option");
-    y.innerText = acc[0];
-    y.value = acc[1] + "-" + acc[0];
-    if (currentAccount == acc[1]) {
-        y.setAttribute("selected", "");
-    }
-    x.append(y);
-}
 function setUnload() {
     if (!window.onbeforeunload) {
         window.onbeforeunload = function () {
@@ -115,7 +123,6 @@ function setUnload() {
         };
     }
 }
-dom("accs").append(x);
 toggleGradient(false);
 dom("color").addEventListener("change", function () {
     localStorage.setItem('color', dom("color").value);
@@ -128,11 +135,8 @@ dom("theme").addEventListener("change", function () {
     dom("theme").setAttribute("disabled", "");
     fetch("/api/user/settings/theme", {
         method: "PATCH",
-        headers: {
-            "Content-Type": "application/json"
-        },
         body: JSON.stringify({
-            "theme": dom("theme").value
+            theme: dom("theme").value
         })
     })
         .then((response) => (response.json()))
@@ -200,13 +204,13 @@ ENABLE_GRADIENT_BANNERS && dom("banner-color-two").addEventListener("input", fun
     document.body.style.setProperty("--banner-two", this.value);
 });
 ENABLE_GRADIENT_BANNERS && dom("banner-is-gradient").addEventListener("input", toggleGradient);
-dom("acc-switch").addEventListener("click", function () {
+ENABLE_ACCOUNT_SWITCHER && dom("acc-switch").addEventListener("click", function () {
     let val = dom("accs").value.split("-", 2);
     setCookie("token", val[0]);
     localStorage.setItem("username", val[1]);
     window.location.reload();
 });
-dom("acc-remove").addEventListener("click", function () {
+ENABLE_ACCOUNT_SWITCHER && dom("acc-remove").addEventListener("click", function () {
     let removed = dom("accs").value.split("-", 2);
     if (removed[0] == currentAccount) {
         showlog(lang.settings.account_switcher_remove_error);
@@ -248,13 +252,15 @@ dom("set-password").addEventListener("click", function () {
         .then((json) => {
         if (json.success) {
             setCookie("token", json.token);
-            let switcher = JSON.parse(localStorage.getItem("acc-switcher"));
-            for (let i = 0; i < switcher.length; i++) {
-                if (switcher[i][1] == currentAccount) {
-                    switcher[i][1] = json.token;
+            if (ENABLE_ACCOUNT_SWITCHER) {
+                let switcher = JSON.parse(localStorage.getItem("acc-switcher"));
+                for (let i = 0; i < switcher.length; i++) {
+                    if (switcher[i][1] == currentAccount) {
+                        switcher[i][1] = json.token;
+                    }
                 }
+                localStorage.setItem("acc-switcher", JSON.stringify(switcher));
             }
-            localStorage.setItem("acc-switcher", JSON.stringify(switcher));
             showlog(lang.settings.account_password_success, 5000);
         }
         else {

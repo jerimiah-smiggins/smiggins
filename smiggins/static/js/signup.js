@@ -30,12 +30,9 @@ dom("submit").addEventListener("click", function () {
     this.setAttribute("disabled", "");
     fetch("/api/user/signup", {
         method: "POST",
-        headers: {
-            "Content-Type": "application/json"
-        },
         body: JSON.stringify({
-            "username": username,
-            "password": password
+            username: username,
+            password: password
         })
     })
         .then((response) => {

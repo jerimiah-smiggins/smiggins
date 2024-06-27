@@ -20,7 +20,7 @@ adminLevel >= 1 && dom("post-delete").addEventListener("click", function(): void
   fetch(`/api/${(dom("comment-toggle") as HTMLInputElement).checked ? "comment" : "post"}`, {
     method: "DELETE",
     body: JSON.stringify({
-      "id": Number((dom("post-id") as HTMLInputElement).value)
+      id: Number((dom("post-id") as HTMLInputElement).value)
     })
   }).then((response: Response) => (response.json()))
     .then((json: {
@@ -153,13 +153,13 @@ adminLevel >= 4 && dom("data-get").addEventListener("click", function(): void {
           <input maxlength="300" id="data-display-name" placeholder="${lang.settings.profile_display_name_placeholder}" value="${escapeHTML(json.displ_name || "")}"><br>
           <textarea maxlength="65536" id="data-bio" placeholder="${lang.settings.profile_bio_placeholder}">${escapeHTML(json.bio || "")}</textarea><br>
           <button id="data-save" data-user-id="${json.user_id}">${lang.admin.modify_save}</button><br>
-          <button id="data-switcher" data-token="${json.token}" data-username="${json.username}">${lang.admin.modify_switcher}</button>
+          ${ENABLE_ACCOUNT_SWITCHER ? `<button id="data-switcher" data-token="${json.token}" data-username="${json.username}">${lang.admin.modify_switcher}</button>` : ""}
         `;
 
         dom("data-display-name").addEventListener("input", postTextInputEvent);
         dom("data-bio").addEventListener("input", postTextInputEvent);
 
-        dom("data-switcher").addEventListener("click", function(): void {
+        ENABLE_ACCOUNT_SWITCHER && dom("data-switcher").addEventListener("click", function(): void {
           let username: string = this.dataset.username;
           let token: string = this.dataset.token;
           let accounts: string[][] = JSON.parse(localStorage.getItem("acc-switcher") || "[]");

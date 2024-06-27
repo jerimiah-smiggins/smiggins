@@ -27,9 +27,6 @@ dom("submit").addEventListener("click", function(): void {
 0
   fetch("/api/user/login", {
     method: "POST",
-    headers: {
-      "Content-Type": "application/json"
-    },
     body: JSON.stringify({
       username: username,
       password: password

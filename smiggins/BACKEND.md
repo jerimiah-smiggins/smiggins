@@ -299,7 +299,7 @@ class NewPost(Schema)
 The schema for creating a new post
 
 ```py
-class NewQuote(NewPost)
+class NewQuote(Schema)
 ```
 The schema for creating a new quote
 
@@ -307,6 +307,21 @@ The schema for creating a new quote
 class PostID(Schema)
 ```
 The schema that contains just a post ID
+
+```py
+class Poll(Schema)
+```
+The schema for voting on a poll
+
+```py
+def post_hook(
+  request: django.core.handlers.wsgi.WSGIRequest,
+  user: User,
+  post: Post
+) -> None
+```
+Handles posting to the webhooks defined in
+`[./backend/\_settings\].POST\_WEBHOOKS`
 
 ```py
 def post_create(
@@ -327,8 +342,7 @@ This handles creating a post. Called from a PUT request to `/api/quote/create`.
 ```py
 def hashtag_list(
   request: django.core.handlers.wsgi.WSGIRequest,
-  hashtag: str,
-  offset: int = -1
+  hashtag: str
 ) -> tuple | dict
 ```
 Returns a randomized list of posts with the specified hashtag hashtag. Called
@@ -401,6 +415,14 @@ def unpin_post(
 ) -> tuple | int
 ```
 Handles unpinning a post. Called from a DELETE request to `/api/user/pin`
+
+```py
+def poll_vote(
+  request: django.core.handlers.wsgi.WSGIRequest,
+  data: Poll
+)
+```
+Handles voting on a poll. Called from a POST request to `/api/post/vote`
 
 ## ./backend/api/user.py
 This file is for api functions that are related to user profiles and account
@@ -654,6 +676,15 @@ It is a list of lists, where the inside list has two strings. The first string
 is the type, which can be `email`, `url`, or `text`. `email` is for emails,
 `url` for links, and `text` for other text that wouldn't fit with either of the
 other options.
+
+```py
+POST_WEBHOOKS: dict[str, list[str]]
+```
+Automatically sends a request to the specified webhook when a user posts a post
+(comments aren't included). Format below. Type should be either "raw" (sends the
+data with a POST request with the data in the "content" json parameter) or
+"discord" (sends the data in a discord style embed). Webhooks may be subject to
+ratelimits by external servers depending on frequency
 
 ```py
 SOURCE_CODE: bool

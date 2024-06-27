@@ -50,6 +50,25 @@ to the `maintainers` section
 Updates for each language version are listed below:
 
 <details>
+<summary>1.3.0</summary>
+
+Added polls
+
+```diff
++ home.quote_private
++ home.quote_poll
++ home.poll
++ home.poll_option
++ home.poll_optional
++ home.poll_total_plural
++ home.poll_total_singular
++ account.no_new
++ post.invalid_poll
++ changelog.changes.v0.10.0 {1, 2, 3, 4, 5}
+```
+</details>
+
+<details>
 <summary>1.2.0</summary>
 
 Rewrote how changelogs are stored to make translating bit-by-bit easier

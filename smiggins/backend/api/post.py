@@ -1,24 +1,69 @@
 # For API functions that relate to posts, for example creating, fetching home lists, etc.
 
-from .._settings import API_TIMINGS, MAX_POST_LENGTH, POSTS_PER_REQUEST, OWNER_USER_ID
-from ..packages  import User, Post, Comment, Hashtag, time, sys, Schema, random
+from .._settings import API_TIMINGS, MAX_POST_LENGTH, POSTS_PER_REQUEST, OWNER_USER_ID, MAX_POLL_OPTIONS, MAX_POLL_OPTION_LENGTH, POST_WEBHOOKS, SITE_NAME, VERSION, ENABLE_PINNED_POSTS, ENABLE_POLLS, ENABLE_LOGGED_OUT_CONTENT
+from ..packages  import User, Post, Comment, Hashtag, time, sys, Schema, random, requests, threading
 from ..helper    import ensure_ratelimit, create_api_ratelimit, validate_username, trim_whitespace, get_post_json, log_admin_action, create_notification, find_mentions, find_hashtags, get_lang, DEFAULT_LANG
 
 class NewPost(Schema):
     content: str
+    poll: list[str]
 
-class NewQuote(NewPost):
+class NewQuote(Schema):
+    content: str
     quote_id: int
     quote_is_comment: bool
 
 class PostID(Schema):
     id: int
 
+class Poll(Schema):
+    id: int
+    option: int
+
+def post_hook(request, user: User, post: Post):
+    def post_inside(request, user: User, post: Post):
+        meta = POST_WEBHOOKS[user.username]
+        lang = get_lang()
+
+        content = post.content + (f"\n\n{lang['home']['quote_recursive']}" if post.quote else f"\n\n{lang['home']['quote_poll']}" if post.poll else "")
+
+        if meta[1] == "discord":
+            body = {
+                "content": None,
+                "embeds": [{
+                    "description": content,
+                    "color": int(user.color[1::], 16),
+                    "author": {
+                        "name": user.display_name,
+                        "url": f"http://{request.META['HTTP_HOST']}/u/{user.username}"
+                    },
+                    "footer": {
+                        "text": f"{SITE_NAME} v{VERSION}"
+                    }
+                }]
+            }
+
+        else:
+            body = {
+                "content": content
+            }
+
+        requests.post(meta[0], json=body, timeout=5)
+
+    threading.Thread(target=post_inside, kwargs={
+        "request": request,
+        "user": user,
+        "post": post
+    }).start()
+
 def post_create(request, data: NewPost) -> tuple | dict:
     # Called when a new post is created.
 
     token = request.COOKIES.get('token')
     user = User.objects.get(token=token)
+
+    if not ENABLE_POLLS:
+        data.poll = []
 
     if not ensure_ratelimit("api_post_create", token):
         lang = get_lang(user)
@@ -27,9 +72,32 @@ def post_create(request, data: NewPost) -> tuple | dict:
             "reason": lang["generic"]["ratelimit"]
         }
 
+    if len(data.poll) > MAX_POLL_OPTIONS:
+        return 400, {
+            "success": False
+        }
+
+    poll = []
+    for i in data.poll:
+        i = trim_whitespace(i, True)
+        if i:
+            if len(i) > MAX_POLL_OPTION_LENGTH:
+                return 400, {
+                    "success": False
+                }
+
+            poll.append(i)
+
+    if len(poll) == 1:
+        lang = get_lang(user)
+        return 400, {
+            "success": False,
+            "reason": lang["post"]["invalid_poll"]
+        }
+
     content = trim_whitespace(data.content)
 
-    if len(content) > MAX_POST_LENGTH or len(content) < 1:
+    if len(content) > MAX_POST_LENGTH or len(content) < (0 if len(poll) else 1):
         create_api_ratelimit("api_post_create", API_TIMINGS["create post failure"], token)
         lang = get_lang(user)
         return 400, {
@@ -46,7 +114,12 @@ def post_create(request, data: NewPost) -> tuple | dict:
         timestamp = timestamp,
         likes = [],
         comments = [],
-        quotes = []
+        quotes = [],
+        poll = {
+            "votes": [],
+            "choices": len(poll),
+            "content": [{ "value": i, "votes": [] } for i in poll]
+        } if poll else None
     )
 
     post = Post.objects.get(
@@ -77,6 +150,9 @@ def post_create(request, data: NewPost) -> tuple | dict:
 
         tag.posts.append(post.post_id)
         tag.save()
+
+    if user.username in POST_WEBHOOKS:
+        post_hook(request, user, post)
 
     return 201, {
         "success": True,
@@ -169,12 +245,15 @@ def quote_create(request, data: NewQuote) -> tuple | dict:
         tag.posts.append(post.post_id)
         tag.save()
 
+    if user.username in POST_WEBHOOKS:
+        post_hook(request, user, post)
+
     return 201, {
         "success": True,
         "post_id": post.post_id
     }
 
-def hashtag_list(request, hashtag: str, offset: int=-1) -> tuple | dict:
+def hashtag_list(request, hashtag: str) -> tuple | dict:
     # Returns a list of hashtags. `offset` is a filler variable.
 
     token = request.COOKIES.get("token")
@@ -287,7 +366,7 @@ def post_list_recent(request, offset: int=-1) -> tuple | dict:
                 "end": True
             }
     else:
-        next_id = offset - 10
+        next_id = offset - 1
 
     end = next_id <= POSTS_PER_REQUEST
     user = User.objects.get(token=token)
@@ -327,6 +406,11 @@ def post_list_user(request, username: str, offset: int=-1) -> tuple | dict:
         lang = get_lang(self_user)
         logged_in = True
     except User.DoesNotExist:
+        if not ENABLE_LOGGED_OUT_CONTENT:
+            return 400, {
+                "success": False
+            }
+
         lang = DEFAULT_LANG
         logged_in = False
 
@@ -370,11 +454,18 @@ def post_list_user(request, username: str, offset: int=-1) -> tuple | dict:
 
     outputList = []
     for i in potential:
-        outputList.append(get_post_json(i, self_user.user_id if logged_in else 0, cache=cache))
+        try:
+            outputList.append(get_post_json(i, self_user.user_id if logged_in else 0, cache=cache))
+        except Post.DoesNotExist:
+            user.posts.remove(i)
+            user.save()
 
-    try:
-        pinned_post = get_post_json(user.pinned, self_user.user_id if logged_in else 0, False, cache)
-    except Post.DoesNotExist:
+    if ENABLE_PINNED_POSTS:
+        try:
+            pinned_post = get_post_json(user.pinned, self_user.user_id if logged_in else 0, False, cache)
+        except Post.DoesNotExist:
+            pinned_post = {}
+    else:
         pinned_post = {}
 
     return {
@@ -561,4 +652,36 @@ def unpin_post(request) -> tuple | dict:
 
     return {
         "success": True
+    }
+
+def poll_vote(request, data: Poll):
+    post = Post.objects.get(post_id=data.id)
+    poll = post.poll
+
+    if isinstance(poll, dict):
+        if (poll["choices"] < data.option or data.option <= 0):
+            return 400, {
+                "success": False
+            }
+
+        user = User.objects.get(token=request.COOKIES.get('token'))
+        user_id = user.user_id
+
+        if user_id in poll["votes"]:
+            return 400, {
+                "success": False
+            }
+
+        poll["votes"].append(user_id)
+        poll["content"][data.option - 1]["votes"].append(user_id)
+
+        post.poll = poll
+        post.save()
+
+        return 200, {
+            "success": True
+        }
+
+    return 400, {
+        "success": False
     }

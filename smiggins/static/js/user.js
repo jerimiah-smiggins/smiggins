@@ -30,11 +30,8 @@ function toggle_follow() {
     let x = dom("toggle").getAttribute("data-followed") === "1";
     fetch(`/api/user/follower`, {
         method: x ? "DELETE" : "POST",
-        headers: {
-            "Content-Type": "application/json"
-        },
         body: JSON.stringify({
-            "username": document.querySelector("body").getAttribute("data-username")
+            username: document.querySelector("body").getAttribute("data-username")
         })
     })
         .then((response) => (response.json()))
@@ -50,11 +47,8 @@ function toggle_block() {
     let x = dom("block").getAttribute("data-blocked") === "1";
     fetch(`/api/user/block`, {
         method: x ? "DELETE" : "POST",
-        headers: {
-            "Content-Type": "application/json"
-        },
         body: JSON.stringify({
-            "username": document.querySelector("body").getAttribute("data-username")
+            username: document.querySelector("body").getAttribute("data-username")
         })
     })
         .then((response) => (response.json()))
@@ -68,9 +62,9 @@ function toggle_block() {
 }
 function createMessage() {
     fetch("/api/messages/new", {
-        "method": "POST",
-        "body": JSON.stringify({
-            "username": username
+        method: "POST",
+        body: JSON.stringify({
+            username: username
         })
     }).then((response) => response.json())
         .then((json) => {

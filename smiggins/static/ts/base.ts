@@ -12,6 +12,8 @@ let disableTimeline: boolean;
 let c: number;
 let offset: number;
 
+let globalIncrement: number = 0;
+
 function dom(id: string): HTMLElement {
   return document.getElementById(id);
 }
@@ -35,7 +37,7 @@ function showlog(str: string, time: number = 0): void {};
 function setCookie(name: string, value: string): void {
   let date = new Date();
   date.setTime(date.getTime() + (356 * 24 * 60 * 60 * 1000));
-  document.cookie = `${name}=${value};Path=/;Expires=${date.toUTCString()}`;
+  document.cookie = `${name}=${value};Path=/;SameSite=Lax;Expires=${date.toUTCString()}`;
 }
 
 function eraseCookie(name: string): void {
@@ -117,12 +119,12 @@ function timeSince(date: number): string {
   let unit: string = "second"
   let amount: number = seconds > 0 ? seconds : 0;
 
-  const timeAmounts: { "name": string, "amount": number }[] = [
-    { "name": "minute", "amount": 60 },
-    { "name": "hour", "amount": 3600 },
-    { "name": "day", "amount": 86400 },
-    { "name": "month", "amount": 2592000 },
-    { "name": "year", "amount": 31536000 }
+  const timeAmounts: { name: string, amount: number }[] = [
+    { name: "minute", amount: 60 },
+    { name: "hour",   amount: 3600 },
+    { name: "day",    amount: 86400 },
+    { name: "month",  amount: 2592000 },
+    { name: "year",   amount: 31536000 }
   ]
 
   for (const info of timeAmounts) {
@@ -229,6 +231,7 @@ function getPostHTML(
                       }
 
                       ${postJSON.quote.has_quote ? `<br><i>${lang.home.quote_recursive}</i>` : ""}
+                      ${postJSON.quote.poll ? `<br><i>${lang.home.quote_poll}</i>` : ""}
                     </a>
                   </div>
                 ` : lang.home.quote_private
@@ -236,6 +239,44 @@ function getPostHTML(
             </div>
           </div>
         ` : ""
+      }
+
+      ${
+        postJSON.poll && typeof postJSON.poll == "object"? ((): string => {
+          let output: string = `<div id="gi-${globalIncrement}">`;
+          let c: number = 0;
+
+          if (postJSON.poll.voted || !postJSON.logged_in) {
+            for (const option of postJSON.poll.content) {
+              c++;
+              output += `<div class="poll-bar-container">
+                <div class="poll-bar ${option.voted ? "voted" : ""}">
+                  <div style="width:${option.votes / postJSON.poll.votes * 100}%">
+                    🥖
+                  </div>
+                </div>
+                <div class="poll-text">
+                  ${Math.round(option.votes / postJSON.poll.votes * 1000) / 10}% - ${escapeHTML(option.value)}
+                </div>
+              </div>`;
+            }
+          } else {
+            for (const option of postJSON.poll.content) {
+              c++;
+              output += `<div data-index="${c}"
+                         data-total-votes="${postJSON.poll.votes}"
+                         data-votes="${option.votes}"
+                         class="poll-bar-container"
+                         onclick="vote(${c}, ${postJSON.post_id}, ${globalIncrement})">
+                <div class="poll-text">${escapeHTML(option.value)}</div>
+              </div>`;
+            }
+          }
+
+          globalIncrement++;
+
+          return output + `<small>${(postJSON.poll.votes == 1 ? lang.home.poll_total_singular : lang.home.poll_total_plural).replaceAll("%s", postJSON.poll.votes)}</small></div>`;
+        })() : ""
       }
 
       <div class="bottom-content">
@@ -261,7 +302,7 @@ function getPostHTML(
         </button>
 
         ${
-          postJSON.can_pin ? `
+          postJSON.can_pin && ENABLE_PINNED_POSTS ? `
           <div class="bottom-spacing"></div>
           <button class="bottom-content-icon ${isPinned && postJSON.can_pin ? "red" : ""}" tabindex="0" onclick="${isPinned && postJSON.can_pin ? "un" : ""}pinPost(${isPinned && postJSON.can_pin ? "" : postJSON.post_id})">
             ${icons.pin}

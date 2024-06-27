@@ -2,7 +2,7 @@
   "meta": {
     "fallback": [],
     "name": "English (United States)",
-    "version": "1.2.0",
+    "version": "1.3.0",
     "maintainers": [ "trinkey" ]
   },
 
@@ -213,13 +213,20 @@
 
       "quote_blocked": "This post is from an account you've blocked",
       "quote_deleted": "The original post was deleted",
-      "quote_private": "This person limits who can view their profile.",
+      "quote_private": "This person limits who can view their profile",
+      "quote_poll": "This post has a poll",
       "quote_recursive": "Quoting another post...",
       "quote_placeholders": [
         "What did they do this time?",
         "Yet another mistake to point out?",
         "Ugh... not again..."
-      ]
+      ],
+
+      "poll": "Poll",
+      "poll_option": "Option %s",
+      "poll_optional": "Option %s (optional)",
+      "poll_total_plural": "%s total votes",
+      "poll_total_singular": "%s total vote"
     },
 
     "account": {
@@ -231,6 +238,7 @@
       "sign_up_instead": "Sign up instead...",
       "sign_up_failure": "Unable to sign up! Reason: %s",
 
+      "no_new": "This instance isn't accepting any new users.",
       "password_match_failure": "Passwords don't match!",
 
       "log_out_title": "Redirecting you shortly...",
@@ -293,7 +301,8 @@
       "comment_id_does_not_exist": "Your id broke soemthing owo",
       "invalid_quote_post": "The post you're quoting doesn't exist!",
       "invalid_quote_comment": "The comment you're quoting doesn't exist!",
-      "invalid_username": "Username is insvalagaeg... LOOK JUST SHUT UP"
+      "invalid_username": "Username is insvalagaeg... LOOK JUST SHUT UP",
+      "invalid_poll": "The poll needs to have at least two options!"
     },
 
     "settings": {
@@ -370,6 +379,13 @@
       "unknown": "Unknown",
 
       "changes": {
+        "v0.10.0": {
+          "1": "Reverted tweaks to post box heights from v0.7.3",
+          "2": "Added polls",
+          "3": "Fixed a bug that caused some errors not appearing when quoting a post",
+          "4": "Added an option to the backend to automatically post to webhooks for a specified user",
+          "5": "Added several options to the backend to disable features such as the changelog and contact pages, pinned posts, the account switcher, polls, viewing content while logged out, and creating new accounts"
+        },
         "v0.9.3": {
           "1": "Rewrote frontend with typescript",
           "2": "Completely remade how changelogs are stored",
@@ -534,8 +550,7 @@
         },
         "v0.3.7": {
           "1": "Added themes"
-        },
-        "v0.0.1 - v0.3.6": {}
+        }
       }
     }
   }

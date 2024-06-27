@@ -5,7 +5,7 @@
 # -- General Site Configuration --
 
 # Version displayed.
-VERSION: str = "0.9.3"
+VERSION: str = "0.10.0"
 
 # What to have the site name be.
 SITE_NAME: str = "Jerimiah Smiggins"
@@ -51,6 +51,12 @@ MAX_DISPL_NAME_LENGTH: int = 32
 MAX_POST_LENGTH: int = 280
 MAX_BIO_LENGTH: int = 280
 
+# 1+
+MAX_POLL_OPTION_LENGTH: int = 64
+
+# 2+
+MAX_POLL_OPTIONS: int = 8 # Doesn't change existing polls
+
 DEFAULT_BANNER_COLOR: str = "#3a1e93"
 
 # This controls how many posts can be sent at a time from the
@@ -73,6 +79,15 @@ CONTACT_INFO: list[list[str]] = [
     ["url",   "https://discord.gg/tH7QnHApwu"],
     ["text",  "DM me on discord (@trinkey_)"]
 ]
+
+# Automatically sends a request to the specified webhook when a user posts a
+# post (comments aren't included). Format below. Type should be either "raw"
+# (sends the data with a POST request with the data in the "content" json
+# parameter) or "discord" (sends the data in a discord style embed). Webhooks
+# may be subject to ratelimits by external servers depending on frequency
+POST_WEBHOOKS: dict[str, list[str]] = {
+#   "username": ["https://example.com/webhook", "type"]
+}
 
 # -- Feature Toggles --
 
@@ -101,14 +116,31 @@ API_TIMINGS: dict[str, int] = {
 # setting. This means if you enable one in the future, anything set
 # before it was disabled will persist.
 
-# Setting toggles
 ENABLE_USER_BIOS: bool = True
 ENABLE_PRONOUNS: bool = True
 ENABLE_GRADIENT_BANNERS: bool = True
-ENABLE_BADGES: bool = True # The private account icon will still show if this is off
-
-# Larger feature toggles
 ENABLE_PRIVATE_MESSAGES: bool = True
-ENABLE_QUOTES: bool = True # Posts that are already quotes still show up as a quote
 ENABLE_POST_DELETION: bool = True
 ENABLE_HASHTAGS: bool = True
+ENABLE_CHANGELOG_PAGE: bool = True
+ENABLE_CONTACT_PAGE: bool = True
+ENABLE_PINNED_POSTS: bool = True
+ENABLE_ACCOUNT_SWITCHER: bool = True
+
+# The private account icon is always shown
+ENABLE_BADGES: bool = True
+
+# Existing quotes will remain unchanged
+ENABLE_QUOTES: bool = True
+
+# Existing polls will remain unchanged
+ENABLE_POLLS: bool = True
+
+# If off, people who are logged out won't be able to see any user profiles,
+# posts, or comments. This also affects causes embeds for sites like discord to
+# not work.
+ENABLE_LOGGED_OUT_CONTENT: bool = True
+
+# If off, there will be an indication on the signup and index pages
+# that says the instance isn't accepting any new members
+ENABLE_NEW_ACCOUNTS: bool = True

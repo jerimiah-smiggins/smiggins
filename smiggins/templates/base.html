@@ -34,9 +34,11 @@
     <script src="{% static "/js/linkify-4.1.3.min.js" %}?v={{ VERSION }}"></script>
     <script src="{% static "/js/linkify-html-4.1.3.min.js" %}?v={{ VERSION }}"></script>
     <script src="{% static "/js/linkify-mentions-4.1.3.min.js" %}?v={{ VERSION }}"></script>
+
     {% if ENABLE_HASHTAGS == "true" %}
       <script src="{% static "/js/linkify-hashtags-4.1.3.min.js" %}?v={{ VERSION }}"></script>
     {% endif %}
+
     {% if ENABLE_BADGES == "true" %}
       <script src="/badges.js?v={{ VERSION }}"></script>
     {% endif %}
@@ -46,6 +48,8 @@
       const MAX_POST_LENGTH = {{ MAX_POST_LENGTH }};
       const MAX_DISPL_NAME_LENGTH = {{ MAX_DISPL_NAME_LENGTH }};
       const MAX_BIO_LENGTH = {{ MAX_BIO_LENGTH }};
+      const MAX_POLL_OPTION_LENGTH = {{ MAX_POLL_OPTION_LENGTH }};
+      const MAX_POLL_OPTIONS = {{ MAX_POLL_OPTIONS }};
 
       const ENABLE_USER_BIOS = {{ ENABLE_USER_BIOS }};
       const ENABLE_PRONOUNS = {{ ENABLE_PRONOUNS }};
@@ -55,6 +59,13 @@
       const ENABLE_QUOTES = {{ ENABLE_QUOTES }};
       const ENABLE_POST_DELETION = {{ ENABLE_POST_DELETION }};
       const ENABLE_HASHTAGS = {{ ENABLE_HASHTAGS }};
+      const ENABLE_CHANGELOG_PAGE = {{ ENABLE_CHANGELOG_PAGE }};
+      const ENABLE_CONTACT_PAGE = {{ ENABLE_CONTACT_PAGE }};
+      const ENABLE_PINNED_POSTS = {{ ENABLE_PINNED_POSTS }};
+      const ENABLE_ACCOUNT_SWITCHER = {{ ENABLE_ACCOUNT_SWITCHER }};
+      const ENABLE_POLLS = {{ ENABLE_POLLS }};
+      const ENABLE_LOGGED_OUT_CONTENT = {{ ENABLE_LOGGED_OUT_CONTENT }};
+      const ENABLE_NEW_ACCOUNTS = {{ ENABLE_NEW_ACCOUNTS }};
     </script>
 
     <script src="{% static "/js/base.js" %}?v={{ VERSION }}"></script>

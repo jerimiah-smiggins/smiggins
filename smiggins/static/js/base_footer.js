@@ -2,6 +2,9 @@ const usernameRegexFull = /^[a-z0-9_\-]+$/g;
 if (typeof (logged_in) != "boolean") {
     logged_in = document.cookie.indexOf("token=") != -1;
 }
+if (logged_in) {
+    setCookie("token", document.cookie.split(/\btoken=/)[1].split(";")[0]);
+}
 let titleNotificationIndicator = false;
 let iconsElement = document.createElement("div");
 iconsElement.setAttribute("class", "icons");

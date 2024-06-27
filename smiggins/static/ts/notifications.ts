@@ -55,7 +55,7 @@ function refreshNotifications(): void {
 
 dom("read").addEventListener("click", function(): void {
   fetch("/api/user/notifications", {
-    "method": "DELETE"
+    method: "DELETE"
   }).then((): void => {
     refreshNotifications();
     forEach(

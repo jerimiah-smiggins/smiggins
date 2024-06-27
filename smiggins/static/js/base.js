@@ -10,6 +10,7 @@ let inc;
 let disableTimeline;
 let c;
 let offset;
+let globalIncrement = 0;
 function dom(id) {
     return document.getElementById(id);
 }
@@ -28,7 +29,7 @@ function showlog(str, time = 0) { }
 function setCookie(name, value) {
     let date = new Date();
     date.setTime(date.getTime() + (356 * 24 * 60 * 60 * 1000));
-    document.cookie = `${name}=${value};Path=/;Expires=${date.toUTCString()}`;
+    document.cookie = `${name}=${value};Path=/;SameSite=Lax;Expires=${date.toUTCString()}`;
 }
 function eraseCookie(name) {
     document.cookie = name + '=; Path=/; Expires=Thu, 01 Jan 1970 00:00:01 GMT;';
@@ -100,11 +101,11 @@ function timeSince(date) {
     let unit = "second";
     let amount = seconds > 0 ? seconds : 0;
     const timeAmounts = [
-        { "name": "minute", "amount": 60 },
-        { "name": "hour", "amount": 3600 },
-        { "name": "day", "amount": 86400 },
-        { "name": "month", "amount": 2592000 },
-        { "name": "year", "amount": 31536000 }
+        { name: "minute", amount: 60 },
+        { name: "hour", amount: 3600 },
+        { name: "day", amount: 86400 },
+        { name: "month", amount: 2592000 },
+        { name: "year", amount: 31536000 }
     ];
     for (const info of timeAmounts) {
         let interval = seconds / info.amount;
@@ -192,12 +193,47 @@ function getPostHTML(postJSON, isComment = false, includeUserLink = true, includ
         .replaceAll("<a target=\"_blank\" href=\"/", "<a href=\"/")}
 
                       ${postJSON.quote.has_quote ? `<br><i>${lang.home.quote_recursive}</i>` : ""}
+                      ${postJSON.quote.poll ? `<br><i>${lang.home.quote_poll}</i>` : ""}
                     </a>
                   </div>
                 ` : lang.home.quote_private}
             </div>
           </div>
         ` : ""}
+
+      ${postJSON.poll && typeof postJSON.poll == "object" ? (() => {
+        let output = `<div id="gi-${globalIncrement}">`;
+        let c = 0;
+        if (postJSON.poll.voted || !postJSON.logged_in) {
+            for (const option of postJSON.poll.content) {
+                c++;
+                output += `<div class="poll-bar-container">
+                <div class="poll-bar ${option.voted ? "voted" : ""}">
+                  <div style="width:${option.votes / postJSON.poll.votes * 100}%">
+                    🥖
+                  </div>
+                </div>
+                <div class="poll-text">
+                  ${Math.round(option.votes / postJSON.poll.votes * 1000) / 10}% - ${escapeHTML(option.value)}
+                </div>
+              </div>`;
+            }
+        }
+        else {
+            for (const option of postJSON.poll.content) {
+                c++;
+                output += `<div data-index="${c}"
+                         data-total-votes="${postJSON.poll.votes}"
+                         data-votes="${option.votes}"
+                         class="poll-bar-container"
+                         onclick="vote(${c}, ${postJSON.post_id}, ${globalIncrement})">
+                <div class="poll-text">${escapeHTML(option.value)}</div>
+              </div>`;
+            }
+        }
+        globalIncrement++;
+        return output + `<small>${(postJSON.poll.votes == 1 ? lang.home.poll_total_singular : lang.home.poll_total_plural).replaceAll("%s", postJSON.poll.votes)}</small></div>`;
+    })() : ""}
 
       <div class="bottom-content">
         ${includePostLink ? `<a href="/${isComment ? "c" : "p"}/${postJSON.post_id}" class="text no-underline">` : ""}
@@ -219,7 +255,7 @@ function getPostHTML(postJSON, isComment = false, includeUserLink = true, includ
           <span class="like-number">${postJSON.likes}</span>
         </button>
 
-        ${postJSON.can_pin ? `
+        ${postJSON.can_pin && ENABLE_PINNED_POSTS ? `
           <div class="bottom-spacing"></div>
           <button class="bottom-content-icon ${isPinned && postJSON.can_pin ? "red" : ""}" tabindex="0" onclick="${isPinned && postJSON.can_pin ? "un" : ""}pinPost(${isPinned && postJSON.can_pin ? "" : postJSON.post_id})">
             ${icons.pin}

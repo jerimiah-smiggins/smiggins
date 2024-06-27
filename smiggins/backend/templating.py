@@ -1,6 +1,6 @@
 # For getting pages, not api.
 
-from ._settings import DEFAULT_BANNER_COLOR, MAX_BIO_LENGTH, OWNER_USER_ID, CONTACT_INFO, ENABLE_GRADIENT_BANNERS, SITE_NAME, DEFAULT_LANGUAGE
+from ._settings import DEFAULT_BANNER_COLOR, MAX_BIO_LENGTH, OWNER_USER_ID, CONTACT_INFO, ENABLE_GRADIENT_BANNERS, SITE_NAME, DEFAULT_LANGUAGE, ENABLE_LOGGED_OUT_CONTENT
 from .variables import BADGE_DATA, VALID_LANGUAGES
 from .packages  import User, Post, Comment, Hashtag, PrivateMessageContainer, HttpResponse, HttpResponseRedirect, json
 from .helper    import get_HTTP_response, get_post_json, get_badges, get_container_id, get_lang
@@ -37,7 +37,7 @@ def settings(request) -> HttpResponse:
         ADMIN = str(user.user_id == OWNER_USER_ID or user.admin_level >= 1).lower()
     )
 
-def user(request, username: str) -> HttpResponse:
+def user(request, username: str) -> HttpResponse | HttpResponseRedirect:
     username = username.lower()
 
     try:
@@ -47,6 +47,9 @@ def user(request, username: str) -> HttpResponse:
         lang = get_lang(self_user)
 
     except User.DoesNotExist:
+        if not ENABLE_LOGGED_OUT_CONTENT:
+            return HttpResponseRedirect("/signup", status=307)
+
         self_id = 0
         logged_in = False
         lang = get_lang()
@@ -97,6 +100,9 @@ def user_lists(request, username: str) -> HttpResponse:
         lang = get_lang(user)
 
     except User.DoesNotExist:
+        if not ENABLE_LOGGED_OUT_CONTENT:
+            return HttpResponseRedirect("/signup", status=307)
+
         logged_in = False
         lang = get_lang()
 
@@ -208,6 +214,9 @@ def post(request, post_id: int) -> HttpResponse:
         user = User.objects.get(token=request.COOKIES.get("token"))
         logged_in = True
     except User.DoesNotExist:
+        if not ENABLE_LOGGED_OUT_CONTENT:
+            return HttpResponseRedirect("/signup", status=307)
+
         logged_in = False
 
     self_id = user.user_id if logged_in else 0
@@ -236,7 +245,7 @@ def post(request, post_id: int) -> HttpResponse:
         POST_ID   = str(post_id),
         COMMENT   = "false",
         POST_JSON = json.dumps(post_json),
-        CONTENT   = post.content,
+        CONTENT   = post.content + ("\n" + lang["home"]["quote_poll"] if post.poll else "\n" + lang["home"]["quote_recursive"] if post.quote else ""),
         EMBED_TITLE = lang["user_page"]["user_on_smiggins"].replace("%t", SITE_NAME).replace("%s", creator.display_name),
 
         LIKES = lang["post_page"]["likes"].replace("%s", str(post_json["likes"])),
@@ -249,6 +258,9 @@ def comment(request, comment_id: int) -> HttpResponse:
         user = User.objects.get(token=request.COOKIES.get("token"))
         logged_in = True
     except User.DoesNotExist:
+        if not ENABLE_LOGGED_OUT_CONTENT:
+            return HttpResponseRedirect("/signup", status=307)
+
         logged_in = False
 
     self_id = user.user_id if logged_in else 0
