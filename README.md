@@ -9,7 +9,7 @@ online version (at least for now): https://trinkey.pythonanywhere.com
   1. Clone the github repo or download the files
 
   2. With python, install the needed libraries
-  (`python3 -m pip install --upgrade django django-ninja ensure-file`,
+  (`python -m pip install --upgrade -r requirements.txt`,
   or use `py -m ...` on windows)
 
   3. Create the `_api_keys.py` file:
@@ -57,7 +57,7 @@ online version (at least for now): https://trinkey.pythonanywhere.com
   4. Click the "Start a console on this virtualenv" button to create a console
   in the venv. Then install needed libraries.
       ```bash
-      python -m pip install --upgrade pip django django-ninja ensure-file
+      python -m pip install --upgrade -r requirements.txt
       ```
 
   5. Clone the github repo
@@ -118,7 +118,7 @@ online version (at least for now): https://trinkey.pythonanywhere.com
 
   2. Install and update the required libraries
      ```bash
-     python3.10 -m pip install --upgrade django django-ninja ensure-file
+     python -m pip install --upgrade -r requirements.txt
      ```
 
   3. Clone the github repo

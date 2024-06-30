@@ -1,0 +1,4 @@
+django-ninja
+ensure-file
+requests
+django
