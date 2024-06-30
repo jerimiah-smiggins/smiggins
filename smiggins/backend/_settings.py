@@ -33,7 +33,7 @@ DEFAULT_LANGUAGE: str = "en-US"
 # to store them, however in the long run it will take a bit less CPU usage and
 # disk usage. If you are testing/creating a language, turn this OFF to make the
 # language refresh automatically.
-CACHE_LANGUAGES: bool = False
+CACHE_LANGUAGES: bool = True
 
 # Whether or not to legally allow other services to scrape your website. This
 # does NOT affect indexing for search engines. This is done by setting the
