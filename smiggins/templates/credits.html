@@ -1,0 +1,35 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}
+  {{ lang.credits.title }} - {{ SITE_NAME }} v{{ VERSION }}
+{% endblock %}
+
+{% block meta %}
+  <meta name="description" content="social media thing">
+  <meta name="author" content="{{ lang.contact.title }} - {{ SITE_NAME }} v{{ VERSION }}">
+
+  <meta property="og:title" content="{{ lang.contact.title }} - {{ SITE_NAME }} v{{ VERSION }}">
+  <meta property="og:description" content="social media thing">
+
+  <meta name="twitter:title" content="{{ lang.contact.title }} - {{ SITE_NAME }} v{{ VERSION }}">
+  <meta name="twitter:description" content="social media thing">
+{% endblock %}
+
+{% block head %}
+  <link rel="stylesheet" href="{% static '/css/contact.css' %}?v={{ VERSION }}">
+{% endblock %}
+
+{% block body %}
+  <h1>{{ lang.credits.title }}</h1>
+  <h3>{{ SITE_NAME }} v{{ VERSION }}</h3>
+  <ul>
+    {% for credit in lang.credits.credits %}
+      <li>{% autoescape off %}{{ credit }}{% endautoescape %}</li>
+    {% endfor %}
+  </ul>
+
+  <script>
+    home = true;
+  </script>
+{% endblock %}

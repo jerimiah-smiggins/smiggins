@@ -33,3 +33,13 @@ def notifications(request) -> tuple | dict:
         "notifications": not user.read_notifs,
         "messages": len(user.unread_messages) != 0
     }
+
+def version(request) -> dict:
+    # Returns the site version
+
+    return {
+        "success": True,
+        # Hardcoded version used for validation, this
+        # should NEVER be changed by the instance owner
+        "version": [0, 10, 1]
+    }

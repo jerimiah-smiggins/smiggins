@@ -1,3 +1,6 @@
+# NOTICE
+This document has not been updated since v0.9.X
+
 # Backend Docs
 Docs for the backend. This contains descriptions of every function defined in
 any of the files in the backend.

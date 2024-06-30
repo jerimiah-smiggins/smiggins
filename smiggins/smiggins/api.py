@@ -95,6 +95,7 @@ api.patch ("admin/badge", response=response_schema)(ApiAdmin.badge_remove) # Rem
 # Information
 api.get("info/username", response=response_schema)(ApiInfo.username)
 api.get("info/notifications", response=response_schema)(ApiInfo.notifications)
+api.get("info/version", response=response_schema)(ApiInfo.version)
 
 urlpatterns = [
     path("", api.urls) # type: ignore

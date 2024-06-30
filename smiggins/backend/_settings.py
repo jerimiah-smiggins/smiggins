@@ -5,7 +5,7 @@
 # -- General Site Configuration --
 
 # Version displayed.
-VERSION: str = "0.10.0"
+VERSION: str = "0.10.1"
 
 # What to have the site name be.
 SITE_NAME: str = "Jerimiah Smiggins"
@@ -33,7 +33,7 @@ DEFAULT_LANGUAGE: str = "en-US"
 # to store them, however in the long run it will take a bit less CPU usage and
 # disk usage. If you are testing/creating a language, turn this OFF to make the
 # language refresh automatically.
-CACHE_LANGUAGES: bool = True
+CACHE_LANGUAGES: bool = False
 
 # Whether or not to legally allow other services to scrape your website. This
 # does NOT affect indexing for search engines. This is done by setting the
@@ -124,6 +124,7 @@ ENABLE_POST_DELETION: bool = True
 ENABLE_HASHTAGS: bool = True
 ENABLE_CHANGELOG_PAGE: bool = True
 ENABLE_CONTACT_PAGE: bool = True
+ENABLE_CREDITS_PAGE: bool = True
 ENABLE_PINNED_POSTS: bool = True
 ENABLE_ACCOUNT_SWITCHER: bool = True
 

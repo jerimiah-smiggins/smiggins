@@ -6,8 +6,7 @@
 
 ---
 ### Checklist for Reviewers
-- [ ] Version has been incremented (if appropriate)
-- [ ] BACKEND.md has been updated for any new functions
+- [ ] Version has been incremented (if appropriate) in both `backend/_settings.py` and `backend/api/info.py`
 - [ ] Any new changes have been tested thoroughly (including api calls that wouldn't normally be possible using inspect element or the /api/docs page)
 - [ ] Any changes have been documented in the `changelog.logs` part of the en-US language file, along with the minor language version being incremented
 - [ ] Features that break easily have been tested (mostly viewing pages when not logged in)

@@ -2,7 +2,7 @@
   "meta": {
     "fallback": [],
     "name": "English (United States)",
-    "version": "1.3.0",
+    "version": "1.4.0",
     "maintainers": [ "trinkey" ]
   },
 
@@ -374,11 +374,28 @@
       "lists_no_bio": "No bio set"
     },
 
+    "credits": {
+      "title": "Credits",
+
+      "credits": [
+        "Lead developer: <a href='https://github.com/trinkey'>trinkey</a>",
+        "Other contributors: <a href='https://github.com/Subroutine7901'>Subroutine</a>, <a href='https://github.com/DiamondTaco'>Bread</a>, <a href='https://github.com/TheMineCommander'>Wren</a>",
+        "English US/GB languages created by <a href='https://github.com/trinkey'>trinkey</a>",
+        "Esperanto language created by <a href='https://github.com/Subroutine7901'>Subroutine</a>",
+        "Some icons are from <a href='https://fontawesome.com/'>Font Awesome</a>"
+      ]
+    },
+
     "changelog": {
       "title": "Changelogs",
       "unknown": "Unknown",
 
       "changes": {
+        "v0.10.1": {
+          "1": "Added a credits page (and a backend toggle)",
+          "2": "Deleting a post deletes any notifications caused by said post to prevent certain issues",
+          "3": "Pinging someone from a quote now works properly"
+        },
         "v0.10.0": {
           "1": "Reverted tweaks to post box heights from v0.7.3",
           "2": "Added polls",

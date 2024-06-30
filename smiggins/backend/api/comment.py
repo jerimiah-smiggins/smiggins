@@ -1,8 +1,8 @@
 # For API functions that relate to comments, for example liking, creating, etc.
 
 from .._settings import MAX_POST_LENGTH, API_TIMINGS, OWNER_USER_ID, POSTS_PER_REQUEST, ENABLE_LOGGED_OUT_CONTENT
-from ..packages  import Comment, User, Post, time, Schema
-from ..helper    import trim_whitespace, create_api_ratelimit, ensure_ratelimit, get_post_json, log_admin_action, create_notification, find_mentions, get_lang, DEFAULT_LANG
+from ..packages  import Comment, User, Post, Notification, time, Schema
+from ..helper    import trim_whitespace, create_api_ratelimit, ensure_ratelimit, get_post_json, log_admin_action, create_notification, find_mentions, get_lang, DEFAULT_LANG, delete_notification
 
 class NewComment(Schema):
     content: str
@@ -89,7 +89,7 @@ def comment_create(request, data: NewComment) -> tuple | dict:
                 create_notification(notif_for, "ping_c", comment.comment_id)
 
         except User.DoesNotExist:
-            pass
+            ...
 
     return 201, {
         "success": True,
@@ -232,7 +232,7 @@ def comment_like_remove(request, data: CommentID):
             user.likes.remove([id, True])
             user.save()
         except ValueError:
-            pass
+            ...
 
         comment.likes.remove(user.user_id)
         comment.save()
@@ -267,6 +267,27 @@ def comment_delete(request, data: CommentID) -> tuple | dict:
         log_admin_action("Delete comment", user, f"Deleted comment {id} (parent: {comment.parent} (is_comment: {comment.parent_is_comment}), content: {comment.content})")
 
     if creator or admin:
+        try:
+            for notif in Notification.objects.filter(
+                event_id=comment.comment_id,
+                event_type="ping_c"
+            ):
+                delete_notification(notif)
+
+        except Notification.DoesNotExist:
+            ...
+
+        try:
+            delete_notification(
+                Notification.objects.get(
+                    event_id=comment.comment_id,
+                    event_type="comment"
+                )
+            )
+
+        except Notification.DoesNotExist:
+            ...
+
         comment.delete()
 
         return {

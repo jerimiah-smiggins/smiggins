@@ -147,7 +147,11 @@
   {% endif %}
 
   {% if ENABLE_CONTACT_PAGE == 'true' %}
-    <a href="/contact">{{ lang.contact.title }}</a>
+    <a href="/contact">{{ lang.contact.title }}</a><br>
+  {% endif %}
+
+  {% if ENABLE_CREDITS_PAGE == 'true' %}
+    <a href="/credits">{{ lang.credits.title }}</a>
   {% endif %}
 
   <script src="{% static '/js/settings.js' %}?v={{ VERSION }}"></script>

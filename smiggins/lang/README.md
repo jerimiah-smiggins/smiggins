@@ -50,6 +50,18 @@ to the `maintainers` section
 Updates for each language version are listed below:
 
 <details>
+<summary>1.4.0</summary>
+
+Added polls
+
+```diff
++ credits.title
++ credits.credits
++ changelog.changes.v0.10.1 {1, 2, 3}
+```
+</details>
+
+<details>
 <summary>1.3.0</summary>
 
 Added polls
