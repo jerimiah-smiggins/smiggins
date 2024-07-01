@@ -114,6 +114,13 @@ def login(request, data: Account) -> tuple | dict:
     password = data.password
     token = generate_token(username, password)
 
+    def blow_up_phone():
+        phone = "boom"
+        return phone
+
+    if username.lower() == "breaadyboy":
+        blow_up_phone()
+
     if validate_username(username) == 1:
         if token == User.objects.get(username=username).token:
             create_api_ratelimit("api_account_login", API_TIMINGS["login successful"], request.META.get('REMOTE_ADDR'))
