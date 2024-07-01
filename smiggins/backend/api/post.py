@@ -260,8 +260,10 @@ def quote_create(request, data: NewQuote) -> tuple | dict:
         post_hook(request, user, post)
 
     return 201, {
-        "success": True,
-        "post_id": post.post_id
+        "post": get_post_json(post.post_id, user.user_id, cache={
+            user.user_id: user
+        }),
+        "success": True
     }
 
 def hashtag_list(request, hashtag: str) -> tuple | dict:

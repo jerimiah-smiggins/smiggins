@@ -101,12 +101,18 @@ function addQuote(postID: number, isComment: boolean): void {
       })
     }).then((response: Response) => (response.json()))
       .then((json: {
-        reason: string,
+        post: _postJSON,
+        reason?: string,
         success: boolean
       }) => {
         if (json.success) {
           post.innerHTML = "";
-          refresh();
+
+          if (window.location.pathname.toLowerCase().includes("/home")) {
+            let x: HTMLDivElement = document.createElement("div");
+            x.innerHTML = getPostHTML(json.post);
+            dom("posts").prepend(x);
+          }
         } else {
           (post.querySelector(".log") as HTMLElement).innerText = json.reason;
           c++;
