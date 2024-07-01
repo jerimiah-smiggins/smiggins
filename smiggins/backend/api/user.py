@@ -1,6 +1,6 @@
 # For API functions that are user-specific, like settings, following, etc.
 
-from .._settings import API_TIMINGS, DEFAULT_BANNER_COLOR, MAX_USERNAME_LENGTH, MAX_BIO_LENGTH, MAX_DISPL_NAME_LENGTH, ENABLE_PRONOUNS, ENABLE_GRADIENT_BANNERS, ENABLE_USER_BIOS
+from .._settings import API_TIMINGS, DEFAULT_BANNER_COLOR, MAX_USERNAME_LENGTH, MAX_BIO_LENGTH, MAX_DISPL_NAME_LENGTH, ENABLE_PRONOUNS, ENABLE_GRADIENT_BANNERS, ENABLE_USER_BIOS, DEFAULT_THEME
 from ..packages  import User, Post, Comment, Notification, Schema
 from ..helper    import validate_username, trim_whitespace, create_api_ratelimit, ensure_ratelimit, generate_token, get_post_json, get_lang, DEFAULT_LANG
 from ..variables import VALID_LANGUAGES
@@ -63,8 +63,9 @@ def signup(request, data: Account) -> tuple | dict:
             username=username,
             token=token,
             display_name=username,
-            theme="dark",
+            theme=DEFAULT_THEME.lower() if DEFAULT_THEME.lower() in ["dawn", "dusk", "dark", "midnight", "black"] else "dark",
             color=DEFAULT_BANNER_COLOR,
+            color_two=DEFAULT_BANNER_COLOR,
             private=False,
             following=[],
             followers=[],

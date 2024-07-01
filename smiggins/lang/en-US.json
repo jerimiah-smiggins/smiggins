@@ -396,7 +396,8 @@
           "2": "Deleting a post deletes any notifications caused by said post to prevent certain issues",
           "3": "Pinging someone from a quote now works properly",
           "4": "Creating a quote no longer reloads the timeline",
-          "5": "Tweaks to frontend account management"
+          "5": "Tweaks to frontend account management",
+          "6": "Added an option backend to set the default global theme"
         },
         "v0.10.0": {
           "1": "Reverted tweaks to post box heights from v0.7.3",
@@ -419,7 +420,7 @@
         },
         "v0.9.1": {
           "1": "Added an option to cache languages",
-          "2": "Badge names can now use \"w\"",
+          "2": "Badge names can now use the letter \"w\"",
           "3": "The server no longer errors when trying to log in to an account that doesn't exist",
           "4": "The maxlength parameter is properly set on the username section on sign up and log in pages",
           "5": "Updates to the Esperanto language",

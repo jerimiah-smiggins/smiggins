@@ -29,6 +29,10 @@ MAX_ADMIN_LOG_LINES: int = 1000
 # lang/ folder, omitting the .json file extension.
 DEFAULT_LANGUAGE: str = "en-US"
 
+# The default theme for the website. Can be one of the following:
+# "dawn", "dusk", "dark", "midnight", "black"
+DEFAULT_THEME: str = "dark"
+
 # Whether or not to cache languages. If this is on, then more ram will be used
 # to store them, however in the long run it will take a bit less CPU usage and
 # disk usage. If you are testing/creating a language, turn this OFF to make the
