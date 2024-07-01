@@ -16,6 +16,10 @@
   <meta name="twitter:description" content="{{ lang.account.log_in_title }}">
 {% endblock %}
 
+{% block head %}
+  <script src="{% static "/js/check-logged-out.js" %}?v={{ VERSION }}"></script>
+{% endblock %}
+
 {% block body %}
   <h1>{{ lang.account.log_in_title }}</h1>
   <input id="username" maxlength="{{ MAX_USERNAME_LENGTH }}" placeholder="{{ lang.account.username_placeholder }}"><br>

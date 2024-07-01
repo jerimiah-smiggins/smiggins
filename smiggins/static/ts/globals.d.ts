@@ -16,6 +16,7 @@ declare const ENABLE_POST_DELETION: boolean;
 declare const ENABLE_HASHTAGS: boolean;
 declare const ENABLE_CHANGELOG_PAGE: boolean;
 declare const ENABLE_CONTACT_PAGE: boolean;
+declare const ENABLE_CREDITS_PAGE: boolean;
 declare const ENABLE_PINNED_POSTS: boolean;
 declare const ENABLE_ACCOUNT_SWITCHER: boolean;
 declare const ENABLE_POLLS: boolean;

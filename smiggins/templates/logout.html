@@ -1,4 +1,5 @@
 {% extends "base.html" %}
+{% load static %}
 
 {% block title %}
   {{ lang.account.log_out_title }} - {{ SITE_NAME }} v{{ VERSION }}
@@ -17,19 +18,8 @@
 
 {% block body %}
   {% autoescape off %}
-  {{ lang.account.log_out_description }}
+    {{ lang.account.log_out_description }}
   {% endautoescape %}
 
-  <script>
-    localStorage.removeItem("home-page");
-    localStorage.removeItem("username")
-    eraseCookie("token");
-
-    if (window.location.search == "?from=switcher") {
-      window.location.href = "/login";
-    } else {
-      localStorage.removeItem("acc-switcher");
-      window.location.href = "/";
-    }
-  </script>
+  <script src="{% static "/js/logout.js" %}?v={{ VERSION }}"></script>
 {% endblock %}

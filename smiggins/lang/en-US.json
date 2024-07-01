@@ -395,7 +395,8 @@
           "1": "Added a credits page (and a backend toggle)",
           "2": "Deleting a post deletes any notifications caused by said post to prevent certain issues",
           "3": "Pinging someone from a quote now works properly",
-          "4": "Creating a quote no longer reloads the timeline"
+          "4": "Creating a quote no longer reloads the timeline",
+          "5": "Tweaks to frontend account management"
         },
         "v0.10.0": {
           "1": "Reverted tweaks to post box heights from v0.7.3",

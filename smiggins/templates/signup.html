@@ -16,6 +16,10 @@
   <meta name="twitter:description" content="{{ lang.account.sign_up_title }}">
 {% endblock %}
 
+{% block head %}
+  <script src="{% static "/js/check-logged-out.js" %}?v={{ VERSION }}"></script>
+{% endblock %}
+
 {% block body %}
   <h1>{{ lang.account.sign_up_title }}</h1>
 

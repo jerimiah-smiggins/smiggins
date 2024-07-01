@@ -9,7 +9,7 @@ def settings(request) -> HttpResponse:
     try:
         user = User.objects.get(token=request.COOKIES.get("token"))
     except User.DoesNotExist:
-        return HttpResponseRedirect("/", status=307)
+        return HttpResponseRedirect("/logout/?from=token", status=307)
 
     return get_HTTP_response(
         request, "settings.html",
@@ -58,7 +58,7 @@ def user(request, username: str) -> HttpResponse | HttpResponseRedirect:
         user = User.objects.get(username=username)
     except User.DoesNotExist:
         return get_HTTP_response(
-            request, "404_user.html"
+            request, "404-user.html"
         )
 
     return get_HTTP_response(
@@ -116,7 +116,7 @@ def user_lists(request, username: str) -> HttpResponse:
         user = User.objects.get(username=username)
     except User.DoesNotExist:
         return get_HTTP_response(
-            request, "404_user.html"
+            request, "404-user.html"
         )
 
     followers = []
@@ -226,12 +226,12 @@ def post(request, post_id: int) -> HttpResponse:
         creator = User.objects.get(pk=post.creator)
     except Post.DoesNotExist:
         return get_HTTP_response(
-            request, "404_post.html"
+            request, "404-post.html"
         )
 
     if creator.private and self_id not in creator.following:
         return get_HTTP_response(
-            request, "404_post.html"
+            request, "404-post.html"
         )
 
     post_json = get_post_json(post_id, user.user_id if logged_in else 0)
@@ -269,19 +269,19 @@ def comment(request, comment_id: int) -> HttpResponse:
         comment = Comment.objects.get(pk=comment_id)
     except Comment.DoesNotExist:
         return get_HTTP_response(
-            request, "404_post.html"
+            request, "404-post.html"
         )
 
     try:
         creator = User.objects.get(pk=comment.creator)
     except User.DoesNotExist:
         return get_HTTP_response(
-            request, "404_post.html"
+            request, "404-post.html"
         )
 
     if creator.private and self_id not in creator.following:
         return get_HTTP_response(
-            request, "404_post.html"
+            request, "404-post.html"
         )
 
     comment_json = get_post_json(comment_id, user.user_id if logged_in else 0, True)
@@ -340,7 +340,7 @@ def message(request, username: str) -> HttpResponse | HttpResponseRedirect:
     try:
         self_user = User.objects.get(token=request.COOKIES.get("token"))
     except User.DoesNotExist:
-        return HttpResponseRedirect("/", status=307)
+        return HttpResponseRedirect("/logout/?from=token", status=307)
 
     try:
         PrivateMessageContainer.objects.get(
@@ -352,7 +352,7 @@ def message(request, username: str) -> HttpResponse | HttpResponseRedirect:
     try:
         user = User.objects.get(username=username)
     except User.DoesNotExist:
-        return get_HTTP_response(request, "404_user.html")
+        return get_HTTP_response(request, "404-user.html")
 
     lang = get_lang(self_user)
 
