@@ -193,7 +193,7 @@ def user_lists(request, username: str) -> HttpResponse:
         BLOCKS = blocking,
 
         FOLLOWER_COUNT = lang["user_page"]["followers"].replace("%s", str(len(user.followers))),
-        FOLLOWING_COUNT = lang["user_page"]["followers"].replace("%s", str(len(user.following) - 1)),
+        FOLLOWING_COUNT = lang["user_page"]["following"].replace("%s", str(len(user.following) - 1)),
 
         BADGES = "".join([f"<span class='user-badge' data-add-badge='{i}'></span> " for i in get_badges(user)]),
 
