@@ -1,14 +1,16 @@
 # For API functions that relate to posts, for example creating, fetching home lists, etc.
 
-from .._settings import API_TIMINGS, MAX_POST_LENGTH, POSTS_PER_REQUEST, OWNER_USER_ID, MAX_POLL_OPTIONS, MAX_POLL_OPTION_LENGTH, POST_WEBHOOKS, SITE_NAME, VERSION, ENABLE_PINNED_POSTS, ENABLE_POLLS, ENABLE_LOGGED_OUT_CONTENT
+from .._settings import API_TIMINGS, MAX_POST_LENGTH, POSTS_PER_REQUEST, OWNER_USER_ID, MAX_POLL_OPTIONS, MAX_POLL_OPTION_LENGTH, POST_WEBHOOKS, SITE_NAME, VERSION, ENABLE_PINNED_POSTS, ENABLE_POLLS, ENABLE_LOGGED_OUT_CONTENT, MAX_CONTENT_WARNING_LENGTH
 from ..packages  import User, Post, Comment, Hashtag, Notification, time, sys, Schema, random, requests, threading
 from ..helper    import ensure_ratelimit, create_api_ratelimit, validate_username, trim_whitespace, get_post_json, log_admin_action, create_notification, find_mentions, find_hashtags, get_lang, DEFAULT_LANG, delete_notification
 
 class NewPost(Schema):
+    c_warning: str
     content: str
     poll: list[str]
 
 class NewQuote(Schema):
+    c_warning: str
     content: str
     quote_id: int
     quote_is_comment: bool
@@ -96,8 +98,9 @@ def post_create(request, data: NewPost) -> tuple | dict:
         }
 
     content = trim_whitespace(data.content)
+    c_warning = trim_whitespace(data.c_warning, True)
 
-    if len(content) > MAX_POST_LENGTH or len(content) < (0 if len(poll) else 1):
+    if len(c_warning) > MAX_CONTENT_WARNING_LENGTH or len(content) > MAX_POST_LENGTH or len(content) < (0 if len(poll) else 1):
         create_api_ratelimit("api_post_create", API_TIMINGS["create post failure"], token)
         lang = get_lang(user)
         return 400, {
@@ -110,6 +113,7 @@ def post_create(request, data: NewPost) -> tuple | dict:
     timestamp = round(time.time())
     post = Post.objects.create(
         content = content,
+        content_warning = c_warning or None,
         creator = user.user_id,
         timestamp = timestamp,
         likes = [],
@@ -189,8 +193,9 @@ def quote_create(request, data: NewQuote) -> tuple | dict:
         }
 
     content = trim_whitespace(data.content)
+    c_warning = trim_whitespace(data.c_warning, True)
 
-    if len(content) > MAX_POST_LENGTH or len(content) < 1:
+    if len(c_warning) > MAX_CONTENT_WARNING_LENGTH or len(content) > MAX_POST_LENGTH or len(content) < 1:
         create_api_ratelimit("api_post_create", API_TIMINGS["create post failure"], token)
         lang = get_lang(user)
         return 400, {
@@ -205,6 +210,7 @@ def quote_create(request, data: NewQuote) -> tuple | dict:
         content = content,
         creator = user.user_id,
         timestamp = timestamp,
+        content_warning = c_warning or None,
         likes = [],
         comments = [],
         quotes = [],

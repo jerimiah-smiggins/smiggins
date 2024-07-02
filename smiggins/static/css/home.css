@@ -58,6 +58,12 @@ button:not(.bottom-content-icon) {
   transition: height 0.25s;
 }
 
+input.c-warning {
+  width: calc(32em - 10px);
+  position: relative;
+  top: 2.6em;
+}
+
 #post-text {
   width: 35em;
   resize: none;
@@ -93,6 +99,7 @@ button:not(.bottom-content-icon) {
   bottom: 3em;
 }
 
+#c-warning,
 #poll input {
   width: 35em;
 }
@@ -161,6 +168,19 @@ button:not(.bottom-content-icon) {
 .pronouns,
 .timestamp {
   display: inline-block;
+}
+
+.c-warning summary {
+  background-color: var(--mantle);
+  text-align: center;
+  padding: 0.4em 0.2em;
+  border-radius: 0.2em;
+  margin-bottom: 0.2em;
+  cursor: pointer;
+}
+
+.c-warning summary:focus {
+  outline: none;
 }
 
 .bottom-content {
@@ -236,11 +256,13 @@ button.bottom-content-icon {
 
 @media screen and (max-width: 565px) {
   #post-text,
+  #c-warning,
   #poll input {
     width: calc(94vw - (2em / 7) - 17px);
   }
 
-  .post-text {
+  .post-text,
+  input.c-warning {
     width: calc(94vw - (2em / 7) - 90px);
   }
 

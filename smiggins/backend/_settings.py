@@ -50,6 +50,7 @@ ALLOW_SCRAPING: bool = False
 # 1-200
 MAX_USERNAME_LENGTH: int = 18
 MAX_DISPL_NAME_LENGTH: int = 32
+MAX_CONTENT_WARNING_LENGTH: int = 64
 
 # 1-65,536
 MAX_POST_LENGTH: int = 280
@@ -137,6 +138,9 @@ ENABLE_BADGES: bool = True
 
 # Existing quotes will remain unchanged
 ENABLE_QUOTES: bool = True
+
+# Existing CW-ed posts will remain unchanged
+ENABLE_CONTENT_WARNINGS: bool = True
 
 # Existing polls will remain unchanged
 ENABLE_POLLS: bool = True

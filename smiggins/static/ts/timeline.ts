@@ -78,8 +78,13 @@ function addQuote(postID: number, isComment: boolean): void {
 
   let c: number = 0;
 
+  let originalPost: HTMLElement = document.querySelector(`[data-${isComment ? "comment" : "post"}-id="${postID}"]`);
+  let originalCWEl: HTMLElement = originalPost.querySelector(".c-warning summary");
+  let originalCW: string | null = originalCWEl ? originalCWEl.innerHTML : null;
+
   post.innerHTML = `
     <div class="log"></div>
+    ${ENABLE_CONTENT_WARNINGS ? `<input class="c-warning" ${originalCW ? `value="re: ${originalCW.slice(0, MAX_CONTENT_WARNING_LENGTH - 4)}"` : ""} maxlength="${MAX_CONTENT_WARNING_LENGTH}" placeholder="${lang.home.c_warning_placeholder}"><br>` : ""}
     <textarea class="post-text" maxlength="${MAX_POST_LENGTH}" placeholder="${lang.home.quote_placeholders[Math.floor(Math.random() * lang.home.quote_placeholders.length)]}"></textarea><br>
     <button class="post-button inverted">${lang.generic.post}</button>
     <button class="cancel-button inverted">${lang.generic.cancel}</button>
@@ -88,6 +93,7 @@ function addQuote(postID: number, isComment: boolean): void {
   post.querySelector("button.post-button").addEventListener("click", function(): void {
     if (!post.querySelector("textarea").value.length) { return; }
 
+    post.querySelector("input.c-warning").setAttribute("disabled", "");
     post.querySelector("textarea").setAttribute("disabled", "");
     post.querySelector("button.post-button").setAttribute("disabled", "");
     post.querySelector("button.cancel-button").setAttribute("disabled", "");
@@ -95,6 +101,7 @@ function addQuote(postID: number, isComment: boolean): void {
     fetch("/api/quote/create", {
       method: "PUT",
       body: JSON.stringify({
+        c_warning: (post.querySelector("input.c-warning") as HTMLInputElement).value,
         content: post.querySelector("textarea").value,
         quote_id: postID,
         quote_is_comment: isComment
@@ -128,6 +135,7 @@ function addQuote(postID: number, isComment: boolean): void {
           throw json.reason;
         }
       }).catch((err: Error) => {
+        post.querySelector("input.c-warning").removeAttribute("disabled");
         post.querySelector("textarea").removeAttribute("disabled");
         post.querySelector("button.post-button").removeAttribute("disabled");
         post.querySelector("button.cancel-button").removeAttribute("disabled");

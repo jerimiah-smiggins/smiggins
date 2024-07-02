@@ -207,6 +207,7 @@
     "home": {
       "title": "Home",
       "post_input_placeholder": "What's on your mind?",
+      "c_warning_placeholder": "Content warning...",
 
       "switch_recent": "Switch to recent...",
       "switch_following": "Switch to following...",
@@ -397,7 +398,8 @@
           "3": "Pinging someone from a quote now works properly",
           "4": "Creating a quote no longer reloads the timeline",
           "5": "Tweaks to frontend account management",
-          "6": "Added an option backend to set the default global theme"
+          "6": "Added an option backend to set the default global theme",
+          "7": "Added optional content warnings for posts"
         },
         "v0.10.0": {
           "1": "Reverted tweaks to post box heights from v0.7.3",

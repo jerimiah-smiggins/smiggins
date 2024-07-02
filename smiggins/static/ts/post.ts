@@ -23,7 +23,8 @@ dom("post").addEventListener("click", function() {
     fetch("/api/comment/create", {
       method: "PUT",
       body: JSON.stringify({
-        content: (dom("post-text") as HTMLButtonElement).value,
+        c_warning: (dom("c-warning") as HTMLInputElement).value,
+        content: (dom("post-text") as HTMLInputElement).value,
         id: post_id,
         comment: comment
     })

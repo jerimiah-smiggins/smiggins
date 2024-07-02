@@ -8,6 +8,23 @@
 
     <script>
       const lang = {% autoescape off %}{{ lang }}{% endautoescape %};
+
+      const MAX_POST_LENGTH = {{ MAX_POST_LENGTH }};
+      const MAX_POLL_OPTION_LENGTH = {{ MAX_POLL_OPTION_LENGTH }};
+      const MAX_POLL_OPTIONS = {{ MAX_POLL_OPTIONS }};
+      const MAX_CONTENT_WARNING_LENGTH = {{ MAX_CONTENT_WARNING_LENGTH }};
+
+      const ENABLE_USER_BIOS = {{ ENABLE_USER_BIOS }};
+      const ENABLE_PRONOUNS = {{ ENABLE_PRONOUNS }};
+      const ENABLE_GRADIENT_BANNERS = {{ ENABLE_GRADIENT_BANNERS }};
+      const ENABLE_BADGES = {{ ENABLE_BADGES }};
+      const ENABLE_PRIVATE_MESSAGES = {{ ENABLE_PRIVATE_MESSAGES }};
+      const ENABLE_QUOTES = {{ ENABLE_QUOTES }};
+      const ENABLE_POST_DELETION = {{ ENABLE_POST_DELETION }};
+      const ENABLE_PINNED_POSTS = {{ ENABLE_PINNED_POSTS }};
+      const ENABLE_ACCOUNT_SWITCHER = {{ ENABLE_ACCOUNT_SWITCHER }};
+      const ENABLE_POLLS = {{ ENABLE_POLLS }};
+      const ENABLE_CONTENT_WARNINGS = {{ ENABLE_CONTENT_WARNINGS }};
     </script>
 
     <meta charset="utf-8">
@@ -42,32 +59,6 @@
     {% if ENABLE_BADGES == "true" %}
       <script src="/badges.js?v={{ VERSION }}"></script>
     {% endif %}
-
-    <script>
-      const MAX_USERNAME_LENGTH = {{ MAX_USERNAME_LENGTH }};
-      const MAX_POST_LENGTH = {{ MAX_POST_LENGTH }};
-      const MAX_DISPL_NAME_LENGTH = {{ MAX_DISPL_NAME_LENGTH }};
-      const MAX_BIO_LENGTH = {{ MAX_BIO_LENGTH }};
-      const MAX_POLL_OPTION_LENGTH = {{ MAX_POLL_OPTION_LENGTH }};
-      const MAX_POLL_OPTIONS = {{ MAX_POLL_OPTIONS }};
-
-      const ENABLE_USER_BIOS = {{ ENABLE_USER_BIOS }};
-      const ENABLE_PRONOUNS = {{ ENABLE_PRONOUNS }};
-      const ENABLE_GRADIENT_BANNERS = {{ ENABLE_GRADIENT_BANNERS }};
-      const ENABLE_BADGES = {{ ENABLE_BADGES }};
-      const ENABLE_PRIVATE_MESSAGES = {{ ENABLE_PRIVATE_MESSAGES }};
-      const ENABLE_QUOTES = {{ ENABLE_QUOTES }};
-      const ENABLE_POST_DELETION = {{ ENABLE_POST_DELETION }};
-      const ENABLE_HASHTAGS = {{ ENABLE_HASHTAGS }};
-      const ENABLE_CHANGELOG_PAGE = {{ ENABLE_CHANGELOG_PAGE }};
-      const ENABLE_CONTACT_PAGE = {{ ENABLE_CONTACT_PAGE }};
-      const ENABLE_CREDITS_PAGE = {{ ENABLE_CREDITS_PAGE }};
-      const ENABLE_PINNED_POSTS = {{ ENABLE_PINNED_POSTS }};
-      const ENABLE_ACCOUNT_SWITCHER = {{ ENABLE_ACCOUNT_SWITCHER }};
-      const ENABLE_POLLS = {{ ENABLE_POLLS }};
-      const ENABLE_LOGGED_OUT_CONTENT = {{ ENABLE_LOGGED_OUT_CONTENT }};
-      const ENABLE_NEW_ACCOUNTS = {{ ENABLE_NEW_ACCOUNTS }};
-    </script>
 
     <script src="{% static "/js/base.js" %}?v={{ VERSION }}"></script>
 
