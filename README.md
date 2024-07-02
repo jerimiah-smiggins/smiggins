@@ -3,6 +3,16 @@ official discord server: https://discord.gg/tH7QnHApwu
 
 online version (at least for now): https://trinkey.pythonanywhere.com
 
+## notice
+here at smiggins incorporated (real company trust), we like to promote a kind
+and inclusive argument. this means that **zero racism, sexism, homophobia,
+etc. will be tolerated** in anywhere related to this project, including github
+issues, the discord server, and the official main instance. if you think that
+someone violates this and you believe that they are doing something wrong, feel
+free to reach out to [@trinkey](https://github.com/trinkey). if you don't agree
+with this, then don't start drama about it, just leave and pretend smiggins
+doesn't exist.
+
 <details>
   <summary><h2 style="display: inline">How to run locally</h2></summary>
 
@@ -88,9 +98,10 @@ online version (at least for now): https://trinkey.pythonanywhere.com
   for `/static/` with the path set to
   `/home/USERNAME/smiggins/smiggins/collected-static`
 
-  8. In the file at `/home/USERNAME/smiggins/smiggins/backend/_settings.py`,
+  8. In the file at `/home/USERNAME/smiggins/smiggins/settings.jsonc`,
   make sure the following settings are set:
       - debug: `False`
+  You can configure all of the other settings in this file.
 
   9. Create the `_api_keys.py` file:
       ```bash
@@ -151,9 +162,10 @@ online version (at least for now): https://trinkey.pythonanywhere.com
   for `/static/` with the path set to
   `/home/USERNAME/smiggins/smiggins/collected-static`
 
-  8. In the file at `/home/USERNAME/smiggins/smiggins/backend/_settings.py`,
+  8. In the file at `/home/USERNAME/smiggins/smiggins/settings.jsonc`,
   make sure the following settings are set:
       - debug: `False`
+  You can configure all of the other settings in this file.
 
   9. Create the `_api_keys.py` file:
       ```bash

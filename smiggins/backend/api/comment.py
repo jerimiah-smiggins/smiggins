@@ -1,8 +1,33 @@
 # For API functions that relate to comments, for example liking, creating, etc.
 
-from .._settings import MAX_POST_LENGTH, API_TIMINGS, OWNER_USER_ID, POSTS_PER_REQUEST, ENABLE_LOGGED_OUT_CONTENT, MAX_CONTENT_WARNING_LENGTH, ENABLE_CONTENT_WARNINGS
-from ..packages  import Comment, User, Post, Notification, time, Schema
-from ..helper    import trim_whitespace, create_api_ratelimit, ensure_ratelimit, get_post_json, log_admin_action, create_notification, find_mentions, get_lang, DEFAULT_LANG, delete_notification
+import time
+
+from ninja import Schema
+
+from posts.models import Comment, User, Post, Notification
+
+from ..variables import (
+    MAX_POST_LENGTH,
+    API_TIMINGS,
+    OWNER_USER_ID,
+    POSTS_PER_REQUEST,
+    ENABLE_LOGGED_OUT_CONTENT,
+    MAX_CONTENT_WARNING_LENGTH,
+    ENABLE_CONTENT_WARNINGS,
+)
+
+from ..helper import (
+    trim_whitespace,
+    create_api_ratelimit,
+    ensure_ratelimit,
+    get_post_json,
+    log_admin_action,
+    create_notification,
+    find_mentions,
+    get_lang,
+    DEFAULT_LANG,
+    delete_notification,
+)
 
 class NewComment(Schema):
     c_warning: str

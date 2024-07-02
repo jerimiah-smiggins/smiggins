@@ -1,0 +1,239 @@
+{
+  /*
+  ** This file contains all of the backend settings for the server. This is
+  ** likely the only file you will edit when running the server. It's possible
+  ** that the contents of this file will change between updates so don't rely on
+  ** this file not changing at all
+  */
+
+  // The version displayed on the website. Set to `null` for the real version.
+  "version": null,
+
+  // The name of the instance
+  "site_name": "Jerimiah Smiggins",
+
+  // The user id of the instance owner. Can be found on the /django-admin page.
+  "owner_user_id": 1,
+
+  /*
+  ** SET TO FALSE for production servers!!! This determines whether or not to
+  ** refresh the server when code changes Turning this off (and/or going into
+  ** production) means you should get a web server like Nginx or Apache to serve
+  ** static files securely among other things
+  */
+  "debug": true,
+
+  /*
+  ** The path of the admin log file. Relative to this directory. Set to `null`
+  ** to disable logging of administrative actions
+  */
+  "admin_log_path": "./admin.log",
+
+  // The maximum of lines of logs to store in the admin file at once. 1+
+  "max_admin_log_lines": 1000,
+
+  /*
+  ** The default language for any new user. Choose from one of the files in the
+  ** lang/ folder, omitting the .json file extension.
+  && Aliases: default_lang, default_language
+  ## Default: "en-US"
+  */
+  "default_language": "en-US",
+
+  /*
+  ** The default theme for the website. Can be "dawn", "dusk", "dark",
+  ** "midnight", or "black".
+  ## Default: "dark"
+  */
+  "default_theme": "dark",
+
+  /*
+  ** Whether or not to cache languages. If this is on, then more ram will be
+  ** used to store them, however in the long run it will take a bit less CPU
+  ** usage and disk usage. If you are testing/creating a language, set this to
+  ** false to make the language refresh automatically. If set to `null`, then it
+  ** will inherit the value of whatever "debug" is set to.
+  && Aliases: cache_langs, cache_languages
+  ## Default: null
+  */
+  "cache_languages": null,
+
+  /*
+  ** Whether or not to legally allow other services to scrape your website. This
+  ** does NOT affect indexing for search engines. This is done by setting the
+  ** TDM-Reservation header to 0 if allowed, 1 if disallowed. Read more here:
+  ** https://www.w3.org/community/reports/tdmrep/CG-FINAL-tdmrep-20240202/
+  ## Default: false
+  */
+  "allow_scraping": false,
+
+  /*
+  ** The maximum length of a username/display name. Must be between 1 and 200,
+  ** but the display name length must be more than username length.
+  ## Username default: 18
+  ## Display name default: 32
+  */
+  "max_username_length": 18,
+  "max_display_name_length": 32,
+
+  /*
+  ** The maximum length of a user bio. Must be between 1 and 65,536.
+  && Aliases: max_bio_length, max_user_bio_length
+  ## Default: 280
+  */
+  "max_user_bio_length": 280,
+
+  /*
+  ** The maximum length for content warnings on posts. Must be between 1 and
+  ** 200.
+  && Aliases: max_cw_length, max_warning_length, max_content_warning_length
+  ## Default: 100
+  */
+  "max_content_warning_length": 100,
+
+  /*
+  ** The maximum length for a post. Must be between 1 and 65,536.
+  ## Default: 280
+  */
+  "max_post_length": 280,
+
+  /*
+  ** The maximum amount of options for a single poll. Must be at least 2. Any
+  ** existing polls won't be modified by changing this.
+  ## Default: 8
+  */
+  "max_poll_options": 8,
+
+  /*
+  ** The maximum length for a single poll option. Must be at least 1.
+  ## Default: 64
+  */
+  "max_poll_option_length": 64,
+
+  /*
+  ** The default banner color for new users. Should be in the hex color format
+  ** (a hashtag ("#") followed by 6 characters 0-9, a-f)
+  ## Default: "#3a1e93"
+  */
+  "default_banner_color": "#3a1e93",
+
+  /*
+  ** This controls how many posts can be sent at a time from the server to the
+  ** client. Increasing the number can increase bandwidth and cpu usage however
+  ** it will likely improve the user experience.
+  ## Default: 20
+  */
+  "posts_per_request": 20,
+
+  /*
+  ** Similar to posts_per_request, however it controls private messages instead.
+  ## Default: 40
+  */
+  "messages_per_request": 40,
+
+  /*
+  ** The maximum number of notifications to be stored per user. Whenever this
+  ** limit is exceeded, it will remove the oldest notifications for that user.
+  && Aliases: max_notifs, max_notifications
+  ## Default: 25
+  */
+  "max_notifications": 25,
+
+  /*
+  ** The contact information displayed on the /contact page. The type (first
+  ** item) can be "email", "url", or "text"
+  && Aliases: contact_info, contact_information
+  */
+  "contact_information": [
+    ["email", "trinkey@duck.com"],
+    ["url",   "https://github.com/jerimiah-smiggins/smiggins/issues"],
+    ["url",   "https://discord.gg/tH7QnHApwu"],
+    ["text",  "DM me on discord (@trinkey_)"]
+  ],
+
+  /*
+  ** Automatically sends a request to the specified webhook when a user posts a
+  ** post (comments aren't included). Format below. Type should be either "raw"
+  ** (sends the data with a POST request with the data in the "content" json
+  ** parameter) or "discord" (sends the data in a discord style embed). Webhooks
+  ** may be subject to ratelimits by external servers depending on frequency.
+  */
+  "post_webhooks": {
+//  "foo": ["https://example.com/webhook", "raw"]
+//  "bar": ["https://discord/webhook/gibberish", "discord"]
+  },
+
+  // Whether or not to show links to the github page
+  "source_code": true,
+
+  // Whether or not to enforce the ratelimit
+  "ratelimit": true,
+
+  /*
+  ** This defines the times needed for ratelimits to expire. Timings are all in
+  ** milliseconds (1000ms = 1 second). If ratelimit is false, this gets ignored.
+  ## Default: 1000, 15000, 1000, 5000, 3000, 1000, 3000, 1000
+  */
+  "api_timings": {
+    "signup unsuccessful": 1000,
+    "signup successful": 15000,
+    "login unsuccessful": 1000,
+    "login successful": 5000,
+    "create comment": 3000,
+    "create comment failure": 1000,
+    "create post": 3000,
+    "create post failure": 1000
+  },
+
+  /* NOTE:
+  ** Changing any of the following settings won't modify any existing values in
+  ** the database, instead ignoring them to meet the preferred setting. This
+  ** means if you enable one in the future, anything set before it was disabled
+  ** will persist.
+  ## Default for all: true
+  */
+
+  "enable_user_bios": true,
+  "enable_pronouns": true,
+  "enable_gradient_banners": true,
+  "enable_account_switcher": true,
+
+  "enable_hashtags": true,
+  "enable_private_messages": true,
+  "enable_pinned_posts": true,
+  "enable_post_deletion": true,
+
+  "enable_changelog_page": true,
+  "enable_contact_page": true,
+  "enable_credits_page": true,
+
+  // The private account icon is always shown.
+  "enable_badges": true,
+
+  // Existing quotes will remain unchanged.
+  "enable_quotes": true,
+
+  // Existing polls will remain unchanged.
+  "enable_polls": true,
+
+  /*
+  ** Existing CW-ed posts will remain unchanged.
+  && Aliases: enable_cws, enable_c_warnings, enable_content_warnings
+  */
+  "enable_content_warnings": true,
+
+  /*
+  ** If off, people who are logged out won't be able to see any user profiles,
+  ** posts, or comments. This also affects causes embeds for sites like discord
+  ** along with search engine scraping of posts to not work.
+  && Aliases: enable_logged_out, enable_logged_out_content
+  */
+  "enable_logged_out_content": true,
+
+  /*
+  ** If off, there will be an indication on the signup and index pages that says
+  ** the instance isn't accepting any new members
+  && Aliases: enable_signup, enable_new_users, enable_new_accounts
+  */
+  "enable_new_accounts": false
+}

@@ -1,9 +1,32 @@
 # For getting pages, not api.
 
-from ._settings import DEFAULT_BANNER_COLOR, MAX_BIO_LENGTH, OWNER_USER_ID, CONTACT_INFO, ENABLE_GRADIENT_BANNERS, SITE_NAME, DEFAULT_LANGUAGE, ENABLE_LOGGED_OUT_CONTENT, MAX_CONTENT_WARNING_LENGTH
-from .variables import BADGE_DATA, VALID_LANGUAGES
-from .packages  import User, Post, Comment, Hashtag, PrivateMessageContainer, HttpResponse, HttpResponseRedirect, json
-from .helper    import get_HTTP_response, get_post_json, get_badges, get_container_id, get_lang
+import json
+
+from django.http import HttpResponse, HttpResponseRedirect
+
+from posts.models import User, Post, Comment, Hashtag, PrivateMessageContainer
+
+from .variables import (
+    DEFAULT_BANNER_COLOR,
+    MAX_BIO_LENGTH,
+    OWNER_USER_ID,
+    CONTACT_INFO,
+    ENABLE_GRADIENT_BANNERS,
+    SITE_NAME,
+    DEFAULT_LANGUAGE,
+    ENABLE_LOGGED_OUT_CONTENT,
+    MAX_CONTENT_WARNING_LENGTH,
+    BADGE_DATA,
+    VALID_LANGUAGES,
+)
+
+from .helper import (
+    get_HTTP_response,
+    get_post_json,
+    get_badges,
+    get_container_id,
+    get_lang,
+)
 
 def settings(request) -> HttpResponse:
     try:

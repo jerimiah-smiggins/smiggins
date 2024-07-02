@@ -1,13 +1,190 @@
-# This file has variables used by the server.
-# This isn't for any settings. You can ignore
-# this file if you want.
+import pathlib
+import hashlib
+import json5
+import json
+import os
+import re
 
-from ._api_keys import auth_key
-from ._settings import ADMIN_LOG_PATH
-from .packages  import Badge, hashlib, ensure_file, pathlib, os, json
+from ensure_file import ensure_file
+from typing import Any, get_args, get_origin
 from django.db.utils import OperationalError
 
+from posts.models import Badge
+from ._api_keys import auth_key
+
 BASE_DIR = pathlib.Path(__file__).resolve().parent.parent
+
+def error(string):
+    print(f"\x1b[91m{string}\x1b[0m")
+
+# Set default variable states
+REAL_VERSION: tuple[int, int, int] = (0, 10, 1)
+VERSION: str = ".".join([str(i) for i in REAL_VERSION])
+SITE_NAME: str = "Jerimiah Smiggins"
+DEBUG: bool = True
+OWNER_USER_ID: int = 1
+ADMIN_LOG_PATH: str = "./admin.log"
+MAX_ADMIN_LOG_LINES: int = 1000
+DEFAULT_LANGUAGE: str = "en-US"
+DEFAULT_THEME: str = "dark"
+CACHE_LANGUAGES: bool = True
+ALLOW_SCRAPING: bool = False
+MAX_USERNAME_LENGTH: int = 18
+MAX_DISPL_NAME_LENGTH: int = 32
+MAX_CONTENT_WARNING_LENGTH: int = 100
+MAX_POST_LENGTH: int = 280
+MAX_BIO_LENGTH: int = 280
+MAX_POLL_OPTION_LENGTH: int = 64
+MAX_POLL_OPTIONS: int = 8
+DEFAULT_BANNER_COLOR: str = "#3a1e93"
+POSTS_PER_REQUEST: int = 20
+MESSAGES_PER_REQUEST: int = 40
+MAX_NOTIFICATIONS: int = 100
+CONTACT_INFO: list[list[str]] = []
+POST_WEBHOOKS: dict[str, list[str]] = {}
+SOURCE_CODE: bool = True
+RATELIMIT: bool = True
+ENABLE_USER_BIOS: bool = True
+ENABLE_PRONOUNS: bool = True
+ENABLE_GRADIENT_BANNERS: bool = True
+ENABLE_PRIVATE_MESSAGES: bool = True
+ENABLE_POST_DELETION: bool = True
+ENABLE_HASHTAGS: bool = True
+ENABLE_CHANGELOG_PAGE: bool = True
+ENABLE_CONTACT_PAGE: bool = True
+ENABLE_CREDITS_PAGE: bool = True
+ENABLE_PINNED_POSTS: bool = True
+ENABLE_ACCOUNT_SWITCHER: bool = True
+ENABLE_BADGES: bool = True
+ENABLE_QUOTES: bool = True
+ENABLE_CONTENT_WARNINGS: bool = True
+ENABLE_POLLS: bool = True
+ENABLE_LOGGED_OUT_CONTENT: bool = True
+ENABLE_NEW_ACCOUNTS: bool = True
+
+API_TIMINGS: dict[str, int] = {
+    "signup unsuccessful": 1000,
+    "signup successful": 15000,
+    "login unsuccessful": 1000,
+    "login successful": 5000,
+    "create comment": 3000,
+    "create comment failure": 1000,
+    "create post": 3000,
+    "create post failure": 1000,
+}
+
+f = {}
+
+try:
+    f = json5.load(open(BASE_DIR / "settings.jsonc", "r"))
+except ValueError:
+    error("Invalid settings.json")
+except FileNotFoundError:
+    error("settings.json not found")
+
+def extended_isinstance(obj: Any, expected_type: type) -> bool:
+    if expected_type is Any:
+        return True
+
+    origin_type = get_origin(expected_type)
+    if origin_type:
+        if not isinstance(obj, origin_type):
+            return False
+
+        args = get_args(expected_type)
+        if origin_type is list:
+            return all(extended_isinstance(item, args[0]) for item in obj)
+        elif origin_type is dict:
+            key_type, value_type = args
+            return all(
+                extended_isinstance(k, key_type) and extended_isinstance(v, value_type)
+                for k, v in obj.items()
+            )
+        else:
+            return False
+    else:
+        return isinstance(obj, expected_type)
+
+def is_ok(val: Any, var: str, t: type | str, null: bool=False):
+    if (isinstance(t, type) and extended_isinstance(val, t)) or \
+       (null and isinstance(t, type) and val is None) or \
+       (isinstance(t, str) and t == "co" and re.match(r"^#[0-9a-f]{6}$", val)):
+        exec(f"global {var}\n{var} = {repr(val)}")
+
+    elif val is not None:
+        error(f"{val} should be {t}, not {type(val)}")
+
+def clamp(
+    val: int,
+    minimum: int | None = None,
+    maximum: int | None = None
+) -> int:
+    if minimum is not None:
+        val = max(minimum, val)
+    if maximum is not None:
+        val = min(maximum, val)
+    return val
+
+for key, val in f.items():
+    if   key.lower() == "version": is_ok(val, "VERSION", str) # noqa: E701
+    elif key.lower() == "site_name": is_ok(val, "SITE_NAME", str) # noqa: E701
+    elif key.lower() == "owner_user_id": is_ok(val, "OWNER_USER_ID", int) # noqa: E701
+    elif key.lower() == "debug": is_ok(val, "DEBUG", bool) # noqa: E701
+    elif key.lower() == "admin_log_path": is_ok(val, "ADMIN_LOG_PATH", str, null=True) # noqa: E701
+    elif key.lower() == "max_admin_log_lines": is_ok(val, "MAX_ADMIN_LOG_LINES", int) # noqa: E701
+    elif key.lower() in ["default_lang", "default_language"]: is_ok(val, "DEFAULT_LANGUAGE", str) # noqa: E701
+    elif key.lower() == "default_theme": is_ok(val, "DEFAULT_THEME", str) # noqa: E701
+    elif key.lower() in ["cache_langs", "cache_languages"]: is_ok(val, "CACHE_LANGUAGES", bool, null=True) # noqa: E701
+    elif key.lower() == "allow_scraping": is_ok(val, "ALLOW_SCRAPING", bool) # noqa: E701
+    elif key.lower() == "max_username_length": is_ok(val, "MAX_USERNAME_LENGTH", int) # noqa: E701
+    elif key.lower() == "max_display_name_length": is_ok(val, "MAX_DISPL_NAME_LENGTH", int) # noqa: E701
+    elif key.lower() in ["max_bio_length", "max_user_bio_length"]: is_ok(val, "MAX_BIO_LENGTH", int) # noqa: E701
+    elif key.lower() in ["max_cw_length", "max_warning_length", "max_content_warning_length"]: is_ok(val, "MAX_CONTENT_WARNING_LENGTH", int) # noqa: E701
+    elif key.lower() == "max_post_length": is_ok(val, "MAX_POST_LENGTH", int) # noqa: E701
+    elif key.lower() == "max_poll_options": is_ok(val, "MAX_POLL_OPTIONS", int) # noqa: E701
+    elif key.lower() == "max_poll_option_length": is_ok(val, "MAX_POLL_OPTION_LENGTH", int) # noqa: E701
+    elif key.lower() == "default_banner_color": is_ok(val, "DEFAULT_BANNER_COLOR", "co") # noqa: E701
+    elif key.lower() == "posts_per_request": is_ok(val, "POSTS_PER_REQUEST", int) # noqa: E701
+    elif key.lower() == "messages_per_request": is_ok(val, "MESSAGES_PER_REQUEST", int) # noqa: E701
+    elif key.lower() in ["max_notifs", "max_notifications"]: is_ok(val, "MAX_NOTIFICATIONS", int) # noqa: E701
+    elif key.lower() in ["contact_info", "contact_information"]: is_ok(val, "CONTACT_INFO", list[list[str]]) # noqa: E701
+    elif key.lower() == "post_webhooks": is_ok(val, "POST_WEBHOOKS", dict[str, list[str]]) # noqa: E701
+    elif key.lower() == "source_code": is_ok(val, "SOURCE_CODE", bool) # noqa: E701
+    elif key.lower() == "ratelimit": is_ok(val, "RATELIMIT", bool) # noqa: E701
+    elif key.lower() == "api_timings": is_ok(val, "API_TIMINGS", dict[str, int]) # noqa: E701
+    elif key.lower() == "enable_user_bios": is_ok(val, "ENABLE_USER_BIOS", bool) # noqa: E701
+    elif key.lower() == "enable_pronouns": is_ok(val, "ENABLE_PRONOUNS", bool) # noqa: E701
+    elif key.lower() == "enable_gradient_banners": is_ok(val, "ENABLE_GRADIENT_BANNERS", bool) # noqa: E701
+    elif key.lower() == "enable_account_switcher": is_ok(val, "ENABLE_ACCOUNT_SWITCHER", bool) # noqa: E701
+    elif key.lower() == "enable_hashtags": is_ok(val, "ENABLE_HASHTAGS", bool) # noqa: E701
+    elif key.lower() == "enable_private_messages": is_ok(val, "ENABLE_PRIVATE_MESSAGES", bool) # noqa: E701
+    elif key.lower() == "enable_pinned_posts": is_ok(val, "ENABLE_PINNED_POSTS", bool) # noqa: E701
+    elif key.lower() == "enable_post_deletion": is_ok(val, "ENABLE_POST_DELETION", bool) # noqa: E701
+    elif key.lower() == "enable_changelog_page": is_ok(val, "ENABLE_CHANGELOG_PAGE", bool) # noqa: E701
+    elif key.lower() == "enable_contact_page": is_ok(val, "ENABLE_CONTACT_PAGE", bool) # noqa: E701
+    elif key.lower() == "enable_credits_page": is_ok(val, "ENABLE_CREDITS_PAGE", bool) # noqa: E701
+    elif key.lower() == "enable_badges": is_ok(val, "ENABLE_BADGES", bool) # noqa: E701
+    elif key.lower() == "enable_quotes": is_ok(val, "ENABLE_QUOTES", bool) # noqa: E701
+    elif key.lower() == "enable_polls": is_ok(val, "ENABLE_POLLS", bool) # noqa: E701
+    elif key.lower() in ["enable_cws", "enable_c_warnings", "enable_content_warnings"]: is_ok(val, "ENABLE_CONTENT_WARNINGS", bool) # noqa: E701
+    elif key.lower() in ["enable_logged_out", "enable_logged_out_content"]: is_ok(val, "ENABLE_LOGGED_OUT_CONTENT", bool) # noqa: E701
+    elif key.lower() in ["enable_signup", "enable_new_users", "enable_new_accounts"]: is_ok(val, "ENABLE_NEW_ACCOUNTS", bool) # noqa: E701
+    else: error(f"Unknown setting {key}") # noqa: E701
+
+MAX_ADMIN_LOG_LINES = clamp(MAX_ADMIN_LOG_LINES, minimum=1)
+MAX_USERNAME_LENGTH = clamp(MAX_USERNAME_LENGTH, minimum=1, maximum=200)
+MAX_DISPL_NAME_LENGTH = clamp(MAX_DISPL_NAME_LENGTH, minimum=MAX_USERNAME_LENGTH, maximum=200)
+MAX_BIO_LENGTH = clamp(MAX_BIO_LENGTH, minimum=1, maximum=65536)
+MAX_CONTENT_WARNING_LENGTH = clamp(MAX_CONTENT_WARNING_LENGTH, minimum=1, maximum=200)
+MAX_POST_LENGTH = clamp(MAX_POST_LENGTH, minimum=1, maximum=65536)
+MAX_POLL_OPTIONS = clamp(MAX_POLL_OPTIONS, minimum=2)
+MAX_POLL_OPTION_LENGTH = clamp(MAX_POLL_OPTION_LENGTH, minimum=1)
+POSTS_PER_REQUEST = clamp(POSTS_PER_REQUEST, minimum=1)
+MESSAGES_PER_REQUEST = clamp(MESSAGES_PER_REQUEST, minimum=1)
+MAX_NOTIFICATIONS = clamp(MAX_NOTIFICATIONS, minimum=1)
+
+if CACHE_LANGUAGES is None:
+    CACHE_LANGUAGES = DEBUG
 
 VALID_LANGUAGES_TEMP = [i for i in os.listdir(BASE_DIR / "lang") if len(i) <= 10 and i[-5::] == ".json"]
 VALID_LANGUAGES: list[dict[str, str]] = []

@@ -1,7 +1,8 @@
 # This is to get information about the client, like ip, username, etc.
 # Do NOT add telemetry here.
 
-from ..packages import User
+from posts.models import User
+from ..variables import REAL_VERSION
 
 def username(request) -> tuple | dict:
     # Returns the username from token
@@ -41,5 +42,5 @@ def version(request) -> dict:
         "success": True,
         # Hardcoded version used for validation, this
         # should NEVER be changed by the instance owner
-        "version": [0, 10, 1]
+        "version": list(REAL_VERSION)
     }

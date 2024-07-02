@@ -399,7 +399,8 @@
           "4": "Creating a quote no longer reloads the timeline",
           "5": "Tweaks to frontend account management",
           "6": "Added an option backend to set the default global theme",
-          "7": "Added optional content warnings for posts"
+          "7": "Added optional content warnings for posts",
+          "8": "Completely rewrote how backend settings are managed"
         },
         "v0.10.0": {
           "1": "Reverted tweaks to post box heights from v0.7.3",

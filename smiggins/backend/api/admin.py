@@ -1,12 +1,12 @@
 # For admin-related apis
 
-from .._settings import OWNER_USER_ID, ADMIN_LOG_PATH
-from ..variables import BADGE_DATA, BASE_DIR
-from ..packages  import User, Comment, Post, Badge, Hashtag, Schema, base64
-from ..helper    import trim_whitespace, log_admin_action, find_hashtags, get_lang
+import base64
 
-if ADMIN_LOG_PATH[:2:] == "./":
-    ADMIN_LOG_PATH = BASE_DIR / ADMIN_LOG_PATH[2::]
+from ninja import Schema
+
+from posts.models import User, Badge, Post, Hashtag, Comment
+from ..variables import OWNER_USER_ID, ADMIN_LOG_PATH, BADGE_DATA
+from ..helper import trim_whitespace, log_admin_action, find_hashtags, get_lang
 
 class AccountIdentifier(Schema):
     identifier: str | int

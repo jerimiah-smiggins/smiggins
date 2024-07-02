@@ -1,11 +1,57 @@
 # Contains helper functions. These aren't for routing, instead doing something that can be used in other places in the code.
 
-from ._settings import SITE_NAME, VERSION, SOURCE_CODE, MAX_DISPL_NAME_LENGTH, MAX_POST_LENGTH, MAX_USERNAME_LENGTH, RATELIMIT, OWNER_USER_ID, ADMIN_LOG_PATH, MAX_ADMIN_LOG_LINES, MAX_NOTIFICATIONS, MAX_BIO_LENGTH, ENABLE_USER_BIOS, ENABLE_PRONOUNS, ENABLE_GRADIENT_BANNERS, ENABLE_BADGES, ENABLE_PRIVATE_MESSAGES, ENABLE_QUOTES, ENABLE_POST_DELETION, DEFAULT_LANGUAGE, CACHE_LANGUAGES, ENABLE_HASHTAGS, MAX_POLL_OPTION_LENGTH, MAX_POLL_OPTIONS,ENABLE_CHANGELOG_PAGE, ENABLE_CONTACT_PAGE, ENABLE_PINNED_POSTS, ENABLE_ACCOUNT_SWITCHER, ENABLE_POLLS, ENABLE_NEW_ACCOUNTS, ENABLE_CREDITS_PAGE, DEFAULT_THEME, MAX_CONTENT_WARNING_LENGTH, ENABLE_CONTENT_WARNINGS
-from .variables import PRIVATE_AUTHENTICATOR_KEY, timeout_handler, BASE_DIR, VALID_LANGUAGES
-from .packages  import Callable, Any, HttpResponse, HttpResponseRedirect, loader, User, Comment, Post, Notification, threading, hashlib, time, re, json
+import threading
+import hashlib
+import json
+import time
+import re
 
-if ADMIN_LOG_PATH[:2:] == "./":
-    ADMIN_LOG_PATH = BASE_DIR / ADMIN_LOG_PATH[2::]
+from typing import Callable, Any
+from django.http import HttpResponse, HttpResponseRedirect
+from django.template import loader
+
+from posts.models import User, Comment, Post, Notification
+
+from .variables import (
+    SITE_NAME,
+    VERSION,
+    SOURCE_CODE,
+    MAX_DISPL_NAME_LENGTH,
+    MAX_POST_LENGTH,
+    MAX_USERNAME_LENGTH,
+    RATELIMIT,
+    OWNER_USER_ID,
+    ADMIN_LOG_PATH,
+    MAX_ADMIN_LOG_LINES,
+    MAX_NOTIFICATIONS,
+    MAX_BIO_LENGTH,
+    ENABLE_USER_BIOS,
+    ENABLE_PRONOUNS,
+    ENABLE_GRADIENT_BANNERS,
+    ENABLE_BADGES,
+    ENABLE_PRIVATE_MESSAGES,
+    ENABLE_QUOTES,
+    ENABLE_POST_DELETION,
+    DEFAULT_LANGUAGE,
+    CACHE_LANGUAGES,
+    ENABLE_HASHTAGS,
+    MAX_POLL_OPTION_LENGTH,
+    MAX_POLL_OPTIONS,
+    ENABLE_CHANGELOG_PAGE,
+    ENABLE_CONTACT_PAGE,
+    ENABLE_PINNED_POSTS,
+    ENABLE_ACCOUNT_SWITCHER,
+    ENABLE_POLLS,
+    ENABLE_NEW_ACCOUNTS,
+    ENABLE_CREDITS_PAGE,
+    DEFAULT_THEME,
+    MAX_CONTENT_WARNING_LENGTH,
+    ENABLE_CONTENT_WARNINGS,
+    PRIVATE_AUTHENTICATOR_KEY,
+    timeout_handler,
+    BASE_DIR,
+    VALID_LANGUAGES,
+)
 
 def sha(string: str | bytes) -> str:
     # Returns the sha256 hash of a string.

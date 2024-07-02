@@ -1,12 +1,41 @@
 from django.contrib import admin as django_admin
 from django.urls import include, path
 
-from backend._settings import CONTACT_INFO, ENABLE_PRIVATE_MESSAGES, ENABLE_HASHTAGS, ENABLE_CONTACT_PAGE, ENABLE_CHANGELOG_PAGE, ENABLE_CREDITS_PAGE
-from backend.variables import ROBOTS
 from backend.helper import create_simple_return
-from backend.templating import contact, settings, user, user_lists, post, comment, admin, badges, message, hashtag
 
-from posts.models import User, Post, Comment, Badge, Notification, PrivateMessageContainer, PrivateMessage, Hashtag
+from backend.variables import (
+    CONTACT_INFO,
+    ENABLE_PRIVATE_MESSAGES,
+    ENABLE_HASHTAGS,
+    ENABLE_CONTACT_PAGE,
+    ENABLE_CHANGELOG_PAGE,
+    ENABLE_CREDITS_PAGE,
+    ROBOTS
+)
+
+from backend.templating import (
+    contact,
+    settings,
+    user,
+    user_lists,
+    post,
+    comment,
+    admin,
+    badges,
+    message,
+    hashtag
+)
+
+from posts.models import (
+    User,
+    Post,
+    Comment,
+    Badge,
+    Notification,
+    PrivateMessageContainer,
+    PrivateMessage,
+    Hashtag
+)
 
 django_admin.site.register(User)
 django_admin.site.register(Post)
