@@ -1,6 +1,6 @@
 # For API functions that relate to comments, for example liking, creating, etc.
 
-from .._settings import MAX_POST_LENGTH, API_TIMINGS, OWNER_USER_ID, POSTS_PER_REQUEST, ENABLE_LOGGED_OUT_CONTENT, MAX_CONTENT_WARNING_LENGTH
+from .._settings import MAX_POST_LENGTH, API_TIMINGS, OWNER_USER_ID, POSTS_PER_REQUEST, ENABLE_LOGGED_OUT_CONTENT, MAX_CONTENT_WARNING_LENGTH, ENABLE_CONTENT_WARNINGS
 from ..packages  import Comment, User, Post, Notification, time, Schema
 from ..helper    import trim_whitespace, create_api_ratelimit, ensure_ratelimit, get_post_json, log_admin_action, create_notification, find_mentions, get_lang, DEFAULT_LANG, delete_notification
 
@@ -29,7 +29,7 @@ def comment_create(request, data: NewComment) -> tuple | dict:
     content = data.content.replace("\r", "")
 
     content = trim_whitespace(data.content)
-    c_warning = trim_whitespace(data.c_warning, True)
+    c_warning = trim_whitespace(data.c_warning, True) if ENABLE_CONTENT_WARNINGS else ""
 
     if len(c_warning) > MAX_CONTENT_WARNING_LENGTH or len(content) > MAX_POST_LENGTH or len(content) < 1:
         create_api_ratelimit("api_comment_create", API_TIMINGS["create post failure"], token)

@@ -29,12 +29,12 @@ dom("post").addEventListener("click", function(): void {
   if ((dom("post-text") as HTMLInputElement).value || getPollText().length) {
     this.setAttribute("disabled", "");
     dom("post-text").setAttribute("disabled", "");
-    dom("c-warning").setAttribute("disabled", "");
+    ENABLE_CONTENT_WARNINGS && dom("c-warning").setAttribute("disabled", "");
 
     fetch("/api/post/create", {
       method: "PUT",
       body: JSON.stringify({
-        c_warning: (dom("c-warning") as HTMLInputElement).value || "",
+        c_warning: ENABLE_CONTENT_WARNINGS ? (dom("c-warning") as HTMLInputElement).value : "",
         content: (dom("post-text") as HTMLInputElement).value,
         poll: getPollText()
       })
@@ -42,7 +42,7 @@ dom("post").addEventListener("click", function(): void {
       .then((response: Response) => {
         dom("post").removeAttribute("disabled");
         dom("post-text").removeAttribute("disabled");
-        dom("c-warning").removeAttribute("disabled");
+        ENABLE_CONTENT_WARNINGS && dom("c-warning").removeAttribute("disabled");
 
         if (response.status == 429) {
           showlog(lang.generic.ratelimit_verbose);
@@ -68,7 +68,7 @@ dom("post").addEventListener("click", function(): void {
       .catch((err: Error) => {
         dom("post").removeAttribute("disabled");
         dom("post-text").removeAttribute("disabled");
-        dom("c-warning").removeAttribute("disabled");
+        ENABLE_CONTENT_WARNINGS && dom("c-warning").removeAttribute("disabled");
         showlog(lang.generic.something_went_wrong);
         throw(err);
       });

@@ -93,7 +93,7 @@ function addQuote(postID: number, isComment: boolean): void {
   post.querySelector("button.post-button").addEventListener("click", function(): void {
     if (!post.querySelector("textarea").value.length) { return; }
 
-    post.querySelector("input.c-warning").setAttribute("disabled", "");
+    ENABLE_CONTENT_WARNINGS && post.querySelector("input.c-warning").setAttribute("disabled", "");
     post.querySelector("textarea").setAttribute("disabled", "");
     post.querySelector("button.post-button").setAttribute("disabled", "");
     post.querySelector("button.cancel-button").setAttribute("disabled", "");
@@ -101,7 +101,7 @@ function addQuote(postID: number, isComment: boolean): void {
     fetch("/api/quote/create", {
       method: "PUT",
       body: JSON.stringify({
-        c_warning: (post.querySelector("input.c-warning") as HTMLInputElement).value,
+        c_warning: ENABLE_CONTENT_WARNINGS ? (post.querySelector("input.c-warning") as HTMLInputElement).value : "",
         content: post.querySelector("textarea").value,
         quote_id: postID,
         quote_is_comment: isComment
@@ -135,7 +135,7 @@ function addQuote(postID: number, isComment: boolean): void {
           throw json.reason;
         }
       }).catch((err: Error) => {
-        post.querySelector("input.c-warning").removeAttribute("disabled");
+        ENABLE_CONTENT_WARNINGS && post.querySelector("input.c-warning").removeAttribute("disabled");
         post.querySelector("textarea").removeAttribute("disabled");
         post.querySelector("button.post-button").removeAttribute("disabled");
         post.querySelector("button.cancel-button").removeAttribute("disabled");
