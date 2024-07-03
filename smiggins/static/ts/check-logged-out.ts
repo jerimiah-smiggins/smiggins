@@ -7,7 +7,7 @@
 
     if (window.location.search != "?from=token") {
       for (const account of accounts) {
-        if (!set && account[0] == username) {
+        if (!set && account[0] == username && document.cookie.split(/\btoken=/)[1].split(";")[0] != account[1]) {
           setCookie("token", account[1]);
           set = true;
         }
