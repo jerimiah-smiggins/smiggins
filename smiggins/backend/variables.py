@@ -175,7 +175,7 @@ MESSAGES_PER_REQUEST = clamp(MESSAGES_PER_REQUEST, minimum=1)
 MAX_NOTIFICATIONS = clamp(MAX_NOTIFICATIONS, minimum=1)
 
 if CACHE_LANGUAGES is None:
-    CACHE_LANGUAGES = DEBUG
+    CACHE_LANGUAGES = not DEBUG
 
 VALID_LANGUAGES_TEMP = [i for i in os.listdir(BASE_DIR / "lang") if len(i) <= 10 and i[-5::] == ".json"]
 VALID_LANGUAGES: list[dict[str, str]] = []

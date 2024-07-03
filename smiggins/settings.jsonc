@@ -52,7 +52,7 @@
   ** used to store them, however in the long run it will take a bit less CPU
   ** usage and disk usage. If you are testing/creating a language, set this to
   ** false to make the language refresh automatically. If set to `null`, then it
-  ** will inherit the value of whatever "debug" is set to.
+  ** will be the opposite of debug.
   && Aliases: cache_langs, cache_languages
   ## Default: null
   */
