@@ -159,6 +159,7 @@
   ** (sends the data with a POST request with the data in the "content" json
   ** parameter) or "discord" (sends the data in a discord style embed). Webhooks
   ** may be subject to ratelimits by external servers depending on frequency.
+  && Aliases: webhooks, auto_webhooks, post_webhooks, auto_post_webhooks
   */
   "post_webhooks": {
 //  "foo": ["https://example.com/webhook", "raw"]

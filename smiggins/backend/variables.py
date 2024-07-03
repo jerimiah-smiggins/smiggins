@@ -139,7 +139,7 @@ for key, val in f.items():
     elif key.lower() == "messages_per_request": is_ok(val, "MESSAGES_PER_REQUEST", int) # noqa: E701
     elif key.lower() in ["max_notifs", "max_notifications"]: is_ok(val, "MAX_NOTIFICATIONS", int) # noqa: E701
     elif key.lower() in ["contact_info", "contact_information"]: is_ok(val, "CONTACT_INFO", list[list[str]]) # noqa: E701
-    elif key.lower() == "post_webhooks": is_ok(val, "POST_WEBHOOKS", dict[str, list[str]]) # noqa: E701
+    elif key.lower() in ["webhooks", "auto_webhooks", "post_webhooks", "auto_post_webhooks"]: is_ok(val, "POST_WEBHOOKS", dict[str, list[str]]) # noqa: E701
     elif key.lower() == "source_code": is_ok(val, "SOURCE_CODE", bool) # noqa: E701
     elif key.lower() == "ratelimit": is_ok(val, "RATELIMIT", bool) # noqa: E701
     elif key.lower() == "api_timings": is_ok(val, "API_TIMINGS", dict[str, int]) # noqa: E701
