@@ -2,6 +2,14 @@ button:not(.bottom-content-icon) {
   min-width: 5em;
 }
 
+.toggle-poll {
+  cursor: pointer;
+}
+
+.toggle-poll:hover {
+  text-decoration: underline;
+}
+
 .poll-bar-container {
   margin: 0.25em 0;
   border-radius: 0.5em;

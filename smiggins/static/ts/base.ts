@@ -254,12 +254,10 @@ function getPostHTML(
               c++;
               output += `<div class="poll-bar-container">
                 <div class="poll-bar ${option.voted ? "voted" : ""}">
-                  <div style="width:${option.votes / postJSON.poll.votes * 100}%">
-                    🥖
-                  </div>
+                  <div style="width:${option.votes / postJSON.poll.votes * 100 || 0}%">🥖</div>
                 </div>
                 <div class="poll-text">
-                  ${Math.round(option.votes / postJSON.poll.votes * 1000) / 10}% - ${escapeHTML(option.value)}
+                  ${Math.round(option.votes / postJSON.poll.votes * 1000) / 10 || 0}% - ${escapeHTML(option.value)}
                 </div>
               </div>`;
             }
@@ -278,7 +276,12 @@ function getPostHTML(
 
           globalIncrement++;
 
-          return output + `<small>${(postJSON.poll.votes == 1 ? lang.home.poll_total_singular : lang.home.poll_total_plural).replaceAll("%s", postJSON.poll.votes)}</small></div>`;
+          return `${output}<small>
+            ${(postJSON.poll.votes == 1 ? lang.home.poll_total_singular : lang.home.poll_total_plural).replaceAll("%s", postJSON.poll.votes)}
+            ${postJSON.poll.voted || !postJSON.logged_in ? "" : `<span class="remove-when-the-poll-gets-shown"> -
+              <span class="toggle-poll" onclick="togglePollResults(${globalIncrement - 1})">${lang.home.poll_view_results}</span>
+            </span>`}
+          </small></div>`;
         })() : ""
       }
       ${postJSON.c_warning ? `</details>` : ""}

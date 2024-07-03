@@ -173,12 +173,13 @@ function vote(option, postID, gInc) {
         .then((json) => {
         if (json.success) {
             let v;
+            document.querySelector(`#gi-${gInc} .remove-when-the-poll-gets-shown`).remove();
             forEach(dom(`gi-${gInc}`).querySelectorAll(".poll-bar-container"), function (val, index) {
                 let el = val;
                 let isVoted = +el.dataset.index == option;
                 v = el;
                 val.innerHTML = `<div class="poll-bar ${isVoted ? "voted" : ""}">
-            <div style="width:${(+el.dataset.votes + (isVoted ? 1 : 0)) / (+el.dataset.totalVotes + 1) * 100}%">
+            <div style="width: ${(+el.dataset.votes + (isVoted ? 1 : 0)) / (+el.dataset.totalVotes + 1) * 100}%">
               🥖
             </div>
           </div>
@@ -187,6 +188,20 @@ function vote(option, postID, gInc) {
             });
             dom(`gi-${gInc}`).querySelector("small").innerHTML = (+v.dataset.totalVotes ? lang.home.poll_total_plural : lang.home.poll_total_singular).replaceAll("%s", +v.dataset.totalVotes + 1);
         }
+    });
+}
+function togglePollResults(gInc) {
+    document.querySelector(`#gi-${gInc} .remove-when-the-poll-gets-shown`).remove();
+    forEach(dom(`gi-${gInc}`).querySelectorAll(".poll-bar-container"), function (val, index) {
+        let el = val;
+        el.onclick = undefined;
+        val.innerHTML = `<div class="poll-bar">
+      <div style="width: ${+el.dataset.votes / +el.dataset.totalVotes * 100 || 0}%">
+        🥖
+      </div>
+    </div>
+    <div class="poll-text">
+      ${Math.round(+el.dataset.votes / +el.dataset.totalVotes * 1000) / 10 || 0}% - ` + val.innerHTML.replace('<div class="poll-text">', "");
     });
 }
 if (typeof disableTimeline === 'undefined' || !disableTimeline) {

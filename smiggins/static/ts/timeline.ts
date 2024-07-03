@@ -194,13 +194,15 @@ function vote(option: number, postID: number, gInc: number): void {
     }) => {
       if (json.success) {
         let v: HTMLElement;
+        document.querySelector(`#gi-${gInc} .remove-when-the-poll-gets-shown`).remove();
+
         forEach(dom(`gi-${gInc}`).querySelectorAll(".poll-bar-container"), function(val: Element, index: number) {
           let el: HTMLElement = val as HTMLElement;
           let isVoted: boolean = +el.dataset.index == option;
 
           v = el;
           val.innerHTML = `<div class="poll-bar ${isVoted ? "voted" : ""}">
-            <div style="width:${(+el.dataset.votes + (isVoted ? 1 : 0)) / (+el.dataset.totalVotes + 1) * 100}%">
+            <div style="width: ${(+el.dataset.votes + (isVoted ? 1 : 0)) / (+el.dataset.totalVotes + 1) * 100}%">
               🥖
             </div>
           </div>
@@ -211,6 +213,24 @@ function vote(option: number, postID: number, gInc: number): void {
         dom(`gi-${gInc}`).querySelector("small").innerHTML = (+v.dataset.totalVotes ? lang.home.poll_total_plural : lang.home.poll_total_singular).replaceAll("%s", +v.dataset.totalVotes + 1);
       }
     });
+}
+
+function togglePollResults(gInc: number): void {
+  document.querySelector(`#gi-${gInc} .remove-when-the-poll-gets-shown`).remove();
+
+  forEach(dom(`gi-${gInc}`).querySelectorAll(".poll-bar-container"), function(val: Element, index: number): void {
+    let el: HTMLElement = val as HTMLElement;
+
+    el.onclick = undefined;
+
+    val.innerHTML = `<div class="poll-bar">
+      <div style="width: ${+el.dataset.votes / +el.dataset.totalVotes * 100 || 0}%">
+        🥖
+      </div>
+    </div>
+    <div class="poll-text">
+      ${Math.round(+el.dataset.votes / +el.dataset.totalVotes * 1000) / 10 || 0}% - ` + val.innerHTML.replace('<div class="poll-text">', "");
+  });
 }
 
 if (typeof disableTimeline === 'undefined' || !disableTimeline) {

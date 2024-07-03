@@ -55,9 +55,11 @@ Updates for each language version are listed below:
 Added polls
 
 ```diff
++ home.c_warning_placeholder
++ home.poll_view_results
 + credits.title
 + credits.credits
-+ changelog.changes.v0.10.1 {1, 2, 3}
++ changelog.changes.v0.10.1 {1, 2, 3, 4, 5, 6, 7, 8}
 ```
 </details>
 
@@ -77,6 +79,7 @@ Added polls
 + account.no_new
 + post.invalid_poll
 + changelog.changes.v0.10.0 {1, 2, 3, 4, 5}
+changelog.v0.9.1 {2}
 ```
 </details>
 
