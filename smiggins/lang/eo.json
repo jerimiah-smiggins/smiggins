@@ -298,18 +298,18 @@
 
     "settings": {
       "title": "Agordoj",
-      "username_load_failure": "Uzantnomo ne eblis ŝarĝi! Provu reŝargi la pagojn?",
-      "unload": "Vi havas nekonservitajn \u015dan\u011dojn! Ĉu vi certas, ke vi volas foriri?",
+      "username_load_failure": "Uzantnomo ne eblis \u015dar\u011di! Provu re\u015dargi la pagojn?",
+      "unload": "Vi havas nekonservitajn \u015dan\u011dojn! \u0108u vi certas, ke vi volas foriri?",
 
       "profile_title": "Profilo",
       "profile_basic_title": "Baza informoj",
       "profile_display_name_placeholder": "Montrnomo...",
-      "profile_display_name_invalid_length": "Nevalida nomlongo. Ĝi devas esti inter 1 kaj %s signoj longaj.",
+      "profile_display_name_invalid_length": "Nevalida nomlongo. \u011ci devas esti inter 1 kaj %s signoj longaj.",
       "profile_bio_placeholder": "Uzanta biografio...",
       "profile_pronouns_title": "Pronomoj",
       "profile_pronouns_primary": "Primara:",
       "profile_pronouns_secondary": "Akcesora:",
-      "profile_pronouns_invalid": "Nevalida pronoma signoĉeno '%s'. Se ĉi tio estas cimo, bonvolu raporti ĉi tion",
+      "profile_pronouns_invalid": "Nevalida pronoma signo\u0109eno '%s'. Se \u0109i tio estas cimo, bonvolu raporti \u0109i tion",
       "profile_pronouns_unset": "malagorda",
       "profile_pronouns_inherit": "sama kiel primara",
       "profile_banner_title": "Standarda kolora",
