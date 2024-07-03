@@ -14,9 +14,9 @@ try:
             DEBUG = val
 
 except ValueError:
-    print("ValueError")
+    ...
 except FileNotFoundError:
-    print("FileNotFoundError")
+    ...
 
 # SECURITY WARNING: keep the secret key used in production secret!
 SECRET_KEY = 'django-insecure-y$sfjl+rlc(gbdjm4h@-!zxn8$z@nkcdd_9g^^yq&-=!b(8d43'
