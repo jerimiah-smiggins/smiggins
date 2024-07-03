@@ -3,7 +3,9 @@
   ** This file contains all of the backend settings for the server. This is
   ** likely the only file you will edit when running the server. It's possible
   ** that the contents of this file will change between updates so don't rely on
-  ** this file not changing at all
+  ** this file not changing at all. You can however remove any items from this
+  ** file and the default value will persist. Along with that, the case (upper,
+  ** lower, or any combination) of the keys doesn't matter.
   */
 
   // The version displayed on the website. Set to `null` for the real version.
