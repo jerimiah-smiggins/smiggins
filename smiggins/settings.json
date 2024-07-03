@@ -238,5 +238,5 @@
   ** the instance isn't accepting any new members
   && Aliases: enable_signup, enable_new_users, enable_new_accounts
   */
-  "enable_new_accounts": false
+  "enable_new_accounts": true
 }
