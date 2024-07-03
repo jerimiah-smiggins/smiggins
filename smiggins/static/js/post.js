@@ -2,12 +2,6 @@ url = `/api/comments?id=${post_id}&comment=${comment}`;
 type = "comment";
 includeUserLink = true;
 includePostLink = true;
-if (!logged_in) {
-    dom("more-container").innerHTML = lang.generic.see_more.replaceAll("%s", `<a href="/signup">${lang.account.sign_up_title}</a>`);
-    dom("post-text").setAttribute("hidden", "");
-    dom("post").setAttribute("hidden", "");
-    dom("hide-me").setAttribute("hidden", "");
-}
 dom("post-text").addEventListener("input", postTextInputEvent);
 dom("post").addEventListener("click", function () {
     if (dom("post-text").value) {
