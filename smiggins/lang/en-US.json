@@ -38,7 +38,7 @@
     "generic": {
       "success": "Success!",
       "something_went_wrong": "Something went wrong!",
-      "something_went_wrong_x": "Something went wrong %s!",
+      "something_went_wrong_x": "Something went wrong %s!", // Ex: Something went wrong loading the posts!
       "try_again": "Try again in a few moments...",
       "ratelimit_verbose": "You are being ratelimited!",
       "ratelimit": "Ratelimited",
@@ -53,7 +53,7 @@
       "user_not_found": "User not found!",
       "share": "Share",
       "copied": "Copied to clipboard!",
-      "see_more": "%s to see more!",
+      "see_more": "%s to see more!", // Ex: Sign up to see more!
 
       "pronouns": {
         "a": "ask pronouns",
@@ -233,8 +233,8 @@
       ],
 
       "poll": "Poll",
-      "poll_option": "Option %s",
-      "poll_optional": "Option %s (optional)",
+      "poll_option": "Option %s", // Ex: Option 3
+      "poll_optional": "Option %s (optional)", // Ex: Option 3 (optional)
       "poll_total_plural": "%s total votes",
       "poll_total_singular": "%s total vote",
       "poll_view_results": "View results"
@@ -271,9 +271,9 @@
     },
 
     "messages": {
-      "title": "Messaging %s",
+      "title": "Messaging %s", // Ex: Messaging gerard
       "error": "loading recent messages",
-      "input_placeholder": "What would you like to tell %s?",
+      "input_placeholder": "What would you like to tell %s?", // Ex: What would you like to tell gerard?
 
       "no_messages": "No messages sent",
 
@@ -372,7 +372,7 @@
     "user_page": {
       "followers": "Followers: %s",
       "following": "Following: %s",
-      "user_on_smiggins": "%s on %t",
+      "user_on_smiggins": "%s on %t", // Ex: gerard on Twitter Clone (this would be if the site name is set to "Twitter Clone" and the user's display name is "gerard")
       "follow": "Follow",
       "unfollow": "Unfollow",
       "block": "Block",
