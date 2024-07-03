@@ -35,6 +35,20 @@ small {
   font-size: 0.7em;
   color: var(--subtext0);
 }
+noscript {
+  display: block;
+  margin-bottom: 10vh;
+}
+
+noscript h1,
+noscript h2 {
+  color: var(--red);
+}
+
+noscript ul {
+  display: inline-block;
+  text-align: left;
+}
 
 @media screen and (min-width: 1025px) {
   body {

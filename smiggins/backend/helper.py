@@ -51,6 +51,7 @@ from .variables import (
     timeout_handler,
     BASE_DIR,
     VALID_LANGUAGES,
+    COMMENT_REGEX
 )
 
 def sha(string: str | bytes) -> str:
@@ -88,6 +89,9 @@ def get_HTTP_response(request, file: str, lang_override: dict | None=None, **kwa
         "SITE_NAME": SITE_NAME,
         "VERSION": VERSION,
         "SOURCE": str(SOURCE_CODE).lower(),
+
+        "NOSCRIPT_CHROME": lang["noscript"]["tutorial_chrome"].replace("%u", "chrome://settings/content/javascript"),
+        "NOSCRIPT_FF": lang["noscript"]["tutorial_ff"].replace("%u", "about:config").replace("%k", "javascript.enabled").replace("%v", "true"),
 
         "MAX_USERNAME_LENGTH": MAX_USERNAME_LENGTH,
         "MAX_POST_LENGTH": MAX_POST_LENGTH,
@@ -516,7 +520,7 @@ def get_lang(lang: User | str | None=None, override_cache=False) -> dict[str, di
         if context is None:
             context = {}
 
-        f = json.load(open(BASE_DIR / f"lang/{lang}.json"))
+        f = json.loads(re.sub(COMMENT_REGEX, "", open(BASE_DIR / f"lang/{lang}.json").read()))
         parsed.append(lang)
 
         context = loop_through(context, f["texts"])

@@ -5,13 +5,13 @@
     "editor.rulers": [80]
   },
 
-  "[jsonc]": {
-    "editor.rulers": [80]
-  },
-
   "editor.tabSize": 2,
   "[python]": {
       "editor.tabSize": 4
+  },
+
+  "files.associations": {
+    "*.json": "jsonc"
   },
 
   "files.eol": "\n",

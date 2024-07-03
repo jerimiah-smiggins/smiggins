@@ -7,7 +7,7 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 
 DEBUG = True
 try:
-    f: dict = json5.load(open(BASE_DIR / "settings.jsonc", "r"))
+    f: dict = json5.load(open(BASE_DIR / "settings.json", "r"))
 
     for key, val in f.items():
         if key.lower() == "debug" and isinstance(val, bool):

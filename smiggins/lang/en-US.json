@@ -26,6 +26,15 @@
       "home": "Return Home"
     },
 
+    "noscript": {
+      "title": "Please enable JavaScript!",
+      "subtitle": "Without it, this site won't work!",
+
+      "tutorial_title": "How do I do this?",
+      "tutorial_ff": "On Firefox, go to %u and set \"%k\" to \"%v\"",
+      "tutorial_chrome": "On Chrome, go to %u and add this website to the \"Allowed to use JavaScript\" list" // Note for translators: Copy the "Allowed to use JavaScript" section directly from chrome instead of translating it yourself
+    },
+
     "generic": {
       "success": "Success!",
       "something_went_wrong": "Something went wrong!",

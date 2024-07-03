@@ -66,6 +66,16 @@
   </head>
 
   <body data-theme="{{ THEME }}" {% block body_head %}{% endblock %}>
+    <noscript>
+      <h1>{{ lang.noscript.title }}</h1>
+      <h2>{{ lang.noscript.subtitle }}</h2>
+      {{ lang.noscript.tutorial_title }}<br>
+      <ul>
+        <li>{{ NOSCRIPT_CHROME }}</li>
+        <li>{{ NOSCRIPT_FF }}</li>
+      </ul>
+    </noscript>
+
     {% block body %}{% endblock %}
 
     <script src="{% static "/js/base-footer.js" %}?v={{ VERSION }}"></script>

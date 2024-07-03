@@ -67,7 +67,7 @@ API_TIMINGS: dict[str, int] = {}
 f = {}
 
 try:
-    f = json5.load(open(BASE_DIR / "settings.jsonc", "r"))
+    f = json5.load(open(BASE_DIR / "settings.json", "r"))
 except ValueError:
     error("Invalid settings.json")
 except FileNotFoundError:
@@ -179,9 +179,10 @@ if CACHE_LANGUAGES is None:
 
 VALID_LANGUAGES_TEMP = [i for i in os.listdir(BASE_DIR / "lang") if len(i) <= 10 and i[-5::] == ".json"]
 VALID_LANGUAGES: list[dict[str, str]] = []
+COMMENT_REGEX = re.compile(r'\/\/(?:"[^\n"]*"|[^\n"])*$', flags=re.MULTILINE)
 
 for i in sorted(VALID_LANGUAGES_TEMP):
-    f = json.load(open(BASE_DIR / f"lang/{i}"))
+    f = json.loads(re.sub(COMMENT_REGEX, "", open(BASE_DIR / f"lang/{i}").read()))
 
     VALID_LANGUAGES.append({
         "name": f["meta"]["name"],

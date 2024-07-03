@@ -55,6 +55,11 @@ Updates for each language version are listed below:
 Added polls
 
 ```diff
++ noscript.title
++ noscript.subtitle
++ noscript.tutorial_title
++ noscript.tutorial_ff
++ noscript.tutorial_chrome
 + home.c_warning_placeholder
 + home.poll_view_results
 + credits.title
