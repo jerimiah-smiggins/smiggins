@@ -62,16 +62,7 @@ ENABLE_POLLS: bool = True
 ENABLE_LOGGED_OUT_CONTENT: bool = True
 ENABLE_NEW_ACCOUNTS: bool = True
 
-API_TIMINGS: dict[str, int] = {
-    "signup unsuccessful": 1000,
-    "signup successful": 15000,
-    "login unsuccessful": 1000,
-    "login successful": 5000,
-    "create comment": 3000,
-    "create comment failure": 1000,
-    "create post": 3000,
-    "create post failure": 1000,
-}
+API_TIMINGS: dict[str, int] = {}
 
 f = {}
 
@@ -196,6 +187,19 @@ for i in sorted(VALID_LANGUAGES_TEMP):
         "name": f["meta"]["name"],
         "code": i[:-5:]
     })
+
+for key, val in {
+    "signup unsuccessful": 1000,
+    "signup successful": 15000,
+    "login unsuccessful": 1000,
+    "login successful": 5000,
+    "create comment": 3000,
+    "create comment failure": 1000,
+    "create post": 3000,
+    "create post failure": 1000
+}.items():
+    if key not in API_TIMINGS:
+        API_TIMINGS[key] = val
 
 # Used when hashing user tokens
 PRIVATE_AUTHENTICATOR_KEY: str = hashlib.sha256(auth_key).hexdigest()
