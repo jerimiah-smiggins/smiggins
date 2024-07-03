@@ -59,7 +59,7 @@ Added polls
 + home.poll_view_results
 + credits.title
 + credits.credits
-+ changelog.changes.v0.10.1 {1, 2, 3, 4, 5, 6, 7, 8}
++ changelog.changes.v0.10.1 {1, 2, 3, 4, 5, 6, 7, 8, 9}
 ```
 </details>
 
