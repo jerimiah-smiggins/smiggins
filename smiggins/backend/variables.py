@@ -1,7 +1,6 @@
 import pathlib
 import hashlib
-import json5
-import json
+import json5 as json
 import os
 import re
 
@@ -67,7 +66,7 @@ API_TIMINGS: dict[str, int] = {}
 f = {}
 
 try:
-    f = json5.load(open(BASE_DIR / "settings.json", "r"))
+    f = json.load(open(BASE_DIR / "settings.json", "r"))
 except ValueError:
     error("Invalid settings.json")
 except FileNotFoundError:
@@ -178,16 +177,10 @@ if CACHE_LANGUAGES is None:
     CACHE_LANGUAGES = not DEBUG
 
 VALID_LANGUAGES_TEMP = [i for i in os.listdir(BASE_DIR / "lang") if len(i) <= 10 and i[-5::] == ".json"]
-VALID_LANGUAGES: list[dict[str, str]] = []
-COMMENT_REGEX = re.compile(r'\/\/(?:"[^\n"]*"|[^\n"])*$', flags=re.MULTILINE)
-
-for i in sorted(VALID_LANGUAGES_TEMP):
-    f = json.loads(re.sub(COMMENT_REGEX, "", open(BASE_DIR / f"lang/{i}").read()))
-
-    VALID_LANGUAGES.append({
-        "name": f["meta"]["name"],
-        "code": i[:-5:]
-    })
+VALID_LANGUAGES: list[dict[str, str]] = [{
+    "name": json.load(open(BASE_DIR / f"lang/{i}"))["meta"]["name"],
+    "code": i[:-5:]
+} for i in sorted(VALID_LANGUAGES_TEMP)]
 
 for key, val in {
     "signup unsuccessful": 1000,

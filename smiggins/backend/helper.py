@@ -2,7 +2,7 @@
 
 import threading
 import hashlib
-import json
+import json5 as json
 import time
 import re
 
@@ -50,8 +50,7 @@ from .variables import (
     PRIVATE_AUTHENTICATOR_KEY,
     timeout_handler,
     BASE_DIR,
-    VALID_LANGUAGES,
-    COMMENT_REGEX
+    VALID_LANGUAGES
 )
 
 def sha(string: str | bytes) -> str:
@@ -520,7 +519,7 @@ def get_lang(lang: User | str | None=None, override_cache=False) -> dict[str, di
         if context is None:
             context = {}
 
-        f = json.loads(re.sub(COMMENT_REGEX, "", open(BASE_DIR / f"lang/{lang}.json").read()))
+        f = json.load(open(BASE_DIR / f"lang/{lang}.json"))
         parsed.append(lang)
 
         context = loop_through(context, f["texts"])
