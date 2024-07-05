@@ -26,7 +26,7 @@
       {% endautoescape %}
     </div>
   </div>
-  <div><a href="/u/{{ USERNAME }}" class="no-underline text" id="secondary-username-container">
+  <div><a href="/u/{{ USERNAME }}/" class="no-underline text" id="secondary-username-container">
     <div id="username-lower">@{{ USERNAME }}<span id="pronouns"></span></div><br>
     <div id="follow">{{ FOLLOWER_COUNT }} - {{ FOLLOWING_COUNT }}</div>
   </a></div>
@@ -42,7 +42,7 @@
         {% for USER in BLOCKS %}
           <div class="post">
             <div class="upper-content">
-              <a href="/u/{{ USER.username }}" class="no-underline text">
+              <a href="/u/{{ USER.username }}/" class="no-underline text">
                 <div class="displ-name">
                   <span style="--color-one: {{ USER.color_one }}; --color-two: {% if USER.is_gradient == 'true' %}{{ USER.color_two }}{% else %}{{ USER.color_one }}{% endif %}" class="user-badge banner-pfp"></span>
 
@@ -83,7 +83,7 @@
       {% for USER in FOLLOWING %}
         <div class="post">
           <div class="upper-content">
-            <a href="/u/{{ USER.username }}" class="no-underline text">
+            <a href="/u/{{ USER.username }}/" class="no-underline text">
               <div class="displ-name">
                 <span style="--color-one: {{ USER.color_one }}; --color-two: {% if USER.is_gradient == 'true' %}{{ USER.color_two }}{% else %}{{ USER.color_one }}{% endif %}" class="user-badge banner-pfp"></span>
 
@@ -123,7 +123,7 @@
       {% for USER in FOLLOWERS %}
         <div class="post">
           <div class="upper-content">
-            <a href="/u/{{ USER.username }}" class="no-underline text">
+            <a href="/u/{{ USER.username }}/" class="no-underline text">
               <div class="displ-name">
                 <span style="--color-one: {{ USER.color_one }}; --color-two: {% if USER.is_gradient == 'true' %}{{ USER.color_two }}{% else %}{{ USER.color_one }}{% endif %}" class="user-badge banner-pfp"></span>
 

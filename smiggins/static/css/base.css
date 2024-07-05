@@ -85,7 +85,7 @@ button {
 
   &, &.inverted {
     &:hover {
-      color: var(--mantle)
+      background-color: var(--mantle)
     }
   }
 

@@ -123,7 +123,7 @@
         <select id="accs"></select><br>
         <button id="acc-switch">{{ lang.settings.account_switcher_switch }}</button>
         <button id="acc-remove">{{ lang.settings.account_switcher_remove}}</button><br><br>
-        <a href="/logout?from=switcher">{{ lang.settings.account_switcher_add }}</a>
+        <a href="/logout/?from=switcher">{{ lang.settings.account_switcher_add }}</a>
       {% endif %}
     </div>
   </div>
@@ -136,22 +136,22 @@
     <a href="https://github.com/jerimiah-smiggins/smiggins" target="_blank">{{ lang.generic.source_code }}</a><br>
   {% endif %}
 
-  <a href="/logout">{{ lang.settings.logout }}</a><br><br>
+  <a href="/logout/">{{ lang.settings.logout }}</a><br><br>
 
   <hr><br>
 
   {{ SITE_NAME }} v{{ VERSION }}<br>
 
   {% if ENABLE_CHANGELOG_PAGE == 'true' %}
-    <a href="/changelog">{{ lang.changelog.title }}</a><br>
+    <a href="/changelog/">{{ lang.changelog.title }}</a><br>
   {% endif %}
 
   {% if ENABLE_CONTACT_PAGE == 'true' %}
-    <a href="/contact">{{ lang.contact.title }}</a><br>
+    <a href="/contact/">{{ lang.contact.title }}</a><br>
   {% endif %}
 
   {% if ENABLE_CREDITS_PAGE == 'true' %}
-    <a href="/credits">{{ lang.credits.title }}</a>
+    <a href="/credits/">{{ lang.credits.title }}</a>
   {% endif %}
 
   <script src="{% static '/js/settings.js' %}?v={{ VERSION }}"></script>

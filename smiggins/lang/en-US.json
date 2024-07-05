@@ -411,7 +411,8 @@
           "6": "Added an option backend to set the default global theme",
           "7": "Added optional content warnings for posts",
           "8": "Completely rewrote how backend settings are managed",
-          "9": "Added a 'View poll results' button on polls you haven't yet voted on"
+          "9": "Added a 'View poll results' button on polls you haven't yet voted on",
+          "10": "Rewrote CSS using the nesting feature"
         },
         "v0.10.0": {
           "1": "Reverted tweaks to post box heights from v0.7.3",
