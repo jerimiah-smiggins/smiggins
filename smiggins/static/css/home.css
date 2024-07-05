@@ -303,7 +303,7 @@ button.bottom-content-icon {
   }
 
   .quote-area .post {
-    width: calc(94vw - (2em / 7) - 120px);
+    width: calc(94vw - (2em / 7) - 120px) !important;
   }
 
   .bottom-spacing {
