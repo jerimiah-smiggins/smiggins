@@ -281,7 +281,7 @@ button.bottom-content-icon {
   }
 
   .post {
-    width: calc(94vw - 3.5em - (3em / 7)) !important;
+    width: calc(94vw - 3.5em - (3em / 7));
   }
 
   .poll-bar {
