@@ -6,6 +6,11 @@
   margin: 0 auto;
   padding: 1em;
   height: calc(90vh - 2em);
+
+  button {
+    margin: 0 auto;
+    margin-top: 1.5em;
+  }
 }
 
 .messages {
@@ -21,45 +26,45 @@
 .message {
   width: calc(70% - 0.6em);
   padding: 0 0.5em;
-}
 
-.message div {
-  display: inline-block;
-  min-width: 0.5em;
-  padding: 0.3em 0.6em;
-  word-break: break-word;
-}
+  div {
+    display: inline-block;
+    min-width: 0.5em;
+    padding: 0.3em 0.6em;
+    word-break: break-word;
+  }
 
-.message.receive {
-  padding-right: 30%;
-  text-align: left;
-}
+  &.recieve {
+    padding-right: 30%;
+    text-align: left;
 
-.message.receive div {
-  background-color: var(--surface0);
-  border-radius: 0.6em 0.6em 0.6em 0;
-}
+    div {
+      background-color: var(--surface0);
+      border-radius: 0.6em 0.6em 0.6em 0;
+    }
+  }
 
-.message.send {
-  padding-left: 30%;
-  text-align: right;
-}
+  &.send {
+    padding-left: 30%;
+    text-align: right;
 
-.message.send div {
-  text-align: left;
-  background-color: var(--accent);
-  color: var(--base);
-  border-radius: 0.6em 0.6em 0 0.6em;
-}
+    div {
+      text-align: left;
+      background-color: var(--accent);
+      color: var(--base);
+      border-radius: 0.6em 0.6em 0 0.6em;
 
-.message.send div::selection {
-  background-color: var(--subtext0);
-  color: var(--base);
-}
+      &::selection {
+        background-color: var(--subtext0);
+        color: var(--base);
+      }
 
-.message.send div > a {
-  color: var(--crust);
-  text-decoration: underline;
+      & > a {
+        color: var(--crust);
+        text-decoration: underline;
+      }
+    }
+  }
 }
 
 .header-container {
@@ -67,14 +72,14 @@
   width: 90vw;
   left: 5vw;
   top: 1vh;
-}
 
-.header-container h1 {
-  text-shadow: 0 0 20px var(--crust), 0 0 19px var(--crust),
-               0 0 18px var(--crust), 0 0 17px var(--crust),
-               0 0 16px var(--crust), 0 0 15px var(--crust),
-               0 0 14px var(--crust), 0 0 13px var(--crust),
-               0 0 12px var(--crust), 0 0 11px var(--crust);
+  h1 {
+    text-shadow: 0 0 20px var(--crust), 0 0 19px var(--crust),
+                 0 0 18px var(--crust), 0 0 17px var(--crust),
+                 0 0 16px var(--crust), 0 0 15px var(--crust),
+                 0 0 14px var(--crust), 0 0 13px var(--crust),
+                 0 0 12px var(--crust), 0 0 11px var(--crust);
+  }
 }
 
 #your-mom {
@@ -90,12 +95,6 @@
   font-size: 0.7em;
   color: var(--text);
 }
-
-.messages-container button {
-  margin: 0 auto;
-  margin-top: 1.5em;
-}
-
 
 @media screen and (max-width: 565px) {
   #your-mom {

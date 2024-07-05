@@ -1,5 +1,6 @@
 #top .main-content {
   -webkit-line-clamp: unset;
+  line-clamp: unset;
 }
 
 #parent {

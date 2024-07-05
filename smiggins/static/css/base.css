@@ -26,30 +26,6 @@ body {
   word-wrap: break-word;
 }
 
-hr {
-  border-color: var(--accent);
-}
-
-small {
-  display: block;
-  font-size: 0.7em;
-  color: var(--subtext0);
-}
-noscript {
-  display: block;
-  margin-bottom: 10vh;
-}
-
-noscript h1,
-noscript h2 {
-  color: var(--red);
-}
-
-noscript ul {
-  display: inline-block;
-  text-align: left;
-}
-
 @media screen and (min-width: 1025px) {
   body {
     font-size: 16px;
@@ -63,6 +39,30 @@ noscript ul {
   }
 }
 
+hr {
+  border-color: var(--accent);
+}
+
+small {
+  display: block;
+  font-size: 0.7em;
+  color: var(--subtext0);
+}
+
+noscript {
+  display: block;
+  margin-bottom: 10vh;
+
+  h1, h2 {
+    color: var(--red);
+  }
+
+  ul {
+    display: inline-block;
+    text-align: left;
+  }
+}
+
 button {
   background-color: var(--crust);
   color: var(--text);
@@ -72,32 +72,35 @@ button {
   cursor: pointer;
   font-size: 0.8em;
   transition: color 0.15s, scale 0.15s, margin 0.15s, background-color 0.15s;
-}
 
-button:disabled {
-  opacity: 60%;
-  pointer-events: none;
-}
+  &:disabled {
+    opacity: 60%;
+    pointer-events: none;
+  }
 
-button:active {
-  scale: 95%;
-  background-color: var(--mantle);
-}
+  &:active {
+    scale: 95%;
+    background-color: var(--mantle);
+  }
 
-button.inverted {
-  background-color: var(--base);
-}
+  &, &.inverted {
+    &:hover {
+      color: var(--mantle)
+    }
+  }
 
-button.inverted:hover {
-  background-color: var(--mantle);
-}
+  &.inverted {
+    background-color: var(--base);
+  }
 
-button.primary,
-button.primary:hover {
-  background-color: var(--accent);
-  color: var(--base);
-  border-color: var(--surface0);
-  outline-color: var(--surface0);
+  &.primary {
+    &, &:hover {
+      background-color: var(--accent);
+      color: var(--base);
+      border-color: var(--surface0);
+      outline-color: var(--surface0);
+    }
+  }
 }
 
 input,
@@ -113,12 +116,7 @@ select {
   margin: 3px;
   font-size: 0.8em;
   resize: vertical;
-}
 
-input,
-textarea,
-select {
-  font-family: "Poppins";
 }
 
 option {
@@ -126,10 +124,15 @@ option {
   font-size: 1.1em;
 }
 
-input::placeholder,
-textarea::placeholder {
-  color: var(--surface2);
-  opacity: 100%;
+input, textarea, select {
+  font-family: "Poppins";
+}
+
+input, textarea {
+  &::placeholder {
+    color: var(--surface2);
+    opacity: 100%;
+  }
 }
 
 textarea:disabled {
@@ -137,23 +140,21 @@ textarea:disabled {
   pointer-events: none;
 }
 
-a:link {
-  color: var(--accent);
-  text-decoration: none;
-}
+a {
+  &:link,
+  &:visited {
+    color: var(--accent);
+    text-decoration: none;
+  }
 
-a:visited {
-  color: var(--accent);
-  text-decoration: none;
-}
+  &:hover {
+    text-decoration: underline;
+  }
 
-a:hover {
-  text-decoration: underline;
-}
-
-a::selection {
-  -webkit-text-decoration-color: var(--text);
-  text-decoration-color: var(--text);
+  &::selection {
+    -webkit-text-decoration-color: var(--text);
+    text-decoration-color: var(--text);
+  }
 }
 
 i {
@@ -167,11 +168,10 @@ p {
 
 table.bordered {
   border-collapse: collapse;
-}
 
-table.bordered th,
-table.bordered td {
-  border: 1.5px solid var(--surface0);
+  &th, &td {
+    border: 1.5px solid var(--surface0);
+  }
 }
 
 .user-badge {
@@ -233,11 +233,11 @@ svg.red,
 
 .center {
   text-align: center;
-}
 
-table.center {
-  margin-left: auto;
-  margin-right: auto;
+  &table {
+    margin-left: auto;
+    margin-right: auto;
+  }
 }
 
 .right {
@@ -268,35 +268,32 @@ table.center {
   top: 1em;
   left: 1em;
   gap: 0.5em;
-}
 
-.icons a {
-  display: inline-block;
-}
+  a {
+    display: inline-block;
+  }
 
-.icons svg {
-  height: 1.5em;
-  width: 1.5em;
-  display: inline-block;
-  fill: var(--text);
-  stroke: none;
-}
+  svg {
+    height: 1.5em;
+    width: 1.5em;
+    display: inline-block;
+    fill: var(--text);
+    stroke: none;
+    cursor: pointer;
 
-.icons svg:active {
-  scale: 0.9;
-}
+    &:active {
+      scale: 90%;
+    }
+  }
 
-.icons svg {
-  cursor: pointer;
-}
-
-.icons .dot::after {
-  position: absolute;
-  display: inline-block;
-  width: 0.5em;
-  height: 0.5em;
-  border-radius: 0.25em;
-  transform: translate(-0.3em, 0px);
-  background-color: var(--accent);
-  content: "";
+  .dot::after {
+    position: absolute;
+    display: inline-block;
+    width: 0.5em;
+    height: 0.5em;
+    border-radius: 0.25em;
+    transform: translate(-0.3em, 0px);
+    background-color: var(--accent);
+    content: "";
+  }
 }

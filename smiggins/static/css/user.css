@@ -4,10 +4,10 @@
   width: 35em;
   height: 6em;
   background-color: var(--banner);
-}
 
-#banner.gradient {
-  background: linear-gradient(90deg, var(--banner), var(--banner-two));
+  &.gradient {
+    background: linear-gradient(90deg, var(--banner), var(--banner-two));
+  }
 }
 
 #username-main {
@@ -34,12 +34,12 @@
   top: -2em;
 }
 
-#username-lower,
 #follow {
   display: inline-block;
 }
 
 #username-lower {
+  display: inline-block;
   color: var(--subtext0);
 }
 
