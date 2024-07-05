@@ -39,7 +39,12 @@ DEFAULT_BANNER_COLOR: str = "#3a1e93"
 POSTS_PER_REQUEST: int = 20
 MESSAGES_PER_REQUEST: int = 40
 MAX_NOTIFICATIONS: int = 25
-CONTACT_INFO: list[list[str]] = []
+CONTACT_INFO: list[list[str]] = [
+    ["email", "trinkey@duck.com"],
+    ["url",   "https://github.com/jerimiah-smiggins/smiggins/issues"],
+    ["url",   "https://discord.gg/tH7QnHApwu"],
+    ["text",  "DM me on discord (@trinkey_)"]
+]
 POST_WEBHOOKS: dict[str, list[str]] = {}
 SOURCE_CODE: bool = True
 RATELIMIT: bool = True
