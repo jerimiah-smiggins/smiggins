@@ -320,7 +320,7 @@
 
       "cosmetic_title": "Cosmetika",
       "cosmetic_theme": "Tema",
-      "cosmetic_theme_light": "Tagiĝa",
+      "cosmetic_theme_light": "Tagi\u011da",
       "cosmetic_theme_gray": "Krepuska",
       "cosmetic_theme_dark": "Malhela",
       "cosmetic_theme_black": "Noktomeza",
@@ -331,22 +331,22 @@
       "cosmetic_language_invalid": "Nevalida lingvo '%s'",
       "cosmetic_example_post_display_name": "Ekzemplo",
       "cosmetic_example_post_username": "ekzemplo",
-      "cosmetic_example_post_content": "Tio estas ekzempla afiŝo. Mi estas @ekzemplo.",
+      "cosmetic_example_post_content": "Tio estas ekzempla afi\u015do. Mi estas @ekzemplo.",
 
       "account_title": "Konto",
-      "account_password": "Ŝanĝu pasvorton",
+      "account_password": "\u015can\u011du pasvorton",
       "account_password_current": "Aktuala pasvorto...",
       "account_password_new": "Nova pasvorto...",
-      "account_password_success": "Via pasvorto estis ŝanĝita",
-      "account_password_failure": "Ne povas ŝanĝi vian pasvorton! Kialo: %s",
-      "account_switcher": "Konta Ŝaltanto",
-      "account_switcher_switch": "Ŝaltilo",
+      "account_password_success": "Via pasvorto estis \u015dan\u011dita",
+      "account_password_failure": "Ne povas \u015dan\u011di vian pasvorton! Kialo: %s",
+      "account_switcher": "Konta \u015caltanto",
+      "account_switcher_switch": "\u015caltilo",
       "account_switcher_remove": "Forigu",
       "account_switcher_remove_error": "Vi ne povas forigi la konton, al kiu vi estas nun ensalutinta!",
       "account_switcher_add": "Aldonu novan konton...",
 
-      "admin": "Administra retpaĝo",
-      "logout": "Elsalutu el ĉiuj kontojn"
+      "admin": "Administra retpa\u011do",
+      "logout": "Elsalutu el \u0109iuj kontojn"
     },
 
     "user_page": {
@@ -357,8 +357,8 @@
       "unfollow": "Malsekvu",
       "block": "Bloku",
       "unblock": "Malbloku",
-      "message": "Mesaĝu",
-      "private_warning": "Ĉi tiu konto estas privata. Nur uzantoj, kiujn ili sekvas, povas vidi siajn afiŝojn.",
+      "message": "Mesa\u011du",
+      "private_warning": "\u0108i tiu konto estas privata. Nur uzantoj, kiujn ili sekvas, povas vidi siajn afi\u015dojn.",
       "lists_blocks": "Blokoj",
       "lists_following": "Sekvantaraj",
       "lists_followers": "Sekvantoj",
@@ -366,7 +366,7 @@
     },
 
     "changelog": {
-      "title": "Ŝanĝprotokolo",
+      "title": "\u015can\u011dprotokolo",
       "unknown": "Nesciata"
     }
   }
