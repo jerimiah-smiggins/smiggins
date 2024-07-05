@@ -282,7 +282,7 @@ button.bottom-content-icon {
 
   .post,
   .poll-bar {
-    width: calc(94vw - 3.5em - (3em / 7));
+    width: calc(94vw - 3.5em - (3em / 7)) !important;
   }
 
   .poll-text {
