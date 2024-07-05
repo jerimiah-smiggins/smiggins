@@ -280,7 +280,10 @@ button.bottom-content-icon {
     width: calc(94vw - (2em / 7) - 90px);
   }
 
-  .post,
+  .post {
+    width: calc(94vw - 3.5em - (3em / 7));
+  }
+
   .poll-bar {
     width: calc(94vw - 3.5em - (3em / 7)) !important;
   }
@@ -303,7 +306,7 @@ button.bottom-content-icon {
   }
 
   .quote-area .post {
-    width: calc(94vw - (2em / 7) - 120px);
+    width: calc(94vw - (2em / 7) - 120px) !important;
   }
 
   .bottom-spacing {
