@@ -1,11 +1,57 @@
 # Contains helper functions. These aren't for routing, instead doing something that can be used in other places in the code.
 
-from ._settings import SITE_NAME, VERSION, SOURCE_CODE, MAX_DISPL_NAME_LENGTH, MAX_POST_LENGTH, MAX_USERNAME_LENGTH, RATELIMIT, OWNER_USER_ID, ADMIN_LOG_PATH, MAX_ADMIN_LOG_LINES, MAX_NOTIFICATIONS, MAX_BIO_LENGTH, ENABLE_USER_BIOS, ENABLE_PRONOUNS, ENABLE_GRADIENT_BANNERS, ENABLE_BADGES, ENABLE_PRIVATE_MESSAGES, ENABLE_QUOTES, ENABLE_POST_DELETION, DEFAULT_LANGUAGE, CACHE_LANGUAGES, ENABLE_HASHTAGS, MAX_POLL_OPTION_LENGTH, MAX_POLL_OPTIONS,ENABLE_CHANGELOG_PAGE, ENABLE_CONTACT_PAGE, ENABLE_PINNED_POSTS, ENABLE_ACCOUNT_SWITCHER, ENABLE_POLLS, ENABLE_LOGGED_OUT_CONTENT, ENABLE_NEW_ACCOUNTS
-from .variables import PRIVATE_AUTHENTICATOR_KEY, timeout_handler, BASE_DIR, VALID_LANGUAGES
-from .packages  import Callable, Any, HttpResponse, HttpResponseRedirect, loader, User, Comment, Post, Notification, threading, hashlib, time, re, json
+import threading
+import hashlib
+import json5 as json
+import time
+import re
 
-if ADMIN_LOG_PATH[:2:] == "./":
-    ADMIN_LOG_PATH = BASE_DIR / ADMIN_LOG_PATH[2::]
+from typing import Callable, Any
+from django.http import HttpResponse, HttpResponseRedirect
+from django.template import loader
+
+from posts.models import User, Comment, Post, Notification
+
+from .variables import (
+    SITE_NAME,
+    VERSION,
+    SOURCE_CODE,
+    MAX_DISPL_NAME_LENGTH,
+    MAX_POST_LENGTH,
+    MAX_USERNAME_LENGTH,
+    RATELIMIT,
+    OWNER_USER_ID,
+    ADMIN_LOG_PATH,
+    MAX_ADMIN_LOG_LINES,
+    MAX_NOTIFICATIONS,
+    MAX_BIO_LENGTH,
+    ENABLE_USER_BIOS,
+    ENABLE_PRONOUNS,
+    ENABLE_GRADIENT_BANNERS,
+    ENABLE_BADGES,
+    ENABLE_PRIVATE_MESSAGES,
+    ENABLE_QUOTES,
+    ENABLE_POST_DELETION,
+    DEFAULT_LANGUAGE,
+    CACHE_LANGUAGES,
+    ENABLE_HASHTAGS,
+    MAX_POLL_OPTION_LENGTH,
+    MAX_POLL_OPTIONS,
+    ENABLE_CHANGELOG_PAGE,
+    ENABLE_CONTACT_PAGE,
+    ENABLE_PINNED_POSTS,
+    ENABLE_ACCOUNT_SWITCHER,
+    ENABLE_POLLS,
+    ENABLE_NEW_ACCOUNTS,
+    ENABLE_CREDITS_PAGE,
+    DEFAULT_THEME,
+    MAX_CONTENT_WARNING_LENGTH,
+    ENABLE_CONTENT_WARNINGS,
+    PRIVATE_AUTHENTICATOR_KEY,
+    timeout_handler,
+    BASE_DIR,
+    VALID_LANGUAGES
+)
 
 def sha(string: str | bytes) -> str:
     # Returns the sha256 hash of a string.
@@ -34,7 +80,7 @@ def get_HTTP_response(request, file: str, lang_override: dict | None=None, **kwa
         theme = user.theme
     except User.DoesNotExist:
         user = None
-        theme = "dark"
+        theme = DEFAULT_THEME.lower() if DEFAULT_THEME.lower() in ["dawn", "dusk", "dark", "midnight", "black"] else "dark"
 
     lang = get_lang(user) if lang_override is None else lang_override
 
@@ -43,8 +89,12 @@ def get_HTTP_response(request, file: str, lang_override: dict | None=None, **kwa
         "VERSION": VERSION,
         "SOURCE": str(SOURCE_CODE).lower(),
 
+        "NOSCRIPT_CHROME": lang["noscript"]["tutorial_chrome"].replace("%u", "chrome://settings/content/javascript"),
+        "NOSCRIPT_FF": lang["noscript"]["tutorial_ff"].replace("%u", "about:config").replace("%k", "javascript.enabled").replace("%v", "true"),
+
         "MAX_USERNAME_LENGTH": MAX_USERNAME_LENGTH,
         "MAX_POST_LENGTH": MAX_POST_LENGTH,
+        "MAX_CONTENT_WARNING_LENGTH": MAX_CONTENT_WARNING_LENGTH,
         "MAX_DISPL_NAME_LENGTH": MAX_DISPL_NAME_LENGTH,
         "MAX_BIO_LENGTH": MAX_BIO_LENGTH,
         "MAX_POLL_OPTION_LENGTH": MAX_POLL_OPTION_LENGTH,
@@ -60,10 +110,11 @@ def get_HTTP_response(request, file: str, lang_override: dict | None=None, **kwa
         "ENABLE_HASHTAGS": str(ENABLE_HASHTAGS).lower(),
         "ENABLE_CHANGELOG_PAGE": str(ENABLE_CHANGELOG_PAGE).lower(),
         "ENABLE_CONTACT_PAGE": str(ENABLE_CONTACT_PAGE).lower(),
+        "ENABLE_CREDITS_PAGE": str(ENABLE_CREDITS_PAGE).lower(),
         "ENABLE_PINNED_POSTS": str(ENABLE_PINNED_POSTS).lower(),
         "ENABLE_ACCOUNT_SWITCHER": str(ENABLE_ACCOUNT_SWITCHER).lower(),
+        "ENABLE_CONTENT_WARNINGS": str(ENABLE_CONTENT_WARNINGS).lower(),
         "ENABLE_POLLS": str(ENABLE_POLLS).lower(),
-        "ENABLE_LOGGED_OUT_CONTENT": str(ENABLE_LOGGED_OUT_CONTENT).lower(),
         "ENABLE_NEW_ACCOUNTS": str(ENABLE_NEW_ACCOUNTS).lower(),
 
         "THEME": theme,
@@ -245,6 +296,7 @@ def get_post_json(post_id: int, current_user_id: int=0, comment: bool=False, cac
         "likes": len(post.likes),
         "comments": len(post.comments),
         "quotes": len(post.quotes),
+        "c_warning": post.content_warning,
         "can_delete": can_delete_all or creator.user_id == current_user_id,
         "can_pin": not comment and creator.user_id == current_user_id,
         "can_view": True,
@@ -302,6 +354,7 @@ def get_post_json(post_id: int, current_user_id: int=0, comment: bool=False, cac
                     "likes": len(quote.likes),
                     "comments": len(quote.comments),
                     "quotes": len(quote.quotes),
+                    "c_warning": quote.content_warning,
                     "can_view": True,
                     "blocked": False,
                     "has_quote": isinstance(quote, Post) and quote.quote,
@@ -375,6 +428,26 @@ def find_hashtags(message: str) -> list[str]:
     # Returns a list of all hashtags in a string.
 
     return list(set(re.findall(r"#([a-z0-9_]{1,64})(?:\b|[^a-z0-9_])", message.lower())))
+
+def delete_notification(
+    notif: Notification
+) -> None:
+    try:
+        user = notif.is_for
+        user.notifications.remove(notif.notif_id)
+
+        try:
+            if Notification.objects.get(notif_id=user.notifications[-1]).read:
+                user.read_notifs = True
+        except IndexError:
+            ...
+
+        user.save()
+
+    except ValueError:
+        ...
+
+    notif.delete()
 
 def create_notification(
     is_for: User,

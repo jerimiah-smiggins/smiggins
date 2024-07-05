@@ -72,8 +72,12 @@ function addQuote(postID, isComment) {
         return;
     }
     let c = 0;
+    let originalPost = document.querySelector(`[data-${isComment ? "comment" : "post"}-id="${postID}"]`);
+    let originalCWEl = originalPost.querySelector(".c-warning summary");
+    let originalCW = originalCWEl ? originalCWEl.innerHTML : null;
     post.innerHTML = `
     <div class="log"></div>
+    ${ENABLE_CONTENT_WARNINGS ? `<input class="c-warning" ${originalCW ? `value="re: ${originalCW.slice(0, MAX_CONTENT_WARNING_LENGTH - 4)}"` : ""} maxlength="${MAX_CONTENT_WARNING_LENGTH}" placeholder="${lang.home.c_warning_placeholder}"><br>` : ""}
     <textarea class="post-text" maxlength="${MAX_POST_LENGTH}" placeholder="${lang.home.quote_placeholders[Math.floor(Math.random() * lang.home.quote_placeholders.length)]}"></textarea><br>
     <button class="post-button inverted">${lang.generic.post}</button>
     <button class="cancel-button inverted">${lang.generic.cancel}</button>
@@ -82,12 +86,14 @@ function addQuote(postID, isComment) {
         if (!post.querySelector("textarea").value.length) {
             return;
         }
+        ENABLE_CONTENT_WARNINGS && post.querySelector("input.c-warning").setAttribute("disabled", "");
         post.querySelector("textarea").setAttribute("disabled", "");
         post.querySelector("button.post-button").setAttribute("disabled", "");
         post.querySelector("button.cancel-button").setAttribute("disabled", "");
         fetch("/api/quote/create", {
             method: "PUT",
             body: JSON.stringify({
+                c_warning: ENABLE_CONTENT_WARNINGS ? post.querySelector("input.c-warning").value : "",
                 content: post.querySelector("textarea").value,
                 quote_id: postID,
                 quote_is_comment: isComment
@@ -96,7 +102,12 @@ function addQuote(postID, isComment) {
             .then((json) => {
             if (json.success) {
                 post.innerHTML = "";
-                refresh();
+                if (window.location.pathname.toLowerCase().includes("/home") ||
+                    window.location.pathname.toLowerCase().includes(`/u/${localStorage.getItem("username") || "LOL IT BROKE LOLLLLLLLLL SO FUNNY"}`)) {
+                    let x = document.createElement("div");
+                    x.innerHTML = getPostHTML(json.post);
+                    dom("posts").prepend(x);
+                }
             }
             else {
                 post.querySelector(".log").innerText = json.reason;
@@ -110,6 +121,7 @@ function addQuote(postID, isComment) {
                 throw json.reason;
             }
         }).catch((err) => {
+            ENABLE_CONTENT_WARNINGS && post.querySelector("input.c-warning").removeAttribute("disabled");
             post.querySelector("textarea").removeAttribute("disabled");
             post.querySelector("button.post-button").removeAttribute("disabled");
             post.querySelector("button.cancel-button").removeAttribute("disabled");
@@ -161,12 +173,13 @@ function vote(option, postID, gInc) {
         .then((json) => {
         if (json.success) {
             let v;
+            document.querySelector(`#gi-${gInc} .remove-when-the-poll-gets-shown`).remove();
             forEach(dom(`gi-${gInc}`).querySelectorAll(".poll-bar-container"), function (val, index) {
                 let el = val;
                 let isVoted = +el.dataset.index == option;
                 v = el;
                 val.innerHTML = `<div class="poll-bar ${isVoted ? "voted" : ""}">
-            <div style="width:${(+el.dataset.votes + (isVoted ? 1 : 0)) / (+el.dataset.totalVotes + 1) * 100}%">
+            <div style="width: ${(+el.dataset.votes + (isVoted ? 1 : 0)) / (+el.dataset.totalVotes + 1) * 100}%">
               🥖
             </div>
           </div>
@@ -175,6 +188,20 @@ function vote(option, postID, gInc) {
             });
             dom(`gi-${gInc}`).querySelector("small").innerHTML = (+v.dataset.totalVotes ? lang.home.poll_total_plural : lang.home.poll_total_singular).replaceAll("%s", +v.dataset.totalVotes + 1);
         }
+    });
+}
+function togglePollResults(gInc) {
+    document.querySelector(`#gi-${gInc} .remove-when-the-poll-gets-shown`).remove();
+    forEach(dom(`gi-${gInc}`).querySelectorAll(".poll-bar-container"), function (val, index) {
+        let el = val;
+        el.onclick = undefined;
+        val.innerHTML = `<div class="poll-bar">
+      <div style="width: ${+el.dataset.votes / +el.dataset.totalVotes * 100 || 0}%">
+        🥖
+      </div>
+    </div>
+    <div class="poll-text">
+      ${Math.round(+el.dataset.votes / +el.dataset.totalVotes * 1000) / 10 || 0}% - ` + val.innerHTML.replace('<div class="poll-text">', "");
     });
 }
 if (typeof disableTimeline === 'undefined' || !disableTimeline) {

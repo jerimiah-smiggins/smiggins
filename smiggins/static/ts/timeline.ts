@@ -78,8 +78,13 @@ function addQuote(postID: number, isComment: boolean): void {
 
   let c: number = 0;
 
+  let originalPost: HTMLElement = document.querySelector(`[data-${isComment ? "comment" : "post"}-id="${postID}"]`);
+  let originalCWEl: HTMLElement = originalPost.querySelector(".c-warning summary");
+  let originalCW: string | null = originalCWEl ? originalCWEl.innerHTML : null;
+
   post.innerHTML = `
     <div class="log"></div>
+    ${ENABLE_CONTENT_WARNINGS ? `<input class="c-warning" ${originalCW ? `value="re: ${originalCW.slice(0, MAX_CONTENT_WARNING_LENGTH - 4)}"` : ""} maxlength="${MAX_CONTENT_WARNING_LENGTH}" placeholder="${lang.home.c_warning_placeholder}"><br>` : ""}
     <textarea class="post-text" maxlength="${MAX_POST_LENGTH}" placeholder="${lang.home.quote_placeholders[Math.floor(Math.random() * lang.home.quote_placeholders.length)]}"></textarea><br>
     <button class="post-button inverted">${lang.generic.post}</button>
     <button class="cancel-button inverted">${lang.generic.cancel}</button>
@@ -88,6 +93,7 @@ function addQuote(postID: number, isComment: boolean): void {
   post.querySelector("button.post-button").addEventListener("click", function(): void {
     if (!post.querySelector("textarea").value.length) { return; }
 
+    ENABLE_CONTENT_WARNINGS && post.querySelector("input.c-warning").setAttribute("disabled", "");
     post.querySelector("textarea").setAttribute("disabled", "");
     post.querySelector("button.post-button").setAttribute("disabled", "");
     post.querySelector("button.cancel-button").setAttribute("disabled", "");
@@ -95,18 +101,28 @@ function addQuote(postID: number, isComment: boolean): void {
     fetch("/api/quote/create", {
       method: "PUT",
       body: JSON.stringify({
+        c_warning: ENABLE_CONTENT_WARNINGS ? (post.querySelector("input.c-warning") as HTMLInputElement).value : "",
         content: post.querySelector("textarea").value,
         quote_id: postID,
         quote_is_comment: isComment
       })
     }).then((response: Response) => (response.json()))
       .then((json: {
-        reason: string,
+        post: _postJSON,
+        reason?: string,
         success: boolean
       }) => {
         if (json.success) {
           post.innerHTML = "";
-          refresh();
+
+          if (
+            window.location.pathname.toLowerCase().includes("/home") ||
+            window.location.pathname.toLowerCase().includes(`/u/${localStorage.getItem("username") || "LOL IT BROKE LOLLLLLLLLL SO FUNNY"}`)
+          ) {
+            let x: HTMLDivElement = document.createElement("div");
+            x.innerHTML = getPostHTML(json.post);
+            dom("posts").prepend(x);
+          }
         } else {
           (post.querySelector(".log") as HTMLElement).innerText = json.reason;
           c++;
@@ -119,6 +135,7 @@ function addQuote(postID: number, isComment: boolean): void {
           throw json.reason;
         }
       }).catch((err: Error) => {
+        ENABLE_CONTENT_WARNINGS && post.querySelector("input.c-warning").removeAttribute("disabled");
         post.querySelector("textarea").removeAttribute("disabled");
         post.querySelector("button.post-button").removeAttribute("disabled");
         post.querySelector("button.cancel-button").removeAttribute("disabled");
@@ -177,13 +194,15 @@ function vote(option: number, postID: number, gInc: number): void {
     }) => {
       if (json.success) {
         let v: HTMLElement;
+        document.querySelector(`#gi-${gInc} .remove-when-the-poll-gets-shown`).remove();
+
         forEach(dom(`gi-${gInc}`).querySelectorAll(".poll-bar-container"), function(val: Element, index: number) {
           let el: HTMLElement = val as HTMLElement;
           let isVoted: boolean = +el.dataset.index == option;
 
           v = el;
           val.innerHTML = `<div class="poll-bar ${isVoted ? "voted" : ""}">
-            <div style="width:${(+el.dataset.votes + (isVoted ? 1 : 0)) / (+el.dataset.totalVotes + 1) * 100}%">
+            <div style="width: ${(+el.dataset.votes + (isVoted ? 1 : 0)) / (+el.dataset.totalVotes + 1) * 100}%">
               🥖
             </div>
           </div>
@@ -194,6 +213,24 @@ function vote(option: number, postID: number, gInc: number): void {
         dom(`gi-${gInc}`).querySelector("small").innerHTML = (+v.dataset.totalVotes ? lang.home.poll_total_plural : lang.home.poll_total_singular).replaceAll("%s", +v.dataset.totalVotes + 1);
       }
     });
+}
+
+function togglePollResults(gInc: number): void {
+  document.querySelector(`#gi-${gInc} .remove-when-the-poll-gets-shown`).remove();
+
+  forEach(dom(`gi-${gInc}`).querySelectorAll(".poll-bar-container"), function(val: Element, index: number): void {
+    let el: HTMLElement = val as HTMLElement;
+
+    el.onclick = undefined;
+
+    val.innerHTML = `<div class="poll-bar">
+      <div style="width: ${+el.dataset.votes / +el.dataset.totalVotes * 100 || 0}%">
+        🥖
+      </div>
+    </div>
+    <div class="poll-text">
+      ${Math.round(+el.dataset.votes / +el.dataset.totalVotes * 1000) / 10 || 0}% - ` + val.innerHTML.replace('<div class="poll-text">', "");
+  });
 }
 
 if (typeof disableTimeline === 'undefined' || !disableTimeline) {

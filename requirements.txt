@@ -1,0 +1,5 @@
+django-ninja
+ensure-file
+requests
+django
+json5

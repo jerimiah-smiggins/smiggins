@@ -2,7 +2,7 @@
   "meta": {
     "fallback": [],
     "name": "English (United States)",
-    "version": "1.3.0",
+    "version": "1.4.0",
     "maintainers": [ "trinkey" ]
   },
 
@@ -26,10 +26,19 @@
       "home": "Return Home"
     },
 
+    "noscript": {
+      "title": "Please enable JavaScript!",
+      "subtitle": "Without it, this site won't work!",
+
+      "tutorial_title": "How do I do this?",
+      "tutorial_ff": "On Firefox, go to %u and set \"%k\" to \"%v\"",
+      "tutorial_chrome": "On Chrome, go to %u and add this website to the \"Allowed to use JavaScript\" list" // Note for translators: Copy the "Allowed to use JavaScript" section directly from chrome instead of translating it yourself
+    },
+
     "generic": {
       "success": "Success!",
       "something_went_wrong": "Something went wrong!",
-      "something_went_wrong_x": "Something went wrong %s!",
+      "something_went_wrong_x": "Something went wrong %s!", // Ex: Something went wrong loading the posts!
       "try_again": "Try again in a few moments...",
       "ratelimit_verbose": "You are being ratelimited!",
       "ratelimit": "Ratelimited",
@@ -44,7 +53,7 @@
       "user_not_found": "User not found!",
       "share": "Share",
       "copied": "Copied to clipboard!",
-      "see_more": "%s to see more!",
+      "see_more": "%s to see more!", // Ex: Sign up to see more!
 
       "pronouns": {
         "a": "ask pronouns",
@@ -207,6 +216,7 @@
     "home": {
       "title": "Home",
       "post_input_placeholder": "What's on your mind?",
+      "c_warning_placeholder": "Content warning...",
 
       "switch_recent": "Switch to recent...",
       "switch_following": "Switch to following...",
@@ -223,10 +233,11 @@
       ],
 
       "poll": "Poll",
-      "poll_option": "Option %s",
-      "poll_optional": "Option %s (optional)",
+      "poll_option": "Option %s", // Ex: Option 3
+      "poll_optional": "Option %s (optional)", // Ex: Option 3 (optional)
       "poll_total_plural": "%s total votes",
-      "poll_total_singular": "%s total vote"
+      "poll_total_singular": "%s total vote",
+      "poll_view_results": "View results"
     },
 
     "account": {
@@ -260,9 +271,9 @@
     },
 
     "messages": {
-      "title": "Messaging %s",
+      "title": "Messaging %s", // Ex: Messaging gerard
       "error": "loading recent messages",
-      "input_placeholder": "What would you like to tell %s?",
+      "input_placeholder": "What would you like to tell %s?", // Ex: What would you like to tell gerard?
 
       "no_messages": "No messages sent",
 
@@ -361,7 +372,7 @@
     "user_page": {
       "followers": "Followers: %s",
       "following": "Following: %s",
-      "user_on_smiggins": "%s on %t",
+      "user_on_smiggins": "%s on %t", // Ex: gerard on Twitter Clone (this would be if the site name is set to "Twitter Clone" and the user's display name is "gerard")
       "follow": "Follow",
       "unfollow": "Unfollow",
       "block": "Block",
@@ -374,11 +385,35 @@
       "lists_no_bio": "No bio set"
     },
 
+    "credits": {
+      "title": "Credits",
+
+      "credits": [
+        "Lead developer: <a href='https://github.com/trinkey'>trinkey</a>",
+        "Other contributors: <a href='https://github.com/Subroutine7901'>Subroutine</a>, <a href='https://github.com/DiamondTaco'>Bread</a>, <a href='https://github.com/TheMineCommander'>Wren</a>",
+        "English US/GB languages created by <a href='https://github.com/trinkey'>trinkey</a>",
+        "Esperanto language created by <a href='https://github.com/Subroutine7901'>Subroutine</a>",
+        "Some icons are from <a href='https://fontawesome.com/'>Font Awesome</a>"
+      ]
+    },
+
     "changelog": {
       "title": "Changelogs",
       "unknown": "Unknown",
 
       "changes": {
+        "v0.10.1": {
+          "1": "Added a credits page (and a backend toggle)",
+          "2": "Deleting a post deletes any notifications caused by said post to prevent certain issues",
+          "3": "Pinging someone from a quote now works properly",
+          "4": "Creating a quote no longer reloads the timeline",
+          "5": "Tweaks to frontend account management",
+          "6": "Added an option backend to set the default global theme",
+          "7": "Added optional content warnings for posts",
+          "8": "Completely rewrote how backend settings are managed",
+          "9": "Added a 'View poll results' button on polls you haven't yet voted on",
+          "10": "Rewrote CSS using the nesting feature"
+        },
         "v0.10.0": {
           "1": "Reverted tweaks to post box heights from v0.7.3",
           "2": "Added polls",
@@ -400,7 +435,7 @@
         },
         "v0.9.1": {
           "1": "Added an option to cache languages",
-          "2": "Badge names can now use \"w\"",
+          "2": "Badge names can now use the letter \"w\"",
           "3": "The server no longer errors when trying to log in to an account that doesn't exist",
           "4": "The maxlength parameter is properly set on the username section on sign up and log in pages",
           "5": "Updates to the Esperanto language",

@@ -16,10 +16,10 @@ hr {
   height: 50px;
   display: inline-block;
   border-radius: 0.2em;
-}
 
-#banner.gradient {
-  background: linear-gradient(90deg, var(--banner), var(--banner-two));
+  &.gradient {
+    background: linear-gradient(90deg, var(--banner), var(--banner-two));
+  }
 }
 
 .post-container {

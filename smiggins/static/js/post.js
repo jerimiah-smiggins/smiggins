@@ -2,28 +2,25 @@ url = `/api/comments?id=${post_id}&comment=${comment}`;
 type = "comment";
 includeUserLink = true;
 includePostLink = true;
-if (!logged_in) {
-    dom("more-container").innerHTML = lang.generic.see_more.replaceAll("%s", `<a href="/signup">${lang.account.sign_up_title}</a>`);
-    dom("post-text").setAttribute("hidden", "");
-    dom("post").setAttribute("hidden", "");
-    dom("hide-me").setAttribute("hidden", "");
-}
 dom("post-text").addEventListener("input", postTextInputEvent);
 dom("post").addEventListener("click", function () {
     if (dom("post-text").value) {
-        this.setAttribute("disabled", "");
+        dom("post").setAttribute("disabled", "");
         dom("post-text").setAttribute("disabled", "");
+        ENABLE_CONTENT_WARNINGS && dom("c-warning").setAttribute("disabled", "");
         fetch("/api/comment/create", {
             method: "PUT",
             body: JSON.stringify({
+                c_warning: ENABLE_CONTENT_WARNINGS ? dom("c-warning").value : "",
+                comment: comment,
                 content: dom("post-text").value,
-                id: post_id,
-                comment: comment
+                id: post_id
             })
         })
             .then((response) => {
             dom("post").removeAttribute("disabled");
             dom("post-text").removeAttribute("disabled");
+            ENABLE_CONTENT_WARNINGS && dom("c-warning").removeAttribute("disabled");
             if (response.status == 429) {
                 showlog(lang.generic.ratelimit_verbose);
             }
@@ -42,6 +39,7 @@ dom("post").addEventListener("click", function () {
             .catch((err) => {
             dom("post").removeAttribute("disabled");
             dom("post-text").removeAttribute("disabled");
+            ENABLE_CONTENT_WARNINGS && dom("c-warning").removeAttribute("disabled");
             showlog(lang.generic.something_went_wrong);
         });
     }

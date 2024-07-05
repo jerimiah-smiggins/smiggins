@@ -1,10 +1,36 @@
 # For API functions that relate to comments, for example liking, creating, etc.
 
-from .._settings import MAX_POST_LENGTH, API_TIMINGS, OWNER_USER_ID, POSTS_PER_REQUEST, ENABLE_LOGGED_OUT_CONTENT
-from ..packages  import Comment, User, Post, time, Schema
-from ..helper    import trim_whitespace, create_api_ratelimit, ensure_ratelimit, get_post_json, log_admin_action, create_notification, find_mentions, get_lang, DEFAULT_LANG
+import time
+
+from ninja import Schema
+
+from posts.models import Comment, User, Post, Notification
+
+from ..variables import (
+    MAX_POST_LENGTH,
+    API_TIMINGS,
+    OWNER_USER_ID,
+    POSTS_PER_REQUEST,
+    ENABLE_LOGGED_OUT_CONTENT,
+    MAX_CONTENT_WARNING_LENGTH,
+    ENABLE_CONTENT_WARNINGS,
+)
+
+from ..helper import (
+    trim_whitespace,
+    create_api_ratelimit,
+    ensure_ratelimit,
+    get_post_json,
+    log_admin_action,
+    create_notification,
+    find_mentions,
+    get_lang,
+    DEFAULT_LANG,
+    delete_notification,
+)
 
 class NewComment(Schema):
+    c_warning: str
     content: str
     comment: bool
     id: int
@@ -28,8 +54,9 @@ def comment_create(request, data: NewComment) -> tuple | dict:
     content = data.content.replace("\r", "")
 
     content = trim_whitespace(data.content)
+    c_warning = trim_whitespace(data.c_warning, True) if ENABLE_CONTENT_WARNINGS else ""
 
-    if len(content) > MAX_POST_LENGTH or len(content) < 1:
+    if len(c_warning) > MAX_CONTENT_WARNING_LENGTH or len(content) > MAX_POST_LENGTH or len(content) < 1:
         create_api_ratelimit("api_comment_create", API_TIMINGS["create post failure"], token)
         return 400, {
             "success": False,
@@ -45,6 +72,7 @@ def comment_create(request, data: NewComment) -> tuple | dict:
         content = content,
         creator = user.user_id,
         timestamp = timestamp,
+        content_warning = c_warning or None,
         likes = [],
         comments = [],
         quotes = [],
@@ -89,7 +117,7 @@ def comment_create(request, data: NewComment) -> tuple | dict:
                 create_notification(notif_for, "ping_c", comment.comment_id)
 
         except User.DoesNotExist:
-            pass
+            ...
 
     return 201, {
         "success": True,
@@ -232,7 +260,7 @@ def comment_like_remove(request, data: CommentID):
             user.likes.remove([id, True])
             user.save()
         except ValueError:
-            pass
+            ...
 
         comment.likes.remove(user.user_id)
         comment.save()
@@ -267,6 +295,27 @@ def comment_delete(request, data: CommentID) -> tuple | dict:
         log_admin_action("Delete comment", user, f"Deleted comment {id} (parent: {comment.parent} (is_comment: {comment.parent_is_comment}), content: {comment.content})")
 
     if creator or admin:
+        try:
+            for notif in Notification.objects.filter(
+                event_id=comment.comment_id,
+                event_type="ping_c"
+            ):
+                delete_notification(notif)
+
+        except Notification.DoesNotExist:
+            ...
+
+        try:
+            delete_notification(
+                Notification.objects.get(
+                    event_id=comment.comment_id,
+                    event_type="comment"
+                )
+            )
+
+        except Notification.DoesNotExist:
+            ...
+
         comment.delete()
 
         return {

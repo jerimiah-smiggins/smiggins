@@ -1,4 +1,4 @@
-from ._settings import ALLOW_SCRAPING
+from .variables import ALLOW_SCRAPING
 
 class AddTDMReservation:
     def __init__(self, get_response):

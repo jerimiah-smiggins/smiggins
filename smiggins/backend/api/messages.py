@@ -1,8 +1,12 @@
 # For API functions that relate to messages for example sending, deleting, etc.
 
-from .._settings import MAX_POST_LENGTH, MESSAGES_PER_REQUEST
-from ..packages  import User, PrivateMessageContainer, PrivateMessage, time, Schema
-from ..helper    import trim_whitespace, get_container_id, get_badges, get_lang
+import time
+
+from ninja import Schema
+
+from posts.models import User, PrivateMessageContainer, PrivateMessage
+from ..variables import MAX_POST_LENGTH, MESSAGES_PER_REQUEST
+from ..helper import trim_whitespace, get_container_id, get_badges, get_lang
 
 class NewContainer(Schema):
     username: str

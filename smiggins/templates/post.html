@@ -30,8 +30,16 @@
 {% block body %}
   <div id="parent" hidden><a id="parent-link" href="#">{{ lang.post_page.comment_parent }}</a></div>
   <div id="top" data-post-id="{{ POST_ID }}"></div>
-  <textarea id="post-text" maxlength="{{ MAX_POST_LENGTH }}" placeholder="{{ lang.post_page.comment_input_placeholder }}"></textarea><br id="hide-me">
-  <button id="post">{{ lang.generic.post }}</button><br>
+
+  {% if LOGGED_IN == 'true' %}
+    {% if ENABLE_CONTENT_WARNINGS == 'true' %}
+      <input id="c-warning" {% if C_WARNING %}value="re: {{ C_WARNING }}"{% endif %} maxlength="{{ MAX_CONTENT_WARNING_LENGTH }}" placeholder="{{ lang.home.c_warning_placeholder }}"><br>
+    {% endif %}
+
+    <textarea id="post-text" maxlength="{{ MAX_POST_LENGTH }}" placeholder="{{ lang.post_page.comment_input_placeholder }}"></textarea><br>
+    <button id="post">{{ lang.generic.post }}</button><br>
+  {% endif %}
+
   <button onclick="refresh()">{{ lang.generic.refresh }}</button><br><br>
   <div id="error"></div>
   <div id="posts"></div>

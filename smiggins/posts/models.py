@@ -45,6 +45,7 @@ class User(models.Model):
 class Post(models.Model):
     post_id   = models.IntegerField(primary_key=True)
     content   = models.TextField(max_length=65536)
+    content_warning = models.TextField(max_length=200, null=True)
     creator   = models.IntegerField()
     timestamp = models.IntegerField()
     quote     = models.IntegerField(default=0)
@@ -59,7 +60,7 @@ class Post(models.Model):
     # Format:
     # {
     #   "votes": [1, 2, 3, 4...], // list of user ids that have voted
-    #   "choices": 4 // number, 2 - MAX_POLL_OPTIONS
+    #   "choices": 4 // number, between 2 and MAX_POLL_OPTIONS
     #   "content": [
     #     { "value": "Option 1", "votes": [1, 2...] },
     #     { "value": "Option 2", "votes": [3, 4...] },
@@ -74,6 +75,7 @@ class Post(models.Model):
 class Comment(models.Model):
     comment_id = models.IntegerField(primary_key=True, unique=True)
     content    = models.TextField(max_length=65536)
+    content_warning = models.TextField(max_length=200, null=True)
     creator    = models.IntegerField()
     timestamp  = models.IntegerField()
     parent     = models.IntegerField(default=0)

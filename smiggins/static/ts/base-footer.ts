@@ -1,7 +1,7 @@
 const usernameRegexFull: RegExp = /^[a-z0-9_\-]+$/g;
 
 if (typeof(logged_in) != "boolean") {
-  logged_in = document.cookie.indexOf("token=") != -1;
+  logged_in = document.cookie.split(/\btoken=/).length != 1;
 }
 
 if (logged_in) {

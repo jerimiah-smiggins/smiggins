@@ -1,8 +1,22 @@
+import json5
+
 from pathlib import Path
-from backend._settings import DEBUG  # noqa: F401
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
+
+DEBUG = True
+try:
+    f: dict = json5.load(open(BASE_DIR / "settings.json", "r"))
+
+    for key, val in f.items():
+        if key.lower() == "debug" and isinstance(val, bool):
+            DEBUG = val
+
+except ValueError:
+    ...
+except FileNotFoundError:
+    ...
 
 # SECURITY WARNING: keep the secret key used in production secret!
 SECRET_KEY = 'django-insecure-y$sfjl+rlc(gbdjm4h@-!zxn8$z@nkcdd_9g^^yq&-=!b(8d43'

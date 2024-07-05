@@ -1,16 +1,21 @@
 {% extends "base.html" %}
+{% load static %}
+
+{% block head %}
+  <script src="{% static "/js/check-logged-out.js" %}?v={{ VERSION }}"></script>
+{% endblock %}
 
 {% block body %}
   <h1>{{ SITE_NAME }}</h1>
   <h3>v{{ VERSION }}</h3>
 
   {% if ENABLE_NEW_ACCOUNTS == 'true' %}
-    <a href="/signup">{{ lang.account.sign_up_title }}</a> -
+    <a href="/signup/">{{ lang.account.sign_up_title }}</a> -
   {% else %}
     {{ lang.account.no_new }}<br>
   {% endif %}
 
-  <a href="/login">{{ lang.account.log_in_title }}</a>
+  <a href="/login/">{{ lang.account.log_in_title }}</a>
 
   {% if SOURCE == "true" %}
     <br><br>

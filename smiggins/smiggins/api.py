@@ -1,8 +1,16 @@
+import json
+
 from django.urls import path
 
-from backend.api       import ApiAdmin, ApiComment, ApiInfo, ApiMessages, ApiPost, ApiUser
-from backend.packages  import json
-from backend._settings import ENABLE_PRIVATE_MESSAGES, ENABLE_QUOTES, ENABLE_POST_DELETION, ENABLE_HASHTAGS, ENABLE_NEW_ACCOUNTS
+from backend.api import ApiAdmin, ApiComment, ApiInfo, ApiMessages, ApiPost, ApiUser
+
+from backend.variables import (
+    ENABLE_PRIVATE_MESSAGES,
+    ENABLE_QUOTES,
+    ENABLE_POST_DELETION,
+    ENABLE_HASHTAGS,
+    ENABLE_NEW_ACCOUNTS,
+)
 
 from ninja.renderers import BaseRenderer
 from ninja import NinjaAPI
@@ -95,6 +103,7 @@ api.patch ("admin/badge", response=response_schema)(ApiAdmin.badge_remove) # Rem
 # Information
 api.get("info/username", response=response_schema)(ApiInfo.username)
 api.get("info/notifications", response=response_schema)(ApiInfo.notifications)
+api.get("info/version", response=response_schema)(ApiInfo.version)
 
 urlpatterns = [
     path("", api.urls) # type: ignore
