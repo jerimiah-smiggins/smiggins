@@ -404,6 +404,13 @@ def hashtag(request, hashtag: str) -> HttpResponse:
         NUM_POSTS = num_posts
     )
 
+def email(request):
+    return get_HTTP_response(
+        request, "email/password.html",
+
+        TITLE="Test"
+    )
+
 # These two functions are referenced in smiggins/urls.py
 def _404(request, exception) -> HttpResponse:
     response = get_HTTP_response(request, "404.html")
