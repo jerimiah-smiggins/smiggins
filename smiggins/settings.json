@@ -18,6 +18,14 @@
   "owner_user_id": 1,
 
   /*
+  ** This toggles allowing emails. In order for this to work, you need to set up
+  ** the stmp_auth variable in backend/_api_keys.py.
+  && Aliases: email, enable_email
+  ## Default: false
+  */
+  "enable_email": false,
+
+  /*
   ** SET TO FALSE for production servers!!! This determines whether or not to
   ** refresh the server when code changes Turning this off (and/or going into
   ** production) means you should get a web server like Nginx or Apache to serve

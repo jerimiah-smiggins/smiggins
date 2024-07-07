@@ -65,6 +65,7 @@ ENABLE_CONTENT_WARNINGS: bool = True
 ENABLE_POLLS: bool = True
 ENABLE_LOGGED_OUT_CONTENT: bool = True
 ENABLE_NEW_ACCOUNTS: bool = True
+ENABLE_EMAIL: bool = False
 
 API_TIMINGS: dict[str, int] = {}
 
@@ -164,6 +165,7 @@ for key, val in f.items():
     elif key.lower() in ["enable_cws", "enable_c_warnings", "enable_content_warnings"]: is_ok(val, "ENABLE_CONTENT_WARNINGS", bool) # noqa: E701
     elif key.lower() in ["enable_logged_out", "enable_logged_out_content"]: is_ok(val, "ENABLE_LOGGED_OUT_CONTENT", bool) # noqa: E701
     elif key.lower() in ["enable_signup", "enable_new_users", "enable_new_accounts"]: is_ok(val, "ENABLE_NEW_ACCOUNTS", bool) # noqa: E701
+    elif key.lower() in ["email", "enable_email"]: is_ok(val, "ENABLE_EMAIL", bool) # noqa: E701
     else: error(f"Unknown setting {key}") # noqa: E701
 
 MAX_ADMIN_LOG_LINES = clamp(MAX_ADMIN_LOG_LINES, minimum=1)
@@ -217,6 +219,11 @@ Disallow: /static/
 """
 
 BADGE_DATA = {}
+
+try:
+    from backend._api_keys import smtp_auth # type: ignore # noqa: F401
+except ImportError:
+    ENABLE_EMAIL = False
 
 try:
     Badge.objects.get(name="administrator")

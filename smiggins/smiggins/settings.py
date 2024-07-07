@@ -2,23 +2,33 @@ import json5
 
 from pathlib import Path
 
-from backend._api_keys import smtp_auth
-
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
 
 DEBUG = True
+email = False
+
 try:
     f: dict = json5.load(open(BASE_DIR / "settings.json", "r"))
 
     for key, val in f.items():
-        if key.lower() == "debug" and isinstance(val, bool):
+        if isinstance(val, bool) and key.lower() == "debug":
             DEBUG = val
+
+        elif isinstance(val, bool) and key.lower() in ["enable_email", "email"]:
+            email = val
 
 except ValueError:
     ...
 except FileNotFoundError:
     ...
+
+try:
+    from backend._api_keys import smtp_auth # type: ignore
+except ImportError:
+    if email:
+        print("\x1b[91mIn order to allow emails, you need to have stmp_auth set in backend/_api_keys.py!\x1b[0m")
+        email = False
 
 # SECURITY WARNING: keep the secret key used in production secret!
 SECRET_KEY = 'django-insecure-y$sfjl+rlc(gbdjm4h@-!zxn8$z@nkcdd_9g^^yq&-=!b(8d43'
