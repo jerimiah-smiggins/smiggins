@@ -2,7 +2,7 @@
   "meta": {
     "fallback": [],
     "name": "English (United States)",
-    "version": "1.4.0",
+    "version": "1.4.1",
     "maintainers": [ "trinkey" ]
   },
 
@@ -402,6 +402,10 @@
       "unknown": "Unknown",
 
       "changes": {
+        "v0.10.2": {
+          "1": "Added changelogs for all legacy versions",
+          "2": "Fixed an issue that caused read notifications/messages to not be colored grey"
+        },
         "v0.10.1": {
           "1": "Added a credits page (and a backend toggle)",
           "2": "Deleting a post deletes any notifications caused by said post to prevent certain issues",
@@ -585,6 +589,86 @@
         },
         "v0.3.7": {
           "1": "Added themes"
+        },
+        "v0.3.6": {
+          "1": "Added a share button on some pages",
+          "2": "Changed how icons are displayed",
+          "3": "Posts now have a maximum line count on timelines"
+        },
+        "v0.3.5": {
+          "1": "Allows viewing user pages and posts when logged out",
+          "2": "Added embeds for users and posts",
+          "3": "Fonts work properly again"
+        },
+        "v0.3.4": {
+          "1": "Fixed a bug that caused the following count to include yourself",
+          "2": "Added settings to modify post/username/display name length, ratelimit timings, source code links, and posts per request"
+        },
+        "v0.3.3": {
+          "1": "Added follower/following counts to user pages"
+        },
+        "v0.3.2": {
+          "1": "Added private accounts",
+          "2": "Fonts no longer rely on Google Fonts",
+          "3": "Max display name length increased to 32 from 20",
+          "4": "Likes get properly filled in on user pages"
+        },
+        "v0.3.1": {
+          "1": "Added @ mentions",
+          "2": "Fixed issues with loading a post causing a duplicate"
+        },
+        "v0.3.0": {
+          "1": "Added replies",
+          "2": "Extracted the backend into several files instead of one large file"
+        },
+        "v0.2.0": {
+          "1": "Added liking posts"
+        },
+        "v0.1.1": {
+          "1": "Fixed a couple bugs relating to escaping html"
+        },
+        "v0.1.0": {
+          "1": "Improved link detection",
+          "2": "Made banner color update when refreshing posts on a user profile"
+        },
+        "v0.0.10": {
+          "1": "Improved link detection",
+          "2": "Improved security in the backend",
+          "3": "Added ratelimiting"
+        },
+        "v0.0.9": {
+          "1": "Added profile banner color configuration",
+          "2": "Links in posts now turn into real links"
+        },
+        "v0.0.8": {
+          "1": "Added display names",
+          "2": "Added robots.txt file"
+        },
+        "v0.0.7": {
+          "1": "Added post pages"
+        },
+        "v0.0.6": {
+          "1": "Added recent tab"
+        },
+        "v0.0.5": {
+          "1": "Added settings page",
+          "2": "Added light theme"
+        },
+        "v0.0.4": {
+          "1": "Added user pages",
+          "2": "Added icons (home and settings, with settings currently not working)"
+        },
+        "v0.0.3": {
+          "1": "Rewrote data structure",
+          "2": "Added following and unfollowing without needing to manually edit the storage"
+        },
+        "v0.0.2": {
+          "1": "Added creating posts",
+          "2": "Added a following timeline (currently only shows your own posts unless you manually follow someone else)"
+        },
+        "v0.0.1": {
+          "1": "Added account signup/login pages",
+          "2": "Added 404 and 500 pages"
         }
       }
     }

@@ -25,21 +25,21 @@ body {
     --surface1: #45475a;
     --surface0: #313244;
 
-    &[data-color="gray"] { --accent: #a6adc8; --accent-50: #a6adc880; }
-    &[data-color="rosewater"] { --accent: #f5e0dc; --accent-50: #f5e0dc80; }
-    &[data-color="flamingo"] { --accent: #f2cdcd; --accent-50: #f2cdcd80; }
-    &[data-color="pink"] { --accent: #f5c2e7; --accent-50: #f5c2e780; }
-    &[data-color="mauve"], &:not([data-color]) { --accent: #cba6f7; --accent-50: #cba6f780; }
-    &[data-color="red"] { --accent: #f38ba8; --accent-50: #f38ba880; }
-    &[data-color="maroon"] { --accent: #eba0ac; --accent-50: #eba0ac80; }
-    &[data-color="peach"] { --accent: #fab387; --accent-50: #fab38780; }
-    &[data-color="yellow"] { --accent: #f9e2af; --accent-50: #f9e2af80; }
-    &[data-color="green"] { --accent: #a6e3a1; --accent-50: #a6e3a180; }
-    &[data-color="teal"] { --accent: #94e2d5; --accent-50: #94e2d580; }
-    &[data-color="sky"] { --accent: #89dceb; --accent-50: #89dceb80; }
-    &[data-color="sapphire"] { --accent: #74c7ec; --accent-50: #74c7ec80; }
-    &[data-color="blue"] { --accent: #89b4fa; --accent-50: #89b4fa80; }
-    &[data-color="lavender"] { --accent: #b4befe; --accent-50: #b4befe80; }
+    &[data-color="gray"], [data-color="gray"] { --accent: #a6adc8; --accent-50: #a6adc880; }
+    &[data-color="rosewater"], [data-color="rosewater"] { --accent: #f5e0dc; --accent-50: #f5e0dc80; }
+    &[data-color="flamingo"], [data-color="flamingo"] { --accent: #f2cdcd; --accent-50: #f2cdcd80; }
+    &[data-color="pink"], [data-color="pink"] { --accent: #f5c2e7; --accent-50: #f5c2e780; }
+    &[data-color="mauve"], [data-color="mauve"], &:not([data-color]) { --accent: #cba6f7; --accent-50: #cba6f780; }
+    &[data-color="red"], [data-color="red"] { --accent: #f38ba8; --accent-50: #f38ba880; }
+    &[data-color="maroon"], [data-color="maroon"] { --accent: #eba0ac; --accent-50: #eba0ac80; }
+    &[data-color="peach"], [data-color="peach"] { --accent: #fab387; --accent-50: #fab38780; }
+    &[data-color="yellow"], [data-color="yellow"] { --accent: #f9e2af; --accent-50: #f9e2af80; }
+    &[data-color="green"], [data-color="green"] { --accent: #a6e3a1; --accent-50: #a6e3a180; }
+    &[data-color="teal"], [data-color="teal"] { --accent: #94e2d5; --accent-50: #94e2d580; }
+    &[data-color="sky"], [data-color="sky"] { --accent: #89dceb; --accent-50: #89dceb80; }
+    &[data-color="sapphire"], [data-color="sapphire"] { --accent: #74c7ec; --accent-50: #74c7ec80; }
+    &[data-color="blue"], [data-color="blue"] { --accent: #89b4fa; --accent-50: #89b4fa80; }
+    &[data-color="lavender"], [data-color="lavender"] { --accent: #b4befe; --accent-50: #b4befe80; }
   }
 
   &[data-theme="black"] {
@@ -82,21 +82,21 @@ body {
     --mantle: #1e2030;
     --crust: #181926;
 
-    &[data-color="gray"] { --accent: #a5adcb; --accent-50: #a5adcb80; }
-    &[data-color="rosewater"] { --accent: #f4dbd6; --accent-50: #f4dbd680; }
-    &[data-color="flamingo"] { --accent: #f0c6c6; --accent-50: #f0c6c680; }
-    &[data-color="pink"] { --accent: #f5bde6; --accent-50: #f5bde680; }
-    &[data-color="mauve"], &:not([data-color]) { --accent: #c6a0f6; --accent-50: #c6a0f680; }
-    &[data-color="red"] { --accent: #ed8796; --accent-50: #ed879680; }
-    &[data-color="maroon"] { --accent: #ee99a0; --accent-50: #ee99a080; }
-    &[data-color="peach"] { --accent: #f5a97f; --accent-50: #f5a97f80; }
-    &[data-color="yellow"] { --accent: #eed49f; --accent-50: #eed49f80; }
-    &[data-color="green"] { --accent: #a6da95; --accent-50: #a6da9580; }
-    &[data-color="teal"] { --accent: #8bd5ca; --accent-50: #8bd5ca80; }
-    &[data-color="sky"] { --accent: #91d7e3; --accent-50: #91d7e380; }
-    &[data-color="sapphire"] { --accent: #7dc4e4; --accent-50: #7dc4e480; }
-    &[data-color="blue"] { --accent: #8aadf4; --accent-50: #8aadf480; }
-    &[data-color="lavender"] { --accent: #b7bdf8; --accent-50: #b7bdf880; }
+    &[data-color="gray"], [data-color="gray"] { --accent: #a5adcb; --accent-50: #a5adcb80; }
+    &[data-color="rosewater"], [data-color="rosewater"] { --accent: #f4dbd6; --accent-50: #f4dbd680; }
+    &[data-color="flamingo"], [data-color="flamingo"] { --accent: #f0c6c6; --accent-50: #f0c6c680; }
+    &[data-color="pink"], [data-color="pink"] { --accent: #f5bde6; --accent-50: #f5bde680; }
+    &[data-color="mauve"], [data-color="mauve"], &:not([data-color]) { --accent: #c6a0f6; --accent-50: #c6a0f680; }
+    &[data-color="red"], [data-color="red"] { --accent: #ed8796; --accent-50: #ed879680; }
+    &[data-color="maroon"], [data-color="maroon"] { --accent: #ee99a0; --accent-50: #ee99a080; }
+    &[data-color="peach"], [data-color="peach"] { --accent: #f5a97f; --accent-50: #f5a97f80; }
+    &[data-color="yellow"], [data-color="yellow"] { --accent: #eed49f; --accent-50: #eed49f80; }
+    &[data-color="green"], [data-color="green"] { --accent: #a6da95; --accent-50: #a6da9580; }
+    &[data-color="teal"], [data-color="teal"] { --accent: #8bd5ca; --accent-50: #8bd5ca80; }
+    &[data-color="sky"], [data-color="sky"] { --accent: #91d7e3; --accent-50: #91d7e380; }
+    &[data-color="sapphire"], [data-color="sapphire"] { --accent: #7dc4e4; --accent-50: #7dc4e480; }
+    &[data-color="blue"], [data-color="blue"] { --accent: #8aadf4; --accent-50: #8aadf480; }
+    &[data-color="lavender"], [data-color="lavender"] { --accent: #b7bdf8; --accent-50: #b7bdf880; }
   }
 
   &[data-theme="gray"] {
@@ -127,21 +127,21 @@ body {
     --mantle: #292c3c;
     --crust: #232634;
 
-    &[data-color="gray"] { --accent: #a5adce; --accent-50: #a5adce80; }
-    &[data-color="rosewater"] { --accent: #f2d5cf; --accent-50: #f2d5cf80; }
-    &[data-color="flamingo"] { --accent: #eebebe; --accent-50: #eebebe80; }
-    &[data-color="pink"] { --accent: #f4b8e4; --accent-50: #f4b8e480; }
-    &[data-color="mauve"], &:not([data-color]) { --accent: #ca9ee6; --accent-50: #ca9ee680; }
-    &[data-color="red"] { --accent: #e78284; --accent-50: #e7828480; }
-    &[data-color="maroon"] { --accent: #ea999c; --accent-50: #ea999c80; }
-    &[data-color="peach"] { --accent: #ef9f76; --accent-50: #ef9f7680; }
-    &[data-color="yellow"] { --accent: #e5c890; --accent-50: #e5c89080; }
-    &[data-color="green"] { --accent: #a6d189; --accent-50: #a6d18980; }
-    &[data-color="teal"] { --accent: #81c8be; --accent-50: #81c8be80; }
-    &[data-color="sky"] { --accent: #99d1db; --accent-50: #99d1db80; }
-    &[data-color="sapphire"] { --accent: #85c1dc; --accent-50: #85c1dc80; }
-    &[data-color="blue"] { --accent: #8caaee; --accent-50: #8caaee80; }
-    &[data-color="lavender"] { --accent: #babbf1; --accent-50: #babbf180; }
+    &[data-color="gray"], [data-color="gray"] { --accent: #a5adce; --accent-50: #a5adce80; }
+    &[data-color="rosewater"], [data-color="rosewater"] { --accent: #f2d5cf; --accent-50: #f2d5cf80; }
+    &[data-color="flamingo"], [data-color="flamingo"] { --accent: #eebebe; --accent-50: #eebebe80; }
+    &[data-color="pink"], [data-color="pink"] { --accent: #f4b8e4; --accent-50: #f4b8e480; }
+    &[data-color="mauve"], [data-color="mauve"], &:not([data-color]) { --accent: #ca9ee6; --accent-50: #ca9ee680; }
+    &[data-color="red"], [data-color="red"] { --accent: #e78284; --accent-50: #e7828480; }
+    &[data-color="maroon"], [data-color="maroon"] { --accent: #ea999c; --accent-50: #ea999c80; }
+    &[data-color="peach"], [data-color="peach"] { --accent: #ef9f76; --accent-50: #ef9f7680; }
+    &[data-color="yellow"], [data-color="yellow"] { --accent: #e5c890; --accent-50: #e5c89080; }
+    &[data-color="green"], [data-color="green"] { --accent: #a6d189; --accent-50: #a6d18980; }
+    &[data-color="teal"], [data-color="teal"] { --accent: #81c8be; --accent-50: #81c8be80; }
+    &[data-color="sky"], [data-color="sky"] { --accent: #99d1db; --accent-50: #99d1db80; }
+    &[data-color="sapphire"], [data-color="sapphire"] { --accent: #85c1dc; --accent-50: #85c1dc80; }
+    &[data-color="blue"], [data-color="blue"] { --accent: #8caaee; --accent-50: #8caaee80; }
+    &[data-color="lavender"], [data-color="lavender"] { --accent: #babbf1; --accent-50: #babbf180; }
 
   }
 
@@ -173,20 +173,20 @@ body {
     --mantle: #e6e9ef;
     --crust: #dce0e8;
 
-    &[data-color="gray"] { --accent: #6c6f85; --accent-50: #6c6f8580; }
-    &[data-color="rosewater"] { --accent: #dc8a78; --accent-50: #dc8a7880; }
-    &[data-color="flamingo"] { --accent: #dd7878; --accent-50: #dd787880; }
-    &[data-color="pink"] { --accent: #ea76cb; --accent-50: #ea76cb80; }
-    &[data-color="mauve"], &:not([data-color]) { --accent: #8839ef; --accent-50: #8839ef80; }
-    &[data-color="red"] { --accent: #d20f39; --accent-50: #d20f3980; }
-    &[data-color="maroon"] { --accent: #e64553; --accent-50: #e6455380; }
-    &[data-color="peach"] { --accent: #fe640b; --accent-50: #fe640b80; }
-    &[data-color="yellow"] { --accent: #df8e1d; --accent-50: #df8e1d80; }
-    &[data-color="green"] { --accent: #40a02b; --accent-50: #40a02b80; }
-    &[data-color="teal"] { --accent: #179299; --accent-50: #17929980; }
-    &[data-color="sky"] { --accent: #04a5e5; --accent-50: #04a5e580; }
-    &[data-color="sapphire"] { --accent: #209fb5; --accent-50: #209fb580; }
-    &[data-color="blue"] { --accent: #1e66f5; --accent-50: #1e66f580; }
-    &[data-color="lavender"] { --accent: #7287fd; --accent-50: #7287fd80; }
+    &[data-color="gray"], [data-color="gray"] { --accent: #6c6f85; --accent-50: #6c6f8580; }
+    &[data-color="rosewater"], [data-color="rosewater"] { --accent: #dc8a78; --accent-50: #dc8a7880; }
+    &[data-color="flamingo"], [data-color="flamingo"] { --accent: #dd7878; --accent-50: #dd787880; }
+    &[data-color="pink"], [data-color="pink"] { --accent: #ea76cb; --accent-50: #ea76cb80; }
+    &[data-color="mauve"], [data-color="mauve"], &:not([data-color]) { --accent: #8839ef; --accent-50: #8839ef80; }
+    &[data-color="red"], [data-color="red"] { --accent: #d20f39; --accent-50: #d20f3980; }
+    &[data-color="maroon"], [data-color="maroon"] { --accent: #e64553; --accent-50: #e6455380; }
+    &[data-color="peach"], [data-color="peach"] { --accent: #fe640b; --accent-50: #fe640b80; }
+    &[data-color="yellow"], [data-color="yellow"] { --accent: #df8e1d; --accent-50: #df8e1d80; }
+    &[data-color="green"], [data-color="green"] { --accent: #40a02b; --accent-50: #40a02b80; }
+    &[data-color="teal"], [data-color="teal"] { --accent: #179299; --accent-50: #17929980; }
+    &[data-color="sky"], [data-color="sky"] { --accent: #04a5e5; --accent-50: #04a5e580; }
+    &[data-color="sapphire"], [data-color="sapphire"] { --accent: #209fb5; --accent-50: #209fb580; }
+    &[data-color="blue"], [data-color="blue"] { --accent: #1e66f5; --accent-50: #1e66f580; }
+    &[data-color="lavender"], [data-color="lavender"] { --accent: #7287fd; --accent-50: #7287fd80; }
   }
 }

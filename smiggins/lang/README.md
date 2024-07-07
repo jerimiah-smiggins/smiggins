@@ -50,6 +50,36 @@ to the `maintainers` section
 Updates for each language version are listed below:
 
 <details>
+<summary>
+
+Added legacy changelogs
+
+```diff
++ changelog.changes.v0.10.2 {1}
++ changelog.changes.v0.3.6 {1, 2, 3}
++ changelog.changes.v0.3.5 {1, 2, 3}
++ changelog.changes.v0.3.4 {1, 2}
++ changelog.changes.v0.3.3 {1}
++ changelog.changes.v0.3.2 {1, 2, 3, 4}
++ changelog.changes.v0.3.1 {1, 2}
++ changelog.changes.v0.3.0 {1, 2}
++ changelog.changes.v0.2.0 {1}
++ changelog.changes.v0.1.1 {1}
++ changelog.changes.v0.1.0 {1, 2}
++ changelog.changes.v0.0.10 {1, 2, 3}
++ changelog.changes.v0.0.9 {1, 2}
++ changelog.changes.v0.0.8 {1, 2}
++ changelog.changes.v0.0.7 {1}
++ changelog.changes.v0.0.6 {1}
++ changelog.changes.v0.0.5 {1, 2}
++ changelog.changes.v0.0.4 {1, 2}
++ changelog.changes.v0.0.3 {1, 2}
++ changelog.changes.v0.0.2 {1, 2}
++ changelog.changes.v0.0.1 {1, 2}
+```
+</details>
+
+<details>
 <summary>1.4.0</summary>
 
 Added polls
