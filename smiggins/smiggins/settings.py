@@ -2,6 +2,8 @@ import json5
 
 from pathlib import Path
 
+from backend._api_keys import smtp_auth
+
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
 
@@ -97,3 +99,8 @@ STATIC_ROOT = BASE_DIR / "collected-static"
 STATIC_URL = '/static/'
 STATICFILES_DIRS = [BASE_DIR / "static"]
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
+EMAIL_HOST = smtp_auth["EMAIL_HOST"]
+EMAIL_HOST_USER = smtp_auth["EMAIL_HOST_USER"]
+EMAIL_HOST_PASSWORD = smtp_auth["EMAIL_HOST_PASSWORD"]
+EMAIL_PORT = smtp_auth["EMAIL_PORT"]
+EMAIL_USE_TLS = smtp_auth["EMAIL_USE_TLS"]
