@@ -75,7 +75,13 @@ def set_timeout(callback: Callable, delay_ms: int | float) -> None:
     thread = threading.Thread(target=wrapper)
     thread.start()
 
-def get_HTTP_response(request, file: str, lang_override: dict | None=None, **kwargs: Any) -> HttpResponse:
+def get_HTTP_response(
+    request,
+    file: str,
+    lang_override: dict | None=None,
+    raw: bool=False,
+    **kwargs: Any
+) -> HttpResponse:
     try:
         user = User.objects.get(token=request.COOKIES.get("token"))
         theme = user.theme
@@ -125,7 +131,7 @@ def get_HTTP_response(request, file: str, lang_override: dict | None=None, **kwa
     for key, value in kwargs.items():
         context[key] = value
 
-    return HttpResponse(
+    return ((lambda x: x) if raw else HttpResponse)(
         loader.get_template(file).render(
             context,
             request

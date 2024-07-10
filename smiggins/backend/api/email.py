@@ -44,7 +44,7 @@ def password_reset(request) -> dict | tuple:
         raw_message=f"{TITLE[1]}\n\n{lang['email']['password']['greeting']}\n{B1[1]}\n{B2[1]}\n{B3[1]}\n{B4[1]}",
         html_message=get_HTTP_response( # type: ignore
             request, "email/password.html", lang,
-            raw_html=True,
+            raw=True,
 
             TITLE=TITLE[0],
             B1=B1[0],

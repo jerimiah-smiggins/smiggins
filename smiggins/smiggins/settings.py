@@ -6,6 +6,7 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 
 DEBUG = True
 email = False
+url = None
 
 try:
     f: dict = json5.load(open(BASE_DIR / "settings.json", "r"))
@@ -44,6 +45,7 @@ if email:
     except ImportError:
         print("\x1b[91mIn order to allow emails, you need to have smtp_auth set in backend/_api_keys.py!\x1b[0m")
 
+print(email)
 del email, url, key, val
 
 # SECURITY WARNING: keep the secret key used in production secret!
