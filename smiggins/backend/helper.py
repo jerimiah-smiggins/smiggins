@@ -9,6 +9,7 @@ import re
 from typing import Callable, Any
 from django.http import HttpResponse, HttpResponseRedirect
 from django.template import loader
+from django.core.mail import send_mail
 
 from posts.models import User, Comment, Post, Notification
 
@@ -552,3 +553,13 @@ if CACHE_LANGUAGES:
         LANGS[i["code"]] = get_lang(i["code"], True)
 
 DEFAULT_LANG = get_lang()
+
+def send_email(subject: str, message: str, recipients: list[str]) -> int:
+    return send_mail(
+        subject=subject,
+        message=message,
+        html_message=None,
+        from_email=None,
+        recipient_list=recipients,
+        fail_silently=False,
+    )

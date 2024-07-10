@@ -5,7 +5,7 @@ from pathlib import Path
 BASE_DIR = Path(__file__).resolve().parent.parent
 
 DEBUG = True
-email = False
+email = True
 
 try:
     f: dict = json5.load(open(BASE_DIR / "settings.json", "r"))
@@ -31,6 +31,7 @@ if email:
         EMAIL_HOST_PASSWORD = smtp_auth["EMAIL_HOST_PASSWORD"]
         EMAIL_PORT = smtp_auth["EMAIL_PORT"]
         EMAIL_USE_TLS = smtp_auth["EMAIL_USE_TLS"]
+        DEFAULT_FROM_EMAIL = smtp_auth["DEFAULT_FROM_EMAIL"]
 
         del smtp_auth
 
