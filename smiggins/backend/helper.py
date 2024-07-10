@@ -486,6 +486,15 @@ def create_notification(
 def get_container_id(user_one: str, user_two: str) -> str:
     return f"{user_one}:{user_two}" if user_two > user_one else f"{user_two}:{user_one}"
 
+def send_email(subject: str, recipients: list[str], raw_message: str, html_message: str | None=None) -> int:
+    return send_mail(
+        subject=subject,
+        message=raw_message,
+        html_message=html_message,
+        from_email=None,
+        recipient_list=recipients
+    )
+
 def get_lang(lang: User | str | None=None, override_cache=False) -> dict[str, dict]:
     # Gets the language file for the specified user/language
 
@@ -553,13 +562,3 @@ if CACHE_LANGUAGES:
         LANGS[i["code"]] = get_lang(i["code"], True)
 
 DEFAULT_LANG = get_lang()
-
-def send_email(subject: str, message: str, recipients: list[str]) -> int:
-    return send_mail(
-        subject=subject,
-        message=message,
-        html_message=None,
-        from_email=None,
-        recipient_list=recipients,
-        fail_silently=False,
-    )

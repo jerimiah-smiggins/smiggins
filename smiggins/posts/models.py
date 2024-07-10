@@ -4,6 +4,7 @@ class User(models.Model):
     user_id  = models.IntegerField(primary_key=True, unique=True)
     username = models.CharField(max_length=300, unique=True)
     token    = models.CharField(max_length=64, unique=True)
+    email    = models.TextField(null=True)
 
     # Admin level
     # 0 - Regular user

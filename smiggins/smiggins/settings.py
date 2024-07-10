@@ -5,7 +5,7 @@ from pathlib import Path
 BASE_DIR = Path(__file__).resolve().parent.parent
 
 DEBUG = True
-email = True
+email = False
 
 try:
     f: dict = json5.load(open(BASE_DIR / "settings.json", "r"))
@@ -17,10 +17,16 @@ try:
         elif isinstance(val, bool) and key.lower() in ["enable_email", "email"]:
             email = val
 
+        elif isinstance(val, str) and key.lower() == "website_url":
+            url = val
+
 except ValueError:
     ...
 except FileNotFoundError:
     ...
+
+if email and url is None:
+    email = False
 
 if email:
     try:
@@ -38,7 +44,7 @@ if email:
     except ImportError:
         print("\x1b[91mIn order to allow emails, you need to have smtp_auth set in backend/_api_keys.py!\x1b[0m")
 
-del email
+del email, url, key, val
 
 # SECURITY WARNING: keep the secret key used in production secret!
 SECRET_KEY = 'django-insecure-y$sfjl+rlc(gbdjm4h@-!zxn8$z@nkcdd_9g^^yq&-=!b(8d43'

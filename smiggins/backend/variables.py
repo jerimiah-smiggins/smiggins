@@ -17,12 +17,13 @@ def error(string):
     print(f"\x1b[91m{string}\x1b[0m")
 
 # Set default variable states
-REAL_VERSION: tuple[int, int, int] = (0, 10, 1)
+REAL_VERSION: tuple[int, int, int] = (0, 10, 2)
 VERSION: str = ".".join([str(i) for i in REAL_VERSION])
 SITE_NAME: str = "Jerimiah Smiggins"
+WEBSITE_URL: str | None = None
 DEBUG: bool = True
 OWNER_USER_ID: int = 1
-ADMIN_LOG_PATH: str | None = "./admin.log"
+ADMIN_LOG_PATH: str = "./admin.log"
 MAX_ADMIN_LOG_LINES: int = 1000
 DEFAULT_LANGUAGE: str = "en-US"
 DEFAULT_THEME: str = "dark"
@@ -124,6 +125,7 @@ def clamp(
 for key, val in f.items():
     if   key.lower() == "version": is_ok(val, "VERSION", str) # noqa: E701
     elif key.lower() == "site_name": is_ok(val, "SITE_NAME", str) # noqa: E701
+    elif key.lower() == "website_url": is_ok(val, "SITE_URL", str) # noqa: E701
     elif key.lower() == "owner_user_id": is_ok(val, "OWNER_USER_ID", int) # noqa: E701
     elif key.lower() == "debug": is_ok(val, "DEBUG", bool) # noqa: E701
     elif key.lower() == "admin_log_path": is_ok(val, "ADMIN_LOG_PATH", str, null=True) # noqa: E701
@@ -188,6 +190,10 @@ VALID_LANGUAGES: list[dict[str, str]] = [{
     "name": json.load(open(BASE_DIR / f"lang/{i}"))["meta"]["name"],
     "code": i[:-5:]
 } for i in sorted(VALID_LANGUAGES_TEMP)]
+
+if ENABLE_EMAIL and WEBSITE_URL is None:
+    ENABLE_EMAIL = False
+    error("You need to set the website_url parameter to enable emails!")
 
 for key, val in {
     "signup unsuccessful": 1000,

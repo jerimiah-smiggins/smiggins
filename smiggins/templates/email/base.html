@@ -84,6 +84,15 @@
         display: block;
       }
 
+      ::selection {
+        background-color: var(--accent-50);
+        color: var(--text);
+      }
+
+      :focus {
+        outline: calc(2em / 14) var(--accent) solid;
+      }
+
       a {
         &:link,
         &:visited {
@@ -99,6 +108,12 @@
           -webkit-text-decoration-color: var(--text);
           text-decoration-color: var(--text);
         }
+      }
+
+      small {
+        display: block;
+        font-size: 0.7em;
+        color: var(--subtext0);
       }
 
       h1 {
@@ -153,6 +168,9 @@
   </head>
 
   <body data-theme="{{ THEME }}">
+    <h1>{{ SITE_NAME }}</h1>
+    <h2>v{{ VERSION }}</h2>
+
     <div id="inner">
       {% block body %}{% endblock %}
     </div>

@@ -14,6 +14,13 @@
   // The name of the instance
   "site_name": "Jerimiah Smiggins",
 
+  /*
+  ** The url of the website that you are running. This is VERY IMPORTANT to set,
+  ** and is required for emails to work properly. Make sure to include the
+  ** "https://" part.
+  */
+  "website_url": "http://localhost:8000",
+
   // The user id of the instance owner. Can be found on the /django-admin page.
   "owner_user_id": 1,
 

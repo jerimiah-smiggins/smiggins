@@ -32,7 +32,9 @@ doesn't exist.
   4. In the folder REPO_BASE/smiggins run the command
   `python3 manage.py migrate` (once again `py ...` for windows)
 
-  5. Then, to start the server, run `python3 manage.py runserver` (`py ...` on
+  5. In the settings.json file, make sure the site_url property is set properly
+
+  6. Then, to start the server, run `python3 manage.py runserver` (`py ...` on
   windows still). If you want to start the server but already have the files,
   just do this step again. When updating versions, repeat step four too assuming
   you don't delete the `_api_keys.py` file, then you'd have to do step three
@@ -98,9 +100,10 @@ doesn't exist.
   for `/static/` with the path set to
   `/home/USERNAME/smiggins/smiggins/collected-static`
 
-  8. In the file at `/home/USERNAME/smiggins/smiggins/settings.jsonc`,
+  8. In the file at `/home/USERNAME/smiggins/smiggins/settings.json`,
   make sure the following settings are set:
       - debug: `False`
+      - website_url: The url of your website. Likely "https://USERNAME.pythonanywhere.com"
   You can configure all of the other settings in this file.
 
   9. Create the `_api_keys.py` file:
@@ -162,9 +165,10 @@ doesn't exist.
   for `/static/` with the path set to
   `/home/USERNAME/smiggins/smiggins/collected-static`
 
-  8. In the file at `/home/USERNAME/smiggins/smiggins/settings.jsonc`,
+  8. In the file at `/home/USERNAME/smiggins/smiggins/settings.json`,
   make sure the following settings are set:
       - debug: `False`
+      - website_url: The url of your website. Likely "https://USERNAME.pythonanywhere.com"
   You can configure all of the other settings in this file.
 
   9. Create the `_api_keys.py` file:

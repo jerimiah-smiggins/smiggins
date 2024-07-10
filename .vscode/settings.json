@@ -92,7 +92,8 @@
     "hitboxes",
     "noreply",
     "canadien",
-    "noscript"
+    "noscript",
+    "venv"
   ],
 
   "cSpell.ignorePaths": [

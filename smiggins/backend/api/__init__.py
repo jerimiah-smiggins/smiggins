@@ -21,6 +21,10 @@ from .comment import (
     comment_list,
 )
 
+from .email import (
+    password_reset
+)
+
 from .post import (
     hashtag_list,
     post_create,
@@ -67,6 +71,9 @@ class ApiComment:
     comment_like_add = comment_like_add
     comment_like_remove = comment_like_remove
     comment_list = comment_list
+
+class ApiEmail:
+    password_reset = password_reset
 
 class ApiInfo:
     notifications = notifications

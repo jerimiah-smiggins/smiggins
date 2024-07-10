@@ -23,7 +23,7 @@ from backend.templating import (
     admin,
     badges,
     message,
-    hashtag, email
+    hashtag
 )
 
 from posts.models import (
@@ -54,7 +54,6 @@ urlpatterns = list(filter(bool, [
     path("login/", create_simple_return("login.html", redirect_logged_in=True)),
     path("signup/", create_simple_return("signup.html", redirect_logged_in=True)),
     path("logout/", create_simple_return("logout.html")),
-    path("email/", email),
 
     path("settings/", settings),
     path("contact/", contact) if ENABLE_CONTACT_PAGE else None,
