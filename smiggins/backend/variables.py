@@ -203,12 +203,38 @@ PRIVATE_AUTHENTICATOR_KEY: str = hashlib.sha256(auth_key).hexdigest()
 timeout_handler: dict[str, dict[str, None]] = {}
 
 ROBOTS: str = """\
+# Generic
 User-agent: *
-Allow: *
 Disallow: /settings/
 Disallow: /home/
 Disallow: /api/
 Disallow: /static/
+
+# AI slop
+User-agent: GPTBot
+Disallow: /
+User-agent: ChatGPT-User
+Disallow: /
+User-agent: Google-Extended
+Disallow: /
+User-agent: CCBot
+Disallow: /
+User-agent: Omgilibot
+Disallow: /
+User-agent: omgili
+Disallow: /
+User-agent: FacebookBot
+Disallow: /
+User-agent: anthropic-ai
+Disallow: /
+User-agent: ClaudeBot
+Disallow: /
+User-agent: Diffbot
+Disallow: /
+User-agent: Amazonbot
+Disallow: /
+User-agent: PerplexityBot
+Disallow: /
 """
 
 BADGE_DATA = {}
