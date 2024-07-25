@@ -422,7 +422,7 @@
       "unknown": "Unknown",
 
       "changes": {
-        "v0.10.2": {
+        "v0.11.0": {
           "1": "Added changelogs for all legacy versions",
           "2": "Fixed an issue that caused read notifications/messages to not be colored grey"
         },
