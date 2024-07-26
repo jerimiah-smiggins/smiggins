@@ -125,7 +125,7 @@ def clamp(
 for key, val in f.items():
     if   key.lower() == "version": is_ok(val, "VERSION", str) # noqa: E701
     elif key.lower() == "site_name": is_ok(val, "SITE_NAME", str) # noqa: E701
-    elif key.lower() == "website_url": is_ok(val, "SITE_URL", str) # noqa: E701
+    elif key.lower() == "website_url": is_ok(val, "WEBSITE_URL", str) # noqa: E701
     elif key.lower() == "owner_user_id": is_ok(val, "OWNER_USER_ID", int) # noqa: E701
     elif key.lower() == "debug": is_ok(val, "DEBUG", bool) # noqa: E701
     elif key.lower() == "admin_log_path": is_ok(val, "ADMIN_LOG_PATH", str, null=True) # noqa: E701

@@ -50,9 +50,9 @@ to the `maintainers` section
 Updates for each language version are listed below:
 
 <details>
-<summary>
+<summary>v1.5.0</summary>
 
-Added legacy changelogs
+Added emails and legacy changelogs
 
 ```diff
 + changelog.changes.v0.10.2 {1}

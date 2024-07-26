@@ -1,5 +1,6 @@
 from django.contrib import admin as django_admin
 from django.urls import include, path
+from django.http import HttpResponseRedirect
 
 from backend.helper import create_simple_return
 
@@ -47,6 +48,9 @@ django_admin.site.register(PrivateMessage)
 django_admin.site.register(Hashtag)
 
 urlpatterns = list(filter(bool, [
+    path("email/password/", create_simple_return("email/password.html")),
+    path("email/verify/", create_simple_return("email/verify.html")),
+
     path("api/", include("smiggins.api")),
 
     path("", create_simple_return("index.html", redirect_logged_in=True)),
@@ -73,6 +77,7 @@ urlpatterns = list(filter(bool, [
     path("django-admin/", django_admin.site.urls),
 
     path("badges.js", badges),
+    path("favicon.ico", lambda request: HttpResponseRedirect("/static/img/favicon.ico")),
     path("robots.txt", create_simple_return("", content_type="text/plain", content_override=ROBOTS)),
     path(".well-known/security.txt", create_simple_return("", content_type="text/plain", content_override="\n".join([{"email": "Email", "text": "Other", "url": "Link"}[i[0]] + f": {i[1]}" for i in CONTACT_INFO]) + "\n"))
 ]))

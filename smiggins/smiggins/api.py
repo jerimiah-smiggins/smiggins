@@ -10,6 +10,7 @@ from backend.variables import (
     ENABLE_POST_DELETION,
     ENABLE_HASHTAGS,
     ENABLE_NEW_ACCOUNTS,
+    ENABLE_EMAIL
 )
 
 from ninja.renderers import BaseRenderer
@@ -105,7 +106,8 @@ api.get("info/username", response=response_schema)(ApiInfo.username)
 api.get("info/notifications", response=response_schema)(ApiInfo.notifications)
 api.get("info/version", response=response_schema)(ApiInfo.version)
 
-api.post("email/password", response=response_schema)(ApiEmail.password_reset)
+if ENABLE_EMAIL:
+    api.post("email/password", response=response_schema)(ApiEmail.password_reset)
 
 urlpatterns = [
     path("", api.urls) # type: ignore
