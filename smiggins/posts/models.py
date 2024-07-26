@@ -157,3 +157,9 @@ class Hashtag(models.Model):
 
     def __str__(self):
         return f"#{self.tag} ({len(self.posts)} posts)"
+
+class URLPart(models.Model):
+    url = models.TextField(max_length=128, primary_key=True, unique=True)
+    user = models.ForeignKey(User, on_delete=models.CASCADE)
+    reason = models.TextField(max_length=6) # "reset", "remove", "verify", "change"
+    expire = models.IntegerField()

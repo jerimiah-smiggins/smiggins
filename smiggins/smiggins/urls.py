@@ -14,6 +14,8 @@ from backend.variables import (
     ROBOTS
 )
 
+from backend.api.email import link_manager as email_manager
+
 from backend.templating import (
     contact,
     settings,
@@ -48,9 +50,6 @@ django_admin.site.register(PrivateMessage)
 django_admin.site.register(Hashtag)
 
 urlpatterns = list(filter(bool, [
-    path("email/password/", create_simple_return("email/password.html")),
-    path("email/verify/", create_simple_return("email/verify.html")),
-
     path("api/", include("smiggins.api")),
 
     path("", create_simple_return("index.html", redirect_logged_in=True)),
@@ -72,6 +71,8 @@ urlpatterns = list(filter(bool, [
     path("p/<int:post_id>/", post),
     path("c/<int:comment_id>/", comment),
     path("m/<str:username>/", message) if ENABLE_PRIVATE_MESSAGES else None,
+
+    path("email/<str:key>/", email_manager),
 
     path("admin/", admin),
     path("django-admin/", django_admin.site.urls),

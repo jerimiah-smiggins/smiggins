@@ -1,10 +1,15 @@
+import random
+import time
 import re
 
 from typing import Any
+from django.db.utils import OperationalError
+from django.http import HttpResponse
 
-from posts.models import User
-from ..helper import get_HTTP_response, get_lang, send_email
-from ..variables import WEBSITE_URL
+from ..tasks import remove_extra_urlparts
+from posts.models import User, URLPart
+from ..helper import get_HTTP_response, get_lang, send_email, sha
+from ..variables import WEBSITE_URL, ENABLE_EMAIL
 
 COLORS = {
     "oled": {
@@ -69,6 +74,17 @@ COLORS = {
     }
 }
 
+def _get_url(user: User, reason: str) -> str:
+    url = sha(user.username + reason) + sha(f"{random.random()}{time.time()}")
+    URLPart.objects.create(
+        url=url,
+        user=user,
+        reason=reason,
+        expire=round(time.time()) + (60 * 1)
+    )
+
+    return f"{WEBSITE_URL}/email/{url}/?i={reason}"
+
 def _format_block(
     block: str,
     lang: dict,
@@ -93,7 +109,7 @@ def _format_block(
             .replace("%L", url))
     )
 
-def get_email_html(
+def _get_email_html(
     request,
     template: str,
     lang: dict,
@@ -103,7 +119,7 @@ def get_email_html(
     return get_HTTP_response( # type: ignore
         request, template, lang, True,
 
-        COLORS=COLORS[user.theme],
+        COLOR=COLORS[user.theme],
         **kwargs
     )
 
@@ -119,16 +135,16 @@ def password_reset(request) -> dict | tuple:
     username = user.username
 
     TITLE = _format_block(block=lang["email"]["password"]["title"], lang=lang, theme=COLORS[user.theme], username=username)
-    B1 = _format_block(block=lang["email"]["password"]["block_1"], lang=lang, theme=COLORS[user.theme], username=username, url=f"{WEBSITE_URL}/home")
+    B1 = _format_block(block=lang["email"]["password"]["block_1"], lang=lang, theme=COLORS[user.theme], username=username, url=_get_url(user, "reset"))
     B2 = _format_block(block=lang["email"]["password"]["block_2"], lang=lang, theme=COLORS[user.theme], username=username)
-    B3 = _format_block(block=lang["email"]["password"]["block_3"], lang=lang, theme=COLORS[user.theme], username=username, url=f"{WEBSITE_URL}/home")
+    B3 = _format_block(block=lang["email"]["password"]["block_3"], lang=lang, theme=COLORS[user.theme], username=username, url=_get_url(user, "remove"))
     B4 = _format_block(block=lang["email"]["password"]["block_4"], lang=lang, theme=COLORS[user.theme])
 
     response = send_email(
         subject=TITLE[1],
         recipients=[user.email],
         raw_message=f"{TITLE[1]}\n\n{lang['email']['generic']['greeting']}\n{B1[1]}\n{B2[1]}\n{B3[1]}\n{B4[1]}",
-        html_message=get_email_html(
+        html_message=_get_email_html(
             request, "email/password.html", lang, user,
 
             TITLE=TITLE[0],
@@ -142,3 +158,11 @@ def password_reset(request) -> dict | tuple:
     return {
         "success": response > 0
     }
+
+def link_manager(request, key: str) -> HttpResponse:...
+
+if ENABLE_EMAIL:
+    try:
+        remove_extra_urlparts()
+    except OperationalError:
+        print("\x1b[91mYou need to migrate your database! Do this by running 'manage.py migrate'. If you are already doing that, ignore this message.\x1b[0m")
