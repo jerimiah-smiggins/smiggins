@@ -81,7 +81,7 @@ def _format_block(
             .replace("%u", username) \
             .replace("%r", f"<strong style='color: {theme['red']}'>") \
             .replace("%R", "</strong>") \
-            .replace("%l", f"<a style='color: {theme['accent']}' href=\"{url}\">{lang['email']['password']['link']}</a>") \
+            .replace("%l", f"<a style='color: {theme['accent']}' href=\"{url}\">{lang['email']['generic']['link']}</a>") \
             .replace("%L", url) \
             .replace("%h", "") \
             .replace("%H", ""),
@@ -127,7 +127,7 @@ def password_reset(request) -> dict | tuple:
     response = send_email(
         subject=TITLE[1],
         recipients=[user.email],
-        raw_message=f"{TITLE[1]}\n\n{lang['email']['password']['greeting']}\n{B1[1]}\n{B2[1]}\n{B3[1]}\n{B4[1]}",
+        raw_message=f"{TITLE[1]}\n\n{lang['email']['generic']['greeting']}\n{B1[1]}\n{B2[1]}\n{B3[1]}\n{B4[1]}",
         html_message=get_email_html(
             request, "email/password.html", lang, user,
 
