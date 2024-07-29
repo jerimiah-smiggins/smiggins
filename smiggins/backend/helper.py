@@ -51,7 +51,8 @@ from .variables import (
     PRIVATE_AUTHENTICATOR_KEY,
     timeout_handler,
     BASE_DIR,
-    VALID_LANGUAGES
+    VALID_LANGUAGES,
+    ENABLE_EMAIL
 )
 
 def sha(string: str | bytes) -> str:
@@ -124,6 +125,7 @@ def get_HTTP_response(
         "ENABLE_CONTENT_WARNINGS": str(ENABLE_CONTENT_WARNINGS).lower(),
         "ENABLE_POLLS": str(ENABLE_POLLS).lower(),
         "ENABLE_NEW_ACCOUNTS": str(ENABLE_NEW_ACCOUNTS).lower(),
+        "ENABLE_EMAIL": str(ENABLE_EMAIL).lower(),
 
         "THEME": theme,
         "lang": lang

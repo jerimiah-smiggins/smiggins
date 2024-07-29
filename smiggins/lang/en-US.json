@@ -352,6 +352,7 @@
       "cosmetic_example_post_display_name": "Example",
       "cosmetic_example_post_username": "example",
       "cosmetic_example_post_content": "This is an example post. I am @example.",
+      "cosmetic_email": "Email",
 
       "account_title": "Account",
       "account_password": "Change password",

@@ -118,7 +118,12 @@
       <button id="toggle-password">{{ lang.account.toggle_password }}</button>
       <button id="set-password">{{ lang.generic.save }}</button><br><br>
 
-      {% if ENABLE_ACCOUNT_SWITCHER == 'true' %}
+      {% if ENABLE_EMAIL == "true" %}
+        {{ lang.settings.cosmetic_email }}
+        <input id="email" type="email" placeholder="email@example.com">
+      {% endif %}
+
+      {% if ENABLE_ACCOUNT_SWITCHER == "true" %}
         {{ lang.settings.account_switcher }}<br>
         <select id="accs"></select><br>
         <button id="acc-switch">{{ lang.settings.account_switcher_switch }}</button>
