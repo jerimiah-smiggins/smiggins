@@ -400,12 +400,14 @@
     "email": {
       "generic": {
         "greeting": "Hey there!",
-        "link": "this link" // Ex: Please go to {this link} to do xyz.
+        "link": "this link", // Ex: Please go to {this link} to do xyz.
+        "expire": "These links expire in 45 minutes."
       },
 
       /*
       ** Key:
       ** %u: username
+      ** %e: email
       ** %l: link (using email.generic.link)
       ** %L: link (raw url)
       ** %r: start of red text
@@ -413,13 +415,24 @@
       ** %h: start of HTML-only text
       ** %H: end of HTML-only text
       */
-      "password": {
+      "pwd_fm": {
+        "email_changed": "Your email has been changed."
+      },
+
+      "verify": {
+        "confirmation": "The email %e has been verified for the account %u."
+      },
+
+      "remove": {
+        "confirmation": "The email %e has been removed from the account %u."
+      },
+
+      "reset": {
         "title": "Password Reset Requested for %u",
 
         "block_1": "You seem to have requested to reset your password, and you received this email because it was linked to the account \"%u\". In order to do that, please go to %l. %h(If the link doesn't work, try copying this link and pasting it into your browser: %L)%H",
         "block_2": "If you didn't request for your password to be reset, feel free to ignore this email. If anyone asks you for the link, %rDO NOT SHARE IT.%R It will give them the ability to reset your password for you, which would basically lock you out of your account.",
-        "block_3": "If this is not your account, please go to %l to remove this email from the account \"%u\". %h(If the link doesn't work, try copying this link and pasting it into your browser: %L)%H",
-        "block_4": "These links expire in 45 minutes."
+        "block_3": "If this is not your account, please go to %l to remove this email from the account \"%u\". %h(If the link doesn't work, try copying this link and pasting it into your browser: %L)%H"
       }
     },
 

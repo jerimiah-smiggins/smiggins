@@ -11,10 +11,12 @@ from backend.variables import (
     ENABLE_CONTACT_PAGE,
     ENABLE_CHANGELOG_PAGE,
     ENABLE_CREDITS_PAGE,
-    ROBOTS
+    ROBOTS,
+    DEBUG
 )
 
 from backend.api.email import link_manager as email_manager
+from backend.api.email import test_link as test_email
 
 from backend.templating import (
     contact,
@@ -72,6 +74,7 @@ urlpatterns = list(filter(bool, [
     path("c/<int:comment_id>/", comment),
     path("m/<str:username>/", message) if ENABLE_PRIVATE_MESSAGES else None,
 
+    path("email/test/<str:intent>", test_email) if DEBUG else None,
     path("email/<str:key>/", email_manager),
 
     path("admin/", admin),

@@ -80,6 +80,7 @@ def get_HTTP_response(
     file: str,
     lang_override: dict | None=None,
     raw: bool=False,
+    status=200,
     **kwargs: Any
 ) -> HttpResponse:
     try:
@@ -131,11 +132,11 @@ def get_HTTP_response(
     for key, value in kwargs.items():
         context[key] = value
 
-    return ((lambda x: x) if raw else HttpResponse)(
+    return ((lambda content, status: content) if raw else HttpResponse)(
         loader.get_template(file).render(
             context,
             request
-        )
+        ), status=status
     )
 
 def validate_username(username: str, existing: bool=True) -> int:

@@ -42,11 +42,15 @@ def comment_create(request, data: NewComment) -> tuple | dict:
     # Called when a new comment is created.
 
     token = request.COOKIES.get('token')
+    user = User.objects.get(token=token)
+
+    lang = get_lang(user)
+    lang = DEFAULT_LANG
 
     if not ensure_ratelimit("api_comment_create", token):
         return 429, {
             "success": False,
-            "reason": "Ratelimited"
+            "reason": lang["generic"]["ratelimited"]
         }
 
     id = data.id
@@ -60,13 +64,12 @@ def comment_create(request, data: NewComment) -> tuple | dict:
         create_api_ratelimit("api_comment_create", API_TIMINGS["create post failure"], token)
         return 400, {
             "success": False,
-            "reason": f"Invalid post length. Must be between 1 and {MAX_POST_LENGTH} characters."
+            "reason": lang["post"]["invalid_length"].replace("%s", str(MAX_POST_LENGTH))
         }
 
     create_api_ratelimit("api_comment_create", API_TIMINGS["create comment"], token)
 
     timestamp = round(time.time())
-    user = User.objects.get(token=token)
 
     comment = Comment(
         content = content,

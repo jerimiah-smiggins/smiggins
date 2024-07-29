@@ -4,11 +4,11 @@ import re
 
 from typing import Any
 from django.db.utils import OperationalError
-from django.http import HttpResponse
+from django.http import HttpResponse, HttpResponseRedirect
 
 from ..tasks import remove_extra_urlparts
 from posts.models import User, URLPart
-from ..helper import get_HTTP_response, get_lang, send_email, sha
+from ..helper import get_HTTP_response, get_lang, send_email, sha, generate_token
 from ..variables import WEBSITE_URL, ENABLE_EMAIL
 
 COLORS = {
@@ -74,29 +74,34 @@ COLORS = {
     }
 }
 
-def _get_url(user: User, reason: str) -> str:
-    url = sha(user.username + reason) + sha(f"{random.random()}{time.time()}")
+def _get_url(user: User, intent: str, extra_data: dict={}) -> str:
+    url = sha(user.username + intent) + sha(f"{random.random()}{time.time()}")
+    if "email" not in extra_data:
+        extra_data["email"] = user.email
     URLPart.objects.create(
         url=url,
         user=user,
-        reason=reason,
-        expire=round(time.time()) + (60 * 1)
+        intent=intent,
+        expire=round(time.time()) + (60 * 45),
+        extra_data=extra_data
     )
 
-    return f"{WEBSITE_URL}/email/{url}/?i={reason}"
+    return f"{WEBSITE_URL}/email/{url}/?i={intent}"
 
 def _format_block(
     block: str,
     lang: dict,
     theme: dict[str, str],
     username: str="",
-    url: str=""
+    url: str="",
+    email: str=""
 ) -> tuple[str, str]:
     return (
         block \
             .replace("%u", username) \
             .replace("%r", f"<strong style='color: {theme['red']}'>") \
             .replace("%R", "</strong>") \
+            .replace("%e", email) \
             .replace("%l", f"<a style='color: {theme['accent']}' href=\"{url}\">{lang['email']['generic']['link']}</a>") \
             .replace("%L", url) \
             .replace("%h", "") \
@@ -105,6 +110,7 @@ def _format_block(
             .replace("%u", username) \
             .replace("%r", "**") \
             .replace("%R", "**") \
+            .replace("%e", email) \
             .replace("%l", url) \
             .replace("%L", url))
     )
@@ -134,24 +140,22 @@ def password_reset(request) -> dict | tuple:
     lang = get_lang(user)
     username = user.username
 
-    TITLE = _format_block(block=lang["email"]["password"]["title"], lang=lang, theme=COLORS[user.theme], username=username)
-    B1 = _format_block(block=lang["email"]["password"]["block_1"], lang=lang, theme=COLORS[user.theme], username=username, url=_get_url(user, "reset"))
-    B2 = _format_block(block=lang["email"]["password"]["block_2"], lang=lang, theme=COLORS[user.theme], username=username)
-    B3 = _format_block(block=lang["email"]["password"]["block_3"], lang=lang, theme=COLORS[user.theme], username=username, url=_get_url(user, "remove"))
-    B4 = _format_block(block=lang["email"]["password"]["block_4"], lang=lang, theme=COLORS[user.theme])
+    TITLE = _format_block(block=lang["email"]["reset"]["title"], lang=lang, theme=COLORS[user.theme], username=username)
+    B1 = _format_block(block=lang["email"]["reset"]["block_1"], lang=lang, theme=COLORS[user.theme], username=username, url=_get_url(user, "reset"))
+    B2 = _format_block(block=lang["email"]["reset"]["block_2"], lang=lang, theme=COLORS[user.theme], username=username)
+    B3 = _format_block(block=lang["email"]["reset"]["block_3"], lang=lang, theme=COLORS[user.theme], username=username, url=_get_url(user, "remove"))
 
     response = send_email(
         subject=TITLE[1],
         recipients=[user.email],
-        raw_message=f"{TITLE[1]}\n\n{lang['email']['generic']['greeting']}\n{B1[1]}\n{B2[1]}\n{B3[1]}\n{B4[1]}",
+        raw_message=f"{TITLE[1]}\n\n{lang['email']['generic']['greeting']}\n{B1[1]}\n{B2[1]}\n{B3[1]}\n{lang['email']['generic']['expire']}",
         html_message=_get_email_html(
             request, "email/password.html", lang, user,
 
             TITLE=TITLE[0],
             B1=B1[0],
             B2=B2[0],
-            B3=B3[0],
-            B4=B4[0]
+            B3=B3[0]
         )
     )
 
@@ -159,7 +163,107 @@ def password_reset(request) -> dict | tuple:
         "success": response > 0
     }
 
-def link_manager(request, key: str) -> HttpResponse:...
+def link_manager(request, key: str) -> HttpResponse:
+    try:
+        part = URLPart.objects.get(url=key)
+    except URLPart.DoesNotExist:
+        return get_HTTP_response(request, "404.html", status=404)
+
+    user = part.user
+    intent = part.intent
+
+    if request.GET.get("i") != intent:
+        return get_HTTP_response(request, "404.html", status=404)
+
+    context = {}
+
+    if intent == "reset":
+        context["form_url"] = _get_url(user, "pwd_fm")
+
+    elif intent == "remove":
+        old_email: str | None = part.extra_data["email"]
+
+        if user.email == old_email:
+            user.email = None
+            user.email_valid = False
+            user.save()
+
+        lang = get_lang(user)
+        context["confirmation"] = _format_block(
+            block=lang["email"]["remove"]["confirmation"],
+            lang=lang,
+            theme=COLORS[user.theme],
+            username=user.username,
+            email=str(old_email)
+        )[0]
+
+    elif intent == "verify":
+        if user.email != part.extra_data["email"]:
+            return get_HTTP_response(request, "404.html", status=404)
+
+        user.email_valid = True
+        user.save()
+
+        lang = get_lang(user)
+        context["confirmation"] = _format_block(
+            block=lang["email"]["verify"]["confirmation"],
+            lang=lang,
+            theme=COLORS[user.theme],
+            username=user.username,
+            email=str(user.email)
+        )[0]
+
+    elif intent == "pwd_fm":
+        lang = get_lang(user)
+        if user.email == part.extra_data["email"]:
+            password = request.POST.get("passhash")
+
+            if password is None:
+                return HttpResponse(f"{{\"valid\":false,\"reason\":\"{lang['account']['bad_password']}\"}}")
+
+            if len(password) != 64 or password == "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855":
+                return HttpResponse(f"{{\"valid\":false,\"reason\":\"{lang['account']['bad_password']}\"}}")
+
+            for i in password:
+                if i not in "abcdef0123456789":
+                    return HttpResponse(f"{{\"valid\":false,\"reason\":\"{lang['account']['bad_password']}\"}}")
+
+            token = generate_token(user.username, password)
+            user.token = token
+            user.save()
+
+            return HttpResponse(f"{{\"valid\":true,\"token\":{token}}}")
+        return HttpResponse(f"{{\"valid\":false,\"reason\":\"{lang['email']['pwd_fm']['email_changed']}\"}}", status=400)
+
+    part.delete()
+
+    return get_HTTP_response(
+        request, f"email/conf/{intent}.html",
+
+        user=user.username,
+        **context
+    )
+
+def test_link(request, intent=True) -> HttpResponse:
+    try:
+        user = User.objects.get(token=request.COOKIES.get("token"))
+    except User.DoesNotExist:
+        return HttpResponseRedirect("/", status=307)
+
+    if intent not in ["reset", "remove", "verify", "pwd_fm"]:
+        return HttpResponseRedirect("/home/", status=307)
+
+    key = "test-key"
+
+    URLPart.objects.create(
+        url=key,
+        user=user,
+        intent=intent,
+        expire=round(time.time()) + 60 * 5,
+        extra_data={"email": user.email}
+    )
+
+    return HttpResponse(f"/email/test-key/?i={intent}")
 
 if ENABLE_EMAIL:
     try:

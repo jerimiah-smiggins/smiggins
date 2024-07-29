@@ -81,7 +81,7 @@ def user(request, username: str) -> HttpResponse | HttpResponseRedirect:
         user = User.objects.get(username=username)
     except User.DoesNotExist:
         return get_HTTP_response(
-            request, "404-user.html"
+            request, "404-user.html", status=404
         )
 
     return get_HTTP_response(
@@ -139,7 +139,7 @@ def user_lists(request, username: str) -> HttpResponse:
         user = User.objects.get(username=username)
     except User.DoesNotExist:
         return get_HTTP_response(
-            request, "404-user.html"
+            request, "404-user.html", status=404
         )
 
     followers = []
@@ -249,12 +249,12 @@ def post(request, post_id: int) -> HttpResponse:
         creator = User.objects.get(pk=post.creator)
     except Post.DoesNotExist:
         return get_HTTP_response(
-            request, "404-post.html"
+            request, "404-post.html", status=404
         )
 
     if creator.private and self_id not in creator.following:
         return get_HTTP_response(
-            request, "404-post.html"
+            request, "404-post.html", status=404
         )
 
     post_json = get_post_json(post_id, user.user_id if logged_in else 0)
@@ -293,19 +293,19 @@ def comment(request, comment_id: int) -> HttpResponse:
         comment = Comment.objects.get(pk=comment_id)
     except Comment.DoesNotExist:
         return get_HTTP_response(
-            request, "404-post.html"
+            request, "404-post.html", status=404
         )
 
     try:
         creator = User.objects.get(pk=comment.creator)
     except User.DoesNotExist:
         return get_HTTP_response(
-            request, "404-post.html"
+            request, "404-post.html", status=404
         )
 
     if creator.private and self_id not in creator.following:
         return get_HTTP_response(
-            request, "404-post.html"
+            request, "404-post.html", status=404
         )
 
     comment_json = get_post_json(comment_id, user.user_id if logged_in else 0, True)
@@ -340,12 +340,12 @@ def admin(request) -> HttpResponse | HttpResponseRedirect:
         user = User.objects.get(token=request.COOKIES.get("token"))
     except User.DoesNotExist:
         return get_HTTP_response(
-            request, "404.html"
+            request, "404.html", status=404
         )
 
     if user.user_id != OWNER_USER_ID and user.admin_level < 1:
         return get_HTTP_response(
-            request, "404.html"
+            request, "404.html", status=404
         )
 
     return get_HTTP_response(

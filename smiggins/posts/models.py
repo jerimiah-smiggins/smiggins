@@ -5,6 +5,7 @@ class User(models.Model):
     username = models.CharField(max_length=300, unique=True)
     token    = models.CharField(max_length=64, unique=True)
     email    = models.TextField(null=True)
+    email_valid = models.BooleanField(default=False)
 
     # Admin level
     # 0 - Regular user
@@ -161,5 +162,6 @@ class Hashtag(models.Model):
 class URLPart(models.Model):
     url = models.TextField(max_length=128, primary_key=True, unique=True)
     user = models.ForeignKey(User, on_delete=models.CASCADE)
-    reason = models.TextField(max_length=6) # "reset", "remove", "verify", "change"
+    intent = models.TextField(max_length=6) # "reset", "remove", "verify", "pwd_fm"
+    extra_data = models.JSONField(default=dict, blank=True)
     expire = models.IntegerField()
