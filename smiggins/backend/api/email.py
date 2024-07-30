@@ -3,6 +3,7 @@ import time
 import re
 
 from typing import Any
+from ninja import Schema
 from django.db.utils import OperationalError
 from django.http import HttpResponse, HttpResponseRedirect
 
@@ -74,6 +75,12 @@ COLORS = {
     }
 }
 
+class Email(Schema):
+    email: str
+
+class Username(Schema):
+    username: str
+
 def _get_url(user: User, intent: str, extra_data: dict={}) -> str:
     url = sha(user.username + intent) + sha(f"{random.random()}{time.time()}")
     if "email" not in extra_data:
@@ -129,21 +136,88 @@ def _get_email_html(
         **kwargs
     )
 
-def password_reset(request) -> dict | tuple:
-    user = User.objects.get(token=request.COOKIES.get("token"))
-
-    if not isinstance(user.email, str):
+def change_email(request, user: User) -> dict | tuple:
+    if user.email is None or not user.email_valid:
         return 400, {
             "success": False
         }
 
     lang = get_lang(user)
     username = user.username
+    theme = COLORS[user.theme]
 
-    TITLE = _format_block(block=lang["email"]["reset"]["title"], lang=lang, theme=COLORS[user.theme], username=username)
-    B1 = _format_block(block=lang["email"]["reset"]["block_1"], lang=lang, theme=COLORS[user.theme], username=username, url=_get_url(user, "reset"))
-    B2 = _format_block(block=lang["email"]["reset"]["block_2"], lang=lang, theme=COLORS[user.theme], username=username)
-    B3 = _format_block(block=lang["email"]["reset"]["block_3"], lang=lang, theme=COLORS[user.theme], username=username, url=_get_url(user, "remove"))
+    TITLE = _format_block(lang["email"]["change"]["title"], lang=lang, theme=theme, username=username)
+    B1 = _format_block(lang["email"]["change"]["block_1"], lang=lang, theme=theme, username=username)
+    B2 = _format_block(lang["email"]["change"]["block_2"], lang=lang, theme=theme, username=username, url=_get_url(user, "remove"))
+    B3 = _format_block(lang["email"]["change"]["block_3"], lang=lang, theme=theme, username=username, url=f"{WEBSITE_URL}/login/reset")
+
+    response = send_email(
+        subject=TITLE[1],
+        recipients=[user.email],
+        raw_message=f"{TITLE[1]}\n\n{lang['email']['generic']['greeting']}\n{B1[1]}\n{B2[1]}\n{B3[1]}\n{lang['email']['generic']['expire']}",
+        html_message=_get_email_html(
+            request, "email/change.html", lang, user,
+
+            TITLE=TITLE[0],
+            B1=B1[0],
+            B2=B2[0],
+            B3=B3[0]
+        )
+    )
+
+    return {
+        "success": response > 0
+    }
+
+def verify_email(request, user: User, data: Email) -> dict | tuple:
+    user.email = data.email
+    user.email_valid = False
+    user.save()
+
+    lang = get_lang(user)
+    username = user.username
+    theme = COLORS[user.theme]
+
+    TITLE = _format_block(lang["email"]["verify"]["title"], lang=lang, theme=theme, username=username)
+    B1 = _format_block(lang["email"]["verify"]["block_1"], lang=lang, theme=theme, username=username)
+    B2 = _format_block(lang["email"]["verify"]["block_2"], lang=lang, theme=theme, username=username, url=_get_url(user, "verify"))
+    B3 = _format_block(lang["email"]["verify"]["block_3"], lang=lang, theme=theme, username=username, url=_get_url(user, "remove"))
+
+    response = send_email(
+        subject=TITLE[1],
+        recipients=[user.email],
+        raw_message=f"{TITLE[1]}\n\n{lang['email']['generic']['greeting']}\n{B1[1]}\n{B2[1]}\n{B3[1]}\n{lang['email']['generic']['expire']}",
+        html_message=_get_email_html(
+            request, "email/change.html", lang, user,
+
+            TITLE=TITLE[0],
+            B1=B1[0],
+            B2=B2[0],
+            B3=B3[0]
+        )
+    )
+
+    return {
+        "success": response > 0
+    }
+
+def password_reset(request, data: Username) -> dict | tuple:
+    user = User.objects.get(username=data.username.lower())
+    lang = get_lang(user)
+
+    if user.email is None or not user.email_valid:
+        return 400, {
+            "success": False,
+            "reason": lang["email"]["reset"]["no_email"]
+        }
+
+    theme = COLORS[user.theme]
+    username = data.username.lower()
+
+    TITLE = _format_block(lang["email"]["reset"]["title"], lang=lang, theme=theme, username=username)
+    B1 = _format_block(lang["email"]["reset"]["block_1"], lang=lang, theme=theme, username=username, url=_get_url(user, "reset"))
+    B2 = _format_block(lang["email"]["reset"]["block_2"], lang=lang, theme=theme, username=username)
+    B3 = _format_block(lang["email"]["reset"]["block_3"], lang=lang, theme=theme, username=username, url=_get_url(user, "remove"))
 
     response = send_email(
         subject=TITLE[1],
@@ -264,6 +338,13 @@ def test_link(request, intent=True) -> HttpResponse:
     )
 
     return HttpResponse(f"/email/test-key/?i={intent}")
+
+def set_email(request, data: Email) -> dict | tuple:
+    user = User.objects.get(token=request.COOKIES.get("token"))
+
+    if user.email and user.email_valid:
+        return change_email(request, user)
+    return verify_email(request, user, data)
 
 if ENABLE_EMAIL:
     try:

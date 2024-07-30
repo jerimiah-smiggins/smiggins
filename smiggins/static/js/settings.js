@@ -1,12 +1,12 @@
 inc = 0;
 home = true;
-function showlog(str, time = 3000) {
+function showlog(str, time = 3000, email = false) {
     inc++;
-    dom("error").innerText = str;
+    dom(email ? "error" : "email-output").innerText = str;
     setTimeout(() => {
         --inc;
         if (!inc) {
-            dom("error").innerText = "";
+            dom(email ? "error" : "email-output").innerText = "";
         }
     }, time);
 }
@@ -288,4 +288,27 @@ dom("confirm").addEventListener("keydown", function (event) {
         dom("set-password").focus();
         dom("set-password").click();
     }
+});
+ENABLE_EMAIL && dom("email-submit").addEventListener("click", function () {
+    dom("email").setAttribute("disabled", "");
+    dom("email-submit").setAttribute("disbaled", "");
+    fetch("/api/email/save", {
+        body: JSON.stringify({
+            email: dom("email").value
+        }),
+        method: "POST"
+    }).then((response) => (response.json()))
+        .then((json) => {
+        if (json.success) {
+            if (hasEmail) {
+                dom("email-output").innerHTML = lang.settings.account_email_check;
+            }
+            else {
+                dom("email-output").innerHTML = lang.settings.account_email_verify;
+            }
+        }
+        else {
+            showlog(json.reason, 3000, true);
+        }
+    });
 });

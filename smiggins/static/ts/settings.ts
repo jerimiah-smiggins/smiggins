@@ -1,16 +1,17 @@
 declare let user_pronouns: string;
+declare let hasEmail: boolean;
 
 inc = 0;
 home = true;
 
 // @ts-ignore
-function showlog(str: string, time: number = 3000): void {
+function showlog(str: string, time: number = 3000, email: boolean=false): void {
   inc++;
-  dom("error").innerText = str;
+  dom(email ? "error" : "email-output").innerText = str;
   setTimeout(() => {
     --inc;
     if (!inc) {
-      dom("error").innerText = "";
+      dom(email ? "error" : "email-output").innerText = "";
     }
   }, time);
 };
@@ -272,7 +273,7 @@ dom("toggle-password").addEventListener("click", function(): void {
   dom("current").setAttribute("type", newType);
   dom("password").setAttribute("type", newType);
   dom("confirm").setAttribute("type", newType);
-})
+});
 
 dom("set-password").addEventListener("click", function(): void {
   let old_password: string = sha256((dom("current") as HTMLInputElement).value);
@@ -339,4 +340,30 @@ dom("confirm").addEventListener("keydown", function(event: KeyboardEvent): void 
     dom("set-password").focus();
     dom("set-password").click();
   }
+});
+
+ENABLE_EMAIL && dom("email-submit").addEventListener("click", function(): void {
+  dom("email").setAttribute("disabled", "");
+  dom("email-submit").setAttribute("disbaled", "");
+
+  fetch("/api/email/save", {
+    body: JSON.stringify({
+      email: (dom("email") as HTMLInputElement).value
+    }),
+    method: "POST"
+  }).then((response) => (response.json()))
+    .then((json: {
+      success: boolean,
+      reason?: string
+    }) => {
+      if (json.success) {
+        if (hasEmail) {
+          dom("email-output").innerHTML = lang.settings.account_email_check;
+        } else {
+          dom("email-output").innerHTML = lang.settings.account_email_verify;
+        }
+      } else {
+        showlog(json.reason, 3000, true);
+      }
+    });
 });

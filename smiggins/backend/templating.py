@@ -45,8 +45,12 @@ def settings(request) -> HttpResponse:
 
         PRONOUNS = user.pronouns,
 
+        has_email = str(user.email is not None).lower(),
+        email = user.email or "",
+        email_valid = str(user.email_valid).lower(),
+
         MAX_BIO_LENGTH = str(MAX_BIO_LENGTH),
-        USER_BIO       = user.bio or "",
+        USER_BIO = user.bio or "",
 
         SELECTED_IF_LIGHT = "selected" if user.theme == "light" else "",
         SELECTED_IF_GRAY  = "selected" if user.theme == "gray"  else "",

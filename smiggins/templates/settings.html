@@ -67,10 +67,6 @@
             </td>
           </tr>
         </table><br>
-
-        <script>
-          let user_pronouns = "{{ PRONOUNS }}";
-        </script>
       {% endif %}
 
       {{ lang.settings.profile_banner_title }}<br>
@@ -108,7 +104,7 @@
       <div id="post-example"></div><br><br>
     </div>
 
-    <div id="switcher" class="settings-side">
+    <div class="settings-side">
       <h2>{{ lang.settings.account_title }}</h2>
       {{ lang.settings.account_password }}<br>
       <input type="text" hidden disabled> <!-- this just prevents browsers from trying to autofill the display name box with the username even thoguh autocomplete is set to off -->
@@ -119,16 +115,20 @@
       <button id="set-password">{{ lang.generic.save }}</button><br><br>
 
       {% if ENABLE_EMAIL == "true" %}
-        {{ lang.settings.cosmetic_email }}
-        <input id="email" type="email" placeholder="email@example.com">
+        {{ lang.settings.account_email }}<br>
+        <input {% if has_email == "true" and email_valid == "true" %}disabled{% endif %} value="{{ email }}" id="email" type="email" placeholder="email@example.com"></br>
+        <button class="primary" id="email-submit">{% if has_email == "true" and email_valid == "true" %}{{ lang.settings.account_email_update }}{% else %}{{ lang.generic.save }}{% endif %}</button>
+        <div id="email-output">{% if email_valid == "false" and has_email == "true" %}{{ lang.settings.account_email_verify }}{% endif %}</div><br><br>
       {% endif %}
 
       {% if ENABLE_ACCOUNT_SWITCHER == "true" %}
-        {{ lang.settings.account_switcher }}<br>
-        <select id="accs"></select><br>
-        <button id="acc-switch">{{ lang.settings.account_switcher_switch }}</button>
-        <button id="acc-remove">{{ lang.settings.account_switcher_remove}}</button><br><br>
-        <a href="/logout/?from=switcher">{{ lang.settings.account_switcher_add }}</a>
+        <div id="switcher">
+          {{ lang.settings.account_switcher }}<br>
+          <select id="accs"></select><br>
+          <button id="acc-switch">{{ lang.settings.account_switcher_switch }}</button>
+          <button id="acc-remove">{{ lang.settings.account_switcher_remove}}</button><br><br>
+          <a href="/logout/?from=switcher">{{ lang.settings.account_switcher_add }}</a>
+        </div>
       {% endif %}
     </div>
   </div>
@@ -158,6 +158,11 @@
   {% if ENABLE_CREDITS_PAGE == 'true' %}
     <a href="/credits/">{{ lang.credits.title }}</a>
   {% endif %}
+
+  <script>
+    let user_pronouns = "{{ PRONOUNS }}";
+    let hasEmail = {{ has_email }};
+  </script>
 
   <script src="{% static '/js/settings.js' %}?v={{ VERSION }}"></script>
 {% endblock %}

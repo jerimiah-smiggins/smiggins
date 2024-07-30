@@ -7,9 +7,9 @@
 {% block body %}
   {% autoescape  off %}
     <h2>{{ lang.email.generic.greeting }}</h2>
-    <p>{{ B1 }}</p>
-    <p>{{ B2 }}</p>
-    <p style="margin-bottom: 0;">{{ B3 }}</p>
+    <p>{{ B1 }}</p> <!-- this email has been linked to the accont ... -->
+    <p>{{ B2 }}</p> <!-- click here to verify -->
+    <p style="margin-bottom: 0;">{{ B3 }}</p> <!-- if this wasn't you, click here to remove the email from the account -->
     <small style="display: block; font-size: 0.7em; color: {{ COLOR.subtext0 }};"><p style="margin-bottom: 0;">{{ B4 }}</p></small>
   {% endautoescape %}
 {% endblock %}

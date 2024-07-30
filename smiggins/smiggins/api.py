@@ -108,6 +108,7 @@ api.get("info/version", response=response_schema)(ApiInfo.version)
 
 if ENABLE_EMAIL:
     api.post("email/password", response=response_schema)(ApiEmail.password_reset)
+    api.post("email/save", response=response_schema)(ApiEmail.set_email)
 
 urlpatterns = [
     path("", api.urls) # type: ignore

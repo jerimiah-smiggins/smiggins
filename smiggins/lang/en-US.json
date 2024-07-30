@@ -251,6 +251,7 @@
 
       "no_new": "This instance isn't accepting any new users.",
       "password_match_failure": "Passwords don't match!",
+      "forgot_password": "Forgot password?",
 
       "log_out_title": "Redirecting you shortly...",
       "log_out_description": "If you don't get redirected soon, click <a href=\"/\">here...</a>",
@@ -352,7 +353,6 @@
       "cosmetic_example_post_display_name": "Example",
       "cosmetic_example_post_username": "example",
       "cosmetic_example_post_content": "This is an example post. I am @example.",
-      "cosmetic_email": "Email",
 
       "account_title": "Account",
       "account_password": "Change password",
@@ -365,6 +365,11 @@
       "account_switcher_remove": "Remove",
       "account_switcher_remove_error": "You can't remove the account you're currently signed into!",
       "account_switcher_add": "Add new account...",
+
+      "account_email": "Email",
+      "account_email_update": "Change/Update",
+      "account_email_verify": "Check your email to verify it",
+      "account_email_check": "Check your email",
 
       "admin": "Admin page",
       "logout": "Log out of ALL accounts"
@@ -421,15 +426,31 @@
       },
 
       "verify": {
-        "confirmation": "The email %e has been verified for the account %u."
+        "confirmation": "The email %e has been verified for the account %u.",
+
+        "title": "Verify Email for %u",
+
+        "block_1": "This email has been linked to the account \"%u.\"",
+        "block_2": "To verify this email, go to %l. %h(If the link doesn't work, try copying this link and pasting it into your browser: %L)%H",
+        "block_3": "If this wasn't you, go to %l to remove this email from the account \"%u\". %h(If the link doesn't work, try copying this link and pasting it into your browser: %L)%H"
       },
 
       "remove": {
         "confirmation": "The email %e has been removed from the account %u."
       },
 
+      "change": {
+        "title": "Email Change Requested for %u",
+
+        "block_1": "You seem to have requested for your email to be changed, and you have received this email because it was linked to the account \"%u\".",
+        "block_2": "To remove this email from the account \"%u\", go to %l. From there you can go back to the settings page and set your email normally. %h(If the link doesn't work, try copying this link and pasting it into your browser: %L)%H",
+        "block_3": "If this wasn't you, that means someone else has access to your account. You should change your password immediately by going to %l, which will sign out anyone who is logged in to your account. %h(If the link doesn't work, try copying this link and pasting it into your browser: %L)%H"
+      },
+
       "reset": {
         "title": "Password Reset Requested for %u",
+        "html_title": "Reset Password",
+        "no_email": "This account doesn't have an email linked to it.",
 
         "block_1": "You seem to have requested to reset your password, and you received this email because it was linked to the account \"%u\". In order to do that, please go to %l. %h(If the link doesn't work, try copying this link and pasting it into your browser: %L)%H",
         "block_2": "If you didn't request for your password to be reset, feel free to ignore this email. If anyone asks you for the link, %rDO NOT SHARE IT.%R It will give them the ability to reset your password for you, which would basically lock you out of your account.",
