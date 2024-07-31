@@ -103,7 +103,7 @@ def user(request, username: str) -> HttpResponse | HttpResponseRedirect:
         BIO = user.bio,
 
         FOLLOWER_COUNT = lang["user_page"]["followers"].replace("%s", str(len(user.followers))),
-        FOLLOWING_COUNT = lang["user_page"]["followers"].replace("%s", str(len(user.following) - 1)),
+        FOLLOWING_COUNT = lang["user_page"]["following"].replace("%s", str(len(user.following) - 1)),
 
         EMBED_TITLE = lang["user_page"]["user_on_smiggins"].replace("%t", SITE_NAME).replace("%s", user.display_name),
 

@@ -48,7 +48,7 @@
     <div id="follow">{{ FOLLOWER_COUNT }} - {{ FOLLOWING_COUNT }}</div>
   </a></div>
 
-  {% if ENABLE_USER_BIOS == 'true' %}<div id="user-bio"></div>{% endif %}
+  {% if ENABLE_USER_BIOS == 'true' %}<div id="user-bio" hidden>{{ BIO }}</div>{% endif %}
 
   {% if CAN_VIEW == 'false' %}<div hidden>{% endif %}
     <button onclick="refresh()">{{ lang.generic.refresh }}</button>

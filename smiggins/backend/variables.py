@@ -67,6 +67,8 @@ ENABLE_POLLS: bool = True
 ENABLE_LOGGED_OUT_CONTENT: bool = True
 ENABLE_NEW_ACCOUNTS: bool = True
 ENABLE_EMAIL: bool = False
+ENABLE_SITEMAPS: bool = False
+ITEMS_PER_SITEMAP: int = 500
 
 API_TIMINGS: dict[str, int] = {}
 
@@ -168,6 +170,8 @@ for key, val in f.items():
     elif key.lower() in ["enable_logged_out", "enable_logged_out_content"]: is_ok(val, "ENABLE_LOGGED_OUT_CONTENT", bool) # noqa: E701
     elif key.lower() in ["enable_signup", "enable_new_users", "enable_new_accounts"]: is_ok(val, "ENABLE_NEW_ACCOUNTS", bool) # noqa: E701
     elif key.lower() in ["email", "enable_email"]: is_ok(val, "ENABLE_EMAIL", bool) # noqa: E701
+    elif key.lower() in ["sitemaps", "enable_sitemaps"]: is_ok(val, "ENABLE_SITEMAPS", bool) # noqa: E701
+    elif key.lower() == "items_per_sitemap": is_ok(val, "ITEMS_PER_SITEMAP", int) # noqa: E701
     else: error(f"Unknown setting {key}") # noqa: E701
 
 MAX_ADMIN_LOG_LINES = clamp(MAX_ADMIN_LOG_LINES, minimum=1)
@@ -181,6 +185,7 @@ MAX_POLL_OPTION_LENGTH = clamp(MAX_POLL_OPTION_LENGTH, minimum=1)
 POSTS_PER_REQUEST = clamp(POSTS_PER_REQUEST, minimum=1)
 MESSAGES_PER_REQUEST = clamp(MESSAGES_PER_REQUEST, minimum=1)
 MAX_NOTIFICATIONS = clamp(MAX_NOTIFICATIONS, minimum=1)
+ITEMS_PER_SITEMAP = clamp(ITEMS_PER_SITEMAP, minimum=50, maximum=50000)
 
 if CACHE_LANGUAGES is None:
     CACHE_LANGUAGES = not DEBUG
@@ -193,7 +198,11 @@ VALID_LANGUAGES: list[dict[str, str]] = [{
 
 if ENABLE_EMAIL and WEBSITE_URL is None:
     ENABLE_EMAIL = False
-    error("You need to set the website_url parameter to enable emails!")
+    error("You need to set the website_url setting to enable emails!")
+
+if ENABLE_SITEMAPS and WEBSITE_URL is None:
+    ENABLE_SITEMAPS = False
+    error("You need to set the website_url setting to enable sitemaps!")
 
 for key, val in {
     "signup unsuccessful": 1000,

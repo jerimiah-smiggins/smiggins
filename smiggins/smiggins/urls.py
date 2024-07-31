@@ -16,6 +16,7 @@ from backend.variables import (
     DEBUG
 )
 
+from backend.sitemaps import sitemap_index, sitemap_base, sitemap_post, sitemap_user
 from backend.api.email import link_manager as email_manager
 from backend.api.email import test_link as test_email
 
@@ -83,9 +84,14 @@ urlpatterns = list(filter(bool, [
     path("django-admin/", django_admin.site.urls),
 
     path("badges.js", badges),
-    path("favicon.ico", lambda request: HttpResponseRedirect("/static/img/favicon.ico")),
+    path("favicon.ico", lambda request: HttpResponseRedirect("/static/img/favicon.ico", status=308)),
     path("robots.txt", create_simple_return("", content_type="text/plain", content_override=ROBOTS)),
-    path(".well-known/security.txt", create_simple_return("", content_type="text/plain", content_override="\n".join([{"email": "Email", "text": "Other", "url": "Link"}[i[0]] + f": {i[1]}" for i in CONTACT_INFO]) + "\n"))
+    path(".well-known/security.txt", create_simple_return("", content_type="text/plain", content_override="\n".join([{"email": "Email", "text": "Other", "url": "Link"}[i[0]] + f": {i[1]}" for i in CONTACT_INFO]) + "\n")),
+
+    path("sitemap.xml", sitemap_index),
+    path("sitemaps/base.xml", sitemap_base),
+    path("sitemaps/u/<int:index>.xml", sitemap_user),
+    path("sitemaps/p/<int:index>.xml", sitemap_post)
 ]))
 
 handler404 = "backend.templating._404"

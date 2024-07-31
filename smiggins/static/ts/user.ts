@@ -14,6 +14,7 @@ function extra(json: {
   following: boolean
   pinned: _postJSON
 }): void {
+  ENABLE_USER_BIOS && dom("user-bio").removeAttribute("hidden");
   ENABLE_USER_BIOS && (dom("user-bio").innerHTML = linkifyHtml(escapeHTML(json.bio), {
     formatHref: {
       mention: (href: string): string => "/u" + href,
