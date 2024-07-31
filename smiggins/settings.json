@@ -26,11 +26,11 @@
 
   /*
   ** This toggles allowing emails. In order for this to work, you need to set up
-  ** the stmp_auth variable in backend/_api_keys.py.
+  ** the stmp_auth variable in backend/_api_keys.py. (Read README.md)
   && Aliases: email, enable_email
   ## Default: false
   */
-  "enable_email": true,
+  "enable_email": false,
 
   /*
   ** SET TO FALSE for production servers!!! This determines whether or not to

@@ -55,7 +55,32 @@ Updates for each language version are listed below:
 Added emails and legacy changelogs
 
 ```diff
-+ changelog.changes.v0.10.2 {1}
++ account.forgot_password
++ settings.account_email
++ settings.account_email_update
++ settings.account_email_verify
++ settings.account_email_check
++ email.generic.greeting
++ email.generic.link
++ email.generic.expire
++ email.pwd_fm.email_changed
++ email.verify.confirmation
++ email.verify.title
++ email.verify.block_1
++ email.verify.block_2
++ email.verify.block_3
++ email.remove.confirmation
++ email.change.title
++ email.change.block_1
++ email.change.block_2
++ email.change.block_3
++ email.reset.title
++ email.reset.html_title
++ email.reset.no_email
++ email.reset.block_1
++ email.reset.block_2
++ email.reset.block_3
++ changelog.changes.v0.10.2 {1, 2, 3}
 + changelog.changes.v0.3.6 {1, 2, 3}
 + changelog.changes.v0.3.5 {1, 2, 3}
 + changelog.changes.v0.3.4 {1, 2}
