@@ -9,7 +9,7 @@ from .variables import ITEMS_PER_SITEMAP, WEBSITE_URL
 
 def sitemap_index(request) -> HttpResponse:
     r = get_HTTP_response(
-        request, "sitemap/index.xml",
+        request, "sitemap/index.xml", user=None,
 
         URL=WEBSITE_URL,
         users=list(range(ceil(User.objects.count() / ITEMS_PER_SITEMAP))),
@@ -20,7 +20,7 @@ def sitemap_index(request) -> HttpResponse:
 
 def sitemap_base(request) -> HttpResponse:
     r = get_HTTP_response(
-        request, "sitemap/base.xml",
+        request, "sitemap/base.xml", user=None,
 
         URL=WEBSITE_URL,
     )
@@ -29,7 +29,7 @@ def sitemap_base(request) -> HttpResponse:
 
 def sitemap_user(request, index: int) -> HttpResponse:
     r = get_HTTP_response(
-        request, "sitemap/user.xml",
+        request, "sitemap/user.xml", user=None,
 
         URL=WEBSITE_URL,
         usernames=User.objects.order_by("user_id").values_list("username", flat=True)[index * ITEMS_PER_SITEMAP : (index + 1) * ITEMS_PER_SITEMAP :]
@@ -39,7 +39,7 @@ def sitemap_user(request, index: int) -> HttpResponse:
 
 def sitemap_post(request, index: int) -> HttpResponse:
     r = get_HTTP_response(
-        request, "sitemap/post.xml",
+        request, "sitemap/post.xml", user=None,
 
         URL=WEBSITE_URL,
         post_ids=Post.objects.order_by("post_id").values_list("post_id", flat=True)[index * ITEMS_PER_SITEMAP : (index + 1) * ITEMS_PER_SITEMAP :]

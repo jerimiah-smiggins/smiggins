@@ -6,7 +6,7 @@ import json5 as json
 import time
 import re
 
-from typing import Callable, Any
+from typing import Callable, Any, Literal
 from django.http import HttpResponse, HttpResponseRedirect
 from django.template import loader
 from django.core.mail import send_mail
@@ -52,7 +52,8 @@ from .variables import (
     timeout_handler,
     BASE_DIR,
     VALID_LANGUAGES,
-    ENABLE_EMAIL
+    ENABLE_EMAIL,
+    BADGE_DATA
 )
 
 def sha(string: str | bytes) -> str:
@@ -82,16 +83,22 @@ def get_HTTP_response(
     lang_override: dict | None=None,
     raw: bool=False,
     status=200,
+    user: User | None | Literal[False]=False,
     **kwargs: Any
 ) -> HttpResponse:
     try:
-        user = User.objects.get(token=request.COOKIES.get("token"))
+        if user is False:
+            user = User.objects.get(token=request.COOKIES.get("token"))
+
+        if user is None:
+            raise User.DoesNotExist
+
         theme = user.theme
     except User.DoesNotExist:
         user = None
         theme = DEFAULT_THEME.lower() if DEFAULT_THEME.lower() in ["dawn", "dusk", "dark", "midnight", "black"] else "dark"
 
-    lang = get_lang(user) if lang_override is None else lang_override
+    lang = lang_override or get_lang(user)
 
     context = {
         "SITE_NAME": SITE_NAME,
@@ -128,7 +135,8 @@ def get_HTTP_response(
         "ENABLE_EMAIL": str(ENABLE_EMAIL).lower(),
 
         "THEME": theme,
-        "lang": lang
+        "lang": lang,
+        "badges": BADGE_DATA
     }
 
     for key, value in kwargs.items():

@@ -29,7 +29,7 @@
 
 {% block body %}
   <div id="parent" hidden><a id="parent-link" href="#">{{ lang.post_page.comment_parent }}</a></div>
-  <div id="top" data-post-id="{{ POST_ID }}">{% if C_WARNING %}{{ C_WARNING }}{% else %}{{ CONTENT }}{% endif %}</div>
+  <div id="top" data-post-id="{{ POST_ID }}">{{ CONTENT }}</div>
 
   {% if LOGGED_IN == 'true' %}
     {% if ENABLE_CONTENT_WARNINGS == 'true' %}

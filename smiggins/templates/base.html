@@ -7,6 +7,9 @@
     <title>{% block title %}{{ SITE_NAME }} v{{ VERSION }}{% endblock %}</title>
 
     <script>
+      {% if ENABLE_BADGES == "true" %}
+        const badges = {% autoescape off %}{{ badges }}{% endautoescape %};
+      {% endif %}
       const lang = {% autoescape off %}{{ lang }}{% endautoescape %};
 
       const MAX_POST_LENGTH = {{ MAX_POST_LENGTH }};
@@ -55,10 +58,6 @@
 
     {% if ENABLE_HASHTAGS == "true" %}
       <script src="{% static "/js/linkify-hashtags-4.1.3.min.js" %}?v={{ VERSION }}"></script>
-    {% endif %}
-
-    {% if ENABLE_BADGES == "true" %}
-      <script src="/badges.js?v={{ VERSION }}"></script>
     {% endif %}
 
     <script src="{% static "/js/base.js" %}?v={{ VERSION }}"></script>
