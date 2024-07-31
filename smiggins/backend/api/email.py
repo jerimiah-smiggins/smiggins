@@ -5,15 +5,15 @@ import re
 
 from typing import Any
 from ninja import Schema
-from django.db.utils import OperationalError
 from django.http import HttpResponse, HttpResponseRedirect
 from django.views.decorators.csrf import csrf_exempt
 from django.core.handlers.wsgi import WSGIRequest
 
-from ..tasks import remove_extra_urlparts
 from posts.models import User, URLPart
 from ..helper import get_HTTP_response, get_lang, send_email, sha, generate_token
-from ..variables import WEBSITE_URL, ENABLE_EMAIL
+from ..variables import WEBSITE_URL
+
+LAST_TRIM: int = 0
 
 COLORS = {
     "oled": {
@@ -85,6 +85,8 @@ class Username(Schema):
     username: str
 
 def _get_url(user: User, intent: str, extra_data: dict={}) -> str:
+    remove_extra_urlparts()
+
     url = sha(user.username + intent) + sha(f"{random.random()}{time.time()}")
     if "email" not in extra_data:
         extra_data["email"] = user.email
@@ -335,9 +337,9 @@ def link_manager(request: WSGIRequest, key: str) -> HttpResponse:
     part.delete()
 
     return get_HTTP_response(
-        request, f"email/conf/{intent}.html",
+        request, f"email/conf/{intent}.html", user=user,
 
-        user=user.username,
+        username=user.username,
         **context
     )
 
@@ -369,8 +371,13 @@ def set_email(request, data: Email) -> dict | tuple:
         return change_email(request, user)
     return verify_email(request, user, data)
 
-if ENABLE_EMAIL:
-    try:
-        remove_extra_urlparts()
-    except OperationalError:
-        print("\x1b[91mYou need to migrate your database! Do this by running 'manage.py migrate'. If you are already doing that, ignore this message.\x1b[0m")
+def remove_extra_urlparts():
+    current_time = round(time.time())
+
+    # Only rerun if it's been over two hours
+    if LAST_TRIM >= current_time + 60 * 60 * 2:
+        return
+
+    for i in URLPart.objects.all():
+        if i.expire <= current_time:
+            i.delete()
