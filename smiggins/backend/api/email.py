@@ -1,11 +1,14 @@
 import random
 import time
+import json
 import re
 
 from typing import Any
 from ninja import Schema
 from django.db.utils import OperationalError
 from django.http import HttpResponse, HttpResponseRedirect
+from django.views.decorators.csrf import csrf_exempt
+from django.core.handlers.wsgi import WSGIRequest
 
 from ..tasks import remove_extra_urlparts
 from posts.models import User, URLPart
@@ -237,7 +240,8 @@ def password_reset(request, data: Username) -> dict | tuple:
         "success": response > 0
     }
 
-def link_manager(request, key: str) -> HttpResponse:
+@csrf_exempt
+def link_manager(request: WSGIRequest, key: str) -> HttpResponse:
     try:
         part = URLPart.objects.get(url=key)
     except URLPart.DoesNotExist:
@@ -289,25 +293,44 @@ def link_manager(request, key: str) -> HttpResponse:
 
     elif intent == "pwd_fm":
         lang = get_lang(user)
-        if user.email == part.extra_data["email"]:
-            password = request.POST.get("passhash")
+        if user.email != part.extra_data["email"]:
+            part.delete()
+            return HttpResponse(json.dumps({
+                "valid": False,
+                "reason": lang['email']['pwd_fm']['email_changed']
+            }), status=400)
 
-            if password is None:
-                return HttpResponse(f"{{\"valid\":false,\"reason\":\"{lang['account']['bad_password']}\"}}")
+        password = json.loads(request.body)["passhash"]
+        print(password)
 
-            if len(password) != 64 or password == "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855":
-                return HttpResponse(f"{{\"valid\":false,\"reason\":\"{lang['account']['bad_password']}\"}}")
+        if password is None:
+            return HttpResponse(json.dumps({
+                "valid": False,
+                "reason": lang['account']['bad_password']
+            }), status=400)
 
-            for i in password:
-                if i not in "abcdef0123456789":
-                    return HttpResponse(f"{{\"valid\":false,\"reason\":\"{lang['account']['bad_password']}\"}}")
+        if len(password) != 64 or password == "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855":
+            return HttpResponse(json.dumps({
+                "valid": False,
+                "reason": lang['account']['bad_password']
+            }), status=400)
 
-            token = generate_token(user.username, password)
-            user.token = token
-            user.save()
+        for i in password:
+            if i not in "abcdef0123456789":
+                return HttpResponse(json.dumps({
+                    "valid": False,
+                    "reason": lang['account']['bad_password']
+                }), status=400)
 
-            return HttpResponse(f"{{\"valid\":true,\"token\":{token}}}")
-        return HttpResponse(f"{{\"valid\":false,\"reason\":\"{lang['email']['pwd_fm']['email_changed']}\"}}", status=400)
+        token = generate_token(user.username, password)
+        user.token = token
+        user.save()
+        part.delete()
+
+        return HttpResponse(json.dumps({
+            "valid": True,
+            "token": token
+        }))
 
     part.delete()
 

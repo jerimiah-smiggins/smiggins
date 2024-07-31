@@ -103,6 +103,15 @@ button {
   }
 }
 
+.fake-input {
+  display: inline-block;
+  text-align: left;
+  max-width: 200px;
+  width: 90vw;
+  cursor: text;
+}
+
+.fake-input,
 input,
 textarea,
 option,
@@ -124,7 +133,9 @@ option {
   font-size: 1.1em;
 }
 
-input, textarea, select {
+input,
+textarea,
+select {
   font-family: "Poppins";
 }
 

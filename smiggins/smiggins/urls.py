@@ -60,7 +60,7 @@ urlpatterns = list(filter(bool, [
     path("login/", create_simple_return("login.html", redirect_logged_in=True)),
     path("signup/", create_simple_return("signup.html", redirect_logged_in=True)),
     path("logout/", create_simple_return("logout.html")),
-    path("reset-password/", create_simple_return("reset-password.html", redirect_logged_in=True)),
+    path("reset-password/", create_simple_return("reset-password.html", redirect_logged_in=True)) if ENABLE_EMAIL else None,
 
     path("settings/", settings),
     path("contact/", contact) if ENABLE_CONTACT_PAGE else None,
