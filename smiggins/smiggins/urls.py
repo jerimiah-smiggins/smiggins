@@ -13,7 +13,8 @@ from backend.variables import (
     ENABLE_CREDITS_PAGE,
     ENABLE_EMAIL,
     ROBOTS,
-    DEBUG
+    DEBUG,
+    ENABLE_SITEMAPS
 )
 
 from backend.sitemaps import sitemap_index, sitemap_base, sitemap_post, sitemap_user
@@ -86,10 +87,10 @@ urlpatterns = list(filter(bool, [
     path("robots.txt", create_simple_return("", content_type="text/plain", content_override=ROBOTS)),
     path(".well-known/security.txt", create_simple_return("", content_type="text/plain", content_override="\n".join([{"email": "Email", "text": "Other", "url": "Link"}[i[0]] + f": {i[1]}" for i in CONTACT_INFO]) + "\n")),
 
-    path("sitemap.xml", sitemap_index),
-    path("sitemaps/base.xml", sitemap_base),
-    path("sitemaps/u/<int:index>.xml", sitemap_user),
-    path("sitemaps/p/<int:index>.xml", sitemap_post)
+    path("sitemap.xml", sitemap_index) if ENABLE_SITEMAPS else None,
+    path("sitemaps/base.xml", sitemap_base) if ENABLE_SITEMAPS else None,
+    path("sitemaps/u/<int:index>.xml", sitemap_user) if ENABLE_SITEMAPS else None,
+    path("sitemaps/p/<int:index>.xml", sitemap_post) if ENABLE_SITEMAPS else None
 ]))
 
 handler404 = "backend.templating._404"

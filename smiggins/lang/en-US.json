@@ -465,7 +465,8 @@
         "v0.11.0": {
           "1": "Added changelogs for all legacy versions",
           "2": "Fixed an issue that caused read notifications/messages to not be colored grey",
-          "3": "Added linking emails and resetting passwords with the emails"
+          "3": "Added linking emails and resetting passwords with the emails",
+          "4": "Added sitemaps and their respective toggles"
         },
         "v0.10.1": {
           "1": "Added a credits page (and a backend toggle)",
