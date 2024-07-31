@@ -1,17 +1,5 @@
 declare let formURL: string;
 
-// @ts-ignore
-function showlog(str: string, time: number = 3000): void {
-  inc++;
-  dom("error").innerText = str;
-  setTimeout(() => {
-    --inc;
-    if (!inc) {
-      dom("error").innerText = "";
-    }
-  }, time);
-};
-
 dom("save").addEventListener("click", function() {
   if (!(dom("confirm") as HTMLInputElement).value || !(dom("password") as HTMLInputElement).value) {
     return;

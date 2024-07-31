@@ -1,15 +1,3 @@
-// @ts-ignore
-function showlog(str: string, time: number = 3000): void {
-  inc++;
-  dom("error").innerText = str;
-  setTimeout(() => {
-    --inc;
-    if (!inc) {
-      dom("error").innerText = "";
-    }
-  }, time);
-};
-
 dom("submit").addEventListener("click", function() {
   dom("username").setAttribute("disabled", "");
   dom("submit").setAttribute("disabled", "");

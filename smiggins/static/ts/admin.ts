@@ -3,18 +3,6 @@ declare const adminLevel: number;
 inc = 0;
 home = true;
 
-// @ts-ignore
-function showlog(str: string, time: number = 3000): void {
-  inc++;
-  dom("error").innerText = str;
-  setTimeout(() => {
-    --inc;
-    if (!inc) {
-      dom("error").innerText = "";
-    }
-  }, time);
-};
-
 // Level 1
 adminLevel >= 1 && dom("post-delete").addEventListener("click", function(): void {
   fetch(`/api/${(dom("comment-toggle") as HTMLInputElement).checked ? "comment" : "post"}`, {

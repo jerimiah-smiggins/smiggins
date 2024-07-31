@@ -1,5 +1,5 @@
 username = document.querySelector("body").getAttribute("data-username");
-share = window.location.href;
+share = location.href;
 home = true;
 
 url = `/api/post/user/${username}`;
@@ -95,7 +95,7 @@ function createMessage(): void {
       success: boolean
     }) => {
       if (json.success) {
-        window.location.href = `/m/${username}`;
+        location.href = `/m/${username}`;
       } else {
         showlog(`${lang.generic.something_went_wrong} ${lang.generic.reason.replaceAll("%s", json.reason)}`);
       }

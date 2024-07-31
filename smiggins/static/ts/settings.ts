@@ -4,18 +4,6 @@ declare let hasEmail: boolean;
 inc = 0;
 home = true;
 
-// @ts-ignore
-function showlog(str: string, time: number = 3000, email: boolean=false): void {
-  inc++;
-  dom(email ? "error" : "email-output").innerText = str;
-  setTimeout(() => {
-    --inc;
-    if (!inc) {
-      dom(email ? "error" : "email-output").innerText = "";
-    }
-  }, time);
-};
-
 let output: string = "<select id=\"color\">";
 for (const color of validColors) {
   output += `<option ${((localStorage.getItem("color") == color || (!localStorage.getItem("color") && color == "mauve")) ? "selected" : "")} value="${color}">${lang.generic.colors[color]}</option>`;
@@ -139,8 +127,8 @@ function updatePronouns(): void {
 }
 
 function setUnload(): void {
-  if (!window.onbeforeunload) {
-    window.onbeforeunload = function(): string {
+  if (!onbeforeunload) {
+    onbeforeunload = function(): string {
       return lang.settings.unload;
     };
   }
@@ -208,8 +196,12 @@ dom("save").addEventListener("click", function(): void {
       success: boolean
     }) => {
       if (json.success) {
-        window.onbeforeunload = null;
+        onbeforeunload = null;
         showlog(lang.generic.success);
+
+        if (lang.meta.language !== (dom("lang") as HTMLInputElement).value) {
+          location.reload();
+        }
       } else {
         showlog(`${lang.generic.something_went_wrong} ${lang.generic.reason.replaceAll("%s", json.reason)}`);
       }
@@ -244,7 +236,7 @@ ENABLE_ACCOUNT_SWITCHER && dom("acc-switch").addEventListener("click", function(
   let val: string[] = (dom("accs") as HTMLInputElement).value.split("-", 2);
   setCookie("token", val[0]);
   localStorage.setItem("username", val[1]);
-  window.location.reload();
+  location.reload();
 });
 
 ENABLE_ACCOUNT_SWITCHER && dom("acc-remove").addEventListener("click", function(): void {
@@ -363,7 +355,7 @@ ENABLE_EMAIL && dom("email-submit").addEventListener("click", function(): void {
           dom("email-output").innerHTML = lang.settings.account_email_verify;
         }
       } else {
-        showlog(json.reason, 3000, true);
+        dom("email-output").innerHTML = json.reason;
       }
     });
 });

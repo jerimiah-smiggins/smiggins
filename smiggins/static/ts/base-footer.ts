@@ -33,7 +33,7 @@ if (logged_in) {
 }
 
 if (typeof(share) !== 'undefined') {
-  iconsElement.innerHTML += `<span title="${lang.generic.share}" onclick="window.navigator.clipboard.writeText('${escapeHTML(share)}'); showlog('${lang.generic.copied}');">${icons.share}</span>`;
+  iconsElement.innerHTML += `<span title="${lang.generic.share}" onclick="navigator.clipboard.writeText('${escapeHTML(share)}'); showlog('${lang.generic.copied}');">${icons.share}</span>`;
 }
 
 document.querySelector("body").append(iconsElement);
