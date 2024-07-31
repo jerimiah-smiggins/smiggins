@@ -6,6 +6,7 @@ type = "post";
 includeUserLink = false;
 includePostLink = true;
 function extra(json) {
+    ENABLE_USER_BIOS && dom("user-bio").removeAttribute("hidden");
     ENABLE_USER_BIOS && (dom("user-bio").innerHTML = linkifyHtml(escapeHTML(json.bio), {
         formatHref: {
             mention: (href) => "/u" + href,
