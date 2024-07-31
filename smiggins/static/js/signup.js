@@ -1,15 +1,4 @@
 inc = 0;
-function showlog(str, time = 3000) {
-    inc++;
-    dom("error").innerText = str;
-    setTimeout(() => {
-        --inc;
-        if (!inc) {
-            dom("error").innerText = "";
-        }
-    }, time);
-}
-;
 dom("toggle-password").addEventListener("click", function () {
     if (dom("password").getAttribute("type") == "password") {
         dom("password").setAttribute("type", "text");
@@ -45,7 +34,7 @@ dom("submit").addEventListener("click", function () {
             response.json().then((json) => {
                 if (json.valid) {
                     setCookie("token", json.token);
-                    window.location.href = "/home";
+                    location.href = "/home";
                 }
                 else {
                     dom("submit").removeAttribute("disabled");

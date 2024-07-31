@@ -1,16 +1,5 @@
 inc = 0;
 home = true;
-function showlog(str, time = 3000) {
-    inc++;
-    dom("error").innerText = str;
-    setTimeout(() => {
-        --inc;
-        if (!inc) {
-            dom("error").innerText = "";
-        }
-    }, time);
-}
-;
 adminLevel >= 1 && dom("post-delete").addEventListener("click", function () {
     fetch(`/api/${dom("comment-toggle").checked ? "comment" : "post"}`, {
         method: "DELETE",
