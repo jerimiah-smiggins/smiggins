@@ -1,16 +1,5 @@
 inc = 0;
 home = true;
-function showlog(str, time = 3000, email = false) {
-    inc++;
-    dom(email ? "error" : "email-output").innerText = str;
-    setTimeout(() => {
-        --inc;
-        if (!inc) {
-            dom(email ? "error" : "email-output").innerText = "";
-        }
-    }, time);
-}
-;
 let output = "<select id=\"color\">";
 for (const color of validColors) {
     output += `<option ${((localStorage.getItem("color") == color || (!localStorage.getItem("color") && color == "mauve")) ? "selected" : "")} value="${color}">${lang.generic.colors[color]}</option>`;
@@ -118,8 +107,8 @@ function updatePronouns() {
     }
 }
 function setUnload() {
-    if (!window.onbeforeunload) {
-        window.onbeforeunload = function () {
+    if (!onbeforeunload) {
+        onbeforeunload = function () {
             return lang.settings.unload;
         };
     }
@@ -177,8 +166,11 @@ dom("save").addEventListener("click", function () {
     }).then((response) => (response.json()))
         .then((json) => {
         if (json.success) {
-            window.onbeforeunload = null;
+            onbeforeunload = null;
             showlog(lang.generic.success);
+            if (lang.meta.language !== dom("lang").value) {
+                location.reload();
+            }
         }
         else {
             showlog(`${lang.generic.something_went_wrong} ${lang.generic.reason.replaceAll("%s", json.reason)}`);
@@ -209,7 +201,7 @@ ENABLE_ACCOUNT_SWITCHER && dom("acc-switch").addEventListener("click", function 
     let val = dom("accs").value.split("-", 2);
     setCookie("token", val[0]);
     localStorage.setItem("username", val[1]);
-    window.location.reload();
+    location.reload();
 });
 ENABLE_ACCOUNT_SWITCHER && dom("acc-remove").addEventListener("click", function () {
     let removed = dom("accs").value.split("-", 2);
@@ -308,7 +300,7 @@ ENABLE_EMAIL && dom("email-submit").addEventListener("click", function () {
             }
         }
         else {
-            showlog(json.reason, 3000, true);
+            dom("email-output").innerHTML = json.reason;
         }
     });
 });

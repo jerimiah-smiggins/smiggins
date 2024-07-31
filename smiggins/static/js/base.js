@@ -24,7 +24,16 @@ const pronouns = lang.generic.pronouns;
 pronouns._a = pronouns.a;
 pronouns._o = pronouns.o;
 pronouns._v = pronouns.v;
-function showlog(str, time = 0) { }
+function showlog(str, time = 3000) {
+    inc++;
+    dom("error").innerText = str;
+    setTimeout(() => {
+        --inc;
+        if (!inc) {
+            dom("error").innerText = "";
+        }
+    }, time);
+}
 ;
 function setCookie(name, value) {
     let date = new Date();

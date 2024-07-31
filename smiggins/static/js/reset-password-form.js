@@ -1,14 +1,3 @@
-function showlog(str, time = 3000) {
-    inc++;
-    dom("error").innerText = str;
-    setTimeout(() => {
-        --inc;
-        if (!inc) {
-            dom("error").innerText = "";
-        }
-    }, time);
-}
-;
 dom("save").addEventListener("click", function () {
     if (!dom("confirm").value || !dom("password").value) {
         return;
