@@ -144,11 +144,16 @@ input, textarea {
     color: var(--surface2);
     opacity: 100%;
   }
-}
 
-textarea:disabled {
-  opacity: 70%;
-  pointer-events: none;
+  &:disabled {
+    color: var(--subtext0);
+    opacity: 1;
+    pointer-events: none;
+
+    &::placeholder {
+      color: var(--surface1);
+    }
+  }
 }
 
 a {
