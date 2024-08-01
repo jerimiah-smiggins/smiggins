@@ -101,6 +101,7 @@ Added emails and legacy changelogs
 + changelog.changes.v0.0.3 {1, 2}
 + changelog.changes.v0.0.2 {1, 2}
 + changelog.changes.v0.0.1 {1, 2}
+settings.profile_display_name_invalid_length
 ```
 </details>
 

@@ -325,7 +325,7 @@
       "profile_title": "Profile",
       "profile_basic_title": "Basic information",
       "profile_display_name_placeholder": "Display name...",
-      "profile_display_name_invalid_length": "Invalid name length. Must be between 1 and %s characters",
+      "profile_display_name_invalid_length": "Invalid display name length. Must be between 1 and %s characters",
       "profile_bio_placeholder": "User bio...",
       "profile_pronouns_title": "Pronouns",
       "profile_pronouns_primary": "Primary:",
