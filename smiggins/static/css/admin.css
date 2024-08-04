@@ -1,4 +1,4 @@
-h3 {
+h3, h4 {
   margin-bottom: 0;
 }
 
@@ -12,6 +12,10 @@ hr {
   flex-wrap: wrap;
   justify-content: center;
   gap: 4em;
+
+  & > div {
+    max-width: 20em;
+  }
 }
 
 .admin-logs {

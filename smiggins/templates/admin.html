@@ -104,6 +104,37 @@
           <option value="5">{{ lang.admin.level_five }}</option>
         </select><br>
         <button id="level-set">{{ lang.admin.level_button }}</button>
+
+        <h3>{{ lang.admin.backend.title }}</h3>
+        {{ lang.admin.backend.description }}<br>
+
+        <h4>{{ lang.admin.backend.version }}</h4>
+        {{ lang.admin.backend.version_description }}<br>
+        <input placeholder="{{ lang.admin.backend.version }}" value="{{ backend.version }}"><br>
+
+        <h4>{{ lang.admin.backend.site_name }}</h4>
+        {{ lang.admin.backend.site_name_description }}</br>
+        <input placeholder="{{ lang.admin.backend.site_name }}" value="{{ backend.site_name }}"><br>
+
+        <h4>{{ lang.admin.backend.website_url }}</h4>
+        {{ lang.admin.backend.website_url_description }}</br>
+        <input placeholder="{{ lang.admin.backend.website_url }}" value="{{ backend.website_url }}"><br>
+
+        <h4>{{ lang.admin.backend.enable_sitemaps }}</h4>
+        {{ lang.admin.backend.enable_sitemaps_description }}</br>
+        <input placeholder="{{ lang.admin.backend.enable_sitemaps }}" value="{{ backend.enable_sitemaps }}"><br>
+
+        <h4>{{ lang.admin.backend.items_per_sitemap }}</h4>
+        {{ lang.admin.backend.items_per_sitemap_description }}</br>
+        <input placeholder="{{ lang.admin.backend.items_per_sitemap }}" value="{{ backend.items_per_sitemap }}"><br>
+
+        <h4>{{ lang.admin.backend.enable_email }}</h4>
+        {{ lang.admin.backend.enable_email_description }}</br>
+        <input placeholder="{{ lang.admin.backend.enable_email }}" value="{{ backend.enable_email }}"><br>
+
+        <h4>{{ lang.admin.backend.debug }}</h4>
+        {{ lang.admin.backend.debug_description }}</br>
+        <input placeholder="{{ lang.admin.backend.debug }}" value="{{ backend.debug }}"><br>
       </div>
     {% endif %}
   </div>
