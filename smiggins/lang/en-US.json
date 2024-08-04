@@ -473,7 +473,8 @@
           "1": "Added changelogs for all legacy versions",
           "2": "Fixed an issue that caused read notifications/messages to not be colored grey",
           "3": "Added linking emails and resetting passwords with the emails",
-          "4": "Added sitemaps and their respective toggles"
+          "4": "Added sitemaps and their respective toggles",
+          "5": "Added a setting to change positioning of the icon bar"
         },
         "v0.10.1": {
           "1": "Added a credits page (and a backend toggle)",
