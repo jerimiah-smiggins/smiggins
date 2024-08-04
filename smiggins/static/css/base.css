@@ -278,13 +278,37 @@ svg.red,
   text-decoration: none !important;
 }
 
+body[data-bar-pos^="u"] .icons,
+body:not([data-bar-pos]) .icons {
+  top: 1em;
+}
+
+body[data-bar-pos^="l"] .icons {
+  bottom: 1em;
+}
+
+body[data-bar-pos$="l"] .icons,
+body:not([data-bar-pos]) .icons {
+  left: 1em;
+}
+
+body[data-bar-pos$="r"] .icons {
+  right: 1em;
+}
+
+body[data-bar-dir="v"] .icons,
+body:not([data-bar-dir]) .icons {
+  flex-direction: column;
+}
+
+body[data-bar-dir="h"] .icons {
+  flex-direction: row;
+}
+
 .icons {
   display: flex;
-  flex-direction: column;
   flex-wrap: nowrap;
   position: fixed;
-  top: 1em;
-  left: 1em;
   gap: 0.5em;
 
   a {

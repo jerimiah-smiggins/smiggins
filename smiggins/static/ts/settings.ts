@@ -140,6 +140,18 @@ dom("color").addEventListener("change", function(): void {
   document.body.setAttribute('data-color', (dom("color") as HTMLInputElement).value);
 });
 
+(dom("bar-pos") as HTMLInputElement).value = localStorage.getItem("bar-pos") || "ul";
+dom("bar-pos").addEventListener("change", function(): void {
+  localStorage.setItem("bar-pos", (dom("bar-pos") as HTMLInputElement).value);
+  document.body.setAttribute("data-bar-pos", (dom("bar-pos") as HTMLInputElement).value);
+});
+
+(dom("bar-dir") as HTMLInputElement).value = localStorage.getItem("bar-dir") || "v";
+dom("bar-dir").addEventListener("change", function(): void {
+  localStorage.setItem("bar-dir", (dom("bar-dir") as HTMLInputElement).value);
+  document.body.setAttribute("data-bar-dir", (dom("bar-dir") as HTMLInputElement).value);
+});
+
 ENABLE_USER_BIOS && dom("bio").addEventListener("input", postTextInputEvent);
 dom("displ-name").addEventListener("input", setUnload);
 dom("priv").addEventListener("input", setUnload);

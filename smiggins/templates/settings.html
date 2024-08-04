@@ -99,6 +99,18 @@
         {% endfor %}
       </select><br><br>
 
+      {{ lang.settings.cosmetic_bar }}:<br>
+      <select id="bar-pos">
+        <option value="ur">{{ lang.settings.cosmetic_bar_ur }}</option>
+        <option value="lr">{{ lang.settings.cosmetic_bar_lr }}</option>
+        <option value="ul">{{ lang.settings.cosmetic_bar_ul }}</option>
+        <option value="ll">{{ lang.settings.cosmetic_bar_ll }}</option>
+      </select><br>
+      <select id="bar-dir">
+        <option value="h">{{ lang.settings.cosmetic_bar_h }}</option>
+        <option value="v">{{ lang.settings.cosmetic_bar_v }}</option>
+      </select><br><br>
+
       {{ lang.settings.cosmetic_color }}:<br>
       <div id="color-selector"></div>
       <div id="post-example"></div><br><br>

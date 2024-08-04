@@ -118,6 +118,15 @@ dom("color").addEventListener("change", function () {
     localStorage.setItem('color', dom("color").value);
     document.body.setAttribute('data-color', dom("color").value);
 });
+dom("bar-pos").value = localStorage.getItem("bar-pos") || "ul";
+dom("bar-pos").addEventListener("change", function () {
+    localStorage.setItem("bar-pos", dom("bar-pos").value);
+    document.body.setAttribute("data-bar-pos", dom("bar-pos").value);
+});
+dom("bar-dir").addEventListener("change", function () {
+    localStorage.setItem("bar-dir", dom("bar-dir").value);
+    document.body.setAttribute("data-bar-dir", dom("bar-dir").value);
+});
 ENABLE_USER_BIOS && dom("bio").addEventListener("input", postTextInputEvent);
 dom("displ-name").addEventListener("input", setUnload);
 dom("priv").addEventListener("input", setUnload);
