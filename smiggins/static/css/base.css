@@ -305,9 +305,20 @@ body[data-bar-dir="h"] .icons {
   flex-direction: row;
 }
 
+body[data-bar-dir="h"][data-bar-pos$="r"] {
+  flex-direction: row-reverse;
+}
+
+body[data-bar-dir="v"][data-bar-pos^="l"] {
+  flex-direction: column-reverse;
+}
+
 .icons {
+  filter: drop-shadow(0 0 5px var(--base))
+          drop-shadow(0 0 5px var(--base))
+          drop-shadow(0 0 3px var(--base));
   display: flex;
-  flex-wrap: nowrap;
+  flex-wrap: wrap;
   position: fixed;
   gap: 0.5em;
 
