@@ -56,6 +56,13 @@ Added emails and legacy changelogs
 
 ```diff
 + account.forgot_password
++ settings.cosmetic_bar
++ settings.cosmetic_bar_ur
++ settings.cosmetic_bar_lr
++ settings.cosmetic_bar_ul
++ settings.cosmetic_bar_ll
++ settings.cosmetic_bar_h
++ settings.cosmetic_bar_v
 + settings.account_email
 + settings.account_email_update
 + settings.account_email_verify
@@ -80,7 +87,7 @@ Added emails and legacy changelogs
 + email.reset.block_1
 + email.reset.block_2
 + email.reset.block_3
-+ changelog.changes.v0.10.2 {1, 2, 3}
++ changelog.changes.v0.11.0 {1, 2, 3, 4, 5}
 + changelog.changes.v0.3.6 {1, 2, 3}
 + changelog.changes.v0.3.5 {1, 2, 3}
 + changelog.changes.v0.3.4 {1, 2}
