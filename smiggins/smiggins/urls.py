@@ -78,7 +78,7 @@ urlpatterns = list(filter(bool, [
     path("m/<str:username>/", message) if ENABLE_PRIVATE_MESSAGES else None,
 
     path("email/test/<str:intent>", test_email) if DEBUG and ENABLE_EMAIL else None,
-    path("email/<str:key>/", email_manager)if ENABLE_EMAIL else None,
+    path("email/<str:key>/", email_manager) if ENABLE_EMAIL else None,
 
     path("admin/", admin),
     path("django-admin/", django_admin.site.urls),

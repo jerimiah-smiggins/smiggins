@@ -162,6 +162,6 @@ class Hashtag(models.Model):
 class URLPart(models.Model):
     url = models.TextField(max_length=128, primary_key=True, unique=True)
     user = models.ForeignKey(User, on_delete=models.CASCADE)
-    intent = models.TextField(max_length=6) # "reset", "remove", "verify", "pwd_fm"
+    intent = models.TextField(max_length=6) # "reset", "remove", "verify", "pwd_fm", "change"
     extra_data = models.JSONField(default=dict, blank=True)
     expire = models.IntegerField()
