@@ -21,6 +21,9 @@
   */
   "website_url": "http://localhost:8000",
 
+  // Use this if you want to verify your ownership on the google search console
+  "google_verification_tag": null,
+
   // The user id of the instance owner. Can be found on the /django-admin page.
   "owner_user_id": 1,
 

@@ -53,7 +53,8 @@ from .variables import (
     BASE_DIR,
     VALID_LANGUAGES,
     ENABLE_EMAIL,
-    BADGE_DATA
+    BADGE_DATA,
+    GOOGLE_VERIFICATION_TAG
 )
 
 def sha(string: str | bytes) -> str:
@@ -115,6 +116,8 @@ def get_HTTP_response(
         "MAX_BIO_LENGTH": MAX_BIO_LENGTH,
         "MAX_POLL_OPTION_LENGTH": MAX_POLL_OPTION_LENGTH,
         "MAX_POLL_OPTIONS": MAX_POLL_OPTIONS,
+
+        "GOOGLE_VERIFICATION_TAG": GOOGLE_VERIFICATION_TAG,
 
         "ENABLE_USER_BIOS": str(ENABLE_USER_BIOS).lower(),
         "ENABLE_PRONOUNS": str(ENABLE_PRONOUNS).lower(),
