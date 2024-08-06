@@ -234,6 +234,7 @@ PRIVATE_AUTHENTICATOR_KEY: str = hashlib.sha256(auth_key).hexdigest()
 timeout_handler: dict[str, dict[str, None]] = {}
 
 ROBOTS: str = """\
+# Generic
 User-agent: *
 Disallow: /settings/
 Disallow: /home/
