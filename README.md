@@ -259,3 +259,31 @@ doesn't exist.
   [@trinkey](https://github.com/trinkey). if you think you are deserving of
   getting it and don't currently have it, let her know.
 </details>
+
+<details>
+  <summary><h2 style="display: inline">
+    How to setup Gmail on PythonAnywhere
+  </h2></summary>
+
+  First, you need to make sure 2 step verification is enabled for the gmail
+  account you want to send the emails from. Do this by going to
+  <a href="https://myaccount.google.com/signinoptions/twosv">this link</a>.
+
+  Next, you'll need to create an app password, by going to
+  <a href="https://myaccount.google.com/u/3/apppasswords">this link</a>. The app
+  name can be anything you want, and it should show you four strings of four
+  letters. Save this for the next step.
+
+  Finally, in the `_api_keys.py` file in the backend folder, put the following
+  code, modifying it for your needs:
+  ```py
+  smtp_auth = {
+      "EMAIL_HOST": "smtp.gmail.com",
+      "EMAIL_HOST_USER": "[email]@gmail.com", # put the full email, like example@gmail.com
+      "EMAIL_HOST_PASSWORD": "xxxx xxxx xxxx xxxx", # put in the password obtained in the previous step
+      "EMAIL_PORT": 587,
+      "EMAIL_USE_TLS": True,
+      "DEFAULT_FROM_EMAIL": "[email]@gmail.com" # put the full email, like example@gmail.com
+  }
+  ```
+</details>
