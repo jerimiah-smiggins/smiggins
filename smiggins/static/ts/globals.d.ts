@@ -15,6 +15,7 @@ declare const ENABLE_PINNED_POSTS: boolean;
 declare const ENABLE_ACCOUNT_SWITCHER: boolean;
 declare const ENABLE_POLLS: boolean;
 declare const ENABLE_CONTENT_WARNINGS: boolean;
+declare const ENABLE_EMAIL: boolean;
 
 // Global variables
 declare const lang: { [key: string]: any };

@@ -2,21 +2,50 @@ import json5
 
 from pathlib import Path
 
-# Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
 
 DEBUG = True
+email = False
+url = None
+
 try:
     f: dict = json5.load(open(BASE_DIR / "settings.json", "r"))
 
     for key, val in f.items():
-        if key.lower() == "debug" and isinstance(val, bool):
+        if isinstance(val, bool) and key.lower() == "debug":
             DEBUG = val
+
+        elif isinstance(val, bool) and key.lower() in ["enable_email", "email"]:
+            email = val
+
+        elif isinstance(val, str) and key.lower() == "website_url":
+            url = val
 
 except ValueError:
     ...
 except FileNotFoundError:
     ...
+
+if email and url is None:
+    email = False
+
+if email:
+    try:
+        from backend._api_keys import smtp_auth # type: ignore
+
+        EMAIL_HOST = smtp_auth["EMAIL_HOST"]
+        EMAIL_HOST_USER = smtp_auth["EMAIL_HOST_USER"]
+        EMAIL_HOST_PASSWORD = smtp_auth["EMAIL_HOST_PASSWORD"]
+        EMAIL_PORT = smtp_auth["EMAIL_PORT"]
+        EMAIL_USE_TLS = smtp_auth["EMAIL_USE_TLS"]
+        DEFAULT_FROM_EMAIL = smtp_auth["DEFAULT_FROM_EMAIL"]
+
+        del smtp_auth
+
+    except ImportError:
+        print("\x1b[91mIn order to allow emails, you need to have smtp_auth set in backend/_api_keys.py!\x1b[0m")
+
+del email, url, key, val
 
 # SECURITY WARNING: keep the secret key used in production secret!
 SECRET_KEY = 'django-insecure-y$sfjl+rlc(gbdjm4h@-!zxn8$z@nkcdd_9g^^yq&-=!b(8d43'

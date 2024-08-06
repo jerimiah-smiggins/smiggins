@@ -3,7 +3,8 @@
     "fallback": [ "en-US" ],
     "name": "Esperanto",
     "version": "1.2.0",
-    "maintainers": [ "Subroutine7901" ]
+    "maintainers": [ "Subroutine7901" ],
+    "past_maintainers": []
   },
 
   "texts": {
@@ -318,56 +319,56 @@
       "profile_private": "Nepublika konto?",
       "profile_private_description": "Se via konto estas privata, tio signifas, ke nur vi kaj homoj, kiujn vi sekvas, povas vidi viajn afi\u015dojn.",
 
-      "cosmetic_title": "Cosmetic",
-      "cosmetic_theme": "Theme",
-      "cosmetic_theme_light": "Dawn",
-      "cosmetic_theme_gray": "Dusk",
-      "cosmetic_theme_dark": "Dark",
-      "cosmetic_theme_black": "Midnight",
-      "cosmetic_theme_oled": "Black",
-      "cosmetic_theme_invalid": "That's not a vailid theme, idiot.",
-      "cosmetic_color": "Color",
-      "cosmetic_language": "Language",
-      "cosmetic_language_invalid": "Invalid language '%s'",
-      "cosmetic_example_post_display_name": "Example",
-      "cosmetic_example_post_username": "example",
-      "cosmetic_example_post_content": "This is an example post. I am @example.",
+      "cosmetic_title": "Cosmetika",
+      "cosmetic_theme": "Tema",
+      "cosmetic_theme_light": "Tagi\u011da",
+      "cosmetic_theme_gray": "Krepuska",
+      "cosmetic_theme_dark": "Malhela",
+      "cosmetic_theme_black": "Noktomeza",
+      "cosmetic_theme_oled": "Nigra",
+      "cosmetic_theme_invalid": "Tio ne estas vailida temo, idioto.",
+      "cosmetic_color": "Kolora",
+      "cosmetic_language": "Lingvo",
+      "cosmetic_language_invalid": "Nevalida lingvo '%s'",
+      "cosmetic_example_post_display_name": "Ekzemplo",
+      "cosmetic_example_post_username": "ekzemplo",
+      "cosmetic_example_post_content": "Tio estas ekzempla afi\u015do. Mi estas @ekzemplo.",
 
-      "account_title": "Account",
-      "account_password": "Change password",
-      "account_password_current": "Current password...",
-      "account_password_new": "New password...",
-      "account_password_success": "Your password has been changed",
-      "account_password_failure": "Unable to set your password! Reason: %s",
-      "account_switcher": "Account Switcher",
-      "account_switcher_switch": "Switch",
-      "account_switcher_remove": "Remove",
-      "account_switcher_remove_error": "You can't remove the account you're currently signed into!",
-      "account_switcher_add": "Add new account...",
+      "account_title": "Konto",
+      "account_password": "\u015can\u011du pasvorton",
+      "account_password_current": "Aktuala pasvorto...",
+      "account_password_new": "Nova pasvorto...",
+      "account_password_success": "Via pasvorto estis \u015dan\u011dita",
+      "account_password_failure": "Ne povas \u015dan\u011di vian pasvorton! Kialo: %s",
+      "account_switcher": "Konta \u015caltanto",
+      "account_switcher_switch": "\u015caltilo",
+      "account_switcher_remove": "Forigu",
+      "account_switcher_remove_error": "Vi ne povas forigi la konton, al kiu vi estas nun ensalutinta!",
+      "account_switcher_add": "Aldonu novan konton...",
 
-      "admin": "Admin page",
-      "logout": "Log out of ALL accounts"
+      "admin": "Administra retpa\u011do",
+      "logout": "Elsalutu el \u0109iuj kontojn"
     },
 
     "user_page": {
-      "followers": "Followers: %s",
-      "following": "Following: %s",
-      "user_on_smiggins": "%s on %t",
-      "follow": "Follow",
-      "unfollow": "Unfollow",
-      "block": "Block",
-      "unblock": "Unblock",
-      "message": "Message",
-      "private_warning": "This account is private. Only users that they follow can see their posts.",
-      "lists_blocks": "Blocks",
-      "lists_following": "Following",
-      "lists_followers": "Followers",
-      "lists_no_bio": "No bio set"
+      "followers": "Sekvantoj: %s",
+      "following": "Sekvantaraj: %s",
+      "user_on_smiggins": "%s sur %t",
+      "follow": "Sekvu",
+      "unfollow": "Malsekvu",
+      "block": "Bloku",
+      "unblock": "Malbloku",
+      "message": "Mesa\u011du",
+      "private_warning": "\u0108i tiu konto estas privata. Nur uzantoj, kiujn ili sekvas, povas vidi siajn afi\u015dojn.",
+      "lists_blocks": "Blokoj",
+      "lists_following": "Sekvantaraj",
+      "lists_followers": "Sekvantoj",
+      "lists_no_bio": "Neniu bio agordita"
     },
 
     "changelog": {
-      "title": "Changelogs",
-      "unknown": "Unknown"
+      "title": "\u015can\u011dprotokolo",
+      "unknown": "Nesciata"
     }
   }
 }

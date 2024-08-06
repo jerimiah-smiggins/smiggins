@@ -21,7 +21,7 @@ body {
   padding: 5vh 0;
   text-align: center;
   font-size: 14px;
-  margin: 0px;
+  margin: 0;
   overflow-x: hidden;
   word-wrap: break-word;
 }
@@ -68,7 +68,7 @@ button {
   color: var(--text);
   padding: 5px 7px;
   border: none;
-  border-radius: 10px;
+  border-radius: 999em;
   cursor: pointer;
   font-size: 0.8em;
   transition: color 0.15s, scale 0.15s, margin 0.15s, background-color 0.15s;
@@ -103,6 +103,15 @@ button {
   }
 }
 
+.fake-input {
+  display: inline-block;
+  text-align: left;
+  max-width: 200px;
+  width: 90vw;
+  cursor: text;
+}
+
+.fake-input,
 input,
 textarea,
 option,
@@ -124,7 +133,9 @@ option {
   font-size: 1.1em;
 }
 
-input, textarea, select {
+input,
+textarea,
+select {
   font-family: "Poppins";
 }
 
@@ -133,11 +144,16 @@ input, textarea {
     color: var(--surface2);
     opacity: 100%;
   }
-}
 
-textarea:disabled {
-  opacity: 70%;
-  pointer-events: none;
+  &:disabled {
+    color: var(--subtext0);
+    opacity: 1;
+    pointer-events: none;
+
+    &::placeholder {
+      color: var(--surface1);
+    }
+  }
 }
 
 a {
@@ -162,15 +178,22 @@ i {
 }
 
 p {
-  margin: 0px;
+  margin: 0;
   padding: 2px;
 }
 
-table.bordered {
-  border-collapse: collapse;
+table {
+  &.center {
+    margin-left: auto;
+    margin-right: auto;
+  }
 
-  &th, &td {
-    border: 1.5px solid var(--surface0);
+  &.bordered {
+    border-collapse: collapse;
+
+    th, td {
+      border: 1.5px solid var(--surface0);
+    }
   }
 }
 
@@ -233,11 +256,6 @@ svg.red,
 
 .center {
   text-align: center;
-
-  &table {
-    margin-left: auto;
-    margin-right: auto;
-  }
 }
 
 .right {
@@ -245,7 +263,7 @@ svg.red,
 }
 
 .invis {
-  opacity: 0%;
+  opacity: 0;
 }
 
 .hidden {
@@ -260,13 +278,48 @@ svg.red,
   text-decoration: none !important;
 }
 
-.icons {
-  display: flex;
-  flex-direction: column;
-  flex-wrap: nowrap;
-  position: fixed;
+body[data-bar-pos^="u"] .icons,
+body:not([data-bar-pos]) .icons {
   top: 1em;
+}
+
+body[data-bar-pos^="l"] .icons {
+  bottom: 1em;
+}
+
+body[data-bar-pos$="l"] .icons,
+body:not([data-bar-pos]) .icons {
   left: 1em;
+}
+
+body[data-bar-pos$="r"] .icons {
+  right: 1em;
+}
+
+body[data-bar-dir="v"] .icons,
+body:not([data-bar-dir]) .icons {
+  flex-direction: column;
+}
+
+body[data-bar-dir="h"] .icons {
+  flex-direction: row;
+}
+
+body[data-bar-dir="h"][data-bar-pos$="r"] {
+  flex-direction: row-reverse;
+}
+
+body[data-bar-dir="v"][data-bar-pos^="l"] {
+  flex-direction: column-reverse;
+}
+
+.icons {
+  filter: drop-shadow(0 0 5px var(--base))
+          drop-shadow(0 0 5px var(--base))
+          drop-shadow(0 0 3px var(--base));
+  display: flex;
+  flex-wrap: wrap;
+  position: fixed;
   gap: 0.5em;
 
   a {
@@ -292,7 +345,7 @@ svg.red,
     width: 0.5em;
     height: 0.5em;
     border-radius: 0.25em;
-    transform: translate(-0.3em, 0px);
+    transform: translate(-0.3em, 0);
     background-color: var(--accent);
     content: "";
   }

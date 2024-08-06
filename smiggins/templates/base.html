@@ -7,6 +7,9 @@
     <title>{% block title %}{{ SITE_NAME }} v{{ VERSION }}{% endblock %}</title>
 
     <script>
+      {% if ENABLE_BADGES == "true" %}
+        const badges = {% autoescape off %}{{ badges }}{% endautoescape %};
+      {% endif %}
       const lang = {% autoescape off %}{{ lang }}{% endautoescape %};
 
       const MAX_POST_LENGTH = {{ MAX_POST_LENGTH }};
@@ -25,6 +28,7 @@
       const ENABLE_ACCOUNT_SWITCHER = {{ ENABLE_ACCOUNT_SWITCHER }};
       const ENABLE_POLLS = {{ ENABLE_POLLS }};
       const ENABLE_CONTENT_WARNINGS = {{ ENABLE_CONTENT_WARNINGS }};
+      const ENABLE_EMAIL = {{ ENABLE_EMAIL }};
     </script>
 
     <meta charset="utf-8">
@@ -56,16 +60,14 @@
       <script src="{% static "/js/linkify-hashtags-4.1.3.min.js" %}?v={{ VERSION }}"></script>
     {% endif %}
 
-    {% if ENABLE_BADGES == "true" %}
-      <script src="/badges.js?v={{ VERSION }}"></script>
-    {% endif %}
-
     <script src="{% static "/js/base.js" %}?v={{ VERSION }}"></script>
 
     {% block head %}{% endblock %}
   </head>
 
   <body data-theme="{{ THEME }}" {% block body_head %}{% endblock %}>
+    {% block body %}{% endblock %}
+
     <noscript>
       <h1>{{ lang.noscript.title }}</h1>
       <h2>{{ lang.noscript.subtitle }}</h2>
@@ -75,8 +77,6 @@
         <li>{{ NOSCRIPT_FF }}</li>
       </ul>
     </noscript>
-
-    {% block body %}{% endblock %}
 
     <script src="{% static "/js/base-footer.js" %}?v={{ VERSION }}"></script>
   </body>

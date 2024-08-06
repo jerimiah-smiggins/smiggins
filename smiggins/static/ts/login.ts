@@ -1,17 +1,5 @@
 inc = 0
 
-// @ts-ignore
-function showlog(str: string, time: number = 3000): void {
-  inc++;
-  dom("error").innerText = str;
-  setTimeout(() => {
-    --inc;
-    if (!inc) {
-      dom("error").innerText = "";
-    }
-  }, time);
-};
-
 dom("toggle-password").addEventListener("click", function(): void {
   if (dom("password").getAttribute("type") == "password") {
     dom("password").setAttribute("type", "text");
@@ -45,7 +33,7 @@ dom("submit").addEventListener("click", function(): void {
         }) => {
           if (json.valid) {
             setCookie("token", json.token);
-            window.location.href = "/home";
+            location.href = "/home";
           } else {
             dom("submit").removeAttribute("disabled")
             showlog(lang.account.log_in_failure.replaceAll("%s", json.reason));

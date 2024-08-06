@@ -16,13 +16,23 @@ BASE_DIR = pathlib.Path(__file__).resolve().parent.parent
 def error(string):
     print(f"\x1b[91m{string}\x1b[0m")
 
+CREDITS: dict[str, list[str]] = {
+    "lead": ["trinkey"],
+    "contributors": [
+        "Subroutine7901",
+        "DiamondTaco",
+        "TheMineCommander"
+    ]
+}
+
 # Set default variable states
-REAL_VERSION: tuple[int, int, int] = (0, 10, 1)
+REAL_VERSION: tuple[int, int, int] = (0, 11, 0)
 VERSION: str = ".".join([str(i) for i in REAL_VERSION])
 SITE_NAME: str = "Jerimiah Smiggins"
+WEBSITE_URL: str | None = None
 DEBUG: bool = True
 OWNER_USER_ID: int = 1
-ADMIN_LOG_PATH: str | None = "./admin.log"
+ADMIN_LOG_PATH: str = "./admin.log"
 MAX_ADMIN_LOG_LINES: int = 1000
 DEFAULT_LANGUAGE: str = "en-US"
 DEFAULT_THEME: str = "dark"
@@ -39,7 +49,12 @@ DEFAULT_BANNER_COLOR: str = "#3a1e93"
 POSTS_PER_REQUEST: int = 20
 MESSAGES_PER_REQUEST: int = 40
 MAX_NOTIFICATIONS: int = 25
-CONTACT_INFO: list[list[str]] = []
+CONTACT_INFO: list[list[str]] = [
+    ["email", "trinkey@duck.com"],
+    ["url",   "https://github.com/jerimiah-smiggins/smiggins/issues"],
+    ["url",   "https://discord.gg/tH7QnHApwu"],
+    ["text",  "DM me on discord (@trinkey_)"]
+]
 POST_WEBHOOKS: dict[str, list[str]] = {}
 SOURCE_CODE: bool = True
 RATELIMIT: bool = True
@@ -60,6 +75,9 @@ ENABLE_CONTENT_WARNINGS: bool = True
 ENABLE_POLLS: bool = True
 ENABLE_LOGGED_OUT_CONTENT: bool = True
 ENABLE_NEW_ACCOUNTS: bool = True
+ENABLE_EMAIL: bool = False
+ENABLE_SITEMAPS: bool = False
+ITEMS_PER_SITEMAP: int = 500
 
 API_TIMINGS: dict[str, int] = {}
 
@@ -118,6 +136,7 @@ def clamp(
 for key, val in f.items():
     if   key.lower() == "version": is_ok(val, "VERSION", str) # noqa: E701
     elif key.lower() == "site_name": is_ok(val, "SITE_NAME", str) # noqa: E701
+    elif key.lower() == "website_url": is_ok(val, "WEBSITE_URL", str) # noqa: E701
     elif key.lower() == "owner_user_id": is_ok(val, "OWNER_USER_ID", int) # noqa: E701
     elif key.lower() == "debug": is_ok(val, "DEBUG", bool) # noqa: E701
     elif key.lower() == "admin_log_path": is_ok(val, "ADMIN_LOG_PATH", str, null=True) # noqa: E701
@@ -159,6 +178,9 @@ for key, val in f.items():
     elif key.lower() in ["enable_cws", "enable_c_warnings", "enable_content_warnings"]: is_ok(val, "ENABLE_CONTENT_WARNINGS", bool) # noqa: E701
     elif key.lower() in ["enable_logged_out", "enable_logged_out_content"]: is_ok(val, "ENABLE_LOGGED_OUT_CONTENT", bool) # noqa: E701
     elif key.lower() in ["enable_signup", "enable_new_users", "enable_new_accounts"]: is_ok(val, "ENABLE_NEW_ACCOUNTS", bool) # noqa: E701
+    elif key.lower() in ["email", "enable_email"]: is_ok(val, "ENABLE_EMAIL", bool) # noqa: E701
+    elif key.lower() in ["sitemaps", "enable_sitemaps"]: is_ok(val, "ENABLE_SITEMAPS", bool) # noqa: E701
+    elif key.lower() == "items_per_sitemap": is_ok(val, "ITEMS_PER_SITEMAP", int) # noqa: E701
     else: error(f"Unknown setting {key}") # noqa: E701
 
 MAX_ADMIN_LOG_LINES = clamp(MAX_ADMIN_LOG_LINES, minimum=1)
@@ -172,6 +194,7 @@ MAX_POLL_OPTION_LENGTH = clamp(MAX_POLL_OPTION_LENGTH, minimum=1)
 POSTS_PER_REQUEST = clamp(POSTS_PER_REQUEST, minimum=1)
 MESSAGES_PER_REQUEST = clamp(MESSAGES_PER_REQUEST, minimum=1)
 MAX_NOTIFICATIONS = clamp(MAX_NOTIFICATIONS, minimum=1)
+ITEMS_PER_SITEMAP = clamp(ITEMS_PER_SITEMAP, minimum=50, maximum=50000)
 
 if CACHE_LANGUAGES is None:
     CACHE_LANGUAGES = not DEBUG
@@ -181,6 +204,14 @@ VALID_LANGUAGES: list[dict[str, str]] = [{
     "name": json.load(open(BASE_DIR / f"lang/{i}"))["meta"]["name"],
     "code": i[:-5:]
 } for i in sorted(VALID_LANGUAGES_TEMP)]
+
+if ENABLE_EMAIL and WEBSITE_URL is None:
+    ENABLE_EMAIL = False
+    error("You need to set the website_url setting to enable emails!")
+
+if ENABLE_SITEMAPS and WEBSITE_URL is None:
+    ENABLE_SITEMAPS = False
+    error("You need to set the website_url setting to enable sitemaps!")
 
 for key, val in {
     "signup unsuccessful": 1000,
@@ -210,34 +241,40 @@ Disallow: /home/
 Disallow: /api/
 Disallow: /static/
 
-# AI slop
-User-agent: GPTBot
-Disallow: /
-User-agent: ChatGPT-User
-Disallow: /
-User-agent: Google-Extended
-Disallow: /
-User-agent: CCBot
-Disallow: /
-User-agent: Omgilibot
-Disallow: /
-User-agent: omgili
-Disallow: /
-User-agent: FacebookBot
-Disallow: /
-User-agent: anthropic-ai
-Disallow: /
-User-agent: ClaudeBot
-Disallow: /
-User-agent: Diffbot
-Disallow: /
 User-agent: Amazonbot
-Disallow: /
+User-agent: anthropic-ai
+User-agent: Applebot-Extended
+User-agent: Bytespider
+User-agent: CCBot
+User-agent: ChatGPT-User
+User-agent: ClaudeBot
+User-agent: Claude-Web
+User-agent: cohere-ai
+User-agent: Diffbot
+User-agent: FacebookBot
+User-agent: FriendlyCrawler
+User-agent: Google-Extended
+User-agent: GoogleOther
+User-agent: GoogleOther-Image
+User-agent: GoogleOther-Video
+User-agent: GPTBot
+User-agent: ImagesiftBot
+User-agent: img2dataset
+User-agent: Meta-ExternalAgent
+User-agent: OAI-SearchBot
+User-agent: omgili
+User-agent: omgilibot
 User-agent: PerplexityBot
+User-agent: YouBot
 Disallow: /
 """
 
 BADGE_DATA = {}
+
+try:
+    from backend._api_keys import smtp_auth # type: ignore # noqa: F401
+except ImportError:
+    ENABLE_EMAIL = False
 
 try:
     Badge.objects.get(name="administrator")

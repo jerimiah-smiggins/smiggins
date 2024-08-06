@@ -1,11 +1,12 @@
 username = document.querySelector("body").getAttribute("data-username");
-share = window.location.href;
+share = location.href;
 home = true;
 url = `/api/post/user/${username}`;
 type = "post";
 includeUserLink = false;
 includePostLink = true;
 function extra(json) {
+    ENABLE_USER_BIOS && dom("user-bio").removeAttribute("hidden");
     ENABLE_USER_BIOS && (dom("user-bio").innerHTML = linkifyHtml(escapeHTML(json.bio), {
         formatHref: {
             mention: (href) => "/u" + href,
@@ -69,7 +70,7 @@ function createMessage() {
     }).then((response) => response.json())
         .then((json) => {
         if (json.success) {
-            window.location.href = `/m/${username}`;
+            location.href = `/m/${username}`;
         }
         else {
             showlog(`${lang.generic.something_went_wrong} ${lang.generic.reason.replaceAll("%s", json.reason)}`);

@@ -1,19 +1,8 @@
 declare let user_pronouns: string;
+declare let hasEmail: boolean;
 
 inc = 0;
 home = true;
-
-// @ts-ignore
-function showlog(str: string, time: number = 3000): void {
-  inc++;
-  dom("error").innerText = str;
-  setTimeout(() => {
-    --inc;
-    if (!inc) {
-      dom("error").innerText = "";
-    }
-  }, time);
-};
 
 let output: string = "<select id=\"color\">";
 for (const color of validColors) {
@@ -138,8 +127,8 @@ function updatePronouns(): void {
 }
 
 function setUnload(): void {
-  if (!window.onbeforeunload) {
-    window.onbeforeunload = function(): string {
+  if (!onbeforeunload) {
+    onbeforeunload = function(): string {
       return lang.settings.unload;
     };
   }
@@ -149,6 +138,18 @@ toggleGradient(false);
 dom("color").addEventListener("change", function(): void {
   localStorage.setItem('color', (dom("color") as HTMLInputElement).value);
   document.body.setAttribute('data-color', (dom("color") as HTMLInputElement).value);
+});
+
+(dom("bar-pos") as HTMLInputElement).value = localStorage.getItem("bar-pos") || "ul";
+dom("bar-pos").addEventListener("change", function(): void {
+  localStorage.setItem("bar-pos", (dom("bar-pos") as HTMLInputElement).value);
+  document.body.setAttribute("data-bar-pos", (dom("bar-pos") as HTMLInputElement).value);
+});
+
+(dom("bar-dir") as HTMLInputElement).value = localStorage.getItem("bar-dir") || "v";
+dom("bar-dir").addEventListener("change", function(): void {
+  localStorage.setItem("bar-dir", (dom("bar-dir") as HTMLInputElement).value);
+  document.body.setAttribute("data-bar-dir", (dom("bar-dir") as HTMLInputElement).value);
 });
 
 ENABLE_USER_BIOS && dom("bio").addEventListener("input", postTextInputEvent);
@@ -207,8 +208,12 @@ dom("save").addEventListener("click", function(): void {
       success: boolean
     }) => {
       if (json.success) {
-        window.onbeforeunload = null;
+        onbeforeunload = null;
         showlog(lang.generic.success);
+
+        if (lang.meta.language !== (dom("lang") as HTMLInputElement).value) {
+          location.reload();
+        }
       } else {
         showlog(`${lang.generic.something_went_wrong} ${lang.generic.reason.replaceAll("%s", json.reason)}`);
       }
@@ -243,7 +248,7 @@ ENABLE_ACCOUNT_SWITCHER && dom("acc-switch").addEventListener("click", function(
   let val: string[] = (dom("accs") as HTMLInputElement).value.split("-", 2);
   setCookie("token", val[0]);
   localStorage.setItem("username", val[1]);
-  window.location.reload();
+  location.reload();
 });
 
 ENABLE_ACCOUNT_SWITCHER && dom("acc-remove").addEventListener("click", function(): void {
@@ -272,7 +277,7 @@ dom("toggle-password").addEventListener("click", function(): void {
   dom("current").setAttribute("type", newType);
   dom("password").setAttribute("type", newType);
   dom("confirm").setAttribute("type", newType);
-})
+});
 
 dom("set-password").addEventListener("click", function(): void {
   let old_password: string = sha256((dom("current") as HTMLInputElement).value);
@@ -339,4 +344,30 @@ dom("confirm").addEventListener("keydown", function(event: KeyboardEvent): void 
     dom("set-password").focus();
     dom("set-password").click();
   }
+});
+
+ENABLE_EMAIL && dom("email-submit").addEventListener("click", function(): void {
+  dom("email").setAttribute("disabled", "");
+  dom("email-submit").setAttribute("disbaled", "");
+
+  fetch("/api/email/save", {
+    body: JSON.stringify({
+      email: (dom("email") as HTMLInputElement).value
+    }),
+    method: "POST"
+  }).then((response) => (response.json()))
+    .then((json: {
+      success: boolean,
+      reason?: string
+    }) => {
+      if (json.success) {
+        if (hasEmail) {
+          dom("email-output").innerHTML = lang.settings.account_email_check;
+        } else {
+          dom("email-output").innerHTML = lang.settings.account_email_verify;
+        }
+      } else {
+        dom("email-output").innerHTML = json.reason;
+      }
+    });
 });

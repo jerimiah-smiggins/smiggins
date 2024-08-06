@@ -31,8 +31,16 @@ pronouns._a = pronouns.a;
 pronouns._o = pronouns.o;
 pronouns._v = pronouns.v;
 
-// @ts-ignore - Placeholder
-function showlog(str: string, time: number = 0): void {};
+function showlog(str: string, time: number = 3000): void {
+  inc++;
+  dom("error").innerText = str;
+  setTimeout(() => {
+    --inc;
+    if (!inc) {
+      dom("error").innerText = "";
+    }
+  }, time);
+};
 
 function setCookie(name: string, value: string): void {
   let date = new Date();

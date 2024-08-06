@@ -1,0 +1,383 @@
+import random
+import time
+import json
+import re
+
+from typing import Any
+from ninja import Schema
+from django.http import HttpResponse, HttpResponseRedirect
+from django.views.decorators.csrf import csrf_exempt
+from django.core.handlers.wsgi import WSGIRequest
+
+from posts.models import User, URLPart
+from ..helper import get_HTTP_response, get_lang, send_email, sha, generate_token
+from ..variables import WEBSITE_URL
+
+LAST_TRIM: int = 0
+
+COLORS = {
+    "oled": {
+        "accent": "#cba6f7",
+        "accent_50": "#cba6f780",
+        "red": "#f38ba8",
+        "green": "#a6e3a1",
+        "text": "#cdd6f4",
+        "subtext0": "#a6adc8",
+        "surface0": "#313244",
+        "base": "#000000",
+        "mantle": "#080810",
+        "crust": "#11111b"
+    },
+    "black": {
+        "accent": "#cba6f7",
+        "accent_50": "#cba6f780",
+        "red": "#f38ba8",
+        "green": "#a6e3a1",
+        "text": "#cdd6f4",
+        "subtext0": "#a6adc8",
+        "surface0": "#313244",
+        "base": "#1e1e2e",
+        "mantle": "#181825",
+        "crust": "#11111b"
+    },
+    "dark": {
+        "accent": "#c6a0f6",
+        "accent_50": "#c6a0f680",
+        "red": "#ed8796",
+        "green": "#a6da95",
+        "text": "#cad3f5",
+        "subtext0": "#a5adcb",
+        "surface0": "#363a4f",
+        "base": "#24273a",
+        "mantle": "#1e2030",
+        "crust": "#181926"
+    },
+    "gray": {
+        "accent": "#ca9ee6",
+        "accent_50": "#ca9ee680",
+        "red": "#e78284",
+        "green": "#a6d189",
+        "text": "#c6d0f5",
+        "subtext0": "#a5adce",
+        "surface0": "#414559",
+        "base": "#303446",
+        "mantle": "#292c3c",
+        "crust": "#232634"
+    },
+    "light": {
+        "accent": "#8839ef",
+        "accent_50": "#8839ef80",
+        "red": "#d20f39",
+        "green": "#40a02b",
+        "text": "#4c4f69",
+        "subtext0": "#6c6f85",
+        "surface0": "#ccd0da",
+        "base": "#eff1f5",
+        "mantle": "#e6e9ef",
+        "crust": "#dce0e8"
+    }
+}
+
+class Email(Schema):
+    email: str
+
+class Username(Schema):
+    username: str
+
+def _get_url(user: User, intent: str, extra_data: dict={}) -> str:
+    remove_extra_urlparts()
+
+    url = sha(user.username + intent) + sha(f"{random.random()}{time.time()}")
+    if "email" not in extra_data:
+        extra_data["email"] = user.email
+    URLPart.objects.create(
+        url=url,
+        user=user,
+        intent=intent,
+        expire=round(time.time()) + (60 * 45),
+        extra_data=extra_data
+    )
+
+    return f"{WEBSITE_URL}/email/{url}/?i={intent}"
+
+def _format_block(
+    block: str,
+    lang: dict,
+    theme: dict[str, str],
+    username: str="",
+    url: str="",
+    email: str=""
+) -> tuple[str, str]:
+    return (
+        block \
+            .replace("%u", username) \
+            .replace("%r", f"<strong style='color: {theme['red']}'>") \
+            .replace("%R", "</strong>") \
+            .replace("%e", email) \
+            .replace("%l", f"<a style='color: {theme['accent']}' href=\"{url}\">{lang['email']['generic']['link']}</a>") \
+            .replace("%L", url) \
+            .replace("%h", "") \
+            .replace("%H", ""),
+        re.sub(r"%h.*?%H", "", block \
+            .replace("%u", username) \
+            .replace("%r", "**") \
+            .replace("%R", "**") \
+            .replace("%e", email) \
+            .replace("%l", url) \
+            .replace("%L", url))
+    )
+
+def _get_email_html(
+    request,
+    template: str,
+    lang: dict,
+    user: User,
+    **kwargs: Any
+) -> str:
+    return get_HTTP_response( # type: ignore
+        request, template, lang, True,
+
+        COLOR=COLORS[user.theme],
+        **kwargs
+    )
+
+def change_email(request, user: User) -> dict | tuple:
+    if user.email is None or not user.email_valid:
+        return 400, {
+            "success": False
+        }
+
+    lang = get_lang(user)
+    username = user.username
+    theme = COLORS[user.theme]
+
+    TITLE = _format_block(lang["email"]["change"]["title"], lang=lang, theme=theme, username=username)
+    B1 = _format_block(lang["email"]["change"]["block_1"], lang=lang, theme=theme, username=username)
+    B2 = _format_block(lang["email"]["change"]["block_2"], lang=lang, theme=theme, username=username, url=_get_url(user, "remove"))
+    B3 = _format_block(lang["email"]["change"]["block_3"], lang=lang, theme=theme, username=username, url=f"{WEBSITE_URL}/login/reset")
+
+    response = send_email(
+        subject=TITLE[1],
+        recipients=[user.email],
+        raw_message=f"{TITLE[1]}\n\n{lang['email']['generic']['greeting']}\n{B1[1]}\n{B2[1]}\n{B3[1]}\n{lang['email']['generic']['expire']}",
+        html_message=_get_email_html(
+            request, "email/change.html", lang, user,
+
+            TITLE=TITLE[0],
+            B1=B1[0],
+            B2=B2[0],
+            B3=B3[0]
+        )
+    )
+
+    return {
+        "success": response > 0
+    }
+
+def verify_email(request, user: User, data: Email) -> dict | tuple:
+    user.email = data.email
+    user.email_valid = False
+    user.save()
+
+    lang = get_lang(user)
+    username = user.username
+    theme = COLORS[user.theme]
+
+    TITLE = _format_block(lang["email"]["verify"]["title"], lang=lang, theme=theme, username=username)
+    B1 = _format_block(lang["email"]["verify"]["block_1"], lang=lang, theme=theme, username=username)
+    B2 = _format_block(lang["email"]["verify"]["block_2"], lang=lang, theme=theme, username=username, url=_get_url(user, "verify"))
+    B3 = _format_block(lang["email"]["verify"]["block_3"], lang=lang, theme=theme, username=username, url=_get_url(user, "remove"))
+
+    response = send_email(
+        subject=TITLE[1],
+        recipients=[user.email],
+        raw_message=f"{TITLE[1]}\n\n{lang['email']['generic']['greeting']}\n{B1[1]}\n{B2[1]}\n{B3[1]}\n{lang['email']['generic']['expire']}",
+        html_message=_get_email_html(
+            request, "email/change.html", lang, user,
+
+            TITLE=TITLE[0],
+            B1=B1[0],
+            B2=B2[0],
+            B3=B3[0]
+        )
+    )
+
+    return {
+        "success": response > 0
+    }
+
+def password_reset(request, data: Username) -> dict | tuple:
+    user = User.objects.get(username=data.username.lower())
+    lang = get_lang(user)
+
+    if user.email is None or not user.email_valid:
+        return 400, {
+            "success": False,
+            "reason": lang["email"]["reset"]["no_email"]
+        }
+
+    theme = COLORS[user.theme]
+    username = data.username.lower()
+
+    TITLE = _format_block(lang["email"]["reset"]["title"], lang=lang, theme=theme, username=username)
+    B1 = _format_block(lang["email"]["reset"]["block_1"], lang=lang, theme=theme, username=username, url=_get_url(user, "reset"))
+    B2 = _format_block(lang["email"]["reset"]["block_2"], lang=lang, theme=theme, username=username)
+    B3 = _format_block(lang["email"]["reset"]["block_3"], lang=lang, theme=theme, username=username, url=_get_url(user, "remove"))
+
+    response = send_email(
+        subject=TITLE[1],
+        recipients=[user.email],
+        raw_message=f"{TITLE[1]}\n\n{lang['email']['generic']['greeting']}\n{B1[1]}\n{B2[1]}\n{B3[1]}\n{lang['email']['generic']['expire']}",
+        html_message=_get_email_html(
+            request, "email/password.html", lang, user,
+
+            TITLE=TITLE[0],
+            B1=B1[0],
+            B2=B2[0],
+            B3=B3[0]
+        )
+    )
+
+    return {
+        "success": response > 0
+    }
+
+@csrf_exempt
+def link_manager(request: WSGIRequest, key: str) -> HttpResponse:
+    try:
+        part = URLPart.objects.get(url=key)
+    except URLPart.DoesNotExist:
+        return get_HTTP_response(request, "404.html", status=404)
+
+    user = part.user
+    intent = part.intent
+
+    if request.GET.get("i") != intent:
+        return get_HTTP_response(request, "404.html", status=404)
+
+    context = {}
+
+    if intent == "reset":
+        context["form_url"] = _get_url(user, "pwd_fm")
+
+    elif intent == "remove":
+        old_email: str | None = part.extra_data["email"]
+
+        if user.email == old_email:
+            user.email = None
+            user.email_valid = False
+            user.save()
+
+        lang = get_lang(user)
+        context["confirmation"] = _format_block(
+            block=lang["email"]["remove"]["confirmation"],
+            lang=lang,
+            theme=COLORS[user.theme],
+            username=user.username,
+            email=str(old_email)
+        )[0]
+
+    elif intent == "verify":
+        if user.email != part.extra_data["email"]:
+            return get_HTTP_response(request, "404.html", status=404)
+
+        user.email_valid = True
+        user.save()
+
+        lang = get_lang(user)
+        context["confirmation"] = _format_block(
+            block=lang["email"]["verify"]["confirmation"],
+            lang=lang,
+            theme=COLORS[user.theme],
+            username=user.username,
+            email=str(user.email)
+        )[0]
+
+    elif intent == "pwd_fm":
+        lang = get_lang(user)
+        if user.email != part.extra_data["email"]:
+            part.delete()
+            return HttpResponse(json.dumps({
+                "valid": False,
+                "reason": lang['email']['pwd_fm']['email_changed']
+            }), status=400)
+
+        password = json.loads(request.body)["passhash"]
+        print(password)
+
+        if password is None:
+            return HttpResponse(json.dumps({
+                "valid": False,
+                "reason": lang['account']['bad_password']
+            }), status=400)
+
+        if len(password) != 64 or password == "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855":
+            return HttpResponse(json.dumps({
+                "valid": False,
+                "reason": lang['account']['bad_password']
+            }), status=400)
+
+        for i in password:
+            if i not in "abcdef0123456789":
+                return HttpResponse(json.dumps({
+                    "valid": False,
+                    "reason": lang['account']['bad_password']
+                }), status=400)
+
+        token = generate_token(user.username, password)
+        user.token = token
+        user.save()
+        part.delete()
+
+        return HttpResponse(json.dumps({
+            "valid": True,
+            "token": token
+        }))
+
+    part.delete()
+
+    return get_HTTP_response(
+        request, f"email/conf/{intent}.html", user=user,
+
+        username=user.username,
+        **context
+    )
+
+def test_link(request, intent=True) -> HttpResponse:
+    try:
+        user = User.objects.get(token=request.COOKIES.get("token"))
+    except User.DoesNotExist:
+        return HttpResponseRedirect("/", status=307)
+
+    if intent not in ["reset", "remove", "verify", "pwd_fm"]:
+        return HttpResponseRedirect("/home/", status=307)
+
+    key = "test-key"
+
+    URLPart.objects.create(
+        url=key,
+        user=user,
+        intent=intent,
+        expire=round(time.time()) + 60 * 5,
+        extra_data={"email": user.email}
+    )
+
+    return HttpResponse(f"/email/test-key/?i={intent}")
+
+def set_email(request, data: Email) -> dict | tuple:
+    user = User.objects.get(token=request.COOKIES.get("token"))
+
+    if user.email and user.email_valid:
+        return change_email(request, user)
+    return verify_email(request, user, data)
+
+def remove_extra_urlparts():
+    current_time = round(time.time())
+
+    # Only rerun if it's been over two hours
+    if LAST_TRIM >= current_time + 60 * 60 * 2:
+        return
+
+    for i in URLPart.objects.all():
+        if i.expire <= current_time:
+            i.delete()

@@ -29,28 +29,47 @@
     "notif",
     "notifs",
 
+    // Frontend variable names
+    "showlog",
+    "maxlength",
+    "accs",
+
     // Strings that get detected as words
     "sfjl",
     "gbdjm",
     "nkcdd",
     "ufeff",
 
-    // Frontend variable names
-    "showlog",
-    "maxlength",
-    "accs",
-
-    // Esperanto words not found in the default cspell dictionary
-    "nesvaligdeg",
-    "haŝetikedo",
+    // Esperanto words not found in the default cspell dictionary or that were cut off by escaping
+    "detikedo",
+    "retpa",
+    "danje",
+    "refre",
+    "cargu",
+    "dtanbrunan",
+    "dajne",
     "monanto",
+    "insigniaj",
     "monantoj",
     "insignioj",
     "insignio",
-    "insigniaj",
-    "kontŝanĝilo",
-    "citaĵas",
+    "dargu",
+    "kont",
+    "dilo",
+    "dtipoj",
+    "dargi",
+    "ankora",
+    "anstata",
+    "dojn",
     "mensiis",
+    "catojn",
+    "nesvaligdeg",
+    "cosmetika",
+    "vailida",
+    "caltanto",
+    "caltilo",
+    "elsalutu",
+    "dprotokolo",
 
     // Stuff in backend docs
     "makemigrations",
@@ -72,7 +91,9 @@
     "vailid",
     "hitboxes",
     "noreply",
-    "canadien"
+    "canadien",
+    "noscript",
+    "venv"
   ],
 
   "cSpell.ignorePaths": [
@@ -84,5 +105,8 @@
   "typescript.inlayHints.propertyDeclarationTypes.enabled": true,
   "typescript.inlayHints.variableTypes.enabled": true,
   "typescript.inlayHints.parameterTypes.enabled": true,
-  "typescript.inlayHints.functionLikeReturnTypes.enabled": true
+  "typescript.inlayHints.functionLikeReturnTypes.enabled": true,
+  "python.analysis.extraPaths": [
+    "./smiggins/backend"
+  ]
 }

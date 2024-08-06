@@ -6,9 +6,10 @@ import json5 as json
 import time
 import re
 
-from typing import Callable, Any
+from typing import Callable, Any, Literal
 from django.http import HttpResponse, HttpResponseRedirect
 from django.template import loader
+from django.core.mail import send_mail
 
 from posts.models import User, Comment, Post, Notification
 
@@ -50,7 +51,9 @@ from .variables import (
     PRIVATE_AUTHENTICATOR_KEY,
     timeout_handler,
     BASE_DIR,
-    VALID_LANGUAGES
+    VALID_LANGUAGES,
+    ENABLE_EMAIL,
+    BADGE_DATA
 )
 
 def sha(string: str | bytes) -> str:
@@ -74,15 +77,28 @@ def set_timeout(callback: Callable, delay_ms: int | float) -> None:
     thread = threading.Thread(target=wrapper)
     thread.start()
 
-def get_HTTP_response(request, file: str, lang_override: dict | None=None, **kwargs: Any) -> HttpResponse:
+def get_HTTP_response(
+    request,
+    file: str,
+    lang_override: dict | None=None,
+    raw: bool=False,
+    status=200,
+    user: User | None | Literal[False]=False,
+    **kwargs: Any
+) -> HttpResponse:
     try:
-        user = User.objects.get(token=request.COOKIES.get("token"))
+        if user is False:
+            user = User.objects.get(token=request.COOKIES.get("token"))
+
+        if user is None:
+            raise User.DoesNotExist
+
         theme = user.theme
     except User.DoesNotExist:
         user = None
         theme = DEFAULT_THEME.lower() if DEFAULT_THEME.lower() in ["dawn", "dusk", "dark", "midnight", "black"] else "dark"
 
-    lang = get_lang(user) if lang_override is None else lang_override
+    lang = lang_override or get_lang(user)
 
     context = {
         "SITE_NAME": SITE_NAME,
@@ -116,19 +132,21 @@ def get_HTTP_response(request, file: str, lang_override: dict | None=None, **kwa
         "ENABLE_CONTENT_WARNINGS": str(ENABLE_CONTENT_WARNINGS).lower(),
         "ENABLE_POLLS": str(ENABLE_POLLS).lower(),
         "ENABLE_NEW_ACCOUNTS": str(ENABLE_NEW_ACCOUNTS).lower(),
+        "ENABLE_EMAIL": str(ENABLE_EMAIL).lower(),
 
         "THEME": theme,
-        "lang": lang
+        "lang": lang,
+        "badges": BADGE_DATA
     }
 
     for key, value in kwargs.items():
         context[key] = value
 
-    return HttpResponse(
+    return ((lambda content, status: content) if raw else HttpResponse)(
         loader.get_template(file).render(
             context,
             request
-        )
+        ), status=status
     )
 
 def validate_username(username: str, existing: bool=True) -> int:
@@ -485,6 +503,15 @@ def create_notification(
 def get_container_id(user_one: str, user_two: str) -> str:
     return f"{user_one}:{user_two}" if user_two > user_one else f"{user_two}:{user_one}"
 
+def send_email(subject: str, recipients: list[str], raw_message: str, html_message: str | None=None) -> int:
+    return send_mail(
+        subject=subject,
+        message=raw_message,
+        html_message=html_message,
+        from_email=None,
+        recipient_list=recipients
+    )
+
 def get_lang(lang: User | str | None=None, override_cache=False) -> dict[str, dict]:
     # Gets the language file for the specified user/language
 
@@ -515,7 +542,7 @@ def get_lang(lang: User | str | None=None, override_cache=False) -> dict[str, di
 
         return found
 
-    def resolve_dependencies(lang: str, context: dict | None=None) -> dict[str, dict]:
+    def resolve_dependencies(lang: str, context: dict | None=None) -> tuple[dict[str, dict], dict]:
         if context is None:
             context = {}
 
@@ -528,11 +555,16 @@ def get_lang(lang: User | str | None=None, override_cache=False) -> dict[str, di
             if i not in parsed:
                 resolve_dependencies(i, context)
 
-        return context
+        return context, f
 
-    x = resolve_dependencies(lang)
+    x, full = resolve_dependencies(lang)
+
     x["meta"] = {
-        "language": lang
+        "language": lang,
+        "version": full["meta"]["version"],
+        "maintainers": full["meta"]["maintainers"],
+        "past_maintainers": full["meta"]["past_maintainers"],
+        "name": full["meta"]["name"]
     }
 
     temp_lang = {}

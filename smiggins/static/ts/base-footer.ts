@@ -14,9 +14,19 @@ let iconsElement: HTMLElement = document.createElement("div");
 iconsElement.setAttribute("class", "icons");
 iconsElement.setAttribute("id", "icons");
 
-document.querySelector("body").setAttribute(
+document.body.setAttribute(
   "data-color",
   validColors.indexOf(localStorage.getItem("color")) == -1 ? "mauve" : localStorage.getItem("color")
+);
+
+document.body.setAttribute(
+  "data-bar-pos",
+  (["ur", "lr", "ul", "ll"]).indexOf(localStorage.getItem("bar-pos")) == -1 ? "ul" : localStorage.getItem("bar-pos")
+);
+
+document.body.setAttribute(
+  "data-bar-dir",
+  (["h", "r"]).indexOf(localStorage.getItem("bar-dir")) == -1 ? "v" : localStorage.getItem("bar-dir")
 );
 
 if (logged_in) {
@@ -33,10 +43,10 @@ if (logged_in) {
 }
 
 if (typeof(share) !== 'undefined') {
-  iconsElement.innerHTML += `<span title="${lang.generic.share}" onclick="window.navigator.clipboard.writeText('${escapeHTML(share)}'); showlog('${lang.generic.copied}');">${icons.share}</span>`;
+  iconsElement.innerHTML += `<span title="${lang.generic.share}" onclick="navigator.clipboard.writeText('${escapeHTML(share)}'); showlog('${lang.generic.copied}');">${icons.share}</span>`;
 }
 
-document.querySelector("body").append(iconsElement);
+document.body.append(iconsElement);
 
 function getNotifications(): void {
   fetch("/api/info/notifications")

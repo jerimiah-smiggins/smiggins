@@ -1,0 +1,31 @@
+<!DOCTYPE PUBLIC “-//W3C//DTD XHTML 1.0 Transitional//EN” “https://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd”>
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <title>{% block title %}{% endblock %} - {{ SITE_NAME }} v{{ VERSION }}</title>
+
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width,initial-scale=1.0">
+    <meta name="color-scheme" content="only">
+
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:ital,wght@0,400;0,700;1,400;1,700&display=swap" rel="stylesheet">
+
+    <!-- <style> tags are likely ignored/parsed out by the email host -->
+    <style>
+      a {
+        color: {{ COLOR.accent }};
+      }
+    </style>
+  </head>
+
+  <body style="margin: 0; background-color: {{ COLOR.base }}; color: {{ COLOR.text }}; font-family: 'Poppins', 'Arial'; padding: 5vh 3vw; text-align: center; font-size: 18px; overflow-x: hidden; word-wrap: break-word;">
+    <h1 style="margin-top: 0;">{{ SITE_NAME }}</h1>
+    <h2>v{{ VERSION }}</h2>
+
+    <div style="max-width: calc(26.95em - (3em / 7)); border: calc(3em / 14) {{ COLOR.accent_50 }} solid; padding: 1.25em; margin-bottom: 1.75em; text-align: left; display: inline-block; border-radius: calc(3em / 14);">
+      {% block body %}{% endblock %}
+    </div>
+  </body>
+</html>

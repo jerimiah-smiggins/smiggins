@@ -14,8 +14,38 @@
   // The name of the instance
   "site_name": "Jerimiah Smiggins",
 
+  /*
+  ** The url of the website that you are running. This is VERY IMPORTANT to set,
+  ** and is required for emails and sitemaps to work properly. Make sure to
+  ** include the "https://" part.
+  */
+  "website_url": "http://localhost:8000",
+
   // The user id of the instance owner. Can be found on the /django-admin page.
   "owner_user_id": 1,
+
+  /*
+  ** This toggles sitemaps, which are files that tell web scrapers where
+  ** everything on your instance is. It also exposes the links to all the users
+  ** and posts to the scraper to better index your instance.
+  && Aliases: sitemaps, enable_sitemaps
+  ## Default: false
+  */
+  "enable_sitemaps": false,
+
+  /*
+  ** Controls the amount of sites that are shown per sitemap. Max: 50k; Min: 50
+  ## Default: 500
+  */
+  "items_per_sitemap": 500,
+
+  /*
+  ** This toggles allowing emails. In order for this to work, you need to set up
+  ** the stmp_auth variable in backend/_api_keys.py. (Read README.md)
+  && Aliases: email, enable_email
+  ## Default: false
+  */
+  "enable_email": false,
 
   /*
   ** SET TO FALSE for production servers!!! This determines whether or not to

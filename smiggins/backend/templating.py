@@ -18,6 +18,8 @@ from .variables import (
     MAX_CONTENT_WARNING_LENGTH,
     BADGE_DATA,
     VALID_LANGUAGES,
+    CREDITS,
+    CACHE_LANGUAGES
 )
 
 from .helper import (
@@ -26,6 +28,7 @@ from .helper import (
     get_badges,
     get_container_id,
     get_lang,
+    LANGS
 )
 
 def settings(request) -> HttpResponse:
@@ -35,7 +38,7 @@ def settings(request) -> HttpResponse:
         return HttpResponseRedirect("/logout/?from=token", status=307)
 
     return get_HTTP_response(
-        request, "settings.html",
+        request, "settings.html", user=user,
 
         DISPLAY_NAME        = user.display_name,
         BANNER_COLOR        = user.color or DEFAULT_BANNER_COLOR,
@@ -45,8 +48,12 @@ def settings(request) -> HttpResponse:
 
         PRONOUNS = user.pronouns,
 
+        has_email = str(user.email is not None).lower(),
+        email = user.email or "",
+        email_valid = str(user.email_valid).lower(),
+
         MAX_BIO_LENGTH = str(MAX_BIO_LENGTH),
-        USER_BIO       = user.bio or "",
+        USER_BIO = user.bio or "",
 
         SELECTED_IF_LIGHT = "selected" if user.theme == "light" else "",
         SELECTED_IF_GRAY  = "selected" if user.theme == "gray"  else "",
@@ -66,29 +73,28 @@ def user(request, username: str) -> HttpResponse | HttpResponseRedirect:
     try:
         self_user = User.objects.get(token=request.COOKIES.get("token"))
         self_id = self_user.user_id
-        logged_in = True
-        lang = get_lang(self_user)
 
     except User.DoesNotExist:
         if not ENABLE_LOGGED_OUT_CONTENT:
             return HttpResponseRedirect("/signup", status=307)
 
         self_id = 0
-        logged_in = False
-        lang = get_lang()
+        self_user = None
+
+    lang = get_lang(self_user)
 
     try:
         user = User.objects.get(username=username)
     except User.DoesNotExist:
         return get_HTTP_response(
-            request, "404-user.html"
+            request, "404-user.html", status=404
         )
 
     return get_HTTP_response(
-        request, "user.html", lang,
+        request, "user.html", lang, user=self_user,
 
-        IS_HIDDEN = "hidden" if not logged_in or username == self_user.username else "",
-        LOGGED_IN = str(logged_in).lower(),
+        IS_HIDDEN = "hidden" if self_user is None or username == self_user.username else "",
+        LOGGED_IN = str(self_user is not None).lower(),
         CAN_VIEW = str(not user.private or self_id in user.following).lower(),
         PRIVATE = str(user.private).lower(),
 
@@ -99,7 +105,7 @@ def user(request, username: str) -> HttpResponse | HttpResponseRedirect:
         BIO = user.bio,
 
         FOLLOWER_COUNT = lang["user_page"]["followers"].replace("%s", str(len(user.followers))),
-        FOLLOWING_COUNT = lang["user_page"]["followers"].replace("%s", str(len(user.following) - 1)),
+        FOLLOWING_COUNT = lang["user_page"]["following"].replace("%s", str(len(user.following) - 1)),
 
         EMBED_TITLE = lang["user_page"]["user_on_smiggins"].replace("%t", SITE_NAME).replace("%s", user.display_name),
 
@@ -109,38 +115,31 @@ def user(request, username: str) -> HttpResponse | HttpResponseRedirect:
         BANNER_COLOR = user.color or DEFAULT_BANNER_COLOR,
         BANNER_COLOR_TWO = user.color_two or DEFAULT_BANNER_COLOR,
 
-        IS_FOLLOWING = "false" if not logged_in else str(user.user_id in self_user.following).lower(),
-        IS_BLOCKING = "false" if not logged_in else str(user.user_id in self_user.blocking).lower()
+        IS_FOLLOWING = "false" if self_user is None else str(user.user_id in self_user.following).lower(),
+        IS_BLOCKING = "false" if self_user is None else str(user.user_id in self_user.blocking).lower()
     )
 
 def user_lists(request, username: str) -> HttpResponse:
-    logged_in = True
     username = username.lower()
-
-    try:
-        user = User.objects.get(token=request.COOKIES.get("token"))
-        logged_in = True
-        lang = get_lang(user)
-
-    except User.DoesNotExist:
-        if not ENABLE_LOGGED_OUT_CONTENT:
-            return HttpResponseRedirect("/signup", status=307)
-
-        logged_in = False
-        lang = get_lang()
-
-    if logged_in:
-        self_user = User.objects.get(token=request.COOKIES.get("token"))
-        self_id = self_user.user_id
-    else:
-        self_id = 0
 
     try:
         user = User.objects.get(username=username)
     except User.DoesNotExist:
         return get_HTTP_response(
-            request, "404-user.html"
+            request, "404-user.html", status=404
         )
+
+    try:
+        self_user = User.objects.get(token=request.COOKIES.get("token"))
+        self_id = self_user.user_id
+
+    except User.DoesNotExist:
+        if not ENABLE_LOGGED_OUT_CONTENT:
+            return HttpResponseRedirect("/signup", status=307)
+        self_user = None
+        self_id = 0
+
+    lang = get_lang(self_user)
 
     followers = []
     for i in user.followers:
@@ -176,7 +175,7 @@ def user_lists(request, username: str) -> HttpResponse:
 
     blocking = []
     removed_deleted_accounts = []
-    if logged_in and username == self_user.username:
+    if self_user is not None and username == self_user.username:
         for i in user.blocking:
             try:
                 if i != user.user_id:
@@ -202,7 +201,7 @@ def user_lists(request, username: str) -> HttpResponse:
             user.save()
 
     return get_HTTP_response(
-        request, "user_lists.html", lang,
+        request, "user_lists.html", lang, user=self_user,
 
         USERNAME = user.username,
         DISPLAY_NAME = user.display_name,
@@ -225,46 +224,49 @@ def user_lists(request, username: str) -> HttpResponse:
         BANNER_COLOR_TWO = user.color_two or DEFAULT_BANNER_COLOR,
 
         PRIVATE = str(user.private).lower(),
-        IS_FOLLOWING = str(user.user_id in self_user.following).lower() if logged_in else "false",
+        IS_FOLLOWING = str(user.user_id in self_user.following).lower() if self_user is not None else "false",
         IS_HIDDEN = "hidden" if user.user_id == self_id else "",
 
-        INCLUDE_BLOCKS = str(logged_in and username == self_user.username).lower(),
-        LOGGED_IN = str(logged_in).lower()
+        INCLUDE_BLOCKS = str(self_user is not None and username == self_user.username).lower(),
+        LOGGED_IN = str(self_user is not None).lower()
     )
 
 def post(request, post_id: int) -> HttpResponse:
     try:
         user = User.objects.get(token=request.COOKIES.get("token"))
-        logged_in = True
     except User.DoesNotExist:
         if not ENABLE_LOGGED_OUT_CONTENT:
             return HttpResponseRedirect("/signup", status=307)
 
-        logged_in = False
+        user = None
 
-    self_id = user.user_id if logged_in else 0
+    self_id = user.user_id if user is not None else 0
 
     try:
         post = Post.objects.get(pk=post_id)
         creator = User.objects.get(pk=post.creator)
     except Post.DoesNotExist:
         return get_HTTP_response(
-            request, "404-post.html"
+            request, "404-post.html", status=404
+        )
+    except User.DoesNotExist:
+        return get_HTTP_response(
+            request, "404-post.html", status=404
         )
 
     if creator.private and self_id not in creator.following:
         return get_HTTP_response(
-            request, "404-post.html"
+            request, "404-post.html", status=404
         )
 
-    post_json = get_post_json(post_id, user.user_id if logged_in else 0)
-    lang = get_lang(user if logged_in else None)
+    post_json = get_post_json(post_id, user.user_id if user is not None else 0)
+    lang = get_lang(user)
 
     return get_HTTP_response(
-        request, "post.html", lang,
+        request, "post.html", lang, user=user,
 
         DISPLAY_NAME = creator.display_name,
-        LOGGED_IN = str(logged_in).lower(),
+        LOGGED_IN = str(user is not None).lower(),
         POST_ID   = str(post_id),
         COMMENT   = "false",
         POST_JSON = json.dumps(post_json),
@@ -280,42 +282,38 @@ def post(request, post_id: int) -> HttpResponse:
 def comment(request, comment_id: int) -> HttpResponse:
     try:
         user = User.objects.get(token=request.COOKIES.get("token"))
-        logged_in = True
     except User.DoesNotExist:
         if not ENABLE_LOGGED_OUT_CONTENT:
             return HttpResponseRedirect("/signup", status=307)
+        user = None
 
-        logged_in = False
-
-    self_id = user.user_id if logged_in else 0
+    self_id = user.user_id if user is not None else 0
 
     try:
         comment = Comment.objects.get(pk=comment_id)
+        creator = User.objects.get(pk=comment.creator)
     except Comment.DoesNotExist:
         return get_HTTP_response(
-            request, "404-post.html"
+            request, "404-post.html", status=404
         )
-
-    try:
-        creator = User.objects.get(pk=comment.creator)
     except User.DoesNotExist:
         return get_HTTP_response(
-            request, "404-post.html"
+            request, "404-post.html", status=404
         )
 
     if creator.private and self_id not in creator.following:
         return get_HTTP_response(
-            request, "404-post.html"
+            request, "404-post.html", status=404
         )
 
-    comment_json = get_post_json(comment_id, user.user_id if logged_in else 0, True)
-    lang = get_lang(user if logged_in else None)
+    comment_json = get_post_json(comment_id, user.user_id if user is not None else 0, True)
+    lang = get_lang(user if user is not None else None)
 
     return get_HTTP_response(
-        request, "post.html",
+        request, "post.html", lang, user=user,
 
         DISPLAY_NAME = creator.display_name,
-        LOGGED_IN = str(logged_in).lower(),
+        LOGGED_IN = str(user is not None).lower(),
         POST_ID   = str(comment_id),
         COMMENT   = "true",
         POST_JSON = json.dumps(comment_json),
@@ -340,25 +338,19 @@ def admin(request) -> HttpResponse | HttpResponseRedirect:
         user = User.objects.get(token=request.COOKIES.get("token"))
     except User.DoesNotExist:
         return get_HTTP_response(
-            request, "404.html"
+            request, "404.html", status=404
         )
 
     if user.user_id != OWNER_USER_ID and user.admin_level < 1:
         return get_HTTP_response(
-            request, "404.html"
+            request, "404.html", status=404
         )
 
     return get_HTTP_response(
-        request, "admin.html",
+        request, "admin.html", user=user,
 
         LEVEL = 5 if user.user_id == OWNER_USER_ID else user.admin_level,
         BADGE_DATA = BADGE_DATA
-    )
-
-def badges(request) -> HttpResponse:
-    return HttpResponse(
-        "const badges={" + (",".join(["\"" + i.replace("\\", "\\\\").replace("\"", "\\\"") + "\":'" + BADGE_DATA[i].replace("'", "\"") + "'" for i in BADGE_DATA])) + "}",
-        content_type="text/javascript"
     )
 
 def message(request, username: str) -> HttpResponse | HttpResponseRedirect:
@@ -382,7 +374,7 @@ def message(request, username: str) -> HttpResponse | HttpResponseRedirect:
     lang = get_lang(self_user)
 
     return get_HTTP_response(
-        request, "message.html", lang,
+        request, "message.html", lang, user=self_user,
 
         PLACEHOLDER = lang["messages"]["input_placeholder"].replace("%s", user.display_name),
         TITLE = lang["messages"]["title"].replace("%s", user.display_name),
@@ -404,13 +396,31 @@ def hashtag(request, hashtag: str) -> HttpResponse:
         NUM_POSTS = num_posts
     )
 
+def credit(request) -> HttpResponse:
+    try:
+        user = User.objects.get(token=request.COOKIES.get("token"))
+    except User.DoesNotExist:
+        user = None
+
+    lang = get_lang(user)
+
+    return get_HTTP_response(
+        request, "credits.html", lang, user=user,
+
+        credits=CREDITS,
+        langs=[{
+            "name": LANGS[i]["meta"]["name"],
+            "maintainers": LANGS[i]["meta"]["maintainers"],
+            "past_maintainers": LANGS[i]["meta"]["past_maintainers"],
+            "num_past": len(LANGS[i]["meta"]["past_maintainers"])
+        } for i in LANGS] if CACHE_LANGUAGES else [],
+        cache_langs=CACHE_LANGUAGES,
+        fa=lang["credits"]["fontawesome"].replace("%s", "<a href=\"https://fontawesome.com/\" target=\"_blank\">Font Awesome</a>")
+    )
+
 # These two functions are referenced in smiggins/urls.py
 def _404(request, exception) -> HttpResponse:
-    response = get_HTTP_response(request, "404.html")
-    response.status_code = 404
-    return response
+    return get_HTTP_response(request, "404.html", status=404)
 
 def _500(request) -> HttpResponse:
-    response = get_HTTP_response(request, "500.html")
-    response.status_code = 500
-    return response
+    return get_HTTP_response(request, "500.html", status=500)

@@ -1,16 +1,5 @@
 home = true;
 offset = -1;
-function showlog(str, time = 3000) {
-    inc++;
-    dom("error").innerText = str;
-    setTimeout(() => {
-        --inc;
-        if (!inc) {
-            dom("error").innerText = "";
-        }
-    }, time);
-}
-;
 function refreshMessageList(fromStart = false) {
     dom("refresh").setAttribute("disabled", "");
     dom("more").setAttribute("disabled", "");

@@ -2,8 +2,9 @@
   "meta": {
     "fallback": [],
     "name": "English (United States)",
-    "version": "1.4.0",
-    "maintainers": [ "trinkey" ]
+    "version": "1.5.0",
+    "maintainers": [ "trinkey" ],
+    "past_maintainers": []
   },
 
   "texts": {
@@ -251,6 +252,7 @@
 
       "no_new": "This instance isn't accepting any new users.",
       "password_match_failure": "Passwords don't match!",
+      "forgot_password": "Forgot password?",
 
       "log_out_title": "Redirecting you shortly...",
       "log_out_description": "If you don't get redirected soon, click <a href=\"/\">here...</a>",
@@ -324,7 +326,7 @@
       "profile_title": "Profile",
       "profile_basic_title": "Basic information",
       "profile_display_name_placeholder": "Display name...",
-      "profile_display_name_invalid_length": "Invalid name length. Must be between 1 and %s characters",
+      "profile_display_name_invalid_length": "Invalid display name length. Must be between 1 and %s characters",
       "profile_bio_placeholder": "User bio...",
       "profile_pronouns_title": "Pronouns",
       "profile_pronouns_primary": "Primary:",
@@ -346,6 +348,13 @@
       "cosmetic_theme_black": "Midnight",
       "cosmetic_theme_oled": "Black",
       "cosmetic_theme_invalid": "That's not a vailid theme, idiot.",
+      "cosmetic_bar": "Icon bar positioning",
+      "cosmetic_bar_ur": "Upper right",
+      "cosmetic_bar_lr": "Lower right",
+      "cosmetic_bar_ul": "Upper left",
+      "cosmetic_bar_ll": "Lower left",
+      "cosmetic_bar_h": "Horizontal",
+      "cosmetic_bar_v": "Vertical",
       "cosmetic_language": "Language",
       "cosmetic_language_invalid": "Invalid language '%s'",
       "cosmetic_color": "Color",
@@ -364,6 +373,10 @@
       "account_switcher_remove": "Remove",
       "account_switcher_remove_error": "You can't remove the account you're currently signed into!",
       "account_switcher_add": "Add new account...",
+      "account_email": "Email",
+      "account_email_update": "Change/Update",
+      "account_email_verify": "Check your email to verify it",
+      "account_email_check": "Check your email",
 
       "admin": "Admin page",
       "logout": "Log out of ALL accounts"
@@ -388,13 +401,70 @@
     "credits": {
       "title": "Credits",
 
-      "credits": [
-        "Lead developer: <a href='https://github.com/trinkey'>trinkey</a>",
-        "Other contributors: <a href='https://github.com/Subroutine7901'>Subroutine</a>, <a href='https://github.com/DiamondTaco'>Bread</a>, <a href='https://github.com/TheMineCommander'>Wren</a>",
-        "English US/GB languages created by <a href='https://github.com/trinkey'>trinkey</a>",
-        "Esperanto language created by <a href='https://github.com/Subroutine7901'>Subroutine</a>",
-        "Some icons are from <a href='https://fontawesome.com/'>Font Awesome</a>"
-      ]
+      "lead": "Lead developer:",
+      "contributors": "Other contributors:",
+      "fontawesome": "Some icons are from %s",
+      "current": "Current maintainers:",
+      "past": "Past maintainers:",
+
+      "main_title": "Main project:",
+      "lang_title": "Languages:",
+      "other_title": "Other:"
+    },
+
+    "email": {
+      "generic": {
+        "greeting": "Hey there!",
+        "link": "this link", // Ex: Please go to {this link} to do xyz.
+        "expire": "These links expire in 45 minutes."
+      },
+
+      /*
+      ** Key:
+      ** %u: username
+      ** %e: email
+      ** %l: link (using email.generic.link)
+      ** %L: link (raw url)
+      ** %r: start of red text
+      ** %R: end of red text
+      ** %h: start of HTML-only text
+      ** %H: end of HTML-only text
+      */
+      "pwd_fm": {
+        "email_changed": "Your email has been changed."
+      },
+
+      "verify": {
+        "confirmation": "The email %e has been verified for the account %u.",
+
+        "title": "Verify Email for %u",
+
+        "block_1": "This email has been linked to the account \"%u.\"",
+        "block_2": "To verify this email, go to %l. %h(If the link doesn't work, try copying this link and pasting it into your browser: %L)%H",
+        "block_3": "If this wasn't you, go to %l to remove this email from the account \"%u\". %h(If the link doesn't work, try copying this link and pasting it into your browser: %L)%H"
+      },
+
+      "remove": {
+        "confirmation": "The email %e has been removed from the account %u."
+      },
+
+      "change": {
+        "title": "Email Change Requested for %u",
+
+        "block_1": "You seem to have requested for your email to be changed, and you have received this email because it was linked to the account \"%u\".",
+        "block_2": "To remove this email from the account \"%u\", go to %l. From there you can go back to the settings page and set your email normally. %h(If the link doesn't work, try copying this link and pasting it into your browser: %L)%H",
+        "block_3": "If this wasn't you, that means someone else has access to your account. You should change your password immediately by going to %l, which will sign out anyone who is logged in to your account. %h(If the link doesn't work, try copying this link and pasting it into your browser: %L)%H"
+      },
+
+      "reset": {
+        "title": "Password Reset Requested for %u",
+        "html_title": "Reset Password",
+        "no_email": "This account doesn't have an email linked to it.",
+
+        "block_1": "You seem to have requested to reset your password, and you received this email because it was linked to the account \"%u\". In order to do that, please go to %l. %h(If the link doesn't work, try copying this link and pasting it into your browser: %L)%H",
+        "block_2": "If you didn't request for your password to be reset, feel free to ignore this email. If anyone asks you for the link, %rDO NOT SHARE IT.%R It will give them the ability to reset your password for you, which would basically lock you out of your account.",
+        "block_3": "If this is not your account, please go to %l to remove this email from the account \"%u\". %h(If the link doesn't work, try copying this link and pasting it into your browser: %L)%H"
+      }
     },
 
     "changelog": {
@@ -402,6 +472,14 @@
       "unknown": "Unknown",
 
       "changes": {
+        "v0.11.0": {
+          "1": "Added changelogs for all legacy versions",
+          "2": "Fixed an issue that caused read notifications/messages to not be colored grey",
+          "3": "Added linking emails and resetting passwords with the emails",
+          "4": "Added sitemaps and their respective toggles",
+          "5": "Added a setting to change positioning of the icon bar",
+          "6": "Rewrote the credits page"
+        },
         "v0.10.1": {
           "1": "Added a credits page (and a backend toggle)",
           "2": "Deleting a post deletes any notifications caused by said post to prevent certain issues",
@@ -585,6 +663,86 @@
         },
         "v0.3.7": {
           "1": "Added themes"
+        },
+        "v0.3.6": {
+          "1": "Added a share button on some pages",
+          "2": "Changed how icons are displayed",
+          "3": "Posts now have a maximum line count on timelines"
+        },
+        "v0.3.5": {
+          "1": "Allows viewing user pages and posts when logged out",
+          "2": "Added embeds for users and posts",
+          "3": "Fonts work properly again"
+        },
+        "v0.3.4": {
+          "1": "Fixed a bug that caused the following count to include yourself",
+          "2": "Added settings to modify post/username/display name length, ratelimit timings, source code links, and posts per request"
+        },
+        "v0.3.3": {
+          "1": "Added follower/following counts to user pages"
+        },
+        "v0.3.2": {
+          "1": "Added private accounts",
+          "2": "Fonts no longer rely on Google Fonts",
+          "3": "Max display name length increased to 32 from 20",
+          "4": "Likes get properly filled in on user pages"
+        },
+        "v0.3.1": {
+          "1": "Added @ mentions",
+          "2": "Fixed issues with loading a post causing a duplicate"
+        },
+        "v0.3.0": {
+          "1": "Added replies",
+          "2": "Extracted the backend into several files instead of one large file"
+        },
+        "v0.2.0": {
+          "1": "Added liking posts"
+        },
+        "v0.1.1": {
+          "1": "Fixed a couple bugs relating to escaping html"
+        },
+        "v0.1.0": {
+          "1": "Improved link detection",
+          "2": "Made banner color update when refreshing posts on a user profile"
+        },
+        "v0.0.10": {
+          "1": "Improved link detection",
+          "2": "Improved security in the backend",
+          "3": "Added ratelimiting"
+        },
+        "v0.0.9": {
+          "1": "Added profile banner color configuration",
+          "2": "Links in posts now turn into real links"
+        },
+        "v0.0.8": {
+          "1": "Added display names",
+          "2": "Added robots.txt file"
+        },
+        "v0.0.7": {
+          "1": "Added post pages"
+        },
+        "v0.0.6": {
+          "1": "Added recent tab"
+        },
+        "v0.0.5": {
+          "1": "Added settings page",
+          "2": "Added light theme"
+        },
+        "v0.0.4": {
+          "1": "Added user pages",
+          "2": "Added icons (home and settings, with settings currently not working)"
+        },
+        "v0.0.3": {
+          "1": "Rewrote data structure",
+          "2": "Added following and unfollowing without needing to manually edit the storage"
+        },
+        "v0.0.2": {
+          "1": "Added creating posts",
+          "2": "Added a following timeline (currently only shows your own posts unless you manually follow someone else)"
+        },
+        "v0.0.1": {
+          "1": "Added account signup/login pages",
+          "2": "Added 404 and 500 pages"
         }
       }
     }

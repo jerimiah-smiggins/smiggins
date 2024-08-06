@@ -1,18 +1,6 @@
 let end: boolean = false;
 offset = null;
 
-// @ts-ignore
-function showlog(str: string, time: number = 3000): void {
-  inc++;
-  dom("error").innerText = str;
-  setTimeout(() => {
-    --inc;
-    if (!inc) {
-      dom("error").innerText = "";
-    }
-  }, time);
-};
-
 function deletePost(postId: number, isComment: boolean, pageFocus: boolean): void {
   fetch(`/api/${isComment ? "comment" : "post"}`, {
     method: "DELETE",
@@ -25,7 +13,7 @@ function deletePost(postId: number, isComment: boolean, pageFocus: boolean): voi
     }) => {
       if (json.success) {
         if (pageFocus) {
-          window.location.href = "/home";
+          location.href = "/home";
         } else {
           document.querySelector(`.post-container[data-${isComment ? "comment" : "post"}-id="${postId}"]`).remove();
         }
@@ -44,7 +32,7 @@ function pinPost(postID: number): void {
       success: boolean
     }) => {
       if (json.success) {
-        if (window.location.href.includes("/u/")) {
+        if (location.href.includes("/u/")) {
           refresh();
         } else {
           showlog(lang.generic.success);
@@ -116,8 +104,8 @@ function addQuote(postID: number, isComment: boolean): void {
           post.innerHTML = "";
 
           if (
-            window.location.pathname.toLowerCase().includes("/home") ||
-            window.location.pathname.toLowerCase().includes(`/u/${localStorage.getItem("username") || "LOL IT BROKE LOLLLLLLLLL SO FUNNY"}`)
+            location.pathname.toLowerCase().includes("/home") ||
+            location.pathname.toLowerCase().includes(`/u/${localStorage.getItem("username") || "LOL IT BROKE LOLLLLLLLLL SO FUNNY"}`)
           ) {
             let x: HTMLDivElement = document.createElement("div");
             x.innerHTML = getPostHTML(json.post);

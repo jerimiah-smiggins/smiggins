@@ -1,5 +1,5 @@
 username = document.querySelector("body").getAttribute("data-username");
-share = window.location.href;
+share = location.href;
 home = true;
 
 url = `/api/post/user/${username}`;
@@ -14,6 +14,7 @@ function extra(json: {
   following: boolean
   pinned: _postJSON
 }): void {
+  ENABLE_USER_BIOS && dom("user-bio").removeAttribute("hidden");
   ENABLE_USER_BIOS && (dom("user-bio").innerHTML = linkifyHtml(escapeHTML(json.bio), {
     formatHref: {
       mention: (href: string): string => "/u" + href,
@@ -94,7 +95,7 @@ function createMessage(): void {
       success: boolean
     }) => {
       if (json.success) {
-        window.location.href = `/m/${username}`;
+        location.href = `/m/${username}`;
       } else {
         showlog(`${lang.generic.something_went_wrong} ${lang.generic.reason.replaceAll("%s", json.reason)}`);
       }

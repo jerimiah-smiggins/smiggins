@@ -2,7 +2,7 @@ import json
 
 from django.urls import path
 
-from backend.api import ApiAdmin, ApiComment, ApiInfo, ApiMessages, ApiPost, ApiUser
+from backend.api import ApiAdmin, ApiComment, ApiEmail, ApiInfo, ApiMessages, ApiPost, ApiUser
 
 from backend.variables import (
     ENABLE_PRIVATE_MESSAGES,
@@ -10,6 +10,7 @@ from backend.variables import (
     ENABLE_POST_DELETION,
     ENABLE_HASHTAGS,
     ENABLE_NEW_ACCOUNTS,
+    ENABLE_EMAIL
 )
 
 from ninja.renderers import BaseRenderer
@@ -104,6 +105,10 @@ api.patch ("admin/badge", response=response_schema)(ApiAdmin.badge_remove) # Rem
 api.get("info/username", response=response_schema)(ApiInfo.username)
 api.get("info/notifications", response=response_schema)(ApiInfo.notifications)
 api.get("info/version", response=response_schema)(ApiInfo.version)
+
+if ENABLE_EMAIL:
+    api.post("email/password", response=response_schema)(ApiEmail.password_reset)
+    api.post("email/save", response=response_schema)(ApiEmail.set_email)
 
 urlpatterns = [
     path("", api.urls) # type: ignore

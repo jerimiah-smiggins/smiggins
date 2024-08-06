@@ -27,6 +27,11 @@
   <button id="submit">{{ lang.account.log_in_title }}</button><br><br>
   <button id="toggle-password">{{ lang.account.toggle_password }}</button><br><br>
   <a href="/signup/">{{ lang.account.sign_up_instead }}</a>
+
+  {% if ENABLE_EMAIL == "true" %}
+    <br><a href="/reset-password/">{{ lang.account.forgot_password }}</a>
+  {% endif %}
+
   <div id="error"></div>
 
   <script src="{% static '/js/login.js' %}?v={{ VERSION }}"></script>

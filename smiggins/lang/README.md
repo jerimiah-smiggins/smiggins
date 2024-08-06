@@ -50,6 +50,78 @@ to the `maintainers` section
 Updates for each language version are listed below:
 
 <details>
+<summary>v1.5.0</summary>
+
+Added emails and legacy changelogs
+
+```diff
+- credits.credits
++ account.forgot_password
++ settings.cosmetic_bar
++ settings.cosmetic_bar_ur
++ settings.cosmetic_bar_lr
++ settings.cosmetic_bar_ul
++ settings.cosmetic_bar_ll
++ settings.cosmetic_bar_h
++ settings.cosmetic_bar_v
++ settings.account_email
++ settings.account_email_update
++ settings.account_email_verify
++ settings.account_email_check
++ credits.lead
++ credits.contributors
++ credits.fontawesome
++ credits.current
++ credits.past
++ credits.main_title
++ credits.lang_title
++ credits.other_title
++ email.generic.greeting
++ email.generic.link
++ email.generic.expire
++ email.pwd_fm.email_changed
++ email.verify.confirmation
++ email.verify.title
++ email.verify.block_1
++ email.verify.block_2
++ email.verify.block_3
++ email.remove.confirmation
++ email.change.title
++ email.change.block_1
++ email.change.block_2
++ email.change.block_3
++ email.reset.title
++ email.reset.html_title
++ email.reset.no_email
++ email.reset.block_1
++ email.reset.block_2
++ email.reset.block_3
++ changelog.changes.v0.11.0 {1, 2, 3, 4, 5, 6}
++ changelog.changes.v0.3.6 {1, 2, 3}
++ changelog.changes.v0.3.5 {1, 2, 3}
++ changelog.changes.v0.3.4 {1, 2}
++ changelog.changes.v0.3.3 {1}
++ changelog.changes.v0.3.2 {1, 2, 3, 4}
++ changelog.changes.v0.3.1 {1, 2}
++ changelog.changes.v0.3.0 {1, 2}
++ changelog.changes.v0.2.0 {1}
++ changelog.changes.v0.1.1 {1}
++ changelog.changes.v0.1.0 {1, 2}
++ changelog.changes.v0.0.10 {1, 2, 3}
++ changelog.changes.v0.0.9 {1, 2}
++ changelog.changes.v0.0.8 {1, 2}
++ changelog.changes.v0.0.7 {1}
++ changelog.changes.v0.0.6 {1}
++ changelog.changes.v0.0.5 {1, 2}
++ changelog.changes.v0.0.4 {1, 2}
++ changelog.changes.v0.0.3 {1, 2}
++ changelog.changes.v0.0.2 {1, 2}
++ changelog.changes.v0.0.1 {1, 2}
+settings.profile_display_name_invalid_length
+```
+</details>
+
+<details>
 <summary>1.4.0</summary>
 
 Added polls
@@ -64,7 +136,7 @@ Added polls
 + home.poll_view_results
 + credits.title
 + credits.credits
-+ changelog.changes.v0.10.1 {1, 2, 3, 4, 5, 6, 7, 8, 9}
++ changelog.changes.v0.10.1 {1, 2, 3, 4, 5, 6, 7, 8, 9, 10}
 ```
 </details>
 

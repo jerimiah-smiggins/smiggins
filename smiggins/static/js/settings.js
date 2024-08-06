@@ -1,16 +1,5 @@
 inc = 0;
 home = true;
-function showlog(str, time = 3000) {
-    inc++;
-    dom("error").innerText = str;
-    setTimeout(() => {
-        --inc;
-        if (!inc) {
-            dom("error").innerText = "";
-        }
-    }, time);
-}
-;
 let output = "<select id=\"color\">";
 for (const color of validColors) {
     output += `<option ${((localStorage.getItem("color") == color || (!localStorage.getItem("color") && color == "mauve")) ? "selected" : "")} value="${color}">${lang.generic.colors[color]}</option>`;
@@ -118,8 +107,8 @@ function updatePronouns() {
     }
 }
 function setUnload() {
-    if (!window.onbeforeunload) {
-        window.onbeforeunload = function () {
+    if (!onbeforeunload) {
+        onbeforeunload = function () {
             return lang.settings.unload;
         };
     }
@@ -128,6 +117,16 @@ toggleGradient(false);
 dom("color").addEventListener("change", function () {
     localStorage.setItem('color', dom("color").value);
     document.body.setAttribute('data-color', dom("color").value);
+});
+dom("bar-pos").value = localStorage.getItem("bar-pos") || "ul";
+dom("bar-pos").addEventListener("change", function () {
+    localStorage.setItem("bar-pos", dom("bar-pos").value);
+    document.body.setAttribute("data-bar-pos", dom("bar-pos").value);
+});
+dom("bar-dir").value = localStorage.getItem("bar-dir") || "v";
+dom("bar-dir").addEventListener("change", function () {
+    localStorage.setItem("bar-dir", dom("bar-dir").value);
+    document.body.setAttribute("data-bar-dir", dom("bar-dir").value);
 });
 ENABLE_USER_BIOS && dom("bio").addEventListener("input", postTextInputEvent);
 dom("displ-name").addEventListener("input", setUnload);
@@ -177,8 +176,11 @@ dom("save").addEventListener("click", function () {
     }).then((response) => (response.json()))
         .then((json) => {
         if (json.success) {
-            window.onbeforeunload = null;
+            onbeforeunload = null;
             showlog(lang.generic.success);
+            if (lang.meta.language !== dom("lang").value) {
+                location.reload();
+            }
         }
         else {
             showlog(`${lang.generic.something_went_wrong} ${lang.generic.reason.replaceAll("%s", json.reason)}`);
@@ -209,7 +211,7 @@ ENABLE_ACCOUNT_SWITCHER && dom("acc-switch").addEventListener("click", function 
     let val = dom("accs").value.split("-", 2);
     setCookie("token", val[0]);
     localStorage.setItem("username", val[1]);
-    window.location.reload();
+    location.reload();
 });
 ENABLE_ACCOUNT_SWITCHER && dom("acc-remove").addEventListener("click", function () {
     let removed = dom("accs").value.split("-", 2);
@@ -288,4 +290,27 @@ dom("confirm").addEventListener("keydown", function (event) {
         dom("set-password").focus();
         dom("set-password").click();
     }
+});
+ENABLE_EMAIL && dom("email-submit").addEventListener("click", function () {
+    dom("email").setAttribute("disabled", "");
+    dom("email-submit").setAttribute("disbaled", "");
+    fetch("/api/email/save", {
+        body: JSON.stringify({
+            email: dom("email").value
+        }),
+        method: "POST"
+    }).then((response) => (response.json()))
+        .then((json) => {
+        if (json.success) {
+            if (hasEmail) {
+                dom("email-output").innerHTML = lang.settings.account_email_check;
+            }
+            else {
+                dom("email-output").innerHTML = lang.settings.account_email_verify;
+            }
+        }
+        else {
+            dom("email-output").innerHTML = json.reason;
+        }
+    });
 });

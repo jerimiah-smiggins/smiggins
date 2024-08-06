@@ -2,8 +2,9 @@
   "meta": {
     "fallback": [ "en-US" ],
     "name": "English (Great Britain)",
-    "version": "1.4.0",
-    "maintainers": [ "trinkey" ]
+    "version": "1.5.0",
+    "maintainers": [ "trinkey" ],
+    "past_maintainers": []
   },
 
   "texts": {
@@ -15,6 +16,9 @@
 
     "changelog": {
       "changes": {
+        "v0.11.0": {
+          "2": "Fixed an issue that caused read notifications/messages to not be coloured grey"
+        },
         "v0.8.6": {
           "1": "Added a fake profile picture next to your name. This is based off of your banner colour"
         },
@@ -32,6 +36,12 @@
         },
         "v0.4.0": {
           "11": "Remade all themes using the catppuccin colour scheme"
+        },
+        "v0.1.0": {
+          "2": "Made banner colour update when refreshing posts on a user profile"
+        },
+        "v0.0.9": {
+          "1": "Added profile banner colour configuration"
         }
       }
     }

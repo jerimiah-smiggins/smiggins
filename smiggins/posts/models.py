@@ -4,6 +4,8 @@ class User(models.Model):
     user_id  = models.IntegerField(primary_key=True, unique=True)
     username = models.CharField(max_length=300, unique=True)
     token    = models.CharField(max_length=64, unique=True)
+    email    = models.TextField(null=True)
+    email_valid = models.BooleanField(default=False)
 
     # Admin level
     # 0 - Regular user
@@ -156,3 +158,10 @@ class Hashtag(models.Model):
 
     def __str__(self):
         return f"#{self.tag} ({len(self.posts)} posts)"
+
+class URLPart(models.Model):
+    url = models.TextField(max_length=128, primary_key=True, unique=True)
+    user = models.ForeignKey(User, on_delete=models.CASCADE)
+    intent = models.TextField(max_length=6) # "reset", "remove", "verify", "pwd_fm", "change"
+    extra_data = models.JSONField(default=dict, blank=True)
+    expire = models.IntegerField()

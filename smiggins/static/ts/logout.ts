@@ -1,6 +1,6 @@
 eraseCookie("token");
 
-if (window.location.search == "?from=token") {
+if (location.search == "?from=token") {
   let accounts: string[][] = JSON.parse(localStorage.getItem("acc-switcher"));
   let set: boolean = false;
 
@@ -27,7 +27,7 @@ if (window.location.search == "?from=token") {
       setCookie("token", accounts[0][1]);
     }
 
-    window.location.href = "/home/";
+    location.href = "/home/";
 
     throw "some error that stops execution";
   }
@@ -35,11 +35,13 @@ if (window.location.search == "?from=token") {
 
 localStorage.removeItem("username");
 
-if (window.location.search == "?from=switcher") {
-  window.location.href = "/login";
+if (location.search == "?from=switcher") {
+  location.href = "/login";
 } else {
   localStorage.removeItem("home-page");
   localStorage.removeItem("color")
   localStorage.removeItem("acc-switcher");
-  window.location.href = "/";
+  localStorage.removeItem("bar-pos");
+  localStorage.removeItem("bar-dir");
+  location.href = "/";
 }

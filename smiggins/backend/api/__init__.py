@@ -1,3 +1,4 @@
+from .email import password_reset, set_email
 from .info import notifications, username, version
 from .messages import container_create, messages_list, recent_messages, send_message
 
@@ -67,6 +68,10 @@ class ApiComment:
     comment_like_add = comment_like_add
     comment_like_remove = comment_like_remove
     comment_list = comment_list
+
+class ApiEmail:
+    password_reset = password_reset
+    set_email = set_email
 
 class ApiInfo:
     notifications = notifications
