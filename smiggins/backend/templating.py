@@ -18,6 +18,8 @@ from .variables import (
     MAX_CONTENT_WARNING_LENGTH,
     BADGE_DATA,
     VALID_LANGUAGES,
+    CREDITS,
+    CACHE_LANGUAGES
 )
 
 from .helper import (
@@ -26,6 +28,7 @@ from .helper import (
     get_badges,
     get_container_id,
     get_lang,
+    LANGS
 )
 
 def settings(request) -> HttpResponse:
@@ -391,6 +394,28 @@ def hashtag(request, hashtag: str) -> HttpResponse:
 
         HASHTAG = hashtag.lower(),
         NUM_POSTS = num_posts
+    )
+
+def credit(request) -> HttpResponse:
+    try:
+        user = User.objects.get(token=request.COOKIES.get("token"))
+    except User.DoesNotExist:
+        user = None
+
+    lang = get_lang(user)
+
+    return get_HTTP_response(
+        request, "credits.html", lang, user=user,
+
+        credits=CREDITS,
+        langs=[{
+            "name": LANGS[i]["meta"]["name"],
+            "maintainers": LANGS[i]["meta"]["maintainers"],
+            "past_maintainers": LANGS[i]["meta"]["past_maintainers"],
+            "num_past": len(LANGS[i]["meta"]["past_maintainers"])
+        } for i in LANGS] if CACHE_LANGUAGES else [],
+        cache_langs=CACHE_LANGUAGES,
+        fa=lang["credits"]["fontawesome"].replace("%s", "<a href=\"https://fontawesome.com/\">Font Awesome</a>")
     )
 
 # These two functions are referenced in smiggins/urls.py

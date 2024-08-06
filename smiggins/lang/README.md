@@ -55,6 +55,7 @@ Updates for each language version are listed below:
 Added emails and legacy changelogs
 
 ```diff
+- credits.credits
 + account.forgot_password
 + settings.cosmetic_bar
 + settings.cosmetic_bar_ur
@@ -67,6 +68,14 @@ Added emails and legacy changelogs
 + settings.account_email_update
 + settings.account_email_verify
 + settings.account_email_check
++ credits.lead
++ credits.contributors
++ credits.fontawesome
++ credits.current
++ credits.past
++ credits.main_title
++ credits.lang_title
++ credits.other_title
 + email.generic.greeting
 + email.generic.link
 + email.generic.expire
@@ -87,7 +96,7 @@ Added emails and legacy changelogs
 + email.reset.block_1
 + email.reset.block_2
 + email.reset.block_3
-+ changelog.changes.v0.11.0 {1, 2, 3, 4, 5}
++ changelog.changes.v0.11.0 {1, 2, 3, 4, 5, 6}
 + changelog.changes.v0.3.6 {1, 2, 3}
 + changelog.changes.v0.3.5 {1, 2, 3}
 + changelog.changes.v0.3.4 {1, 2}

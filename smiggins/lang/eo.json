@@ -3,7 +3,8 @@
     "fallback": [ "en-US" ],
     "name": "Esperanto",
     "version": "1.2.0",
-    "maintainers": [ "Subroutine7901" ]
+    "maintainers": [ "Subroutine7901" ],
+    "past_maintainers": []
   },
 
   "texts": {

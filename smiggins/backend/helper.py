@@ -542,7 +542,7 @@ def get_lang(lang: User | str | None=None, override_cache=False) -> dict[str, di
 
         return found
 
-    def resolve_dependencies(lang: str, context: dict | None=None) -> dict[str, dict]:
+    def resolve_dependencies(lang: str, context: dict | None=None) -> tuple[dict[str, dict], dict]:
         if context is None:
             context = {}
 
@@ -555,11 +555,16 @@ def get_lang(lang: User | str | None=None, override_cache=False) -> dict[str, di
             if i not in parsed:
                 resolve_dependencies(i, context)
 
-        return context
+        return context, f
 
-    x = resolve_dependencies(lang)
+    x, full = resolve_dependencies(lang)
+
     x["meta"] = {
-        "language": lang
+        "language": lang,
+        "version": full["meta"]["version"],
+        "maintainers": full["meta"]["maintainers"],
+        "past_maintainers": full["meta"]["past_maintainers"],
+        "name": full["meta"]["name"]
     }
 
     temp_lang = {}

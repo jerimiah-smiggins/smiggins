@@ -30,7 +30,8 @@ from backend.templating import (
     comment,
     admin,
     message,
-    hashtag
+    hashtag,
+    credit
 )
 
 from posts.models import (
@@ -67,7 +68,7 @@ urlpatterns = list(filter(bool, [
     path("contact/", contact) if ENABLE_CONTACT_PAGE else None,
     path("notifications/", create_simple_return("notifications.html", redirect_logged_out=True)),
     path("changelog/", create_simple_return("changelog.html")) if ENABLE_CHANGELOG_PAGE else None,
-    path("credits/", create_simple_return("credits.html")) if ENABLE_CREDITS_PAGE else None,
+    path("credits/", credit) if ENABLE_CREDITS_PAGE else None,
     path("messages/", create_simple_return("messages.html", redirect_logged_out=True)) if ENABLE_PRIVATE_MESSAGES else None,
 
     path("hashtag/<str:hashtag>/", hashtag) if ENABLE_HASHTAGS else None,
