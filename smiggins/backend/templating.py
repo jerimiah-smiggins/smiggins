@@ -415,7 +415,7 @@ def credit(request) -> HttpResponse:
             "num_past": len(LANGS[i]["meta"]["past_maintainers"])
         } for i in LANGS] if CACHE_LANGUAGES else [],
         cache_langs=CACHE_LANGUAGES,
-        fa=lang["credits"]["fontawesome"].replace("%s", "<a href=\"https://fontawesome.com/\">Font Awesome</a>")
+        fa=lang["credits"]["fontawesome"].replace("%s", "<a href=\"https://fontawesome.com/\" target=\"_blank\">Font Awesome</a>")
     )
 
 # These two functions are referenced in smiggins/urls.py
