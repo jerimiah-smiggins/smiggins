@@ -78,6 +78,7 @@ ENABLE_NEW_ACCOUNTS: bool = True
 ENABLE_EMAIL: bool = False
 ENABLE_SITEMAPS: bool = False
 ITEMS_PER_SITEMAP: int = 500
+GOOGLE_VERIFICATION_TAG: str | None = ""
 
 API_TIMINGS: dict[str, int] = {}
 
@@ -181,6 +182,7 @@ for key, val in f.items():
     elif key.lower() in ["email", "enable_email"]: is_ok(val, "ENABLE_EMAIL", bool) # noqa: E701
     elif key.lower() in ["sitemaps", "enable_sitemaps"]: is_ok(val, "ENABLE_SITEMAPS", bool) # noqa: E701
     elif key.lower() == "items_per_sitemap": is_ok(val, "ITEMS_PER_SITEMAP", int) # noqa: E701
+    elif key.lower() == "google_verification_tag": is_ok(val, "GOOGLE_VERIFICATION_TAG", str) # noqa: E701
     else: error(f"Unknown setting {key}") # noqa: E701
 
 MAX_ADMIN_LOG_LINES = clamp(MAX_ADMIN_LOG_LINES, minimum=1)
@@ -234,7 +236,6 @@ PRIVATE_AUTHENTICATOR_KEY: str = hashlib.sha256(auth_key).hexdigest()
 timeout_handler: dict[str, dict[str, None]] = {}
 
 ROBOTS: str = """\
-# Generic
 User-agent: *
 Disallow: /settings/
 Disallow: /home/

@@ -31,6 +31,10 @@
       const ENABLE_EMAIL = {{ ENABLE_EMAIL }};
     </script>
 
+    {% if GOOGLE_VERIFICATION_TAG %}
+      <meta name="google-site-verification" content="{{ GOOGLE_VERIFICATION_TAG }}">
+    {% endif %}
+
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width,initial-scale=1">
     <meta name="pronouns" content="she/her">
