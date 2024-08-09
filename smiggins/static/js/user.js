@@ -38,7 +38,7 @@ function toggle_follow() {
         .then((response) => (response.json()))
         .then((json) => {
         dom("toggle").setAttribute("data-followed", x ? "0" : "1");
-        dom("toggle").innerText = x ? lang.user_page.follow : lang.user_page.unfollow;
+        dom("toggle").innerText = x ? lang.user_page.follow : (json.pending ? lang.user_page.pending : lang.user_page.unfollow);
     })
         .catch((err) => {
         showlog(lang.generic.something_went_wrong, 5000);

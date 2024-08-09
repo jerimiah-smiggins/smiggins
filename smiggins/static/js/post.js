@@ -48,5 +48,5 @@ try {
     });
 }
 catch (err) {
-    console.log("Not logged in");
+    console.error(err);
 }
