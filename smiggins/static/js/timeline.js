@@ -75,6 +75,7 @@ function addQuote(postID, isComment) {
     <button class="post-button inverted">${lang.generic.post}</button>
     <button class="cancel-button inverted">${lang.generic.cancel}</button>
   `;
+    let localGI = globalIncrement;
     globalIncrement++;
     post.querySelector("button.post-button").addEventListener("click", function () {
         if (!post.querySelector("textarea").value.length) {
@@ -90,7 +91,8 @@ function addQuote(postID, isComment) {
                 c_warning: ENABLE_CONTENT_WARNINGS ? post.querySelector("input.c-warning").value : "",
                 content: post.querySelector("textarea").value,
                 quote_id: postID,
-                quote_is_comment: isComment
+                quote_is_comment: isComment,
+                private: dom(`default-private-${localGI}`).checked
             })
         }).then((response) => (response.json()))
             .then((json) => {
