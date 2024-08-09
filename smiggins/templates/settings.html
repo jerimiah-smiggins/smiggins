@@ -74,11 +74,18 @@
       <input id="banner-color" value="{{ BANNER_COLOR }}" type="color">
       {% if ENABLE_GRADIENT_BANNERS == 'true' %}
         <input hidden id="banner-color-two" value="{{ BANNER_COLOR_TWO }}" type="color"><br>
-        {{ lang.settings.profile_gradient }} <input id="banner-is-gradient" {{ CHECKED_IF_GRADIENT }} type="checkbox">
+        <label for="banner-is-gradient">{{ lang.settings.profile_gradient }}</label>
+        <input id="banner-is-gradient" {{ CHECKED_IF_GRADIENT }} type="checkbox">
       {% endif %}<br><br>
 
-      {{ lang.settings.profile_private }} <input type="checkbox" id="priv" {{ CHECKED_IF_PRIV }}><br>
-      <div class="small-mw">{{ lang.settings.profile_private_description }}</div>
+      {{ lang.settings.profile_default_post }}<br>
+      <select id="default-post">
+        <option value="public" {{ SELECTED_IF_PUBLIC }}>{{ lang.post.type_public }}</option>
+        <option value="followers" {{ SELECTED_IF_PRIVATE }}>{{ lang.post.type_followers_only }}</option>
+      </select><br><br>
+
+      <label for="followers-approval">{{ lang.settings.profile_followers_approval }}</label>
+      <input type="checkbox" id="followers-approval" {% if FOLLOWERS_REQUIRE_APPROVAL == 'true' %}checked{% endif %}>
     </div>
 
     <div>

@@ -193,7 +193,7 @@ def comment_list(request, id: int, comment: bool, offset: int=-1) -> tuple | dic
             offset += 1
             continue
 
-        if creator.user_id in self_blocking or creator.private and user_id not in creator.following:
+        if creator.user_id in self_blocking or comment_object.private_comment and user_id not in creator.followers:
             offset += 1
             continue
 

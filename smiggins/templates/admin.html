@@ -27,7 +27,8 @@
         <h3>{{ lang.admin.post_deletion_title }}</h3>
         <div id="post-deletion">
           <input id="post-id" placeholder="{{ lang.admin.post_id_placeholder }}"><br>
-          {{ lang.admin.is_comment_label }} <input id="comment-toggle" type="checkbox"><br>
+          <label for="comment-toggle">{{ lang.admin.is_comment_label }}</label>
+          <input id="comment-toggle" type="checkbox"><br>
           <button id="post-delete">{{ lang.admin.post_deletion_button }}</button>
         </div>
       </div>
@@ -40,7 +41,8 @@
         <h3>{{ lang.admin.account_deletion_title }}</h3>
         <div>
           <input id="account-del-identifier" placeholder="{{ lang.admin.user_id_placeholder }}"><br>
-          {{ lang.admin.use_id_label }} <input id="delete-id-toggle" type="checkbox"><br>
+          <label for="delete-id-toggle">{{ lang.admin.use_id_label }}</label>
+          <input id="delete-id-toggle" type="checkbox"><br>
           <button id="account-delete">{{ lang.admin.account_deletion_button }}</button>
         </div>
       </div>
@@ -52,7 +54,8 @@
 
         <h3>{{ lang.admin.badge_manage_title }}</h3>
         <input id="badge-identifier" placeholder="{{ lang.admin.user_id_placeholder }}"><br>
-        {{ lang.admin.use_id_label }} <input id="badge-use-id" type="checkbox"><br>
+        <label for="badge-use-id">{{ lang.admin.use_id_label }}</label>
+        <input id="badge-use-id" type="checkbox"><br>
         <select id="badge-name">
           {% for BADGE in BADGE_DATA %}
             {% if BADGE != "administrator" %}
@@ -81,7 +84,8 @@
 
         <h3>{{ lang.admin.modify_title }}</h3>
         <input id="data-identifier" placeholder="{{ lang.admin.user_id_placeholder }}"><br>
-        {{ lang.admin.use_id_label }} <input type="checkbox" id="data-use-id"><br>
+        <label for="data-use-id">{{ lang.admin.use_id_label }}</label>
+        <input type="checkbox" id="data-use-id"><br>
         <button id="data-get">{{ lang.admin.modify_get_button }}</button><br><br>
 
         <div id="data-section"></div>
@@ -94,7 +98,8 @@
 
         <h3>{{ lang.admin.level_title }}</h3>
         <input id="level-identifier" placeholder="{{ lang.admin.user_id_placeholder }}"><br>
-        {{ lang.admin.use_id_label }} <input id="level-use-id" type="checkbox"><br>
+        <label for="level-use-id">{{ lang.admin.use_id_label }}</label>
+        <input id="level-use-id" type="checkbox"><br>
         <select id="level-selection">
           <option value="0">{{ lang.admin.level_zero }}</option>
           <option value="1">{{ lang.admin.level_one }}</option>

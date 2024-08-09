@@ -112,7 +112,7 @@ button {
 }
 
 .fake-input,
-input,
+input:not([type="checkbox"]),
 textarea,
 option,
 select {
@@ -128,18 +128,54 @@ select {
 
 }
 
+label:has(+ input[type="checkbox"]) {
+  cursor: pointer;
+
+  & + input[type="checkbox"] {
+    width: 0;
+    height: 0;
+    opacity: 0;
+    margin: 0;
+    padding: 0;
+    border: none;
+    outline: none;
+  }
+
+  &:has(+ :checked)::after {
+    background-color: var(--accent);
+  }
+
+  &:has(+ :focus)::after {
+    outline-color: var(--accent);
+  }
+
+  &::after {
+    content: "";
+    transition: background-color 0.25s, outline-color 0.25s;
+    background-color: var(--surface0);
+    display: inline-block;
+    position: relative;
+    top: 0.1em;
+    width: 1em;
+    height: 1em;
+    margin-left: 0.4em;
+    border-radius: 0.2em;
+    outline: 1px solid var(--surface1);
+  }
+}
+
 option {
   font-family: "Poppins", sans-serif;
   font-size: 1.1em;
 }
 
-input,
+input:not([type="checkbox"]),
 textarea,
 select {
   font-family: "Poppins";
 }
 
-input, textarea {
+input:not([type="checkbox"]), textarea {
   &::placeholder {
     color: var(--surface2);
     opacity: 100%;

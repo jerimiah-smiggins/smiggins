@@ -12,7 +12,7 @@ function extra(json: {
   can_view: boolean,
   followers: boolean,
   following: boolean
-  pinned: _postJSON
+  pinned?: _postJSON
 }): void {
   ENABLE_USER_BIOS && dom("user-bio").removeAttribute("hidden");
   ENABLE_USER_BIOS && (dom("user-bio").innerHTML = linkifyHtml(escapeHTML(json.bio), {

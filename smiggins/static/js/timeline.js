@@ -66,11 +66,16 @@ function addQuote(postID, isComment) {
     let originalCW = originalCWEl ? originalCWEl.innerHTML : null;
     post.innerHTML = `
     <div class="log"></div>
+    <div class="quote-visibility">
+      <label for="default-private-${globalIncrement}">${lang.post.type_followers_only}:</label>
+      <input id="default-private-${globalIncrement}" type="checkbox" ${defaultPrivate ? "checked" : ""}><br>
+    </div>
     ${ENABLE_CONTENT_WARNINGS ? `<input class="c-warning" ${originalCW ? `value="re: ${originalCW.slice(0, MAX_CONTENT_WARNING_LENGTH - 4)}"` : ""} maxlength="${MAX_CONTENT_WARNING_LENGTH}" placeholder="${lang.home.c_warning_placeholder}"><br>` : ""}
     <textarea class="post-text" maxlength="${MAX_POST_LENGTH}" placeholder="${lang.home.quote_placeholders[Math.floor(Math.random() * lang.home.quote_placeholders.length)]}"></textarea><br>
     <button class="post-button inverted">${lang.generic.post}</button>
     <button class="cancel-button inverted">${lang.generic.cancel}</button>
   `;
+    globalIncrement++;
     post.querySelector("button.post-button").addEventListener("click", function () {
         if (!post.querySelector("textarea").value.length) {
             return;

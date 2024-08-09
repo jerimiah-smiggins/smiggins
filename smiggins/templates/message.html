@@ -16,7 +16,6 @@
 {% block body %}
   <div class="header-container"><h1 style="margin-bottom: 0;">
     {{ TITLE }}
-    <span {% if PRIVATE == "false" %}hidden{% endif %}><div class="user-badge" data-add-icon="lock"></div></span>
     {% autoescape off %}
     {{ BADGES }}
     {% endautoescape %}

@@ -20,7 +20,6 @@
   <div>
     <div id="username-main">
       {{ DISPLAY_NAME }}
-      <span {% if PRIVATE == 'false' %}hidden{% endif %}><div class="user-badge" data-add-icon="lock"></div></span>
       {% autoescape off %}
       {{ BADGES }}
       {% endautoescape %}

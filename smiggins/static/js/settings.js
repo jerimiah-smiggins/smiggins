@@ -57,10 +57,10 @@ dom("post-example").innerHTML = getPostHTML({
         color_two: "#" + Math.floor(Math.random() * 16777216).toString(16).padStart(6, "0"),
         display_name: lang.settings.cosmetic_example_post_display_name,
         gradient_banner: true,
-        private: false,
         pronouns: "aa",
         username: lang.settings.cosmetic_example_post_username,
     },
+    private: false,
     can_delete: false,
     can_view: true,
     comments: Math.floor(Math.random() * 100),
@@ -130,7 +130,8 @@ dom("bar-dir").addEventListener("change", function () {
 });
 ENABLE_USER_BIOS && dom("bio").addEventListener("input", postTextInputEvent);
 dom("displ-name").addEventListener("input", setUnload);
-dom("priv").addEventListener("input", setUnload);
+dom("default-post").addEventListener("input", setUnload);
+dom("followers-approval").addEventListener("input", setUnload);
 dom("theme").addEventListener("change", function () {
     dom("theme").setAttribute("disabled", "");
     fetch("/api/user/settings/theme", {
@@ -154,11 +155,12 @@ dom("theme").addEventListener("change", function () {
 });
 dom("save").addEventListener("click", function () {
     ENABLE_USER_BIOS && dom("bio").setAttribute("disabled", "");
-    dom("priv").setAttribute("disabled", "");
     dom("save").setAttribute("disabled", "");
     dom("displ-name").setAttribute("disabled", "");
     dom("banner-color").setAttribute("disabled", "");
     dom("lang").setAttribute("disabled", "");
+    dom("default-post").setAttribute("disabled", "");
+    dom("followers-approval").setAttribute("disabled", "");
     ENABLE_GRADIENT_BANNERS && dom("banner-color-two").setAttribute("disabled", "");
     ENABLE_GRADIENT_BANNERS && dom("banner-is-gradient").setAttribute("disabled", "");
     fetch("/api/user/settings", {
@@ -166,12 +168,13 @@ dom("save").addEventListener("click", function () {
         body: JSON.stringify({
             bio: ENABLE_USER_BIOS ? dom("bio").value : "",
             lang: dom("lang").value,
-            priv: dom("priv").checked,
             color: dom("banner-color").value,
             pronouns: ENABLE_PRONOUNS ? user_pronouns : "__",
             color_two: ENABLE_GRADIENT_BANNERS ? dom("banner-color-two").value : "",
             displ_name: dom("displ-name").value,
-            is_gradient: ENABLE_GRADIENT_BANNERS ? dom("banner-is-gradient").checked : false
+            is_gradient: ENABLE_GRADIENT_BANNERS ? dom("banner-is-gradient").checked : false,
+            approve_followers: dom("followers-approval").checked,
+            default_post_visibility: dom("default-post").value
         })
     }).then((response) => (response.json()))
         .then((json) => {
@@ -189,11 +192,12 @@ dom("save").addEventListener("click", function () {
     })
         .catch((err) => {
         ENABLE_USER_BIOS && dom("bio").removeAttribute("disabled");
-        dom("priv").removeAttribute("disabled");
         dom("save").removeAttribute("disabled");
         dom("displ-name").removeAttribute("disabled");
         dom("banner-color").removeAttribute("disabled");
         dom("lang").removeAttribute("disabled");
+        dom("default-post").removeAttribute("disabled");
+        dom("followers-approval").removeAttribute("disabled");
         ENABLE_GRADIENT_BANNERS && dom("banner-color-two").removeAttribute("disabled");
         ENABLE_GRADIENT_BANNERS && dom("banner-is-gradient").removeAttribute("disabled");
     });

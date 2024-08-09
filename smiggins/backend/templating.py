@@ -8,7 +8,6 @@ from posts.models import User, Post, Comment, Hashtag, PrivateMessageContainer
 
 from .variables import (
     DEFAULT_BANNER_COLOR,
-    MAX_BIO_LENGTH,
     OWNER_USER_ID,
     CONTACT_INFO,
     ENABLE_GRADIENT_BANNERS,
@@ -44,7 +43,6 @@ def settings(request) -> HttpResponse:
         BANNER_COLOR        = user.color or DEFAULT_BANNER_COLOR,
         BANNER_COLOR_TWO    = user.color_two or DEFAULT_BANNER_COLOR,
         CHECKED_IF_GRADIENT = "checked" if user.gradient else "",
-        CHECKED_IF_PRIV     = "checked" if user.private  else "",
 
         PRONOUNS = user.pronouns,
 
@@ -52,8 +50,12 @@ def settings(request) -> HttpResponse:
         email = user.email or "",
         email_valid = str(user.email_valid).lower(),
 
-        MAX_BIO_LENGTH = str(MAX_BIO_LENGTH),
         USER_BIO = user.bio or "",
+
+        SELECTED_IF_PUBLIC = "" if user.default_post_private else "selected",
+        SELECTED_IF_PRIVATE = "selected" if user.default_post_private else "",
+
+        FOLLOWERS_REQUIRE_APPROVAL = str(user.verify_followers).lower(),
 
         SELECTED_IF_LIGHT = "selected" if user.theme == "light" else "",
         SELECTED_IF_GRAY  = "selected" if user.theme == "gray"  else "",
@@ -72,13 +74,11 @@ def user(request, username: str) -> HttpResponse | HttpResponseRedirect:
 
     try:
         self_user = User.objects.get(token=request.COOKIES.get("token"))
-        self_id = self_user.user_id
 
     except User.DoesNotExist:
         if not ENABLE_LOGGED_OUT_CONTENT:
             return HttpResponseRedirect("/signup", status=307)
 
-        self_id = 0
         self_user = None
 
     lang = get_lang(self_user)
@@ -95,8 +95,7 @@ def user(request, username: str) -> HttpResponse | HttpResponseRedirect:
 
         IS_HIDDEN = "hidden" if self_user is None or username == self_user.username else "",
         LOGGED_IN = str(self_user is not None).lower(),
-        CAN_VIEW = str(not user.private or self_id in user.following).lower(),
-        PRIVATE = str(user.private).lower(),
+        FOLLOWERS_REQUIRE_APPROVAL = str(user.verify_followers).lower(),
 
         USERNAME = user.username,
         DISPLAY_NAME = user.display_name,
@@ -150,7 +149,6 @@ def user_lists(request, username: str) -> HttpResponse:
                 "username": f_user.username,
                 "display_name": f_user.display_name,
                 "bio": f_user.bio or "\n\n\n",
-                "private": str(f_user.private).lower(),
                 "badges": get_badges(f_user),
                 "color_one": f_user.color,
                 "color_two": f_user.color_two,
@@ -166,7 +164,6 @@ def user_lists(request, username: str) -> HttpResponse:
                 "username": f_user.username,
                 "display_name": f_user.display_name,
                 "bio": f_user.bio or "\n\n\n",
-                "private": str(f_user.private).lower(),
                 "badges": get_badges(f_user),
                 "color_one": f_user.color,
                 "color_two": f_user.color_two,
@@ -186,7 +183,6 @@ def user_lists(request, username: str) -> HttpResponse:
                         "username": f_user.username,
                         "display_name": f_user.display_name,
                         "bio": f_user.bio or "\n\n\n",
-                        "private": str(f_user.private).lower(),
                         "badges": get_badges(f_user),
                         "color_one": f_user.color,
                         "color_two": f_user.color_two,
@@ -223,7 +219,7 @@ def user_lists(request, username: str) -> HttpResponse:
         BANNER_COLOR = user.color or DEFAULT_BANNER_COLOR,
         BANNER_COLOR_TWO = user.color_two or DEFAULT_BANNER_COLOR,
 
-        PRIVATE = str(user.private).lower(),
+        FOLLOWERS_REQUIRE_APPROVAL = str(user.verify_followers).lower(),
         IS_FOLLOWING = str(user.user_id in self_user.following).lower() if self_user is not None else "false",
         IS_HIDDEN = "hidden" if user.user_id == self_id else "",
 
@@ -254,7 +250,7 @@ def post(request, post_id: int) -> HttpResponse:
             request, "404-post.html", status=404
         )
 
-    if creator.private and self_id not in creator.following:
+    if post.private_post and self_id not in creator.followers:
         return get_HTTP_response(
             request, "404-post.html", status=404
         )
@@ -301,7 +297,7 @@ def comment(request, comment_id: int) -> HttpResponse:
             request, "404-post.html", status=404
         )
 
-    if creator.private and self_id not in creator.following:
+    if comment.private_comment and self_id not in creator.followers:
         return get_HTTP_response(
             request, "404-post.html", status=404
         )
@@ -379,7 +375,6 @@ def message(request, username: str) -> HttpResponse | HttpResponseRedirect:
         PLACEHOLDER = lang["messages"]["input_placeholder"].replace("%s", user.display_name),
         TITLE = lang["messages"]["title"].replace("%s", user.display_name),
         USERNAME = username,
-        PRIVATE = str(user.private).lower(),
         BADGES = "".join([f"<span class='user-badge' data-add-badge='{i}'></span> " for i in get_badges(user)])
     )
 

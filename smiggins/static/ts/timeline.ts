@@ -72,11 +72,19 @@ function addQuote(postID: number, isComment: boolean): void {
 
   post.innerHTML = `
     <div class="log"></div>
+    <div class="quote-visibility">
+      <label for="default-private-${globalIncrement}">${ lang.post.type_followers_only }:</label>
+      <input id="default-private-${globalIncrement}" type="checkbox" ${defaultPrivate ? "checked" : ""}><br>
+    </div>
     ${ENABLE_CONTENT_WARNINGS ? `<input class="c-warning" ${originalCW ? `value="re: ${originalCW.slice(0, MAX_CONTENT_WARNING_LENGTH - 4)}"` : ""} maxlength="${MAX_CONTENT_WARNING_LENGTH}" placeholder="${lang.home.c_warning_placeholder}"><br>` : ""}
     <textarea class="post-text" maxlength="${MAX_POST_LENGTH}" placeholder="${lang.home.quote_placeholders[Math.floor(Math.random() * lang.home.quote_placeholders.length)]}"></textarea><br>
     <button class="post-button inverted">${lang.generic.post}</button>
     <button class="cancel-button inverted">${lang.generic.cancel}</button>
   `;
+
+  let localGI: number = globalIncrement;
+
+  globalIncrement++;
 
   post.querySelector("button.post-button").addEventListener("click", function(): void {
     if (!post.querySelector("textarea").value.length) { return; }
@@ -92,7 +100,8 @@ function addQuote(postID: number, isComment: boolean): void {
         c_warning: ENABLE_CONTENT_WARNINGS ? (post.querySelector("input.c-warning") as HTMLInputElement).value : "",
         content: post.querySelector("textarea").value,
         quote_id: postID,
-        quote_is_comment: isComment
+        quote_is_comment: isComment,
+        private: (dom(`default-private-${localGI}`) as HTMLInputElement).checked
       })
     }).then((response: Response) => (response.json()))
       .then((json: {

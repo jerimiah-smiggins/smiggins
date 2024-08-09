@@ -44,12 +44,13 @@ class Theme(Schema):
 class Settings(Schema):
     bio: str
     lang: str
-    priv: bool
     color: str
     pronouns: str
     color_two: str
     displ_name: str
     is_gradient: bool
+    approve_followers: bool
+    default_post_visibility: str
 
 def signup(request, data: Account) -> tuple | dict:
     # Called when someone requests to follow another account.
@@ -250,8 +251,10 @@ def settings(request, data: Settings) -> tuple | dict:
         user.color_two = color_two
         user.gradient = data.is_gradient
 
-    user.private = data.priv
     user.display_name = displ_name
+
+    user.verify_followers = data.approve_followers
+    user.default_post_private = data.default_post_visibility == "followers"
 
     if ENABLE_USER_BIOS:
         user.bio = bio

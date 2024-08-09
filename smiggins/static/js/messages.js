@@ -27,7 +27,6 @@ function refreshMessageList(fromStart = false) {
                   <div class="displ-name">
                     <div style="--color-one: ${message.color_one}; --color-two: ${message[ENABLE_GRADIENT_BANNERS && message.gradient_banner ? "color_two" : "color_one"]}" class="user-badge banner-pfp"></div>
                     ${escapeHTML(message.display_name)}
-                    ${message.private ? `<span class="user-badge">${icons.lock}</span>` : ""}
                     ${message.badges.length ? `<span class="user-badge">${message.badges.map((icon) => (badges[icon])).join("</span> <span class=\"user-badge\">")}</span>` : ""}<br>
                     <span class="upper-lower-opacity">
                       <div class="username">@${message.username}</div>

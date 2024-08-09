@@ -76,6 +76,13 @@ input.c-warning {
   top: 2.6em;
 }
 
+.quote-visibility {
+  width: calc(27em - 10px);
+  top: 2em;
+  position: relative;
+  text-align: center;
+}
+
 #post-text {
   width: 35em;
   resize: none;
@@ -278,6 +285,10 @@ button.bottom-content-icon {
   .post-text,
   input.c-warning {
     width: calc(94vw - (2em / 7) - 90px);
+  }
+
+  .quote-visibility {
+    width: calc(94vw - (-8em / 7) - 90px);
   }
 
   .post {

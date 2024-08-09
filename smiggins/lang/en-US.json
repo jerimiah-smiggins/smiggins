@@ -224,7 +224,7 @@
 
       "quote_blocked": "This post is from an account you've blocked",
       "quote_deleted": "The original post was deleted",
-      "quote_private": "This person limits who can view their profile",
+      "quote_private": "This post or comment is private",
       "quote_poll": "This post has a poll",
       "quote_recursive": "Quoting another post...",
       "quote_placeholders": [
@@ -315,7 +315,9 @@
       "invalid_quote_post": "The post you're quoting doesn't exist!",
       "invalid_quote_comment": "The comment you're quoting doesn't exist!",
       "invalid_username": "Username is insvalagaeg... LOOK JUST SHUT UP",
-      "invalid_poll": "The poll needs to have at least two options!"
+      "invalid_poll": "The poll needs to have at least two options!",
+      "type_public": "Public",
+      "type_followers_only": "Followers only"
     },
 
     "settings": {
@@ -337,8 +339,8 @@
       "profile_banner_title": "Banner color",
       "profile_banner_invalid_color": "Color no tasty",
       "profile_gradient": "Gradient banner?",
-      "profile_private": "Private account?",
-      "profile_private_description": "If your account is private, that means only you and people you follow can see your posts.",
+      "profile_default_post": "Default post visibility:",
+      "profile_followers_approval": "Manually approve followers?",
 
       "cosmetic_title": "Cosmetic",
       "cosmetic_theme": "Theme",
@@ -388,10 +390,10 @@
       "user_on_smiggins": "%s on %t", // Ex: gerard on Twitter Clone (this would be if the site name is set to "Twitter Clone" and the user's display name is "gerard")
       "follow": "Follow",
       "unfollow": "Unfollow",
+      "pending": "Pending",
       "block": "Block",
       "unblock": "Unblock",
       "message": "Message",
-      "private_warning": "This account is private. Only users that they follow can see their posts.",
       "lists_blocks": "Blocks",
       "lists_following": "Following",
       "lists_followers": "Followers",

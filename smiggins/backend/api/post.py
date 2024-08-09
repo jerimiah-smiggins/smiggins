@@ -46,12 +46,14 @@ class NewPost(Schema):
     c_warning: str
     content: str
     poll: list[str]
+    private: bool
 
 class NewQuote(Schema):
     c_warning: str
     content: str
     quote_id: int
     quote_is_comment: bool
+    private: bool
 
 class PostID(Schema):
     id: int
@@ -157,6 +159,7 @@ def post_create(request, data: NewPost) -> tuple | dict:
         likes = [],
         comments = [],
         quotes = [],
+        private_post = data.private,
         poll = {
             "votes": [],
             "choices": len(poll),
@@ -252,6 +255,7 @@ def quote_create(request, data: NewQuote) -> tuple | dict:
         likes = [],
         comments = [],
         quotes = [],
+        private_post = data.private,
         quote = data.quote_id,
         quote_is_comment = data.quote_is_comment
     )
@@ -384,25 +388,16 @@ def post_list_following(request, offset: int=-1) -> tuple | dict:
     potential = potential[index::]
     offset = 0
     outputList = []
-    cache = {}
 
     for i in potential:
         try:
-            current_post = Post.objects.get(pk=i)
+            outputList.append(get_post_json(i, user.user_id))
         except Post.DoesNotExist:
             offset += 1
             continue
 
-        current_user = User.objects.get(pk=current_post.creator)
-
-        if current_user.private and user.user_id not in current_user.following:
-            offset += 1
-
-        else:
-            outputList.append(get_post_json(i, user.user_id, cache=cache))
-
-            if len(outputList) >= POSTS_PER_REQUEST:
-                break
+        if len(outputList) >= POSTS_PER_REQUEST:
+            break
 
     return {
         "posts": outputList,
@@ -442,7 +437,7 @@ def post_list_recent(request, offset: int=-1) -> tuple | dict:
             continue
 
         current_user = User.objects.get(pk=current_post.creator)
-        if current_user.user_id in user.blocking or (current_user.private and user.user_id not in current_user.following):
+        if current_user.user_id in user.blocking or (current_post.private_post and user.user_id not in current_user.followers):
             offset += 1
 
         else:
@@ -479,18 +474,6 @@ def post_list_user(request, username: str, offset: int=-1) -> tuple | dict:
     offset = sys.maxsize if offset == -1 or not isinstance(offset, int) else offset
     user = User.objects.get(username=username)
 
-    if user.private and (not logged_in or self_user.user_id not in user.following):
-        return {
-            "posts": [],
-            "end": True,
-            "private": True,
-            "can_view": False,
-            "following": len(user.following) - 1,
-            "followers": len(user.followers),
-            "bio": user.bio or "",
-            "self": False
-        }
-
     potential = user.posts[::-1]
 
     index = 0
@@ -500,8 +483,6 @@ def post_list_user(request, username: str, offset: int=-1) -> tuple | dict:
             break
 
     potential = potential[index::]
-    end = len(potential) <= POSTS_PER_REQUEST
-    potential = potential[:POSTS_PER_REQUEST:]
     cache = {
         user.user_id: user
     }
@@ -510,12 +491,22 @@ def post_list_user(request, username: str, offset: int=-1) -> tuple | dict:
         cache[self_user.user_id] = self_user
 
     outputList = []
+    c = 0
     for i in potential:
+        c += 1
         try:
-            outputList.append(get_post_json(i, self_user.user_id if logged_in else 0, cache=cache))
+            x = get_post_json(i, self_user.user_id if logged_in else 0, cache=cache)
+
+            if "private_acc" not in x or not x["private_acc"]:
+                outputList.append(x)
+
+            if len(outputList) >= POSTS_PER_REQUEST:
+                break
+
         except Post.DoesNotExist:
             user.posts.remove(i)
             user.save()
+
 
     if ENABLE_PINNED_POSTS:
         try:
@@ -527,8 +518,7 @@ def post_list_user(request, username: str, offset: int=-1) -> tuple | dict:
 
     return {
         "posts": outputList,
-        "end": end,
-        "private": user.private,
+        "end": len(potential) > c,
         "can_view": True,
         "following": len(user.following) - 1,
         "followers": len(user.followers),

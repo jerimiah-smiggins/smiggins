@@ -36,7 +36,6 @@
   <div>
     <div id="username-main">
       {{ DISPLAY_NAME }}
-      <span {% if PRIVATE == 'false' %}hidden{% endif %}><div class="user-badge" data-add-icon="lock"></div></span>
       {% autoescape off %}
       {{ BADGES }}
       {% endautoescape %}
@@ -55,9 +54,8 @@
     <button id="toggle" {{ IS_HIDDEN }} data-followed="{% if IS_FOLLOWING == "true" %}1{% else %}0{% endif %}" onclick="toggle_follow()">{% if IS_FOLLOWING == "true" %}{{ lang.user_page.unfollow }}{% else %}{{ lang.user_page.follow }}{% endif %}</button>
     <button id="block" {{ IS_HIDDEN }} data-blocked="{% if IS_BLOCKING == "true" %}1{% else %}0{% endif %}" onclick="toggle_block()">{% if IS_BLOCKING == "true" %}{{ lang.user_page.unblock }}{% else %}{{ lang.user_page.block }}{% endif %}</button>
     {% if ENABLE_PRIVATE_MESSAGES == 'true' %}<button id="message" {{ IS_HIDDEN }} onclick="createMessage()">{{ lang.user_page.message }}</button>{% endif %}
-  {% if CAN_VIEW == 'false' %}</div>{% endif %}
+  {% if CAN_VIEW == 'false' %}</div>{% endif %}<br><br>
 
-  <div {% if PRIVATE == 'false' %}hidden{% endif %}>{{ lang.user_page.private_warning }}</div><br><br>
   <div id="error"></div>
   <div id="pinned"></div>
   <div id="posts"></div>

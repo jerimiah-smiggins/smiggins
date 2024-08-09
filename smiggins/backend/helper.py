@@ -94,10 +94,12 @@ def get_HTTP_response(
         if user is None:
             raise User.DoesNotExist
 
+        default_post_visibility = user.default_post_private
         theme = user.theme
     except User.DoesNotExist:
         user = None
         theme = DEFAULT_THEME.lower() if DEFAULT_THEME.lower() in ["dawn", "dusk", "dark", "midnight", "black"] else "dark"
+        default_post_visibility = False
 
     lang = lang_override or get_lang(user)
 
@@ -137,6 +139,7 @@ def get_HTTP_response(
         "ENABLE_NEW_ACCOUNTS": str(ENABLE_NEW_ACCOUNTS).lower(),
         "ENABLE_EMAIL": str(ENABLE_EMAIL).lower(),
 
+        "DEFAULT_PRIVATE": str(default_post_visibility).lower(),
         "THEME": theme,
         "lang": lang,
         "badges": BADGE_DATA
@@ -276,7 +279,7 @@ def get_post_json(post_id: int, current_user_id: int=0, comment: bool=False, cac
 
     can_delete_all = current_user_id != 0 and (current_user_id == OWNER_USER_ID or User.objects.get(pk=current_user_id).admin_level >= 1)
 
-    if creator.private and current_user_id not in creator.following:
+    if (post.private_post if isinstance(post, Post) else post.private_comment) and current_user_id not in creator.followers:
         return {
             "private_acc": True,
             "can_view": False,
@@ -304,12 +307,12 @@ def get_post_json(post_id: int, current_user_id: int=0, comment: bool=False, cac
             "display_name": creator.display_name,
             "username": creator.username,
             "badges": get_badges(creator),
-            "private": creator.private,
             "pronouns": creator.pronouns if ENABLE_PRONOUNS else "__",
             "color_one": creator.color,
             "color_two": creator.color_two,
             "gradient_banner": creator.gradient
         },
+        "private": (post.private_post if isinstance(post, Post) else post.private_comment),
         "post_id": post_id,
         "content": post.content,
         "timestamp": post.timestamp,
@@ -346,7 +349,7 @@ def get_post_json(post_id: int, current_user_id: int=0, comment: bool=False, cac
                     "blocked": True
                 }
 
-            elif quote_creator.private and current_user_id not in quote_creator.following:
+            elif (quote.private_post if isinstance(quote, Post) else quote.private_comment) and current_user_id not in quote_creator.following:
                 quote_info = {
                     "deleted": False,
                     "private_acc": True,
@@ -360,12 +363,12 @@ def get_post_json(post_id: int, current_user_id: int=0, comment: bool=False, cac
                         "display_name": quote_creator.display_name,
                         "username": quote_creator.username,
                         "badges": get_badges(quote_creator),
-                        "private": quote_creator.private,
                         "pronouns": quote_creator.pronouns if ENABLE_PRONOUNS else "__",
                         "color_one": quote_creator.color,
                         "color_two": quote_creator.color_two,
                         "gradient_banner": quote_creator.gradient
                     },
+                    "private": (quote.private_post if isinstance(quote, Post) else quote.private_comment),
                     "deleted": False,
                     "comment": post.quote_is_comment,
                     "post_id": quote.post_id if isinstance(quote, Post) else quote.comment_id,
