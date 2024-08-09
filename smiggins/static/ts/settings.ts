@@ -19,6 +19,10 @@ if (ENABLE_PRONOUNS && user_pronouns.includes("_")) {
   document.querySelector(`#pronouns-secondary option[value="${user_pronouns[1]}"]`).setAttribute("selected", "");
 }
 
+if (localStorage.getItem("checkboxes")) {
+  dom("disable-checkboxes").setAttribute("checked", "");
+}
+
 let currentAccount: string;
 let accounts: string[][];
 let hasCurrent: boolean;
@@ -150,6 +154,16 @@ dom("bar-pos").addEventListener("change", function(): void {
 dom("bar-dir").addEventListener("change", function(): void {
   localStorage.setItem("bar-dir", (dom("bar-dir") as HTMLInputElement).value);
   document.body.setAttribute("data-bar-dir", (dom("bar-dir") as HTMLInputElement).value);
+});
+
+dom("disable-checkboxes").addEventListener("input", function(): void {
+  if (localStorage.getItem("checkboxes")) {
+    localStorage.removeItem("checkboxes");
+    document.body.removeAttribute("data-disable-checkboxes");
+  } else {
+    localStorage.setItem("checkboxes", ":3");
+    document.body.setAttribute("data-disable-checkboxes", "");
+  }
 });
 
 ENABLE_USER_BIOS && dom("bio").addEventListener("input", postTextInputEvent);

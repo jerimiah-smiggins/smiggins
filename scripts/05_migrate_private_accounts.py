@@ -12,11 +12,19 @@ django.setup()
 
 from posts.models import User, Post, Comment # noqa: E402 # type: ignore
 
-for user in User.objects.filter(private=True).all():
+for user in User.objects.all():
+    private = user.default_post_private
+
     for post_id in user.posts:
         try:
             post = Post.objects.get(post_id=post_id)
-            post.private_post = True
+
+            if post.private_post is not None:
+                continue
+
+            print(f"Marking post {post_id} as {'private' if private else 'public'}")
+
+            post.private_post = private
             post.save()
 
         except Post.DoesNotExist:
@@ -25,7 +33,13 @@ for user in User.objects.filter(private=True).all():
     for comment_id in user.comments:
         try:
             comment = Comment.objects.get(comment_id=comment_id)
-            comment.private_comment = True
+
+            if comment.private_comment is not None:
+                continue
+
+            print(f"Marking comment {comment_id} as {'private' if private else 'public'}")
+
+            comment.private_comment = private
             comment.save()
 
         except Comment.DoesNotExist:

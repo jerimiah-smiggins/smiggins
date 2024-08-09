@@ -346,7 +346,15 @@ def get_post_json(post_id: int, current_user_id: int=0, comment: bool=False, cac
             if logged_in and quote_creator.user_id in user.blocking:
                 quote_info = {
                     "deleted": False,
-                    "blocked": True
+                    "blocked": True,
+                    "blocked_by_self": True
+                }
+
+            if logged_in and user.user_id in quote_creator.blocking:
+                quote_info = {
+                    "deleted": False,
+                    "blocked": True,
+                    "blocked_by_self": False
                 }
 
             elif (quote.private_post if isinstance(quote, Post) else quote.private_comment) and current_user_id not in quote_creator.following:

@@ -68,5 +68,6 @@ type _postJSON = {
   blocked?: boolean,
   deleted?: boolean,
   comment?: boolean,
-  has_quote?: boolean
+  has_quote?: boolean,
+  blocked_by_self?: boolean
 };

@@ -128,7 +128,7 @@ select {
 
 }
 
-label:has(+ input[type="checkbox"]) {
+body:not([data-disable-checkboxes]) label:has(+ input[type="checkbox"]) {
   cursor: pointer;
 
   & + input[type="checkbox"] {

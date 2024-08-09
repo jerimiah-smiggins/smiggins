@@ -179,7 +179,7 @@ def post_create(request, data: NewPost) -> tuple | dict:
     for i in find_mentions(content, [user.username]):
         try:
             notif_for = User.objects.get(username=i.lower())
-            if user.user_id not in notif_for.blocking:
+            if user.user_id not in notif_for.blocking and notif_for.user_id not in user.blocking:
                 create_notification(notif_for, "ping_p", post.post_id)
 
         except User.DoesNotExist:
@@ -274,7 +274,7 @@ def quote_create(request, data: NewQuote) -> tuple | dict:
 
     try:
         quote_creator = User.objects.get(user_id=quoted_post.creator)
-        if quoted_post.creator != user.user_id and user.user_id not in User.objects.get(pk=quoted_post.creator).blocking:
+        if quoted_post.creator != user.user_id and quote_creator.user_id not in user.blocking and user.user_id not in quote_creator.blocking:
             create_notification(
                 quote_creator,
                 "quote",
@@ -284,7 +284,7 @@ def quote_create(request, data: NewQuote) -> tuple | dict:
         for i in find_mentions(content, [user.username, quote_creator.username]):
             try:
                 notif_for = User.objects.get(username=i.lower())
-                if user.user_id not in notif_for.blocking:
+                if user.user_id not in notif_for.blocking and notif_for.user_id not in user.blocking:
                     create_notification(notif_for, "ping_p", post.post_id)
 
             except User.DoesNotExist:
@@ -437,7 +437,7 @@ def post_list_recent(request, offset: int=-1) -> tuple | dict:
             continue
 
         current_user = User.objects.get(pk=current_post.creator)
-        if current_user.user_id in user.blocking or (current_post.private_post and user.user_id not in current_user.followers):
+        if current_user.user_id in user.blocking or user.user_id in current_user.blocking or (current_post.private_post and user.user_id not in current_user.followers):
             offset += 1
 
         else:
@@ -468,11 +468,18 @@ def post_list_user(request, username: str, offset: int=-1) -> tuple | dict:
 
     if not validate_username(username):
         return 404, {
+            "success": False,
             "reason" : lang["post"]["invalid_username"]
         }
 
     offset = sys.maxsize if offset == -1 or not isinstance(offset, int) else offset
     user = User.objects.get(username=username)
+
+    if self_user.user_id in user.blocking:
+        return 400, {
+            "success": False,
+            "reason": lang["messages"]["blocked"]
+        }
 
     potential = user.posts[::-1]
 
@@ -516,7 +523,13 @@ def post_list_user(request, username: str, offset: int=-1) -> tuple | dict:
     else:
         pinned_post = {}
 
+    # todo
+    # blocked/blocking/following text on user pages
+    # permission validation on additive actions (liking, commenting, quoting, ...)
+    # pending followers page
+
     return {
+        "success": True,
         "posts": outputList,
         "end": len(potential) > c,
         "can_view": True,
@@ -733,6 +746,13 @@ def poll_vote(request, data: Poll):
             }
 
         user = User.objects.get(token=request.COOKIES.get('token'))
+        creator = User.objects.get(user_id=post.creator)
+
+        if user.user_id in creator.blocking or (post.private_post and user.user_id not in creator.followers):
+            return 400, {
+                "success": False
+            }
+
         user_id = user.user_id
 
         if user_id in poll["votes"]:

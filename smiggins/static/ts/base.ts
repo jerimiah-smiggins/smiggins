@@ -204,7 +204,7 @@ function getPostHTML(
           <div class="quote-area">
             <div class="post">
               ${
-                postJSON.quote.blocked ? lang.home.quote_blocked : postJSON.quote.deleted ? lang.home.quote_deleted : postJSON.quote.can_view ? `
+                postJSON.quote.blocked ? (postJSON.quote.blocked_by_self ? lang.home.quote_blocked : lang.home.quote_blocked_other) : postJSON.quote.deleted ? lang.home.quote_deleted : postJSON.quote.can_view ? `
                   <div class="upper-content">
                     <a href="/u/${postJSON.quote.creator.username}" class="no-underline text">
                       <div class="main-area">

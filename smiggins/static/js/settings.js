@@ -14,6 +14,9 @@ else if (ENABLE_PRONOUNS) {
     document.querySelector(`#pronouns-primary option[value="${user_pronouns[0]}"]`).setAttribute("selected", "");
     document.querySelector(`#pronouns-secondary option[value="${user_pronouns[1]}"]`).setAttribute("selected", "");
 }
+if (localStorage.getItem("checkboxes")) {
+    dom("disable-checkboxes").setAttribute("checked", "");
+}
 let currentAccount;
 let accounts;
 let hasCurrent;
@@ -127,6 +130,16 @@ dom("bar-dir").value = localStorage.getItem("bar-dir") || "v";
 dom("bar-dir").addEventListener("change", function () {
     localStorage.setItem("bar-dir", dom("bar-dir").value);
     document.body.setAttribute("data-bar-dir", dom("bar-dir").value);
+});
+dom("disable-checkboxes").addEventListener("input", function () {
+    if (localStorage.getItem("checkboxes")) {
+        localStorage.removeItem("checkboxes");
+        document.body.removeAttribute("data-disable-checkboxes");
+    }
+    else {
+        localStorage.setItem("checkboxes", ":3");
+        document.body.setAttribute("data-disable-checkboxes", "");
+    }
 });
 ENABLE_USER_BIOS && dom("bio").addEventListener("input", postTextInputEvent);
 dom("displ-name").addEventListener("input", setUnload);

@@ -29,6 +29,10 @@ document.body.setAttribute(
   (["h", "r"]).indexOf(localStorage.getItem("bar-dir")) == -1 ? "v" : localStorage.getItem("bar-dir")
 );
 
+if (localStorage.getItem("checkboxes")) {
+  document.body.setAttribute("data-disable-checkboxes", "");
+}
+
 if (logged_in) {
   iconsElement.innerHTML = `<a title="${lang.settings.title}" href="/settings">${icons.settings}</a>`;
 

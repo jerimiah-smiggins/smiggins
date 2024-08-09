@@ -254,6 +254,10 @@ def settings(request, data: Settings) -> tuple | dict:
     user.display_name = displ_name
 
     user.verify_followers = data.approve_followers
+    if not data.approve_followers: # list(set(...)) removes any duplicates
+        user.followers = list(set(user.followers + user.pending_followers))
+        user.pending_followers = []
+
     user.default_post_private = data.default_post_visibility == "followers"
 
     if ENABLE_USER_BIOS:
@@ -293,16 +297,27 @@ def follower_add(request, data: Username) -> tuple | dict:
             "reason": lang["account"]["follow_blocking"]
         }
 
-    if followed.user_id not in user.following:
+    if user.user_id in followed.blocking:
+        lang = get_lang(user)
+        return 400, {
+            "valid": False,
+            "reason": lang["account"]["follow_blocked"]
+        }
+
+    if followed.user_id not in user.following and not followed.verify_followers:
         user.following.append(followed.user_id)
         user.save()
 
-    if user.user_id not in followed.followers:
-        followed.followers.append(user.user_id)
-        followed.save()
+    if user.user_id not in followed.followers + followed.pending_followers:
+        if followed.verify_followers:
+            followed.pending_followers.append(user.user_id)
+        else:
+            followed.followers.append(user.user_id)
+            followed.save()
 
     return 201, {
-        "success": True
+        "success": True,
+        "pending": followed.verify_followers
     }
 
 def follower_remove(request, data: Username) -> tuple | dict:
@@ -321,13 +336,18 @@ def follower_remove(request, data: Username) -> tuple | dict:
 
     followed = User.objects.get(username=username)
     if user.user_id != followed.user_id:
-        if followed.user_id in user.following :
+        if followed.user_id in user.following:
             user.following.remove(followed.user_id)
             user.save()
 
         if user.user_id in followed.followers:
             followed.followers.remove(user.user_id)
             followed.save()
+
+        elif user.user_id in followed.pending_followers:
+            followed.pending_followers.remove(user.user_id)
+            followed.save()
+
     else:
         return 400, {
             "success": False
@@ -361,14 +381,26 @@ def block_add(request, data: Username) -> tuple | dict:
     blocked = User.objects.get(username=username)
 
     if blocked.user_id not in user.blocking:
+        save_blocked = False
+
         if blocked.user_id in user.following:
             user.following.remove(blocked.user_id)
 
+        if blocked.user_id in user.followers:
+            user.followers.remove(blocked.user_id)
+
+        if user.user_id in blocked.following:
+            blocked.following.remove(user.user_id)
+            save_blocked = True
+
         if user.user_id in blocked.followers:
             blocked.followers.remove(user.user_id)
+            save_blocked = True
+
+        if save_blocked:
             blocked.save()
 
-        user.blocking.append(blocked.user_id) # type: ignore
+        user.blocking.append(blocked.user_id)
         user.save()
 
     return 201, {
@@ -513,12 +545,15 @@ def notifications_list(request) -> tuple | dict:
             continue
 
         try:
-            notifs_list.append({
-                "event_type": notification.event_type,
-                "read": notification.read,
-                "timestamp": notification.timestamp,
-                "data": get_post_json(notification.event_id, self_id, notification.event_type in ["comment", "ping_c"], cache)
-            })
+            x = get_post_json(notification.event_id, self_id, notification.event_type in ["comment", "ping_c"], cache)
+
+            if "content" in x:
+                notifs_list.append({
+                    "event_type": notification.event_type,
+                    "read": notification.read,
+                    "timestamp": notification.timestamp,
+                    "data": x
+                })
 
         except Post.DoesNotExist:
             continue

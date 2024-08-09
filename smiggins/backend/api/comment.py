@@ -34,6 +34,7 @@ class NewComment(Schema):
     content: str
     comment: bool
     id: int
+    private: bool
 
 class CommentID(Schema):
     id: int
@@ -50,7 +51,7 @@ def comment_create(request, data: NewComment) -> tuple | dict:
     if not ensure_ratelimit("api_comment_create", token):
         return 429, {
             "success": False,
-            "reason": lang["generic"]["ratelimited"]
+            "reason": lang["generic"]["ratelimit"]
         }
 
     id = data.id
@@ -72,15 +73,16 @@ def comment_create(request, data: NewComment) -> tuple | dict:
     timestamp = round(time.time())
 
     comment = Comment(
-        content = content,
-        creator = user.user_id,
-        timestamp = timestamp,
-        content_warning = c_warning or None,
-        likes = [],
-        comments = [],
-        quotes = [],
-        parent = id,
-        parent_is_comment = is_comment
+        content=content,
+        creator=user.user_id,
+        timestamp=timestamp,
+        content_warning=c_warning or None,
+        likes=[],
+        comments=[],
+        quotes=[],
+        parent=id,
+        private_comment=data.private,
+        parent_is_comment=is_comment
     )
     comment.save()
 
@@ -104,7 +106,8 @@ def comment_create(request, data: NewComment) -> tuple | dict:
     parent.save()
 
     try:
-        if parent.creator != user.user_id and user.user_id not in User.objects.get(user_id=parent.creator).blocking:
+        creator = User.objects.get(user_id=parent.creator)
+        if parent.creator != user.user_id and user.user_id not in creator.blocking and parent.creator not in user.blocking:
             create_notification(
                 User.objects.get(user_id=parent.creator),
                 "comment",
@@ -112,11 +115,12 @@ def comment_create(request, data: NewComment) -> tuple | dict:
             )
     except User.DoesNotExist:
         print("how")
+        creator = None
 
-    for i in find_mentions(content, [user.username, User.objects.get(user_id=parent.creator).username]):
+    for i in find_mentions(content, [user.username, creator.username if creator else ""]):
         try:
             notif_for = User.objects.get(username=i.lower())
-            if user.user_id not in notif_for.blocking:
+            if user.user_id not in notif_for.blocking and notif_for.user_id not in user.blocking:
                 create_notification(notif_for, "ping_c", comment.comment_id)
 
         except User.DoesNotExist:
@@ -161,25 +165,31 @@ def comment_list(request, id: int, comment: bool, offset: int=-1) -> tuple | dic
         parent = Comment.objects.get(pk=id)
     else:
         parent = Post.objects.get(pk=id)
+
     user_id = user.user_id if logged_in else 0
-    if parent.comments == []:
+    comments = parent.comments
+
+    while len(comments) and comments[0] < offset:
+        comments.pop(0)
+
+    if comments == []:
         return 200, {
             "posts": [],
             "end": True
         }
 
-    while len(parent.comments) and parent.comments[0] < offset:
-        parent.comments.pop(0)
-
     outputList = []
     offset = 0
     cache = {}
 
+    self_id = 0
     self_blocking = []
     if logged_in:
-        self_blocking = User.objects.get(token=token).blocking
+        self_user = User.objects.get(token=token)
+        self_id = self_user.user_id
+        self_blocking = self_user.blocking
 
-    for i in parent.comments:
+    for i in comments:
         try:
             comment_object = Comment.objects.get(pk=i)
         except Comment.DoesNotExist:
@@ -193,7 +203,7 @@ def comment_list(request, id: int, comment: bool, offset: int=-1) -> tuple | dic
             offset += 1
             continue
 
-        if creator.user_id in self_blocking or comment_object.private_comment and user_id not in creator.followers:
+        if creator.user_id in self_blocking or self_id in creator.blocking or comment_object.private_comment and user_id not in creator.followers:
             offset += 1
             continue
 
@@ -205,7 +215,7 @@ def comment_list(request, id: int, comment: bool, offset: int=-1) -> tuple | dic
 
     return 200, {
         "posts": outputList,
-        "end": len(parent.comments) - offset <= POSTS_PER_REQUEST
+        "end": len(comments) - offset <= POSTS_PER_REQUEST
     }
 
 def comment_like_add(request, data: CommentID):

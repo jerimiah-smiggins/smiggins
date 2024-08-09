@@ -106,6 +106,9 @@
         {% endfor %}
       </select><br><br>
 
+      <label for="disable-checkboxes">{{ lang.settings.cosmetic_checkboxes }}</label>
+      <input id="disable-checkboxes" type="checkbox"><br><br>
+
       {{ lang.settings.cosmetic_bar }}:<br>
       <select id="bar-pos">
         <option value="ur">{{ lang.settings.cosmetic_bar_ur }}</option>
@@ -120,7 +123,7 @@
 
       {{ lang.settings.cosmetic_color }}:<br>
       <div id="color-selector"></div>
-      <div id="post-example"></div><br><br>
+      <div id="post-example"></div>
     </div>
 
     <div class="settings-side">
@@ -131,16 +134,18 @@
       <input type="password" autocomplete="off" placeholder="{{ lang.settings.account_password_new }}" id="password"><br>
       <input type="password" autocomplete="off" placeholder="{{ lang.account.confirm_placeholder }}" id="confirm"><br>
       <button id="toggle-password">{{ lang.account.toggle_password }}</button>
-      <button id="set-password">{{ lang.generic.save }}</button><br><br>
+      <button id="set-password">{{ lang.generic.save }}</button>
 
       {% if ENABLE_EMAIL == "true" %}
+        <br><br>
         {{ lang.settings.account_email }}<br>
         <input {% if has_email == "true" and email_valid == "true" %}disabled{% endif %} value="{{ email }}" id="email" type="email" placeholder="email@example.com"></br>
         <button class="primary" id="email-submit">{% if has_email == "true" and email_valid == "true" %}{{ lang.settings.account_email_update }}{% else %}{{ lang.generic.save }}{% endif %}</button>
-        <div id="email-output">{% if email_valid == "false" and has_email == "true" %}{{ lang.settings.account_email_verify }}{% endif %}</div><br><br>
+        <div id="email-output">{% if email_valid == "false" and has_email == "true" %}{{ lang.settings.account_email_verify }}{% endif %}</div>
       {% endif %}
 
       {% if ENABLE_ACCOUNT_SWITCHER == "true" %}
+        <br><br>
         <div id="switcher">
           {{ lang.settings.account_switcher }}<br>
           <select id="accs"></select><br>

@@ -223,6 +223,7 @@
       "switch_following": "Switch to following...",
 
       "quote_blocked": "This post is from an account you've blocked",
+      "quote_blocked_other": "This post is from an account that's blocking you",
       "quote_deleted": "The original post was deleted",
       "quote_private": "This post or comment is private",
       "quote_poll": "This post has a poll",
@@ -268,6 +269,7 @@
       "invalid_username_length": "Username must be between 1 and %s characters in length.",
       "username_does_not_exist": "Account with username '%s' doesn't exist",
       "follow_blocking": "You can't follow an account you're blocking!",
+      "follow_blocked": "This person is blocking you.",
       "block_self": "Huh? Look, I get you hate yourself, but I can't let you do that.",
       "password_empty": "Password cannot be empty!"
     },
@@ -363,6 +365,7 @@
       "cosmetic_example_post_display_name": "Example",
       "cosmetic_example_post_username": "example",
       "cosmetic_example_post_content": "This is an example post. I am @example.",
+      "cosmetic_checkboxes": "Disable custom checkboxes?",
 
       "account_title": "Account",
       "account_password": "Change password",
@@ -394,6 +397,7 @@
       "block": "Block",
       "unblock": "Unblock",
       "message": "Message",
+      "follows": "Follows you",
       "lists_blocks": "Blocks",
       "lists_following": "Following",
       "lists_followers": "Followers",

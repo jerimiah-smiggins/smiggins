@@ -60,9 +60,9 @@ class Post(models.Model):
     comments = models.JSONField(default=list, blank=True)
     quotes   = models.JSONField(default=list, blank=True)
 
-    # null: go off of User.default_post_private (compatibility only)
-    # False: followers only
-    # True: anyone
+    # null: anyone (compatibility only), run script 05 to fix
+    # False: anyone
+    # True: followers only
     private_post = models.BooleanField(null=True)
 
     # type == None: no poll
