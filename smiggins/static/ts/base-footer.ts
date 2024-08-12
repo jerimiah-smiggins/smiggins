@@ -9,6 +9,7 @@ if (logged_in) {
 }
 
 let titleNotificationIndicator: boolean = false;
+let pendingFollowersIconEnabled: boolean = false;
 
 let iconsElement: HTMLElement = document.createElement("div");
 iconsElement.setAttribute("class", "icons");
@@ -58,7 +59,8 @@ function getNotifications(): void {
     .then((json: {
       success: boolean,
       notifications: boolean,
-      messages: boolean
+      messages: boolean,
+      followers: boolean
     }) => {
       forEach(document.querySelectorAll("[data-add-notification-dot]"), (val: HTMLElement, index: number): void => {
         if (json.success && json.notifications) {
@@ -76,7 +78,15 @@ function getNotifications(): void {
         }
       });
 
-      if ((json.messages && ENABLE_PRIVATE_MESSAGES) || json.notifications) {
+      if (!pendingFollowersIconEnabled && json.followers) {
+        pendingFollowersIconEnabled = true;
+        dom("icons").innerHTML += `<div class="dot" id="pending-followers-icon" title="${lang.user_page.pending_title}"><a href="/pending/">${icons.follower}</a></div>`;
+      } else if (pendingFollowersIconEnabled && !json.followers) {
+        pendingFollowersIconEnabled = false;
+        dom("pending-followers-icon").remove();
+      }
+
+      if ((json.messages && ENABLE_PRIVATE_MESSAGES) || json.notifications || json.followers || json.followers) {
         if (!titleNotificationIndicator) {
           titleNotificationIndicator = true;
           document.title = "[ ! ] " + document.title;

@@ -215,6 +215,9 @@ if (typeof disableTimeline === 'undefined' || !disableTimeline) {
             if (c) {
                 return;
             }
+            if (!json.posts.length) {
+                dom("posts").innerHTML = `<i>${escapeHTML(lang.post.no_posts)}</i>`;
+            }
             end = json.end;
             let output = "";
             for (const post of json.posts) {

@@ -95,7 +95,6 @@ def user(request, username: str) -> HttpResponse | HttpResponseRedirect:
 
         IS_HIDDEN = "hidden" if self_user is None or username == self_user.username else "",
         LOGGED_IN = str(self_user is not None).lower(),
-        FOLLOWERS_REQUIRE_APPROVAL = str(user.verify_followers).lower(),
 
         USERNAME = user.username,
         DISPLAY_NAME = user.display_name,
@@ -114,8 +113,11 @@ def user(request, username: str) -> HttpResponse | HttpResponseRedirect:
         BANNER_COLOR = user.color or DEFAULT_BANNER_COLOR,
         BANNER_COLOR_TWO = user.color_two or DEFAULT_BANNER_COLOR,
 
+        IS_BLOCKED   = "false" if self_user is None else str(self_user.user_id in user.blocking).lower(),
+        IS_BLOCKING  = "false" if self_user is None else str(user.user_id in self_user.blocking).lower(),
         IS_FOLLOWING = "false" if self_user is None else str(user.user_id in self_user.following).lower(),
-        IS_BLOCKING = "false" if self_user is None else str(user.user_id in self_user.blocking).lower()
+        IS_PENDING   = "false" if self_user is None else str(self_user.user_id in user.pending_followers).lower(),
+        IS_FOLLOWED  = "false" if self_user is None else str(self_user.user_id in user.following).lower()
     )
 
 def user_lists(request, username: str) -> HttpResponse:
@@ -130,13 +132,11 @@ def user_lists(request, username: str) -> HttpResponse:
 
     try:
         self_user = User.objects.get(token=request.COOKIES.get("token"))
-        self_id = self_user.user_id
 
     except User.DoesNotExist:
         if not ENABLE_LOGGED_OUT_CONTENT:
             return HttpResponseRedirect("/signup", status=307)
         self_user = None
-        self_id = 0
 
     lang = get_lang(self_user)
 
@@ -219,9 +219,9 @@ def user_lists(request, username: str) -> HttpResponse:
         BANNER_COLOR = user.color or DEFAULT_BANNER_COLOR,
         BANNER_COLOR_TWO = user.color_two or DEFAULT_BANNER_COLOR,
 
-        FOLLOWERS_REQUIRE_APPROVAL = str(user.verify_followers).lower(),
         IS_FOLLOWING = str(user.user_id in self_user.following).lower() if self_user is not None else "false",
-        IS_HIDDEN = "hidden" if user.user_id == self_id else "",
+        IS_BLOCKED   = "false" if self_user is None else str(self_user.user_id in user.blocking).lower(),
+        IS_FOLLOWED  = "false" if self_user is None else str(self_user.user_id in user.following).lower(),
 
         INCLUDE_BLOCKS = str(self_user is not None and username == self_user.username).lower(),
         LOGGED_IN = str(self_user is not None).lower()
@@ -412,6 +412,19 @@ def credit(request) -> HttpResponse:
         cache_langs=CACHE_LANGUAGES,
         fa=lang["credits"]["fontawesome"].replace("%s", "<a href=\"https://fontawesome.com/\" target=\"_blank\">Font Awesome</a>")
     )
+
+def pending(request) -> HttpResponse | HttpResponseRedirect:
+    try:
+        user = User.objects.get(token=request.COOKIES.get("token"))
+    except User.DoesNotExist:
+        return get_HTTP_response(
+            request, "404.html", status=404
+        )
+
+    if not user.verify_followers:
+        return HttpResponseRedirect("/home/", status=307)
+
+    return get_HTTP_response(request, "pending.html", user=user)
 
 # These two functions are referenced in smiggins/urls.py
 def _404(request, exception) -> HttpResponse:

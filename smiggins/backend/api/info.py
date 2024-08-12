@@ -41,7 +41,6 @@ def version(request) -> dict:
 
     return {
         "success": True,
-        # Hardcoded version used for validation, this
-        # should NEVER be changed by the instance owner
+        # Hardcoded version, this should NEVER be changed by the instance owner
         "version": list(REAL_VERSION)
     }

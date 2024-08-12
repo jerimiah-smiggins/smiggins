@@ -6,6 +6,7 @@ if (logged_in) {
     setCookie("token", document.cookie.split(/\btoken=/)[1].split(";")[0]);
 }
 let titleNotificationIndicator = false;
+let pendingFollowersIconEnabled = false;
 let iconsElement = document.createElement("div");
 iconsElement.setAttribute("class", "icons");
 iconsElement.setAttribute("id", "icons");
@@ -49,7 +50,15 @@ function getNotifications() {
                 val.classList.remove("dot");
             }
         });
-        if ((json.messages && ENABLE_PRIVATE_MESSAGES) || json.notifications) {
+        if (!pendingFollowersIconEnabled && json.followers) {
+            pendingFollowersIconEnabled = true;
+            dom("icons").innerHTML += `<div class="dot" id="pending-followers-icon" title="${lang.user_page.pending_title}"><a href="/pending/">${icons.follower}</a></div>`;
+        }
+        else if (pendingFollowersIconEnabled && !json.followers) {
+            pendingFollowersIconEnabled = false;
+            dom("pending-followers-icon").remove();
+        }
+        if ((json.messages && ENABLE_PRIVATE_MESSAGES) || json.notifications || json.followers || json.followers) {
             if (!titleNotificationIndicator) {
                 titleNotificationIndicator = true;
                 document.title = "[ ! ] " + document.title;

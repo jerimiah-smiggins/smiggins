@@ -319,7 +319,8 @@
       "invalid_username": "Username is insvalagaeg... LOOK JUST SHUT UP",
       "invalid_poll": "The poll needs to have at least two options!",
       "type_public": "Public",
-      "type_followers_only": "Followers only"
+      "type_followers_only": "Followers only",
+      "no_posts": "No posts"
     },
 
     "settings": {
@@ -401,7 +402,10 @@
       "lists_blocks": "Blocks",
       "lists_following": "Following",
       "lists_followers": "Followers",
-      "lists_no_bio": "No bio set"
+      "lists_no_bio": "No bio set",
+      "pending_title": "Pending Follow Requests",
+      "pending_accept": "Accept",
+      "pending_deny": "Deny"
     },
 
     "credits": {

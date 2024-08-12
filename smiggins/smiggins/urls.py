@@ -31,7 +31,8 @@ from backend.templating import (
     admin,
     message,
     hashtag,
-    credit
+    credit,
+    pending
 )
 
 from posts.models import (
@@ -70,6 +71,7 @@ urlpatterns = list(filter(bool, [
     path("changelog/", create_simple_return("changelog.html")) if ENABLE_CHANGELOG_PAGE else None,
     path("credits/", credit) if ENABLE_CREDITS_PAGE else None,
     path("messages/", create_simple_return("messages.html", redirect_logged_out=True)) if ENABLE_PRIVATE_MESSAGES else None,
+    path("pending/", pending),
 
     path("hashtag/<str:hashtag>/", hashtag) if ENABLE_HASHTAGS else None,
     path("u/<str:username>/", user),

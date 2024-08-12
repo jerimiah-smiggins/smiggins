@@ -58,10 +58,15 @@ function toggle_follow(): void {
     .then((response: Response) => (response.json()))
     .then((json: {
       success: boolean,
-      pending: boolean
+      pending?: boolean,
+      reason?: string
     }) => {
-      dom("toggle").setAttribute("data-followed", x ? "0" : "1");
-      dom("toggle").innerText = x ? lang.user_page.follow : (json.pending ? lang.user_page.pending : lang.user_page.unfollow)
+      if (json.success) {
+        dom("toggle").setAttribute("data-followed", x ? "0" : "1");
+        dom("toggle").innerText = x ? lang.user_page.follow : (json.pending ? lang.user_page.pending : lang.user_page.unfollow)
+      } else {
+        showlog(json.reason);
+      }
     })
     .catch((err: Error) => {
       showlog(lang.generic.something_went_wrong, 5000);

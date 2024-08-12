@@ -523,15 +523,10 @@ def post_list_user(request, username: str, offset: int=-1) -> tuple | dict:
     else:
         pinned_post = {}
 
-    # todo
-    # blocked/blocking/following text on user pages
-    # permission validation on additive actions (liking, commenting, quoting, ...)
-    # pending followers page
-
     return {
         "success": True,
         "posts": outputList,
-        "end": len(potential) > c,
+        "end": len(potential) <= c,
         "can_view": True,
         "following": len(user.following) - 1,
         "followers": len(user.followers),

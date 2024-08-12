@@ -11,7 +11,7 @@ from .admin import (
     badge_remove,
     logs,
     set_level,
-    user_delete,
+    user_delete
 )
 
 from .comment import (
@@ -19,7 +19,7 @@ from .comment import (
     comment_delete,
     comment_like_add,
     comment_like_remove,
-    comment_list,
+    comment_list
 )
 
 from .post import (
@@ -34,7 +34,7 @@ from .post import (
     quote_create,
     pin_post,
     unpin_post,
-    poll_vote,
+    poll_vote
 )
 
 from .user import (
@@ -49,6 +49,9 @@ from .user import (
     settings,
     settings_theme,
     signup,
+    list_pending,
+    accept_pending,
+    remove_pending
 )
 
 class ApiAdmin:
@@ -110,3 +113,6 @@ class ApiUser:
     settings = settings
     settings_theme = settings_theme
     signup = signup
+    list_pending = list_pending
+    accept_pending = accept_pending
+    remove_pending = remove_pending
