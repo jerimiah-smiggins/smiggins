@@ -243,7 +243,7 @@
   "enable_contact_page": true,
   "enable_credits_page": true,
 
-  // The private account icon is always shown.
+  // The private post icon is always shown.
   "enable_badges": true,
 
   // Existing quotes will remain unchanged.

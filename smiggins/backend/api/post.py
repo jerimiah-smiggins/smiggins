@@ -563,7 +563,7 @@ def post_like_add(request, data: PostID) -> tuple | dict:
     post = Post.objects.get(post_id=id)
     post_owner = User.objects.get(user_id=post.creator)
 
-    if (post.private_post and user.user_id not in post_owner.followers) or user.user_id in post_owner.blocking or post_owner.user_id in user.blocking:
+    if (post.private_post and user.user_id not in post_owner.followers) or user.user_id in post_owner.blocking:
         return 400, {
             "success": False
         }

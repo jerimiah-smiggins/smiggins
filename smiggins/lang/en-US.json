@@ -2,7 +2,7 @@
   "meta": {
     "fallback": [],
     "name": "English (United States)",
-    "version": "1.5.0",
+    "version": "1.6.0",
     "maintainers": [ "trinkey" ],
     "past_maintainers": []
   },
@@ -482,6 +482,12 @@
       "unknown": "Unknown",
 
       "changes": {
+        "v0.12.0": {
+          "1": "Added an option to approve new followers",
+          "2": "Expanded what blocking someone prevents you or them from doing",
+          "3": "Added an option to make a post be followers-only. This replaces private accounts.",
+          "4": "Sitemaps no longer show private posts"
+        },
         "v0.11.0": {
           "1": "Added changelogs for all legacy versions",
           "2": "Fixed an issue that caused read notifications/messages to not be colored gray",

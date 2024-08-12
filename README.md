@@ -1,8 +1,3 @@
-<!--
-  PR TODO LIST:
-  permission validation on additive actions (liking, commenting, quoting, ...)
--->
-
 # smiggins
 official discord server: https://discord.gg/tH7QnHApwu
 

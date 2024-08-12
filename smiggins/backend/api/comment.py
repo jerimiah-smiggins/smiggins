@@ -228,7 +228,7 @@ def comment_like_add(request, data: CommentID):
     comment = Comment.objects.get(comment_id=id)
     comment_owner = User.objects.get(user_id=comment.creator)
 
-    if (comment.private_comment and user.user_id not in comment_owner.followers) or user.user_id in comment_owner.blocking or comment_owner.user_id in user.blocking:
+    if (comment.private_comment and user.user_id not in comment_owner.followers) or user.user_id in comment_owner.blocking:
         return 400, {
             "success": False
         }

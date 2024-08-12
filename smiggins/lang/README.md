@@ -50,6 +50,29 @@ to the `maintainers` section
 Updates for each language version are listed below:
 
 <details>
+<summary>v1.6.0</summary>
+
+Reworked private accounts
+
+```diff
+- settings.profile_private
+- settings.profile_private_description
+- user_page.private_warning
++ post.type_public
++ post.type_followers_only
++ post.no_posts
++ settings.profile_default_post
++ settings.profile_followers_approval
++ settings.cosmetic_checkboxes
++ user_page.follows
++ user_page.pending_title
++ user_page.pending_accept
++ user_page.pending_deny
+home.quote_private
+```
+</details>
+
+<details>
 <summary>v1.5.0</summary>
 
 Added emails and legacy changelogs
