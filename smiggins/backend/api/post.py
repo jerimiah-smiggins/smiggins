@@ -233,6 +233,13 @@ def quote_create(request, data: NewQuote) -> tuple | dict:
             "reason": lang["post"]["invalid_quote_comment"]
         }
 
+    post_owner = User.objects.get(user_id=quoted_post.creator)
+
+    if ((quoted_post.private_comment if isinstance(quoted_post, Comment) else quoted_post.private_post) and user.user_id not in post_owner.followers) or user.user_id in post_owner.blocking or post_owner.user_id in user.blocking:
+        return 400, {
+            "success": False
+        }
+
     content = trim_whitespace(data.content)
     c_warning = trim_whitespace(data.c_warning, True) if ENABLE_CONTENT_WARNINGS else ""
 
@@ -554,6 +561,13 @@ def post_like_add(request, data: PostID) -> tuple | dict:
 
     user = User.objects.get(token=token)
     post = Post.objects.get(post_id=id)
+    post_owner = User.objects.get(user_id=post.creator)
+
+    if (post.private_post and user.user_id not in post_owner.followers) or user.user_id in post_owner.blocking or post_owner.user_id in user.blocking:
+        return 400, {
+            "success": False
+        }
+
 
     if user.user_id not in post.likes:
         user.likes.append([id, False])

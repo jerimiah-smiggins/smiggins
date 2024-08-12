@@ -224,19 +224,14 @@ def comment_like_add(request, data: CommentID):
     token = request.COOKIES.get('token')
     id = data.id
 
-    try:
-        if id > Comment.objects.latest('comment_id').comment_id:
-            return 404, {
-                "success": False
-            }
-
-    except ValueError:
-        return 404, {
-            "success": False
-        }
-
     user = User.objects.get(token=token)
     comment = Comment.objects.get(comment_id=id)
+    comment_owner = User.objects.get(user_id=comment.creator)
+
+    if (comment.private_comment and user.user_id not in comment_owner.followers) or user.user_id in comment_owner.blocking or comment_owner.user_id in user.blocking:
+        return 400, {
+            "success": False
+        }
 
     if user.user_id not in comment.likes:
         user.likes.append([id, True])
@@ -245,12 +240,12 @@ def comment_like_add(request, data: CommentID):
         user.save()
         comment.save()
 
-    return 200, {
+    return {
         "success": True
     }
 
 def comment_like_remove(request, data: CommentID):
-    # Called when someone unlikes a comment.
+    # Called when someone removes a like from a comment.
 
     token = request.COOKIES.get('token')
     id = data.id
