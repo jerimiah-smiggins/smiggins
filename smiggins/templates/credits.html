@@ -26,12 +26,12 @@
 
   <h3>{{ lang.credits.main_title }}</h3>
   <ul>
-    <li>{{ lang.credits.lead }} <a href="https://github.com/{{ credits.lead.0 }}/" target="_blank">{{ credits.lead.0 }}</a></li>
+    <li>{{ lang.credits.lead }} <a href="https://{% if credits.lead.0.1 == "gh" %}github.com{% else %}git.gay{% endif %}/{{ credits.lead.0.0 }}/" target="_blank">{{ credits.lead.0.0 }}</a></li>
     <li>
       {{ lang.credits.contributors }}<br>
       <ul>
         {% for contrib in credits.contributors %}
-          <li><a href="https://github.com/{{ contrib }}/" target="_blank">{{ contrib }}</a></li>
+          <li><a href="https://{% if contrib.1 == "gh" %}github.com{% else %}git.gay{% endif %}/{{ contrib.0 }}/" target="_blank">{{ contrib.0 }}</a></li>
         {% empty %}
           <li><i>None</i></li>
         {% endfor %}
@@ -49,7 +49,7 @@
               {{ lang.credits.current }}<br>
               <ul>
                 {% for m in l.maintainers %}
-                  <li><a href="https://github.com/{{ m }}/" target="_blank">{{ m }}</a></li>
+                  <li><a href="https://{% if m.1 == "gh" %}github.com{% else %}git.gay{% endif %}/{{ m.0 }}/" target="_blank">{{ m.0 }}</a></li>
                 {% empty %}
                   <li><i>None</i></li>
                 {% endfor %}
@@ -60,7 +60,7 @@
                 {{ lang.credits.past}}<br>
                 <ul>
                   {% for m in l.past_maintainers %}
-                    <li><a href="https://github.com/{{ m }}/" target="_blank">{{ m }}</a></li>
+                    <li><a href="https://{% if m.1 == "gh" %}github.com{% else %}git.gay{% endif %}/{{ m.0 }}/" target="_blank">{{ m.0 }}</a></li>
                   {% endfor %}
                 </ul>
               </li>

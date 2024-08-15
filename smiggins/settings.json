@@ -91,7 +91,7 @@
   && Aliases: cache_langs, cache_languages
   ## Default: null
   */
-  "cache_languages": null,
+  "cache_languages": true,
 
   /*
   ** Whether or not to legally allow other services to scrape your website. This
@@ -181,7 +181,7 @@
   */
   "contact_information": [
     ["email", "trinkey@duck.com"],
-    ["url",   "https://github.com/jerimiah-smiggins/smiggins/issues"],
+    ["url",   "https://git.gay/smiggins/smiggins/issues"],
     ["url",   "https://discord.gg/tH7QnHApwu"],
     ["text",  "DM me on discord (@trinkey_)"]
   ],
@@ -199,7 +199,7 @@
 //  "bar": ["https://discord/webhook/gibberish", "discord"]
   },
 
-  // Whether or not to show links to the github page
+  // Whether or not to show links to the git.gay page
   "source_code": true,
 
   // Whether or not to enforce the ratelimit

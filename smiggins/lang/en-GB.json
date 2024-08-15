@@ -1,9 +1,9 @@
 {
   "meta": {
-    "fallback": [ "en-US" ],
+    "fallback": ["en-US"],
     "name": "English (Great Britain)",
     "version": "1.5.0",
-    "maintainers": [ "trinkey" ],
+    "maintainers": [["trinkey", "gg"]],
     "past_maintainers": []
   },
 
