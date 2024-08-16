@@ -29,7 +29,7 @@ if (logged_in) {
 if (typeof (share) !== 'undefined') {
     iconsElement.innerHTML += `<div><a href="javascript:void(0);"><span title="${lang.generic.share}" onclick="navigator.clipboard.writeText('${escapeHTML(share)}'); showlog('${lang.generic.copied}');">${NO_CSS_MODE ? lang.generic.share : icons.share}</span></a></div>`;
 }
-document.body.append(iconsElement);
+document.body.prepend(iconsElement);
 function getNotifications() {
     fetch("/api/info/notifications")
         .then((response) => (response.json()))
