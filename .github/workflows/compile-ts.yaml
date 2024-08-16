@@ -12,7 +12,7 @@ jobs:
     permissions:
       contents: write
 
-    runs-on: docker
+    runs-on: ubuntu-latest
 
     steps:
     - name: Checkout repository
