@@ -494,8 +494,9 @@
         "v0.12.0": {
           "1": "Added an option to approve new followers",
           "2": "Expanded what blocking someone prevents you or them from doing",
-          "3": "Added an option to make a post be followers-only. This replaces private accounts.",
-          "4": "Sitemaps no longer show private posts"
+          "3": "Added an option to make a post be followers-only. This replaces private accounts",
+          "4": "Sitemaps no longer show private posts",
+          "5": "Added a 'No Styles' setting which disables all CSS and slightly modifies page layout"
         },
         "v0.11.0": {
           "1": "Added changelogs for all legacy versions",
