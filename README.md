@@ -6,17 +6,17 @@ online version (at least for now): https://trinkey.pythonanywhere.com
 ## notice
 here at smiggins incorporated (real company trust), we like to promote a kind
 and inclusive argument. this means that **zero racism, sexism, homophobia,
-etc. will be tolerated** in anywhere related to this project, including git.gay
+etc. will be tolerated** in anywhere related to this project, including github
 issues, the discord server, and the official main instance. if you think that
 someone violates this and you believe that they are doing something wrong, feel
-free to reach out to [@trinkey](https://git.gay/trinkey). if you don't agree
+free to reach out to [@trinkey](https://github.com/trinkey). if you don't agree
 with this, then don't start drama about it, just leave and pretend smiggins
 doesn't exist.
 
 <details>
   <summary><h2 style="display: inline">How to run locally</h2></summary>
 
-  1. Clone the git repository or download the files
+  1. Clone the github repo or download the files
 
   2. With python, install the needed libraries
   (`python -m pip install --upgrade -r requirements.txt`,
@@ -72,10 +72,10 @@ doesn't exist.
       python -m pip install --upgrade -r requirements.txt
       ```
 
-  5. Clone the git repository
+  5. Clone the github repo
       ```bash
       cd ~
-      git clone https://git.gay/smiggins/smiggins.git
+      git clone https://github.com/jerimiah-smiggins/smiggins.git
       # Optional: Change branch
       git switch branch-name
       ```
@@ -135,10 +135,10 @@ doesn't exist.
      python -m pip install --upgrade -r requirements.txt
      ```
 
-  3. Clone the git repository
+  3. Clone the github repo
       ```bash
       cd ~
-      git clone https://git.gay/smiggins/smiggins.git
+      git clone https://github.com/jerimiah-smiggins/smiggins.git
       # Optional: Change branch
       git switch branch-name
       ```
@@ -237,8 +237,8 @@ doesn't exist.
     Where can I report issues or suggest stuff
   </h2></summary>
 
-  go to the [issues tab](https://git.gay/smiggins/smiggins/issues)
-  and make a new issue (make sure you're logged in with git.gay)
+  go to the [issues tab](https://github.com/jerimiah-smiggins/smiggins/issues)
+  and make a new issue (make sure you're logged in with github)
 </details>
 
 <details>
@@ -256,7 +256,7 @@ doesn't exist.
   make a pull request with it.
 
   anyone who gets contributor access to the repository is decided by
-  [@trinkey](https://git.gay/trinkey). if you think you are deserving of
+  [@trinkey](https://github.com/trinkey). if you think you are deserving of
   getting it and don't currently have it, let her know.
 </details>
 

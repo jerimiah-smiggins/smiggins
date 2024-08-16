@@ -16,12 +16,12 @@ BASE_DIR = pathlib.Path(__file__).resolve().parent.parent
 def error(string):
     print(f"\x1b[91m{string}\x1b[0m")
 
-CREDITS: dict[str, list[tuple[str, str]]] = {
-    "lead": [("trinkey", "gg")],
+CREDITS: dict[str, list[str]] = {
+    "lead": ["trinkey"],
     "contributors": [
-        ("Subroutine7901", "gh"),
-        ("DiamondTaco", "gh"),
-        ("TheMineCommander", "gh")
+        "Subroutine7901",
+        "DiamondTaco",
+        "TheMineCommander"
     ]
 }
 

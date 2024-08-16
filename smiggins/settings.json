@@ -181,7 +181,7 @@
   */
   "contact_information": [
     ["email", "trinkey@duck.com"],
-    ["url",   "https://git.gay/smiggins/smiggins/issues"],
+    ["url",   "https://github.com/smiggins/smiggins/issues"],
     ["url",   "https://discord.gg/tH7QnHApwu"],
     ["text",  "DM me on discord (@trinkey_)"]
   ],
@@ -199,7 +199,7 @@
 //  "bar": ["https://discord/webhook/gibberish", "discord"]
   },
 
-  // Whether or not to show links to the git.gay page
+  // Whether or not to show links to the github page
   "source_code": true,
 
   // Whether or not to enforce the ratelimit

@@ -21,9 +21,12 @@ french would be Français (Canadien)
 language was created for. This should be used to indicate which translations,
 if any, need to be updated. The updates for each version are listed at the
 bottom of this document.
-   - `maintainers`: A list of anyone who wants to maintain and update the
-language files. It is an array of arrays of two items. You can check the format
-<a href="#maintainer-example">here</a>.
+   - `maintainers`: The github username of the maintainers of the language. If
+the language needs to be updated, these are the people to do so. If you are
+willing to, you can put your github username there, and will be pinged whenever
+languages need to be updated. (Make sure each one is in quotes) You will not be
+pinged if the only change to the language is for changelogs unless the language
+you maintain has changelogs translated.
 4. Start translating. Go through the file and add any translations needed. Note
 that for the colors (like rosewater), you can just describe them (like "dull
 pink" or "yellowish orange"). If you have any questions, feel free to ask about
@@ -38,19 +41,8 @@ by the next update.
 If you want to fix translations or update an existing translation:
 1. Fork the repository
 2. Make any changes
-3. If you want to become a maintainer of that language, add your github or
-git.gay username to the `maintainers` section. If you are using github, add
-this:
-   <div id="maintainer-example"></div>
-
-   ```json
-   {
-      // ...
-      "maintainers": [/* ... */, ["your-username", "gh"]]
-      // ...
-   }
-   ```
-   and if you have a git.gay account instead, replace the `"gh"` with `"gg"`.
+3. If you want to become a maintainer of that language, add your github username
+to the `maintainers` section
 4. Make a pull request **to the `dev` branch**
 
 ---
