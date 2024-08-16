@@ -23,6 +23,7 @@ class User(models.Model):
     color     = models.CharField(max_length=7)
     color_two = models.CharField(max_length=7, default="#000000", blank=True)
     gradient  = models.BooleanField(default=False)
+    no_css_mode = models.BooleanField(default=False)
 
     default_post_private = models.BooleanField(default=False)
     verify_followers = models.BooleanField(default=False)

@@ -170,6 +170,7 @@ ENABLE_USER_BIOS && dom("bio").addEventListener("input", postTextInputEvent);
 dom("displ-name").addEventListener("input", setUnload);
 dom("default-post").addEventListener("input", setUnload);
 dom("followers-approval").addEventListener("input", setUnload);
+dom("no-css").addEventListener("input", setUnload);
 
 dom("theme").addEventListener("change", function(): void {
   dom("theme").setAttribute("disabled", "");
@@ -212,6 +213,7 @@ dom("save").addEventListener("click", function(): void {
       bio: ENABLE_USER_BIOS ? (dom("bio") as HTMLInputElement).value : "",
       lang: (dom("lang") as HTMLInputElement).value,
       color: (dom("banner-color") as HTMLInputElement).value,
+      no_css: (dom("no-css") as HTMLInputElement).value,
       pronouns: ENABLE_PRONOUNS ? user_pronouns : "__",
       color_two: ENABLE_GRADIENT_BANNERS ? (dom("banner-color-two") as HTMLInputElement).value : "",
       displ_name: (dom("displ-name") as HTMLInputElement).value,

@@ -91,7 +91,7 @@
   && Aliases: cache_langs, cache_languages
   ## Default: null
   */
-  "cache_languages": true,
+  "cache_languages": null,
 
   /*
   ** Whether or not to legally allow other services to scrape your website. This

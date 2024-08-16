@@ -145,6 +145,7 @@ ENABLE_USER_BIOS && dom("bio").addEventListener("input", postTextInputEvent);
 dom("displ-name").addEventListener("input", setUnload);
 dom("default-post").addEventListener("input", setUnload);
 dom("followers-approval").addEventListener("input", setUnload);
+dom("no-css").addEventListener("input", setUnload);
 dom("theme").addEventListener("change", function () {
     dom("theme").setAttribute("disabled", "");
     fetch("/api/user/settings/theme", {
@@ -182,6 +183,7 @@ dom("save").addEventListener("click", function () {
             bio: ENABLE_USER_BIOS ? dom("bio").value : "",
             lang: dom("lang").value,
             color: dom("banner-color").value,
+            no_css: dom("no-css").value,
             pronouns: ENABLE_PRONOUNS ? user_pronouns : "__",
             color_two: ENABLE_GRADIENT_BANNERS ? dom("banner-color-two").value : "",
             displ_name: dom("displ-name").value,

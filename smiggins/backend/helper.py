@@ -139,6 +139,8 @@ def get_HTTP_response(
         "ENABLE_NEW_ACCOUNTS": str(ENABLE_NEW_ACCOUNTS).lower(),
         "ENABLE_EMAIL": str(ENABLE_EMAIL).lower(),
 
+        "NO_CSS_MODE": "false" if user is None else str(user.no_css_mode).lower(),
+
         "DEFAULT_PRIVATE": str(default_post_visibility).lower(),
         "THEME": theme,
         "lang": lang,
