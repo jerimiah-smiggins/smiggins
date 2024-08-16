@@ -42,7 +42,7 @@ function refreshMessageList(fromStart=false): void {
                   <div class="displ-name">
                     <div style="--color-one: ${message.color_one}; --color-two: ${message[ENABLE_GRADIENT_BANNERS && message.gradient_banner ? "color_two" : "color_one"]}" class="user-badge banner-pfp"></div>
                     ${escapeHTML(message.display_name)}
-                    ${message.badges.length ? `<span class="user-badge">${message.badges.map((icon) => (badges[icon])).join("</span> <span class=\"user-badge\">")}</span>` : ""}<br>
+                    ${message.badges.length && !NO_CSS_MODE ? `<span class="user-badge">${message.badges.map((icon) => (badges[icon])).join("</span> <span class=\"user-badge\">")}</span>` : ""}<br>
                     <span class="upper-lower-opacity">
                       <div class="username">@${message.username}</div>
                       ${message.timestamp || message.content ? `- <div class="username">${timeSince(message.timestamp)}</div>` : ""}

@@ -320,7 +320,14 @@
       "invalid_poll": "The poll needs to have at least two options!",
       "type_public": "Public",
       "type_followers_only": "Followers only",
-      "no_posts": "No posts"
+      "no_posts": "No posts",
+
+      "like": "Like",
+      "comment": "Comment",
+      "quote": "Quote",
+      "delete": "Delete",
+      "pin": "Pin",
+      "unpin": "Unpin"
     },
 
     "settings": {

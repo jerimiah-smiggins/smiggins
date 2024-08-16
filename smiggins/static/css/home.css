@@ -236,6 +236,10 @@ input.c-warning {
   }
 }
 
+.displ-name, .upper-lower-opacity {
+  display: block;
+}
+
 .bottom-content-icon svg,
 svg.bottom-content-icon {
   width: 1.2em;

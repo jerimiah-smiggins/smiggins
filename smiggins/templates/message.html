@@ -6,7 +6,9 @@
 {% endblock %}
 
 {% block head %}
-  <link rel="stylesheet" href="{% static '/css/messages.css' %}?v={{ VERSION }}">
+  {% if NO_CSS_MODE == "false" %}
+    <link rel="stylesheet" href="{% static '/css/messages.css' %}?v={{ VERSION }}">
+  {% endif %}
 {% endblock %}
 
 {% block body_head %}

@@ -171,6 +171,7 @@ dom("save").addEventListener("click", function () {
     ENABLE_USER_BIOS && dom("bio").setAttribute("disabled", "");
     dom("save").setAttribute("disabled", "");
     dom("displ-name").setAttribute("disabled", "");
+    dom("no-css").setAttribute("disabled", "");
     dom("banner-color").setAttribute("disabled", "");
     dom("lang").setAttribute("disabled", "");
     dom("default-post").setAttribute("disabled", "");
@@ -183,7 +184,7 @@ dom("save").addEventListener("click", function () {
             bio: ENABLE_USER_BIOS ? dom("bio").value : "",
             lang: dom("lang").value,
             color: dom("banner-color").value,
-            no_css: dom("no-css").value,
+            no_css: dom("no-css").checked,
             pronouns: ENABLE_PRONOUNS ? user_pronouns : "__",
             color_two: ENABLE_GRADIENT_BANNERS ? dom("banner-color-two").value : "",
             displ_name: dom("displ-name").value,
@@ -209,6 +210,7 @@ dom("save").addEventListener("click", function () {
         ENABLE_USER_BIOS && dom("bio").removeAttribute("disabled");
         dom("save").removeAttribute("disabled");
         dom("displ-name").removeAttribute("disabled");
+        dom("no-css").removeAttribute("disabled");
         dom("banner-color").removeAttribute("disabled");
         dom("lang").removeAttribute("disabled");
         dom("default-post").removeAttribute("disabled");

@@ -30,6 +30,8 @@
       const ENABLE_CONTENT_WARNINGS = {{ ENABLE_CONTENT_WARNINGS }};
       const ENABLE_EMAIL = {{ ENABLE_EMAIL }};
 
+      const NO_CSS_MODE = {{ NO_CSS_MODE }}
+
       const defaultPrivate = {{ DEFAULT_PRIVATE }};
     </script>
 
@@ -55,7 +57,10 @@
       <meta name="twitter:description" content="">
     {% endblock %}
 
-    <link rel="stylesheet" href="{% static "/css/base.css" %}?v={{ VERSION }}">
+    {% if NO_CSS_MODE == "false" %}
+      <link rel="stylesheet" href="{% static "/css/base.css" %}?v={{ VERSION }}">
+    {% endif %}
+
     <link rel="icon" href="{% static "/img/favicon.ico" %}?v={{ VERSION }}" type="image/x-icon">
 
     <script src="{% static "/js/linkify-4.1.3.min.js" %}?v={{ VERSION }}"></script>

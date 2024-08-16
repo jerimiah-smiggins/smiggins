@@ -6,9 +6,11 @@
 {% endblock %}
 
 {% block head %}
-  <link rel="stylesheet" href="{% static '/css/home.css' %}?v={{ VERSION }}">
-  <link rel="stylesheet" href="{% static '/css/user.css' %}?v={{ VERSION }}">
-  <link rel="stylesheet" href="{% static '/css/user_lists.css' %}?v={{ VERSION }}">
+  {% if NO_CSS_MODE == "false" %}
+    <link rel="stylesheet" href="{% static '/css/home.css' %}?v={{ VERSION }}">
+    <link rel="stylesheet" href="{% static '/css/user.css' %}?v={{ VERSION }}">
+    <link rel="stylesheet" href="{% static '/css/user_lists.css' %}?v={{ VERSION }}">
+  {% endif %}
 {% endblock %}
 
 {% block body_head %}
@@ -45,7 +47,9 @@
         {% for USER in BLOCKS %}
           <div class="post">
             <div class="upper-content">
-              <a href="/u/{{ USER.username }}/" class="no-underline text">
+              {% if NO_CSS_MODE == "false" %}
+                <a href="/u/{{ USER.username }}/" class="no-underline text">
+              {% endif %}
                 <div class="displ-name">
                   <span style="--color-one: {{ USER.color_one }}; --color-two: {% if USER.is_gradient == 'true' %}{{ USER.color_two }}{% else %}{{ USER.color_one }}{% endif %}" class="user-badge banner-pfp"></span>
 
@@ -57,10 +61,18 @@
                     <span class="user-badge" data-add-badge="{{ BADGE }}"></span>
                   {% endfor %}
                   <span class="upper-lower-opacity"> -
-                    <div class="username">@{{ USER.username }}</div>
+                    {% if NO_CSS_MODE == "true" %}
+                      <a href="/u/{{ USER.username }}/" class="no-underline text">
+                    {% endif %}
+                        <span class="username">@{{ USER.username }}</span>
+                    {% if NO_CSS_MODE == "true" %}
+                      </a>
+                    {% endif %}
                   </span>
                 </div>
-              </a>
+              {% if NO_CSS_MODE == "false" %}
+                </a>
+              {% endif %}
             </div>
 
             {% if ENABLE_USER_BIOS == 'true' %}
@@ -86,7 +98,9 @@
       {% for USER in FOLLOWING %}
         <div class="post">
           <div class="upper-content">
-            <a href="/u/{{ USER.username }}/" class="no-underline text">
+            {% if NO_CSS_MODE == "false" %}
+              <a href="/u/{{ USER.username }}/" class="no-underline text">
+            {% endif %}
               <div class="displ-name">
                 <span style="--color-one: {{ USER.color_one }}; --color-two: {% if USER.is_gradient == 'true' %}{{ USER.color_two }}{% else %}{{ USER.color_one }}{% endif %}" class="user-badge banner-pfp"></span>
 
@@ -98,10 +112,18 @@
                   <span class="user-badge" data-add-badge="{{ BADGE }}"></span>
                 {% endfor %}
                 <span class="upper-lower-opacity"> -
-                  <div class="username">@{{ USER.username }}</div>
+                  {% if NO_CSS_MODE == "true" %}
+                    <a href="/u/{{ USER.username }}/" class="no-underline text">
+                  {% endif %}
+                      <span class="username">@{{ USER.username }}</span>
+                  {% if NO_CSS_MODE == "true" %}
+                    </a>
+                  {% endif %}
                 </span>
               </div>
-            </a>
+            {% if NO_CSS_MODE == "false" %}
+              </a>
+            {% endif %}
           </div>
 
           {% if ENABLE_USER_BIOS == 'true' %}
@@ -124,38 +146,48 @@
     <div>
       <h2>{{ lang.user_page.lists_followers }}</h2>
       {% for USER in FOLLOWERS %}
-        <div class="post">
-          <div class="upper-content">
-            <a href="/u/{{ USER.username }}/" class="no-underline text">
-              <div class="displ-name">
-                <span style="--color-one: {{ USER.color_one }}; --color-two: {% if USER.is_gradient == 'true' %}{{ USER.color_two }}{% else %}{{ USER.color_one }}{% endif %}" class="user-badge banner-pfp"></span>
+          <div class="post">
+            <div class="upper-content">
+              {% if NO_CSS_MODE == "false" %}
+                <a href="/u/{{ USER.username }}/" class="no-underline text">
+              {% endif %}
+                <div class="displ-name">
+                  <span style="--color-one: {{ USER.color_one }}; --color-two: {% if USER.is_gradient == 'true' %}{{ USER.color_two }}{% else %}{{ USER.color_one }}{% endif %}" class="user-badge banner-pfp"></span>
 
-                {{ USER.display_name }}
-                {% if USER.private == 'true' %}
-                  <span class="user-badge" data-add-icon="lock"></span>
-                {% endif %}
-                {% for BADGE in USER.badges %}
-                  <span class="user-badge" data-add-badge="{{ BADGE }}"></span>
-                {% endfor %}
-                <span class="upper-lower-opacity"> -
-                  <div class="username">@{{ USER.username }}</div>
-                </span>
-              </div>
-            </a>
-          </div>
-
-          {% if ENABLE_USER_BIOS == 'true' %}
-            <div class="main-content">
-              {% if USER.bio == EMPTY %}
-                <i>{{ lang.user_page.lists_no_bio }}</i>
-              {% else %}
-                <div data-linkify>
-                  {{ USER.bio }}
+                  {{ USER.display_name }}
+                  {% if USER.private == 'true' %}
+                    <span class="user-badge" data-add-icon="lock"></span>
+                  {% endif %}
+                  {% for BADGE in USER.badges %}
+                    <span class="user-badge" data-add-badge="{{ BADGE }}"></span>
+                  {% endfor %}
+                  <span class="upper-lower-opacity"> -
+                    {% if NO_CSS_MODE == "true" %}
+                      <a href="/u/{{ USER.username }}/" class="no-underline text">
+                    {% endif %}
+                        <span class="username">@{{ USER.username }}</span>
+                    {% if NO_CSS_MODE == "true" %}
+                      </a>
+                    {% endif %}
+                  </span>
                 </div>
+              {% if NO_CSS_MODE == "false" %}
+                </a>
               {% endif %}
             </div>
-          {% endif %}
-        </div><br>
+
+            {% if ENABLE_USER_BIOS == 'true' %}
+              <div class="main-content">
+                {% if USER.bio == EMPTY %}
+                  <i>{{ lang.user_page.lists_no_bio }}</i>
+                {% else %}
+                  <div data-linkify>
+                    {{ USER.bio }}
+                  </div>
+                {% endif %}
+              </div>
+            {% endif %}
+          </div><br>
       {% empty %}
         <i>{{ lang.generic.none }}</i>
       {% endfor %}
