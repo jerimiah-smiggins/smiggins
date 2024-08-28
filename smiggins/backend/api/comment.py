@@ -27,6 +27,7 @@ from ..helper import (
     get_lang,
     DEFAULT_LANG,
     delete_notification,
+    can_view_post
 )
 
 class NewComment(Schema):
@@ -182,12 +183,10 @@ def comment_list(request, id: int, comment: bool, offset: int=-1) -> tuple | dic
     offset = 0
     cache = {}
 
-    self_id = 0
-    self_blocking = []
     if logged_in:
         self_user = User.objects.get(token=token)
-        self_id = self_user.user_id
-        self_blocking = self_user.blocking
+    else:
+        self_user = None
 
     for i in comments:
         try:
@@ -203,7 +202,8 @@ def comment_list(request, id: int, comment: bool, offset: int=-1) -> tuple | dic
             offset += 1
             continue
 
-        if creator.user_id in self_blocking or self_id in creator.blocking or comment_object.private_comment and user_id not in creator.followers:
+        can_view = can_view_post(self_user, creator, comment_object)
+        if can_view[0] is False and (can_view[1] == "blocked" or can_view[1] == "private"):
             offset += 1
             continue
 
@@ -228,7 +228,8 @@ def comment_like_add(request, data: CommentID):
     comment = Comment.objects.get(comment_id=id)
     comment_owner = User.objects.get(user_id=comment.creator)
 
-    if (comment.private_comment and user.user_id not in comment_owner.followers) or user.user_id in comment_owner.blocking:
+    can_view = can_view_post(user, comment_owner, comment)
+    if can_view[0] is False and (can_view[1] == "blocked" or can_view[1] == "private"):
         return 400, {
             "success": False
         }

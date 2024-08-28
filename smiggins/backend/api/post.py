@@ -790,4 +790,3 @@ def poll_vote(request, data: Poll):
     return 400, {
         "success": False
     }
-#.private_

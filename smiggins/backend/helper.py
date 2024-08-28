@@ -252,7 +252,7 @@ def get_badges(user: User) -> list[str]:
 
     return user.badges + (["administrator"] if user.admin_level >= 1 or user.user_id == OWNER_USER_ID else []) if ENABLE_BADGES else []
 
-def can_view_post(self_user: User | None, creator: User | None, post: Post | Comment, cache: dict[int, User] | None=None) -> tuple[Literal[True]] | tuple[Literal[False], str]:
+def can_view_post(self_user: User | None, creator: User | None, post: Post | Comment, cache: dict[int, User] | None=None) -> tuple[Literal[True]] | tuple[Literal[False], Literal["blocked", "private", "blocking"]]:
     if cache is None:
         cache = {}
 
