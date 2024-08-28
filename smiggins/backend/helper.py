@@ -271,6 +271,9 @@ def can_view_post(self_user: User | None, creator: User | None, post: Post | Com
             creator = User.objects.get(user_id=creator_uid)
             cache[creator_uid] = creator
 
+    if self_user.user_id == creator.user_id:
+        return True,
+
     if self_user.user_id in creator.blocking:
         return False, "blocked"
 
