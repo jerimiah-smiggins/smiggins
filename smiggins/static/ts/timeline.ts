@@ -249,7 +249,7 @@ if (typeof disableTimeline === 'undefined' || !disableTimeline) {
           return;
         }
 
-        if (!json.posts.length) {
+        if (force_offset && !json.posts.length) {
           dom("posts").innerHTML = `<i>${escapeHTML(lang.post.no_posts)}</i>`
         }
 

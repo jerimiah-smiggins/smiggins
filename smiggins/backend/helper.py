@@ -252,6 +252,36 @@ def get_badges(user: User) -> list[str]:
 
     return user.badges + (["administrator"] if user.admin_level >= 1 or user.user_id == OWNER_USER_ID else []) if ENABLE_BADGES else []
 
+def can_view_post(self_user: User | None, creator: User | None, post: Post | Comment, cache: dict[int, User] | None=None) -> tuple[Literal[True]] | tuple[Literal[False], str]:
+    if cache is None:
+        cache = {}
+
+    if self_user is None:
+        return True,
+
+    creator_uid = post.creator
+
+    if creator_uid == self_user.user_id:
+        return True,
+
+    if creator is None:
+        if creator_uid in cache:
+            creator = cache[creator_uid]
+        else:
+            creator = User.objects.get(user_id=creator_uid)
+            cache[creator_uid] = creator
+
+    if self_user.user_id in creator.blocking:
+        return False, "blocked"
+
+    if (post.private_comment if isinstance(post, Comment) else post.private_post) and self_user.user_id not in creator.followers:
+        return False, "private"
+
+    if creator_uid in self_user.blocking:
+        return False, "blocking"
+
+    return True,
+
 def get_post_json(post_id: int, current_user_id: int=0, comment: bool=False, cache: dict[int, User] | None=None) -> dict[str, str | int | dict]:
     # Returns a dict object that includes information about the specified post
 
@@ -275,18 +305,27 @@ def get_post_json(post_id: int, current_user_id: int=0, comment: bool=False, cac
         else:
             user = User.objects.get(user_id=current_user_id)
             cache[current_user_id] = user
-        logged_in = True
     except User.DoesNotExist:
-        logged_in = False
+        user = None
 
     can_delete_all = current_user_id != 0 and (current_user_id == OWNER_USER_ID or User.objects.get(pk=current_user_id).admin_level >= 1)
 
-    if (post.private_post if isinstance(post, Post) else post.private_comment) and current_user_id not in creator.followers:
-        return {
-            "private_acc": True,
-            "can_view": False,
-            "blocked": False
-        }
+    can_view = can_view_post(user, creator, post,  cache)
+
+    if can_view[0] is False:
+        if can_view[1] == "private":
+            return {
+                "private_acc": True,
+                "can_view": False,
+                "blocked": False
+            }
+
+        if can_view[1] == "blocked":
+            return {
+                "deleted": False,
+                "blocked": True,
+                "blocked_by_self": False
+            }
 
     if isinstance(post, Post) and isinstance(post.poll, dict):
         tmp_poll: dict[str, Any] = post.poll
@@ -329,7 +368,7 @@ def get_post_json(post_id: int, current_user_id: int=0, comment: bool=False, cac
         "parent": post.parent if isinstance(post, Comment) else -1,
         "parent_is_comment": post.parent_is_comment if isinstance(post, Comment) else False,
         "poll": poll,
-        "logged_in": logged_in
+        "logged_in": user is not None
     }
 
     if isinstance(post, Post) and post.quote != 0:
@@ -345,27 +384,30 @@ def get_post_json(post_id: int, current_user_id: int=0, comment: bool=False, cac
                 quote_creator = User.objects.get(user_id=quote.creator)
                 cache[quote.creator] = quote_creator
 
-            if logged_in and quote_creator.user_id in user.blocking:
-                quote_info = {
-                    "deleted": False,
-                    "blocked": True,
-                    "blocked_by_self": True
-                }
+            can_view_quote = can_view_post(user, quote_creator, quote, cache)
 
-            if logged_in and user.user_id in quote_creator.blocking:
-                quote_info = {
-                    "deleted": False,
-                    "blocked": True,
-                    "blocked_by_self": False
-                }
+            if can_view_quote[0] is False:
+                if can_view_quote[1] == "blocking":
+                    quote_info = {
+                        "deleted": False,
+                        "blocked": True,
+                        "blocked_by_self": True
+                    }
 
-            elif (quote.private_post if isinstance(quote, Post) else quote.private_comment) and current_user_id not in quote_creator.following:
-                quote_info = {
-                    "deleted": False,
-                    "private_acc": True,
-                    "can_view": False,
-                    "blocked": False
-                }
+                if can_view_quote[1] == "blocked":
+                    quote_info = {
+                        "deleted": False,
+                        "blocked": True,
+                        "blocked_by_self": False
+                    }
+
+                if can_view_quote[1] == "private":
+                    quote_info = {
+                        "deleted": False,
+                        "private_acc": True,
+                        "can_view": False,
+                        "blocked": False
+                    }
 
             else:
                 quote_info = {

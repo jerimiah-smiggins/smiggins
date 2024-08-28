@@ -27,7 +27,8 @@ from .helper import (
     get_badges,
     get_container_id,
     get_lang,
-    LANGS
+    LANGS,
+    can_view_post
 )
 
 def settings(request) -> HttpResponse:
@@ -236,8 +237,6 @@ def post(request, post_id: int) -> HttpResponse:
 
         user = None
 
-    self_id = user.user_id if user is not None else 0
-
     try:
         post = Post.objects.get(pk=post_id)
         creator = User.objects.get(pk=post.creator)
@@ -250,7 +249,9 @@ def post(request, post_id: int) -> HttpResponse:
             request, "404-post.html", status=404
         )
 
-    if post.private_post and self_id not in creator.followers:
+    can_view = can_view_post(user, creator, post)
+
+    if can_view[0] is False and can_view[1] in ["private", "blocked"]:
         return get_HTTP_response(
             request, "404-post.html", status=404
         )
@@ -283,8 +284,6 @@ def comment(request, comment_id: int) -> HttpResponse:
             return HttpResponseRedirect("/signup", status=307)
         user = None
 
-    self_id = user.user_id if user is not None else 0
-
     try:
         comment = Comment.objects.get(pk=comment_id)
         creator = User.objects.get(pk=comment.creator)
@@ -297,7 +296,9 @@ def comment(request, comment_id: int) -> HttpResponse:
             request, "404-post.html", status=404
         )
 
-    if comment.private_comment and self_id not in creator.followers:
+    can_view = can_view_post(user, creator, comment)
+
+    if can_view[0] is False and can_view[1] in ["private", "blocked"]:
         return get_HTTP_response(
             request, "404-post.html", status=404
         )

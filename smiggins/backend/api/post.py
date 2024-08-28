@@ -24,7 +24,7 @@ from ..variables import (
     ENABLE_POLLS,
     ENABLE_LOGGED_OUT_CONTENT,
     MAX_CONTENT_WARNING_LENGTH,
-    ENABLE_CONTENT_WARNINGS,
+    ENABLE_CONTENT_WARNINGS
 )
 
 from ..helper import (
@@ -40,6 +40,7 @@ from ..helper import (
     get_lang,
     DEFAULT_LANG,
     delete_notification,
+    can_view_post
 )
 
 class NewPost(Schema):
@@ -207,10 +208,9 @@ def post_create(request, data: NewPost) -> tuple | dict:
 def quote_create(request, data: NewQuote) -> tuple | dict:
     # Called when a post is quoted.
 
-    token = request.COOKIES.get('token')
-    user = User.objects.get(token=token)
+    user = User.objects.get(token=request.COOKIES.get('token'))
 
-    if not ensure_ratelimit("api_post_create", token):
+    if not ensure_ratelimit("api_post_create", request.COOKIES.get('token')):
         lang = get_lang(user)
         return 429, {
             "success": False,
@@ -235,7 +235,9 @@ def quote_create(request, data: NewQuote) -> tuple | dict:
 
     post_owner = User.objects.get(user_id=quoted_post.creator)
 
-    if ((quoted_post.private_comment if isinstance(quoted_post, Comment) else quoted_post.private_post) and user.user_id not in post_owner.followers) or user.user_id in post_owner.blocking or post_owner.user_id in user.blocking:
+    can_view = can_view_post(user, post_owner, quoted_post)
+
+    if can_view[0] is False and can_view[1] in ["private", "blocked"]:
         return 400, {
             "success": False
         }
@@ -244,14 +246,14 @@ def quote_create(request, data: NewQuote) -> tuple | dict:
     c_warning = trim_whitespace(data.c_warning, True) if ENABLE_CONTENT_WARNINGS else ""
 
     if len(c_warning) > MAX_CONTENT_WARNING_LENGTH or len(content) > MAX_POST_LENGTH or len(content) < 1:
-        create_api_ratelimit("api_post_create", API_TIMINGS["create post failure"], token)
+        create_api_ratelimit("api_post_create", API_TIMINGS["create post failure"], request.COOKIES.get("token"))
         lang = get_lang(user)
         return 400, {
             "success": False,
             "reason": lang["post"]["invalid_length"].replace("%s", str(MAX_POST_LENGTH))
         }
 
-    create_api_ratelimit("api_post_create", API_TIMINGS["create post"], token)
+    create_api_ratelimit("api_post_create", API_TIMINGS["create post"], request.COOKIES.get("token"))
 
     timestamp = round(time.time())
     post = Post.objects.create(
@@ -398,7 +400,12 @@ def post_list_following(request, offset: int=-1) -> tuple | dict:
 
     for i in potential:
         try:
-            outputList.append(get_post_json(i, user.user_id))
+            post_json = get_post_json(i, user.user_id)
+            if post_json["can_view"]:
+                outputList.append(post_json)
+            else:
+                offset += 1
+                continue
         except Post.DoesNotExist:
             offset += 1
             continue
@@ -443,8 +450,7 @@ def post_list_recent(request, offset: int=-1) -> tuple | dict:
             i -= 1
             continue
 
-        current_user = User.objects.get(pk=current_post.creator)
-        if current_user.user_id in user.blocking or user.user_id in current_user.blocking or (current_post.private_post and user.user_id not in current_user.followers):
+        if not can_view_post(user, None, current_post, cache)[0]:
             offset += 1
 
         else:
@@ -563,11 +569,12 @@ def post_like_add(request, data: PostID) -> tuple | dict:
     post = Post.objects.get(post_id=id)
     post_owner = User.objects.get(user_id=post.creator)
 
-    if (post.private_post and user.user_id not in post_owner.followers) or user.user_id in post_owner.blocking:
+    can_view = can_view_post(user, post_owner, post)
+
+    if can_view[0] is False and can_view[1] in ["private", "blocked"]:
         return 400, {
             "success": False
         }
-
 
     if user.user_id not in post.likes:
         user.likes.append([id, False])
@@ -757,7 +764,8 @@ def poll_vote(request, data: Poll):
         user = User.objects.get(token=request.COOKIES.get('token'))
         creator = User.objects.get(user_id=post.creator)
 
-        if user.user_id in creator.blocking or (post.private_post and user.user_id not in creator.followers):
+        can_view = can_view_post(user, creator, post)
+        if can_view[0] is False and can_view[1] in ["private", "blocked"]:
             return 400, {
                 "success": False
             }
@@ -782,3 +790,4 @@ def poll_vote(request, data: Poll):
     return 400, {
         "success": False
     }
+#.private_
