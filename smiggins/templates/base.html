@@ -47,14 +47,14 @@
     <meta name="twitter:card" content="summary_large_image">
 
     {% block meta %}
-      <meta name="author" content="{{ SITE_NAME }} v{{ VERSION }}">
-      <meta name="description" content="">
+      <meta name="author" content="{{ SITE_NAME }}">
+      <meta name="description" content="v{{ VERSION }}">
 
-      <meta property="og:title" content="{{ SITE_NAME }} v{{ VERSION }}">
-      <meta property="og:description" content="">
+      <meta property="og:title" content="{{ SITE_NAME }}">
+      <meta property="og:description" content="v{{ VERSION }}">
 
-      <meta name="twitter:title" content="{{ SITE_NAME }} v{{ VERSION }}">
-      <meta name="twitter:description" content="">
+      <meta name="twitter:title" content="{{ SITE_NAME }}">
+      <meta name="twitter:description" content="v{{ VERSION }}">
     {% endblock %}
 
     {% if NO_CSS_MODE == "false" %}
@@ -77,6 +77,8 @@
   </head>
 
   <body data-theme="{{ THEME }}" {% block body_head %}{% endblock %}>
+    <div style="display: none" id="no-nesting-warning"></div>
+
     {% block body %}{% endblock %}
 
     <noscript>

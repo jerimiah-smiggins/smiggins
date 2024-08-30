@@ -4,61 +4,61 @@ button:not(.bottom-content-icon) {
 
 .toggle-poll {
   cursor: pointer;
+}
 
-  &:hover {
-    text-decoration: underline;
-  }
+.toggle-poll:hover {
+  text-decoration: underline;
 }
 
 .poll-bar-container {
   margin: 0.25em 0;
   border-radius: 0.5em;
   height: 2.2em;
+}
 
-  .poll-text {
-    margin: 0.25em;
-    padding: 0.1em 0.35em;
-    border-radius: 0.3em;
-    position: absolute;
-    overflow: hidden;
-    white-space: nowrap;
-    text-overflow: ellipsis;
-    max-width: calc(25.75em - (3em / 7));
-  }
+.poll-bar-container:has(.poll-bar) {
+  background-color: var(--crust);
+}
 
-  .poll-bar {
-    color: transparent;
-    user-select: none;
-    position: absolute;
-    width: calc(26.95em - (3em / 7));
+.poll-bar-container:not(:has(.poll-bar)) {
+  background-color: var(--mantle);
+  cursor: pointer;
+}
 
-    & ~ .poll-text {
-      background-color: var(--crust);
-    }
+.poll-bar-container:not(:has(.poll-bar)):hover {
+  background-color: var(--crust);
+}
 
-    &.voted div {
-      background-color: var(--accent);
-    }
+.poll-bar-container .poll-text {
+  margin: 0.25em;
+  padding: 0.1em 0.35em;
+  border-radius: 0.3em;
+  position: absolute;
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+  max-width: calc(25.75em - (3em / 7));
+}
 
-    div {
-      background-color: var(--accent-50);
-      border-radius: 0.5em;
-      height: 2.2em;
-    }
-  }
+.poll-bar-container .poll-bar {
+  color: transparent;
+  user-select: none;
+  position: absolute;
+  width: calc(26.95em - (3em / 7));
+}
 
-  &:not(:has(.poll-bar)) {
-    background-color: var(--mantle);
-    cursor: pointer;
+.poll-bar-container .poll-bar ~ .poll-text {
+  background-color: var(--crust);
+}
 
-    &:hover {
-      background-color: var(--crust);
-    }
-  }
+.poll-bar-container .poll-bar.voted div {
+  background-color: var(--accent);
+}
 
-  &:has(.poll-bar) {
-    background-color: var(--crust);
-  }
+.poll-bar-container .poll-bar div {
+  background-color: var(--accent-50);
+  border-radius: 0.5em;
+  height: 2.2em;
 }
 
 .post-text {
@@ -135,17 +135,15 @@ input.c-warning {
   text-overflow: ellipsis;
 }
 
-.quote-area {
-  .main-content {
-    -webkit-line-clamp: 5;
-    line-clamp: 5;
-  }
+.quote-area .main-content {
+  -webkit-line-clamp: 5;
+  line-clamp: 5;
+}
 
-  .post {
-    margin-bottom: 0.5em;
-    margin-top: 0.75em;
-    width: 23.5em;
-  }
+.quote-area .post {
+  margin-bottom: 0.5em;
+  margin-top: 0.75em;
+  width: 23.5em;
 }
 
 .post {
@@ -160,18 +158,18 @@ input.c-warning {
 
 .upper-content {
   cursor: pointer;
+}
 
-  & > * {
-    display: flex;
-    flex-direction: row;
-    flex-wrap: nowrap;
-    justify-content: left;
-    gap: 0.25em;
+.upper-content > * {
+  display: flex;
+  flex-direction: row;
+  flex-wrap: nowrap;
+  justify-content: left;
+  gap: 0.25em;
+}
 
-    & > div {
-      max-width: calc(100% - 3.25em);
-    }
-  }
+.upper-content > * > div {
+  max-width: calc(100% - 3.25em);
 }
 
 .upper-lower-opacity {
@@ -196,10 +194,10 @@ input.c-warning {
   border-radius: 0.2em;
   margin-bottom: 0.2em;
   cursor: pointer;
+}
 
-  &:focus {
-    outline: none;
-  }
+.c-warning summary:focus {
+  outline: none;
 }
 
 .bottom-content {
@@ -229,11 +227,11 @@ input.c-warning {
 .like-secondary {
   position: absolute;
   display: none;
+}
 
-  &:has(+ .like[data-liked="true"]) {
-    display: inline-block;
-    animation: like-anim 1s forwards ease-out;
-  }
+.like-secondary:has(+ .like[data-liked="true"]) {
+  display: inline-block;
+  animation: like-anim 1s forwards ease-out;
 }
 
 .displ-name, .upper-lower-opacity {
@@ -267,11 +265,9 @@ button.bottom-content-icon {
   padding-right: 0.3em;
 }
 
-.like[data-liked="true"],
-.like-secondary {
-  svg {
-    fill: var(--accent);
-  }
+.like[data-liked="true"] svg,
+.like-secondary svg {
+  fill: var(--accent);
 }
 
 .bottom-spacing {
