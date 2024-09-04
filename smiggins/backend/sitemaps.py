@@ -14,7 +14,7 @@ def sitemap_index(request) -> HttpResponse:
 
         URL=WEBSITE_URL,
         users=list(range(ceil(User.objects.count() / ITEMS_PER_SITEMAP))),
-        posts=list(range(ceil(Post.objects.filter(Q(post_private=False) | Q(post_private=None)).count() / ITEMS_PER_SITEMAP)))
+        posts=list(range(ceil(Post.objects.filter(Q(private_post=False) | Q(private_post=None)).count() / ITEMS_PER_SITEMAP)))
     )
     r["Content-Type"] = "application/xml"
     return r
@@ -43,7 +43,7 @@ def sitemap_post(request, index: int) -> HttpResponse:
         request, "sitemap/post.xml", user=None,
 
         URL=WEBSITE_URL,
-        post_ids=Post.objects.filter(Q(post_private=False) | Q(post_private=None)).order_by("post_id").values_list("post_id", flat=True)[index * ITEMS_PER_SITEMAP : (index + 1) * ITEMS_PER_SITEMAP :]
+        post_ids=Post.objects.filter(Q(private_post=False) | Q(private_post=None)).order_by("post_id").values_list("post_id", flat=True)[index * ITEMS_PER_SITEMAP : (index + 1) * ITEMS_PER_SITEMAP :]
     )
     r["Content-Type"] = "application/xml"
     return r

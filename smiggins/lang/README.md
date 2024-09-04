@@ -58,16 +58,27 @@ Reworked private accounts
 - settings.profile_private
 - settings.profile_private_description
 - user_page.private_warning
++ account.follow_blocked
++ post.invalid_poll
 + post.type_public
 + post.type_followers_only
 + post.no_posts
++ post.like
++ post.comment
++ post.quote
++ post.delete
++ post.pin
++ post.unpin
 + settings.profile_default_post
 + settings.profile_followers_approval
 + settings.cosmetic_checkboxes
++ settings.cosmetic_no_css
++ settings.cosmetic_no_css_warning
 + user_page.follows
 + user_page.pending_title
 + user_page.pending_accept
 + user_page.pending_deny
++ changelog.changes.v0.12.0 {1, 2, 3, 4, 5}
 home.quote_private
 ```
 </details>

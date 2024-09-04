@@ -130,7 +130,7 @@ body:not([data-disable-checkboxes]) label:has(+ input[type="checkbox"]) {
   cursor: pointer;
 }
 
-body:not([data-diable-checkboxes]) label + input[type="checkbox"] {
+body:not([data-disable-checkboxes]) label + input[type="checkbox"] {
   width: 0;
   height: 0;
   opacity: 0;

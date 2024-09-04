@@ -3,7 +3,7 @@
     "fallback": [],
     "name": "English (United States)",
     "version": "1.6.0",
-    "maintainers": [["trinkey", "gg"]],
+    "maintainers": ["trinkey"],
     "past_maintainers": []
   },
 
@@ -496,7 +496,8 @@
           "2": "Expanded what blocking someone prevents you or them from doing",
           "3": "Added an option to make a post be followers-only. This replaces private accounts",
           "4": "Sitemaps no longer show private posts",
-          "5": "Added a 'No Styles' setting which disables all CSS and slightly modifies page layout"
+          "5": "Added a 'No Styles' setting which disables all CSS and slightly modifies page layout",
+          "6": "Added a new favicon and variations for all color combinations, and a frontend setting to use the old one"
         },
         "v0.11.0": {
           "1": "Added changelogs for all legacy versions",

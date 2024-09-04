@@ -181,7 +181,7 @@
   */
   "contact_information": [
     ["email", "trinkey@duck.com"],
-    ["url",   "https://github.com/smiggins/smiggins/issues"],
+    ["url",   "https://github.com/jerimiah-smiggins/smiggins/issues"],
     ["url",   "https://discord.gg/tH7QnHApwu"],
     ["text",  "DM me on discord (@trinkey_)"]
   ],

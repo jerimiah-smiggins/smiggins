@@ -3,7 +3,7 @@
     "fallback": ["en-US"],
     "name": "English (Great Britain)",
     "version": "1.5.0",
-    "maintainers": [["trinkey", "gg"]],
+    "maintainers": ["trinkey"],
     "past_maintainers": []
   },
 
