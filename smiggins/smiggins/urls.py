@@ -14,7 +14,8 @@ from backend.variables import (
     ENABLE_EMAIL,
     ROBOTS,
     DEBUG,
-    ENABLE_SITEMAPS
+    ENABLE_SITEMAPS,
+    DEFAULT_THEME
 )
 
 from backend.sitemaps import sitemap_index, sitemap_base, sitemap_post, sitemap_user
@@ -86,7 +87,7 @@ urlpatterns = list(filter(bool, [
     path("admin/", admin),
     path("django-admin/", django_admin.site.urls),
 
-    path("favicon.ico", lambda request: HttpResponseRedirect("/static/img/favicon.ico", status=308)),
+    path("favicon.ico", lambda request: HttpResponseRedirect(f"/static/img/favicons/{DEFAULT_THEME}-mauve.ico", status=308)),
     path("robots.txt", create_simple_return("", content_type="text/plain", content_override=ROBOTS)),
     path(".well-known/security.txt", create_simple_return("", content_type="text/plain", content_override="\n".join([{"email": "Email", "text": "Other", "url": "Link"}[i[0]] + f": {i[1]}" for i in CONTACT_INFO]) + "\n")),
 

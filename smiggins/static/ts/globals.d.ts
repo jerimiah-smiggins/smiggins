@@ -26,6 +26,8 @@ declare const lang: { [key: string]: any };
 declare const badges: { [key: string]: string };
 declare const linkifyHtml: CallableFunction;
 
+declare let favicon: HTMLLinkElement;
+
 // Types
 type _postJSON = {
   creator: {
