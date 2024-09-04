@@ -143,7 +143,7 @@ function setUnload(): void {
 toggleGradient(false);
 dom("color").addEventListener("change", function(): void {
   localStorage.setItem("color", (dom("color") as HTMLInputElement).value);
-  favicon.href = favicon.href.replace(faviconRegex, `/favicons/$1-${(dom("color") as HTMLInputElement).value}`.ico);
+  favicon.href = favicon.href.replace(faviconRegex, `/favicons/$1-${(dom("color") as HTMLInputElement).value}.ico`);
   document.body.setAttribute('data-color', (dom("color") as HTMLInputElement).value);
 });
 

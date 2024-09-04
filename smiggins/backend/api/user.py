@@ -92,7 +92,6 @@ def signup(request, data: Account) -> tuple | dict:
             theme=DEFAULT_THEME.lower() if DEFAULT_THEME.lower() in ["dawn", "dusk", "dark", "midnight", "black"] else "dark",
             color=DEFAULT_BANNER_COLOR,
             color_two=DEFAULT_BANNER_COLOR,
-            private=False,
             following=[],
             followers=[],
             posts=[],
