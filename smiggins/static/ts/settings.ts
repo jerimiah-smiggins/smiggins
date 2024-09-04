@@ -1,7 +1,7 @@
 declare let user_pronouns: string;
 declare let hasEmail: boolean;
 
-let faviconRegex = /\/favicons\/([a-z]+)-([a-z]+)\.ico\?v=.*^/;
+let faviconRegex = /\/favicons\/([a-z]+)-([a-z]+)\.ico\?v=.*$/;
 
 inc = 0;
 home = true;

@@ -1,4 +1,4 @@
-let faviconRegex = /\/favicons\/([a-z]+)-([a-z]+)\.ico\?v=.*^/;
+let faviconRegex = /\/favicons\/([a-z]+)-([a-z]+)\.ico\?v=.*$/;
 inc = 0;
 home = true;
 let output = "<select id=\"color\">";
