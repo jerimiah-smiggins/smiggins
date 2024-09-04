@@ -1,7 +1,7 @@
 declare let user_pronouns: string;
 declare let hasEmail: boolean;
 
-let faviconRegex = /\/favicons\/([a-z]+)-([a-z]+)\.ico\?v=.*$/;
+let faviconRegex = /\/favicons\/([a-z]+)-([a-z]+)\.ico\?v=(.*)$/;
 
 inc = 0;
 home = true;
@@ -143,7 +143,7 @@ function setUnload(): void {
 toggleGradient(false);
 dom("color").addEventListener("change", function(): void {
   localStorage.setItem("color", (dom("color") as HTMLInputElement).value);
-  favicon.href = favicon.href.replace(faviconRegex, `/favicons/$1-${(dom("color") as HTMLInputElement).value}.ico`);
+  favicon.href = favicon.href.replace(faviconRegex, `/favicons/$1-${(dom("color") as HTMLInputElement).value}.ico?v=$3`);
   document.body.setAttribute('data-color', (dom("color") as HTMLInputElement).value);
 });
 
@@ -191,7 +191,7 @@ dom("theme").addEventListener("change", function(): void {
       showlog(lang.generic.something_went_wrong);
     }
       dom("theme").removeAttribute("disabled");
-      favicon.href = favicon.href.replace(faviconRegex, `/favicons/${(dom("theme") as HTMLInputElement).value}-$2.ico`);
+      favicon.href = favicon.href.replace(faviconRegex, `/favicons/${(dom("theme") as HTMLInputElement).value}-$2.ico?v=$3`);
 
       document.querySelector("body").setAttribute("data-theme", (dom("theme") as HTMLInputElement).value);
     })
