@@ -1,3 +1,4 @@
+let faviconRegex = /\/favicons\/([a-z]+)-([a-z]+)\.ico^/;
 inc = 0;
 home = true;
 let output = "<select id=\"color\">";
@@ -118,7 +119,8 @@ function setUnload() {
 }
 toggleGradient(false);
 dom("color").addEventListener("change", function () {
-    localStorage.setItem('color', dom("color").value);
+    localStorage.setItem("color", dom("color").value);
+    favicon.href = favicon.href.replace(faviconRegex, `/favicons/$1-${dom("color").value}.ico`);
     document.body.setAttribute('data-color', dom("color").value);
 });
 dom("bar-pos").value = localStorage.getItem("bar-pos") || "ul";
@@ -160,6 +162,7 @@ dom("theme").addEventListener("change", function () {
             showlog(lang.generic.something_went_wrong);
         }
         dom("theme").removeAttribute("disabled");
+        favicon.href = favicon.href.replace(faviconRegex, `/favicons/${dom("theme").value}-$2.ico`);
         document.querySelector("body").setAttribute("data-theme", dom("theme").value);
     })
         .catch((err) => {
