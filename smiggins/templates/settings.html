@@ -166,6 +166,8 @@
     </div>
   </div>
 
+  <a href="/logout/">{{ lang.settings.logout }}</a><br><br>
+
   {% if ADMIN == "true" %}
     <a href='/admin'>{{ lang.settings.admin }}</a><br>
   {% endif %}
@@ -174,8 +176,13 @@
     <a href="https://github.com/jerimiah-smiggins/smiggins" target="_blank">{{ lang.generic.source_code }}</a><br>
   {% endif %}
 
-  <a href="/logout/">{{ lang.settings.logout }}</a><br><br>
+  {% if DISCORD %}
+    <a href="https://discord.gg/{{ DISCORD }}" target="_blank">{{ lang.generic.discord }}</a><br>
+  {% endif %}
 
+  {% if ADMIN == "true" or SOURCE == "true" or DISCORD %}
+    <br>
+  {% endif %}
   <hr><br>
 
   {{ SITE_NAME }} v{{ VERSION }}<br>

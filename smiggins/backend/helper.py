@@ -54,7 +54,8 @@ from .variables import (
     VALID_LANGUAGES,
     ENABLE_EMAIL,
     BADGE_DATA,
-    GOOGLE_VERIFICATION_TAG
+    GOOGLE_VERIFICATION_TAG,
+    DISCORD
 )
 
 def sha(string: str | bytes) -> str:
@@ -139,6 +140,7 @@ def get_HTTP_response(
         "ENABLE_NEW_ACCOUNTS": str(ENABLE_NEW_ACCOUNTS).lower(),
         "ENABLE_EMAIL": str(ENABLE_EMAIL).lower(),
 
+        "DISCORD": DISCORD or "",
         "NO_CSS_MODE": "false" if user is None else str(user.no_css_mode).lower(),
 
         "DEFAULT_PRIVATE": str(default_post_visibility).lower(),

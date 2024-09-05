@@ -55,6 +55,7 @@
       "share": "Share",
       "copied": "Copied to clipboard!",
       "see_more": "%s to see more!", // Ex: Sign up to see more!
+      "discord": "Discord Server",
 
       "pronouns": {
         "a": "ask pronouns",

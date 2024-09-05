@@ -76,6 +76,15 @@
   "default_language": "en-US",
 
   /*
+  ** The invite part of the link to join a discord server
+  ** (https://discord.gg/<invite>). This is shown on the index and settings
+  ** pages. Set to null to disable the link.
+  && Aliases: discord, discord_invite
+  ## Default: "tH7QnHApwu"
+  */
+  "discord_invite": "tH7QnHApwu",
+
+  /*
   ** The default theme for the website. Can be "dawn", "dusk", "dark",
   ** "midnight", or "black".
   ## Default: "dark"
