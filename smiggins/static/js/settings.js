@@ -1,4 +1,6 @@
 let faviconRegex = /\/favicons\/([a-z]+)-([a-z]+)\.ico\?v=(.*)$/;
+let oldFaviconRegex = /\/old_favicon.ico\?v=(.*)$/;
+let newFaviconRegex = /\/favicons\/[a-z]+-[a-z]+\.ico\?v=(.*)$/;
 inc = 0;
 home = true;
 let output = "<select id=\"color\">";
@@ -117,11 +119,24 @@ function setUnload() {
         };
     }
 }
+dom("old-favi").addEventListener("input", function () {
+    oldFavicon = !oldFavicon;
+    if (oldFavicon) {
+        localStorage.setItem("old-favicon", "");
+        favicon.href = favicon.href.replace(newFaviconRegex, "/old_favicon.ico?v=$1");
+    }
+    else {
+        localStorage.removeItem("old-favicon");
+        favicon.href = favicon.href.replace(newFaviconRegex, `/favicons/${dom("theme").value}-${dom("color").value}.ico?v=$1`);
+    }
+});
 toggleGradient(false);
 dom("color").addEventListener("change", function () {
     localStorage.setItem("color", dom("color").value);
-    favicon.href = favicon.href.replace(faviconRegex, `/favicons/$1-${dom("color").value}.ico?v=$3`);
     document.body.setAttribute('data-color', dom("color").value);
+    if (!oldFavicon) {
+        favicon.href = favicon.href.replace(faviconRegex, `/favicons/$1-${dom("color").value}.ico?v=$3`);
+    }
 });
 dom("bar-pos").value = localStorage.getItem("bar-pos") || "ul";
 dom("bar-pos").addEventListener("change", function () {
@@ -162,8 +177,10 @@ dom("theme").addEventListener("change", function () {
             showlog(lang.generic.something_went_wrong);
         }
         dom("theme").removeAttribute("disabled");
-        favicon.href = favicon.href.replace(faviconRegex, `/favicons/${dom("theme").value}-$2.ico?v=$3`);
         document.querySelector("body").setAttribute("data-theme", dom("theme").value);
+        if (!oldFavicon) {
+            favicon.href = favicon.href.replace(faviconRegex, `/favicons/${dom("theme").value}-$2.ico?v=$3`);
+        }
     })
         .catch((err) => {
         dom("theme").removeAttribute("disabled");
