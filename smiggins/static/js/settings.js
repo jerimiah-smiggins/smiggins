@@ -119,10 +119,13 @@ function setUnload() {
         };
     }
 }
+if (oldFavicon) {
+    dom("old-favi").setAttribute("checked", "");
+}
 dom("old-favi").addEventListener("input", function () {
-    oldFavicon = !oldFavicon;
+    oldFavicon = this.checked;
     if (oldFavicon) {
-        localStorage.setItem("old-favicon", "");
+        localStorage.setItem("old-favicon", "1");
         favicon.href = favicon.href.replace(newFaviconRegex, "/old_favicon.ico?v=$1");
     }
     else {
