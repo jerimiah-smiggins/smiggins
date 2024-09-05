@@ -62,6 +62,12 @@ def comment_create(request, data: NewComment) -> tuple | dict:
     content = trim_whitespace(data.content)
     c_warning = trim_whitespace(data.c_warning, True) if ENABLE_CONTENT_WARNINGS else ""
 
+    can_view = can_view_post(user, comment_owner, comment)
+    if can_view[0] is False and (can_view[1] == "blocked" or can_view[1] == "private"):
+        return 400, {
+            "success": False
+        }
+
     if len(c_warning) > MAX_CONTENT_WARNING_LENGTH or len(content) > MAX_POST_LENGTH or len(content) < 1:
         create_api_ratelimit("api_comment_create", API_TIMINGS["create post failure"], token)
         return 400, {
