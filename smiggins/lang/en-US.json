@@ -499,7 +499,8 @@
           "3": "Added an option to make a post be followers-only. This replaces private accounts",
           "4": "Sitemaps no longer show private posts",
           "5": "Added a 'No Styles' setting which disables all CSS and slightly modifies page layout",
-          "6": "Added a new favicon and variations for all color combinations, and a frontend setting to use the old one"
+          "6": "Added a new favicon and variations for all color combinations, and a frontend setting to use the old one",
+          "7": "Added an optional discord link in backend settings"
         },
         "v0.11.0": {
           "1": "Added changelogs for all legacy versions",

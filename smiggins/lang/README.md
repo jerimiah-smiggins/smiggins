@@ -79,7 +79,7 @@ Reworked private accounts
 + user_page.pending_title
 + user_page.pending_accept
 + user_page.pending_deny
-+ changelog.changes.v0.12.0 {1, 2, 3, 4, 5}
++ changelog.changes.v0.12.0 {1, 2, 3, 4, 5, 6, 7}
 home.quote_private
 ```
 </details>
