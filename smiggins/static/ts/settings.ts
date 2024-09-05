@@ -153,7 +153,7 @@ dom("old-favi").addEventListener("input", function(): void {
     favicon.href = favicon.href.replace(newFaviconRegex, "/old_favicon.ico?v=$1");
   } else {
     localStorage.removeItem("old-favicon");
-    favicon.href = favicon.href.replace(newFaviconRegex, `/favicons/${(dom("theme") as HTMLInputElement).value}-${(dom("color") as HTMLInputElement).value}.ico?v=$1`);
+    favicon.href = favicon.href.replace(oldFaviconRegex, `/favicons/${(dom("theme") as HTMLInputElement).value}-${(dom("color") as HTMLInputElement).value}.ico?v=$1`);
   }
 });
 
