@@ -76,7 +76,9 @@
       favicon.rel = "icon";
       favicon.type = "image/x-icon";
 
-      if (localStorage.getItem("old-favicon")) {
+      let oldFavicon = !!localStorage.getItem("old-favicon");
+
+      if (oldFavicon) {
         favicon.href = "{% static "/img/old_favicon.ico" %}?v={{ VERSION }}";
       } else {
         favicon.href = `{% static "/img/favicons/" %}{{ THEME }}-${validColors.indexOf(localStorage.getItem("color")) == -1 ? "mauve" : localStorage.getItem("color")}.ico?v={{ VERSION }}`;

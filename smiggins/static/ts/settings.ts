@@ -142,10 +142,14 @@ function setUnload(): void {
   }
 }
 
+if (oldFavicon) {
+  dom("old-favi").setAttribute("checked", "");
+}
+
 dom("old-favi").addEventListener("input", function(): void {
-  oldFavicon = !oldFavicon;
+  oldFavicon = (this as HTMLInputElement).checked;
   if (oldFavicon) {
-    localStorage.setItem("old-favicon", "");
+    localStorage.setItem("old-favicon", "1");
     favicon.href = favicon.href.replace(newFaviconRegex, "/old_favicon.ico?v=$1");
   } else {
     localStorage.removeItem("old-favicon");
