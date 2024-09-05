@@ -26,6 +26,7 @@ declare const lang: { [key: string]: any };
 declare const badges: { [key: string]: string };
 declare const linkifyHtml: CallableFunction;
 
+declare let oldFavicon: boolean;
 declare let favicon: HTMLLinkElement;
 
 // Types

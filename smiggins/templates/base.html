@@ -75,7 +75,12 @@
       let favicon = document.createElement("link");
       favicon.rel = "icon";
       favicon.type = "image/x-icon";
-      favicon.href = `{% static "/img/favicons/" %}{{ THEME }}-${validColors.indexOf(localStorage.getItem("color")) == -1 ? "mauve" : localStorage.getItem("color")}.ico?v={{ VERSION }}`;
+
+      if (localStorage.getItem("old-favicon")) {
+        favicon.href = "{% static "/img/old_favicon.ico" %}?v={{ VERSION }}";
+      } else {
+        favicon.href = `{% static "/img/favicons/" %}{{ THEME }}-${validColors.indexOf(localStorage.getItem("color")) == -1 ? "mauve" : localStorage.getItem("color")}.ico?v={{ VERSION }}`;
+      }
 
       document.head.append(favicon);
     </script>

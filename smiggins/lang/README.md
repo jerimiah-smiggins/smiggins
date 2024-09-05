@@ -74,6 +74,7 @@ Reworked private accounts
 + settings.cosmetic_checkboxes
 + settings.cosmetic_no_css
 + settings.cosmetic_no_css_warning
++ settings.cosmetic_old_favicon
 + user_page.follows
 + user_page.pending_title
 + user_page.pending_accept
