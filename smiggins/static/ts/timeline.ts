@@ -231,9 +231,7 @@ if (typeof disableTimeline === 'undefined' || !disableTimeline) {
     c++;
     if (force_offset !== true) { dom("posts").innerHTML = ""; }
 
-    fetch(`${url}${force_offset === true && !end ? `${url.includes("?") ? "&" : "?"}offset=${offset}` : ""}`, {
-      method: "GET"
-    })
+    fetch(`${url}${force_offset === true && !end ? `${url.includes("?") ? "&" : "?"}offset=${offset}` : ""}`)
       .then((response: Response) => (response.json()))
       .then((json: {
         bio: string,
@@ -249,7 +247,7 @@ if (typeof disableTimeline === 'undefined' || !disableTimeline) {
           return;
         }
 
-        if (force_offset && !json.posts.length) {
+        if (!force_offset && !json.posts.length) {
           dom("posts").innerHTML = `<i>${escapeHTML(lang.post.no_posts)}</i>`
         }
 
