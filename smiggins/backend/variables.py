@@ -79,7 +79,7 @@ ENABLE_EMAIL: bool = False
 ENABLE_SITEMAPS: bool = False
 ITEMS_PER_SITEMAP: int = 500
 GOOGLE_VERIFICATION_TAG: str | None = ""
-DISCORD: str | None = ""
+DISCORD: str | None = "tH7QnHApwu"
 SITEMAP_CACHE_TIMEOUT: int | None = 86400
 API_TIMINGS: dict[str, int] = {}
 
