@@ -1,6 +1,7 @@
 from django.contrib import admin as django_admin
 from django.urls import include, path
 from django.http import HttpResponseRedirect
+from django.views.decorators.cache import cache_page
 
 from backend.helper import create_simple_return
 
@@ -15,7 +16,8 @@ from backend.variables import (
     ROBOTS,
     DEBUG,
     ENABLE_SITEMAPS,
-    DEFAULT_THEME
+    DEFAULT_THEME,
+    SITEMAP_CACHE_TIMEOUT
 )
 
 from backend.sitemaps import sitemap_index, sitemap_base, sitemap_post, sitemap_user
@@ -91,10 +93,10 @@ urlpatterns = list(filter(bool, [
     path("robots.txt", create_simple_return("", content_type="text/plain", content_override=ROBOTS)),
     path(".well-known/security.txt", create_simple_return("", content_type="text/plain", content_override="\n".join([{"email": "Email", "text": "Other", "url": "Link"}[i[0]] + f": {i[1]}" for i in CONTACT_INFO]) + "\n")),
 
-    path("sitemap.xml", sitemap_index) if ENABLE_SITEMAPS else None,
-    path("sitemaps/base.xml", sitemap_base) if ENABLE_SITEMAPS else None,
-    path("sitemaps/u/<int:index>.xml", sitemap_user) if ENABLE_SITEMAPS else None,
-    path("sitemaps/p/<int:index>.xml", sitemap_post) if ENABLE_SITEMAPS else None
+    path("sitemap.xml", cache_page(SITEMAP_CACHE_TIMEOUT)(sitemap_index) if SITEMAP_CACHE_TIMEOUT else sitemap_index) if ENABLE_SITEMAPS else None,
+    path("sitemaps/base.xml", cache_page(SITEMAP_CACHE_TIMEOUT)(sitemap_base) if SITEMAP_CACHE_TIMEOUT else sitemap_base) if ENABLE_SITEMAPS else None,
+    path("sitemaps/u/<int:index>.xml", cache_page(SITEMAP_CACHE_TIMEOUT)(sitemap_user) if SITEMAP_CACHE_TIMEOUT else sitemap_user) if ENABLE_SITEMAPS else None,
+    path("sitemaps/p/<int:index>.xml", cache_page(SITEMAP_CACHE_TIMEOUT)(sitemap_post) if SITEMAP_CACHE_TIMEOUT else sitemap_post) if ENABLE_SITEMAPS else None
 ]))
 
 handler404 = "backend.templating._404"

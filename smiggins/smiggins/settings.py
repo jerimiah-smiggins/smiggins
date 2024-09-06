@@ -105,8 +105,8 @@ DATABASES = {
 
 CACHES = {
     "default": {
-        "BACKEND": f"django.core.cache.backends.{'dummy.DummyCache' if DEBUG else 'locmem.LocMemCache'}",
-        "LOCATION": "unique-snowflake",
+        "BACKEND": f"django.core.cache.backends.{'dummy.DummyCache' if DEBUG else 'filebased.FileBasedCache'}",
+        "LOCATION": BASE_DIR / "django_cache",
     }
 }
 

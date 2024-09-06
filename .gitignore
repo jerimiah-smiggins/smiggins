@@ -6,5 +6,6 @@ __pycache__/
 smiggins/backend/_api_keys.py
 smiggins/db.sqlite3
 smiggins/collected-static/
+smiggins/django_cache/
 smiggins/latest_scr
 smiggins/admin.log
