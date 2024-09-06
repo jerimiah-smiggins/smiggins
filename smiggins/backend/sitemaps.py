@@ -3,10 +3,18 @@
 from math import ceil
 from django.http import HttpResponse
 from django.db.models import Q
+from django.views.decorators.cache import cache_page
 
+from datetime import datetime, timezone
+import time
 from posts.models import User, Post
 from .helper import get_HTTP_response
-from .variables import ITEMS_PER_SITEMAP, WEBSITE_URL
+from .variables import ITEMS_PER_SITEMAP, WEBSITE_URL, SITEMAP_CACHE_TIMEOUT
+
+def _get_lastmod(ts: int | float=time.time(), short: bool=False) -> str:
+    if short:
+        return datetime.fromtimestamp(ts, tz=timezone.utc).strftime('%Y-%m-%d')
+    return datetime.fromtimestamp(ts, tz=timezone.utc).isoformat()
 
 def sitemap_index(request) -> HttpResponse:
     r = get_HTTP_response(
@@ -47,3 +55,9 @@ def sitemap_post(request, index: int) -> HttpResponse:
     )
     r["Content-Type"] = "application/xml"
     return r
+
+if SITEMAP_CACHE_TIMEOUT:
+    cache_page(SITEMAP_CACHE_TIMEOUT)(sitemap_index)
+    cache_page(SITEMAP_CACHE_TIMEOUT)(sitemap_base)
+    cache_page(SITEMAP_CACHE_TIMEOUT)(sitemap_user)
+    cache_page(SITEMAP_CACHE_TIMEOUT)(sitemap_post)

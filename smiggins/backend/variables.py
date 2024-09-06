@@ -80,7 +80,7 @@ ENABLE_SITEMAPS: bool = False
 ITEMS_PER_SITEMAP: int = 500
 GOOGLE_VERIFICATION_TAG: str | None = ""
 DISCORD: str | None = ""
-
+SITEMAP_CACHE_TIMEOUT: int | None = 86400
 API_TIMINGS: dict[str, int] = {}
 
 f = {}
@@ -125,14 +125,19 @@ def is_ok(val: Any, var: str, t: type | str, null: bool=False):
         error(f"{val} should be {t}, not {type(val)}")
 
 def clamp(
-    val: int,
+    val: int | None,
     minimum: int | None = None,
     maximum: int | None = None
 ) -> int:
+    if val is None:
+        return val
+
     if minimum is not None:
         val = max(minimum, val)
+
     if maximum is not None:
         val = min(maximum, val)
+
     return val
 
 for key, val in f.items():
@@ -185,6 +190,7 @@ for key, val in f.items():
     elif key.lower() == "items_per_sitemap": is_ok(val, "ITEMS_PER_SITEMAP", int) # noqa: E701
     elif key.lower() == "google_verification_tag": is_ok(val, "GOOGLE_VERIFICATION_TAG", str) # noqa: E701
     elif key.lower() in ["discord", "discord_invite"]: is_ok(val, "DISCORD", str, null=True) # noqa: E701
+    elif key.lower() in "sitemap_cache_timeout": is_ok(val, "SITEMAP_CACHE_TIMEOUT", int, null=True) # noqa: E701
     else: error(f"Unknown setting {key}") # noqa: E701
 
 MAX_ADMIN_LOG_LINES = clamp(MAX_ADMIN_LOG_LINES, minimum=1)
@@ -199,6 +205,7 @@ POSTS_PER_REQUEST = clamp(POSTS_PER_REQUEST, minimum=1)
 MESSAGES_PER_REQUEST = clamp(MESSAGES_PER_REQUEST, minimum=1)
 MAX_NOTIFICATIONS = clamp(MAX_NOTIFICATIONS, minimum=1)
 ITEMS_PER_SITEMAP = clamp(ITEMS_PER_SITEMAP, minimum=50, maximum=50000)
+SITEMAP_CACHE_TIMEOUT = clamp(SITEMAP_CACHE_TIMEOUT, minimum=0)
 
 if CACHE_LANGUAGES is None:
     CACHE_LANGUAGES = not DEBUG

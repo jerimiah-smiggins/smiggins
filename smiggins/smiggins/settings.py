@@ -103,6 +103,13 @@ DATABASES = {
     }
 }
 
+CACHES = {
+    "default": {
+        "BACKEND": f"django.core.cache.backends.{'dummy.DummyCache' if DEBUG else 'locmem.LocMemCache'}",
+        "LOCATION": "unique-snowflake",
+    }
+}
+
 AUTH_PASSWORD_VALIDATORS = [
     {
         'NAME': 'django.contrib.auth.password_validation.UserAttributeSimilarityValidator',

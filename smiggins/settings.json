@@ -43,6 +43,12 @@
   "items_per_sitemap": 500,
 
   /*
+  ** How long to cache the sitemaps, in seconds. Set to null to disable caching.
+  ## Default: 86400 (60(s) * 60(m) * 24(h))
+  */
+  "sitemap_cache_timeout": 86400,
+
+  /*
   ** This toggles allowing emails. In order for this to work, you need to set up
   ** the stmp_auth variable in backend/_api_keys.py. (Read README.md)
   && Aliases: email, enable_email
