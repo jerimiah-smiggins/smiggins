@@ -202,16 +202,14 @@ if (typeof disableTimeline === 'undefined' || !disableTimeline) {
         if (force_offset !== true) {
             dom("posts").innerHTML = "";
         }
-        fetch(`${url}${force_offset === true && !end ? `${url.includes("?") ? "&" : "?"}offset=${offset}` : ""}`, {
-            method: "GET"
-        })
+        fetch(`${url}${force_offset === true && !end ? `${url.includes("?") ? "&" : "?"}offset=${offset}` : ""}`)
             .then((response) => (response.json()))
             .then((json) => {
             --c;
             if (c) {
                 return;
             }
-            if (force_offset && !json.posts.length) {
+            if (!force_offset && !json.posts.length) {
                 dom("posts").innerHTML = `<i>${escapeHTML(lang.post.no_posts)}</i>`;
             }
             end = json.end;
