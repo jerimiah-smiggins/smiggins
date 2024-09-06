@@ -9,6 +9,7 @@ if (logged_in) {
 }
 
 let titleNotificationIndicator: boolean = false;
+let pendingFollowersIconEnabled: boolean = false;
 
 let iconsElement: HTMLElement = document.createElement("div");
 iconsElement.setAttribute("class", "icons");
@@ -29,24 +30,28 @@ document.body.setAttribute(
   (["h", "r"]).indexOf(localStorage.getItem("bar-dir")) == -1 ? "v" : localStorage.getItem("bar-dir")
 );
 
+if (localStorage.getItem("checkboxes")) {
+  document.body.setAttribute("data-disable-checkboxes", "");
+}
+
 if (logged_in) {
-  iconsElement.innerHTML = `<a title="${lang.settings.title}" href="/settings">${icons.settings}</a>`;
+  iconsElement.innerHTML = `<div><a title="${lang.settings.title}" href="/settings">${NO_CSS_MODE ? lang.settings.title : icons.settings}</a></div>`;
 
   if (typeof(home) !== 'undefined') {
-    iconsElement.innerHTML += `<a title="${lang.home.title}" href="/home">${icons.home}</a>`;
+    iconsElement.innerHTML += `<div><a title="${lang.home.title}" href="/home">${NO_CSS_MODE ? lang.home.title : icons.home}</a></div>`;
   }
 
-  iconsElement.innerHTML += `<div data-add-notification-dot><a title="${lang.notifications.title}" href="/notifications">${icons.bell}</a></div>`;
+  iconsElement.innerHTML += `<div data-add-notification-dot><a title="${lang.notifications.title}" href="/notifications">${NO_CSS_MODE ? lang.notifications.title : icons.bell}</a></div>`;
   if (ENABLE_PRIVATE_MESSAGES) {
-    iconsElement.innerHTML += `<div data-add-message-dot><a title="${lang.messages.list_title}" href="/messages">${icons.message}</a></div>`;
+    iconsElement.innerHTML += `<div data-add-message-dot><a title="${lang.messages.list_title}" href="/messages">${NO_CSS_MODE ? lang.messages.list_title : icons.message}</a></div>`;
   }
 }
 
 if (typeof(share) !== 'undefined') {
-  iconsElement.innerHTML += `<span title="${lang.generic.share}" onclick="navigator.clipboard.writeText('${escapeHTML(share)}'); showlog('${lang.generic.copied}');">${icons.share}</span>`;
+  iconsElement.innerHTML += `<div><a href="javascript:void(0);"><span title="${lang.generic.share}" onclick="navigator.clipboard.writeText('${escapeHTML(share)}'); showlog('${lang.generic.copied}');">${NO_CSS_MODE ? lang.generic.share : icons.share}</span></a></div>`;
 }
 
-document.body.append(iconsElement);
+document.body.prepend(iconsElement);
 
 function getNotifications(): void {
   fetch("/api/info/notifications")
@@ -54,7 +59,8 @@ function getNotifications(): void {
     .then((json: {
       success: boolean,
       notifications: boolean,
-      messages: boolean
+      messages: boolean,
+      followers: boolean
     }) => {
       forEach(document.querySelectorAll("[data-add-notification-dot]"), (val: HTMLElement, index: number): void => {
         if (json.success && json.notifications) {
@@ -72,7 +78,15 @@ function getNotifications(): void {
         }
       });
 
-      if ((json.messages && ENABLE_PRIVATE_MESSAGES) || json.notifications) {
+      if (!pendingFollowersIconEnabled && json.followers) {
+        pendingFollowersIconEnabled = true;
+        dom("icons").innerHTML += `<div class="dot" id="pending-followers-icon" title="${lang.user_page.pending_title}"><a href="/pending/">${NO_CSS_MODE ? lang.user_page.pending_title : icons.follower}</a></div>`;
+      } else if (pendingFollowersIconEnabled && !json.followers) {
+        pendingFollowersIconEnabled = false;
+        dom("pending-followers-icon").remove();
+      }
+
+      if ((json.messages && ENABLE_PRIVATE_MESSAGES) || json.notifications || json.followers || json.followers) {
         if (!titleNotificationIndicator) {
           titleNotificationIndicator = true;
           document.title = "[ ! ] " + document.title;
@@ -101,14 +115,14 @@ if (logged_in) {
 
           if (usernameRegexFull.test(username)) {
             localStorage.setItem("username", username);
-            dom("icons").innerHTML += `<a title="${lang.settings.profile_title}" href="/u/${username}">${icons.user}</a>`;
+            dom("icons").innerHTML += `<a title="${lang.settings.profile_title}" href="/u/${username}">${NO_CSS_MODE ? lang.settings.profile_title : icons.user}</a>`;
           } else {
             console.log("Username returned from /api/info/username is invalid.");
           }
         });
     } else {
       if (usernameRegexFull.test(localStorage.getItem("username"))) {
-        dom("icons").innerHTML += `<a title="${lang.settings.profile_title}" href="/u/${localStorage.getItem("username")}">${icons.user}</a>`;
+        dom("icons").innerHTML += `<a title="${lang.settings.profile_title}" href="/u/${localStorage.getItem("username")}">${NO_CSS_MODE ? lang.settings.profile_title : icons.user}</a>`;
       } else {
         console.log("Username in localStorage is invalid.");
         localStorage.removeItem("username");
@@ -117,10 +131,12 @@ if (logged_in) {
   }
 }
 
-forEach(document.querySelectorAll("[data-add-icon]"), (val: HTMLElement, index: number): void => {
-  val.innerHTML = icons[val.dataset.addIcon];
-});
+if (!NO_CSS_MODE) {
+  forEach(document.querySelectorAll("[data-add-icon]"), (val: HTMLElement, index: number): void => {
+    val.innerHTML = icons[val.dataset.addIcon];
+  });
 
-forEach(document.querySelectorAll("[data-add-badge]"), (val: HTMLElement, index: number): void => {
-  val.innerHTML = badges[val.dataset.addBadge];
-});
+  forEach(document.querySelectorAll("[data-add-badge]"), (val: HTMLElement, index: number): void => {
+    val.innerHTML = badges[val.dataset.addBadge];
+  });
+}

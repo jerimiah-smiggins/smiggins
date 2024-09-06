@@ -27,6 +27,7 @@ from ..helper import (
     get_lang,
     DEFAULT_LANG,
     delete_notification,
+    can_view_post
 )
 
 class NewComment(Schema):
@@ -34,6 +35,7 @@ class NewComment(Schema):
     content: str
     comment: bool
     id: int
+    private: bool
 
 class CommentID(Schema):
     id: int
@@ -50,7 +52,7 @@ def comment_create(request, data: NewComment) -> tuple | dict:
     if not ensure_ratelimit("api_comment_create", token):
         return 429, {
             "success": False,
-            "reason": lang["generic"]["ratelimited"]
+            "reason": lang["generic"]["ratelimit"]
         }
 
     id = data.id
@@ -59,6 +61,12 @@ def comment_create(request, data: NewComment) -> tuple | dict:
 
     content = trim_whitespace(data.content)
     c_warning = trim_whitespace(data.c_warning, True) if ENABLE_CONTENT_WARNINGS else ""
+
+    can_view = can_view_post(user, comment_owner, comment)
+    if can_view[0] is False and (can_view[1] == "blocked" or can_view[1] == "private"):
+        return 400, {
+            "success": False
+        }
 
     if len(c_warning) > MAX_CONTENT_WARNING_LENGTH or len(content) > MAX_POST_LENGTH or len(content) < 1:
         create_api_ratelimit("api_comment_create", API_TIMINGS["create post failure"], token)
@@ -72,15 +80,16 @@ def comment_create(request, data: NewComment) -> tuple | dict:
     timestamp = round(time.time())
 
     comment = Comment(
-        content = content,
-        creator = user.user_id,
-        timestamp = timestamp,
-        content_warning = c_warning or None,
-        likes = [],
-        comments = [],
-        quotes = [],
-        parent = id,
-        parent_is_comment = is_comment
+        content=content,
+        creator=user.user_id,
+        timestamp=timestamp,
+        content_warning=c_warning or None,
+        likes=[],
+        comments=[],
+        quotes=[],
+        parent=id,
+        private_comment=data.private,
+        parent_is_comment=is_comment
     )
     comment.save()
 
@@ -104,7 +113,8 @@ def comment_create(request, data: NewComment) -> tuple | dict:
     parent.save()
 
     try:
-        if parent.creator != user.user_id and user.user_id not in User.objects.get(user_id=parent.creator).blocking:
+        creator = User.objects.get(user_id=parent.creator)
+        if parent.creator != user.user_id and user.user_id not in creator.blocking and parent.creator not in user.blocking:
             create_notification(
                 User.objects.get(user_id=parent.creator),
                 "comment",
@@ -112,11 +122,12 @@ def comment_create(request, data: NewComment) -> tuple | dict:
             )
     except User.DoesNotExist:
         print("how")
+        creator = None
 
-    for i in find_mentions(content, [user.username, User.objects.get(user_id=parent.creator).username]):
+    for i in find_mentions(content, [user.username, creator.username if creator else ""]):
         try:
             notif_for = User.objects.get(username=i.lower())
-            if user.user_id not in notif_for.blocking:
+            if user.user_id not in notif_for.blocking and notif_for.user_id not in user.blocking:
                 create_notification(notif_for, "ping_c", comment.comment_id)
 
         except User.DoesNotExist:
@@ -161,25 +172,29 @@ def comment_list(request, id: int, comment: bool, offset: int=-1) -> tuple | dic
         parent = Comment.objects.get(pk=id)
     else:
         parent = Post.objects.get(pk=id)
+
     user_id = user.user_id if logged_in else 0
-    if parent.comments == []:
+    comments = parent.comments
+
+    while len(comments) and comments[0] < offset:
+        comments.pop(0)
+
+    if comments == []:
         return 200, {
             "posts": [],
             "end": True
         }
 
-    while len(parent.comments) and parent.comments[0] < offset:
-        parent.comments.pop(0)
-
     outputList = []
     offset = 0
     cache = {}
 
-    self_blocking = []
     if logged_in:
-        self_blocking = User.objects.get(token=token).blocking
+        self_user = User.objects.get(token=token)
+    else:
+        self_user = None
 
-    for i in parent.comments:
+    for i in comments:
         try:
             comment_object = Comment.objects.get(pk=i)
         except Comment.DoesNotExist:
@@ -193,7 +208,8 @@ def comment_list(request, id: int, comment: bool, offset: int=-1) -> tuple | dic
             offset += 1
             continue
 
-        if creator.user_id in self_blocking or creator.private and user_id not in creator.following:
+        can_view = can_view_post(self_user, creator, comment_object)
+        if can_view[0] is False and (can_view[1] == "blocked" or can_view[1] == "private"):
             offset += 1
             continue
 
@@ -205,7 +221,7 @@ def comment_list(request, id: int, comment: bool, offset: int=-1) -> tuple | dic
 
     return 200, {
         "posts": outputList,
-        "end": len(parent.comments) - offset <= POSTS_PER_REQUEST
+        "end": len(comments) - offset <= POSTS_PER_REQUEST
     }
 
 def comment_like_add(request, data: CommentID):
@@ -214,19 +230,15 @@ def comment_like_add(request, data: CommentID):
     token = request.COOKIES.get('token')
     id = data.id
 
-    try:
-        if id > Comment.objects.latest('comment_id').comment_id:
-            return 404, {
-                "success": False
-            }
-
-    except ValueError:
-        return 404, {
-            "success": False
-        }
-
     user = User.objects.get(token=token)
     comment = Comment.objects.get(comment_id=id)
+    comment_owner = User.objects.get(user_id=comment.creator)
+
+    can_view = can_view_post(user, comment_owner, comment)
+    if can_view[0] is False and (can_view[1] == "blocked" or can_view[1] == "private"):
+        return 400, {
+            "success": False
+        }
 
     if user.user_id not in comment.likes:
         user.likes.append([id, True])
@@ -235,12 +247,12 @@ def comment_like_add(request, data: CommentID):
         user.save()
         comment.save()
 
-    return 200, {
+    return {
         "success": True
     }
 
 def comment_like_remove(request, data: CommentID):
-    # Called when someone unlikes a comment.
+    # Called when someone removes a like from a comment.
 
     token = request.COOKIES.get('token')
     id = data.id

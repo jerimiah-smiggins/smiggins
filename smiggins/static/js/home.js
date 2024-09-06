@@ -30,7 +30,8 @@ dom("post").addEventListener("click", function () {
             body: JSON.stringify({
                 c_warning: ENABLE_CONTENT_WARNINGS ? dom("c-warning").value : "",
                 content: dom("post-text").value,
-                poll: getPollText()
+                poll: getPollText(),
+                private: dom("default-private").checked
             })
         })
             .then((response) => {

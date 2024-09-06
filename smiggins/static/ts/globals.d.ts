@@ -17,10 +17,17 @@ declare const ENABLE_POLLS: boolean;
 declare const ENABLE_CONTENT_WARNINGS: boolean;
 declare const ENABLE_EMAIL: boolean;
 
+declare const NO_CSS_MODE: boolean;
+
+declare const defaultPrivate: boolean;
+
 // Global variables
 declare const lang: { [key: string]: any };
 declare const badges: { [key: string]: string };
 declare const linkifyHtml: CallableFunction;
+
+declare let oldFavicon: boolean;
+declare let favicon: HTMLLinkElement;
 
 // Types
 type _postJSON = {
@@ -30,11 +37,11 @@ type _postJSON = {
     color_two: string,
     display_name: string,
     gradient_banner: boolean
-    private: boolean,
     pronouns: string,
     username: string,
   },
 
+  private: boolean,
   can_delete: boolean,
   can_pin?: boolean,
   can_view: boolean,
@@ -66,5 +73,6 @@ type _postJSON = {
   blocked?: boolean,
   deleted?: boolean,
   comment?: boolean,
-  has_quote?: boolean
+  has_quote?: boolean,
+  blocked_by_self?: boolean
 };

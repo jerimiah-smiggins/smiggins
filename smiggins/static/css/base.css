@@ -52,15 +52,16 @@ small {
 noscript {
   display: block;
   margin-bottom: 10vh;
+}
 
-  h1, h2 {
-    color: var(--red);
-  }
+noscript h1,
+noscript h2 {
+  color: var(--red);
+}
 
-  ul {
-    display: inline-block;
-    text-align: left;
-  }
+noscript ul {
+  display: inline-block;
+  text-align: left;
 }
 
 button {
@@ -72,35 +73,33 @@ button {
   cursor: pointer;
   font-size: 0.8em;
   transition: color 0.15s, scale 0.15s, margin 0.15s, background-color 0.15s;
+}
 
-  &:disabled {
-    opacity: 60%;
-    pointer-events: none;
-  }
+button:disabled {
+  opacity: 60%;
+  pointer-events: none;
+}
 
-  &:active {
-    scale: 95%;
-    background-color: var(--mantle);
-  }
+button:active {
+  scale: 95%;
+  background-color: var(--mantle);
+}
 
-  &, &.inverted {
-    &:hover {
-      background-color: var(--mantle)
-    }
-  }
+button:hover,
+button.inverted:hover {
+  background-color: var(--mantle)
+}
 
-  &.inverted {
-    background-color: var(--base);
-  }
+button.inverted {
+  background-color: var(--base);;
+}
 
-  &.primary {
-    &, &:hover {
-      background-color: var(--accent);
-      color: var(--base);
-      border-color: var(--surface0);
-      outline-color: var(--surface0);
-    }
-  }
+button.primary,
+button.primary:hover {
+  background-color: var(--accent);
+  color: var(--base);
+  border-color: var(--surface0);
+  outline-color: var(--surface0);
 }
 
 .fake-input {
@@ -112,7 +111,7 @@ button {
 }
 
 .fake-input,
-input,
+input:not([type="checkbox"]),
 textarea,
 option,
 select {
@@ -125,7 +124,42 @@ select {
   margin: 3px;
   font-size: 0.8em;
   resize: vertical;
+}
 
+body:not([data-disable-checkboxes]) label:has(+ input[type="checkbox"]) {
+  cursor: pointer;
+}
+
+body:not([data-disable-checkboxes]) label + input[type="checkbox"] {
+  width: 0;
+  height: 0;
+  opacity: 0;
+  margin: 0;
+  padding: 0;
+  border: none;
+  outline: none;
+}
+
+body:not([data-disable-checkboxes]) label:has(+ input[type="checkbox"])::after {
+  content: "";
+  transition: background-color 0.25s, outline-color 0.25s;
+  background-color: var(--surface0);
+  display: inline-block;
+  position: relative;
+  top: 0.1em;
+  width: 1em;
+  height: 1em;
+  margin-left: 0.4em;
+  border-radius: 0.2em;
+  outline: 1px solid var(--surface1);
+}
+
+body:not([data-disable-checkboxes]) label:has(+ input[type="checkbox"]:checked)::after {
+  background-color: var(--accent);
+}
+
+body:not([data-disable-checkboxes]) label:has(+ input[type="checkbox"]:focus)::after {
+  outline-color: var(--accent);
 }
 
 option {
@@ -133,44 +167,42 @@ option {
   font-size: 1.1em;
 }
 
-input,
+input:not([type="checkbox"]),
 textarea,
 select {
   font-family: "Poppins";
 }
 
-input, textarea {
-  &::placeholder {
-    color: var(--surface2);
-    opacity: 100%;
-  }
-
-  &:disabled {
-    color: var(--subtext0);
-    opacity: 1;
-    pointer-events: none;
-
-    &::placeholder {
-      color: var(--surface1);
-    }
-  }
+input:not([type="checkbox"])::placeholder,
+textarea::placeholder {
+  color: var(--surface2);
+  opacity: 100%;
 }
 
-a {
-  &:link,
-  &:visited {
-    color: var(--accent);
-    text-decoration: none;
-  }
+input:not([type="checkbox"]):disabled,
+textarea:disabled {
+  color: var(--subtext0);
+  opacity: 1;
+  pointer-events: none;
+}
 
-  &:hover {
-    text-decoration: underline;
-  }
+input:not([type="checkbox"]):disabled::placeholder,
+textarea:disabled::placeholder {
+  color: var(--surface1);
+}
 
-  &::selection {
-    -webkit-text-decoration-color: var(--text);
-    text-decoration-color: var(--text);
-  }
+a:link, a:visited {
+  color: var(--accent);
+  text-decoration: none;
+}
+
+a:hover {
+  text-decoration: underline;
+}
+
+a::selection {
+  -webkit-text-decoration-color: var(--text);
+  text-decoration-color: var(--text);
 }
 
 i {
@@ -182,19 +214,18 @@ p {
   padding: 2px;
 }
 
-table {
-  &.center {
-    margin-left: auto;
-    margin-right: auto;
-  }
+table.center {
+  margin-left: auto;
+  margin-right: auto;
+}
 
-  &.bordered {
-    border-collapse: collapse;
+table.bordered {
+  border-collapse: collapse;
+}
 
-    th, td {
-      border: 1.5px solid var(--surface0);
-    }
-  }
+table.bordered th,
+table.bordered td {
+  border: 1.5px solid var(--surface0);
 }
 
 .user-badge {
@@ -321,32 +352,32 @@ body[data-bar-dir="v"][data-bar-pos^="l"] {
   flex-wrap: wrap;
   position: fixed;
   gap: 0.5em;
+}
 
-  a {
-    display: inline-block;
-  }
+.icons a {
+  display: inline-block;
+}
 
-  svg {
-    height: 1.5em;
-    width: 1.5em;
-    display: inline-block;
-    fill: var(--text);
-    stroke: none;
-    cursor: pointer;
+.icons svg {
+  height: 1.5em;
+  width: 1.5em;
+  display: inline-block;
+  fill: var(--text);
+  stroke: none;
+  cursor: pointer;
+}
 
-    &:active {
-      scale: 90%;
-    }
-  }
+.icons svg:active {
+  scale: 90%;
+}
 
-  .dot::after {
-    position: absolute;
-    display: inline-block;
-    width: 0.5em;
-    height: 0.5em;
-    border-radius: 0.25em;
-    transform: translate(-0.3em, 0);
-    background-color: var(--accent);
-    content: "";
-  }
+.icons .dot::after {
+  position: absolute;
+  display: inline-block;
+  width: 0.5em;
+  height: 0.5em;
+  border-radius: 0.25em;
+  transform: translate(-0.3em, 0);
+  background-color: var(--accent);
+  content: "";
 }

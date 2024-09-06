@@ -3,3 +3,4 @@ ensure-file
 requests
 django
 json5
+cairosvg

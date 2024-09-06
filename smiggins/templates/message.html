@@ -6,7 +6,9 @@
 {% endblock %}
 
 {% block head %}
-  <link rel="stylesheet" href="{% static '/css/messages.css' %}?v={{ VERSION }}">
+  {% if NO_CSS_MODE == "false" %}
+    <link rel="stylesheet" href="{% static '/css/messages.css' %}?v={{ VERSION }}">
+  {% endif %}
 {% endblock %}
 
 {% block body_head %}
@@ -16,7 +18,6 @@
 {% block body %}
   <div class="header-container"><h1 style="margin-bottom: 0;">
     {{ TITLE }}
-    <span {% if PRIVATE == "false" %}hidden{% endif %}><div class="user-badge" data-add-icon="lock"></div></span>
     {% autoescape off %}
     {{ BADGES }}
     {% endautoescape %}

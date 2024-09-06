@@ -6,8 +6,10 @@
 {% endblock %}
 
 {% block head %}
-  <link rel="stylesheet" href="{% static '/css/home.css' %}?v={{ VERSION }}">
-  <link rel="stylesheet" href="{% static '/css/settings.css' %}?v={{ VERSION }}">
+  {% if NO_CSS_MODE == "false" %}
+    <link rel="stylesheet" href="{% static '/css/home.css' %}?v={{ VERSION }}">
+    <link rel="stylesheet" href="{% static '/css/settings.css' %}?v={{ VERSION }}">
+  {% endif %}
 {% endblock %}
 
 {% block body_head %}
@@ -74,11 +76,18 @@
       <input id="banner-color" value="{{ BANNER_COLOR }}" type="color">
       {% if ENABLE_GRADIENT_BANNERS == 'true' %}
         <input hidden id="banner-color-two" value="{{ BANNER_COLOR_TWO }}" type="color"><br>
-        {{ lang.settings.profile_gradient }} <input id="banner-is-gradient" {{ CHECKED_IF_GRADIENT }} type="checkbox">
+        <label for="banner-is-gradient">{{ lang.settings.profile_gradient }}</label>
+        <input id="banner-is-gradient" {{ CHECKED_IF_GRADIENT }} type="checkbox">
       {% endif %}<br><br>
 
-      {{ lang.settings.profile_private }} <input type="checkbox" id="priv" {{ CHECKED_IF_PRIV }}><br>
-      <div class="small-mw">{{ lang.settings.profile_private_description }}</div>
+      {{ lang.settings.profile_default_post }}<br>
+      <select id="default-post">
+        <option value="public" {{ SELECTED_IF_PUBLIC }}>{{ lang.post.type_public }}</option>
+        <option value="followers" {{ SELECTED_IF_PRIVATE }}>{{ lang.post.type_followers_only }}</option>
+      </select><br><br>
+
+      <label for="followers-approval">{{ lang.settings.profile_followers_approval }}</label>
+      <input type="checkbox" id="followers-approval" {% if FOLLOWERS_REQUIRE_APPROVAL == 'true' %}checked{% endif %}>
     </div>
 
     <div>
@@ -99,6 +108,9 @@
         {% endfor %}
       </select><br><br>
 
+      {{ lang.settings.cosmetic_checkboxes }}
+      <input id="disable-checkboxes" type="checkbox"><br><br>
+
       {{ lang.settings.cosmetic_bar }}:<br>
       <select id="bar-pos">
         <option value="ur">{{ lang.settings.cosmetic_bar_ur }}</option>
@@ -111,9 +123,16 @@
         <option value="v">{{ lang.settings.cosmetic_bar_v }}</option>
       </select><br><br>
 
+      <label for="no-css">{{ lang.settings.cosmetic_no_css}}</label>
+      <input type="checkbox" id="no-css" {% if NO_CSS_MODE == 'true' %}checked{% endif %}><br>
+      <small class="thin">{{ lang.settings.cosmetic_no_css_warning }}</small><br><br>
+
+      <label for="old-favi">{{ lang.settings.cosmetic_old_favicon }}</label>
+      <input type="checkbox" id="old-favi"><br><br>
+
       {{ lang.settings.cosmetic_color }}:<br>
       <div id="color-selector"></div>
-      <div id="post-example"></div><br><br>
+      <div id="post-example"></div>
     </div>
 
     <div class="settings-side">
@@ -124,16 +143,18 @@
       <input type="password" autocomplete="off" placeholder="{{ lang.settings.account_password_new }}" id="password"><br>
       <input type="password" autocomplete="off" placeholder="{{ lang.account.confirm_placeholder }}" id="confirm"><br>
       <button id="toggle-password">{{ lang.account.toggle_password }}</button>
-      <button id="set-password">{{ lang.generic.save }}</button><br><br>
+      <button id="set-password">{{ lang.generic.save }}</button>
 
       {% if ENABLE_EMAIL == "true" %}
+        <br><br>
         {{ lang.settings.account_email }}<br>
         <input {% if has_email == "true" and email_valid == "true" %}disabled{% endif %} value="{{ email }}" id="email" type="email" placeholder="email@example.com"></br>
         <button class="primary" id="email-submit">{% if has_email == "true" and email_valid == "true" %}{{ lang.settings.account_email_update }}{% else %}{{ lang.generic.save }}{% endif %}</button>
-        <div id="email-output">{% if email_valid == "false" and has_email == "true" %}{{ lang.settings.account_email_verify }}{% endif %}</div><br><br>
+        <div id="email-output">{% if email_valid == "false" and has_email == "true" %}{{ lang.settings.account_email_verify }}{% endif %}</div>
       {% endif %}
 
       {% if ENABLE_ACCOUNT_SWITCHER == "true" %}
+        <br><br>
         <div id="switcher">
           {{ lang.settings.account_switcher }}<br>
           <select id="accs"></select><br>
@@ -145,6 +166,8 @@
     </div>
   </div>
 
+  <a href="/logout/">{{ lang.settings.logout }}</a><br><br>
+
   {% if ADMIN == "true" %}
     <a href='/admin'>{{ lang.settings.admin }}</a><br>
   {% endif %}
@@ -153,8 +176,13 @@
     <a href="https://github.com/jerimiah-smiggins/smiggins" target="_blank">{{ lang.generic.source_code }}</a><br>
   {% endif %}
 
-  <a href="/logout/">{{ lang.settings.logout }}</a><br><br>
+  {% if DISCORD %}
+    <a href="https://discord.gg/{{ DISCORD }}" target="_blank">{{ lang.generic.discord }}</a><br>
+  {% endif %}
 
+  {% if ADMIN == "true" or SOURCE == "true" or DISCORD %}
+    <br>
+  {% endif %}
   <hr><br>
 
   {{ SITE_NAME }} v{{ VERSION }}<br>

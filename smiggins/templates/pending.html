@@ -1,0 +1,24 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}
+  {{ lang.user_page.pending_title }} - {{ SITE_NAME }} v{{ VERSION }}
+{% endblock %}
+
+{% block head %}
+  {% if NO_CSS_MODE == "false" %}
+    <link rel="stylesheet" href="{% static '/css/home.css' %}?v={{ VERSION }}">
+  {% endif %}
+{% endblock %}
+
+{% block body %}
+  <h1>{{ lang.user_page.pending_title }}</h1>
+  <div id="error"></div>
+  <button id="refresh" onclick="refreshPendingList(true);">{{ lang.generic.refresh }}</button><br><br>
+
+  <div id="pending-list"></div>
+
+  <button id="more" onclick="refreshPendingList();" hidden>{{ lang.generic.load_more }}</button>
+
+  <script src="{% static '/js/pending.js' %}?v={{ VERSION }}"></script>
+{% endblock %}

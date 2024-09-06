@@ -5,9 +5,9 @@ hr {
 
 .post button {
   cursor: default;
+}
 
-  &:focus {
-    scale: 100%;
-    outline: none !important;
-  }
+.post button:focus {
+  scale: 100%;
+  outline: none !important;
 }

@@ -34,7 +34,7 @@ it in [the discord server](https://discord.gg/tH7QnHApwu). Note that
 **translating the changelogs is OPTIONAL.** You should do the title, however
 other than that, the rest of the changelogs don't need to be done for a language
 to be considered complete.
-5. When you're done, fork the github repository, add the file, and make a pull
+5. When you're done, fork the git repository, add the file, and make a pull
 request **to the `dev` branch**. Your changes will likely be added to production
 by the next update.
 
@@ -48,6 +48,41 @@ to the `maintainers` section
 ---
 ## Version changes
 Updates for each language version are listed below:
+
+<details>
+<summary>v1.6.0</summary>
+
+Reworked private accounts
+
+```diff
+- settings.profile_private
+- settings.profile_private_description
+- user_page.private_warning
++ account.follow_blocked
++ post.invalid_poll
++ post.type_public
++ post.type_followers_only
++ post.no_posts
++ post.like
++ post.comment
++ post.quote
++ post.delete
++ post.pin
++ post.unpin
++ settings.profile_default_post
++ settings.profile_followers_approval
++ settings.cosmetic_checkboxes
++ settings.cosmetic_no_css
++ settings.cosmetic_no_css_warning
++ settings.cosmetic_old_favicon
++ user_page.follows
++ user_page.pending_title
++ user_page.pending_accept
++ user_page.pending_deny
++ changelog.changes.v0.12.0 {1, 2, 3, 4, 5, 6, 7}
+home.quote_private
+```
+</details>
 
 <details>
 <summary>v1.5.0</summary>

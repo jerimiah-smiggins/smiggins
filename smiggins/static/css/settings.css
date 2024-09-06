@@ -2,12 +2,18 @@ hr {
   max-width: 12em;
 }
 
+.thin {
+  max-width: 24em;
+  margin: 0 auto;
+}
+
 .settings-container {
   display: flex;
   flex-direction: row;
   flex-wrap: wrap;
   justify-content: center;
   gap: 4em;
+  margin-bottom: 4em;
 }
 
 #banner {
@@ -16,10 +22,10 @@ hr {
   height: 50px;
   display: inline-block;
   border-radius: 0.2em;
+}
 
-  &.gradient {
-    background: linear-gradient(90deg, var(--banner), var(--banner-two));
-  }
+#banner.gradient {
+  background: linear-gradient(90deg, var(--banner), var(--banner-two));
 }
 
 .post-container {
@@ -32,12 +38,6 @@ hr {
   margin: 0px;
 }
 
-@media screen and (max-width: 565px) {
-  .post {
-    width: calc(94vw - 3.5em - (3em / 7));
-  }
-}
-
 .settings-side {
   display: inline-block;
   width: 20em;
@@ -48,4 +48,10 @@ hr {
   width: 6em;
   height: 2em;
   border-radius: 1em;
+}
+
+@media screen and (max-width: 565px) {
+  .post {
+    width: calc(94vw - 3.5em - (3em / 7));
+  }
 }

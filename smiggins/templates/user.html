@@ -23,8 +23,10 @@
 {% endblock %}
 
 {% block head %}
-  <link rel="stylesheet" href="{% static '/css/home.css' %}?v={{ VERSION }}">
-  <link rel="stylesheet" href="{% static '/css/user.css' %}?v={{ VERSION }}">
+  {% if NO_CSS_MODE == "false" %}
+    <link rel="stylesheet" href="{% static '/css/home.css' %}?v={{ VERSION }}">
+    <link rel="stylesheet" href="{% static '/css/user.css' %}?v={{ VERSION }}">
+  {% endif %}
 {% endblock %}
 
 {% block body_head %}
@@ -36,28 +38,31 @@
   <div>
     <div id="username-main">
       {{ DISPLAY_NAME }}
-      <span {% if PRIVATE == 'false' %}hidden{% endif %}><div class="user-badge" data-add-icon="lock"></div></span>
       {% autoescape off %}
       {{ BADGES }}
       {% endautoescape %}
     </div>
   </div>
 
-  <div><a href="/u/{{ USERNAME }}/lists/" class="no-underline text" id="secondary-username-container">
-    <div id="username-lower">@{{ USERNAME }}<span id="pronouns"></span></div><br>
-    <div id="follow">{{ FOLLOWER_COUNT }} - {{ FOLLOWING_COUNT }}</div>
-  </a></div>
+  <div id="secondary-username-container">
+    <a href="/u/{{ USERNAME }}/lists/" class="no-underline text">
+      <div id="username-lower">@{{ USERNAME }}<span id="pronouns"></span></div><br>
+      <div id="follow">{{ FOLLOWER_COUNT }} - {{ FOLLOWING_COUNT }}</div>
+    </a>
+    <div>{% if IS_BLOCKED == "true" %}{{ lang.account.follow_blocked }}{% elif IS_FOLLOWED == "true" %}{{ lang.user_page.follows }}{% endif %}</div>
+  </div>
 
   {% if ENABLE_USER_BIOS == 'true' %}<div id="user-bio" hidden>{{ BIO }}</div>{% endif %}
 
-  {% if CAN_VIEW == 'false' %}<div hidden>{% endif %}
+  {% if IS_BLOCKED == 'true' %}<div hidden>{% endif %}
     <button onclick="refresh()">{{ lang.generic.refresh }}</button>
-    <button id="toggle" {{ IS_HIDDEN }} data-followed="{% if IS_FOLLOWING == "true" %}1{% else %}0{% endif %}" onclick="toggle_follow()">{% if IS_FOLLOWING == "true" %}{{ lang.user_page.unfollow }}{% else %}{{ lang.user_page.follow }}{% endif %}</button>
+    <button id="toggle" {{ IS_HIDDEN }} data-followed="{% if IS_FOLLOWING == "true" or IS_PENDING == "true" %}1{% else %}0{% endif %}" onclick="toggle_follow()">{% if IS_FOLLOWING == "true" %}{{ lang.user_page.unfollow }}{% elif IS_PENDING == "true" %}{{ lang.user_page.pending }}{% else %}{{ lang.user_page.follow }}{% endif %}</button>
+  {% if IS_BLOCKED == 'true' %}</div>{% endif %}
     <button id="block" {{ IS_HIDDEN }} data-blocked="{% if IS_BLOCKING == "true" %}1{% else %}0{% endif %}" onclick="toggle_block()">{% if IS_BLOCKING == "true" %}{{ lang.user_page.unblock }}{% else %}{{ lang.user_page.block }}{% endif %}</button>
+  {% if IS_BLOCKED == 'true' %}<div hidden>{% endif %}
     {% if ENABLE_PRIVATE_MESSAGES == 'true' %}<button id="message" {{ IS_HIDDEN }} onclick="createMessage()">{{ lang.user_page.message }}</button>{% endif %}
-  {% if CAN_VIEW == 'false' %}</div>{% endif %}
+  {% if IS_BLOCKED == 'true' %}</div>{% endif %}<br><br>
 
-  <div {% if PRIVATE == 'false' %}hidden{% endif %}>{{ lang.user_page.private_warning }}</div><br><br>
   <div id="error"></div>
   <div id="pinned"></div>
   <div id="posts"></div>
@@ -74,5 +79,7 @@
   </script>
 
   <script src="{% static '/js/user.js' %}?v={{ VERSION }}"></script>
-  <script src="{% static '/js/timeline.js' %}?v={{ VERSION }}"></script>
+  {% if IS_BLOCKED == "false" %}
+    <script src="{% static '/js/timeline.js' %}?v={{ VERSION }}"></script>
+  {% endif %}
 {% endblock %}

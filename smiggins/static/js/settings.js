@@ -1,3 +1,6 @@
+let faviconRegex = /\/favicons\/([a-z]+)-([a-z]+)\.ico\?v=(.*)$/;
+let oldFaviconRegex = /\/old_favicon.ico\?v=(.*)$/;
+let newFaviconRegex = /\/favicons\/[a-z]+-[a-z]+\.ico\?v=(.*)$/;
 inc = 0;
 home = true;
 let output = "<select id=\"color\">";
@@ -13,6 +16,9 @@ else if (ENABLE_PRONOUNS) {
     dom("pronouns-secondary-container").removeAttribute("hidden");
     document.querySelector(`#pronouns-primary option[value="${user_pronouns[0]}"]`).setAttribute("selected", "");
     document.querySelector(`#pronouns-secondary option[value="${user_pronouns[1]}"]`).setAttribute("selected", "");
+}
+if (localStorage.getItem("checkboxes")) {
+    dom("disable-checkboxes").setAttribute("checked", "");
 }
 let currentAccount;
 let accounts;
@@ -57,10 +63,10 @@ dom("post-example").innerHTML = getPostHTML({
         color_two: "#" + Math.floor(Math.random() * 16777216).toString(16).padStart(6, "0"),
         display_name: lang.settings.cosmetic_example_post_display_name,
         gradient_banner: true,
-        private: false,
         pronouns: "aa",
         username: lang.settings.cosmetic_example_post_username,
     },
+    private: false,
     can_delete: false,
     can_view: true,
     comments: Math.floor(Math.random() * 100),
@@ -113,10 +119,27 @@ function setUnload() {
         };
     }
 }
+if (oldFavicon) {
+    dom("old-favi").setAttribute("checked", "");
+}
+dom("old-favi").addEventListener("input", function () {
+    oldFavicon = this.checked;
+    if (oldFavicon) {
+        localStorage.setItem("old-favicon", "1");
+        favicon.href = favicon.href.replace(newFaviconRegex, "/old_favicon.ico?v=$1");
+    }
+    else {
+        localStorage.removeItem("old-favicon");
+        favicon.href = favicon.href.replace(oldFaviconRegex, `/favicons/${dom("theme").value}-${dom("color").value}.ico?v=$1`);
+    }
+});
 toggleGradient(false);
 dom("color").addEventListener("change", function () {
-    localStorage.setItem('color', dom("color").value);
+    localStorage.setItem("color", dom("color").value);
     document.body.setAttribute('data-color', dom("color").value);
+    if (!oldFavicon) {
+        favicon.href = favicon.href.replace(faviconRegex, `/favicons/$1-${dom("color").value}.ico?v=$3`);
+    }
 });
 dom("bar-pos").value = localStorage.getItem("bar-pos") || "ul";
 dom("bar-pos").addEventListener("change", function () {
@@ -128,9 +151,21 @@ dom("bar-dir").addEventListener("change", function () {
     localStorage.setItem("bar-dir", dom("bar-dir").value);
     document.body.setAttribute("data-bar-dir", dom("bar-dir").value);
 });
+dom("disable-checkboxes").addEventListener("input", function () {
+    if (localStorage.getItem("checkboxes")) {
+        localStorage.removeItem("checkboxes");
+        document.body.removeAttribute("data-disable-checkboxes");
+    }
+    else {
+        localStorage.setItem("checkboxes", ":3");
+        document.body.setAttribute("data-disable-checkboxes", "");
+    }
+});
 ENABLE_USER_BIOS && dom("bio").addEventListener("input", postTextInputEvent);
 dom("displ-name").addEventListener("input", setUnload);
-dom("priv").addEventListener("input", setUnload);
+dom("default-post").addEventListener("input", setUnload);
+dom("followers-approval").addEventListener("input", setUnload);
+dom("no-css").addEventListener("input", setUnload);
 dom("theme").addEventListener("change", function () {
     dom("theme").setAttribute("disabled", "");
     fetch("/api/user/settings/theme", {
@@ -146,6 +181,9 @@ dom("theme").addEventListener("change", function () {
         }
         dom("theme").removeAttribute("disabled");
         document.querySelector("body").setAttribute("data-theme", dom("theme").value);
+        if (!oldFavicon) {
+            favicon.href = favicon.href.replace(faviconRegex, `/favicons/${dom("theme").value}-$2.ico?v=$3`);
+        }
     })
         .catch((err) => {
         dom("theme").removeAttribute("disabled");
@@ -154,11 +192,13 @@ dom("theme").addEventListener("change", function () {
 });
 dom("save").addEventListener("click", function () {
     ENABLE_USER_BIOS && dom("bio").setAttribute("disabled", "");
-    dom("priv").setAttribute("disabled", "");
     dom("save").setAttribute("disabled", "");
     dom("displ-name").setAttribute("disabled", "");
+    dom("no-css").setAttribute("disabled", "");
     dom("banner-color").setAttribute("disabled", "");
     dom("lang").setAttribute("disabled", "");
+    dom("default-post").setAttribute("disabled", "");
+    dom("followers-approval").setAttribute("disabled", "");
     ENABLE_GRADIENT_BANNERS && dom("banner-color-two").setAttribute("disabled", "");
     ENABLE_GRADIENT_BANNERS && dom("banner-is-gradient").setAttribute("disabled", "");
     fetch("/api/user/settings", {
@@ -166,12 +206,14 @@ dom("save").addEventListener("click", function () {
         body: JSON.stringify({
             bio: ENABLE_USER_BIOS ? dom("bio").value : "",
             lang: dom("lang").value,
-            priv: dom("priv").checked,
             color: dom("banner-color").value,
+            no_css: dom("no-css").checked,
             pronouns: ENABLE_PRONOUNS ? user_pronouns : "__",
             color_two: ENABLE_GRADIENT_BANNERS ? dom("banner-color-two").value : "",
             displ_name: dom("displ-name").value,
-            is_gradient: ENABLE_GRADIENT_BANNERS ? dom("banner-is-gradient").checked : false
+            is_gradient: ENABLE_GRADIENT_BANNERS ? dom("banner-is-gradient").checked : false,
+            approve_followers: dom("followers-approval").checked,
+            default_post_visibility: dom("default-post").value
         })
     }).then((response) => (response.json()))
         .then((json) => {
@@ -189,11 +231,13 @@ dom("save").addEventListener("click", function () {
     })
         .catch((err) => {
         ENABLE_USER_BIOS && dom("bio").removeAttribute("disabled");
-        dom("priv").removeAttribute("disabled");
         dom("save").removeAttribute("disabled");
         dom("displ-name").removeAttribute("disabled");
+        dom("no-css").removeAttribute("disabled");
         dom("banner-color").removeAttribute("disabled");
         dom("lang").removeAttribute("disabled");
+        dom("default-post").removeAttribute("disabled");
+        dom("followers-approval").removeAttribute("disabled");
         ENABLE_GRADIENT_BANNERS && dom("banner-color-two").removeAttribute("disabled");
         ENABLE_GRADIENT_BANNERS && dom("banner-is-gradient").removeAttribute("disabled");
     });

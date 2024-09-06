@@ -43,6 +43,12 @@
   "items_per_sitemap": 500,
 
   /*
+  ** How long to cache the sitemaps, in seconds. Set to null to disable caching.
+  ## Default: 86400 (60(s) * 60(m) * 24(h))
+  */
+  "sitemap_cache_timeout": 86400,
+
+  /*
   ** This toggles allowing emails. In order for this to work, you need to set up
   ** the stmp_auth variable in backend/_api_keys.py. (Read README.md)
   && Aliases: email, enable_email
@@ -74,6 +80,15 @@
   ## Default: "en-US"
   */
   "default_language": "en-US",
+
+  /*
+  ** The invite part of the link to join a discord server
+  ** (https://discord.gg/<invite>). This is shown on the index and settings
+  ** pages. Set to null to disable the link.
+  && Aliases: discord, discord_invite
+  ## Default: "tH7QnHApwu"
+  */
+  "discord_invite": "tH7QnHApwu",
 
   /*
   ** The default theme for the website. Can be "dawn", "dusk", "dark",
@@ -243,7 +258,7 @@
   "enable_contact_page": true,
   "enable_credits_page": true,
 
-  // The private account icon is always shown.
+  // The private post icon is always shown.
   "enable_badges": true,
 
   // Existing quotes will remain unchanged.

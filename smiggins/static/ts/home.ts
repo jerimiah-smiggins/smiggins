@@ -36,7 +36,8 @@ dom("post").addEventListener("click", function(): void {
       body: JSON.stringify({
         c_warning: ENABLE_CONTENT_WARNINGS ? (dom("c-warning") as HTMLInputElement).value : "",
         content: (dom("post-text") as HTMLInputElement).value,
-        poll: getPollText()
+        poll: getPollText(),
+        private: (dom("default-private") as HTMLInputElement).checked
       })
     })
       .then((response: Response) => {

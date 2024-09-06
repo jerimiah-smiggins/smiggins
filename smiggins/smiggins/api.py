@@ -50,8 +50,12 @@ api.patch ("user/password", response=response_schema)(ApiUser.change_password)
 api.patch ("user/settings", response=response_schema)(ApiUser.settings)
 api.post  ("user/follower", response=response_schema)(ApiUser.follower_add)
 api.delete("user/follower", response=response_schema)(ApiUser.follower_remove)
+api.get   ("user/pending", response=response_schema)(ApiUser.list_pending)
+api.post  ("user/pending", response=response_schema)(ApiUser.accept_pending)
+api.delete("user/pending", response=response_schema)(ApiUser.remove_pending)
 api.post  ("user/block", response=response_schema)(ApiUser.block_add)
 api.delete("user/block", response=response_schema)(ApiUser.block_remove)
+
 
 # Post stuff
 api.put("post/create",    response=response_schema)(ApiPost.post_create)

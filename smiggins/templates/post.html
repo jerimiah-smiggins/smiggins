@@ -23,8 +23,10 @@
 {% endblock %}
 
 {% block head %}
-  <link rel="stylesheet" href="{% static '/css/home.css' %}?v={{ VERSION }}">
-  <link rel="stylesheet" href="{% static '/css/post.css' %}?v={{ VERSION }}">
+  {% if NO_CSS_MODE == "false" %}
+    <link rel="stylesheet" href="{% static '/css/home.css' %}?v={{ VERSION }}">
+    <link rel="stylesheet" href="{% static '/css/post.css' %}?v={{ VERSION }}">
+  {% endif %}
 {% endblock %}
 
 {% block body %}
@@ -32,6 +34,9 @@
   <div id="top" data-post-id="{{ POST_ID }}">{{ CONTENT }}</div>
 
   {% if LOGGED_IN == 'true' %}
+    <label for="default-private">{{ lang.post.type_followers_only }}:</label>
+    <input id="default-private" type="checkbox" {% if DEFAULT_PRIVATE == "true" %}checked{% endif %}><br>
+
     {% if ENABLE_CONTENT_WARNINGS == 'true' %}
       <input id="c-warning" {% if C_WARNING %}value="re: {{ C_WARNING }}"{% endif %} maxlength="{{ MAX_CONTENT_WARNING_LENGTH }}" placeholder="{{ lang.home.c_warning_placeholder }}"><br>
     {% endif %}

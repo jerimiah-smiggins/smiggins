@@ -2,8 +2,8 @@
   "meta": {
     "fallback": [],
     "name": "English (United States)",
-    "version": "1.5.0",
-    "maintainers": [ "trinkey" ],
+    "version": "1.6.0",
+    "maintainers": ["trinkey"],
     "past_maintainers": []
   },
 
@@ -55,6 +55,7 @@
       "share": "Share",
       "copied": "Copied to clipboard!",
       "see_more": "%s to see more!", // Ex: Sign up to see more!
+      "discord": "Discord Server",
 
       "pronouns": {
         "a": "ask pronouns",
@@ -223,8 +224,9 @@
       "switch_following": "Switch to following...",
 
       "quote_blocked": "This post is from an account you've blocked",
+      "quote_blocked_other": "This post is from an account that's blocking you",
       "quote_deleted": "The original post was deleted",
-      "quote_private": "This person limits who can view their profile",
+      "quote_private": "This post or comment is private",
       "quote_poll": "This post has a poll",
       "quote_recursive": "Quoting another post...",
       "quote_placeholders": [
@@ -268,6 +270,7 @@
       "invalid_username_length": "Username must be between 1 and %s characters in length.",
       "username_does_not_exist": "Account with username '%s' doesn't exist",
       "follow_blocking": "You can't follow an account you're blocking!",
+      "follow_blocked": "This person is blocking you.",
       "block_self": "Huh? Look, I get you hate yourself, but I can't let you do that.",
       "password_empty": "Password cannot be empty!"
     },
@@ -315,7 +318,17 @@
       "invalid_quote_post": "The post you're quoting doesn't exist!",
       "invalid_quote_comment": "The comment you're quoting doesn't exist!",
       "invalid_username": "Username is insvalagaeg... LOOK JUST SHUT UP",
-      "invalid_poll": "The poll needs to have at least two options!"
+      "invalid_poll": "The poll needs to have at least two options!",
+      "type_public": "Public",
+      "type_followers_only": "Followers only",
+      "no_posts": "No posts",
+
+      "like": "Like",
+      "comment": "Comment",
+      "quote": "Quote",
+      "delete": "Delete",
+      "pin": "Pin",
+      "unpin": "Unpin"
     },
 
     "settings": {
@@ -337,8 +350,8 @@
       "profile_banner_title": "Banner color",
       "profile_banner_invalid_color": "Color no tasty",
       "profile_gradient": "Gradient banner?",
-      "profile_private": "Private account?",
-      "profile_private_description": "If your account is private, that means only you and people you follow can see your posts.",
+      "profile_default_post": "Default post visibility:",
+      "profile_followers_approval": "Manually approve followers?",
 
       "cosmetic_title": "Cosmetic",
       "cosmetic_theme": "Theme",
@@ -361,6 +374,10 @@
       "cosmetic_example_post_display_name": "Example",
       "cosmetic_example_post_username": "example",
       "cosmetic_example_post_content": "This is an example post. I am @example.",
+      "cosmetic_checkboxes": "Disable custom checkboxes?",
+      "cosmetic_no_css": "Disable styles?",
+      "cosmetic_no_css_warning": "Requires reloading the page. May break some things, as it might not be 100% supported for the latest version.",
+      "cosmetic_old_favicon": "Use old website icon (favicon)?",
 
       "account_title": "Account",
       "account_password": "Change password",
@@ -388,14 +405,18 @@
       "user_on_smiggins": "%s on %t", // Ex: gerard on Twitter Clone (this would be if the site name is set to "Twitter Clone" and the user's display name is "gerard")
       "follow": "Follow",
       "unfollow": "Unfollow",
+      "pending": "Pending",
       "block": "Block",
       "unblock": "Unblock",
       "message": "Message",
-      "private_warning": "This account is private. Only users that they follow can see their posts.",
+      "follows": "Follows you",
       "lists_blocks": "Blocks",
       "lists_following": "Following",
       "lists_followers": "Followers",
-      "lists_no_bio": "No bio set"
+      "lists_no_bio": "No bio set",
+      "pending_title": "Pending Follow Requests",
+      "pending_accept": "Accept",
+      "pending_deny": "Deny"
     },
 
     "credits": {
@@ -472,9 +493,18 @@
       "unknown": "Unknown",
 
       "changes": {
+        "v0.12.0": {
+          "1": "Added an option to approve new followers",
+          "2": "Expanded what blocking someone prevents you or them from doing",
+          "3": "Added an option to make a post be followers-only. This replaces private accounts",
+          "4": "Sitemaps no longer show private posts",
+          "5": "Added a 'No Styles' setting which disables all CSS and slightly modifies page layout",
+          "6": "Added a new favicon and variations for all color combinations, and a frontend setting to use the old one",
+          "7": "Added an optional discord link in backend settings"
+        },
         "v0.11.0": {
           "1": "Added changelogs for all legacy versions",
-          "2": "Fixed an issue that caused read notifications/messages to not be colored grey",
+          "2": "Fixed an issue that caused read notifications/messages to not be colored gray",
           "3": "Added linking emails and resetting passwords with the emails",
           "4": "Added sitemaps and their respective toggles",
           "5": "Added a setting to change positioning of the icon bar",

@@ -23,7 +23,11 @@ class User(models.Model):
     color     = models.CharField(max_length=7)
     color_two = models.CharField(max_length=7, default="#000000", blank=True)
     gradient  = models.BooleanField(default=False)
-    private   = models.BooleanField()
+    no_css_mode = models.BooleanField(default=False)
+
+    default_post_private = models.BooleanField(default=False)
+    verify_followers = models.BooleanField(default=False)
+    pending_followers = models.JSONField(default=list, blank=True)
 
     language = models.CharField(max_length=5, blank=True)
 
@@ -46,8 +50,8 @@ class User(models.Model):
 
 class Post(models.Model):
     post_id   = models.IntegerField(primary_key=True)
-    content   = models.TextField(max_length=65536)
-    content_warning = models.TextField(max_length=200, null=True)
+    content   = models.TextField(max_length=65536, blank=True)
+    content_warning = models.TextField(max_length=200, null=True, blank=True)
     creator   = models.IntegerField()
     timestamp = models.IntegerField()
     quote     = models.IntegerField(default=0)
@@ -56,6 +60,11 @@ class Post(models.Model):
     likes    = models.JSONField(default=list, blank=True)
     comments = models.JSONField(default=list, blank=True)
     quotes   = models.JSONField(default=list, blank=True)
+
+    # null: anyone (compatibility only), run script 05 to fix
+    # False: anyone
+    # True: followers only
+    private_post = models.BooleanField(null=True)
 
     # type == None: no poll
     # type == dict: yes poll
@@ -69,19 +78,21 @@ class Post(models.Model):
     #     ...
     #   ]
     # }
-    poll = models.JSONField(default=None, null=True)
+    poll = models.JSONField(default=None, null=True, blank=True)
 
     def __str__(self):
         return f"({self.post_id}) {self.content}"
 
 class Comment(models.Model):
     comment_id = models.IntegerField(primary_key=True, unique=True)
-    content    = models.TextField(max_length=65536)
-    content_warning = models.TextField(max_length=200, null=True)
+    content    = models.TextField(max_length=65536, blank=True)
+    content_warning = models.TextField(max_length=200, null=True, blank=True)
     creator    = models.IntegerField()
     timestamp  = models.IntegerField()
     parent     = models.IntegerField(default=0)
+
     parent_is_comment = models.BooleanField(default=False)
+    private_comment = models.BooleanField(null=True)
 
     likes    = models.JSONField(default=list, blank=True)
     comments = models.JSONField(default=list, blank=True)
