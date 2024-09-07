@@ -2,7 +2,7 @@
   "meta": {
     "fallback": [],
     "name": "English (United States)",
-    "version": "1.6.0",
+    "version": "1.6.1",
     "maintainers": ["trinkey"],
     "past_maintainers": []
   },
@@ -493,6 +493,11 @@
       "unknown": "Unknown",
 
       "changes": {
+        "v0.12.1": {
+          "1": "When logged out, the user's preferred color scheme is respected",
+          "2": "Fixed a bug that caused the user timeline to error when logged out",
+          "3": "Made the quote number update immediately when quoting a post"
+        },
         "v0.12.0": {
           "1": "Added an option to approve new followers",
           "2": "Expanded what blocking someone prevents you or them from doing",
