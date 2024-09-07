@@ -1,3 +1,4 @@
+
 [data-theme="black"],
 [data-theme="oled"] {
   --rosewater: #f5e0dc;
@@ -170,6 +171,8 @@
   --base: #eff1f5;
   --mantle: #e6e9ef;
   --crust: #dce0e8;
+
+  color-scheme: light;
 }
 
 [data-theme="light"][data-color="gray"],      [data-theme="light"] [data-color="gray"]      { --accent: #6c6f85; --accent-50: #6c6f8580; }
@@ -187,3 +190,10 @@
 [data-theme="light"][data-color="sapphire"],  [data-theme="light"] [data-color="sapphire"]  { --accent: #209fb5; --accent-50: #209fb580; }
 [data-theme="light"][data-color="blue"],      [data-theme="light"] [data-color="blue"]      { --accent: #1e66f5; --accent-50: #1e66f580; }
 [data-theme="light"][data-color="lavender"],  [data-theme="light"] [data-color="lavender"]  { --accent: #7287fd; --accent-50: #7287fd80; }
+
+[data-theme="oled"],
+[data-theme="black"],
+[data-theme="dark"],
+[data-theme="gray"] {
+  color-scheme: dark;
+}

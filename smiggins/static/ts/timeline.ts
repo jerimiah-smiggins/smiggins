@@ -112,6 +112,11 @@ function addQuote(postID: number, isComment: boolean): void {
         if (json.success) {
           post.innerHTML = "";
 
+          console.log(isComment, postID);
+          let quoteNumber: HTMLElement = (document.querySelector(`.post-container[data-${isComment ? "comment" : "post"}-id="${postID}"] .quote-number`) as HTMLElement);
+          quoteNumber.innerText = String(+quoteNumber.innerText + 1);
+          console.log(quoteNumber);
+
           if (
             location.pathname.toLowerCase().includes("/home") ||
             location.pathname.toLowerCase().includes(`/u/${localStorage.getItem("username") || "LOL IT BROKE LOLLLLLLLLL SO FUNNY"}`)

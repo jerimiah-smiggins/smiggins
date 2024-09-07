@@ -98,6 +98,10 @@ function addQuote(postID, isComment) {
             .then((json) => {
             if (json.success) {
                 post.innerHTML = "";
+                console.log(isComment, postID);
+                let quoteNumber = document.querySelector(`.post-container[data-${isComment ? "comment" : "post"}-id="${postID}"] .quote-number`);
+                quoteNumber.innerText = String(+quoteNumber.innerText + 1);
+                console.log(quoteNumber);
                 if (location.pathname.toLowerCase().includes("/home") ||
                     location.pathname.toLowerCase().includes(`/u/${localStorage.getItem("username") || "LOL IT BROKE LOLLLLLLLLL SO FUNNY"}`)) {
                     let x = document.createElement("div");

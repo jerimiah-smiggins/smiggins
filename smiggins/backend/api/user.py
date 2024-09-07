@@ -13,7 +13,8 @@ from ..variables import (
     ENABLE_PRONOUNS,
     ENABLE_GRADIENT_BANNERS,
     ENABLE_USER_BIOS,
-    DEFAULT_THEME,
+    DEFAULT_DARK_THEME,
+    DEFAULT_LIGHT_THEME,
     VALID_LANGUAGES,
     POSTS_PER_REQUEST
 )
@@ -35,6 +36,9 @@ class Username(Schema):
 class Account(Username):
     password: str
 
+class SignUp(Account):
+    light_mode: bool
+
 class ChangePassword(Schema):
     password: str
     new_password: str
@@ -54,7 +58,7 @@ class Settings(Schema):
     approve_followers: bool
     default_post_visibility: str
 
-def signup(request, data: Account) -> tuple | dict:
+def signup(request, data: SignUp) -> tuple | dict:
     # Called when someone requests to follow another account.
 
     if not ensure_ratelimit("api_account_signup", request.META.get("REMOTE_ADDR")):
@@ -89,7 +93,7 @@ def signup(request, data: Account) -> tuple | dict:
             username=username,
             token=token,
             display_name=username,
-            theme=DEFAULT_THEME.lower() if DEFAULT_THEME.lower() in ["dawn", "dusk", "dark", "midnight", "black"] else "dark",
+            theme=DEFAULT_LIGHT_THEME if data.light_mode else DEFAULT_DARK_THEME,
             color=DEFAULT_BANNER_COLOR,
             color_two=DEFAULT_BANNER_COLOR,
             following=[],
