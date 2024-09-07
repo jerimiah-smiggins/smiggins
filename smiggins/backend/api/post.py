@@ -468,6 +468,7 @@ def post_list_user(request, username: str, offset: int=-1) -> tuple | dict:
 
     try:
         self_user = User.objects.get(token=request.COOKIES.get("token"))
+        self_user_id = self_user.user_id
         lang = get_lang(self_user)
         logged_in = True
     except User.DoesNotExist:
@@ -476,6 +477,7 @@ def post_list_user(request, username: str, offset: int=-1) -> tuple | dict:
                 "success": False
             }
 
+        self_user_id = 0
         lang = DEFAULT_LANG
         logged_in = False
 
@@ -488,7 +490,7 @@ def post_list_user(request, username: str, offset: int=-1) -> tuple | dict:
     offset = sys.maxsize if offset == -1 or not isinstance(offset, int) else offset
     user = User.objects.get(username=username)
 
-    if self_user.user_id in user.blocking:
+    if self_user_id in user.blocking:
         return 400, {
             "success": False,
             "reason": lang["messages"]["blocked"]
@@ -515,7 +517,7 @@ def post_list_user(request, username: str, offset: int=-1) -> tuple | dict:
     for i in potential:
         c += 1
         try:
-            x = get_post_json(i, self_user.user_id if logged_in else 0, cache=cache)
+            x = get_post_json(i, self_user_id if logged_in else 0, cache=cache)
 
             if "private_acc" not in x or not x["private_acc"]:
                 outputList.append(x)
@@ -530,7 +532,7 @@ def post_list_user(request, username: str, offset: int=-1) -> tuple | dict:
 
     if ENABLE_PINNED_POSTS:
         try:
-            pinned_post = get_post_json(user.pinned, self_user.user_id if logged_in else 0, False, cache)
+            pinned_post = get_post_json(user.pinned, self_user_id if logged_in else 0, False, cache)
         except Post.DoesNotExist:
             pinned_post = {}
     else:

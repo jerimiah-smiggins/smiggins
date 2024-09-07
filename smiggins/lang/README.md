@@ -50,6 +50,16 @@ to the `maintainers` section
 Updates for each language version are listed below:
 
 <details>
+<summary>v1.6.1</summary>
+
+Small bugfixes
+
+```diff
++ changelog.changes.v0.12.1 {1, 2, 3}
+```
+</details>
+
+<details>
 <summary>v1.6.0</summary>
 
 Reworked private accounts

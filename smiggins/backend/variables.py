@@ -26,7 +26,7 @@ CREDITS: dict[str, list[str]] = {
 }
 
 # Set default variable states
-REAL_VERSION: tuple[int, int, int] = (0, 12, 0)
+REAL_VERSION: tuple[int, int, int] = (0, 12, 1)
 VERSION: str = ".".join([str(i) for i in REAL_VERSION])
 SITE_NAME: str = "Jerimiah Smiggins"
 WEBSITE_URL: str | None = None
@@ -35,7 +35,8 @@ OWNER_USER_ID: int = 1
 ADMIN_LOG_PATH: str = "./admin.log"
 MAX_ADMIN_LOG_LINES: int = 1000
 DEFAULT_LANGUAGE: str = "en-US"
-DEFAULT_THEME: str = "dark"
+DEFAULT_DARK_THEME: str = "dark"
+DEFAULT_LIGHT_THEME: str = "dawn"
 CACHE_LANGUAGES: bool | None = None
 ALLOW_SCRAPING: bool = False
 MAX_USERNAME_LENGTH: int = 18
@@ -130,7 +131,7 @@ def clamp(
     maximum: int | None = None
 ) -> int:
     if val is None:
-        return val
+        return val # type: ignore
 
     if minimum is not None:
         val = max(minimum, val)
@@ -149,7 +150,8 @@ for key, val in f.items():
     elif key.lower() == "admin_log_path": is_ok(val, "ADMIN_LOG_PATH", str, null=True) # noqa: E701
     elif key.lower() == "max_admin_log_lines": is_ok(val, "MAX_ADMIN_LOG_LINES", int) # noqa: E701
     elif key.lower() in ["default_lang", "default_language"]: is_ok(val, "DEFAULT_LANGUAGE", str) # noqa: E701
-    elif key.lower() == "default_theme": is_ok(val, "DEFAULT_THEME", str) # noqa: E701
+    elif key.lower() == "default_dark_theme": is_ok(val, "DEFAULT_DARK_THEME", str) # noqa: E701
+    elif key.lower() == "default_light_theme": is_ok(val, "DEFAULT_LIGHT_THEME", str) # noqa: E701
     elif key.lower() in ["cache_langs", "cache_languages"]: is_ok(val, "CACHE_LANGUAGES", bool, null=True) # noqa: E701
     elif key.lower() == "allow_scraping": is_ok(val, "ALLOW_SCRAPING", bool) # noqa: E701
     elif key.lower() == "max_username_length": is_ok(val, "MAX_USERNAME_LENGTH", int) # noqa: E701
@@ -224,6 +226,14 @@ if ENABLE_SITEMAPS and WEBSITE_URL is None:
     ENABLE_SITEMAPS = False
     error("You need to set the website_url setting to enable sitemaps!")
 
+DEFAULT_DARK_THEME = {
+    "dawn": "light", "dusk": "gray", "dark": "dark", "midnight": "black", "black": "oled"
+}[DEFAULT_DARK_THEME.lower() if DEFAULT_DARK_THEME.lower() in ["dawn", "dusk", "dark", "midnight", "black"] else "dark"]
+
+DEFAULT_LIGHT_THEME = {
+    "dawn": "light", "dusk": "gray", "dark": "dark", "midnight": "black", "black": "oled"
+}[DEFAULT_LIGHT_THEME.lower() if DEFAULT_LIGHT_THEME.lower() in ["dawn", "dusk", "dark", "midnight", "black"] else "dawn"]
+
 for key, val in {
     "signup unsuccessful": 1000,
     "signup successful": 15000,
@@ -251,31 +261,44 @@ Disallow: /home/
 Disallow: /api/
 Disallow: /static/
 
+# https://github.com/ai-robots-txt/ai.robots.txt/blob/main/robots.txt
+User-agent: AI2Bot
+User-agent: Ai2Bot-Dolma
 User-agent: Amazonbot
-User-agent: anthropic-ai
+User-agent: Applebot
 User-agent: Applebot-Extended
 User-agent: Bytespider
 User-agent: CCBot
 User-agent: ChatGPT-User
-User-agent: ClaudeBot
 User-agent: Claude-Web
-User-agent: cohere-ai
+User-agent: ClaudeBot
 User-agent: Diffbot
 User-agent: FacebookBot
 User-agent: FriendlyCrawler
+User-agent: GPTBot
 User-agent: Google-Extended
 User-agent: GoogleOther
 User-agent: GoogleOther-Image
 User-agent: GoogleOther-Video
-User-agent: GPTBot
+User-agent: iaskspider/2.0
+User-agent: ICC-Crawler
 User-agent: ImagesiftBot
-User-agent: img2dataset
 User-agent: Meta-ExternalAgent
+User-agent: Meta-ExternalFetcher
 User-agent: OAI-SearchBot
+User-agent: PerplexityBot
+User-agent: PetalBot
+User-agent: Scrapy
+User-agent: Timpibot
+User-agent: VelenPublicWebCrawler
+User-agent: Webzio-Extended
+User-agent: YouBot
+User-agent: anthropic-ai
+User-agent: cohere-ai
+User-agent: facebookexternalhit
+User-agent: img2dataset
 User-agent: omgili
 User-agent: omgilibot
-User-agent: PerplexityBot
-User-agent: YouBot
 Disallow: /
 """
 

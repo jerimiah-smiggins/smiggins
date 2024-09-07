@@ -45,7 +45,8 @@ from .variables import (
     ENABLE_POLLS,
     ENABLE_NEW_ACCOUNTS,
     ENABLE_CREDITS_PAGE,
-    DEFAULT_THEME,
+    DEFAULT_LIGHT_THEME,
+    DEFAULT_DARK_THEME,
     MAX_CONTENT_WARNING_LENGTH,
     ENABLE_CONTENT_WARNINGS,
     PRIVATE_AUTHENTICATOR_KEY,
@@ -99,7 +100,7 @@ def get_HTTP_response(
         theme = user.theme
     except User.DoesNotExist:
         user = None
-        theme = DEFAULT_THEME.lower() if DEFAULT_THEME.lower() in ["dawn", "dusk", "dark", "midnight", "black"] else "dark"
+        theme = "auto"
         default_post_visibility = False
 
     lang = lang_override or get_lang(user)
@@ -145,6 +146,8 @@ def get_HTTP_response(
 
         "DEFAULT_PRIVATE": str(default_post_visibility).lower(),
         "THEME": theme,
+        "DEFAULT_LIGHT_THEME": DEFAULT_LIGHT_THEME,
+        "DEFAULT_DARK_THEME": DEFAULT_DARK_THEME,
         "lang": lang,
         "badges": BADGE_DATA
     }
