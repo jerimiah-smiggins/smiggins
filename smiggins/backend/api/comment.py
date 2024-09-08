@@ -62,7 +62,8 @@ def comment_create(request, data: NewComment) -> tuple | dict:
     content = trim_whitespace(data.content)
     c_warning = trim_whitespace(data.c_warning, True) if ENABLE_CONTENT_WARNINGS else ""
 
-    can_view = can_view_post(user, comment_owner, comment)
+    parent = (Comment if is_comment else Post).objects.get(pk=id)
+    can_view = can_view_post(user, User.objects.get(user_id=parent.creator), parent)
     if can_view[0] is False and (can_view[1] == "blocked" or can_view[1] == "private"):
         return 400, {
             "success": False
@@ -101,11 +102,6 @@ def comment_create(request, data: NewComment) -> tuple | dict:
 
     user.comments.append(comment.comment_id)
     user.save()
-
-    if is_comment:
-        parent = Comment.objects.get(comment_id=id)
-    else:
-        parent = Post.objects.get(post_id=id)
 
     if comment.comment_id not in parent.comments:
         parent.comments.append(comment.comment_id)

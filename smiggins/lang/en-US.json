@@ -2,7 +2,7 @@
   "meta": {
     "fallback": [],
     "name": "English (United States)",
-    "version": "1.6.1",
+    "version": "1.6.2",
     "maintainers": ["trinkey"],
     "past_maintainers": []
   },
@@ -493,6 +493,9 @@
       "unknown": "Unknown",
 
       "changes": {
+        "v0.12.2": {
+          "1": "Fixed a bug that prevented you from being able to comment on posts"
+        },
         "v0.12.1": {
           "1": "When logged out, the user's preferred color scheme is respected",
           "2": "Fixed a bug that caused the user timeline to error when logged out",
