@@ -1,14 +1,14 @@
-import pathlib
 import hashlib
-import json5 as json
 import os
+import pathlib
 import re
-
-from ensure_file import ensure_file
 from typing import Any, get_args, get_origin
-from django.db.utils import OperationalError
 
+import json5 as json
+from django.db.utils import OperationalError
+from ensure_file import ensure_file
 from posts.models import Badge
+
 from ._api_keys import auth_key
 
 BASE_DIR = pathlib.Path(__file__).resolve().parent.parent
@@ -82,6 +82,7 @@ ITEMS_PER_SITEMAP: int = 500
 GOOGLE_VERIFICATION_TAG: str | None = ""
 DISCORD: str | None = "tH7QnHApwu"
 SITEMAP_CACHE_TIMEOUT: int | None = 86400
+GENERIC_CACHE_TIMEOUT: int | None = 604800
 API_TIMINGS: dict[str, int] = {}
 
 f = {}
@@ -192,7 +193,8 @@ for key, val in f.items():
     elif key.lower() == "items_per_sitemap": is_ok(val, "ITEMS_PER_SITEMAP", int) # noqa: E701
     elif key.lower() == "google_verification_tag": is_ok(val, "GOOGLE_VERIFICATION_TAG", str) # noqa: E701
     elif key.lower() in ["discord", "discord_invite"]: is_ok(val, "DISCORD", str, null=True) # noqa: E701
-    elif key.lower() in "sitemap_cache_timeout": is_ok(val, "SITEMAP_CACHE_TIMEOUT", int, null=True) # noqa: E701
+    elif key.lower() == "sitemap_cache_timeout": is_ok(val, "SITEMAP_CACHE_TIMEOUT", int, null=True) # noqa: E701
+    elif key.lower() == "generic_cache_timeout": is_ok(val, "GENERIC_CACHE_TIMEOUT", int, null=True) # noqa: E701
     else: error(f"Unknown setting {key}") # noqa: E701
 
 MAX_ADMIN_LOG_LINES = clamp(MAX_ADMIN_LOG_LINES, minimum=1)
@@ -208,6 +210,7 @@ MESSAGES_PER_REQUEST = clamp(MESSAGES_PER_REQUEST, minimum=1)
 MAX_NOTIFICATIONS = clamp(MAX_NOTIFICATIONS, minimum=1)
 ITEMS_PER_SITEMAP = clamp(ITEMS_PER_SITEMAP, minimum=50, maximum=50000)
 SITEMAP_CACHE_TIMEOUT = clamp(SITEMAP_CACHE_TIMEOUT, minimum=0)
+GENERIC_CACHE_TIMEOUT = clamp(SITEMAP_CACHE_TIMEOUT, minimum=0)
 
 if CACHE_LANGUAGES is None:
     CACHE_LANGUAGES = not DEBUG
@@ -305,7 +308,7 @@ Disallow: /
 BADGE_DATA = {}
 
 try:
-    from backend._api_keys import smtp_auth # type: ignore # noqa: F401
+    from backend._api_keys import smtp_auth  # type: ignore # noqa: F401
 except ImportError:
     ENABLE_EMAIL = False
 

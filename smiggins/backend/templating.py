@@ -3,33 +3,16 @@
 import json
 
 from django.http import HttpResponse, HttpResponseRedirect
+from posts.models import Comment, Hashtag, Post, PrivateMessageContainer, User
 
-from posts.models import User, Post, Comment, Hashtag, PrivateMessageContainer
+from .helper import (LANGS, can_view_post, get_badges, get_container_id,
+                     get_HTTP_response, get_lang, get_post_json)
+from .variables import (BADGE_DATA, CACHE_LANGUAGES, CONTACT_INFO, CREDITS,
+                        DEFAULT_BANNER_COLOR, DEFAULT_LANGUAGE,
+                        ENABLE_GRADIENT_BANNERS, ENABLE_LOGGED_OUT_CONTENT,
+                        MAX_CONTENT_WARNING_LENGTH, OWNER_USER_ID, SITE_NAME,
+                        VALID_LANGUAGES)
 
-from .variables import (
-    DEFAULT_BANNER_COLOR,
-    OWNER_USER_ID,
-    CONTACT_INFO,
-    ENABLE_GRADIENT_BANNERS,
-    SITE_NAME,
-    DEFAULT_LANGUAGE,
-    ENABLE_LOGGED_OUT_CONTENT,
-    MAX_CONTENT_WARNING_LENGTH,
-    BADGE_DATA,
-    VALID_LANGUAGES,
-    CREDITS,
-    CACHE_LANGUAGES
-)
-
-from .helper import (
-    get_HTTP_response,
-    get_post_json,
-    get_badges,
-    get_container_id,
-    get_lang,
-    LANGS,
-    can_view_post
-)
 
 def settings(request) -> HttpResponse:
     try:

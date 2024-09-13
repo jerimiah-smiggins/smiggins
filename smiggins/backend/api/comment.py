@@ -3,32 +3,16 @@
 import time
 
 from ninja import Schema
+from posts.models import Comment, Notification, Post, User
 
-from posts.models import Comment, User, Post, Notification
+from ..helper import (DEFAULT_LANG, can_view_post, create_api_ratelimit,
+                      create_notification, delete_notification,
+                      ensure_ratelimit, find_mentions, get_lang, get_post_json,
+                      log_admin_action, trim_whitespace)
+from ..variables import (API_TIMINGS, ENABLE_CONTENT_WARNINGS,
+                         ENABLE_LOGGED_OUT_CONTENT, MAX_CONTENT_WARNING_LENGTH,
+                         MAX_POST_LENGTH, OWNER_USER_ID, POSTS_PER_REQUEST)
 
-from ..variables import (
-    MAX_POST_LENGTH,
-    API_TIMINGS,
-    OWNER_USER_ID,
-    POSTS_PER_REQUEST,
-    ENABLE_LOGGED_OUT_CONTENT,
-    MAX_CONTENT_WARNING_LENGTH,
-    ENABLE_CONTENT_WARNINGS,
-)
-
-from ..helper import (
-    trim_whitespace,
-    create_api_ratelimit,
-    ensure_ratelimit,
-    get_post_json,
-    log_admin_action,
-    create_notification,
-    find_mentions,
-    get_lang,
-    DEFAULT_LANG,
-    delete_notification,
-    can_view_post
-)
 
 class NewComment(Schema):
     c_warning: str

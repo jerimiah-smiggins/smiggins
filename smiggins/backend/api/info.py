@@ -2,7 +2,9 @@
 # Do NOT add telemetry here.
 
 from posts.models import User
+
 from ..variables import REAL_VERSION
+
 
 def username(request) -> tuple | dict:
     # Returns the username from token

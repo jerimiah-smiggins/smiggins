@@ -1,8 +1,9 @@
 # Used when upgrading from v0.5.1 to any future version
 # Run this file in the folder with the manage.py file
 
-import django
 import os
+
+import django
 
 if not os.path.exists("manage.py"):
     print("Make sure you are running this in the same folder as the manage.py file!")
@@ -15,7 +16,7 @@ if not os.path.exists("db.sqlite3"):
 os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'smiggins.settings')
 django.setup()
 
-from posts.models import User, Post, Comment # noqa: E402 # type: ignore
+from posts.models import Comment, Post, User  # noqa: E402 # type: ignore
 
 for user in User.objects.all():
     user.likes = []

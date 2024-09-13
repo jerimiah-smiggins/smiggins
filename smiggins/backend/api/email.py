@@ -1,16 +1,17 @@
-import random
-import time
 import json
+import random
 import re
-
+import time
 from typing import Any
-from ninja import Schema
+
+from django.core.handlers.wsgi import WSGIRequest
 from django.http import HttpResponse, HttpResponseRedirect
 from django.views.decorators.csrf import csrf_exempt
-from django.core.handlers.wsgi import WSGIRequest
+from ninja import Schema
+from posts.models import URLPart, User
 
-from posts.models import User, URLPart
-from ..helper import get_HTTP_response, get_lang, send_email, sha, generate_token
+from ..helper import (generate_token, get_HTTP_response, get_lang, send_email,
+                      sha)
 from ..variables import WEBSITE_URL
 
 LAST_TRIM: int = 0

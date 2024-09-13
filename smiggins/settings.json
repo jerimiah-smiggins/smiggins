@@ -43,6 +43,15 @@
   "items_per_sitemap": 500,
 
   /*
+  ** How long to cache anything that would make sense to be cached. Set to null
+  ** to disable caching. (Sitemaps are handled separately from this, so sitemaps
+  ** can be cached when everything else has cache disabled.) Cache gets
+  ** overwritten when the instance gets updated.
+  ## Default: 604800 (60(s) * 60(m) * 24(h) * 7(d))
+  */
+  "generic_cache_timeout": 604800,
+
+  /*
   ** How long to cache the sitemaps, in seconds. Set to null to disable caching.
   ## Default: 86400 (60(s) * 60(m) * 24(h))
   */

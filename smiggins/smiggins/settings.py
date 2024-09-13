@@ -1,6 +1,6 @@
-import json5
-
 from pathlib import Path
+
+import json5
 
 BASE_DIR = Path(__file__).resolve().parent.parent
 
@@ -31,7 +31,7 @@ if email and url is None:
 
 if email:
     try:
-        from backend._api_keys import smtp_auth # type: ignore
+        from backend._api_keys import smtp_auth  # type: ignore
 
         EMAIL_HOST = smtp_auth["EMAIL_HOST"]
         EMAIL_HOST_USER = smtp_auth["EMAIL_HOST_USER"]

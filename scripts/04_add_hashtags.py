@@ -4,8 +4,9 @@
 # verified the integrity of hashtags if something breaks.
 # Run this in the folder with the manage.py file in it.
 
-import django
 import os
+
+import django
 
 if not os.path.exists("manage.py"):
     print("Make sure you are running this in the same folder as the manage.py file!")
@@ -18,8 +19,8 @@ if not os.path.exists("db.sqlite3"):
 os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'smiggins.settings')
 django.setup()
 
-from posts.models import Hashtag, Post # noqa: E402 # type: ignore
-from backend.helper import find_hashtags # noqa: E402 # type: ignore
+from backend.helper import find_hashtags  # noqa: E402 # type: ignore
+from posts.models import Hashtag, Post  # noqa: E402 # type: ignore
 
 Hashtag.objects.all().delete()
 all_posts = Post.objects.all()
