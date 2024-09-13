@@ -129,7 +129,11 @@ LANGUAGE_CODE = 'en-us'
 TIME_ZONE = 'EST'
 USE_I18N = True
 USE_TZ = True
+DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
+
 STATIC_ROOT = BASE_DIR / "collected-static"
 STATIC_URL = '/static/'
-STATICFILES_DIRS = [BASE_DIR / "static"]
-DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
+STATICFILES_DIRS = [
+    BASE_DIR / "static-custom",
+    BASE_DIR / "static"
+]
