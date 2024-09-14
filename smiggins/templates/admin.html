@@ -3,7 +3,7 @@
 {% load static %}
 
 {% block title %}
-  {{ lang.admin.title }} - {{ SITE_NAME }} v{{ VERSION }}
+  {{ lang.admin.title }} - {{ SITE_NAME }} {{ VERSION }}
 {% endblock %}
 
 {% block head %}
@@ -104,7 +104,7 @@
         <input id="level-identifier" placeholder="{{ lang.admin.user_id_placeholder }}"><br>
         <label for="level-use-id">{{ lang.admin.use_id_label }}</label>
         <input id="level-use-id" type="checkbox"><br>
-        <label for="level-selection">{{ lang.admin.level_placeholder }}</label>
+        <label for="level-selection">{{ lang.admin.level_label }}</label>
         <select id="level-selection">
           <option value="0">{{ lang.admin.level_zero }}</option>
           <option value="1">{{ lang.admin.level_one }}</option>

@@ -79,7 +79,7 @@ def get_HTTP_response(
 
     context = {
         "SITE_NAME": SITE_NAME,
-        "VERSION": VERSION,
+        "VERSION": lang["generic"]["version"].replace("%v", VERSION),
         "SOURCE": str(SOURCE_CODE).lower(),
 
         "NOSCRIPT_CHROME": lang["noscript"]["tutorial_chrome"].replace("%u", "chrome://settings/content/javascript"),

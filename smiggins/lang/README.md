@@ -21,12 +21,13 @@ french would be Français (Canadien)
 language was created for. This should be used to indicate which translations,
 if any, need to be updated. The updates for each version are listed at the
 bottom of this document.
-   - `maintainers`: The github username of the maintainers of the language. If
+   - `maintainers`: The github usernames of the maintainers of the language. If
 the language needs to be updated, these are the people to do so. If you are
-willing to, you can put your github username there, and will be pinged whenever
-languages need to be updated. (Make sure each one is in quotes) You will not be
-pinged if the only change to the language is for changelogs unless the language
-you maintain has changelogs translated.
+willing to, you can put your github username there. Make sure each username is
+in quotation marks
+   - `past_maintainers`: The github usernames of any past maintainers of the
+language. You can put your username here if you don't want to continue
+maintaining a language.
 4. Start translating. Go through the file and add any translations needed. Note
 that for the colors (like rosewater), you can just describe them (like "dull
 pink" or "yellowish orange"). If you have any questions, feel free to ask about
@@ -48,6 +49,24 @@ to the `maintainers` section
 ---
 ## Version changes
 Updates for each language version are listed below:
+
+<details>
+<summary>v1.7.0</summary>
+
+Caching, accessibility, custom static files
+
+```diff
++ generic.version
++ admin.badge_name_label
++ admin.level_label
++ home.c_warning_label
++ post.private_post
++ post.unlike
++ settings.cosmetic_bar_position
++ settings.cosmetic_bar_direction
++ changelog.changes.v0.12.3 {1, 2, 3, 4, 5, 6}
+```
+</details>
 
 <details>
 <summary>v1.6.2</summary>

@@ -2,7 +2,7 @@
 {% load static %}
 
 {% block title %}
-  {{ lang.settings.title }} - {{ SITE_NAME }} v{{ VERSION }}
+  {{ lang.settings.title }} - {{ SITE_NAME }} {{ VERSION }}
 {% endblock %}
 
 {% block head %}
@@ -198,7 +198,7 @@
   {% endif %}
   <hr><br>
 
-  {{ SITE_NAME }} v{{ VERSION }}<br>
+  {{ SITE_NAME }} {{ VERSION }}<br>
 
   {% if ENABLE_CHANGELOG_PAGE == 'true' %}
     <a href="/changelog/">{{ lang.changelog.title }}</a><br>
