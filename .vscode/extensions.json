@@ -1,5 +1,6 @@
 {
   "recommendations": [
+    "ms-python.isort",
     "charliermarsh.ruff",
     "batisteo.vscode-django",
     "ms-python.vscode-pylance",

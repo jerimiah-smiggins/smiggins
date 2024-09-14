@@ -1,63 +1,35 @@
 # Contains helper functions. These aren't for routing, instead doing something that can be used in other places in the code.
 
-import threading
 import hashlib
-import json5 as json
-import time
 import re
+import threading
+import time
+from typing import Any, Callable, Literal
 
-from typing import Callable, Any, Literal
+import json5 as json
+from django.core.mail import send_mail
 from django.http import HttpResponse, HttpResponseRedirect
 from django.template import loader
-from django.core.mail import send_mail
+from posts.models import Comment, Notification, Post, User
 
-from posts.models import User, Comment, Post, Notification
+from .variables import (ADMIN_LOG_PATH, BADGE_DATA, BASE_DIR, CACHE_LANGUAGES,
+                        DEFAULT_DARK_THEME, DEFAULT_LANGUAGE,
+                        DEFAULT_LIGHT_THEME, DISCORD, ENABLE_ACCOUNT_SWITCHER,
+                        ENABLE_BADGES, ENABLE_CHANGELOG_PAGE,
+                        ENABLE_CONTACT_PAGE, ENABLE_CONTENT_WARNINGS,
+                        ENABLE_CREDITS_PAGE, ENABLE_EMAIL,
+                        ENABLE_GRADIENT_BANNERS, ENABLE_HASHTAGS,
+                        ENABLE_NEW_ACCOUNTS, ENABLE_PINNED_POSTS, ENABLE_POLLS,
+                        ENABLE_POST_DELETION, ENABLE_PRIVATE_MESSAGES,
+                        ENABLE_PRONOUNS, ENABLE_QUOTES, ENABLE_USER_BIOS,
+                        GOOGLE_VERIFICATION_TAG, MAX_ADMIN_LOG_LINES,
+                        MAX_BIO_LENGTH, MAX_CONTENT_WARNING_LENGTH,
+                        MAX_DISPL_NAME_LENGTH, MAX_NOTIFICATIONS,
+                        MAX_POLL_OPTION_LENGTH, MAX_POLL_OPTIONS,
+                        MAX_POST_LENGTH, MAX_USERNAME_LENGTH, OWNER_USER_ID,
+                        PRIVATE_AUTHENTICATOR_KEY, RATELIMIT, SITE_NAME,
+                        SOURCE_CODE, VALID_LANGUAGES, VERSION, timeout_handler)
 
-from .variables import (
-    SITE_NAME,
-    VERSION,
-    SOURCE_CODE,
-    MAX_DISPL_NAME_LENGTH,
-    MAX_POST_LENGTH,
-    MAX_USERNAME_LENGTH,
-    RATELIMIT,
-    OWNER_USER_ID,
-    ADMIN_LOG_PATH,
-    MAX_ADMIN_LOG_LINES,
-    MAX_NOTIFICATIONS,
-    MAX_BIO_LENGTH,
-    ENABLE_USER_BIOS,
-    ENABLE_PRONOUNS,
-    ENABLE_GRADIENT_BANNERS,
-    ENABLE_BADGES,
-    ENABLE_PRIVATE_MESSAGES,
-    ENABLE_QUOTES,
-    ENABLE_POST_DELETION,
-    DEFAULT_LANGUAGE,
-    CACHE_LANGUAGES,
-    ENABLE_HASHTAGS,
-    MAX_POLL_OPTION_LENGTH,
-    MAX_POLL_OPTIONS,
-    ENABLE_CHANGELOG_PAGE,
-    ENABLE_CONTACT_PAGE,
-    ENABLE_PINNED_POSTS,
-    ENABLE_ACCOUNT_SWITCHER,
-    ENABLE_POLLS,
-    ENABLE_NEW_ACCOUNTS,
-    ENABLE_CREDITS_PAGE,
-    DEFAULT_LIGHT_THEME,
-    DEFAULT_DARK_THEME,
-    MAX_CONTENT_WARNING_LENGTH,
-    ENABLE_CONTENT_WARNINGS,
-    PRIVATE_AUTHENTICATOR_KEY,
-    timeout_handler,
-    BASE_DIR,
-    VALID_LANGUAGES,
-    ENABLE_EMAIL,
-    BADGE_DATA,
-    GOOGLE_VERIFICATION_TAG,
-    DISCORD
-)
 
 def sha(string: str | bytes) -> str:
     # Returns the sha256 hash of a string.
@@ -107,7 +79,7 @@ def get_HTTP_response(
 
     context = {
         "SITE_NAME": SITE_NAME,
-        "VERSION": VERSION,
+        "VERSION": lang["generic"]["version"].replace("%v", VERSION),
         "SOURCE": str(SOURCE_CODE).lower(),
 
         "NOSCRIPT_CHROME": lang["noscript"]["tutorial_chrome"].replace("%u", "chrome://settings/content/javascript"),

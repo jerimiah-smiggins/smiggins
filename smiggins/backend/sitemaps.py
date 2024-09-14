@@ -1,14 +1,16 @@
 # Like templating.py for sitemaps
 
-from math import ceil
-from django.http import HttpResponse
-from django.db.models import Q
-
-from datetime import datetime, timezone
 import time
-from posts.models import User, Post
+from datetime import datetime, timezone
+from math import ceil
+
+from django.db.models import Q
+from django.http import HttpResponse
+from posts.models import Post, User
+
 from .helper import get_HTTP_response
 from .variables import ITEMS_PER_SITEMAP, WEBSITE_URL
+
 
 def _get_lastmod(ts: int | float=time.time(), short: bool=False) -> str:
     if short:

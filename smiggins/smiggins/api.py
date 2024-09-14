@@ -1,20 +1,13 @@
 import json
 
+from backend.api import (ApiAdmin, ApiComment, ApiEmail, ApiInfo, ApiMessages,
+                         ApiPost, ApiUser)
+from backend.variables import (ENABLE_EMAIL, ENABLE_HASHTAGS,
+                               ENABLE_NEW_ACCOUNTS, ENABLE_POST_DELETION,
+                               ENABLE_PRIVATE_MESSAGES, ENABLE_QUOTES)
 from django.urls import path
-
-from backend.api import ApiAdmin, ApiComment, ApiEmail, ApiInfo, ApiMessages, ApiPost, ApiUser
-
-from backend.variables import (
-    ENABLE_PRIVATE_MESSAGES,
-    ENABLE_QUOTES,
-    ENABLE_POST_DELETION,
-    ENABLE_HASHTAGS,
-    ENABLE_NEW_ACCOUNTS,
-    ENABLE_EMAIL
-)
-
-from ninja.renderers import BaseRenderer
 from ninja import NinjaAPI
+from ninja.renderers import BaseRenderer
 
 response_schema = {
     200: dict,

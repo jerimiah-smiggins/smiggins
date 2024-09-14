@@ -2,17 +2,17 @@
 {% load static %}
 
 {% block title %}
-  {{ lang.contact.title }} - {{ SITE_NAME }} v{{ VERSION }}
+  {{ lang.contact.title }} - {{ SITE_NAME }} {{ VERSION }}
 {% endblock %}
 
 {% block meta %}
   <meta name="description" content="social media thing">
-  <meta name="author" content="{{ lang.contact.title }} - {{ SITE_NAME }} v{{ VERSION }}">
+  <meta name="author" content="{{ lang.contact.title }} - {{ SITE_NAME }} {{ VERSION }}">
 
-  <meta property="og:title" content="{{ lang.contact.title }} - {{ SITE_NAME }} v{{ VERSION }}">
+  <meta property="og:title" content="{{ lang.contact.title }} - {{ SITE_NAME }} {{ VERSION }}">
   <meta property="og:description" content="social media thing">
 
-  <meta name="twitter:title" content="{{ lang.contact.title }} - {{ SITE_NAME }} v{{ VERSION }}">
+  <meta name="twitter:title" content="{{ lang.contact.title }} - {{ SITE_NAME }} {{ VERSION }}">
   <meta name="twitter:description" content="social media thing">
 {% endblock %}
 
@@ -24,7 +24,7 @@
 
 {% block body %}
   <h1>{{ lang.contact.subtitle }}</h1>
-  <h2>{{ SITE_NAME }} v{{ VERSION }}</h2>
+  <h2>{{ SITE_NAME }} {{ VERSION }}</h2>
   <ul>
     {% for CONTACT in CONTACT_INFO %}
       <li>

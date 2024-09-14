@@ -1,7 +1,8 @@
 # Used when upgrading from v0.11.0 or below to v0.11.1+
 
-import django
 import os
+
+import django
 
 if not os.path.exists("manage.py"):
     print("Make sure you are running this in the same folder as the manage.py file!")
@@ -10,7 +11,7 @@ if not os.path.exists("manage.py"):
 os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'smiggins.settings')
 django.setup()
 
-from posts.models import User, Post, Comment # noqa: E402 # type: ignore
+from posts.models import Comment, Post, User  # noqa: E402 # type: ignore
 
 for user in User.objects.all():
     private = user.default_post_private

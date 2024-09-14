@@ -1,8 +1,9 @@
 # Used when upgrading from v0.3.8 to v0.4.0
 # Run this file in the folder with the manage.py file
 
-import os
 import json
+import os
+
 import django
 
 if not os.path.exists("manage.py"):
@@ -29,7 +30,7 @@ if save_folder[-1] == "/":
 os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'smiggins.settings')
 django.setup()
 
-from posts.models import User, Post, Comment # noqa: E402 # type: ignore
+from posts.models import Comment, Post, User  # noqa: E402 # type: ignore
 
 User.objects.all().delete()
 Post.objects.all().delete()

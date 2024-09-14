@@ -1,6 +1,7 @@
+from os import remove
+
 from cairosvg import svg2png
 from PIL import Image
-from os import remove
 
 SVG_FILE = "favicon.svg"
 TEMP_FILE = "temp.png"
@@ -119,7 +120,7 @@ svg = open(SVG_FILE, "r").read()
 def create_image(svg_data: str, theme_name: str, accent_name: str):
     svg2png(svg_data, write_to=TEMP_FILE, output_width=255, output_height=255)
     img = Image.open(TEMP_FILE)
-    img.save(f"favicons/{theme_name}-{accent_name}.ico", sizes=[(16, 16), (32, 32), (64, 64), (128, 128), (255, 255)])
+    img.save(f"favicons/{theme_name}-{accent_name}.ico", sizes=[(16, 16), (64, 64)])
 
 for color, replace in COLORS["initial"].items():
     svg = svg.replace(color, replace)

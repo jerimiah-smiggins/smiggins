@@ -48,7 +48,7 @@ function refreshPendingList(fromStart=false): void {
                   <div class="displ-name">
                     <div style="--color-one: ${user.color_one}; --color-two: ${user[ENABLE_GRADIENT_BANNERS && user.gradient_banner ? "color_two" : "color_one"]}" class="user-badge banner-pfp"></div>
                     ${escapeHTML(user.display_name)}
-                    ${user.badges.length ? `<span class="user-badge">${user.badges.map((icon) => (badges[icon])).join("</span> <span class=\"user-badge\">")}</span>` : ""}<br>
+                    ${user.badges.length ? `<span aria-hidden="true" class="user-badge">${user.badges.map((icon) => (badges[icon])).join("</span> <span aria-hidden=\"true\" class=\"user-badge\">")}</span>` : ""}<br>
                     <span class="upper-lower-opacity">
                       <div class="username">@${user.username}</div>
                     </span>

@@ -2,23 +2,23 @@
 {% load static %}
 
 {% block title %}
-  {{ lang.changelog.title }} - {{ SITE_NAME }} v{{ VERSION }}
+  {{ lang.changelog.title }} - {{ SITE_NAME }} {{ VERSION }}
 {% endblock %}
 
 {% block meta %}
   <meta name="description" content="{{ lang.changelog.title }}">
-  <meta name="author" content="{{ SITE_NAME }} v{{ VERSION }}">
+  <meta name="author" content="{{ SITE_NAME }} {{ VERSION }}">
 
-  <meta property="og:title" content="{{ SITE_NAME }} v{{ VERSION }}">
+  <meta property="og:title" content="{{ SITE_NAME }} {{ VERSION }}">
   <meta property="og:description" content="{{ lang.changelog.title }}">
 
-  <meta name="twitter:title" content="{{ SITE_NAME }} v{{ VERSION }}">
+  <meta name="twitter:title" content="{{ SITE_NAME }} {{ VERSION }}">
   <meta name="twitter:description" content="{{ lang.changelog.title }}">
 {% endblock %}
 
 {% block body %}
   <h1>{{ lang.changelog.title }}</h1>
-  <h3>{{ SITE_NAME }} v{{ VERSION }}</h3>
+  <h3>{{ SITE_NAME }} {{ VERSION }}</h3>
 
   {% for version, changes in lang.changelog.changes.items %}
     <div>

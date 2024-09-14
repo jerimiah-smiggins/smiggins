@@ -4,7 +4,7 @@
 
 <html lang="{{ lang.meta.language }}">
   <head>
-    <title>{% block title %}{{ SITE_NAME }} v{{ VERSION }}{% endblock %}</title>
+    <title>{% block title %}{{ SITE_NAME }} {{ VERSION }}{% endblock %}</title>
 
     <script>
       {% if ENABLE_BADGES == "true" %}
@@ -48,13 +48,13 @@
 
     {% block meta %}
       <meta name="author" content="{{ SITE_NAME }}">
-      <meta name="description" content="v{{ VERSION }}">
+      <meta name="description" content="{{ VERSION }}">
 
       <meta property="og:title" content="{{ SITE_NAME }}">
-      <meta property="og:description" content="v{{ VERSION }}">
+      <meta property="og:description" content="{{ VERSION }}">
 
       <meta name="twitter:title" content="{{ SITE_NAME }}">
-      <meta name="twitter:description" content="v{{ VERSION }}">
+      <meta name="twitter:description" content="{{ VERSION }}">
     {% endblock %}
 
     {% if NO_CSS_MODE == "false" %}

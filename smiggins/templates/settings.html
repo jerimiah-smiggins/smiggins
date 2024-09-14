@@ -2,7 +2,7 @@
 {% load static %}
 
 {% block title %}
-  {{ lang.settings.title }} - {{ SITE_NAME }} v{{ VERSION }}
+  {{ lang.settings.title }} - {{ SITE_NAME }} {{ VERSION }}
 {% endblock %}
 
 {% block head %}
@@ -29,17 +29,17 @@
       <h2>{{ lang.settings.profile_title }}</h2>
 
       {{ lang.settings.profile_basic_title }}<br>
-      <input id="displ-name" autocomplete="off" placeholder="{{ lang.settings.profile_display_name_placeholder }}" value="{{ DISPLAY_NAME }}" maxlength="{{ MAX_DISPL_NAME_LENGTH }}"><br>
+      <label><input id="displ-name" autocomplete="off" placeholder="{{ lang.settings.profile_display_name_placeholder }}" value="{{ DISPLAY_NAME }}" maxlength="{{ MAX_DISPL_NAME_LENGTH }}"></label><br>
       {% if ENABLE_USER_BIOS == 'true' %}
-        <textarea id="bio" placeholder="{{ lang.settings.profile_bio_placeholder }}" maxlength="{{ MAX_BIO_LENGTH }}">{{ USER_BIO }}</textarea>
+        <label><textarea id="bio" placeholder="{{ lang.settings.profile_bio_placeholder }}" maxlength="{{ MAX_BIO_LENGTH }}">{{ USER_BIO }}</textarea></label>
       {% endif %}<br><br>
 
       {% if ENABLE_PRONOUNS == 'true' %}
         {{ lang.settings.profile_pronouns_title }}<br>
         <table class="center">
           <tr>
-            <td class="right">{{ lang.settings.profile_pronouns_primary }}</td>
-            <td>
+            <td class="right"><label for="pronouns-primary">{{ lang.settings.profile_pronouns_primary }}</label></td>
+            <td class="left">
               <select id="pronouns-primary">
                 <option value="__">{{ lang.settings.profile_pronouns_unset }}</option>
                 <option value="m">{{ lang.generic.pronouns.mm }}</option>
@@ -55,8 +55,8 @@
           </tr>
 
           <tr id="pronouns-secondary-container">
-            <td class="right">{{ lang.settings.profile_pronouns_secondary }}</td>
-            <td>
+            <td class="right"><label for="pronouns-secondary">{{ lang.settings.profile_pronouns_secondary }}</label></td>
+            <td class="left">
               <select id="pronouns-secondary">
                 <option value="i">{{ lang.settings.profile_pronouns_inherit }}</option>
                 <option value="m">{{ lang.generic.pronouns.mm }}</option>
@@ -73,14 +73,14 @@
 
       {{ lang.settings.profile_banner_title }}<br>
       <div id="banner"></div><br>
-      <input id="banner-color" value="{{ BANNER_COLOR }}" type="color">
+      <input aria-label="{{ lang.settings.profile_banner_title }}" id="banner-color" value="{{ BANNER_COLOR }}" type="color">
       {% if ENABLE_GRADIENT_BANNERS == 'true' %}
-        <input hidden id="banner-color-two" value="{{ BANNER_COLOR_TWO }}" type="color"><br>
+        <input aria-label="{{ lang.settings.profile_banner_title }}" hidden id="banner-color-two" value="{{ BANNER_COLOR_TWO }}" type="color"><br>
         <label for="banner-is-gradient">{{ lang.settings.profile_gradient }}</label>
         <input id="banner-is-gradient" {{ CHECKED_IF_GRADIENT }} type="checkbox">
       {% endif %}<br><br>
 
-      {{ lang.settings.profile_default_post }}<br>
+      <label for="default-post">{{ lang.settings.profile_default_post }}</label><br>
       <select id="default-post">
         <option value="public" {{ SELECTED_IF_PUBLIC }}>{{ lang.post.type_public }}</option>
         <option value="followers" {{ SELECTED_IF_PRIVATE }}>{{ lang.post.type_followers_only }}</option>
@@ -92,7 +92,7 @@
 
     <div>
       <h2>{{ lang.settings.cosmetic_title }}</h2>
-      {{ lang.settings.cosmetic_theme }}:<br>
+      <label for="theme">{{ lang.settings.cosmetic_theme }}:</label><br>
       <select id="theme">
         <option {{ SELECTED_IF_LIGHT }} value="light">{{ lang.settings.cosmetic_theme_light }}</option>
         <option {{ SELECTED_IF_GRAY }}  value="gray" >{{ lang.settings.cosmetic_theme_gray  }}</option>
@@ -101,27 +101,41 @@
         <option {{ SELECTED_IF_OLED }}  value="oled" >{{ lang.settings.cosmetic_theme_oled  }}</option>
       </select><br><br>
 
-      {{ lang.settings.cosmetic_language }}:<br>
+      <label for="lang">{{ lang.settings.cosmetic_language }}:</label><br>
       <select id="lang">
         {% for LANG in LANGUAGES %}
           <option value="{{ LANG.code }}" {% if LANG.code == LANGUAGE %}selected{% endif %}>{{ LANG.name }}</option>
         {% endfor %}
       </select><br><br>
 
-      {{ lang.settings.cosmetic_checkboxes }}
-      <input id="disable-checkboxes" type="checkbox"><br><br>
+      <label>
+        {{ lang.settings.cosmetic_checkboxes }}
+        <input id="disable-checkboxes" type="checkbox">
+      </label><br><br>
 
       {{ lang.settings.cosmetic_bar }}:<br>
-      <select id="bar-pos">
-        <option value="ur">{{ lang.settings.cosmetic_bar_ur }}</option>
-        <option value="lr">{{ lang.settings.cosmetic_bar_lr }}</option>
-        <option value="ul">{{ lang.settings.cosmetic_bar_ul }}</option>
-        <option value="ll">{{ lang.settings.cosmetic_bar_ll }}</option>
-      </select><br>
-      <select id="bar-dir">
-        <option value="h">{{ lang.settings.cosmetic_bar_h }}</option>
-        <option value="v">{{ lang.settings.cosmetic_bar_v }}</option>
-      </select><br><br>
+      <table class="center">
+        <tr>
+          <td class="right"><label for="bar-pos">{{ lang.settings.cosmetic_bar_position }}</label></td>
+          <td class="left">
+            <select id="bar-pos">
+              <option value="ur">{{ lang.settings.cosmetic_bar_ur }}</option>
+              <option value="lr">{{ lang.settings.cosmetic_bar_lr }}</option>
+              <option value="ul">{{ lang.settings.cosmetic_bar_ul }}</option>
+              <option value="ll">{{ lang.settings.cosmetic_bar_ll }}</option>
+            </select>
+          </td>
+        </tr>
+        <tr>
+          <td class="right"><label for="bar-dir">{{ lang.settings.cosmetic_bar_direction }}</label></td>
+          <td class="left">
+            <select id="bar-dir">
+              <option value="h">{{ lang.settings.cosmetic_bar_h }}</option>
+              <option value="v">{{ lang.settings.cosmetic_bar_v }}</option>
+            </select>
+          </td>
+        </tr>
+      </table><br><br>
 
       <label for="no-css">{{ lang.settings.cosmetic_no_css}}</label>
       <input type="checkbox" id="no-css" {% if NO_CSS_MODE == 'true' %}checked{% endif %}><br>
@@ -130,7 +144,7 @@
       <label for="old-favi">{{ lang.settings.cosmetic_old_favicon }}</label>
       <input type="checkbox" id="old-favi"><br><br>
 
-      {{ lang.settings.cosmetic_color }}:<br>
+      <label for="color">{{ lang.settings.cosmetic_color }}:</label><br>
       <div id="color-selector"></div>
       <div id="post-example"></div>
     </div>
@@ -138,16 +152,15 @@
     <div class="settings-side">
       <h2>{{ lang.settings.account_title }}</h2>
       {{ lang.settings.account_password }}<br>
-      <input type="text" hidden disabled> <!-- this just prevents browsers from trying to autofill the display name box with the username even thoguh autocomplete is set to off -->
-      <input type="password" autocomplete="off" placeholder="{{ lang.settings.account_password_current }}" id="current"><br>
-      <input type="password" autocomplete="off" placeholder="{{ lang.settings.account_password_new }}" id="password"><br>
-      <input type="password" autocomplete="off" placeholder="{{ lang.account.confirm_placeholder }}" id="confirm"><br>
+      <label><input type="password" autocomplete="off" placeholder="{{ lang.settings.account_password_current }}" id="current"></label><br>
+      <label><input type="password" autocomplete="off" placeholder="{{ lang.settings.account_password_new }}" id="password"></label><br>
+      <label><input type="password" autocomplete="off" placeholder="{{ lang.account.confirm_placeholder }}" id="confirm"></label><br>
       <button id="toggle-password">{{ lang.account.toggle_password }}</button>
       <button id="set-password">{{ lang.generic.save }}</button>
 
       {% if ENABLE_EMAIL == "true" %}
         <br><br>
-        {{ lang.settings.account_email }}<br>
+        <label for="email">{{ lang.settings.account_email }}</label><br>
         <input {% if has_email == "true" and email_valid == "true" %}disabled{% endif %} value="{{ email }}" id="email" type="email" placeholder="email@example.com"></br>
         <button class="primary" id="email-submit">{% if has_email == "true" and email_valid == "true" %}{{ lang.settings.account_email_update }}{% else %}{{ lang.generic.save }}{% endif %}</button>
         <div id="email-output">{% if email_valid == "false" and has_email == "true" %}{{ lang.settings.account_email_verify }}{% endif %}</div>
@@ -156,7 +169,7 @@
       {% if ENABLE_ACCOUNT_SWITCHER == "true" %}
         <br><br>
         <div id="switcher">
-          {{ lang.settings.account_switcher }}<br>
+          <label for="accs">{{ lang.settings.account_switcher }}</label><br>
           <select id="accs"></select><br>
           <button id="acc-switch">{{ lang.settings.account_switcher_switch }}</button>
           <button id="acc-remove">{{ lang.settings.account_switcher_remove}}</button><br><br>
@@ -185,7 +198,7 @@
   {% endif %}
   <hr><br>
 
-  {{ SITE_NAME }} v{{ VERSION }}<br>
+  {{ SITE_NAME }} {{ VERSION }}<br>
 
   {% if ENABLE_CHANGELOG_PAGE == 'true' %}
     <a href="/changelog/">{{ lang.changelog.title }}</a><br>

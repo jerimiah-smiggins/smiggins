@@ -2,17 +2,17 @@
 {% load static %}
 
 {% block title %}
-  {{ lang.account.log_out_title }} - {{ SITE_NAME }} v{{ VERSION }}
+  {{ lang.account.log_out_title }} - {{ SITE_NAME }} {{ VERSION }}
 {% endblock %}
 
 {% block meta %}
   <meta name="description" content="{{ lang.account.log_out_title }}">
-  <meta name="author" content="{{ SITE_NAME }} v{{ VERSION }}">
+  <meta name="author" content="{{ SITE_NAME }} {{ VERSION }}">
 
-  <meta property="og:title" content="{{ SITE_NAME }} v{{ VERSION }}">
+  <meta property="og:title" content="{{ SITE_NAME }} {{ VERSION }}">
   <meta property="og:description" content="{{ lang.account.log_out_title }}">
 
-  <meta name="twitter:title" content="{{ SITE_NAME }} v{{ VERSION }}">
+  <meta name="twitter:title" content="{{ SITE_NAME }} {{ VERSION }}">
   <meta name="twitter:description" content="{{ lang.account.log_out_title }}">
 {% endblock %}
 

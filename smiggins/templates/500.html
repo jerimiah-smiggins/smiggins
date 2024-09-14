@@ -1,18 +1,18 @@
 {% extends "base.html" %}
 
 {% block title %}
-  {{ lang.http.500.title  }} - {{ SITE_NAME }} v{{ VERSION }}
+  {{ lang.http.500.title  }} - {{ SITE_NAME }} {{ VERSION }}
 {% endblock %}
 
 {% block meta %}
   <meta name="author" content="{{ lang.http.500.title }}">
-  <meta name="description" content="{{ SITE_NAME }} v{{ VERSION }}">
+  <meta name="description" content="{{ SITE_NAME }} {{ VERSION }}">
 
   <meta property="og:title" content="{{ lang.http.500.title }}">
-  <meta property="og:description" content="{{ SITE_NAME }} v{{ VERSION }}">
+  <meta property="og:description" content="{{ SITE_NAME }} {{ VERSION }}">
 
   <meta name="twitter:title" content="{{ lang.http.500.title }}">
-  <meta name="twitter:description" content="{{ SITE_NAME }} v{{ VERSION }}">
+  <meta name="twitter:description" content="{{ SITE_NAME }} {{ VERSION }}">
 {% endblock %}
 
 {% block body %}

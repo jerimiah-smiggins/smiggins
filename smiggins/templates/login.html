@@ -2,17 +2,17 @@
 {% load static %}
 
 {% block title %}
-  {{ lang.account.log_in_title }} - {{ SITE_NAME }} v{{ VERSION }}
+  {{ lang.account.log_in_title }} - {{ SITE_NAME }} {{ VERSION }}
 {% endblock %}
 
 {% block meta %}
   <meta name="description" content="{{ lang.account.log_in_title }}">
-  <meta name="author" content="{{ SITE_NAME }} v{{ VERSION }}">
+  <meta name="author" content="{{ SITE_NAME }} {{ VERSION }}">
 
-  <meta property="og:title" content="{{ SITE_NAME }} v{{ VERSION }}">
+  <meta property="og:title" content="{{ SITE_NAME }} {{ VERSION }}">
   <meta property="og:description" content="{{ lang.account.log_in_title }}">
 
-  <meta name="twitter:title" content="{{ SITE_NAME }} v{{ VERSION }}">
+  <meta name="twitter:title" content="{{ SITE_NAME }} {{ VERSION }}">
   <meta name="twitter:description" content="{{ lang.account.log_in_title }}">
 {% endblock %}
 
@@ -22,8 +22,8 @@
 
 {% block body %}
   <h1>{{ lang.account.log_in_title }}</h1>
-  <input id="username" maxlength="{{ MAX_USERNAME_LENGTH }}" placeholder="{{ lang.account.username_placeholder }}"><br>
-  <input id="password" placeholder="{{ lang.account.password_placeholder }}" type="password"><br><br>
+  <label><input id="username" maxlength="{{ MAX_USERNAME_LENGTH }}" placeholder="{{ lang.account.username_placeholder }}"></label><br>
+  <label><input id="password" placeholder="{{ lang.account.password_placeholder }}" type="password"></label><br><br>
   <button id="submit">{{ lang.account.log_in_title }}</button><br><br>
   <button id="toggle-password">{{ lang.account.toggle_password }}</button><br><br>
   <a href="/signup/">{{ lang.account.sign_up_instead }}</a>

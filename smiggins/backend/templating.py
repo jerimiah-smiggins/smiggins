@@ -3,33 +3,16 @@
 import json
 
 from django.http import HttpResponse, HttpResponseRedirect
+from posts.models import Comment, Hashtag, Post, PrivateMessageContainer, User
 
-from posts.models import User, Post, Comment, Hashtag, PrivateMessageContainer
+from .helper import (LANGS, can_view_post, get_badges, get_container_id,
+                     get_HTTP_response, get_lang, get_post_json)
+from .variables import (BADGE_DATA, CACHE_LANGUAGES, CONTACT_INFO, CREDITS,
+                        DEFAULT_BANNER_COLOR, DEFAULT_LANGUAGE,
+                        ENABLE_GRADIENT_BANNERS, ENABLE_LOGGED_OUT_CONTENT,
+                        MAX_CONTENT_WARNING_LENGTH, OWNER_USER_ID, SITE_NAME,
+                        VALID_LANGUAGES)
 
-from .variables import (
-    DEFAULT_BANNER_COLOR,
-    OWNER_USER_ID,
-    CONTACT_INFO,
-    ENABLE_GRADIENT_BANNERS,
-    SITE_NAME,
-    DEFAULT_LANGUAGE,
-    ENABLE_LOGGED_OUT_CONTENT,
-    MAX_CONTENT_WARNING_LENGTH,
-    BADGE_DATA,
-    VALID_LANGUAGES,
-    CREDITS,
-    CACHE_LANGUAGES
-)
-
-from .helper import (
-    get_HTTP_response,
-    get_post_json,
-    get_badges,
-    get_container_id,
-    get_lang,
-    LANGS,
-    can_view_post
-)
 
 def settings(request) -> HttpResponse:
     try:
@@ -108,7 +91,7 @@ def user(request, username: str) -> HttpResponse | HttpResponseRedirect:
 
         EMBED_TITLE = lang["user_page"]["user_on_smiggins"].replace("%t", SITE_NAME).replace("%s", user.display_name),
 
-        BADGES = "".join([f"<span class='user-badge' data-add-badge='{i}'></span> " for i in get_badges(user)]),
+        BADGES = "".join([f"<span aria-hidden='true' class='user-badge' data-add-badge='{i}'></span> " for i in get_badges(user)]),
 
         GRADIENT = "gradient" if ENABLE_GRADIENT_BANNERS and user.gradient else "",
         BANNER_COLOR = user.color or DEFAULT_BANNER_COLOR,
@@ -118,7 +101,7 @@ def user(request, username: str) -> HttpResponse | HttpResponseRedirect:
         IS_BLOCKING  = "false" if self_user is None else str(user.user_id in self_user.blocking).lower(),
         IS_FOLLOWING = "false" if self_user is None else str(user.user_id in self_user.following).lower(),
         IS_PENDING   = "false" if self_user is None else str(self_user.user_id in user.pending_followers).lower(),
-        IS_FOLLOWED  = "false" if self_user is None else str(self_user.user_id in user.following).lower()
+        IS_FOLLOWED  = "false" if self_user is None else str(self_user.user_id in user.following and self_user.user_id != user.user_id).lower()
     )
 
 def user_lists(request, username: str) -> HttpResponse:
@@ -214,7 +197,7 @@ def user_lists(request, username: str) -> HttpResponse:
         FOLLOWER_COUNT = lang["user_page"]["followers"].replace("%s", str(len(user.followers))),
         FOLLOWING_COUNT = lang["user_page"]["following"].replace("%s", str(len(user.following) - 1)),
 
-        BADGES = "".join([f"<span class='user-badge' data-add-badge='{i}'></span> " for i in get_badges(user)]),
+        BADGES = "".join([f"<span aria-hidden='true' class='user-badge' data-add-badge='{i}'></span> " for i in get_badges(user)]),
 
         GRADIENT = "gradient" if ENABLE_GRADIENT_BANNERS and user.gradient else "",
         BANNER_COLOR = user.color or DEFAULT_BANNER_COLOR,
@@ -376,7 +359,7 @@ def message(request, username: str) -> HttpResponse | HttpResponseRedirect:
         PLACEHOLDER = lang["messages"]["input_placeholder"].replace("%s", user.display_name),
         TITLE = lang["messages"]["title"].replace("%s", user.display_name),
         USERNAME = username,
-        BADGES = "".join([f"<span class='user-badge' data-add-badge='{i}'></span> " for i in get_badges(user)])
+        BADGES = "".join([f"<span aria-hidden='true' class='user-badge' data-add-badge='{i}'></span> " for i in get_badges(user)])
     )
 
 def hashtag(request, hashtag: str) -> HttpResponse:

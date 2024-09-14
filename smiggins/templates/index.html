@@ -7,7 +7,7 @@
 
 {% block body %}
   <h1>{{ SITE_NAME }}</h1>
-  <h3>v{{ VERSION }}</h3>
+  <h3>{{ VERSION }}</h3>
 
   {% if ENABLE_NEW_ACCOUNTS == 'true' %}
     <a href="/signup/">{{ lang.account.sign_up_title }}</a> -

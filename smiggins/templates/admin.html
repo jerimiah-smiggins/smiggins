@@ -3,7 +3,7 @@
 {% load static %}
 
 {% block title %}
-  {{ lang.admin.title }} - {{ SITE_NAME }} v{{ VERSION }}
+  {{ lang.admin.title }} - {{ SITE_NAME }} {{ VERSION }}
 {% endblock %}
 
 {% block head %}
@@ -27,7 +27,7 @@
       <div>
         <h2>{{ lang.admin.level }} 1</h2>
 
-        <h3>{{ lang.admin.post_deletion_title }}</h3>
+        <h3><label for="post-id">{{ lang.admin.post_deletion_title }}</label></h3>
         <div id="post-deletion">
           <input id="post-id" placeholder="{{ lang.admin.post_id_placeholder }}"><br>
           <label for="comment-toggle">{{ lang.admin.is_comment_label }}</label>
@@ -41,7 +41,7 @@
       <div>
         <h2>{{ lang.admin.level }} 2</h2>
 
-        <h3>{{ lang.admin.account_deletion_title }}</h3>
+        <h3><label for="account-del-identifier">{{ lang.admin.account_deletion_title }}</label></h3>
         <div>
           <input id="account-del-identifier" placeholder="{{ lang.admin.user_id_placeholder }}"><br>
           <label for="delete-id-toggle">{{ lang.admin.use_id_label }}</label>
@@ -55,10 +55,11 @@
       <div>
         <h2>{{ lang.admin.level }} 3</h2>
 
-        <h3>{{ lang.admin.badge_manage_title }}</h3>
+        <h3><label for="badge-identifier">{{ lang.admin.badge_manage_title }}</label></h3>
         <input id="badge-identifier" placeholder="{{ lang.admin.user_id_placeholder }}"><br>
         <label for="badge-use-id">{{ lang.admin.use_id_label }}</label>
         <input id="badge-use-id" type="checkbox"><br>
+        <label for="badge-name">{{ lang.admin.badge_name_label }}</label>
         <select id="badge-name">
           {% for BADGE in BADGE_DATA %}
             {% if BADGE != "administrator" %}
@@ -70,12 +71,12 @@
         </select><br>
         <button id="badge-add">{{ lang.admin.badge_manage_add_button }}</button> <button id="badge-remove">{{ lang.admin.badge_manage_remove_button }}</button>
 
-        <h3>{{ lang.admin.badge_create_title }}</h3>
+        <h3><label for="badge-create-name">{{ lang.admin.badge_create_title }}</label></h3>
         <input id="badge-create-name" placeholder="{{ lang.admin.badge_name_placeholder }}" maxlength="64"><br>
-        <textarea id="badge-create-data" placeholder="{{ lang.admin.badge_data_placeholder }}" maxlength="65536"></textarea><br>
+        <label><textarea id="badge-create-data" placeholder="{{ lang.admin.badge_data_placeholder }}" maxlength="65536"></textarea></label><br>
         <button id="badge-create">{{ lang.admin.badge_create_button }}</button>
 
-        <h3>{{ lang.admin.badge_delete_title }}</h3>
+        <h3><label for="badge-delete-name">{{ lang.admin.badge_delete_title }}</label></h3>
         <input id="badge-delete-name" placeholder="{{ lang.admin.badge_name_placeholder }}"><br>
         <button id="badge-delete">{{ lang.admin.badge_delete_button }}</button>
       </div>
@@ -85,7 +86,7 @@
       <div>
         <h2>{{ lang.admin.level }} 4</h2>
 
-        <h3>{{ lang.admin.modify_title }}</h3>
+        <h3><label for="data-identifier">{{ lang.admin.modify_title }}</label></h3>
         <input id="data-identifier" placeholder="{{ lang.admin.user_id_placeholder }}"><br>
         <label for="data-use-id">{{ lang.admin.use_id_label }}</label>
         <input type="checkbox" id="data-use-id"><br>
@@ -99,10 +100,11 @@
       <div>
         <h2>{{ lang.admin.level }} 5</h2>
 
-        <h3>{{ lang.admin.level_title }}</h3>
+        <h3><label for="level-identifier">{{ lang.admin.level_title }}</label></h3>
         <input id="level-identifier" placeholder="{{ lang.admin.user_id_placeholder }}"><br>
         <label for="level-use-id">{{ lang.admin.use_id_label }}</label>
         <input id="level-use-id" type="checkbox"><br>
+        <label for="level-selection">{{ lang.admin.level_label }}</label>
         <select id="level-selection">
           <option value="0">{{ lang.admin.level_zero }}</option>
           <option value="1">{{ lang.admin.level_one }}</option>

@@ -2,7 +2,7 @@
 {% load static %}
 
 {% block title %}
-  {{ TITLE }} - {{ SITE_NAME }} v{{ VERSION }}
+  {{ TITLE }} - {{ SITE_NAME }} {{ VERSION }}
 {% endblock %}
 
 {% block head %}
@@ -16,12 +16,12 @@
 {% endblock %}
 
 {% block body %}
-  <div class="header-container"><h1 style="margin-bottom: 0;">
+  <label for="your-mom" class="header-container"><h1 style="margin-bottom: 0;">
     {{ TITLE }}
     {% autoescape off %}
     {{ BADGES }}
     {% endautoescape %}
-  </h1></div>
+  </h1></label>
 
   <div class="messages-container">
     <div id="messages-go-here-btw" class="messages"></div>

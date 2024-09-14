@@ -1,34 +1,17 @@
 # For API functions that are user-specific, like settings, following, etc.
 
 from ninja import Schema
+from posts.models import Comment, Notification, Post, User
 
-from posts.models import User, Post, Comment, Notification
+from ..helper import (DEFAULT_LANG, create_api_ratelimit, ensure_ratelimit,
+                      generate_token, get_lang, get_post_json, trim_whitespace,
+                      validate_username)
+from ..variables import (API_TIMINGS, DEFAULT_BANNER_COLOR, DEFAULT_DARK_THEME,
+                         DEFAULT_LIGHT_THEME, ENABLE_GRADIENT_BANNERS,
+                         ENABLE_PRONOUNS, ENABLE_USER_BIOS, MAX_BIO_LENGTH,
+                         MAX_DISPL_NAME_LENGTH, MAX_USERNAME_LENGTH,
+                         POSTS_PER_REQUEST, VALID_LANGUAGES)
 
-from ..variables import (
-    API_TIMINGS,
-    DEFAULT_BANNER_COLOR,
-    MAX_USERNAME_LENGTH,
-    MAX_BIO_LENGTH,
-    MAX_DISPL_NAME_LENGTH,
-    ENABLE_PRONOUNS,
-    ENABLE_GRADIENT_BANNERS,
-    ENABLE_USER_BIOS,
-    DEFAULT_DARK_THEME,
-    DEFAULT_LIGHT_THEME,
-    VALID_LANGUAGES,
-    POSTS_PER_REQUEST
-)
-
-from ..helper import (
-    validate_username,
-    trim_whitespace,
-    create_api_ratelimit,
-    ensure_ratelimit,
-    generate_token,
-    get_post_json,
-    get_lang,
-    DEFAULT_LANG
-)
 
 class Username(Schema):
     username: str

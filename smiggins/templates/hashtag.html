@@ -2,17 +2,17 @@
 {% load static %}
 
 {% block title %}
-  #{{ HASHTAG }} - {{ SITE_NAME }} v{{ VERSION }}
+  #{{ HASHTAG }} - {{ SITE_NAME }} {{ VERSION }}
 {% endblock %}
 
 {% block meta %}
   <meta name="description" content="social media thing">
-  <meta name="author" content="#{{ HASHTAG }} - {{ SITE_NAME }} v{{ VERSION }}">
+  <meta name="author" content="#{{ HASHTAG }} - {{ SITE_NAME }} {{ VERSION }}">
 
-  <meta property="og:title" content="#{{ HASHTAG }} - {{ SITE_NAME }} v{{ VERSION }}">
+  <meta property="og:title" content="#{{ HASHTAG }} - {{ SITE_NAME }} {{ VERSION }}">
   <meta property="og:description" content="social media thing">
 
-  <meta name="twitter:title" content="#{{ HASHTAG }} - {{ SITE_NAME }} v{{ VERSION }}">
+  <meta name="twitter:title" content="#{{ HASHTAG }} - {{ SITE_NAME }} {{ VERSION }}">
   <meta name="twitter:description" content="social media thing">
 {% endblock %}
 

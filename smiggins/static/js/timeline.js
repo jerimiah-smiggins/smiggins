@@ -70,8 +70,8 @@ function addQuote(postID, isComment) {
       <label for="default-private-${globalIncrement}">${lang.post.type_followers_only}:</label>
       <input id="default-private-${globalIncrement}" type="checkbox" ${defaultPrivate ? "checked" : ""}><br>
     </div>
-    ${ENABLE_CONTENT_WARNINGS ? `<input class="c-warning" ${originalCW ? `value="re: ${originalCW.slice(0, MAX_CONTENT_WARNING_LENGTH - 4)}"` : ""} maxlength="${MAX_CONTENT_WARNING_LENGTH}" placeholder="${lang.home.c_warning_placeholder}"><br>` : ""}
-    <textarea class="post-text" maxlength="${MAX_POST_LENGTH}" placeholder="${lang.home.quote_placeholders[Math.floor(Math.random() * lang.home.quote_placeholders.length)]}"></textarea><br>
+    ${ENABLE_CONTENT_WARNINGS ? `<label><input class="c-warning" ${originalCW ? `value="re: ${originalCW.slice(0, MAX_CONTENT_WARNING_LENGTH - 4)}"` : ""} maxlength="${MAX_CONTENT_WARNING_LENGTH}" placeholder="${lang.home.c_warning_placeholder}"></label><br>` : ""}
+    <label><textarea class="post-text" maxlength="${MAX_POST_LENGTH}" placeholder="${lang.home.quote_placeholders[Math.floor(Math.random() * lang.home.quote_placeholders.length)]}"></textarea></label><br>
     <button class="post-button inverted">${lang.generic.post}</button>
     <button class="cancel-button inverted">${lang.generic.cancel}</button>
   `;
@@ -176,11 +176,14 @@ function vote(option, postID, gInc) {
                 let el = val;
                 let isVoted = +el.dataset.index == option;
                 v = el;
-                val.innerHTML = `<div class="poll-bar ${isVoted ? "voted" : ""}">
+                el.innerHTML = `<div class="poll-bar ${isVoted ? "voted" : ""}">
             <div style="width: ${(+el.dataset.votes + (isVoted ? 1 : 0)) / (+el.dataset.totalVotes + 1) * 100}%"></div>
           </div>
           <div class="poll-text">
-            ${Math.round(((+el.dataset.votes + (isVoted ? 1 : 0))) / (+el.dataset.totalVotes + 1) * 1000) / 10}% - ` + val.innerHTML.replace('<div class="poll-text">', "");
+            ${Math.round(((+el.dataset.votes + (isVoted ? 1 : 0))) / (+el.dataset.totalVotes + 1) * 1000) / 10}% - ` + el.innerHTML.replace('<div class="poll-text">', "");
+                el.onclick = null;
+                el.onkeydown = null;
+                el.removeAttribute("tabindex");
             });
             dom(`gi-${gInc}`).querySelector("small").innerHTML = (+v.dataset.totalVotes ? lang.home.poll_total_plural : lang.home.poll_total_singular).replaceAll("%s", +v.dataset.totalVotes + 1);
         }
@@ -190,12 +193,14 @@ function togglePollResults(gInc) {
     document.querySelector(`#gi-${gInc} .remove-when-the-poll-gets-shown`).remove();
     forEach(dom(`gi-${gInc}`).querySelectorAll(".poll-bar-container"), function (val, index) {
         let el = val;
-        el.onclick = undefined;
-        val.innerHTML = `<div class="poll-bar">
+        el.innerHTML = `<div class="poll-bar">
       <div style="width: ${+el.dataset.votes / +el.dataset.totalVotes * 100 || 0}%"></div>
     </div>
     <div class="poll-text">
-      ${Math.round(+el.dataset.votes / +el.dataset.totalVotes * 1000) / 10 || 0}% - ` + val.innerHTML.replace('<div class="poll-text">', "");
+      ${Math.round(+el.dataset.votes / +el.dataset.totalVotes * 1000) / 10 || 0}% - ` + el.innerHTML.replace('<div class="poll-text">', "");
+        el.onclick = null;
+        el.onkeydown = null;
+        el.removeAttribute("tabindex");
     });
 }
 if (typeof disableTimeline === 'undefined' || !disableTimeline) {
