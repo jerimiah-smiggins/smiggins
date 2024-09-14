@@ -2,7 +2,7 @@
   "meta": {
     "fallback": [],
     "name": "English (United States)",
-    "version": "1.6.2",
+    "version": "1.7.0",
     "maintainers": ["trinkey"],
     "past_maintainers": []
   },
@@ -37,6 +37,7 @@
     },
 
     "generic": {
+      "version": "v%v", // Replaces all instances of "%v" with the version. If the version format for the local is something like "1.0.0v", then it would be represented as "%vv"
       "success": "Success!",
       "something_went_wrong": "Something went wrong!",
       "something_went_wrong_x": "Something went wrong %s!", // Ex: Something went wrong loading the posts!
@@ -156,6 +157,7 @@
       "account_deletion_error": "deleting the specified account",
 
       "badge_name_placeholder": "Badge name...",
+      "badge_name_label": "Badge:",
       "badge_data_placeholder": "Badge SVG data...",
       "badge_manage_title": "Add/remove Badges",
       "badge_manage_empty": "Somehow there are no existing badges. This shouldn't happen.",
@@ -187,6 +189,7 @@
       "modify_id": "id: %s",
 
       "level_title": "Change Admin Level",
+      "level_placeholder": "Level:",
       "level_zero": "No admin permissions (lvl 0)",
       "level_one": "Delete posts/comments (lvl 1)",
       "level_two": "Delete accounts (lvl 2)",
@@ -219,6 +222,7 @@
       "title": "Home",
       "post_input_placeholder": "What's on your mind?",
       "c_warning_placeholder": "Content warning...",
+      "c_warning_label": "Content warning:",
 
       "switch_recent": "Switch to recent...",
       "switch_following": "Switch to following...",
@@ -322,8 +326,10 @@
       "type_public": "Public",
       "type_followers_only": "Followers only",
       "no_posts": "No posts",
+      "private_post": "Private post",
 
       "like": "Like",
+      "unlike": "Remove like",
       "comment": "Comment",
       "quote": "Quote",
       "delete": "Delete",
@@ -362,6 +368,8 @@
       "cosmetic_theme_oled": "Black",
       "cosmetic_theme_invalid": "That's not a vailid theme, idiot.",
       "cosmetic_bar": "Icon bar positioning",
+      "cosmetic_bar_position": "Position:",
+      "cosmetic_bar_direction": "Direction:",
       "cosmetic_bar_ur": "Upper right",
       "cosmetic_bar_lr": "Lower right",
       "cosmetic_bar_ul": "Upper left",
@@ -493,6 +501,13 @@
       "unknown": "Unknown",
 
       "changes": {
+        "v0.12.3": {
+          "1": "Made the website more accessible to screen readers",
+          "2": "Added an easy way to overwrite static files for your instance",
+          "3": "Added more caching",
+          "4": "Added keyboard navigation for the share button and polls",
+          "5": "Removed an extra hyphen on /u/.../lists/ pages"
+        },
         "v0.12.2": {
           "1": "Fixed a bug that prevented you from being able to comment on posts"
         },

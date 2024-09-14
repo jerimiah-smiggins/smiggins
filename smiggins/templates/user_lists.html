@@ -58,9 +58,9 @@
                     <span class="user-badge" data-add-icon="lock"></span>
                   {% endif %}
                   {% for BADGE in USER.badges %}
-                    <span class="user-badge" data-add-badge="{{ BADGE }}"></span>
+                    <span aria-hidden="true" class="user-badge" data-add-badge="{{ BADGE }}"></span>
                   {% endfor %}
-                  <span class="upper-lower-opacity"> -
+                  <span class="upper-lower-opacity">
                     {% if NO_CSS_MODE == "true" %}
                       <a href="/u/{{ USER.username }}/" class="no-underline text">
                     {% endif %}
@@ -109,9 +109,9 @@
                   <span class="user-badge" data-add-icon="lock"></span>
                 {% endif %}
                 {% for BADGE in USER.badges %}
-                  <span class="user-badge" data-add-badge="{{ BADGE }}"></span>
+                  <span aria-hidden="true" class="user-badge" data-add-badge="{{ BADGE }}"></span>
                 {% endfor %}
-                <span class="upper-lower-opacity"> -
+                <span class="upper-lower-opacity">
                   {% if NO_CSS_MODE == "true" %}
                     <a href="/u/{{ USER.username }}/" class="no-underline text">
                   {% endif %}
@@ -159,9 +159,9 @@
                     <span class="user-badge" data-add-icon="lock"></span>
                   {% endif %}
                   {% for BADGE in USER.badges %}
-                    <span class="user-badge" data-add-badge="{{ BADGE }}"></span>
+                    <span aria-hidden="true" class="user-badge" data-add-badge="{{ BADGE }}"></span>
                   {% endfor %}
-                  <span class="upper-lower-opacity"> -
+                  <span class="upper-lower-opacity">
                     {% if NO_CSS_MODE == "true" %}
                       <a href="/u/{{ USER.username }}/" class="no-underline text">
                     {% endif %}

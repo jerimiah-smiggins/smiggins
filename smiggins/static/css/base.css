@@ -352,6 +352,7 @@ body[data-bar-dir="v"][data-bar-pos^="l"] {
   flex-wrap: wrap;
   position: fixed;
   gap: 0.5em;
+  z-index: 999;
 }
 
 .icons a {

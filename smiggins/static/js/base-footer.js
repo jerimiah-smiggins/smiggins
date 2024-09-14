@@ -27,7 +27,7 @@ if (logged_in) {
     }
 }
 if (typeof (share) !== 'undefined') {
-    iconsElement.innerHTML += `<div><a href="javascript:void(0);"><span title="${lang.generic.share}" onclick="navigator.clipboard.writeText('${escapeHTML(share)}'); showlog('${lang.generic.copied}');">${NO_CSS_MODE ? lang.generic.share : icons.share}</span></a></div>`;
+    iconsElement.innerHTML += `<div><span title="${lang.generic.share}" role="button" onkeydown="genericKeyboardEvent(event, () => { navigator.clipboard.writeText('${escapeHTML(share)}'); showlog('${lang.generic.copied}'); })" tabindex="0" onclick="navigator.clipboard.writeText('${escapeHTML(share)}'); showlog('${lang.generic.copied}');">${NO_CSS_MODE ? lang.generic.share : icons.share}</span></div>`;
 }
 document.body.prepend(iconsElement);
 function getNotifications() {
