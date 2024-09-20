@@ -30,8 +30,23 @@ class SaveUser(Schema):
 class UserLevel(AccountIdentifier):
     level: int
 
+class BitMask:
+    @staticmethod
+    def can_use(user: User, identifier: int) -> bool:
+        return bool(user.admin_level >> identifier & 1)
+
+    DELETE_POST = 0
+    DELETE_USER = 1
+    CREATE_BADGE = 2
+    DELETE_BADGE = 3
+    GIVE_BADGE_TO_USER = 4
+    MODIFY_ACCOUNT = 5
+    ACC_SWITCHER = 6
+    ADMIN_LEVEL = 7
+    READ_LOGS = 8
+
 def user_delete(request, data: AccountIdentifier) -> tuple | dict:
-    # Deleting an account (2+)
+    # Deleting an account
 
     token = request.COOKIES.get('token')
 
@@ -59,7 +74,7 @@ def user_delete(request, data: AccountIdentifier) -> tuple | dict:
             "reason": lang["generic"]["user_not_found"]
         }
 
-    if user.user_id == OWNER_USER_ID or user.admin_level >= 2:
+    if user.user_id == OWNER_USER_ID or BitMask.can_use(user, BitMask.DELETE_USER):
         for badge in account.badges:
             b = Badge.objects.get(name=badge)
             b.users.remove(account.user_id)
@@ -179,7 +194,7 @@ def badge_create(request, data: NewBadge) -> tuple | dict:
             "success": False
         }
 
-    if self_user.admin_level >= 3 or self_user.user_id == OWNER_USER_ID:
+    if self_user.user_id == OWNER_USER_ID or BitMask.can_use(self_user, BitMask.CREATE_BADGE):
         badge_name = data.badge_name.lower().replace(" ", "")
         badge_data = trim_whitespace(data.badge_data, True)
 
@@ -248,7 +263,7 @@ def badge_delete(request, data: DeleteBadge) -> tuple | dict:
             "success": False
         }
 
-    if self_user.admin_level >= 3 or self_user.user_id == OWNER_USER_ID:
+    if self_user.user_id == OWNER_USER_ID or BitMask.can_use(self_user, BitMask.DELETE_BADGE):
         badge_name = data.badge_name.lower().replace(" ", "")
 
         if len(badge_name) > 64 or len(badge_name) <= 0:
@@ -320,7 +335,7 @@ def badge_add(request, data: UserBadge) -> tuple | dict:
             "success": False
         }
 
-    if self_user.admin_level >= 3 or self_user.user_id == OWNER_USER_ID:
+    if self_user.user_id == OWNER_USER_ID or BitMask.can_use(self_user, BitMask.GIVE_BADGE_TO_USER):
         try:
             if data.use_id:
                 user = User.objects.get(user_id=int(data.identifier))
@@ -381,7 +396,7 @@ def badge_remove(request, data: UserBadge) -> tuple | dict:
             "success": False
         }
 
-    if self_user.admin_level >= 3 or self_user.user_id == OWNER_USER_ID:
+    if self_user.user_id == OWNER_USER_ID or BitMask.can_use(self_user, BitMask.GIVE_BADGE_TO_USER):
         try:
             if data.use_id:
                 user = User.objects.get(user_id=int(data.identifier))
@@ -441,7 +456,11 @@ def account_info(request, identifier: int | str, use_id: bool) -> tuple | dict:
             "success": False
         }
 
-    if self_user.admin_level >= 4 or self_user.user_id == OWNER_USER_ID:
+    owner = self_user.user_id == OWNER_USER_ID
+    modify = owner or BitMask.can_use(self_user, BitMask.MODIFY_ACCOUNT)
+    switch = owner or BitMask.can_use(self_user, BitMask.ACC_SWITCHER)
+
+    if owner or modify or switch:
         try:
             if use_id:
                 user = User.objects.get(user_id=int(identifier))
@@ -456,14 +475,26 @@ def account_info(request, identifier: int | str, use_id: bool) -> tuple | dict:
             }
 
         log_admin_action("Get account info", self_user, f"Fetched info for {identifier} (use_id: {use_id}) successfully")
-        return {
-            "success": True,
-            "username": user.username,
-            "user_id": user.user_id,
-            "token": user.token,
-            "bio": user.bio,
-            "displ_name": user.display_name
-        }
+
+        if modify:
+            ret = {
+                "success": True,
+                "username": user.username,
+                "user_id": user.user_id,
+                "bio": user.bio,
+                "displ_name": user.display_name
+            }
+        else:
+            ret = {
+                "success": True,
+                "username": user.username,
+                "user_id": user.user_id
+            }
+
+        if switch:
+            ret["token"] = user.token
+
+        return ret
 
     log_admin_action("Get account info", self_user, f"Tried to fetch account info for {identifier} (use_id: {use_id}), but too low of an admin level")
     return 400, {
@@ -480,7 +511,7 @@ def account_save(request, data: SaveUser) -> tuple | dict:
             "success": False
         }
 
-    if self_user.admin_level >= 4 or self_user.user_id == OWNER_USER_ID:
+    if self_user.user_id == OWNER_USER_ID or BitMask.can_use(self_user, BitMask.MODIFY_ACCOUNT):
         try:
             user = User.objects.get(user_id=data.id)
         except User.DoesNotExist:
@@ -548,7 +579,7 @@ def set_level(request, data: UserLevel) -> tuple | dict:
     identifier = data.identifier
     level = data.level
 
-    if self_user.admin_level >= 5 or self_user.user_id == OWNER_USER_ID:
+    if self_user.user_id == OWNER_USER_ID or BitMask.can_use(self_user, BitMask.ADMIN_LEVEL):
         if level > 5 or level < 0:
             log_admin_action("Set admin level", self_user, f"Tried to give level {data.level} to {identifier} (use_id: {use_id}), but the level was invalid")
             lang = get_lang(self_user)
@@ -591,7 +622,7 @@ def logs(request) -> tuple | dict:
                 "success": False
             }
 
-        if self_user.admin_level >= 4 or self_user.user_id == OWNER_USER_ID:
+        if self_user.user_id == OWNER_USER_ID or BitMask.can_use(self_user, BitMask.READ_LOGS):
             return {
                 "success": True,
                 "content": bytes.decode(base64.b64encode(open(ADMIN_LOG_PATH, "rb").read()))

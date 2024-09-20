@@ -1,5 +1,6 @@
 from django.db import models
 
+
 class User(models.Model):
     user_id  = models.IntegerField(primary_key=True, unique=True)
     username = models.CharField(max_length=300, unique=True)
@@ -8,12 +9,18 @@ class User(models.Model):
     email_valid = models.BooleanField(default=False)
 
     # Admin level
-    # 0 - Regular user
-    # 1 - Ability to delete any post
-    # 2 - Ability to delete any account
-    # 3 - Ability to add badges to accounts and create new badges
-    # 4 - Full access to modify anything in the database except for admin levels
-    # 5 - Ability to add anyone as an admin of any level, including level 5. This is automatically given to the owner specified in _settings.py
+    # Functions as a binary mask. Definitions (32 bit compatible):
+    #                        +- Read admin logs
+    #                        |+- Change admin levels for others
+    #                        ||+- Add any account to account switcher
+    #                        |||+- Modify account info
+    #                        ||||+- Add/remove badges from profiles
+    #                        |||||+- Delete badges
+    #                        ||||||+- Create/modify badges
+    #                        |||||||+- Delete accounts
+    #          unused        ||||||||+- Delete posts
+    #            |           |||||||||
+    # 000000000000000000000000XXXXXXXX
     admin_level = models.IntegerField(default=0)
 
     display_name = models.CharField(max_length=300)
