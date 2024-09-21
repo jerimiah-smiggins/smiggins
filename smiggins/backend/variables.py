@@ -86,7 +86,7 @@ GENERIC_CACHE_TIMEOUT: int | None = 604800
 API_TIMINGS: dict[str, int] = {}
 
 # stores variable metadata
-_VARIABLES: list[tuple[str, list[str], type | str, bool]] = [
+_VARIABLES: list[tuple[str, list[str], type | str | list | tuple | dict, bool]] = [
 #   ["VAR_NAME", keys, type, allow_null]
     ("VERSION", ["version"], str, False),
     ("SITE_NAME", ["site_name"], str, False),
@@ -96,8 +96,8 @@ _VARIABLES: list[tuple[str, list[str], type | str, bool]] = [
     ("ADMIN_LOG_PATH", ["admin_log_path"], str, True),
     ("MAX_ADMIN_LOG_LINES", ["max_admin_log_lines"], int, False),
     ("DEFAULT_LANGUAGE", ["default_lang", "default_language"], str, False),
-    ("DEFAULT_DARK_THEME", ["default_dark_theme"], str, False),
-    ("DEFAULT_LIGHT_THEME", ["default_light_theme"], str, False),
+    ("DEFAULT_DARK_THEME", ["default_dark_theme"], "theme", False),
+    ("DEFAULT_LIGHT_THEME", ["default_light_theme"], "theme", False),
     ("CACHE_LANGUAGES", ["cache_langs", "cache_languages"], bool, True),
     ("ALLOW_SCRAPING", ["allow_scraping"], bool, False),
     ("MAX_USERNAME_LENGTH", ["max_username_length"], int, False),
@@ -107,15 +107,15 @@ _VARIABLES: list[tuple[str, list[str], type | str, bool]] = [
     ("MAX_POST_LENGTH", ["max_post_length"], int, False),
     ("MAX_POLL_OPTIONS", ["max_poll_options"], int, False),
     ("MAX_POLL_OPTION_LENGTH", ["max_poll_option_length"], int, False),
-    ("DEFAULT_BANNER_COLOR", ["default_banner_color"], "co", False),
+    ("DEFAULT_BANNER_COLOR", ["default_banner_color"], "color", False),
     ("POSTS_PER_REQUEST", ["posts_per_request"], int, False),
     ("MESSAGES_PER_REQUEST", ["messages_per_request"], int, False),
     ("MAX_NOTIFICATIONS", ["max_notifs", "max_notifications"], int, False),
-    ("CONTACT_INFO", ["contact_info", "contact_information"], list[list[str]], False),
-    ("POST_WEBHOOKS", ["webhooks", "auto_webhooks", "post_webhooks", "auto_post_webhooks"], dict[str, list[str]], False),
+    ("CONTACT_INFO", ["contact_info", "contact_information"], [[str]], False),
+    ("POST_WEBHOOKS", ["webhooks", "auto_webhooks", "post_webhooks", "auto_post_webhooks"], {str: [str]}, False),
     ("SOURCE_CODE", ["source_code"], bool, False),
     ("RATELIMIT", ["ratelimit"], bool, False),
-    ("API_TIMINGS", ["api_timings"], dict[str, int], False),
+    ("API_TIMINGS", ["api_timings"], {str: int}, False),
     ("ENABLE_USER_BIOS", ["enable_user_bios"], bool, False),
     ("ENABLE_PRONOUNS", ["enable_pronouns"], bool, False),
     ("ENABLE_GRADIENT_BANNERS", ["enable_gradient_banners"], bool, False),
@@ -151,37 +151,74 @@ except ValueError:
 except FileNotFoundError:
     error("settings.json not found")
 
-def extended_isinstance(obj: Any, expected_type: type) -> bool:
-    if expected_type is Any:
+def typecheck(obj: Any, expected_type: type | str | list | tuple | dict, allow_null: bool=False) -> bool:
+    # Checks for a custom type format.
+    # Lists should always have 0 or 1 indexes, and dicts should always have 0 or 1 keys.
+    # If a list is empty, it allows any values. Same with dicts.
+    # examples - python -> custom
+    # int | float -> (int, float)
+    # list[str | int] -> [(str, int)]
+    # dict[str, list[str] | str] -> {str: ([str], str)}
+
+    if expected_type is Any: # typing.Any throws a TypeError when used with isinstance()
         return True
 
-    origin_type = get_origin(expected_type)
-    if origin_type:
-        if not isinstance(obj, origin_type):
-            return False
+    if obj is None:
+        return allow_null
 
-        args = get_args(expected_type)
-        if origin_type is list:
-            return all(extended_isinstance(item, args[0]) for item in obj)
-        elif origin_type is dict:
-            key_type, value_type = args
-            return all(
-                extended_isinstance(k, key_type) and extended_isinstance(v, value_type)
-                for k, v in obj.items()
-            )
-        else:
-            return False
-    else:
+    if isinstance(expected_type, type):
         return isinstance(obj, expected_type)
 
-def is_ok(val: Any, var: str, t: type | str, null: bool=False):
-    if (isinstance(t, type) and extended_isinstance(val, t)) or \
-       (null and isinstance(t, type) and val is None) or \
-       (isinstance(t, str) and t == "co" and re.match(r"^#[0-9a-f]{6}$", val)):
+    if isinstance(expected_type, str):
+        if expected_type == "color":
+            return isinstance(obj, str) and re.match(r"^#[0-9a-f]{6}$", obj)
+
+        if expected_type == "theme":
+            return isinstance(obj, str) and obj in ["dawn", "dusk", "dark", "midnight", "black"]
+
+        # Add more special checks when needed
+
+        return False
+
+    if isinstance(expected_type, list):
+        if not isinstance(obj, list):
+            return False
+
+        if len(expected_type):
+            for i in obj:
+                if not typecheck(i, expected_type[0], allow_null):
+                    return False
+
+        return True
+
+    if isinstance(expected_type, tuple):
+        for i in expected_type:
+            if not typecheck(obj, i, allow_null):
+                return False
+
+        return True
+
+    if isinstance(expected_type, dict):
+        if not isinstance(obj, dict):
+            return False
+
+        if len(expected_type):
+            types = list(expected_type.items())[0]
+
+            for key, val in obj.items():
+                if not typecheck(key, types[0], allow_null) or not typecheck(val, types[1], allow_null):
+                    return False
+
+        return True
+
+    return False
+
+def is_ok(val: Any, var: str, t: type | str | list | tuple | dict, null: bool=False):
+    if typecheck(val, t, null):
         exec(f"global {var}\n{var} = {repr(val)}")
 
     elif val is not None:
-        error(f"{val} should be {t}, not {type(val)}")
+        error(f"{val} should be {t}")
 
 def clamp(
     val: int | None,
