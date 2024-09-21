@@ -174,7 +174,7 @@ def typecheck(obj: Any, expected_type: type | str | list | tuple | dict, allow_n
             return isinstance(obj, str) and re.match(r"^#[0-9a-f]{6}$", obj)
 
         if expected_type == "theme":
-            return isinstance(obj, str) and obj in ["dawn", "dusk", "dark", "midnight", "black"]
+            return isinstance(obj, str) and obj.lower() in ["dawn", "dusk", "dark", "midnight", "black"]
 
         # Add more special checks when needed
 
@@ -285,11 +285,11 @@ if ENABLE_SITEMAPS and WEBSITE_URL is None:
 
 DEFAULT_DARK_THEME = {
     "dawn": "light", "dusk": "gray", "dark": "dark", "midnight": "black", "black": "oled"
-}[DEFAULT_DARK_THEME.lower() if DEFAULT_DARK_THEME.lower() in ["dawn", "dusk", "dark", "midnight", "black"] else "dark"]
+}[DEFAULT_DARK_THEME.lower()]
 
 DEFAULT_LIGHT_THEME = {
     "dawn": "light", "dusk": "gray", "dark": "dark", "midnight": "black", "black": "oled"
-}[DEFAULT_LIGHT_THEME.lower() if DEFAULT_LIGHT_THEME.lower() in ["dawn", "dusk", "dark", "midnight", "black"] else "dawn"]
+}[DEFAULT_LIGHT_THEME.lower()]
 
 for key, val in {
     "signup unsuccessful": 1000,
