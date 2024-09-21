@@ -5,6 +5,7 @@ import json
 from django.http import HttpResponse, HttpResponseRedirect
 from posts.models import Comment, Hashtag, Post, PrivateMessageContainer, User
 
+from .api.admin import BitMask
 from .helper import (LANGS, can_view_post, get_badges, get_container_id,
                      get_HTTP_response, get_lang, get_post_json)
 from .variables import (BADGE_DATA, CACHE_LANGUAGES, CONTACT_INFO, CREDITS,
@@ -321,7 +322,9 @@ def admin(request) -> HttpResponse | HttpResponseRedirect:
             request, "404.html", status=404
         )
 
-    if user.user_id != OWNER_USER_ID and user.admin_level < 1:
+    lv = (2 ** (BitMask.MAX_LEVEL + 1) - 1) if user.user_id == OWNER_USER_ID else user.admin_level
+
+    if lv == 0:
         return get_HTTP_response(
             request, "404.html", status=404
         )
@@ -329,8 +332,10 @@ def admin(request) -> HttpResponse | HttpResponseRedirect:
     return get_HTTP_response(
         request, "admin.html", user=user,
 
-        LEVEL = 5 if user.user_id == OWNER_USER_ID else user.admin_level,
-        BADGE_DATA = BADGE_DATA
+        LEVEL = lv,
+        BADGE_DATA = BADGE_DATA,
+        mask=BitMask,
+        LEVEL_BINARY = f"{'0' * (BitMask.MAX_LEVEL - len(f'{lv:b}'))}{lv:b}"
     )
 
 def message(request, username: str) -> HttpResponse | HttpResponseRedirect:

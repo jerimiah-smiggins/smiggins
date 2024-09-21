@@ -12,7 +12,7 @@ class User(models.Model):
     # Functions as a binary mask. Definitions (32 bit compatible):
     #                        +- Read admin logs
     #                        |+- Change admin levels for others
-    #                        ||+- Add any account to account switcher
+    #                        ||+- Add any account to account switcher - requires modify info
     #                        |||+- Modify account info
     #                        ||||+- Add/remove badges from profiles
     #                        |||||+- Delete badges

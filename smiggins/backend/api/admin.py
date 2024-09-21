@@ -33,7 +33,11 @@ class UserLevel(AccountIdentifier):
 class BitMask:
     @staticmethod
     def can_use(user: User, identifier: int) -> bool:
-        return bool(user.admin_level >> identifier & 1)
+        return User.user_id == OWNER_USER_ID or bool(user.admin_level >> identifier & 1)
+
+    @staticmethod
+    def can_use_direct(user_level: int, identifier: int) -> bool:
+        return bool(user_level >> identifier & 1)
 
     DELETE_POST = 0
     DELETE_USER = 1
@@ -41,9 +45,11 @@ class BitMask:
     DELETE_BADGE = 3
     GIVE_BADGE_TO_USER = 4
     MODIFY_ACCOUNT = 5
-    ACC_SWITCHER = 6
+    ACC_SWITCHER = 6 # requires MODIFY_ACCOUNT
     ADMIN_LEVEL = 7
     READ_LOGS = 8
+
+    MAX_LEVEL = 8
 
 def user_delete(request, data: AccountIdentifier) -> tuple | dict:
     # Deleting an account
@@ -74,7 +80,7 @@ def user_delete(request, data: AccountIdentifier) -> tuple | dict:
             "reason": lang["generic"]["user_not_found"]
         }
 
-    if user.user_id == OWNER_USER_ID or BitMask.can_use(user, BitMask.DELETE_USER):
+    if BitMask.can_use(user, BitMask.DELETE_USER):
         for badge in account.badges:
             b = Badge.objects.get(name=badge)
             b.users.remove(account.user_id)
@@ -194,7 +200,7 @@ def badge_create(request, data: NewBadge) -> tuple | dict:
             "success": False
         }
 
-    if self_user.user_id == OWNER_USER_ID or BitMask.can_use(self_user, BitMask.CREATE_BADGE):
+    if BitMask.can_use(self_user, BitMask.CREATE_BADGE):
         badge_name = data.badge_name.lower().replace(" ", "")
         badge_data = trim_whitespace(data.badge_data, True)
 
@@ -263,7 +269,7 @@ def badge_delete(request, data: DeleteBadge) -> tuple | dict:
             "success": False
         }
 
-    if self_user.user_id == OWNER_USER_ID or BitMask.can_use(self_user, BitMask.DELETE_BADGE):
+    if BitMask.can_use(self_user, BitMask.DELETE_BADGE):
         badge_name = data.badge_name.lower().replace(" ", "")
 
         if len(badge_name) > 64 or len(badge_name) <= 0:
@@ -335,7 +341,7 @@ def badge_add(request, data: UserBadge) -> tuple | dict:
             "success": False
         }
 
-    if self_user.user_id == OWNER_USER_ID or BitMask.can_use(self_user, BitMask.GIVE_BADGE_TO_USER):
+    if BitMask.can_use(self_user, BitMask.GIVE_BADGE_TO_USER):
         try:
             if data.use_id:
                 user = User.objects.get(user_id=int(data.identifier))
@@ -396,7 +402,7 @@ def badge_remove(request, data: UserBadge) -> tuple | dict:
             "success": False
         }
 
-    if self_user.user_id == OWNER_USER_ID or BitMask.can_use(self_user, BitMask.GIVE_BADGE_TO_USER):
+    if BitMask.can_use(self_user, BitMask.GIVE_BADGE_TO_USER):
         try:
             if data.use_id:
                 user = User.objects.get(user_id=int(data.identifier))
@@ -456,11 +462,10 @@ def account_info(request, identifier: int | str, use_id: bool) -> tuple | dict:
             "success": False
         }
 
-    owner = self_user.user_id == OWNER_USER_ID
-    modify = owner or BitMask.can_use(self_user, BitMask.MODIFY_ACCOUNT)
-    switch = owner or BitMask.can_use(self_user, BitMask.ACC_SWITCHER)
+    modify = BitMask.can_use(self_user, BitMask.MODIFY_ACCOUNT)
+    switch = BitMask.can_use(self_user, BitMask.ACC_SWITCHER)
 
-    if owner or modify or switch:
+    if modify or switch:
         try:
             if use_id:
                 user = User.objects.get(user_id=int(identifier))
@@ -511,7 +516,7 @@ def account_save(request, data: SaveUser) -> tuple | dict:
             "success": False
         }
 
-    if self_user.user_id == OWNER_USER_ID or BitMask.can_use(self_user, BitMask.MODIFY_ACCOUNT):
+    if BitMask.can_use(self_user, BitMask.MODIFY_ACCOUNT):
         try:
             user = User.objects.get(user_id=data.id)
         except User.DoesNotExist:
@@ -579,7 +584,7 @@ def set_level(request, data: UserLevel) -> tuple | dict:
     identifier = data.identifier
     level = data.level
 
-    if self_user.user_id == OWNER_USER_ID or BitMask.can_use(self_user, BitMask.ADMIN_LEVEL):
+    if BitMask.can_use(self_user, BitMask.ADMIN_LEVEL):
         if level > 5 or level < 0:
             log_admin_action("Set admin level", self_user, f"Tried to give level {data.level} to {identifier} (use_id: {use_id}), but the level was invalid")
             lang = get_lang(self_user)
@@ -622,7 +627,7 @@ def logs(request) -> tuple | dict:
                 "success": False
             }
 
-        if self_user.user_id == OWNER_USER_ID or BitMask.can_use(self_user, BitMask.READ_LOGS):
+        if BitMask.can_use(self_user, BitMask.READ_LOGS):
             return {
                 "success": True,
                 "content": bytes.decode(base64.b64encode(open(ADMIN_LOG_PATH, "rb").read()))
