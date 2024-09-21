@@ -2,7 +2,6 @@
 
 import time
 
-from ninja import Schema
 from posts.models import Comment, Notification, Post, User
 
 from ..helper import (DEFAULT_LANG, can_view_post, create_api_ratelimit,
@@ -12,17 +11,8 @@ from ..helper import (DEFAULT_LANG, can_view_post, create_api_ratelimit,
 from ..variables import (API_TIMINGS, ENABLE_CONTENT_WARNINGS,
                          ENABLE_LOGGED_OUT_CONTENT, MAX_CONTENT_WARNING_LENGTH,
                          MAX_POST_LENGTH, OWNER_USER_ID, POSTS_PER_REQUEST)
+from .schema import CommentID, NewComment
 
-
-class NewComment(Schema):
-    c_warning: str
-    content: str
-    comment: bool
-    id: int
-    private: bool
-
-class CommentID(Schema):
-    id: int
 
 def comment_create(request, data: NewComment) -> tuple | dict:
     # Called when a new comment is created.

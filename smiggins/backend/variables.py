@@ -2,7 +2,7 @@ import hashlib
 import os
 import pathlib
 import re
-from typing import Any, get_args, get_origin
+from typing import Any
 
 import json5 as json
 from django.db.utils import OperationalError
@@ -171,7 +171,7 @@ def typecheck(obj: Any, expected_type: type | str | list | tuple | dict, allow_n
 
     if isinstance(expected_type, str):
         if expected_type == "color":
-            return isinstance(obj, str) and re.match(r"^#[0-9a-f]{6}$", obj)
+            return isinstance(obj, str) and bool(re.match(r"^#[0-9a-f]{6}$", obj))
 
         if expected_type == "theme":
             return isinstance(obj, str) and obj.lower() in ["dawn", "dusk", "dark", "midnight", "black"]
@@ -236,7 +236,7 @@ def clamp(
 
     return val
 
-_var_dict: dict[str, tuple[str, list[str], type | str, bool]] = {}
+_var_dict: dict[str, tuple[str, list[str], type | str | list | tuple | dict, bool]] = {}
 for i in _VARIABLES:
     for alias in i[1]:
         _var_dict[alias] = i

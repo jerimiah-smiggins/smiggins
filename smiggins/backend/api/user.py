@@ -1,6 +1,5 @@
 # For API functions that are user-specific, like settings, following, etc.
 
-from ninja import Schema
 from posts.models import Comment, Notification, Post, User
 
 from ..helper import (DEFAULT_LANG, create_api_ratelimit, ensure_ratelimit,
@@ -11,35 +10,8 @@ from ..variables import (API_TIMINGS, DEFAULT_BANNER_COLOR, DEFAULT_DARK_THEME,
                          ENABLE_PRONOUNS, ENABLE_USER_BIOS, MAX_BIO_LENGTH,
                          MAX_DISPL_NAME_LENGTH, MAX_USERNAME_LENGTH,
                          POSTS_PER_REQUEST, VALID_LANGUAGES)
+from .schema import Account, ChangePassword, Settings, SignUp, Theme, Username
 
-
-class Username(Schema):
-    username: str
-
-class Account(Username):
-    password: str
-
-class SignUp(Account):
-    light_mode: bool
-
-class ChangePassword(Schema):
-    password: str
-    new_password: str
-
-class Theme(Schema):
-    theme: str
-
-class Settings(Schema):
-    bio: str
-    lang: str
-    color: str
-    no_css: bool
-    pronouns: str
-    color_two: str
-    displ_name: str
-    is_gradient: bool
-    approve_followers: bool
-    default_post_visibility: str
 
 def signup(request, data: SignUp) -> tuple | dict:
     # Called when someone requests to follow another account.

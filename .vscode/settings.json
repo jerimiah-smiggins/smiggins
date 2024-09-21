@@ -108,5 +108,8 @@
   "typescript.inlayHints.functionLikeReturnTypes.enabled": true,
   "python.analysis.extraPaths": [
     "./smiggins/backend"
+  ],
+  "cSpell.words": [
+    "typecheck"
   ]
 }

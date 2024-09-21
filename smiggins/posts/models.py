@@ -11,7 +11,7 @@ class User(models.Model):
     # Admin level
     # Functions as a binary mask. Definitions (32 bit compatible):
     #                        +- Read admin logs
-    #                        |+- Change admin levels for others
+    #                        |+- Change admin levels for self and others
     #                        ||+- Add any account to account switcher - requires modify info
     #                        |||+- Modify account info
     #                        ||||+- Add/remove badges from profiles
@@ -20,7 +20,7 @@ class User(models.Model):
     #                        |||||||+- Delete accounts
     #          unused        ||||||||+- Delete posts
     #            |           |||||||||
-    # 000000000000000000000000XXXXXXXX
+    # 00000000000000000000000XXXXXXXXX
     admin_level = models.IntegerField(default=0)
 
     display_name = models.CharField(max_length=300)

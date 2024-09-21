@@ -6,7 +6,6 @@ import threading
 import time
 
 import requests
-from ninja import Schema
 from posts.models import Comment, Hashtag, Notification, Post, User
 
 from ..helper import (DEFAULT_LANG, can_view_post, create_api_ratelimit,
@@ -20,27 +19,8 @@ from ..variables import (API_TIMINGS, ENABLE_CONTENT_WARNINGS,
                          MAX_POLL_OPTION_LENGTH, MAX_POLL_OPTIONS,
                          MAX_POST_LENGTH, OWNER_USER_ID, POST_WEBHOOKS,
                          POSTS_PER_REQUEST, SITE_NAME, VERSION)
+from .schema import NewPost, NewQuote, Poll, PostID
 
-
-class NewPost(Schema):
-    c_warning: str
-    content: str
-    poll: list[str]
-    private: bool
-
-class NewQuote(Schema):
-    c_warning: str
-    content: str
-    quote_id: int
-    quote_is_comment: bool
-    private: bool
-
-class PostID(Schema):
-    id: int
-
-class Poll(Schema):
-    id: int
-    option: int
 
 def post_hook(request, user: User, post: Post):
     def post_inside(request, user: User, post: Post):

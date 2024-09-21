@@ -2,33 +2,13 @@
 
 import base64
 
-from ninja import Schema
 from posts.models import Badge, Comment, Hashtag, Post, User
 
 from ..helper import find_hashtags, get_lang, log_admin_action, trim_whitespace
 from ..variables import ADMIN_LOG_PATH, BADGE_DATA, OWNER_USER_ID
+from .schema import (AccountIdentifier, DeleteBadge, NewBadge, SaveUser,
+                     UserBadge, UserLevel)
 
-
-class AccountIdentifier(Schema):
-    identifier: str | int
-    use_id: bool
-
-class DeleteBadge(Schema):
-    badge_name: str
-
-class NewBadge(DeleteBadge):
-    badge_data: str
-
-class UserBadge(AccountIdentifier):
-    badge_name: str
-
-class SaveUser(Schema):
-    displ_name: str
-    bio: str
-    id: int
-
-class UserLevel(AccountIdentifier):
-    level: int
 
 class BitMask:
     @staticmethod
