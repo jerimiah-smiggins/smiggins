@@ -501,6 +501,9 @@
       "unknown": "Unknown",
 
       "changes": {
+        "v0.12.4": {
+          "1": "Fixed an exploit that allowed anyone to inject arbitrary code into post pages"
+        },
         "v0.12.3": {
           "1": "Made the website more accessible to screen readers",
           "2": "Added an easy way to overwrite static files for your instance",

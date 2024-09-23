@@ -7,6 +7,7 @@ import time
 from typing import Any, Callable, Literal
 
 import json5 as json
+import json as json_f
 from django.core.mail import send_mail
 from django.http import HttpResponse, HttpResponseRedirect
 from django.template import loader
@@ -121,7 +122,9 @@ def get_HTTP_response(
         "DEFAULT_LIGHT_THEME": DEFAULT_LIGHT_THEME,
         "DEFAULT_DARK_THEME": DEFAULT_DARK_THEME,
         "lang": lang,
-        "badges": BADGE_DATA
+        "lang_str": json_f.dumps(lang),
+        "badges": BADGE_DATA,
+        "badges_str": json_f.dumps(BADGE_DATA)
     }
 
     for key, value in kwargs.items():
