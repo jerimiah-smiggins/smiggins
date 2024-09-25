@@ -148,7 +148,6 @@ def user_delete(request, data: AccountIdentifier) -> tuple | dict:
 
         for like in account.likes:
             post = (Comment if like[1] else Post).objects.get(pk=like[0])
-            print(account.user_id, type(account.user_id), post.likes, post.content, like)
             post.likes.remove(account.user_id)
             post.save()
             try:
@@ -215,7 +214,7 @@ def badge_create(request, data: NewBadge) -> tuple | dict:
             lang = get_lang(self_user)
             return 400, {
                 "success": False,
-                "reason": lang["admin"]["badge_invalid_name_size"]
+                "reason": lang["admin"]["badge"]["invalid_name_size"]
             }
 
         for i in badge_name:
@@ -224,7 +223,7 @@ def badge_create(request, data: NewBadge) -> tuple | dict:
                 lang = get_lang(self_user)
                 return 400, {
                     "success": False,
-                    "reason": lang["admin"]["badge_invalid_name"]
+                    "reason": lang["admin"]["badge"]["invalid_name"]
                 }
 
         if len(badge_data) > 65536 or len(badge_data) <= 0:
@@ -232,7 +231,7 @@ def badge_create(request, data: NewBadge) -> tuple | dict:
             lang = get_lang(self_user)
             return 400, {
                 "success": False,
-                "reason": lang["admin"]["badge_create_invalid_data_size"]
+                "reason": lang["admin"]["badge"]["create_invalid_data_size"]
             }
 
         try:
@@ -283,7 +282,7 @@ def badge_delete(request, data: DeleteBadge) -> tuple | dict:
             lang = get_lang(self_user)
             return 400, {
                 "success": False,
-                "reason": lang["admin"]["badge_invalid_name_size"]
+                "reason": lang["admin"]["badge"]["invalid_name_size"]
             }
 
         for i in badge_name:
@@ -292,7 +291,7 @@ def badge_delete(request, data: DeleteBadge) -> tuple | dict:
                 lang = get_lang(self_user)
                 return 400, {
                     "success": False,
-                    "reason": lang["admin"]["badge_invalid_name"]
+                    "reason": lang["admin"]["badge"]["invalid_name"]
                 }
 
         if badge_name in ["administrator"]:
@@ -300,7 +299,7 @@ def badge_delete(request, data: DeleteBadge) -> tuple | dict:
             lang = get_lang(self_user)
             return 400, {
                 "success": False,
-                "reason": lang["admin"]["badge_delete_protected"]
+                "reason": lang["admin"]["badge"]["delete_protected"]
             }
 
         try:
@@ -312,7 +311,7 @@ def badge_delete(request, data: DeleteBadge) -> tuple | dict:
             lang = get_lang(self_user)
             return 400, {
                 "success": False,
-                "reason": lang["admin"]["badge_not_found"].replace("%s", badge_name)
+                "reason": lang["admin"]["badge"]["not_found"].replace("%s", badge_name)
             }
 
         for i in badge.users:
@@ -386,7 +385,7 @@ def badge_add(request, data: UserBadge) -> tuple | dict:
         lang = get_lang(self_user)
         return 404, {
             "success": False,
-            "reason": lang["admin"]["badge_not_found"].replace("%s", data.badge_name)
+            "reason": lang["admin"]["badge"]["not_found"].replace("%s", data.badge_name)
         }
 
     log_admin_action("Add badge", self_user, None, "No permissions")
@@ -446,7 +445,7 @@ def badge_remove(request, data: UserBadge) -> tuple | dict:
         lang = get_lang(self_user)
         return 404, {
             "success": False,
-            "reason": lang["admin"]["badge_not_found"].replace("%s", data.badge_name)
+            "reason": lang["admin"]["badge"]["not_found"].replace("%s", data.badge_name)
         }
 
     log_admin_action("Remove badge", self_user, None, "No permissions")
@@ -535,7 +534,7 @@ def account_save(request, data: SaveUser) -> tuple | dict:
             lang = get_lang(self_user)
             return {
                 "success": False,
-                "reason": lang["admin"]["modify_invalid_bio_size"]
+                "reason": lang["admin"]["modify"]["invalid_bio_size"]
             }
 
         if len(data.displ_name) == 0 or len(data.displ_name) > 300:
@@ -543,7 +542,7 @@ def account_save(request, data: SaveUser) -> tuple | dict:
             lang = get_lang(self_user)
             return {
                 "success": False,
-                "reason": lang["admin"][f"modify_invalid_display_name_{'long' if len(data.displ_name) else 'short'}"]
+                "reason": lang["admin"]["modify"][f"invalid_display_name_{'long' if len(data.displ_name) else 'short'}"]
             }
 
         old_bio = user.bio
@@ -593,7 +592,7 @@ def set_level(request, data: UserLevel) -> tuple | dict:
             lang = get_lang(self_user)
             return 400, {
                 "success": False,
-                "reason": lang["admin"]["level_invalid"]
+                "reason": lang["admin"]["permissions"]["invalid"]
             }
 
         try:

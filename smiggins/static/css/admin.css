@@ -6,6 +6,10 @@ hr {
   max-width: 25em;
 }
 
+p {
+  margin-bottom: 0.25em;
+}
+
 .actions-container {
   display: flex;
   flex-direction: row;

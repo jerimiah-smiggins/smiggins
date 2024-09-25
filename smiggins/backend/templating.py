@@ -335,6 +335,7 @@ def admin(request) -> HttpResponse | HttpResponseRedirect:
         LEVEL = lv,
         BADGE_DATA = BADGE_DATA,
         mask=BitMask,
+        LEVEL_RANGE=[str(i) for i in range(BitMask.MAX_LEVEL + 1)],
         LEVEL_BINARY = f"{'0' * (BitMask.MAX_LEVEL - len(f'{lv:b}'))}{lv:b}"
     )
 

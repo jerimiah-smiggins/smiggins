@@ -142,70 +142,94 @@
 
     "admin": {
       "title": "Admin Panel",
-      "level": "Level",
       "is_comment_label": "Comment?",
       "use_id_label": "Use id?",
       "post_id_placeholder": "Post/comment id...",
       "user_id_placeholder": "Account username/id...",
 
-      "post_deletion_title": "Post Deletion",
-      "post_deletion_button": "Delete Post",
-      "post_deletion_error": "deleting the specified post/comment",
+      "post_deletion": {
+        "title": "Post Deletion",
+        "button": "Delete Post",
+        "error": "deleting the specified post/comment"
+      },
 
-      "account_deletion_title": "Account Deletion",
-      "account_deletion_button": "Delete Account",
-      "account_deletion_error": "deleting the specified account",
+      "account_deletion": {
+        "title": "Account Deletion",
+        "button": "Delete Account",
+        "error": "deleting the specified account"
+      },
 
-      "badge_name_placeholder": "Badge name...",
-      "badge_name_label": "Badge:",
-      "badge_data_placeholder": "Badge SVG data...",
-      "badge_manage_title": "Add/remove Badges",
-      "badge_manage_empty": "Somehow there are no existing badges. This shouldn't happen.",
-      "badge_manage_add_button": "Add Badge",
-      "badge_manage_add_error": "adding the badge",
-      "badge_manage_remove_button": "Remove Badge",
-      "badge_manage_remove_error": "removing the badge",
-      "badge_manage_add_protected": "Cannot set that badge as it is done automatically",
-      "badge_manage_remove_protected": "Cannot remove that badge as it is done automatically",
-      "badge_create_title": "Create/Override Badge",
-      "badge_create_button": "Create Badge",
-      "badge_create_invalid_data_size": "Badge data must be between 1 and 65536 characters in length",
-      "badge_create_success": "Reload for your changes to apply.",
-      "badge_delete_title": "Delete Badge",
-      "badge_delete_button": "Delete Badge",
-      "badge_delete_protected": "Cannot delete that badge",
-      "badge_invalid_name_size": "Badge name must be between 1 and 64 characters in length",
-      "badge_invalid_name": "Badge name can only contain a-z, 0-9, and underscores",
-      "badge_not_found": "A badge with the name '%s' doesn't exist!",
+      "badge": {
+        "name_placeholder": "Badge name...",
+        "name_label": "Badge:",
+        "data_placeholder": "Badge SVG data...",
+        "manage_title": "Add/remove Badges",
+        "manage_empty": "Somehow there are no existing badges. This shouldn't happen.",
+        "manage_add_button": "Add Badge",
+        "manage_add_error": "adding the badge",
+        "manage_remove_button": "Remove Badge",
+        "manage_remove_error": "removing the badge",
+        "manage_add_protected": "Cannot set that badge as it is done automatically",
+        "manage_remove_protected": "Cannot remove that badge as it is done automatically",
+        "create_title": "Create/Override Badge",
+        "create_button": "Create Badge",
+        "create_invalid_data_size": "Badge data must be between 1 and 65536 characters in length",
+        "create_success": "Reload for your changes to apply.",
+        "delete_title": "Delete Badge",
+        "delete_button": "Delete Badge",
+        "delete_protected": "Cannot delete that badge",
+        "invalid_name_size": "Badge name must be between 1 and 64 characters in length",
+        "invalid_name": "Badge name can only contain a-z, 0-9, and underscores",
+        "not_found": "A badge with the name '%s' doesn't exist!"
+      },
 
-      "modify_title": "Modify Account Info",
-      "modify_get_button": "Get Data",
-      "modify_current": "Current account:",
-      "modify_save": "Save info",
-      "modify_switcher": "Add to account switcher",
-      "modify_invalid_bio_size": "User bio is too long! It should be between 0 and 65536 characters.",
-      "modify_invalid_display_name_long": "Display name is too long! It should be between 1 and 300 characters.",
-      "modify_invalid_display_name_short": "Display name is too short! It should be between 1 and 300 characters.",
-      "modify_id": "id: %s",
+      "modify": {
+        "title": "Modify Account Info",
+        "get_button": "Get Data",
+        "current": "Current account:",
+        "save": "Save info",
+        "switcher": "Add to account switcher",
+        "invalid_bio_size": "User bio is too long! It should be between 0 and 65536 characters.",
+        "invalid_display_name_long": "Display name is too long! It should be between 1 and 300 characters.",
+        "invalid_display_name_short": "Display name is too short! It should be between 1 and 300 characters.",
+        "id": "id: %s"
+      },
 
-      "level_title": "Change Admin Level",
-      "level_label": "Level:",
-      "level_zero": "No admin permissions (lvl 0)",
-      "level_one": "Delete posts/comments (lvl 1)",
-      "level_two": "Delete accounts (lvl 2)",
-      "level_three": "Manage badges (lvl 3)",
-      "level_four": "Modify user data (lvl 4)",
-      "level_five": "Create new admins (lvl 5)",
-      "level_button": "Set admin level",
-      "level_invalid": "Invalid level",
-      "level_error": "setting that account's level",
+      "permissions": {
+        "title": "Change Admin Permissions",
+        "error": "setting that account's permissions",
+        "invalid": "Invalid permission mask. This shouldn't happen",
+        "label": "Permissions:",
+        "set": "Set permissions",
+        "load": "Load permissions",
 
-      "logs_button": "Load Logs",
-      "logs_error": "loading the logs",
-      "logs_timestamp": "Timestamp",
-      "logs_action": "Action",
-      "logs_who": "Who",
-      "logs_more_info": "More Info"
+        "descriptions": {
+          "0": "Delete posts",
+          "1": "Delete users",
+          "2": "Create/modify badges",
+          "3": "Delete badges",
+          "4": "Add/remove badges from users",
+          "5": "Modify account information",
+          "6": "Add any account to account switcher",
+          "7": "Change admin permissions",
+          "8": "Read admin logs"
+        },
+
+        "descriptions_extra": {
+          "5": "(Allows changing display name and user bio)",
+          "6": "(Requires modify account information)",
+          "7": "(Allows changing for self and others)"
+        }
+      },
+
+      "logs": {
+        "button": "Load Logs",
+        "error": "loading the logs",
+        "timestamp": "Timestamp",
+        "action": "Action",
+        "who": "Who",
+        "more_info": "More Info"
+      }
     },
 
     "contact": {
