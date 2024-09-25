@@ -12,7 +12,7 @@ from django.http import HttpResponse, HttpResponseRedirect
 from django.template import loader
 from posts.models import Comment, Notification, Post, User
 
-from .variables import (ADMIN_LOG_PATH, BADGE_DATA, BASE_DIR, CACHE_LANGUAGES,
+from .variables import (BADGE_DATA, BASE_DIR, CACHE_LANGUAGES,
                         DEFAULT_DARK_THEME, DEFAULT_LANGUAGE,
                         DEFAULT_LIGHT_THEME, DISCORD, ENABLE_ACCOUNT_SWITCHER,
                         ENABLE_BADGES, ENABLE_CHANGELOG_PAGE,
@@ -22,13 +22,13 @@ from .variables import (ADMIN_LOG_PATH, BADGE_DATA, BASE_DIR, CACHE_LANGUAGES,
                         ENABLE_NEW_ACCOUNTS, ENABLE_PINNED_POSTS, ENABLE_POLLS,
                         ENABLE_POST_DELETION, ENABLE_PRIVATE_MESSAGES,
                         ENABLE_PRONOUNS, ENABLE_QUOTES, ENABLE_USER_BIOS,
-                        GOOGLE_VERIFICATION_TAG, MAX_ADMIN_LOG_LINES,
-                        MAX_BIO_LENGTH, MAX_CONTENT_WARNING_LENGTH,
-                        MAX_DISPL_NAME_LENGTH, MAX_NOTIFICATIONS,
-                        MAX_POLL_OPTION_LENGTH, MAX_POLL_OPTIONS,
-                        MAX_POST_LENGTH, MAX_USERNAME_LENGTH, OWNER_USER_ID,
-                        PRIVATE_AUTHENTICATOR_KEY, RATELIMIT, SITE_NAME,
-                        SOURCE_CODE, VALID_LANGUAGES, VERSION, timeout_handler)
+                        GOOGLE_VERIFICATION_TAG, MAX_BIO_LENGTH,
+                        MAX_CONTENT_WARNING_LENGTH, MAX_DISPL_NAME_LENGTH,
+                        MAX_NOTIFICATIONS, MAX_POLL_OPTION_LENGTH,
+                        MAX_POLL_OPTIONS, MAX_POST_LENGTH, MAX_USERNAME_LENGTH,
+                        OWNER_USER_ID, PRIVATE_AUTHENTICATOR_KEY, RATELIMIT,
+                        SITE_NAME, SOURCE_CODE, VALID_LANGUAGES, VERSION,
+                        timeout_handler)
 
 
 def sha(string: str | bytes) -> str:
@@ -457,23 +457,6 @@ def trim_whitespace(string: str, purge_newlines: bool=False) -> str:
         string = string[:-1:]
 
     return string
-
-def log_admin_action(
-    action_name: str,
-    admin_user_object: User,
-    log_info: str
-) -> None:
-    # Logs an administrative action
-
-    if ADMIN_LOG_PATH is not None:
-        old_log = b"\n".join(open(ADMIN_LOG_PATH, "rb").read().split(b"\n")[:MAX_ADMIN_LOG_LINES - 1:])
-
-        NL = "\n"
-        BS = "\\"
-
-        f = open(ADMIN_LOG_PATH, "wb")
-        f.write(str.encode(f"{round(time.time())} - {action_name}, done by {admin_user_object.username} (id: {admin_user_object.user_id}) - {log_info.replace(BS, BS * 2).replace(NL, f'{BS}n')}\n") + old_log)
-        f.close()
 
 def find_mentions(message: str, exclude_users: list[str]=[]) -> list[str]:
     # Returns a list of all mentioned users in a string. Used for notifications
