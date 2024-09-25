@@ -15,8 +15,8 @@ enum Mask {
   ReadLogs
 };
 
-function testMask(identifier: number): boolean {
-  return !!(adminLevel >> identifier & 1);
+function testMask(identifier: number, level: number=adminLevel): boolean {
+  return !!(level >> identifier & 1);
 }
 
 ENABLE_POST_DELETION && testMask(Mask.DeletePost) && dom("post-delete").addEventListener("click", function(): void {
@@ -149,11 +149,11 @@ testMask(Mask.ModifyAccount) && dom("data-get").addEventListener("click", functi
     }) => {
       if (json.success) {
         dom("data-section").innerHTML = `
-          ${lang.admin.modify.current} <a href="/u/${json.username}"><code>@${json.username}</code></a> (${lang.admin.modify_id.replaceAll("%s", json.user_id)})<br>
+          ${lang.admin.modify.current} <a href="/u/${json.username}"><code>@${json.username}</code></a> (${lang.admin.modify.id.replaceAll("%s", json.user_id)})<br>
           <input maxlength="300" id="data-display-name" placeholder="${lang.settings.profile_display_name_placeholder}" value="${escapeHTML(json.displ_name || "")}"><br>
           <textarea maxlength="65536" id="data-bio" placeholder="${lang.settings.profile_bio_placeholder}">${escapeHTML(json.bio || "")}</textarea><br>
-          <button id="data-save" data-user-id="${json.user_id}">${lang.admin.modify_save}</button><br>
-          ${ENABLE_ACCOUNT_SWITCHER && json.token ? `<button id="data-switcher" data-token="${json.token}" data-username="${json.username}">${lang.admin.modify_switcher}</button>` : ""}
+          <button id="data-save" data-user-id="${json.user_id}">${lang.admin.modify.save}</button><br>
+          ${ENABLE_ACCOUNT_SWITCHER && json.token ? `<button id="data-switcher" data-token="${json.token}" data-username="${json.username}">${lang.admin.modify.switcher}</button>` : ""}
         `;
 
         dom("data-display-name").addEventListener("input", postTextInputEvent);
@@ -205,16 +205,35 @@ testMask(Mask.ReadLogs) && dom("debug-button").addEventListener("click", functio
     .then((response: Response) => (response.json()))
     .then((json: {
       success: boolean,
-      content?: string
+      content?: {
+        type: string,
+        by: string,
+        for: string,
+        info: string,
+        timestamp: number
+      }[]
     }) => {
       if (json.success) {
-        let lines: string[] = atob(json.content).split("\n");
-        let output: string = `<table class="admin-logs bordered"><tr><th>${lang.admin.logs.timestamp}</th><th>${lang.admin.logs_action}</th><th>${lang.admin.logs_who}</th><th class="nowrap">${lang.admin.logs_more_info}</th></tr>`
+        let output: string = `<table class="admin-logs bordered">
+          <tr>
+            <th>${lang.admin.logs.timestamp}</th>
+            <th>${lang.admin.logs.action}</th>
+            <th>${lang.admin.logs.who}</th>
+            <th class="nowrap">${lang.admin.logs.more_info}</th>
+          </tr>
+        `;
 
-        for (const line of lines) {
+        for (const line of json.content) {
           try {
-            output += `<tr><td class="nowrap">${timeSince(+line.split(" ", 2)[0])}</td><td class="nowrap">${line.split(",", 2)[0].split("- ", 2)[1]}</td><td class="nowrap">${line.split(",")[1].split(") - ", 2)[0]})</td><td>${escapeHTML(line.split(",").slice(1).join(",").split(") - ", 2)[1])}</td></tr>`;
-          } catch(err) {}
+            output += `<tr>
+              <td class="nowrap">${timeSince(+line.timestamp)}</td>
+              <td class="nowrap">${line.type}</td>
+              <td class="nowrap">${lang.admin.logs[line.for ? "who_format" : "who_format_single"].replaceAll("%1", line.by).replaceAll("%2", line.for)}</td>
+              <td>${escapeHTML(line.info)}</td>
+            </tr>`;
+          } catch(err) {
+            console.error(err);
+          }
         }
 
         dom("debug").innerHTML = output + "</table>";
@@ -228,14 +247,16 @@ testMask(Mask.ReadLogs) && dom("debug-button").addEventListener("click", functio
     });
 });
 
-// Todo
 testMask(Mask.AdminLevel) && dom("level-set").addEventListener("click", function(): void {
   fetch("/api/admin/level", {
     method: "PATCH",
     body: JSON.stringify({
       identifier: (dom("level-identifier") as HTMLInputElement).value,
       use_id: (dom("level-use-id") as HTMLInputElement).checked,
-      level: parseInt(forEach(document.querySelectorAll("#level-selection input[type='checkbox']"), (val: HTMLInputElement, index: number) => (+val.checked)).join(""), 2)
+      level: parseInt(forEach(
+        document.querySelectorAll("#level-selection input[type='checkbox']"),
+        (val: HTMLInputElement, index: number) => (+val.checked)
+      ).reverse().join(""), 2)
     })
   }).then((response: Response) => (response.json()))
     .then((json: {
@@ -244,7 +265,29 @@ testMask(Mask.AdminLevel) && dom("level-set").addEventListener("click", function
       if (json.success) {
         showlog(lang.generic.success);
       } else {
-        showlog(lang.generic.something_went_wrong_x.replaceAll("%s", lang.admin.level.error));
+        showlog(lang.generic.something_went_wrong_x.replaceAll("%s", lang.admin.permissions.error));
+      }
+    });
+});
+
+testMask(Mask.AdminLevel) && dom("level-load").addEventListener("click", function(): void {
+  fetch(`/api/admin/level?identifier=${(dom("level-identifier") as HTMLInputElement).value}&use_id=${(dom("level-use-id") as HTMLInputElement).checked}`)
+    .then((response: Response) => (response.json()))
+    .then((json: {
+      level?: number,
+      reason?: string,
+      success: boolean
+    }) => {
+      if (json.success) {
+        console.log(json.level);
+        forEach(
+          document.querySelectorAll("#level-selection input[type='checkbox']"),
+          (val: HTMLInputElement, index: number) => {
+            val.checked = testMask(index, json.level);
+          }
+        )
+      } else {
+        showlog(lang.generic.something_went_wrong);
       }
     });
 });

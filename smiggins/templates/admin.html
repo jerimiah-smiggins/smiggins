@@ -109,20 +109,22 @@
         <label for="level-use-id">{{ lang.admin.use_id_label }}</label>
         <input id="level-use-id" type="checkbox"><br><br>
 
-        <b><label for="level-selection">{{ lang.admin.permissions.label }}</label></b><br>
-        {% for lv in LEVEL_RANGE %}
-          <p>
-            <input type="checkbox" id="level-{{ lv }}"><label for="level-{{ lv }}">
-              {{ lang.admin.permissions.descriptions|get:lv }}
-              {% if lang.admin.permissions.descriptions_extra|get:lv %}
-                <small>{{ lang.admin.permissions.descriptions_extra|get:lv }}</small>
-              {% endif %}
-            </label>
-          </p>
-        {% endfor %}
+        <b>{{ lang.admin.permissions.label }}</b><br>
+        <div id="level-selection">
+          {% for lv in LEVEL_RANGE %}
+            <p>
+              <input type="checkbox" id="level-{{ lv }}"><label for="level-{{ lv }}">
+                {{ lang.admin.permissions.descriptions|get:lv }}
+                {% if lang.admin.permissions.descriptions_extra|get:lv %}
+                  <small>{{ lang.admin.permissions.descriptions_extra|get:lv }}</small>
+                {% endif %}
+              </label>
+            </p>
+          {% endfor %}
+        </div>
 
         <button id="level-set">{{ lang.admin.permissions.set }}</button>
-        <button id="level-set">{{ lang.admin.permissions.load }}</button>
+        <button id="level-load">{{ lang.admin.permissions.load }}</button>
       </div>
     {% endif %}
   </div>

@@ -1,5 +1,6 @@
 from .admin import (account_info, account_save, badge_add, badge_create,
-                    badge_delete, badge_remove, logs, set_level, user_delete)
+                    badge_delete, badge_remove, load_level, logs, set_level,
+                    user_delete)
 from .comment import (comment_create, comment_delete, comment_like_add,
                       comment_like_remove, comment_list)
 from .email import password_reset, set_email
@@ -24,6 +25,7 @@ class ApiAdmin:
     badge_remove = badge_remove
     logs = logs
     set_level = set_level
+    load_level = load_level
     user_delete = user_delete
 
 class ApiComment:

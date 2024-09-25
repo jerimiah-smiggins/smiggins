@@ -1,12 +1,11 @@
 # For admin-related apis
 
-import base64
 import time
 
 from posts.models import AdminLog, Badge, Comment, Hashtag, Post, User
 
 from ..helper import find_hashtags, get_lang, trim_whitespace
-from ..variables import ADMIN_LOG_PATH, BADGE_DATA, OWNER_USER_ID
+from ..variables import BADGE_DATA, MAX_ADMIN_LOG_LINES, OWNER_USER_ID
 from .schema import (AccountIdentifier, DeleteBadge, NewBadge, SaveUser,
                      UserBadge, UserLevel)
 
@@ -56,6 +55,8 @@ def log_admin_action(
             info=log_info,
             timestamp=round(time.time())
         )
+
+    AdminLog.objects.filter(pk__in=AdminLog.objects.order_by("timestamp").reverse().values_list("pk", flat=True)[MAX_ADMIN_LOG_LINES:]).delete()
 
 def user_delete(request, data: AccountIdentifier) -> tuple | dict:
     # Deleting an account
@@ -193,7 +194,7 @@ def user_delete(request, data: AccountIdentifier) -> tuple | dict:
     }
 
 def badge_create(request, data: NewBadge) -> tuple | dict:
-    # Creating a badge (3+)
+    # Creating a badge
 
     token = request.COOKIES.get('token')
 
@@ -262,7 +263,7 @@ def badge_create(request, data: NewBadge) -> tuple | dict:
     }
 
 def badge_delete(request, data: DeleteBadge) -> tuple | dict:
-    # Deleting a badge (3+)
+    # Deleting a badge
 
     token = request.COOKIES.get('token')
 
@@ -334,7 +335,7 @@ def badge_delete(request, data: DeleteBadge) -> tuple | dict:
     }
 
 def badge_add(request, data: UserBadge) -> tuple | dict:
-    # Adding a badge to a user (3+)
+    # Adding a badge to a user
 
     token = request.COOKIES.get('token')
 
@@ -394,7 +395,7 @@ def badge_add(request, data: UserBadge) -> tuple | dict:
     }
 
 def badge_remove(request, data: UserBadge) -> tuple | dict:
-    # Removing a badge from a user (3+)
+    # Removing a badge from a user
 
     token = request.COOKIES.get('token')
 
@@ -454,7 +455,7 @@ def badge_remove(request, data: UserBadge) -> tuple | dict:
     }
 
 def account_info(request, identifier: int | str, use_id: bool) -> tuple | dict:
-    # Get account information (4+)
+    # Get account information
 
     token = request.COOKIES.get('token')
 
@@ -510,7 +511,7 @@ def account_info(request, identifier: int | str, use_id: bool) -> tuple | dict:
     }
 
 def account_save(request, data: SaveUser) -> tuple | dict:
-    # Save account information (4+)
+    # Save account information
 
     try:
         self_user = User.objects.get(token=request.COOKIES.get("token"))
@@ -573,7 +574,7 @@ def account_save(request, data: SaveUser) -> tuple | dict:
     }
 
 def set_level(request, data: UserLevel) -> tuple | dict:
-    # Set the admin level for a different person (5+)
+    # Set the admin level for a different person
 
     try:
         self_user = User.objects.get(token=request.COOKIES.get("token"))
@@ -587,14 +588,6 @@ def set_level(request, data: UserLevel) -> tuple | dict:
     level = data.level
 
     if BitMask.can_use(self_user, BitMask.ADMIN_LEVEL):
-        if level > 5 or level < 0:
-            log_admin_action("Set admin permissions", self_user, None, "Invalid permissions")
-            lang = get_lang(self_user)
-            return 400, {
-                "success": False,
-                "reason": lang["admin"]["permissions"]["invalid"]
-            }
-
         try:
             if use_id:
                 user = User.objects.get(user_id=int(identifier))
@@ -620,9 +613,38 @@ def set_level(request, data: UserLevel) -> tuple | dict:
         "success": False
     }
 
-def logs(request) -> tuple | dict:
-    # TODO
+def load_level(request, identifier: int | str, use_id: bool) -> tuple | dict:
+    try:
+        self_user = User.objects.get(token=request.COOKIES.get("token"))
+    except User.DoesNotExist:
+        return 400, {
+            "success": False
+        }
 
+    if BitMask.can_use(self_user, BitMask.ADMIN_LEVEL):
+        try:
+            if use_id:
+                user = User.objects.get(user_id=int(identifier))
+            else:
+                user = User.objects.get(username=identifier)
+
+            return {
+                "success": True,
+                "level": user.admin_level
+            }
+
+        except User.DoesNotExist:
+            lang = get_lang(self_user)
+            return 404, {
+                "success": False,
+                "reason": lang["generic"]["user_not_found"]
+            }
+
+    return 400, {
+        "success": False
+    }
+
+def logs(request) -> tuple | dict:
     try:
         self_user = User.objects.get(token=request.COOKIES.get("token"))
     except User.DoesNotExist:
@@ -633,7 +655,13 @@ def logs(request) -> tuple | dict:
     if BitMask.can_use(self_user, BitMask.READ_LOGS):
         return {
             "success": True,
-            "content": bytes.decode(base64.b64encode(open(ADMIN_LOG_PATH, "rb").read()))
+            "content": [{
+                "type": i.type,
+                "by": i.u_by.username,
+                "for": i.uname_for or (i.u_for and i.u_for.username),
+                "info": i.info,
+                "timestamp": i.timestamp
+            } for i in AdminLog.objects.all()]
         }
 
     return 400, {

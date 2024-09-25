@@ -13,8 +13,8 @@ var Mask;
     Mask[Mask["ReadLogs"] = 8] = "ReadLogs";
 })(Mask || (Mask = {}));
 ;
-function testMask(identifier) {
-    return !!(adminLevel >> identifier & 1);
+function testMask(identifier, level = adminLevel) {
+    return !!(level >> identifier & 1);
 }
 ENABLE_POST_DELETION && testMask(Mask.DeletePost) && dom("post-delete").addEventListener("click", function () {
     fetch(`/api/${dom("comment-toggle").checked ? "comment" : "post"}`, {
@@ -28,7 +28,7 @@ ENABLE_POST_DELETION && testMask(Mask.DeletePost) && dom("post-delete").addEvent
             showlog(lang.generic.success);
         }
         else {
-            showlog(lang.generic.something_went_wrong_x.replaceAll("%s", lang.admin.post_deletion_error), 5000);
+            showlog(lang.generic.something_went_wrong_x.replaceAll("%s", lang.admin.post_deletion.error), 5000);
         }
     });
 });
@@ -45,7 +45,7 @@ testMask(Mask.DeleteUser) && dom("account-delete").addEventListener("click", fun
             showlog(lang.generic.success);
         }
         else {
-            showlog(lang.generic.something_went_wrong_x.replaceAll("%s", lang.admin.account_deletion_error), 5000);
+            showlog(lang.generic.something_went_wrong_x.replaceAll("%s", lang.admin.account_deletion.error), 5000);
         }
     });
 });
@@ -63,7 +63,7 @@ ENABLE_BADGES && testMask(Mask.GiveBadges) && adminLevel >= 3 && dom("badge-add"
             showlog(lang.generic.success);
         }
         else {
-            showlog(lang.generic.something_went_wrong_x.replaceAll("%s", lang.admin.badge_manage_add_error));
+            showlog(lang.generic.something_went_wrong_x.replaceAll("%s", lang.admin.badge.manage_add_error));
         }
     });
 });
@@ -81,7 +81,7 @@ ENABLE_BADGES && testMask(Mask.GiveBadges) && adminLevel >= 3 && dom("badge-remo
             showlog(lang.generic.success);
         }
         else {
-            showlog(lang.generic.something_went_wrong_x.replaceAll("%s", lang.admin.badge_manage_remove_error));
+            showlog(lang.generic.something_went_wrong_x.replaceAll("%s", lang.admin.badge.manage_remove_error));
         }
     });
 });
@@ -95,7 +95,7 @@ ENABLE_BADGES && testMask(Mask.CreateBadge) && dom("badge-create").addEventListe
     }).then((response) => (response.json()))
         .then((json) => {
         if (json.success) {
-            showlog(`${lang.generic.success} ${lang.admin.badge_create_success}`);
+            showlog(`${lang.generic.success} ${lang.admin.badge.create_success}`);
         }
         else {
             showlog(`${lang.generic.something_went_wrong} ${lang.generic.reason.replaceAll("%s", json.reason)}`);
@@ -124,11 +124,11 @@ testMask(Mask.ModifyAccount) && dom("data-get").addEventListener("click", functi
         .then((json) => {
         if (json.success) {
             dom("data-section").innerHTML = `
-          ${lang.admin.modify_current} <a href="/u/${json.username}"><code>@${json.username}</code></a> (${lang.admin.modify_id.replaceAll("%s", json.user_id)})<br>
+          ${lang.admin.modify.current} <a href="/u/${json.username}"><code>@${json.username}</code></a> (${lang.admin.modify.id.replaceAll("%s", json.user_id)})<br>
           <input maxlength="300" id="data-display-name" placeholder="${lang.settings.profile_display_name_placeholder}" value="${escapeHTML(json.displ_name || "")}"><br>
           <textarea maxlength="65536" id="data-bio" placeholder="${lang.settings.profile_bio_placeholder}">${escapeHTML(json.bio || "")}</textarea><br>
-          <button id="data-save" data-user-id="${json.user_id}">${lang.admin.modify_save}</button><br>
-          ${ENABLE_ACCOUNT_SWITCHER && json.token ? `<button id="data-switcher" data-token="${json.token}" data-username="${json.username}">${lang.admin.modify_switcher}</button>` : ""}
+          <button id="data-save" data-user-id="${json.user_id}">${lang.admin.modify.save}</button><br>
+          ${ENABLE_ACCOUNT_SWITCHER && json.token ? `<button id="data-switcher" data-token="${json.token}" data-username="${json.username}">${lang.admin.modify.switcher}</button>` : ""}
         `;
             dom("data-display-name").addEventListener("input", postTextInputEvent);
             dom("data-bio").addEventListener("input", postTextInputEvent);
@@ -172,22 +172,35 @@ testMask(Mask.ReadLogs) && dom("debug-button").addEventListener("click", functio
         .then((response) => (response.json()))
         .then((json) => {
         if (json.success) {
-            let lines = atob(json.content).split("\n");
-            let output = `<table class="admin-logs bordered"><tr><th>${lang.admin.logs_timestamp}</th><th>${lang.admin.logs_action}</th><th>${lang.admin.logs_who}</th><th class="nowrap">${lang.admin.logs_more_info}</th></tr>`;
-            for (const line of lines) {
+            let output = `<table class="admin-logs bordered">
+          <tr>
+            <th>${lang.admin.logs.timestamp}</th>
+            <th>${lang.admin.logs.action}</th>
+            <th>${lang.admin.logs.who}</th>
+            <th class="nowrap">${lang.admin.logs.more_info}</th>
+          </tr>
+        `;
+            for (const line of json.content) {
                 try {
-                    output += `<tr><td class="nowrap">${timeSince(+line.split(" ", 2)[0])}</td><td class="nowrap">${line.split(",", 2)[0].split("- ", 2)[1]}</td><td class="nowrap">${line.split(",")[1].split(") - ", 2)[0]})</td><td>${escapeHTML(line.split(",").slice(1).join(",").split(") - ", 2)[1])}</td></tr>`;
+                    output += `<tr>
+              <td class="nowrap">${timeSince(+line.timestamp)}</td>
+              <td class="nowrap">${line.type}</td>
+              <td class="nowrap">${lang.admin.logs[line.for ? "who_format" : "who_format_single"].replaceAll("%1", line.by).replaceAll("%2", line.for)}</td>
+              <td>${escapeHTML(line.info)}</td>
+            </tr>`;
                 }
-                catch (err) { }
+                catch (err) {
+                    console.error(err);
+                }
             }
             dom("debug").innerHTML = output + "</table>";
         }
         else {
-            showlog(lang.generic.something_went_wrong_x.replaceAll("%s", lang.admin.logs_error));
+            showlog(lang.generic.something_went_wrong_x.replaceAll("%s", lang.admin.logs.error));
             this.removeAttribute("disabled");
         }
     }).catch((err) => {
-        showlog(lang.generic.something_went_wrong_x.replaceAll("%s", lang.admin.logs_error));
+        showlog(lang.generic.something_went_wrong_x.replaceAll("%s", lang.admin.logs.error));
         this.removeAttribute("disabled");
     });
 });
@@ -197,7 +210,7 @@ testMask(Mask.AdminLevel) && dom("level-set").addEventListener("click", function
         body: JSON.stringify({
             identifier: dom("level-identifier").value,
             use_id: dom("level-use-id").checked,
-            level: parseInt(forEach(document.querySelectorAll("#level-selection input[type='checkbox']"), (val, index) => (+val.checked)).join(""), 2)
+            level: parseInt(forEach(document.querySelectorAll("#level-selection input[type='checkbox']"), (val, index) => (+val.checked)).reverse().join(""), 2)
         })
     }).then((response) => (response.json()))
         .then((json) => {
@@ -205,7 +218,22 @@ testMask(Mask.AdminLevel) && dom("level-set").addEventListener("click", function
             showlog(lang.generic.success);
         }
         else {
-            showlog(lang.generic.something_went_wrong_x.replaceAll("%s", lang.admin.level_error));
+            showlog(lang.generic.something_went_wrong_x.replaceAll("%s", lang.admin.permissions.error));
+        }
+    });
+});
+testMask(Mask.AdminLevel) && dom("level-load").addEventListener("click", function () {
+    fetch(`/api/admin/level?identifier=${dom("level-identifier").value}&use_id=${dom("level-use-id").checked}`)
+        .then((response) => (response.json()))
+        .then((json) => {
+        if (json.success) {
+            console.log(json.level);
+            forEach(document.querySelectorAll("#level-selection input[type='checkbox']"), (val, index) => {
+                val.checked = testMask(index, json.level);
+            });
+        }
+        else {
+            showlog(lang.generic.something_went_wrong);
         }
     });
 });

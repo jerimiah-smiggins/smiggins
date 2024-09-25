@@ -271,7 +271,10 @@ def comment_delete(request, data: CommentID) -> tuple | dict:
 
     if comment.parent:
         comment_parent = (Comment if comment.parent_is_comment else Post).objects.get(pk=comment.parent)
-        comment_parent.comments.remove(id)
+        try:
+            comment_parent.comments.remove(id)
+        except ValueError:
+            ...
         comment_parent.save()
 
     admin = user.user_id == OWNER_USER_ID or user.admin_level >= 1
