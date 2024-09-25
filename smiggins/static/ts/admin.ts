@@ -135,7 +135,6 @@ ENABLE_BADGES && testMask(Mask.DeleteBadge) && dom("badge-delete").addEventListe
     });
 });
 
-//
 testMask(Mask.ModifyAccount) && dom("data-get").addEventListener("click", function(): void {
   fetch(`/api/admin/info?identifier=${(dom("data-identifier") as HTMLInputElement).value}&use_id=${(dom("data-use-id") as HTMLInputElement).checked}`)
     .then((response: Response) => (response.json()))
@@ -154,7 +153,7 @@ testMask(Mask.ModifyAccount) && dom("data-get").addEventListener("click", functi
           <input maxlength="300" id="data-display-name" placeholder="${lang.settings.profile_display_name_placeholder}" value="${escapeHTML(json.displ_name || "")}"><br>
           <textarea maxlength="65536" id="data-bio" placeholder="${lang.settings.profile_bio_placeholder}">${escapeHTML(json.bio || "")}</textarea><br>
           <button id="data-save" data-user-id="${json.user_id}">${lang.admin.modify_save}</button><br>
-          ${ENABLE_ACCOUNT_SWITCHER ? `<button id="data-switcher" data-token="${json.token}" data-username="${json.username}">${lang.admin.modify_switcher}</button>` : ""}
+          ${ENABLE_ACCOUNT_SWITCHER && json.token ? `<button id="data-switcher" data-token="${json.token}" data-username="${json.username}">${lang.admin.modify_switcher}</button>` : ""}
         `;
 
         dom("data-display-name").addEventListener("input", postTextInputEvent);
@@ -236,7 +235,7 @@ testMask(Mask.AdminLevel) && dom("level-set").addEventListener("click", function
     body: JSON.stringify({
       identifier: (dom("level-identifier") as HTMLInputElement).value,
       use_id: (dom("level-use-id") as HTMLInputElement).checked,
-      level: (dom("level-selection") as HTMLInputElement).value
+      level: parseInt(forEach(document.querySelectorAll("#level-selection input[type='checkbox']"), (val: HTMLInputElement, index: number) => (+val.checked)).join(""), 2)
     })
   }).then((response: Response) => (response.json()))
     .then((json: {
