@@ -1,6 +1,22 @@
 inc = 0;
 home = true;
-adminLevel >= 1 && dom("post-delete").addEventListener("click", function () {
+var Mask;
+(function (Mask) {
+    Mask[Mask["DeletePost"] = 0] = "DeletePost";
+    Mask[Mask["DeleteUser"] = 1] = "DeleteUser";
+    Mask[Mask["CreateBadge"] = 2] = "CreateBadge";
+    Mask[Mask["DeleteBadge"] = 3] = "DeleteBadge";
+    Mask[Mask["GiveBadges"] = 4] = "GiveBadges";
+    Mask[Mask["ModifyAccount"] = 5] = "ModifyAccount";
+    Mask[Mask["AccSwitcher"] = 6] = "AccSwitcher";
+    Mask[Mask["AdminLevel"] = 7] = "AdminLevel";
+    Mask[Mask["ReadLogs"] = 8] = "ReadLogs";
+})(Mask || (Mask = {}));
+;
+function testMask(identifier) {
+    return !!(adminLevel >> identifier & 1);
+}
+ENABLE_POST_DELETION && testMask(Mask.DeletePost) && dom("post-delete").addEventListener("click", function () {
     fetch(`/api/${dom("comment-toggle").checked ? "comment" : "post"}`, {
         method: "DELETE",
         body: JSON.stringify({
@@ -16,7 +32,7 @@ adminLevel >= 1 && dom("post-delete").addEventListener("click", function () {
         }
     });
 });
-adminLevel >= 2 && dom("account-delete").addEventListener("click", function () {
+testMask(Mask.DeleteUser) && dom("account-delete").addEventListener("click", function () {
     fetch("/api/admin/user", {
         method: "DELETE",
         body: JSON.stringify({
@@ -33,7 +49,7 @@ adminLevel >= 2 && dom("account-delete").addEventListener("click", function () {
         }
     });
 });
-ENABLE_BADGES && adminLevel >= 3 && dom("badge-add").addEventListener("click", function () {
+ENABLE_BADGES && testMask(Mask.GiveBadges) && adminLevel >= 3 && dom("badge-add").addEventListener("click", function () {
     fetch("/api/admin/badge", {
         method: "POST",
         body: JSON.stringify({
@@ -51,7 +67,7 @@ ENABLE_BADGES && adminLevel >= 3 && dom("badge-add").addEventListener("click", f
         }
     });
 });
-ENABLE_BADGES && adminLevel >= 3 && dom("badge-remove").addEventListener("click", function () {
+ENABLE_BADGES && testMask(Mask.GiveBadges) && adminLevel >= 3 && dom("badge-remove").addEventListener("click", function () {
     fetch("/api/admin/badge", {
         method: "PATCH",
         body: JSON.stringify({
@@ -69,7 +85,7 @@ ENABLE_BADGES && adminLevel >= 3 && dom("badge-remove").addEventListener("click"
         }
     });
 });
-ENABLE_BADGES && adminLevel >= 3 && dom("badge-create").addEventListener("click", function () {
+ENABLE_BADGES && testMask(Mask.CreateBadge) && dom("badge-create").addEventListener("click", function () {
     fetch("/api/admin/badge", {
         method: "PUT",
         body: JSON.stringify({
@@ -86,7 +102,7 @@ ENABLE_BADGES && adminLevel >= 3 && dom("badge-create").addEventListener("click"
         }
     });
 });
-ENABLE_BADGES && adminLevel >= 3 && dom("badge-delete").addEventListener("click", function () {
+ENABLE_BADGES && testMask(Mask.DeleteBadge) && dom("badge-delete").addEventListener("click", function () {
     fetch("/api/admin/badge", {
         method: "DELETE",
         body: JSON.stringify({
@@ -102,7 +118,7 @@ ENABLE_BADGES && adminLevel >= 3 && dom("badge-delete").addEventListener("click"
         }
     });
 });
-adminLevel >= 4 && dom("data-get").addEventListener("click", function () {
+testMask(Mask.ModifyAccount) && dom("data-get").addEventListener("click", function () {
     fetch(`/api/admin/info?identifier=${dom("data-identifier").value}&use_id=${dom("data-use-id").checked}`)
         .then((response) => (response.json()))
         .then((json) => {
@@ -150,7 +166,7 @@ adminLevel >= 4 && dom("data-get").addEventListener("click", function () {
         }
     });
 });
-adminLevel >= 4 && dom("debug-button").addEventListener("click", function () {
+testMask(Mask.ReadLogs) && dom("debug-button").addEventListener("click", function () {
     this.setAttribute("disabled", "");
     fetch("/api/admin/logs")
         .then((response) => (response.json()))
@@ -175,7 +191,7 @@ adminLevel >= 4 && dom("debug-button").addEventListener("click", function () {
         this.removeAttribute("disabled");
     });
 });
-adminLevel >= 5 && dom("level-set").addEventListener("click", function () {
+testMask(Mask.AdminLevel) && dom("level-set").addEventListener("click", function () {
     fetch("/api/admin/level", {
         method: "PATCH",
         body: JSON.stringify({
