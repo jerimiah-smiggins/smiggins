@@ -351,9 +351,11 @@ const icons = {
     follower: `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 512" aria-label="${escapeHTML(lang.user_page.pending_title)}"><path d="M96 128a128 128 0 1 1 256 0 128 128 0 1 1-256 0M0 482.3C0 383.8 79.8 304 178.3 304h91.4c98.5 0 178.3 79.8 178.3 178.3 0 16.4-13.3 29.7-29.7 29.7H29.7C13.3 512 0 498.7 0 482.3M464 332v-64h-64c-13.3 0-24-10.7-24-24s10.7-24 24-24h64v-64c0-13.3 10.7-24 24-24s24 10.7 24 24v64h64c13.3 0 24 10.7 24 24s-10.7 24-24 24h-64v64c0 13.3-10.7 24-24 24s-24-10.7-24-24"/></svg>`
 };
 function forEach(iter, callback) {
+    let out = [];
     for (let i = 0; i < iter.length; i++) {
-        callback(iter[i], i);
+        out.push(callback(iter[i], i));
     }
+    return out;
 }
 setInterval(function () {
     forEach(document.querySelectorAll("[data-timestamp]"), (val, index) => {
