@@ -124,7 +124,7 @@ testMask(Mask.ModifyAccount) && dom("data-get").addEventListener("click", functi
         .then((json) => {
         if (json.success) {
             dom("data-section").innerHTML = `
-          ${lang.admin.modify_current} <a href="/u/${json.username}"><code>@${json.username}</code></a> (${lang.admin.modify_id.replaceAll("%s", json.user_id)})<br>
+          ${lang.admin.modify.current} <a href="/u/${json.username}"><code>@${json.username}</code></a> (${lang.admin.modify.id.replaceAll("%s", json.user_id)})<br>
           <input maxlength="300" id="data-display-name" placeholder="${lang.settings.profile_display_name_placeholder}" value="${escapeHTML(json.displ_name || "")}"><br>
           <textarea maxlength="65536" id="data-bio" placeholder="${lang.settings.profile_bio_placeholder}">${escapeHTML(json.bio || "")}</textarea><br>
           <button id="data-save" data-user-id="${json.user_id}">${lang.admin.modify.save}</button><br>
@@ -172,9 +172,15 @@ testMask(Mask.ReadLogs) && dom("debug-button").addEventListener("click", functio
         .then((response) => (response.json()))
         .then((json) => {
         if (json.success) {
-            let lines = atob(json.content).split("\n");
-            let output = `<table class="admin-logs bordered"><tr><th>${lang.admin.logs_timestamp}</th><th>${lang.admin.logs_action}</th><th>${lang.admin.logs_who}</th><th class="nowrap">${lang.admin.logs_more_info}</th></tr>`;
-            for (const line of lines) {
+            let output = `<table class="admin-logs bordered">
+          <tr>
+            <th>${lang.admin.logs.timestamp}</th>
+            <th>${lang.admin.logs.action}</th>
+            <th>${lang.admin.logs.who}</th>
+            <th class="nowrap">${lang.admin.logs.more_info}</th>
+          </tr>
+        `;
+            for (const line of json.content) {
                 try {
                     output += `<tr>
               <td class="nowrap">${timeSince(+line.timestamp)}</td>
@@ -212,7 +218,22 @@ testMask(Mask.AdminLevel) && dom("level-set").addEventListener("click", function
             showlog(lang.generic.success);
         }
         else {
-            showlog(lang.generic.something_went_wrong_x.replaceAll("%s", lang.admin.level_error));
+            showlog(lang.generic.something_went_wrong_x.replaceAll("%s", lang.admin.permissions.error));
+        }
+    });
+});
+testMask(Mask.AdminLevel) && dom("level-load").addEventListener("click", function () {
+    fetch(`/api/admin/level?identifier=${dom("level-identifier").value}&use_id=${dom("level-use-id").checked}`)
+        .then((response) => (response.json()))
+        .then((json) => {
+        if (json.success) {
+            console.log(json.level);
+            forEach(document.querySelectorAll("#level-selection input[type='checkbox']"), (val, index) => {
+                val.checked = testMask(index, json.level);
+            });
+        }
+        else {
+            showlog(lang.generic.something_went_wrong);
         }
     });
 });
