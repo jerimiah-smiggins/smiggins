@@ -3,8 +3,23 @@ declare const adminLevel: number;
 inc = 0;
 home = true;
 
-// Level 1
-adminLevel >= 1 && dom("post-delete").addEventListener("click", function(): void {
+enum Mask {
+  DeletePost,
+  DeleteUser,
+  CreateBadge,
+  DeleteBadge,
+  GiveBadges,
+  ModifyAccount,
+  AccSwitcher,
+  AdminLevel,
+  ReadLogs
+};
+
+function testMask(identifier: number): boolean {
+  return !!(adminLevel >> identifier & 1);
+}
+
+ENABLE_POST_DELETION && testMask(Mask.DeletePost) && dom("post-delete").addEventListener("click", function(): void {
   fetch(`/api/${(dom("comment-toggle") as HTMLInputElement).checked ? "comment" : "post"}`, {
     method: "DELETE",
     body: JSON.stringify({
@@ -22,8 +37,7 @@ adminLevel >= 1 && dom("post-delete").addEventListener("click", function(): void
     });
 });
 
-// Level 2
-adminLevel >= 2 && dom("account-delete").addEventListener("click", function(): void {
+testMask(Mask.DeleteUser) && dom("account-delete").addEventListener("click", function(): void {
   fetch("/api/admin/user", {
     method: "DELETE",
     body: JSON.stringify({
@@ -42,8 +56,7 @@ adminLevel >= 2 && dom("account-delete").addEventListener("click", function(): v
     });
 });
 
-// Level 3
-ENABLE_BADGES && adminLevel >= 3 && dom("badge-add").addEventListener("click", function(): void {
+ENABLE_BADGES && testMask(Mask.GiveBadges) && adminLevel >= 3 && dom("badge-add").addEventListener("click", function(): void {
   fetch("/api/admin/badge", {
     method: "POST",
     body: JSON.stringify({
@@ -63,7 +76,7 @@ ENABLE_BADGES && adminLevel >= 3 && dom("badge-add").addEventListener("click", f
     });
 });
 
-ENABLE_BADGES && adminLevel >= 3 && dom("badge-remove").addEventListener("click", function(): void {
+ENABLE_BADGES && testMask(Mask.GiveBadges) && adminLevel >= 3 && dom("badge-remove").addEventListener("click", function(): void {
   fetch("/api/admin/badge", {
     method: "PATCH",
     body: JSON.stringify({
@@ -83,7 +96,7 @@ ENABLE_BADGES && adminLevel >= 3 && dom("badge-remove").addEventListener("click"
     });
 });
 
-ENABLE_BADGES && adminLevel >= 3 && dom("badge-create").addEventListener("click", function(): void {
+ENABLE_BADGES && testMask(Mask.CreateBadge) && dom("badge-create").addEventListener("click", function(): void {
   fetch("/api/admin/badge", {
     method: "PUT",
     body: JSON.stringify({
@@ -103,7 +116,7 @@ ENABLE_BADGES && adminLevel >= 3 && dom("badge-create").addEventListener("click"
     });
 });
 
-ENABLE_BADGES && adminLevel >= 3 && dom("badge-delete").addEventListener("click", function(): void {
+ENABLE_BADGES && testMask(Mask.DeleteBadge) && dom("badge-delete").addEventListener("click", function(): void {
   fetch("/api/admin/badge", {
     method: "DELETE",
     body: JSON.stringify({
@@ -122,8 +135,7 @@ ENABLE_BADGES && adminLevel >= 3 && dom("badge-delete").addEventListener("click"
     });
 });
 
-// Level 4
-adminLevel >= 4 && dom("data-get").addEventListener("click", function(): void {
+testMask(Mask.ModifyAccount) && dom("data-get").addEventListener("click", function(): void {
   fetch(`/api/admin/info?identifier=${(dom("data-identifier") as HTMLInputElement).value}&use_id=${(dom("data-use-id") as HTMLInputElement).checked}`)
     .then((response: Response) => (response.json()))
     .then((json: {
@@ -141,7 +153,7 @@ adminLevel >= 4 && dom("data-get").addEventListener("click", function(): void {
           <input maxlength="300" id="data-display-name" placeholder="${lang.settings.profile_display_name_placeholder}" value="${escapeHTML(json.displ_name || "")}"><br>
           <textarea maxlength="65536" id="data-bio" placeholder="${lang.settings.profile_bio_placeholder}">${escapeHTML(json.bio || "")}</textarea><br>
           <button id="data-save" data-user-id="${json.user_id}">${lang.admin.modify_save}</button><br>
-          ${ENABLE_ACCOUNT_SWITCHER ? `<button id="data-switcher" data-token="${json.token}" data-username="${json.username}">${lang.admin.modify_switcher}</button>` : ""}
+          ${ENABLE_ACCOUNT_SWITCHER && json.token ? `<button id="data-switcher" data-token="${json.token}" data-username="${json.username}">${lang.admin.modify_switcher}</button>` : ""}
         `;
 
         dom("data-display-name").addEventListener("input", postTextInputEvent);
@@ -186,7 +198,7 @@ adminLevel >= 4 && dom("data-get").addEventListener("click", function(): void {
     })
 });
 
-adminLevel >= 4 && dom("debug-button").addEventListener("click", function(): void {
+testMask(Mask.ReadLogs) && dom("debug-button").addEventListener("click", function(): void {
   this.setAttribute("disabled", "");
 
   fetch("/api/admin/logs")
@@ -216,14 +228,14 @@ adminLevel >= 4 && dom("debug-button").addEventListener("click", function(): voi
     });
 });
 
-// Level 5
-adminLevel >= 5 && dom("level-set").addEventListener("click", function(): void {
+// Todo
+testMask(Mask.AdminLevel) && dom("level-set").addEventListener("click", function(): void {
   fetch("/api/admin/level", {
     method: "PATCH",
     body: JSON.stringify({
       identifier: (dom("level-identifier") as HTMLInputElement).value,
       use_id: (dom("level-use-id") as HTMLInputElement).checked,
-      level: (dom("level-selection") as HTMLInputElement).value
+      level: parseInt(forEach(document.querySelectorAll("#level-selection input[type='checkbox']"), (val: HTMLInputElement, index: number) => (+val.checked)).join(""), 2)
     })
   }).then((response: Response) => (response.json()))
     .then((json: {

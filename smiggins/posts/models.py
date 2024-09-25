@@ -20,7 +20,7 @@ class User(models.Model):
     #                        |||||||+- Delete accounts
     #          unused        ||||||||+- Delete posts
     #            |           |||||||||
-    # 00000000000000000000000XXXXXXXXX
+    # 00000000000000000000000XXXXXXXX
     admin_level = models.IntegerField(default=0)
 
     display_name = models.CharField(max_length=300)
@@ -183,3 +183,11 @@ class URLPart(models.Model):
     intent = models.TextField(max_length=6) # "reset", "remove", "verify", "pwd_fm", "change"
     extra_data = models.JSONField(default=dict, blank=True)
     expire = models.IntegerField()
+
+class AdminLog(models.Model):
+    type = models.TextField()
+    u_by = models.ForeignKey(User, on_delete=models.CASCADE, related_name="admin_log_by")
+    u_for = models.ForeignKey(User, on_delete=models.CASCADE, null=True, related_name="admin_log_for")
+    uname_for = models.TextField(null=True)
+    info = models.TextField()
+    timestamp = models.IntegerField()
