@@ -5,15 +5,15 @@ from posts.models import Comment, Notification, Post, User
 from ..helper import (DEFAULT_LANG, create_api_ratelimit, ensure_ratelimit,
                       generate_token, get_lang, get_post_json, trim_whitespace,
                       validate_username)
-from ..variables import (API_TIMINGS, DEFAULT_BANNER_COLOR, DEFAULT_DARK_THEME,
-                         DEFAULT_LIGHT_THEME, ENABLE_GRADIENT_BANNERS,
-                         ENABLE_PRONOUNS, ENABLE_USER_BIOS, MAX_BIO_LENGTH,
+from ..variables import (API_TIMINGS, DEFAULT_BANNER_COLOR,
+                         ENABLE_GRADIENT_BANNERS, ENABLE_PRONOUNS,
+                         ENABLE_USER_BIOS, MAX_BIO_LENGTH,
                          MAX_DISPL_NAME_LENGTH, MAX_USERNAME_LENGTH,
                          POSTS_PER_REQUEST, VALID_LANGUAGES)
-from .schema import Account, ChangePassword, Settings, SignUp, Theme, Username
+from .schema import Account, ChangePassword, Settings, Theme, Username
 
 
-def signup(request, data: SignUp) -> tuple | dict:
+def signup(request, data: Account) -> tuple | dict:
     # Called when someone requests to follow another account.
 
     if not ensure_ratelimit("api_account_signup", request.META.get("REMOTE_ADDR")):
@@ -48,7 +48,7 @@ def signup(request, data: SignUp) -> tuple | dict:
             username=username,
             token=token,
             display_name=username,
-            theme=DEFAULT_LIGHT_THEME if data.light_mode else DEFAULT_DARK_THEME,
+            theme="auto",
             color=DEFAULT_BANNER_COLOR,
             color_two=DEFAULT_BANNER_COLOR,
             following=[],
@@ -138,7 +138,7 @@ def settings_theme(request, data: Theme) -> tuple | dict:
 
     lang = get_lang(user)
 
-    if theme.lower() not in ["light", "gray", "dark", "black", "oled"]:
+    if theme.lower() not in ["auto", "light", "gray", "dark", "black", "oled"]:
         return 400, {
             "success": False,
             "reason": lang["settings"]["cosmetic_theme_invalid"],

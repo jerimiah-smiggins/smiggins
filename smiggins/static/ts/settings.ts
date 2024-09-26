@@ -211,10 +211,16 @@ dom("theme").addEventListener("change", function(): void {
       showlog(lang.generic.something_went_wrong);
     }
       dom("theme").removeAttribute("disabled");
-      document.querySelector("body").setAttribute("data-theme", (dom("theme") as HTMLInputElement).value);
 
-      if (!oldFavicon) {
-        favicon.href = favicon.href.replace(faviconRegex, `/favicons/${(dom("theme") as HTMLInputElement).value}-$2.ico?v=$3`);
+      if ((dom("theme") as HTMLInputElement).value == "auto") {
+        !autoEnabled && autoInit();
+      } else {
+        autoEnabled && autoCancel();
+
+        if (!oldFavicon) {
+          document.querySelector("body").setAttribute("data-theme", (dom("theme") as HTMLInputElement).value);
+          favicon.href = favicon.href.replace(faviconRegex, `/favicons/${(dom("theme") as HTMLInputElement).value}-$2.ico?v=$3`);
+        }
       }
     })
     .catch((err: Error) => {

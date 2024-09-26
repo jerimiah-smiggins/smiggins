@@ -82,9 +82,6 @@ class Poll(Schema):
 class Account(Username):
     password: str
 
-class SignUp(Account):
-    light_mode: bool
-
 class ChangePassword(Schema):
     password: str
     new_password: str

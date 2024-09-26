@@ -387,11 +387,16 @@
 
       "cosmetic_title": "Cosmetic",
       "cosmetic_theme": "Theme",
-      "cosmetic_theme_light": "Dawn",
-      "cosmetic_theme_gray": "Dusk",
-      "cosmetic_theme_dark": "Dark",
-      "cosmetic_theme_black": "Midnight",
-      "cosmetic_theme_oled": "Black",
+
+      "cosmetic_themes": {
+        "auto": "System",
+        "light": "Dawn",
+        "gray": "Dusk",
+        "dark": "Dark",
+        "black": "Midnight",
+        "oled": "Black"
+      },
+
       "cosmetic_theme_invalid": "That's not a vailid theme, idiot.",
       "cosmetic_bar": "Icon bar positioning",
       "cosmetic_bar_position": "Position:",

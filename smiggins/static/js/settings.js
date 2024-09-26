@@ -180,9 +180,15 @@ dom("theme").addEventListener("change", function () {
             showlog(lang.generic.something_went_wrong);
         }
         dom("theme").removeAttribute("disabled");
-        document.querySelector("body").setAttribute("data-theme", dom("theme").value);
-        if (!oldFavicon) {
-            favicon.href = favicon.href.replace(faviconRegex, `/favicons/${dom("theme").value}-$2.ico?v=$3`);
+        if (dom("theme").value == "auto") {
+            !autoEnabled && autoInit();
+        }
+        else {
+            autoEnabled && autoCancel();
+            if (!oldFavicon) {
+                document.querySelector("body").setAttribute("data-theme", dom("theme").value);
+                favicon.href = favicon.href.replace(faviconRegex, `/favicons/${dom("theme").value}-$2.ico?v=$3`);
+            }
         }
     })
         .catch((err) => {

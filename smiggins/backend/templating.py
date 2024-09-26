@@ -42,6 +42,7 @@ def settings(request) -> HttpResponse:
 
         FOLLOWERS_REQUIRE_APPROVAL = str(user.verify_followers).lower(),
 
+        SELECTED_IF_AUTO  = "selected" if user.theme == "auto"  else "",
         SELECTED_IF_LIGHT = "selected" if user.theme == "light" else "",
         SELECTED_IF_GRAY  = "selected" if user.theme == "gray"  else "",
         SELECTED_IF_DARK  = "selected" if user.theme == "dark"  else "",

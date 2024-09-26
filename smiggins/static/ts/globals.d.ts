@@ -26,6 +26,11 @@ declare const lang: { [key: string]: any };
 declare const badges: { [key: string]: string };
 declare const linkifyHtml: CallableFunction;
 
+// Defined in base.html, used in settings.ts for system theme
+declare const autoInit: CallableFunction;
+declare const autoCancel: CallableFunction;
+declare const autoEnabled: boolean;
+
 declare let oldFavicon: boolean;
 declare let favicon: HTMLLinkElement;
 

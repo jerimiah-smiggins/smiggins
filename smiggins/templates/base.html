@@ -92,8 +92,15 @@
 
   <body data-theme="{{ THEME }}" {% block body_head %}{% endblock %}>
     <script> // theme normalization when logged out
-      if ("{{ THEME }}" == "auto") {
-        if (window.matchMedia("(prefers-color-scheme: light)").matches) {
+      function _updateAutoFavi(event) {
+        favicon.href = `{% static "/img/favicons/" %}${event.matches ? "{{ DEFAULT_LIGHT_THEME }}" : "{{ DEFAULT_DARK_THEME }}"}-${validColors.indexOf(localStorage.getItem("color")) == -1 ? "mauve" : localStorage.getItem("color")}.ico?v={{ VERSION }}`;
+        document.body.setAttribute("data-theme", event.matches ? "{{ DEFAULT_LIGHT_THEME }}" : "{{ DEFAULT_DARK_THEME }}");
+      }
+
+      function autoInit() {
+        autoEnabled = true;
+
+        if (_autoMM.matches) {
           document.body.setAttribute("data-theme", "{{ DEFAULT_LIGHT_THEME }}");
         } else {
           document.body.setAttribute("data-theme", "{{ DEFAULT_DARK_THEME }}");
@@ -103,10 +110,19 @@
           favicon.href = `{% static "/img/favicons/" %}${document.body.getAttribute("data-theme")}-${validColors.indexOf(localStorage.getItem("color")) == -1 ? "mauve" : localStorage.getItem("color")}.ico?v={{ VERSION }}`;
         }
 
-        window.matchMedia("(prefers-color-scheme: light)").addEventListener("change", (event) => {
-          favicon.href = `{% static "/img/favicons/" %}${event.matches ? "{{ DEFAULT_LIGHT_THEME }}" : "{{ DEFAULT_DARK_THEME }}"}-${validColors.indexOf(localStorage.getItem("color")) == -1 ? "mauve" : localStorage.getItem("color")}.ico?v={{ VERSION }}`;
-          document.body.setAttribute("data-theme", event.matches ? "{{ DEFAULT_LIGHT_THEME }}" : "{{ DEFAULT_DARK_THEME }}");
-        });
+        _autoMM.addEventListener("change", _updateAutoFavi);
+      }
+
+      function autoCancel() {
+        autoEnabled = false;
+        _autoMM.removeEventListener("change", _updateAutoFavi);
+      }
+
+      let autoEnabled = false;
+      let _autoMM = matchMedia("(prefers-color-scheme: light)");
+
+      if ("{{ THEME }}" == "auto") {
+        autoInit();
       }
     </script>
 
