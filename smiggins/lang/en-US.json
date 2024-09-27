@@ -360,7 +360,8 @@
       "quote": "Quote",
       "delete": "Delete",
       "pin": "Pin",
-      "unpin": "Unpin"
+      "unpin": "Unpin",
+      "more": "More..."
     },
 
     "settings": {

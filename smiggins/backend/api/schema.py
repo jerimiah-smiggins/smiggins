@@ -38,6 +38,12 @@ class NewComment(Schema):
     id: int
     private: bool
 
+class EditComment(Schema):
+    c_warning: str
+    content: str
+    private: bool
+    comment_id: int
+
 class CommentID(Schema):
     id: int
 
@@ -62,6 +68,12 @@ class NewPost(Schema):
     content: str
     poll: list[str]
     private: bool
+
+class EditPost(Schema):
+    c_warning: str
+    content: str
+    private: bool
+    post_id: int
 
 class NewQuote(Schema):
     c_warning: str
