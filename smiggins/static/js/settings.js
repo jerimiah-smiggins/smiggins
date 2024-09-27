@@ -130,7 +130,12 @@ dom("old-favi").addEventListener("input", function () {
     }
     else {
         localStorage.removeItem("old-favicon");
-        favicon.href = favicon.href.replace(oldFaviconRegex, `/favicons/${dom("theme").value}-${dom("color").value}.ico?v=$1`);
+        if (dom("theme").value == "auto") {
+            autoSetFavicon();
+        }
+        else {
+            favicon.href = favicon.href.replace(oldFaviconRegex, `/favicons/${dom("theme").value}-${dom("color").value}.ico?v=$1`);
+        }
     }
 });
 toggleGradient(false);
