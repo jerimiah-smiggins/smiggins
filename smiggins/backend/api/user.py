@@ -225,7 +225,6 @@ def settings(request, data: Settings) -> tuple | dict:
         user.pending_followers = []
 
     user.default_post_private = data.default_post_visibility == "followers"
-    user.no_css_mode = data.no_css
 
     if ENABLE_USER_BIOS:
         user.bio = bio

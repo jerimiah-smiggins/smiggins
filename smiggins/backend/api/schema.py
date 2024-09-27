@@ -93,7 +93,6 @@ class Settings(Schema):
     bio: str
     lang: str
     color: str
-    no_css: bool
     pronouns: str
     color_two: str
     displ_name: str

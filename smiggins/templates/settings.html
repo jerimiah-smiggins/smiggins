@@ -6,10 +6,8 @@
 {% endblock %}
 
 {% block head %}
-  {% if NO_CSS_MODE == "false" %}
-    <link rel="stylesheet" href="{% static '/css/home.css' %}?v={{ VERSION }}">
-    <link rel="stylesheet" href="{% static '/css/settings.css' %}?v={{ VERSION }}">
-  {% endif %}
+  <link rel="stylesheet" href="{% static '/css/home.css' %}?v={{ VERSION }}">
+  <link rel="stylesheet" href="{% static '/css/settings.css' %}?v={{ VERSION }}">
 {% endblock %}
 
 {% block body_head %}
@@ -137,10 +135,6 @@
           </td>
         </tr>
       </table><br><br>
-
-      <label for="no-css">{{ lang.settings.cosmetic_no_css}}</label>
-      <input type="checkbox" id="no-css" {% if NO_CSS_MODE == 'true' %}checked{% endif %}><br>
-      <small class="thin">{{ lang.settings.cosmetic_no_css_warning }}</small><br><br>
 
       <label for="old-favi">{{ lang.settings.cosmetic_old_favicon }}</label>
       <input type="checkbox" id="old-favi"><br><br>

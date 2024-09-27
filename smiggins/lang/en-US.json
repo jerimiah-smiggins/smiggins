@@ -414,8 +414,6 @@
       "cosmetic_example_post_username": "example",
       "cosmetic_example_post_content": "This is an example post. I am @example.",
       "cosmetic_checkboxes": "Disable custom checkboxes?",
-      "cosmetic_no_css": "Disable styles?",
-      "cosmetic_no_css_warning": "Requires reloading the page. May break some things, as it might not be 100% supported for the latest version.",
       "cosmetic_old_favicon": "Use old website icon (favicon)?",
 
       "account_title": "Account",

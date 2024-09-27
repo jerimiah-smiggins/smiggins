@@ -17,8 +17,6 @@ declare const ENABLE_POLLS: boolean;
 declare const ENABLE_CONTENT_WARNINGS: boolean;
 declare const ENABLE_EMAIL: boolean;
 
-declare const NO_CSS_MODE: boolean;
-
 declare const defaultPrivate: boolean;
 
 // Global variables

@@ -114,7 +114,6 @@ def get_HTTP_response(
         "ENABLE_EMAIL": str(ENABLE_EMAIL).lower(),
 
         "DISCORD": DISCORD or "",
-        "NO_CSS_MODE": "false" if user is None else str(user.no_css_mode).lower(),
 
         "DEFAULT_PRIVATE": str(default_post_visibility).lower(),
         "THEME": theme,

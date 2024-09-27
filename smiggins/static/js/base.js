@@ -138,64 +138,62 @@ function getPostHTML(postJSON, isComment = false, includeUserLink = true, includ
     return `<div class="post-container" data-${isComment ? "comment" : "post"}-id="${postJSON.post_id}">
     <div class="post">
       <div class="upper-content">
-        ${includeUserLink && !NO_CSS_MODE ? `<a href="/u/${postJSON.creator.username}" class="no-underline text">` : "<span>"}
+        ${includeUserLink ? `<a href="/u/${postJSON.creator.username}" class="no-underline text">` : "<span>"}
           <div class="main-area">
             <span class="displ-name">
               <span style="--color-one: ${postJSON.creator.color_one}; --color-two: ${postJSON.creator[ENABLE_GRADIENT_BANNERS && postJSON.creator.gradient_banner ? "color_two" : "color_one"]}" class="user-badge banner-pfp"></span>
-              ${postJSON.private && !NO_CSS_MODE ? `<span class="user-badge">${icons.lock}</span>` : ""}
+              ${postJSON.private ? `<span class="user-badge">${icons.lock}</span>` : ""}
               ${escapeHTML(postJSON.creator.display_name)}
-              ${postJSON.creator.badges.length && !NO_CSS_MODE ? `<span aria-hidden="true" class="user-badge">${postJSON.creator.badges.map((icon) => (badges[icon])).join("</span> <span aria-hidden=\"true\" class=\"user-badge\">")}</span>` : ""}
+              ${postJSON.creator.badges.length ? `<span aria-hidden="true" class="user-badge">${postJSON.creator.badges.map((icon) => (badges[icon])).join("</span> <span aria-hidden=\"true\" class=\"user-badge\">")}</span>` : ""}
             </span>
             <span class="upper-lower-opacity">
-              ${includePostLink && NO_CSS_MODE ? `<a href="/u/${postJSON.creator.username}" class="no-underline text">` : ""}
+              ${includePostLink ? `<a href="/u/${postJSON.creator.username}" class="no-underline text">` : ""}
                 <span class="username">@${postJSON.creator.username}</span>
-              ${includePostLink && NO_CSS_MODE ? "</a>" : ""} -
+              ${includePostLink ? "</a>" : ""} -
               ${pronouns[postJSON.creator.pronouns] ? `<span class="pronouns">${pronouns[postJSON.creator.pronouns]}</span> -` : ""}
               <span class="timestamp">${timeSince(postJSON.timestamp)}</span>
             </span>
           </div>
-        ${includeUserLink && !NO_CSS_MODE ? "</a>" : "</span>"}
+        ${includeUserLink ? "</a>" : "</span>"}
       </div>
 
       ${postJSON.c_warning ? `<details class="c-warning"><summary>${postJSON.c_warning}</summary>` : ""}
       <div class="main-content">
-        ${includePostLink && !NO_CSS_MODE ? `<a aria-hidden="true" href="/${isComment ? "c" : "p"}/${postJSON.post_id}" tabindex="-1" class="text no-underline">` : ""}
+        ${includePostLink ? `<a aria-hidden="true" href="/${isComment ? "c" : "p"}/${postJSON.post_id}" tabindex="-1" class="text no-underline">` : ""}
           ${linkifyHtml(escapeHTML(postJSON.content), {
         formatHref: {
             mention: (href) => fakeMentions ? "javascript:void(0);" : "/u" + href,
             hashtag: (href) => "/hashtag/" + href.slice(1)
         }
     }).replaceAll("\n", "<br>")
-        .replaceAll("<a", includePostLink && !NO_CSS_MODE ? "  \n" : "<a target=\"_blank\"")
-        .replaceAll("</a>", includePostLink && !NO_CSS_MODE ? `</a><a aria-hidden="true" href="/${isComment ? "c" : "p"}/${postJSON.post_id}" tabindex="-1" class="text no-underline">` : "</a>")
+        .replaceAll("<a", includePostLink ? "  \n" : "<a target=\"_blank\"")
+        .replaceAll("</a>", includePostLink ? `</a><a aria-hidden="true" href="/${isComment ? "c" : "p"}/${postJSON.post_id}" tabindex="-1" class="text no-underline">` : "</a>")
         .replaceAll("  \n", "</a><a target=\"_blank\"")
         .replaceAll(`<a aria-hidden="true" href="/${isComment ? "c" : "p"}/${postJSON.post_id}" tabindex="-1" class="text no-underline"></a>`, "")
         .replaceAll("<a target=\"_blank\" href=\"/", "<a href=\"/")}
-        ${includePostLink && !NO_CSS_MODE ? "</a>" : ""}
+        ${includePostLink ? "</a>" : ""}
       </div>
 
       ${postJSON.quote ? `
-          <${NO_CSS_MODE ? "blockquote" : "div"} class="quote-area">
+          <div class="quote-area">
             <div class="post">
               ${postJSON.quote.blocked ? (postJSON.quote.blocked_by_self ? lang.home.quote_blocked : lang.home.quote_blocked_other) : postJSON.quote.deleted ? lang.home.quote_deleted : postJSON.quote.can_view ? `
                   <div class="upper-content">
-                    ${NO_CSS_MODE ? "" : `<a href="/u/${postJSON.quote.creator.username}" class="no-underline text">`}
+                    <a href="/u/${postJSON.quote.creator.username}" class="no-underline text">
                       <div class="main-area">
                         <span class="displ-name">
                           <span style="--color-one: ${postJSON.quote.creator.color_one}; --color-two: ${postJSON.quote.creator[ENABLE_GRADIENT_BANNERS && postJSON.quote.creator.gradient_banner ? "color_two" : "color_one"]}" class="user-badge banner-pfp"></span>
                           ${escapeHTML(postJSON.quote.creator.display_name)}
-                          ${postJSON.quote.private && !NO_CSS_MODE ? `<span class="user-badge">${icons.lock}</span>` : ""}
-                          ${postJSON.quote.creator.badges.length && !NO_CSS_MODE ? `<span aria-hidden="true" class="user-badge">${postJSON.quote.creator.badges.map((icon) => (badges[icon])).join("</span> <span aria-hidden=\"true\" class=\"user-badge\">")}</span>` : ""}
+                          ${postJSON.quote.private ? `<span class="user-badge">${icons.lock}</span>` : ""}
+                          ${postJSON.quote.creator.badges.length ? `<span aria-hidden="true" class="user-badge">${postJSON.quote.creator.badges.map((icon) => (badges[icon])).join("</span> <span aria-hidden=\"true\" class=\"user-badge\">")}</span>` : ""}
                         </span>
                         <span class="upper-lower-opacity">
-                          ${NO_CSS_MODE ? `<a href="/u/${postJSON.quote.creator.username}" class="no-underline text">` : ""}
                             <span class="username">@${postJSON.quote.creator.username}</span>
-                          ${NO_CSS_MODE ? "</a>" : ""} -
                           ${pronouns[postJSON.quote.creator.pronouns] ? `<span class="pronouns">${pronouns[postJSON.quote.creator.pronouns]}</span> -` : ""}
                           <span class="timestamp">${timeSince(postJSON.quote.timestamp)}</span>
                         </span>
                       </div>
-                    ${NO_CSS_MODE ? "" : "</a>"}
+                    </a>
                   </div>
 
                   ${postJSON.quote.c_warning ? `<details class="c-warning"><summary>${postJSON.quote.c_warning}</summary>` : ""}
@@ -220,7 +218,7 @@ function getPostHTML(postJSON, isComment = false, includeUserLink = true, includ
                   ${postJSON.quote.c_warning ? `</details>` : ""}
                 ` : lang.home.quote_private}
             </div>
-          </${NO_CSS_MODE ? "blockquote" : "div"}>
+          </div>
         ` : ""}
 
       ${postJSON.poll && typeof postJSON.poll == "object" ? (() => {
@@ -266,39 +264,38 @@ function getPostHTML(postJSON, isComment = false, includeUserLink = true, includ
 
       <div class="bottom-content">
         ${includePostLink ? `<a href="/${isComment ? "c" : "p"}/${postJSON.post_id}" class="text no-underline">` : ""}
-          <span class="bottom-content-icon comment-icon">${NO_CSS_MODE ? `<button>${lang.post.comment}` : icons.comment}</span> ${postJSON.comments}
-        ${NO_CSS_MODE ? "</button>" : ""}${includePostLink ? "</a>" : ""}
+          <span class="bottom-content-icon comment-icon">${icons.comment}</span> ${postJSON.comments}
+        ${includePostLink ? "</a>" : ""}
         <span class="bottom-spacing"></span>
         ${ENABLE_QUOTES ? `<button class="bottom-content-icon" ${fakeMentions ? "" : `onclick="addQuote('${postJSON.post_id}', ${isComment})"`}>
-            ${NO_CSS_MODE ? lang.post.quote : icons.quote}
+            ${icons.quote}
             <span class="quote-number">${postJSON.quotes}</span>
           </button>
           <span class="bottom-spacing"></span>` : ''}
 
         <span class="bottom-content-icon like-secondary">
-          ${NO_CSS_MODE ? "" : icons.like}
+          ${icons.like}
         </span>
 
         <button class="bottom-content-icon like" tabindex="0" data-liked="${postJSON.liked}" ${fakeMentions ? "" : `onclick="toggleLike(${postJSON.post_id}, ${isComment ? "'comment'" : "'post'"})"`}>
-          ${NO_CSS_MODE ? lang.post.like : postJSON.liked ? icons.like : icons.unlike}
+          ${postJSON.liked ? icons.like : icons.unlike}
           <span class="like-number">${postJSON.likes}</span>
         </button>
 
         ${postJSON.can_pin && ENABLE_PINNED_POSTS ? `
           <span class="bottom-spacing"></span>
           <button class="bottom-content-icon" tabindex="0" onclick="${isPinned && postJSON.can_pin ? "un" : ""}pinPost(${isPinned && postJSON.can_pin ? "" : postJSON.post_id})">
-            ${NO_CSS_MODE ? lang.post[isPinned && postJSON.can_pin ? "unpin" : "pin"] : isPinned && postJSON.can_pin ? icons.unpin : icons.pin}
+            ${isPinned && postJSON.can_pin ? icons.unpin : icons.pin}
           </button>` : ""}
         ${postJSON.can_delete && ENABLE_POST_DELETION ? `
           <span class="bottom-spacing"></span>
           <button class="bottom-content-icon" tabindex="0" onclick="deletePost(${postJSON.post_id}, ${isComment}, ${pageFocus})">
-            ${NO_CSS_MODE ? lang.post.delete : icons.delete}
+            ${icons.delete}
           </button>` : ""}
       </div>
       <div class="post-after"></div>
     </div>
-  </div>
-  ${NO_CSS_MODE ? "<hr>" : ""}`;
+  </div>`;
 }
 function trimWhitespace(string, purge_newlines = false) {
     const whitespace = [

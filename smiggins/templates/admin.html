@@ -7,9 +7,7 @@
 {% endblock %}
 
 {% block head %}
-  {% if NO_CSS_MODE == "false" %}
-    <link rel="stylesheet" href="{% static "/css/admin.css" %}?v={{ VERSION }}">
-  {% endif %}
+  <link rel="stylesheet" href="{% static "/css/admin.css" %}?v={{ VERSION }}">
 
   <script>
     const adminLevel = {{ LEVEL }};
