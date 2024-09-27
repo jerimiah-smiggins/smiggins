@@ -31,6 +31,10 @@
       const ENABLE_EMAIL = {{ ENABLE_EMAIL }};
 
       const defaultPrivate = {{ DEFAULT_PRIVATE }};
+
+      // javascript complains if these aren't in the <head>
+      let favicon = document.createElement("link");
+      let oldFavicon = !!localStorage.getItem("old-favicon");
     </script>
 
     {% if GOOGLE_VERIFICATION_TAG %}
@@ -57,37 +61,22 @@
 
     <link rel="stylesheet" href="{% static "/css/base.css" %}?v={{ VERSION }}">
 
-    <script src="{% static "/js/linkify-4.1.3.min.js" %}?v={{ VERSION }}"></script>
-    <script src="{% static "/js/linkify-html-4.1.3.min.js" %}?v={{ VERSION }}"></script>
-    <script src="{% static "/js/linkify-mentions-4.1.3.min.js" %}?v={{ VERSION }}"></script>
+    <script src="{% static "/js/linkify/linkify.min.js" %}?v={{ VERSION }}"></script>
+    <script src="{% static "/js/linkify/html.min.js" %}?v={{ VERSION }}"></script>
+    <script src="{% static "/js/linkify/mentions.min.js" %}?v={{ VERSION }}"></script>
 
     {% if ENABLE_HASHTAGS == "true" %}
-      <script src="{% static "/js/linkify-hashtags-4.1.3.min.js" %}?v={{ VERSION }}"></script>
+      <script src="{% static "/js/linkify/hashtags.min.js" %}?v={{ VERSION }}"></script>
     {% endif %}
 
     <script src="{% static "/js/base.js" %}?v={{ VERSION }}"></script>
-
-    <script>
-      let favicon = document.createElement("link");
-      favicon.rel = "icon";
-      favicon.type = "image/x-icon";
-
-      let oldFavicon = !!localStorage.getItem("old-favicon");
-
-      if (oldFavicon) {
-        favicon.href = "{% static "/img/old_favicon.ico" %}?v={{ VERSION }}";
-      } else {
-        favicon.href = `{% static "/img/favicons/" %}{{ THEME }}-${validColors.indexOf(localStorage.getItem("color")) == -1 ? "mauve" : localStorage.getItem("color")}.ico?v={{ VERSION }}`;
-      }
-
-      document.head.append(favicon);
-    </script>
 
     {% block head %}{% endblock %}
   </head>
 
   <body data-theme="{{ THEME }}" {% block body_head %}{% endblock %}>
-    <script> // theme normalization when logged out
+    <script>
+       // theme normalization when set to automatic
       function _updateAuto(event) {
         autoSetFavicon()
         document.body.setAttribute("data-theme", event.matches ? "{{ DEFAULT_LIGHT_THEME }}" : "{{ DEFAULT_DARK_THEME }}");
@@ -124,6 +113,18 @@
       if ("{{ THEME }}" == "auto") {
         autoInit();
       }
+
+      // set proper favicon
+      favicon.rel = "icon";
+      favicon.type = "image/x-icon";
+
+      if (oldFavicon) {
+        favicon.href = "{% static "/img/old_favicon.ico" %}?v={{ VERSION }}";
+      } else {
+        favicon.href = `{% static "/img/favicons/" %}{{ THEME }}-${validColors.indexOf(localStorage.getItem("color")) == -1 ? "mauve" : localStorage.getItem("color")}.ico?v={{ VERSION }}`;
+      }
+
+      document.head.append(favicon);
     </script>
 
     {% block body %}{% endblock %}
