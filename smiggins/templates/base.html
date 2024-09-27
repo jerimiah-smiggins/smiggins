@@ -31,10 +31,6 @@
       const ENABLE_EMAIL = {{ ENABLE_EMAIL }};
 
       const defaultPrivate = {{ DEFAULT_PRIVATE }};
-
-      // javascript complains if these aren't in the <head>
-      let favicon = document.createElement("link");
-      let oldFavicon = !!localStorage.getItem("old-favicon");
     </script>
 
     {% if GOOGLE_VERIFICATION_TAG %}
@@ -76,7 +72,10 @@
 
   <body data-theme="{{ THEME }}" {% block body_head %}{% endblock %}>
     <script>
-       // theme normalization when set to automatic
+      let favicon = document.createElement("link");
+      let oldFavicon = !!localStorage.getItem("old-favicon");
+
+      // theme normalization when set to automatic
       function _updateAuto(event) {
         autoSetFavicon()
         document.body.setAttribute("data-theme", event.matches ? "{{ DEFAULT_LIGHT_THEME }}" : "{{ DEFAULT_DARK_THEME }}");

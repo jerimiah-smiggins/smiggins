@@ -62,6 +62,7 @@ class Post(models.Model):
     timestamp = models.IntegerField()
     quote     = models.IntegerField(default=0)
     quote_is_comment = models.BooleanField(default=False)
+    edited = models.BooleanField(default=False)
 
     likes    = models.JSONField(default=list, blank=True)
     comments = models.JSONField(default=list, blank=True)
@@ -96,6 +97,7 @@ class Comment(models.Model):
     creator    = models.IntegerField()
     timestamp  = models.IntegerField()
     parent     = models.IntegerField(default=0)
+    edited = models.BooleanField(default=False)
 
     parent_is_comment = models.BooleanField(default=False)
     private_comment = models.BooleanField(null=True)

@@ -64,6 +64,7 @@ ENABLE_PRONOUNS: bool = True
 ENABLE_GRADIENT_BANNERS: bool = True
 ENABLE_PRIVATE_MESSAGES: bool = True
 ENABLE_POST_DELETION: bool = True
+ENABLE_EDITING_POSTS: bool = True
 ENABLE_HASHTAGS: bool = True
 ENABLE_CHANGELOG_PAGE: bool = True
 ENABLE_CONTACT_PAGE: bool = True
@@ -124,6 +125,7 @@ _VARIABLES: list[tuple[str, list[str], type | str | list | tuple | dict, bool]] 
     ("ENABLE_PRIVATE_MESSAGES", ["enable_private_messages"], bool, False),
     ("ENABLE_PINNED_POSTS", ["enable_pinned_posts"], bool, False),
     ("ENABLE_POST_DELETION", ["enable_post_deletion"], bool, False),
+    ("ENABLE_EDITING_POSTS", ["enable_editing_posts"], bool, False),
     ("ENABLE_CHANGELOG_PAGE", ["enable_changelog_page"], bool, False),
     ("ENABLE_CONTACT_PAGE", ["enable_contact_page"], bool, False),
     ("ENABLE_CREDITS_PAGE", ["enable_credits_page"], bool, False),

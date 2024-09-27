@@ -88,6 +88,8 @@ dom("post-example").innerHTML = getPostHTML(
     },
     private: false,
     can_delete: false,
+    can_edit: false,
+    can_pin: false,
     can_view: true,
     comments: Math.floor(Math.random() * 100),
     content: lang.settings.cosmetic_example_post_content,
@@ -101,7 +103,8 @@ dom("post-example").innerHTML = getPostHTML(
     c_warning: null,
     timestamp: Date.now() / 1000 - Math.random() * 86400,
     poll: null,
-    logged_in: true
+    logged_in: true,
+    edited: true
   }, false, false, false, true
 );
 

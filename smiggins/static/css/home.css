@@ -240,8 +240,8 @@ input.c-warning {
 
 .bottom-content-icon svg,
 svg.bottom-content-icon {
-  width: 1.2em;
-  height: 1.2em;
+  width: 1.25em;
+  height: 1.25em;
   display: inline-block;
   position: relative;
   top: 0.2em;
@@ -299,7 +299,7 @@ button.bottom-content-icon {
     width: calc(94vw - 3.5em - (3em / 7)) !important;
   }
 
-  .poll-text {
+  .poll-bar-container .poll-text {
     max-width: calc(94vw - 4.7em - (3em / 7));
   }
 
@@ -329,6 +329,10 @@ button.bottom-content-icon {
   .bottom-spacing {
     width: 0.5em;
   }
+}
+
+.more-button {
+  display: inline-block;
 }
 
 .more-container {

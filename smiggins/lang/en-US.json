@@ -361,7 +361,8 @@
       "delete": "Delete",
       "pin": "Pin",
       "unpin": "Unpin",
-      "more": "More..."
+      "more": "More...",
+      "edit": "Edit"
     },
 
     "settings": {

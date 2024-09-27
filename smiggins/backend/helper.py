@@ -17,8 +17,8 @@ from .variables import (BADGE_DATA, BASE_DIR, CACHE_LANGUAGES,
                         DEFAULT_LIGHT_THEME, DISCORD, ENABLE_ACCOUNT_SWITCHER,
                         ENABLE_BADGES, ENABLE_CHANGELOG_PAGE,
                         ENABLE_CONTACT_PAGE, ENABLE_CONTENT_WARNINGS,
-                        ENABLE_CREDITS_PAGE, ENABLE_EMAIL,
-                        ENABLE_GRADIENT_BANNERS, ENABLE_HASHTAGS,
+                        ENABLE_CREDITS_PAGE, ENABLE_EDITING_POSTS,
+                        ENABLE_EMAIL, ENABLE_GRADIENT_BANNERS, ENABLE_HASHTAGS,
                         ENABLE_NEW_ACCOUNTS, ENABLE_PINNED_POSTS, ENABLE_POLLS,
                         ENABLE_POST_DELETION, ENABLE_PRIVATE_MESSAGES,
                         ENABLE_PRONOUNS, ENABLE_QUOTES, ENABLE_USER_BIOS,
@@ -343,11 +343,13 @@ def get_post_json(post_id: int, current_user_id: int=0, comment: bool=False, cac
         "c_warning": post.content_warning,
         "can_delete": can_delete_all or creator.user_id == current_user_id,
         "can_pin": not comment and creator.user_id == current_user_id,
+        "can_edit": creator.user_id == current_user_id and ENABLE_EDITING_POSTS,
         "can_view": True,
         "parent": post.parent if isinstance(post, Comment) else -1,
         "parent_is_comment": post.parent_is_comment if isinstance(post, Comment) else False,
         "poll": poll,
-        "logged_in": user is not None
+        "logged_in": user is not None,
+        "edited": post.edited
     }
 
     if isinstance(post, Post) and post.quote != 0:
@@ -413,7 +415,8 @@ def get_post_json(post_id: int, current_user_id: int=0, comment: bool=False, cac
                     "can_view": True,
                     "blocked": False,
                     "has_quote": isinstance(quote, Post) and quote.quote,
-                    "poll": bool(quote.poll) if isinstance(quote, Post) else False
+                    "poll": bool(quote.poll) if isinstance(quote, Post) else False,
+                    "edited": post.edited
                 }
 
         except Comment.DoesNotExist:

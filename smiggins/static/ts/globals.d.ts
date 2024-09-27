@@ -48,6 +48,7 @@ type _postJSON = {
   private: boolean,
   can_delete: boolean,
   can_pin?: boolean,
+  can_edit: boolean,
   can_view: boolean,
   comments: number,
   content: string,
@@ -62,6 +63,7 @@ type _postJSON = {
   c_warning: string | null,
   timestamp: number,
   logged_in: boolean,
+  edited: boolean,
 
   poll: {
     votes: number,
