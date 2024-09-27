@@ -22,11 +22,12 @@ declare const defaultPrivate: boolean;
 // Global variables
 declare const lang: { [key: string]: any };
 declare const badges: { [key: string]: string };
-declare const linkifyHtml: CallableFunction;
+declare function linkifyHtml(text: string, settings: object): string;
 
 // Defined in base.html, used in settings.ts for system theme
-declare const autoInit: CallableFunction;
-declare const autoCancel: CallableFunction;
+declare function autoInit(): void;
+declare function autoCancel(): void;
+declare function autoSetFavicon(): void;
 declare const autoEnabled: boolean;
 
 declare let oldFavicon: boolean;

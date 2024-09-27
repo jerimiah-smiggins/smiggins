@@ -147,9 +147,7 @@ function getPostHTML(postJSON, isComment = false, includeUserLink = true, includ
               ${postJSON.creator.badges.length ? `<span aria-hidden="true" class="user-badge">${postJSON.creator.badges.map((icon) => (badges[icon])).join("</span> <span aria-hidden=\"true\" class=\"user-badge\">")}</span>` : ""}
             </span>
             <span class="upper-lower-opacity">
-              ${includePostLink ? `<a href="/u/${postJSON.creator.username}" class="no-underline text">` : ""}
-                <span class="username">@${postJSON.creator.username}</span>
-              ${includePostLink ? "</a>" : ""} -
+              <span class="username">@${postJSON.creator.username}</span> -
               ${pronouns[postJSON.creator.pronouns] ? `<span class="pronouns">${pronouns[postJSON.creator.pronouns]}</span> -` : ""}
               <span class="timestamp">${timeSince(postJSON.timestamp)}</span>
             </span>
@@ -188,7 +186,7 @@ function getPostHTML(postJSON, isComment = false, includeUserLink = true, includ
                           ${postJSON.quote.creator.badges.length ? `<span aria-hidden="true" class="user-badge">${postJSON.quote.creator.badges.map((icon) => (badges[icon])).join("</span> <span aria-hidden=\"true\" class=\"user-badge\">")}</span>` : ""}
                         </span>
                         <span class="upper-lower-opacity">
-                            <span class="username">@${postJSON.quote.creator.username}</span>
+                            <span class="username">@${postJSON.quote.creator.username}</span> -
                           ${pronouns[postJSON.quote.creator.pronouns] ? `<span class="pronouns">${pronouns[postJSON.quote.creator.pronouns]}</span> -` : ""}
                           <span class="timestamp">${timeSince(postJSON.quote.timestamp)}</span>
                         </span>

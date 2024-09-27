@@ -88,9 +88,13 @@
 
   <body data-theme="{{ THEME }}" {% block body_head %}{% endblock %}>
     <script> // theme normalization when logged out
-      function _updateAutoFavi(event) {
-        favicon.href = `{% static "/img/favicons/" %}${event.matches ? "{{ DEFAULT_LIGHT_THEME }}" : "{{ DEFAULT_DARK_THEME }}"}-${validColors.indexOf(localStorage.getItem("color")) == -1 ? "mauve" : localStorage.getItem("color")}.ico?v={{ VERSION }}`;
+      function _updateAuto(event) {
+        autoSetFavicon()
         document.body.setAttribute("data-theme", event.matches ? "{{ DEFAULT_LIGHT_THEME }}" : "{{ DEFAULT_DARK_THEME }}");
+      }
+
+      function autoSetFavicon() {
+        favicon.href = `{% static "/img/favicons/" %}${event.matches ? "{{ DEFAULT_LIGHT_THEME }}" : "{{ DEFAULT_DARK_THEME }}"}-${validColors.indexOf(localStorage.getItem("color")) == -1 ? "mauve" : localStorage.getItem("color")}.ico?v={{ VERSION }}`;
       }
 
       function autoInit() {
@@ -106,12 +110,12 @@
           favicon.href = `{% static "/img/favicons/" %}${document.body.getAttribute("data-theme")}-${validColors.indexOf(localStorage.getItem("color")) == -1 ? "mauve" : localStorage.getItem("color")}.ico?v={{ VERSION }}`;
         }
 
-        _autoMM.addEventListener("change", _updateAutoFavi);
+        _autoMM.addEventListener("change", _updateAuto);
       }
 
       function autoCancel() {
         autoEnabled = false;
-        _autoMM.removeEventListener("change", _updateAutoFavi);
+        _autoMM.removeEventListener("change", _updateAuto);
       }
 
       let autoEnabled = false;
