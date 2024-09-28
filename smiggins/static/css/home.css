@@ -146,8 +146,12 @@ input.c-warning {
   width: 23.5em;
 }
 
-.post {
+.post,
+.displ-name-container {
   width: calc(26.95em - (3em / 7));
+}
+
+.post {
   border: calc(3em / 14) var(--accent-50) solid;
   padding: 1.25em;
   margin-bottom: 1.75em;
@@ -234,8 +238,19 @@ input.c-warning {
   animation: like-anim 1s forwards ease-out;
 }
 
-.displ-name, .upper-lower-opacity {
+.upper-lower-opacity {
   display: block;
+}
+
+.displ-name-container {
+  display: flex;
+  flex-direction: row-reverse;
+  justify-content: left;
+  align-items: flex-start;
+}
+
+.displ-name-container .spacing {
+  margin-left: auto;
 }
 
 .bottom-content-icon svg,
@@ -291,7 +306,8 @@ button.bottom-content-icon {
     width: calc(94vw - (-8em / 7) - 90px);
   }
 
-  .post {
+  .post,
+  .displ-name-container {
     width: calc(94vw - 3.5em - (3em / 7));
   }
 

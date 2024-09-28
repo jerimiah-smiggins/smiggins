@@ -180,11 +180,14 @@ function getPostHTML(
       <div class="upper-content">
         ${includeUserLink ? `<a href="/u/${postJSON.creator.username}" class="no-underline text">` : "<span>"}
           <div class="main-area">
-            <span class="displ-name">
-              <span style="--color-one: ${postJSON.creator.color_one}; --color-two: ${postJSON.creator[ENABLE_GRADIENT_BANNERS && postJSON.creator.gradient_banner ? "color_two" : "color_one"]}" class="user-badge banner-pfp"></span>
-              ${postJSON.private ? `<span class="user-badge">${icons.lock}</span>` : ""}
-              ${escapeHTML(postJSON.creator.display_name)}
-              ${postJSON.creator.badges.length ? `<span aria-hidden="true" class="user-badge">${postJSON.creator.badges.map((icon) => (badges[icon])).join("</span> <span aria-hidden=\"true\" class=\"user-badge\">")}</span>` : ""}
+            <span class="displ-name-container">
+              ${postJSON.edited ? `<span class="user-badge">${icons.edit}</span><span class="spacing"></span>` : ""}
+              <span class="displ-name">
+                <span style="--color-one: ${postJSON.creator.color_one}; --color-two: ${postJSON.creator[ENABLE_GRADIENT_BANNERS && postJSON.creator.gradient_banner ? "color_two" : "color_one"]}" class="user-badge banner-pfp"></span>
+                ${postJSON.private ? `<span class="user-badge">${icons.lock}</span>` : ""}
+                ${escapeHTML(postJSON.creator.display_name)}
+                ${postJSON.creator.badges.length ? `<span aria-hidden="true" class="user-badge">${postJSON.creator.badges.map((icon) => (badges[icon])).join("</span> <span aria-hidden=\"true\" class=\"user-badge\">")}</span>` : ""}
+              </span>
             </span>
             <span class="upper-lower-opacity">
               <span class="username">@${postJSON.creator.username}</span> -
