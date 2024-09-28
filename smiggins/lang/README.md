@@ -71,7 +71,7 @@ admin rewrite
 + post.more
 + post.edit
 + settings.comsetic_themes.auto
-+ changelogs.changes.v0.13.0 {1, 2, 3, 4, 5}
++ changelogs.changes.v0.13.0 {1, 2, 3, 4, 5, 6, 7}
 admin.post_deletion_title -> admin.post_deletion.title
 admin.post_deletion_button -> admin.post_deletion.button
 admin.post_deletion_error -> admin.post_deletion.error
