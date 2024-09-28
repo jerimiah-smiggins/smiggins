@@ -51,6 +51,78 @@ to the `maintainers` section
 Updates for each language version are listed below:
 
 <details>
+<summary>v1.8.0</summary>
+admin rewrite
+
+```diff
+- admin.level
+- settings.cosmetic_no_css
+- settings.comsetic_no_css_warning
++ admin.permissions.title
++ admin.permissions.error
++ admin.permissions.invalid
++ admin.permissions.label
++ admin.permissions.set
++ admin.permissions.load
++ admin.permissions.descriptions {0, 1, 2, 3, 4, 5, 6, 7, 8}
++ admin.permissions.descriptions_extra {5, 6, 7}
++ admin.logs.who_format
++ admin.logs.who_format_single
++ post.more
++ post.edit
++ settings.comsetic_themes.auto
++ changelogs.changes.v0.13.0 {1, 2, 3, 4, 5}
+admin.post_deletion_title -> admin.post_deletion.title
+admin.post_deletion_button -> admin.post_deletion.button
+admin.post_deletion_error -> admin.post_deletion.error
+admin.account_deletion_title -> admin.account_deletion.title
+admin.account_deletion_button -> admin.account_deletion.button
+admin.account_deletion_error -> admin.account_deletion.error
+admin.badge_name_placeholder -> admin.badge.name_placeholder
+admin.badge_name_label -> admin.badge.name_label
+admin.badge_data_placeholder -> admin.badge.data_placeholder
+admin.badge_manage_title -> admin.badge.manage_title
+admin.badge_manage_empty -> admin.badge.manage_empty
+admin.badge_manage_add_button -> admin.badge.manage_add_button
+admin.badge_manage_add_error -> admin.badge.manage_add_error
+admin.badge_manage_remove_button -> admin.badge.manage_remove_button
+admin.badge_manage_remove_error -> admin.badge.manage_remove_error
+admin.badge_manage_add_protected -> admin.badge.manage_add_protected
+admin.badge_manage_remove_protected -> admin.badge.manage_remove_protected
+admin.badge_create_title -> admin.badge.create_title
+admin.badge_create_button -> admin.badge.create_button
+admin.badge_create_invalid_data_size -> admin.badge.create_invalid_data_size
+admin.badge_create_success -> admin.badge.create_success
+admin.badge_delete_title -> admin.badge.delete_title
+admin.badge_delete_button -> admin.badge.delete_button
+admin.badge_delete_protected -> admin.badge.delete_protected
+admin.badge_invalid_name_size -> admin.badge.invalid_name_size
+admin.badge_invalid_name -> admin.badge.invalid_name
+admin.badge_not_found -> admin.badge.not_found
+admin.modify_title -> admin.modify.title
+admin.modify_get_button -> admin.modify.get_button
+admin.modify_current -> admin.modify.current
+admin.modify_save -> admin.modify.save
+admin.modify_switcher -> admin.modify.switcher
+admin.modify_invalid_bio_size -> admin.modify.invalid_bio_size
+admin.modify_invalid_display_name_long -> admin.modify.invalid_display_name_long
+admin.modify_invalid_display_name_short -> admin.modify.invalid_display_name_short
+admin.modify_id -> admin.modify.id
+admin.logs_button -> admin.logs.button
+admin.logs_error -> admin.logs.error
+admin.logs_timestamp -> admin.logs.timestamp
+admin.logs_action -> admin.logs.action
+admin.logs_who -> admin.logs.who
+admin.logs_more_info -> admin.logs.more_info
+settings.cometic_theme_light -> settings.cosmetic_themes.light
+settings.cometic_theme_gray -> settings.cosmetic_themes.gray
+settings.cometic_theme_dark -> settings.cosmetic_themes.dark
+settings.cometic_theme_black -> settings.cosmetic_themes.black
+settings.cometic_theme_oled -> settings.cosmetic_themes.oled
+```
+</details>
+
+<details>
 <summary>v1.7.0</summary>
 
 Caching, accessibility, custom static files

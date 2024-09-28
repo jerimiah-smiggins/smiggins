@@ -2,7 +2,7 @@
   "meta": {
     "fallback": [],
     "name": "English (United States)",
-    "version": "1.7.0",
+    "version": "1.8.0",
     "maintainers": ["trinkey"],
     "past_maintainers": []
   },
@@ -532,6 +532,13 @@
       "unknown": "Unknown",
 
       "changes": {
+        "v0.13.0": {
+          "1": "Fixed a bug that caused content warnings to not be properly escaped",
+          "2": "Added editing posts",
+          "3": "Moved the delete and pin/unpin buttons to a menu",
+          "4": "Rewrote the entire admin system",
+          "5": "Added a system theme that's based on the device's preferred color scheme"
+        },
         "v0.12.4": {
           "1": "Fixed an exploit that allowed anyone to inject arbitrary code into post pages"
         },
