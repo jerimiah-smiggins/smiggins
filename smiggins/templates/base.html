@@ -8,9 +8,9 @@
 
     <script>
       {% if ENABLE_BADGES == "true" %}
-        const badges = {% autoescape off %}{{ badges }}{% endautoescape %};
+        const badges = JSON.parse('{{ badges_str|escapejs }}');
       {% endif %}
-      const lang = {% autoescape off %}{{ lang }}{% endautoescape %};
+      const lang = JSON.parse('{{ lang_str|escapejs }}');
 
       const MAX_POST_LENGTH = {{ MAX_POST_LENGTH }};
       const MAX_POLL_OPTION_LENGTH = {{ MAX_POLL_OPTION_LENGTH }};

@@ -55,9 +55,7 @@
     share = window.location.href;
     home = true;
 
-    {% autoescape off %}
-      const post = {{ POST_JSON }};
-    {% endautoescape %}
+    const post = JSON.parse('{{ POST_JSON|escapejs }}');
 
     if (post.parent && post.parent > 0) {
       dom("parent-link").href = `/${post.parent_is_comment ? 'c' : 'p'}/${post.parent}`;
