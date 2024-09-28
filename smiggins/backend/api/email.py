@@ -7,12 +7,12 @@ from typing import Any
 from django.core.handlers.wsgi import WSGIRequest
 from django.http import HttpResponse, HttpResponseRedirect
 from django.views.decorators.csrf import csrf_exempt
+from ninja import Schema
 from posts.models import URLPart, User
 
 from ..helper import (generate_token, get_HTTP_response, get_lang, send_email,
                       sha)
 from ..variables import WEBSITE_URL
-from .schema import Email, Username
 
 LAST_TRIM: int = 0
 
@@ -78,6 +78,12 @@ COLORS = {
         "crust": "#dce0e8"
     }
 }
+
+class Email(Schema):
+    email: str
+
+class Username(Schema):
+    username: str
 
 def _get_url(user: User, intent: str, extra_data: dict={}) -> str:
     remove_extra_urlparts()

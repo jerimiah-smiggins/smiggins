@@ -1,19 +1,47 @@
 # For API functions that are user-specific, like settings, following, etc.
 
+from ninja import Schema
 from posts.models import Comment, Notification, Post, User
 
 from ..helper import (DEFAULT_LANG, create_api_ratelimit, ensure_ratelimit,
                       generate_token, get_lang, get_post_json, trim_whitespace,
                       validate_username)
-from ..variables import (API_TIMINGS, DEFAULT_BANNER_COLOR,
-                         ENABLE_GRADIENT_BANNERS, ENABLE_PRONOUNS,
-                         ENABLE_USER_BIOS, MAX_BIO_LENGTH,
+from ..variables import (API_TIMINGS, DEFAULT_BANNER_COLOR, DEFAULT_DARK_THEME,
+                         DEFAULT_LIGHT_THEME, ENABLE_GRADIENT_BANNERS,
+                         ENABLE_PRONOUNS, ENABLE_USER_BIOS, MAX_BIO_LENGTH,
                          MAX_DISPL_NAME_LENGTH, MAX_USERNAME_LENGTH,
                          POSTS_PER_REQUEST, VALID_LANGUAGES)
-from .schema import Account, ChangePassword, Settings, Theme, Username
 
 
-def signup(request, data: Account) -> tuple | dict:
+class Username(Schema):
+    username: str
+
+class Account(Username):
+    password: str
+
+class SignUp(Account):
+    light_mode: bool
+
+class ChangePassword(Schema):
+    password: str
+    new_password: str
+
+class Theme(Schema):
+    theme: str
+
+class Settings(Schema):
+    bio: str
+    lang: str
+    color: str
+    no_css: bool
+    pronouns: str
+    color_two: str
+    displ_name: str
+    is_gradient: bool
+    approve_followers: bool
+    default_post_visibility: str
+
+def signup(request, data: SignUp) -> tuple | dict:
     # Called when someone requests to follow another account.
 
     if not ensure_ratelimit("api_account_signup", request.META.get("REMOTE_ADDR")):
@@ -48,7 +76,7 @@ def signup(request, data: Account) -> tuple | dict:
             username=username,
             token=token,
             display_name=username,
-            theme="auto",
+            theme=DEFAULT_LIGHT_THEME if data.light_mode else DEFAULT_DARK_THEME,
             color=DEFAULT_BANNER_COLOR,
             color_two=DEFAULT_BANNER_COLOR,
             following=[],
@@ -138,7 +166,7 @@ def settings_theme(request, data: Theme) -> tuple | dict:
 
     lang = get_lang(user)
 
-    if theme.lower() not in ["auto", "light", "gray", "dark", "black", "oled"]:
+    if theme.lower() not in ["light", "gray", "dark", "black", "oled"]:
         return 400, {
             "success": False,
             "reason": lang["settings"]["cosmetic_theme_invalid"],
@@ -225,6 +253,7 @@ def settings(request, data: Settings) -> tuple | dict:
         user.pending_followers = []
 
     user.default_post_private = data.default_post_visibility == "followers"
+    user.no_css_mode = data.no_css
 
     if ENABLE_USER_BIOS:
         user.bio = bio

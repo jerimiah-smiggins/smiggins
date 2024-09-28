@@ -6,7 +6,9 @@
 {% endblock %}
 
 {% block head %}
-  <link rel="stylesheet" href="{% static '/css/home.css' %}?v={{ VERSION }}">
+  {% if NO_CSS_MODE == "false" %}
+    <link rel="stylesheet" href="{% static '/css/home.css' %}?v={{ VERSION }}">
+  {% endif %}
 {% endblock %}
 
 {% block body %}
@@ -22,10 +24,10 @@
   <label>
     <textarea id="post-text" maxlength="{{ MAX_POST_LENGTH }}" placeholder="{{ lang.home.post_input_placeholder }}"></textarea>
   </label><br>
-  <button id="post" class="inverted">{{ lang.generic.post }}</button><br>
+  <button id="post" class="inverted">{{ lang.generic.post }}</button>{% if NO_CSS_MODE == "false" %}<br>{% endif %}
 
   {% if ENABLE_POLLS == 'true' %}
-    <button id="toggle-poll" class="inverted">{{ lang.home.poll }}</button><br>
+    <button id="toggle-poll" class="inverted">{{ lang.home.poll }}</button>{% if NO_CSS_MODE == "false" %}<br>{% endif %}
     <div hidden id="poll"></div>
   {% endif %}
 

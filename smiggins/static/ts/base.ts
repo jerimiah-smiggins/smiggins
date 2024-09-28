@@ -167,29 +167,31 @@ function getPostHTML(
   pageFocus: boolean = false,
   isPinned: boolean = false
 ): string {
-  return `<div class="post-container" data-${isComment ? "comment" : "post"}-id="${postJSON.post_id}" data-content="${escapeHTML(postJSON.content)}">
+  return `<div class="post-container" data-${isComment ? "comment" : "post"}-id="${postJSON.post_id}">
     <div class="post">
       <div class="upper-content">
-        ${includeUserLink ? `<a href="/u/${postJSON.creator.username}" class="no-underline text">` : "<span>"}
+        ${includeUserLink && !NO_CSS_MODE ? `<a href="/u/${postJSON.creator.username}" class="no-underline text">` : "<span>"}
           <div class="main-area">
             <span class="displ-name">
               <span style="--color-one: ${postJSON.creator.color_one}; --color-two: ${postJSON.creator[ENABLE_GRADIENT_BANNERS && postJSON.creator.gradient_banner ? "color_two" : "color_one"]}" class="user-badge banner-pfp"></span>
-              ${postJSON.private ? `<span class="user-badge">${icons.lock}</span>` : ""}
+              ${postJSON.private && !NO_CSS_MODE ? `<span class="user-badge">${icons.lock}</span>` : ""}
               ${escapeHTML(postJSON.creator.display_name)}
-              ${postJSON.creator.badges.length ? `<span aria-hidden="true" class="user-badge">${postJSON.creator.badges.map((icon) => (badges[icon])).join("</span> <span aria-hidden=\"true\" class=\"user-badge\">")}</span>` : ""}
+              ${postJSON.creator.badges.length && !NO_CSS_MODE ? `<span aria-hidden="true" class="user-badge">${postJSON.creator.badges.map((icon) => (badges[icon])).join("</span> <span aria-hidden=\"true\" class=\"user-badge\">")}</span>` : ""}
             </span>
             <span class="upper-lower-opacity">
-              <span class="username">@${postJSON.creator.username}</span> -
+              ${includePostLink && NO_CSS_MODE ? `<a href="/u/${postJSON.creator.username}" class="no-underline text">` : ""}
+                <span class="username">@${postJSON.creator.username}</span>
+              ${includePostLink && NO_CSS_MODE ? "</a>" : ""} -
               ${pronouns[postJSON.creator.pronouns] ? `<span class="pronouns">${pronouns[postJSON.creator.pronouns]}</span> -` : ""}
               <span class="timestamp">${timeSince(postJSON.timestamp)}</span>
             </span>
           </div>
-        ${includeUserLink ? "</a>" : "</span>"}
+        ${includeUserLink && !NO_CSS_MODE ? "</a>" : "</span>"}
       </div>
 
       ${postJSON.c_warning ? `<details class="c-warning"><summary>${postJSON.c_warning}</summary>` : ""}
       <div class="main-content">
-        ${includePostLink ? `<a aria-hidden="true" href="/${isComment ? "c" : "p"}/${postJSON.post_id}" tabindex="-1" class="text no-underline">` : ""}
+        ${includePostLink && !NO_CSS_MODE ? `<a aria-hidden="true" href="/${isComment ? "c" : "p"}/${postJSON.post_id}" tabindex="-1" class="text no-underline">` : ""}
           ${
             linkifyHtml(escapeHTML(postJSON.content), {
               formatHref: {
@@ -197,37 +199,39 @@ function getPostHTML(
                 hashtag: (href: string): string => "/hashtag/" + href.slice(1)
               }
             }).replaceAll("\n", "<br>")
-              .replaceAll("<a", includePostLink ? "  \n" : "<a target=\"_blank\"")
-              .replaceAll("</a>", includePostLink ? `</a><a aria-hidden="true" href="/${isComment ? "c" : "p"}/${postJSON.post_id}" tabindex="-1" class="text no-underline">` : "</a>")
+              .replaceAll("<a", includePostLink && !NO_CSS_MODE ? "  \n" : "<a target=\"_blank\"")
+              .replaceAll("</a>", includePostLink && !NO_CSS_MODE ? `</a><a aria-hidden="true" href="/${isComment ? "c" : "p"}/${postJSON.post_id}" tabindex="-1" class="text no-underline">` : "</a>")
               .replaceAll("  \n", "</a><a target=\"_blank\"")
               .replaceAll(`<a aria-hidden="true" href="/${isComment ? "c" : "p"}/${postJSON.post_id}" tabindex="-1" class="text no-underline"></a>`, "")
               .replaceAll("<a target=\"_blank\" href=\"/", "<a href=\"/")
           }
-        ${includePostLink ? "</a>" : ""}
+        ${includePostLink && !NO_CSS_MODE ? "</a>" : ""}
       </div>
 
       ${
         postJSON.quote ? `
-          <div class="quote-area">
+          <${NO_CSS_MODE ? "blockquote" : "div"} class="quote-area">
             <div class="post">
               ${
                 postJSON.quote.blocked ? (postJSON.quote.blocked_by_self ? lang.home.quote_blocked : lang.home.quote_blocked_other) : postJSON.quote.deleted ? lang.home.quote_deleted : postJSON.quote.can_view ? `
                   <div class="upper-content">
-                    <a href="/u/${postJSON.quote.creator.username}" class="no-underline text">
+                    ${NO_CSS_MODE ? "" : `<a href="/u/${postJSON.quote.creator.username}" class="no-underline text">`}
                       <div class="main-area">
                         <span class="displ-name">
                           <span style="--color-one: ${postJSON.quote.creator.color_one}; --color-two: ${postJSON.quote.creator[ENABLE_GRADIENT_BANNERS && postJSON.quote.creator.gradient_banner ? "color_two" : "color_one"]}" class="user-badge banner-pfp"></span>
                           ${escapeHTML(postJSON.quote.creator.display_name)}
-                          ${postJSON.quote.private ? `<span class="user-badge">${icons.lock}</span>` : ""}
-                          ${postJSON.quote.creator.badges.length ? `<span aria-hidden="true" class="user-badge">${postJSON.quote.creator.badges.map((icon) => (badges[icon])).join("</span> <span aria-hidden=\"true\" class=\"user-badge\">")}</span>` : ""}
+                          ${postJSON.quote.private && !NO_CSS_MODE ? `<span class="user-badge">${icons.lock}</span>` : ""}
+                          ${postJSON.quote.creator.badges.length && !NO_CSS_MODE ? `<span aria-hidden="true" class="user-badge">${postJSON.quote.creator.badges.map((icon) => (badges[icon])).join("</span> <span aria-hidden=\"true\" class=\"user-badge\">")}</span>` : ""}
                         </span>
                         <span class="upper-lower-opacity">
-                            <span class="username">@${postJSON.quote.creator.username}</span> -
+                          ${NO_CSS_MODE ? `<a href="/u/${postJSON.quote.creator.username}" class="no-underline text">` : ""}
+                            <span class="username">@${postJSON.quote.creator.username}</span>
+                          ${NO_CSS_MODE ? "</a>" : ""} -
                           ${pronouns[postJSON.quote.creator.pronouns] ? `<span class="pronouns">${pronouns[postJSON.quote.creator.pronouns]}</span> -` : ""}
                           <span class="timestamp">${timeSince(postJSON.quote.timestamp)}</span>
                         </span>
                       </div>
-                    </a>
+                    ${NO_CSS_MODE ? "" : "</a>"}
                   </div>
 
                   ${postJSON.quote.c_warning ? `<details class="c-warning"><summary>${postJSON.quote.c_warning}</summary>` : ""}
@@ -255,7 +259,7 @@ function getPostHTML(
                 ` : lang.home.quote_private
               }
             </div>
-          </div>
+          </${NO_CSS_MODE ? "blockquote" : "div"}>
         ` : ""
       }
 
@@ -306,52 +310,45 @@ function getPostHTML(
 
       <div class="bottom-content">
         ${includePostLink ? `<a href="/${isComment ? "c" : "p"}/${postJSON.post_id}" class="text no-underline">` : ""}
-          <span class="bottom-content-icon comment-icon">${icons.comment}</span> ${postJSON.comments}
-        ${includePostLink ? "</a>" : ""}
+          <span class="bottom-content-icon comment-icon">${NO_CSS_MODE ? `<button>${lang.post.comment}` : icons.comment}</span> ${postJSON.comments}
+        ${NO_CSS_MODE ? "</button>" : ""}${includePostLink ? "</a>" : ""}
         <span class="bottom-spacing"></span>
         ${
           ENABLE_QUOTES ? `<button class="bottom-content-icon" ${fakeMentions ? "" : `onclick="addQuote('${postJSON.post_id}', ${isComment})"`}>
-            ${icons.quote}
+            ${NO_CSS_MODE ? lang.post.quote : icons.quote}
             <span class="quote-number">${postJSON.quotes}</span>
           </button>
           <span class="bottom-spacing"></span>` : ''
         }
 
         <span class="bottom-content-icon like-secondary">
-          ${icons.like}
+          ${NO_CSS_MODE ? "" : icons.like}
         </span>
 
-        <button class="bottom-content-icon like" data-liked="${postJSON.liked}" ${fakeMentions ? "" : `onclick="toggleLike(${postJSON.post_id}, ${isComment ? "'comment'" : "'post'"})"`}>
-          ${postJSON.liked ? icons.like : icons.unlike}
+        <button class="bottom-content-icon like" tabindex="0" data-liked="${postJSON.liked}" ${fakeMentions ? "" : `onclick="toggleLike(${postJSON.post_id}, ${isComment ? "'comment'" : "'post'"})"`}>
+          ${NO_CSS_MODE ? lang.post.like : postJSON.liked ? icons.like : icons.unlike}
           <span class="like-number">${postJSON.likes}</span>
         </button>
 
         ${
-          (postJSON.can_pin && ENABLE_PINNED_POSTS) || (postJSON.can_delete && ENABLE_POST_DELETION) ? `
+          postJSON.can_pin && ENABLE_PINNED_POSTS ? `
           <span class="bottom-spacing"></span>
-          <div tabindex="0" class="bottom-content-icon more-button">${icons.more}</div>
-
-          <div class="more-container">${
-            postJSON.can_pin && ENABLE_PINNED_POSTS ? `<button class="bottom-content-icon ${isPinned && postJSON.can_pin ? "red" : ""}" onclick="${isPinned && postJSON.can_pin ? "un" : ""}pinPost(${isPinned && postJSON.can_pin ? "" : postJSON.post_id})">
-              ${isPinned && postJSON.can_pin ? icons.unpin : icons.pin}
-              ${isPinned && postJSON.can_pin ? lang.post.unpin : lang.post.pin}
-            </button>` : ""
-          } ${
-            postJSON.can_delete && ENABLE_POST_DELETION ? `<button class="bottom-content-icon red" onclick="deletePost(${postJSON.post_id}, ${isComment}, ${pageFocus})">
-              ${icons.delete}
-              ${lang.post.delete}
-            </button>` : ""
-          } ${
-            postJSON.can_edit ? `<button class="bottom-content-icon" onclick="editPost(${postJSON.post_id}, ${isComment})">
-              ${icons.edit}
-              ${lang.post.edit}
-            </button>` : ""
-          }</div>` : ""
+          <button class="bottom-content-icon" tabindex="0" onclick="${isPinned && postJSON.can_pin ? "un" : ""}pinPost(${isPinned && postJSON.can_pin ? "" : postJSON.post_id})">
+            ${NO_CSS_MODE ? lang.post[isPinned && postJSON.can_pin ? "unpin" : "pin"] : isPinned && postJSON.can_pin ? icons.unpin : icons.pin}
+          </button>` : ""
+        }
+        ${
+          postJSON.can_delete && ENABLE_POST_DELETION ? `
+          <span class="bottom-spacing"></span>
+          <button class="bottom-content-icon" tabindex="0" onclick="deletePost(${postJSON.post_id}, ${isComment}, ${pageFocus})">
+            ${NO_CSS_MODE ? lang.post.delete : icons.delete}
+          </button>` : ""
         }
       </div>
       <div class="post-after"></div>
     </div>
-  </div>`;
+  </div>
+  ${NO_CSS_MODE ? "<hr>" : ""}`;
 }
 function trimWhitespace(string: string, purge_newlines: boolean = false): string {
   const whitespace: string[] = [
@@ -412,19 +409,13 @@ const icons: { [key: string]: string } = {
   pin      : `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 384 512" aria-label="${escapeHTML(lang.post.pin)}"><path d="m134.6 51.7-10.8 140.9c-1.1 14.6-8.8 27.8-20.9 36-23.9 16.2-41.8 40.8-49.1 70.3l-1.3 5.1h279l-1.3-5.1c-7.4-29.5-25.2-54.1-49.1-70.2-12.1-8.2-19.8-21.5-20.9-36l-10.8-141c-.1-1.2-.1-2.5-.1-3.7H134.8c0 1.2 0 2.5-.2 3.7M168 352H32c-9.9 0-19.2-4.5-25.2-12.3s-8.2-17.9-5.8-27.5l6.2-25c10.3-41.3 35.4-75.7 68.7-98.3L83.1 96l3.7-48H56c-4.4 0-8.6-1.2-12.2-3.3C36.8 40.5 32 32.8 32 24 32 10.7 42.7 0 56 0h272c13.3 0 24 10.7 24 24 0 8.8-4.8 16.5-11.8 20.7-3.6 2.1-7.7 3.3-12.2 3.3h-30.8l3.7 48 7.1 92.9c33.3 22.6 58.4 57.1 68.7 98.3l6.2 25c2.4 9.6.2 19.7-5.8 27.5S361.7 352 351.9 352H216v136c0 13.3-10.7 24-24 24s-24-10.7-24-24z"/></svg>`,
   unpin    : `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 384 512" class="red" aria-label="${escapeHTML(lang.post.unpin)}"><path d="m134.6 51.7-10.8 140.9c-1.1 14.6-8.8 27.8-20.9 36-23.9 16.2-41.8 40.8-49.1 70.3l-1.3 5.1h279l-1.3-5.1c-7.4-29.5-25.2-54.1-49.1-70.2-12.1-8.2-19.8-21.5-20.9-36l-10.8-141c-.1-1.2-.1-2.5-.1-3.7H134.8c0 1.2 0 2.5-.2 3.7M168 352H32c-9.9 0-19.2-4.5-25.2-12.3s-8.2-17.9-5.8-27.5l6.2-25c10.3-41.3 35.4-75.7 68.7-98.3L83.1 96l3.7-48H56c-4.4 0-8.6-1.2-12.2-3.3C36.8 40.5 32 32.8 32 24 32 10.7 42.7 0 56 0h272c13.3 0 24 10.7 24 24 0 8.8-4.8 16.5-11.8 20.7-3.6 2.1-7.7 3.3-12.2 3.3h-30.8l3.7 48 7.1 92.9c33.3 22.6 58.4 57.1 68.7 98.3l6.2 25c2.4 9.6.2 19.7-5.8 27.5S361.7 352 351.9 352H216v136c0 13.3-10.7 24-24 24s-24-10.7-24-24z"/></svg>`,
   message  : `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" aria-label="${escapeHTML(lang.messages.list_title)}"><path d="M48 64C21.5 64 0 85.5 0 112c0 15.1 7.1 29.3 19.2 38.4l217.6 163.2c11.4 8.5 27 8.5 38.4 0l217.6-163.2c12.1-9.1 19.2-23.3 19.2-38.4 0-26.5-21.5-48-48-48zM0 176v208c0 35.3 28.7 64 64 64h384c35.3 0 64-28.7 64-64V176L294.4 339.2a63.9 63.9 0 0 1-76.8 0z"/></svg>`,
-  follower : `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 512" aria-label="${escapeHTML(lang.user_page.pending_title)}"><path d="M96 128a128 128 0 1 1 256 0 128 128 0 1 1-256 0M0 482.3C0 383.8 79.8 304 178.3 304h91.4c98.5 0 178.3 79.8 178.3 178.3 0 16.4-13.3 29.7-29.7 29.7H29.7C13.3 512 0 498.7 0 482.3M464 332v-64h-64c-13.3 0-24-10.7-24-24s10.7-24 24-24h64v-64c0-13.3 10.7-24 24-24s24 10.7 24 24v64h64c13.3 0 24 10.7 24 24s-10.7 24-24 24h-64v64c0 13.3-10.7 24-24 24s-24-10.7-24-24"/></svg>`,
-  more     : `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512" aria-label="${escapeHTML(lang.post.more)}"><path d="M0 96c0-17.7 14.3-32 32-32h384c17.7 0 32 14.3 32 32s-14.3 32-32 32H32c-17.7 0-32-14.3-32-32m0 160c0-17.7 14.3-32 32-32h384c17.7 0 32 14.3 32 32s-14.3 32-32 32H32c-17.7 0-32-14.3-32-32m448 160c0 17.7-14.3 32-32 32H32c-17.7 0-32-14.3-32-32s14.3-32 32-32h384c17.7 0 32 14.3 32 32"/></svg>`,
-  edit     : `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" aria-label="${escapeHTML(lang.post.edit)}"><path d="M441 58.9 453.1 71c9.4 9.4 9.4 24.6 0 33.9L424 134.1 377.9 88 407 58.9c9.4-9.4 24.6-9.4 33.9 0zM209.8 256.2 344 121.9l46.1 46.1-134.3 134.2c-2.9 2.9-6.5 5-10.4 6.1L186.9 325l16.7-58.5c1.1-3.9 3.2-7.5 6.1-10.4zM373.1 25 175.8 222.2c-8.7 8.7-15 19.4-18.3 31.1l-28.6 100c-2.4 8.4-.1 17.4 6.1 23.6s15.2 8.5 23.6 6.1l100-28.6c11.8-3.4 22.5-9.7 31.1-18.3L487 138.9c28.1-28.1 28.1-73.7 0-101.8L474.9 25c-28.1-28.1-73.7-28.1-101.8 0M88 64c-48.6 0-88 39.4-88 88v272c0 48.6 39.4 88 88 88h272c48.6 0 88-39.4 88-88V312c0-13.3-10.7-24-24-24s-24 10.7-24 24v112c0 22.1-17.9 40-40 40H88c-22.1 0-40-17.9-40-40V152c0-22.1 17.9-40 40-40h112c13.3 0 24-10.7 24-24s-10.7-24-24-24z"/></svg>`
+  follower : `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 512" aria-label="${escapeHTML(lang.user_page.pending_title)}"><path d="M96 128a128 128 0 1 1 256 0 128 128 0 1 1-256 0M0 482.3C0 383.8 79.8 304 178.3 304h91.4c98.5 0 178.3 79.8 178.3 178.3 0 16.4-13.3 29.7-29.7 29.7H29.7C13.3 512 0 498.7 0 482.3M464 332v-64h-64c-13.3 0-24-10.7-24-24s10.7-24 24-24h64v-64c0-13.3 10.7-24 24-24s24 10.7 24 24v64h64c13.3 0 24 10.7 24 24s-10.7 24-24 24h-64v64c0 13.3-10.7 24-24 24s-24-10.7-24-24"/></svg>`
 };
 
-function forEach(iter: NodeListOf<Element>, callback: CallableFunction): any[] {
-  let out: any[] = [];
-
+function forEach(iter: NodeListOf<Element>, callback: CallableFunction): void {
   for (let i: number = 0; i < iter.length; i++) {
-    out.push(callback(iter[i], i));
+    callback(iter[i], i);
   }
-
-  return out;
 }
 
 setInterval(

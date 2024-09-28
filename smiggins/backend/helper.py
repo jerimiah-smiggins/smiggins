@@ -13,23 +13,23 @@ from django.http import HttpResponse, HttpResponseRedirect
 from django.template import loader
 from posts.models import Comment, Notification, Post, User
 
-from .variables import (BADGE_DATA, BASE_DIR, CACHE_LANGUAGES,
+from .variables import (ADMIN_LOG_PATH, BADGE_DATA, BASE_DIR, CACHE_LANGUAGES,
                         DEFAULT_DARK_THEME, DEFAULT_LANGUAGE,
                         DEFAULT_LIGHT_THEME, DISCORD, ENABLE_ACCOUNT_SWITCHER,
                         ENABLE_BADGES, ENABLE_CHANGELOG_PAGE,
                         ENABLE_CONTACT_PAGE, ENABLE_CONTENT_WARNINGS,
-                        ENABLE_CREDITS_PAGE, ENABLE_EDITING_POSTS,
-                        ENABLE_EMAIL, ENABLE_GRADIENT_BANNERS, ENABLE_HASHTAGS,
+                        ENABLE_CREDITS_PAGE, ENABLE_EMAIL,
+                        ENABLE_GRADIENT_BANNERS, ENABLE_HASHTAGS,
                         ENABLE_NEW_ACCOUNTS, ENABLE_PINNED_POSTS, ENABLE_POLLS,
                         ENABLE_POST_DELETION, ENABLE_PRIVATE_MESSAGES,
                         ENABLE_PRONOUNS, ENABLE_QUOTES, ENABLE_USER_BIOS,
-                        GOOGLE_VERIFICATION_TAG, MAX_BIO_LENGTH,
-                        MAX_CONTENT_WARNING_LENGTH, MAX_DISPL_NAME_LENGTH,
-                        MAX_NOTIFICATIONS, MAX_POLL_OPTION_LENGTH,
-                        MAX_POLL_OPTIONS, MAX_POST_LENGTH, MAX_USERNAME_LENGTH,
-                        OWNER_USER_ID, PRIVATE_AUTHENTICATOR_KEY, RATELIMIT,
-                        SITE_NAME, SOURCE_CODE, VALID_LANGUAGES, VERSION,
-                        timeout_handler)
+                        GOOGLE_VERIFICATION_TAG, MAX_ADMIN_LOG_LINES,
+                        MAX_BIO_LENGTH, MAX_CONTENT_WARNING_LENGTH,
+                        MAX_DISPL_NAME_LENGTH, MAX_NOTIFICATIONS,
+                        MAX_POLL_OPTION_LENGTH, MAX_POLL_OPTIONS,
+                        MAX_POST_LENGTH, MAX_USERNAME_LENGTH, OWNER_USER_ID,
+                        PRIVATE_AUTHENTICATOR_KEY, RATELIMIT, SITE_NAME,
+                        SOURCE_CODE, VALID_LANGUAGES, VERSION, timeout_handler)
 
 
 def sha(string: str | bytes) -> str:
@@ -115,6 +115,7 @@ def get_HTTP_response(
         "ENABLE_EMAIL": str(ENABLE_EMAIL).lower(),
 
         "DISCORD": DISCORD or "",
+        "NO_CSS_MODE": "false" if user is None else str(user.no_css_mode).lower(),
 
         "DEFAULT_PRIVATE": str(default_post_visibility).lower(),
         "THEME": theme,
@@ -229,7 +230,7 @@ def ensure_ratelimit(api_id: str, identifier: str | None) -> bool:
 def get_badges(user: User) -> list[str]:
     # Returns the list of badges for the specified user
 
-    return user.badges + (["administrator"] if user.admin_level != 0 or user.user_id == OWNER_USER_ID else []) if ENABLE_BADGES else []
+    return user.badges + (["administrator"] if user.admin_level >= 1 or user.user_id == OWNER_USER_ID else []) if ENABLE_BADGES else []
 
 def can_view_post(self_user: User | None, creator: User | None, post: Post | Comment, cache: dict[int, User] | None=None) -> tuple[Literal[True]] | tuple[Literal[False], Literal["blocked", "private", "blocking"]]:
     if cache is None:
@@ -346,13 +347,11 @@ def get_post_json(post_id: int, current_user_id: int=0, comment: bool=False, cac
         "c_warning": post.content_warning,
         "can_delete": can_delete_all or creator.user_id == current_user_id,
         "can_pin": not comment and creator.user_id == current_user_id,
-        "can_edit": creator.user_id == current_user_id and ENABLE_EDITING_POSTS,
         "can_view": True,
         "parent": post.parent if isinstance(post, Comment) else -1,
         "parent_is_comment": post.parent_is_comment if isinstance(post, Comment) else False,
         "poll": poll,
-        "logged_in": user is not None,
-        "edited": post.edited
+        "logged_in": user is not None
     }
 
     if isinstance(post, Post) and post.quote != 0:
@@ -418,8 +417,7 @@ def get_post_json(post_id: int, current_user_id: int=0, comment: bool=False, cac
                     "can_view": True,
                     "blocked": False,
                     "has_quote": isinstance(quote, Post) and quote.quote,
-                    "poll": bool(quote.poll) if isinstance(quote, Post) else False,
-                    "edited": post.edited
+                    "poll": bool(quote.poll) if isinstance(quote, Post) else False
                 }
 
         except Comment.DoesNotExist:
@@ -462,6 +460,23 @@ def trim_whitespace(string: str, purge_newlines: bool=False) -> str:
         string = string[:-1:]
 
     return string
+
+def log_admin_action(
+    action_name: str,
+    admin_user_object: User,
+    log_info: str
+) -> None:
+    # Logs an administrative action
+
+    if ADMIN_LOG_PATH is not None:
+        old_log = b"\n".join(open(ADMIN_LOG_PATH, "rb").read().split(b"\n")[:MAX_ADMIN_LOG_LINES - 1:])
+
+        NL = "\n"
+        BS = "\\"
+
+        f = open(ADMIN_LOG_PATH, "wb")
+        f.write(str.encode(f"{round(time.time())} - {action_name}, done by {admin_user_object.username} (id: {admin_user_object.user_id}) - {log_info.replace(BS, BS * 2).replace(NL, f'{BS}n')}\n") + old_log)
+        f.close()
 
 def find_mentions(message: str, exclude_users: list[str]=[]) -> list[str]:
     # Returns a list of all mentioned users in a string. Used for notifications

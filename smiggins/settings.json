@@ -73,6 +73,12 @@
   */
   "debug": true,
 
+  /*
+  ** The path of the admin log file. Relative to this directory. Set to `null`
+  ** to disable logging of administrative actions
+  */
+  "admin_log_path": "./admin.log",
+
   // The maximum of lines of logs to store in the admin file at once. 1+
   "max_admin_log_lines": 1000,
 
@@ -257,7 +263,6 @@
   "enable_private_messages": true,
   "enable_pinned_posts": true,
   "enable_post_deletion": true,
-  "enable_editing_posts": true,
 
   "enable_changelog_page": true,
   "enable_contact_page": true,

@@ -17,7 +17,9 @@
 {% endblock %}
 
 {% block head %}
-  <link rel="stylesheet" href="{% static '/css/contact.css' %}?v={{ VERSION }}">
+  {% if NO_CSS_MODE == "false" %}
+    <link rel="stylesheet" href="{% static '/css/contact.css' %}?v={{ VERSION }}">
+  {% endif %}
 {% endblock %}
 
 {% block body %}

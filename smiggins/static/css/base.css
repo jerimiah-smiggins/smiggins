@@ -126,13 +126,11 @@ select {
   resize: vertical;
 }
 
-body:not([data-disable-checkboxes]) label:has(+ input[type="checkbox"]),
-body:not([data-disable-checkboxes]) input[type="checkbox"] + label {
+body:not([data-disable-checkboxes]) label:has(+ input[type="checkbox"]) {
   cursor: pointer;
 }
 
-body:not([data-disable-checkboxes]) label + input[type="checkbox"],
-body:not([data-disable-checkboxes]) input[type="checkbox"]:has(+ label) {
+body:not([data-disable-checkboxes]) label + input[type="checkbox"] {
   width: 0;
   height: 0;
   opacity: 0;
@@ -142,8 +140,7 @@ body:not([data-disable-checkboxes]) input[type="checkbox"]:has(+ label) {
   outline: none;
 }
 
-body:not([data-disable-checkboxes]) label:has(+ input[type="checkbox"])::after,
-body:not([data-disable-checkboxes]) input[type="checkbox"] + label::before {
+body:not([data-disable-checkboxes]) label:has(+ input[type="checkbox"])::after {
   content: "";
   transition: background-color 0.25s, outline-color 0.25s;
   background-color: var(--surface0);
@@ -152,25 +149,16 @@ body:not([data-disable-checkboxes]) input[type="checkbox"] + label::before {
   top: 0.1em;
   width: 1em;
   height: 1em;
+  margin-left: 0.4em;
   border-radius: 0.2em;
   outline: 1px solid var(--surface1);
 }
 
-label::after {
-  margin-left: 0.4em;
-}
-
-label::before {
-  margin-right: 0.4em;
-}
-
-body:not([data-disable-checkboxes]) label:has(+ input[type="checkbox"]:checked)::after,
-body:not([data-disable-checkboxes]) input[type="checkbox"]:checked + label::before {
+body:not([data-disable-checkboxes]) label:has(+ input[type="checkbox"]:checked)::after {
   background-color: var(--accent);
 }
 
-body:not([data-disable-checkboxes]) label:has(+ input[type="checkbox"]:focus)::after,
-body:not([data-disable-checkboxes]) input[type="checkbox"]:focus + label::before {
+body:not([data-disable-checkboxes]) label:has(+ input[type="checkbox"]:focus)::after {
   outline-color: var(--accent);
 }
 

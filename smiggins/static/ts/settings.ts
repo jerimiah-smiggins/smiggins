@@ -88,8 +88,6 @@ dom("post-example").innerHTML = getPostHTML(
     },
     private: false,
     can_delete: false,
-    can_edit: false,
-    can_pin: false,
     can_view: true,
     comments: Math.floor(Math.random() * 100),
     content: lang.settings.cosmetic_example_post_content,
@@ -103,8 +101,7 @@ dom("post-example").innerHTML = getPostHTML(
     c_warning: null,
     timestamp: Date.now() / 1000 - Math.random() * 86400,
     poll: null,
-    logged_in: true,
-    edited: true
+    logged_in: true
   }, false, false, false, true
 );
 
@@ -156,11 +153,7 @@ dom("old-favi").addEventListener("input", function(): void {
     favicon.href = favicon.href.replace(newFaviconRegex, "/old_favicon.ico?v=$1");
   } else {
     localStorage.removeItem("old-favicon");
-    if ((dom("theme") as HTMLInputElement).value == "auto") {
-      autoSetFavicon();
-    } else {
-      favicon.href = favicon.href.replace(oldFaviconRegex, `/favicons/${(dom("theme") as HTMLInputElement).value}-${(dom("color") as HTMLInputElement).value}.ico?v=$1`);
-    }
+    favicon.href = favicon.href.replace(oldFaviconRegex, `/favicons/${(dom("theme") as HTMLInputElement).value}-${(dom("color") as HTMLInputElement).value}.ico?v=$1`);
   }
 });
 
@@ -200,6 +193,7 @@ ENABLE_USER_BIOS && dom("bio").addEventListener("input", postTextInputEvent);
 dom("displ-name").addEventListener("input", setUnload);
 dom("default-post").addEventListener("input", setUnload);
 dom("followers-approval").addEventListener("input", setUnload);
+dom("no-css").addEventListener("input", setUnload);
 
 dom("theme").addEventListener("change", function(): void {
   dom("theme").setAttribute("disabled", "");
@@ -217,16 +211,10 @@ dom("theme").addEventListener("change", function(): void {
       showlog(lang.generic.something_went_wrong);
     }
       dom("theme").removeAttribute("disabled");
+      document.querySelector("body").setAttribute("data-theme", (dom("theme") as HTMLInputElement).value);
 
-      if ((dom("theme") as HTMLInputElement).value == "auto") {
-        !autoEnabled && autoInit();
-      } else {
-        autoEnabled && autoCancel();
-
-        if (!oldFavicon) {
-          document.querySelector("body").setAttribute("data-theme", (dom("theme") as HTMLInputElement).value);
-          favicon.href = favicon.href.replace(faviconRegex, `/favicons/${(dom("theme") as HTMLInputElement).value}-$2.ico?v=$3`);
-        }
+      if (!oldFavicon) {
+        favicon.href = favicon.href.replace(faviconRegex, `/favicons/${(dom("theme") as HTMLInputElement).value}-$2.ico?v=$3`);
       }
     })
     .catch((err: Error) => {
@@ -239,6 +227,7 @@ dom("save").addEventListener("click", function(): void {
   ENABLE_USER_BIOS && dom("bio").setAttribute("disabled", "");
   dom("save").setAttribute("disabled", "");
   dom("displ-name").setAttribute("disabled", "");
+  dom("no-css").setAttribute("disabled", "");
   dom("banner-color").setAttribute("disabled", "");
   dom("lang").setAttribute("disabled", "");
   dom("default-post").setAttribute("disabled", "");
@@ -252,6 +241,7 @@ dom("save").addEventListener("click", function(): void {
       bio: ENABLE_USER_BIOS ? (dom("bio") as HTMLInputElement).value : "",
       lang: (dom("lang") as HTMLInputElement).value,
       color: (dom("banner-color") as HTMLInputElement).value,
+      no_css: (dom("no-css") as HTMLInputElement).checked,
       pronouns: ENABLE_PRONOUNS ? user_pronouns : "__",
       color_two: ENABLE_GRADIENT_BANNERS ? (dom("banner-color-two") as HTMLInputElement).value : "",
       displ_name: (dom("displ-name") as HTMLInputElement).value,
@@ -281,6 +271,7 @@ dom("save").addEventListener("click", function(): void {
       ENABLE_USER_BIOS && dom("bio").removeAttribute("disabled");
       dom("save").removeAttribute("disabled");
       dom("displ-name").removeAttribute("disabled");
+      dom("no-css").removeAttribute("disabled");
       dom("banner-color").removeAttribute("disabled");
       dom("lang").removeAttribute("disabled");
       dom("default-post").removeAttribute("disabled");

@@ -6,21 +6,41 @@ import threading
 import time
 
 import requests
+from ninja import Schema
 from posts.models import Comment, Hashtag, Notification, Post, User
 
 from ..helper import (DEFAULT_LANG, can_view_post, create_api_ratelimit,
                       create_notification, delete_notification,
                       ensure_ratelimit, find_hashtags, find_mentions, get_lang,
-                      get_post_json, trim_whitespace, validate_username)
+                      get_post_json, log_admin_action, trim_whitespace,
+                      validate_username)
 from ..variables import (API_TIMINGS, ENABLE_CONTENT_WARNINGS,
                          ENABLE_LOGGED_OUT_CONTENT, ENABLE_PINNED_POSTS,
                          ENABLE_POLLS, MAX_CONTENT_WARNING_LENGTH,
                          MAX_POLL_OPTION_LENGTH, MAX_POLL_OPTIONS,
                          MAX_POST_LENGTH, OWNER_USER_ID, POST_WEBHOOKS,
                          POSTS_PER_REQUEST, SITE_NAME, VERSION)
-from .admin import log_admin_action
-from .schema import NewPost, NewQuote, Poll, PostID
 
+
+class NewPost(Schema):
+    c_warning: str
+    content: str
+    poll: list[str]
+    private: bool
+
+class NewQuote(Schema):
+    c_warning: str
+    content: str
+    quote_id: int
+    quote_is_comment: bool
+    private: bool
+
+class PostID(Schema):
+    id: int
+
+class Poll(Schema):
+    id: int
+    option: int
 
 def post_hook(request, user: User, post: Post):
     def post_inside(request, user: User, post: Post):
@@ -603,7 +623,7 @@ def post_delete(request, data: PostID) -> tuple | dict:
     creator = post.creator == user.user_id
 
     if admin and not creator:
-        log_admin_action("Delete post", user, User.objects.get(user_id=post.creator), f"Deleted post {id}")
+        log_admin_action("Delete post", user, f"Deleted post {id} (content: {post.content})")
 
     if creator or admin:
         creator = User.objects.get(user_id=post.creator)

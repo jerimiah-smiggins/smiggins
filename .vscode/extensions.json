@@ -4,6 +4,7 @@
     "charliermarsh.ruff",
     "batisteo.vscode-django",
     "ms-python.vscode-pylance",
+    "jacobcassidy.css-nesting-syntax-highlighting",
 
     "streetsidesoftware.code-spell-checker",
     "streetsidesoftware.code-spell-checker-esperanto"

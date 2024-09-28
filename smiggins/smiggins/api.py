@@ -2,7 +2,7 @@ import json
 
 from backend.api import (ApiAdmin, ApiComment, ApiEmail, ApiInfo, ApiMessages,
                          ApiPost, ApiUser)
-from backend.variables import (ENABLE_BADGES, ENABLE_EMAIL, ENABLE_HASHTAGS,
+from backend.variables import (ENABLE_EMAIL, ENABLE_HASHTAGS,
                                ENABLE_NEW_ACCOUNTS, ENABLE_POST_DELETION,
                                ENABLE_PRIVATE_MESSAGES, ENABLE_QUOTES)
 from django.urls import path
@@ -90,15 +90,13 @@ if ENABLE_PRIVATE_MESSAGES:
 api.get   ("admin/info",     response=response_schema)(ApiAdmin.account_info)
 api.delete("admin/user",     response=response_schema)(ApiAdmin.user_delete)
 api.patch ("admin/save-acc", response=response_schema)(ApiAdmin.account_save)
-api.get   ("admin/level",    response=response_schema)(ApiAdmin.load_level)
 api.patch ("admin/level",    response=response_schema)(ApiAdmin.set_level)
 api.get   ("admin/logs",     response=response_schema)(ApiAdmin.logs)
 
-if ENABLE_BADGES:
-    api.post  ("admin/badge", response=response_schema)(ApiAdmin.badge_add)    # Add badge to user
-    api.put   ("admin/badge", response=response_schema)(ApiAdmin.badge_create) # New badge
-    api.delete("admin/badge", response=response_schema)(ApiAdmin.badge_delete) # Delete badge
-    api.patch ("admin/badge", response=response_schema)(ApiAdmin.badge_remove) # Remove badge from user
+api.post  ("admin/badge", response=response_schema)(ApiAdmin.badge_add)    # Add badge to user
+api.put   ("admin/badge", response=response_schema)(ApiAdmin.badge_create) # New badge
+api.delete("admin/badge", response=response_schema)(ApiAdmin.badge_delete) # Delete badge
+api.patch ("admin/badge", response=response_schema)(ApiAdmin.badge_remove) # Remove badge from user
 
 # Information
 api.get("info/username", response=response_schema)(ApiInfo.username)

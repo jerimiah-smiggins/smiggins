@@ -2,7 +2,7 @@ import hashlib
 import os
 import pathlib
 import re
-from typing import Any
+from typing import Any, get_args, get_origin
 
 import json5 as json
 from django.db.utils import OperationalError
@@ -26,7 +26,7 @@ CREDITS: dict[str, list[str]] = {
 }
 
 # Set default variable states
-REAL_VERSION: tuple[int, int, int] = (0, 12, 5)
+REAL_VERSION: tuple[int, int, int] = (0, 12, 4)
 VERSION: str = ".".join([str(i) for i in REAL_VERSION])
 SITE_NAME: str = "Jerimiah Smiggins"
 WEBSITE_URL: str | None = None
@@ -64,7 +64,6 @@ ENABLE_PRONOUNS: bool = True
 ENABLE_GRADIENT_BANNERS: bool = True
 ENABLE_PRIVATE_MESSAGES: bool = True
 ENABLE_POST_DELETION: bool = True
-ENABLE_EDITING_POSTS: bool = True
 ENABLE_HASHTAGS: bool = True
 ENABLE_CHANGELOG_PAGE: bool = True
 ENABLE_CONTACT_PAGE: bool = True
@@ -86,64 +85,6 @@ SITEMAP_CACHE_TIMEOUT: int | None = 86400
 GENERIC_CACHE_TIMEOUT: int | None = 604800
 API_TIMINGS: dict[str, int] = {}
 
-# stores variable metadata
-_VARIABLES: list[tuple[str, list[str], type | str | list | tuple | dict, bool]] = [
-#   ["VAR_NAME", keys, type, allow_null]
-    ("VERSION", ["version"], str, False),
-    ("SITE_NAME", ["site_name"], str, False),
-    ("WEBSITE_URL", ["website_url"], str, False),
-    ("OWNER_USER_ID", ["owner_user_id"], int, False),
-    ("DEBUG", ["debug"], bool, False),
-    ("ADMIN_LOG_PATH", ["admin_log_path"], str, True),
-    ("MAX_ADMIN_LOG_LINES", ["max_admin_log_lines"], int, False),
-    ("DEFAULT_LANGUAGE", ["default_lang", "default_language"], str, False),
-    ("DEFAULT_DARK_THEME", ["default_dark_theme"], "theme", False),
-    ("DEFAULT_LIGHT_THEME", ["default_light_theme"], "theme", False),
-    ("CACHE_LANGUAGES", ["cache_langs", "cache_languages"], bool, True),
-    ("ALLOW_SCRAPING", ["allow_scraping"], bool, False),
-    ("MAX_USERNAME_LENGTH", ["max_username_length"], int, False),
-    ("MAX_DISPL_NAME_LENGTH", ["max_display_name_length"], int, False),
-    ("MAX_BIO_LENGTH", ["max_bio_length", "max_user_bio_length"], int, False),
-    ("MAX_CONTENT_WARNING_LENGTH", ["max_cw_length", "max_warning_length", "max_content_warning_length"], int, False),
-    ("MAX_POST_LENGTH", ["max_post_length"], int, False),
-    ("MAX_POLL_OPTIONS", ["max_poll_options"], int, False),
-    ("MAX_POLL_OPTION_LENGTH", ["max_poll_option_length"], int, False),
-    ("DEFAULT_BANNER_COLOR", ["default_banner_color"], "color", False),
-    ("POSTS_PER_REQUEST", ["posts_per_request"], int, False),
-    ("MESSAGES_PER_REQUEST", ["messages_per_request"], int, False),
-    ("MAX_NOTIFICATIONS", ["max_notifs", "max_notifications"], int, False),
-    ("CONTACT_INFO", ["contact_info", "contact_information"], [[str]], False),
-    ("POST_WEBHOOKS", ["webhooks", "auto_webhooks", "post_webhooks", "auto_post_webhooks"], {str: [str]}, False),
-    ("SOURCE_CODE", ["source_code"], bool, False),
-    ("RATELIMIT", ["ratelimit"], bool, False),
-    ("API_TIMINGS", ["api_timings"], {str: int}, False),
-    ("ENABLE_USER_BIOS", ["enable_user_bios"], bool, False),
-    ("ENABLE_PRONOUNS", ["enable_pronouns"], bool, False),
-    ("ENABLE_GRADIENT_BANNERS", ["enable_gradient_banners"], bool, False),
-    ("ENABLE_ACCOUNT_SWITCHER", ["enable_account_switcher"], bool, False),
-    ("ENABLE_HASHTAGS", ["enable_hashtags"], bool, False),
-    ("ENABLE_PRIVATE_MESSAGES", ["enable_private_messages"], bool, False),
-    ("ENABLE_PINNED_POSTS", ["enable_pinned_posts"], bool, False),
-    ("ENABLE_POST_DELETION", ["enable_post_deletion"], bool, False),
-    ("ENABLE_EDITING_POSTS", ["enable_editing_posts"], bool, False),
-    ("ENABLE_CHANGELOG_PAGE", ["enable_changelog_page"], bool, False),
-    ("ENABLE_CONTACT_PAGE", ["enable_contact_page"], bool, False),
-    ("ENABLE_CREDITS_PAGE", ["enable_credits_page"], bool, False),
-    ("ENABLE_BADGES", ["enable_badges"], bool, False),
-    ("ENABLE_QUOTES", ["enable_quotes"], bool, False),
-    ("ENABLE_POLLS", ["enable_polls"], bool, False),
-    ("ENABLE_CONTENT_WARNINGS", ["enable_cws", "enable_c_warnings", "enable_content_warnings"], bool, False),
-    ("ENABLE_LOGGED_OUT_CONTENT", ["enable_logged_out", "enable_logged_out_content"], bool, False),
-    ("ENABLE_NEW_ACCOUNTS", ["enable_signup", "enable_new_users", "enable_new_accounts"], bool, False),
-    ("ENABLE_EMAIL", ["email", "enable_email"], bool, False),
-    ("ENABLE_SITEMAPS", ["sitemaps", "enable_sitemaps"], bool, False),
-    ("ITEMS_PER_SITEMAP", ["items_per_sitemap"], int, False),
-    ("GOOGLE_VERIFICATION_TAG", ["google_verification_tag"], str, False),
-    ("DISCORD", ["discord", "discord_invite"], str, True),
-    ("SITEMAP_CACHE_TIMEOUT", ["sitemap_cache_timeout"], int, True),
-    ("GENERIC_CACHE_TIMEOUT", ["generic_cache_timeout"], int, True)
-]
-
 f = {}
 
 try:
@@ -153,74 +94,37 @@ except ValueError:
 except FileNotFoundError:
     error("settings.json not found")
 
-def typecheck(obj: Any, expected_type: type | str | list | tuple | dict, allow_null: bool=False) -> bool:
-    # Checks for a custom type format.
-    # Lists should always have 0 or 1 indexes, and dicts should always have 0 or 1 keys.
-    # If a list is empty, it allows any values. Same with dicts.
-    # examples - python -> custom
-    # int | float -> (int, float)
-    # list[str | int] -> [(str, int)]
-    # dict[str, list[str] | str] -> {str: ([str], str)}
-
-    if expected_type is Any: # typing.Any throws a TypeError when used with isinstance()
+def extended_isinstance(obj: Any, expected_type: type) -> bool:
+    if expected_type is Any:
         return True
 
-    if obj is None:
-        return allow_null
+    origin_type = get_origin(expected_type)
+    if origin_type:
+        if not isinstance(obj, origin_type):
+            return False
 
-    if isinstance(expected_type, type):
+        args = get_args(expected_type)
+        if origin_type is list:
+            return all(extended_isinstance(item, args[0]) for item in obj)
+        elif origin_type is dict:
+            key_type, value_type = args
+            return all(
+                extended_isinstance(k, key_type) and extended_isinstance(v, value_type)
+                for k, v in obj.items()
+            )
+        else:
+            return False
+    else:
         return isinstance(obj, expected_type)
 
-    if isinstance(expected_type, str):
-        if expected_type == "color":
-            return isinstance(obj, str) and bool(re.match(r"^#[0-9a-f]{6}$", obj))
-
-        if expected_type == "theme":
-            return isinstance(obj, str) and obj.lower() in ["dawn", "dusk", "dark", "midnight", "black"]
-
-        # Add more special checks when needed
-
-        return False
-
-    if isinstance(expected_type, list):
-        if not isinstance(obj, list):
-            return False
-
-        if len(expected_type):
-            for i in obj:
-                if not typecheck(i, expected_type[0], allow_null):
-                    return False
-
-        return True
-
-    if isinstance(expected_type, tuple):
-        for i in expected_type:
-            if not typecheck(obj, i, allow_null):
-                return False
-
-        return True
-
-    if isinstance(expected_type, dict):
-        if not isinstance(obj, dict):
-            return False
-
-        if len(expected_type):
-            types = list(expected_type.items())[0]
-
-            for key, val in obj.items():
-                if not typecheck(key, types[0], allow_null) or not typecheck(val, types[1], allow_null):
-                    return False
-
-        return True
-
-    return False
-
-def is_ok(val: Any, var: str, t: type | str | list | tuple | dict, null: bool=False):
-    if typecheck(val, t, null):
+def is_ok(val: Any, var: str, t: type | str, null: bool=False):
+    if (isinstance(t, type) and extended_isinstance(val, t)) or \
+       (null and isinstance(t, type) and val is None) or \
+       (isinstance(t, str) and t == "co" and re.match(r"^#[0-9a-f]{6}$", val)):
         exec(f"global {var}\n{var} = {repr(val)}")
 
     elif val is not None:
-        error(f"{val} should be {t}")
+        error(f"{val} should be {t}, not {type(val)}")
 
 def clamp(
     val: int | None,
@@ -238,20 +142,60 @@ def clamp(
 
     return val
 
-_var_dict: dict[str, tuple[str, list[str], type | str | list | tuple | dict, bool]] = {}
-for i in _VARIABLES:
-    for alias in i[1]:
-        _var_dict[alias] = i
-
 for key, val in f.items():
-    key = key.lower()
-
-    if key in _var_dict:
-        is_ok(val, _var_dict[key][0], _var_dict[key][2], null=_var_dict[key][3])
-    else:
-        error(f"Unknown setting {key}")
-
-del _VARIABLES, _var_dict
+    if   key.lower() == "version": is_ok(val, "VERSION", str) # noqa: E701
+    elif key.lower() == "site_name": is_ok(val, "SITE_NAME", str) # noqa: E701
+    elif key.lower() == "website_url": is_ok(val, "WEBSITE_URL", str) # noqa: E701
+    elif key.lower() == "owner_user_id": is_ok(val, "OWNER_USER_ID", int) # noqa: E701
+    elif key.lower() == "debug": is_ok(val, "DEBUG", bool) # noqa: E701
+    elif key.lower() == "admin_log_path": is_ok(val, "ADMIN_LOG_PATH", str, null=True) # noqa: E701
+    elif key.lower() == "max_admin_log_lines": is_ok(val, "MAX_ADMIN_LOG_LINES", int) # noqa: E701
+    elif key.lower() in ["default_lang", "default_language"]: is_ok(val, "DEFAULT_LANGUAGE", str) # noqa: E701
+    elif key.lower() == "default_dark_theme": is_ok(val, "DEFAULT_DARK_THEME", str) # noqa: E701
+    elif key.lower() == "default_light_theme": is_ok(val, "DEFAULT_LIGHT_THEME", str) # noqa: E701
+    elif key.lower() in ["cache_langs", "cache_languages"]: is_ok(val, "CACHE_LANGUAGES", bool, null=True) # noqa: E701
+    elif key.lower() == "allow_scraping": is_ok(val, "ALLOW_SCRAPING", bool) # noqa: E701
+    elif key.lower() == "max_username_length": is_ok(val, "MAX_USERNAME_LENGTH", int) # noqa: E701
+    elif key.lower() == "max_display_name_length": is_ok(val, "MAX_DISPL_NAME_LENGTH", int) # noqa: E701
+    elif key.lower() in ["max_bio_length", "max_user_bio_length"]: is_ok(val, "MAX_BIO_LENGTH", int) # noqa: E701
+    elif key.lower() in ["max_cw_length", "max_warning_length", "max_content_warning_length"]: is_ok(val, "MAX_CONTENT_WARNING_LENGTH", int) # noqa: E701
+    elif key.lower() == "max_post_length": is_ok(val, "MAX_POST_LENGTH", int) # noqa: E701
+    elif key.lower() == "max_poll_options": is_ok(val, "MAX_POLL_OPTIONS", int) # noqa: E701
+    elif key.lower() == "max_poll_option_length": is_ok(val, "MAX_POLL_OPTION_LENGTH", int) # noqa: E701
+    elif key.lower() == "default_banner_color": is_ok(val, "DEFAULT_BANNER_COLOR", "co") # noqa: E701
+    elif key.lower() == "posts_per_request": is_ok(val, "POSTS_PER_REQUEST", int) # noqa: E701
+    elif key.lower() == "messages_per_request": is_ok(val, "MESSAGES_PER_REQUEST", int) # noqa: E701
+    elif key.lower() in ["max_notifs", "max_notifications"]: is_ok(val, "MAX_NOTIFICATIONS", int) # noqa: E701
+    elif key.lower() in ["contact_info", "contact_information"]: is_ok(val, "CONTACT_INFO", list[list[str]]) # noqa: E701
+    elif key.lower() in ["webhooks", "auto_webhooks", "post_webhooks", "auto_post_webhooks"]: is_ok(val, "POST_WEBHOOKS", dict[str, list[str]]) # noqa: E701
+    elif key.lower() == "source_code": is_ok(val, "SOURCE_CODE", bool) # noqa: E701
+    elif key.lower() == "ratelimit": is_ok(val, "RATELIMIT", bool) # noqa: E701
+    elif key.lower() == "api_timings": is_ok(val, "API_TIMINGS", dict[str, int]) # noqa: E701
+    elif key.lower() == "enable_user_bios": is_ok(val, "ENABLE_USER_BIOS", bool) # noqa: E701
+    elif key.lower() == "enable_pronouns": is_ok(val, "ENABLE_PRONOUNS", bool) # noqa: E701
+    elif key.lower() == "enable_gradient_banners": is_ok(val, "ENABLE_GRADIENT_BANNERS", bool) # noqa: E701
+    elif key.lower() == "enable_account_switcher": is_ok(val, "ENABLE_ACCOUNT_SWITCHER", bool) # noqa: E701
+    elif key.lower() == "enable_hashtags": is_ok(val, "ENABLE_HASHTAGS", bool) # noqa: E701
+    elif key.lower() == "enable_private_messages": is_ok(val, "ENABLE_PRIVATE_MESSAGES", bool) # noqa: E701
+    elif key.lower() == "enable_pinned_posts": is_ok(val, "ENABLE_PINNED_POSTS", bool) # noqa: E701
+    elif key.lower() == "enable_post_deletion": is_ok(val, "ENABLE_POST_DELETION", bool) # noqa: E701
+    elif key.lower() == "enable_changelog_page": is_ok(val, "ENABLE_CHANGELOG_PAGE", bool) # noqa: E701
+    elif key.lower() == "enable_contact_page": is_ok(val, "ENABLE_CONTACT_PAGE", bool) # noqa: E701
+    elif key.lower() == "enable_credits_page": is_ok(val, "ENABLE_CREDITS_PAGE", bool) # noqa: E701
+    elif key.lower() == "enable_badges": is_ok(val, "ENABLE_BADGES", bool) # noqa: E701
+    elif key.lower() == "enable_quotes": is_ok(val, "ENABLE_QUOTES", bool) # noqa: E701
+    elif key.lower() == "enable_polls": is_ok(val, "ENABLE_POLLS", bool) # noqa: E701
+    elif key.lower() in ["enable_cws", "enable_c_warnings", "enable_content_warnings"]: is_ok(val, "ENABLE_CONTENT_WARNINGS", bool) # noqa: E701
+    elif key.lower() in ["enable_logged_out", "enable_logged_out_content"]: is_ok(val, "ENABLE_LOGGED_OUT_CONTENT", bool) # noqa: E701
+    elif key.lower() in ["enable_signup", "enable_new_users", "enable_new_accounts"]: is_ok(val, "ENABLE_NEW_ACCOUNTS", bool) # noqa: E701
+    elif key.lower() in ["email", "enable_email"]: is_ok(val, "ENABLE_EMAIL", bool) # noqa: E701
+    elif key.lower() in ["sitemaps", "enable_sitemaps"]: is_ok(val, "ENABLE_SITEMAPS", bool) # noqa: E701
+    elif key.lower() == "items_per_sitemap": is_ok(val, "ITEMS_PER_SITEMAP", int) # noqa: E701
+    elif key.lower() == "google_verification_tag": is_ok(val, "GOOGLE_VERIFICATION_TAG", str) # noqa: E701
+    elif key.lower() in ["discord", "discord_invite"]: is_ok(val, "DISCORD", str, null=True) # noqa: E701
+    elif key.lower() == "sitemap_cache_timeout": is_ok(val, "SITEMAP_CACHE_TIMEOUT", int, null=True) # noqa: E701
+    elif key.lower() == "generic_cache_timeout": is_ok(val, "GENERIC_CACHE_TIMEOUT", int, null=True) # noqa: E701
+    else: error(f"Unknown setting {key}") # noqa: E701
 
 MAX_ADMIN_LOG_LINES = clamp(MAX_ADMIN_LOG_LINES, minimum=1)
 MAX_USERNAME_LENGTH = clamp(MAX_USERNAME_LENGTH, minimum=1, maximum=200)
@@ -287,11 +231,11 @@ if ENABLE_SITEMAPS and WEBSITE_URL is None:
 
 DEFAULT_DARK_THEME = {
     "dawn": "light", "dusk": "gray", "dark": "dark", "midnight": "black", "black": "oled"
-}[DEFAULT_DARK_THEME.lower()]
+}[DEFAULT_DARK_THEME.lower() if DEFAULT_DARK_THEME.lower() in ["dawn", "dusk", "dark", "midnight", "black"] else "dark"]
 
 DEFAULT_LIGHT_THEME = {
     "dawn": "light", "dusk": "gray", "dark": "dark", "midnight": "black", "black": "oled"
-}[DEFAULT_LIGHT_THEME.lower()]
+}[DEFAULT_LIGHT_THEME.lower() if DEFAULT_LIGHT_THEME.lower() in ["dawn", "dusk", "dark", "midnight", "black"] else "dawn"]
 
 for key, val in {
     "signup unsuccessful": 1000,

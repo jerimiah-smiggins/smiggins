@@ -1,10 +1,10 @@
 let end = false;
 offset = null;
-function deletePost(postID, isComment, pageFocus) {
+function deletePost(postId, isComment, pageFocus) {
     fetch(`/api/${isComment ? "comment" : "post"}`, {
         method: "DELETE",
         body: JSON.stringify({
-            id: postID
+            id: postId
         })
     }).then((response) => (response.json()))
         .then((json) => {
@@ -13,7 +13,7 @@ function deletePost(postID, isComment, pageFocus) {
                 location.href = "/home";
             }
             else {
-                document.querySelector(`.post-container[data-${isComment ? "comment" : "post"}-id="${postID}"]`).remove();
+                document.querySelector(`.post-container[data-${isComment ? "comment" : "post"}-id="${postId}"]`).remove();
             }
         }
     });
@@ -130,18 +130,18 @@ function addQuote(postID, isComment) {
         post.innerHTML = "";
     });
 }
-function toggleLike(postID, type) {
+function toggleLike(postId, type) {
     if (typeof logged_in !== "undefined" && !logged_in) {
         return;
     }
-    let q = document.querySelector(`div[data-${type}-id="${postID}"] span.like-number`);
-    let h = document.querySelector(`div[data-${type}-id="${postID}"] button.like`);
-    let x = document.querySelector(`div[data-${type}-id="${postID}"] button.like svg`);
+    let q = document.querySelector(`div[data-${type}-id="${postId}"] span.like-number`);
+    let h = document.querySelector(`div[data-${type}-id="${postId}"] button.like`);
+    let x = document.querySelector(`div[data-${type}-id="${postId}"] button.like svg`);
     if (h.dataset["liked"] == "true") {
         fetch(`/api/${type}/like`, {
             method: "DELETE",
             body: JSON.stringify({
-                id: postID
+                id: postId
             })
         });
         h.setAttribute("data-liked", "false");
@@ -152,7 +152,7 @@ function toggleLike(postID, type) {
         fetch(`/api/${type}/like`, {
             method: "POST",
             body: JSON.stringify({
-                id: postID
+                id: postId
             })
         });
         h.setAttribute("data-liked", "true");
@@ -202,8 +202,6 @@ function togglePollResults(gInc) {
         el.onkeydown = null;
         el.removeAttribute("tabindex");
     });
-}
-function editPost(postID, isComment) {
 }
 if (typeof disableTimeline === 'undefined' || !disableTimeline) {
     function refresh(force_offset = false) {
