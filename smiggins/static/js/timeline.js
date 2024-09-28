@@ -70,7 +70,7 @@ function addQuote(postID, isComment) {
       <label for="default-private-${globalIncrement}">${lang.post.type_followers_only}:</label>
       <input id="default-private-${globalIncrement}" type="checkbox" ${defaultPrivate ? "checked" : ""}><br>
     </div>
-    ${ENABLE_CONTENT_WARNINGS ? `<label><input class="c-warning" ${originalCW ? `value="re: ${originalCW.slice(0, MAX_CONTENT_WARNING_LENGTH - 4)}"` : ""} maxlength="${MAX_CONTENT_WARNING_LENGTH}" placeholder="${lang.home.c_warning_placeholder}"></label><br>` : ""}
+    ${ENABLE_CONTENT_WARNINGS ? `<label><input class="c-warning" ${originalCW ? `value="re: ${escapeHTML(originalCW.slice(0, MAX_CONTENT_WARNING_LENGTH - 4))}"` : ""} maxlength="${MAX_CONTENT_WARNING_LENGTH}" placeholder="${lang.home.c_warning_placeholder}"></label><br>` : ""}
     <label><textarea class="post-text" maxlength="${MAX_POST_LENGTH}" placeholder="${lang.home.quote_placeholders[Math.floor(Math.random() * lang.home.quote_placeholders.length)]}"></textarea></label><br>
     <button class="post-button inverted">${lang.generic.post}</button>
     <button class="cancel-button inverted">${lang.generic.cancel}</button>
@@ -203,7 +203,30 @@ function togglePollResults(gInc) {
         el.removeAttribute("tabindex");
     });
 }
-function editPost(postID, isComment) {
+function editPost(postID, isComment, private) {
+    let post = document.querySelector(`[data-${isComment ? "comment" : "post"}-id="${postID}"]`);
+    let contentField = post.querySelector(".main-area-afjdkaslfjalksdjf");
+    let oldContentField = contentField.innerHTML;
+    let originalCW = contentField.querySelector("summary") ? contentField.querySelector("summary").innerText : "";
+    let originalText = contentField.querySelector(".main-content").innerText;
+    console.log(originalText, contentField.querySelector(".main-content").innerHTML, contentField.querySelector(".main-content").innerText);
+    contentField.innerHTML = `
+    <div class="log"></div>
+    <div class="quote-visibility">
+      <label for="default-private-${globalIncrement}">${lang.post.type_followers_only}:</label>
+      <input id="default-private-${globalIncrement}" type="checkbox" ${private ? "checked" : ""}><br>
+    </div>
+    ${ENABLE_CONTENT_WARNINGS ? `<label><input class="c-warning" ${originalCW ? `value="${originalCW}"` : ""} maxlength="${MAX_CONTENT_WARNING_LENGTH}" placeholder="${lang.home.c_warning_placeholder}"></label><br>` : ""}
+    <label><textarea class="post-text" maxlength="${MAX_POST_LENGTH}" value="${escapeHTML(originalText)}" placeholder="${lang.home.quote_placeholders[Math.floor(Math.random() * lang.home.quote_placeholders.length)]}"></textarea></label><br>
+    <button class="post-button inverted">${lang.generic.post}</button>
+    <button class="cancel-button inverted">${lang.generic.cancel}</button>`;
+    contentField.querySelector("textarea").focus();
+    contentField.querySelector(".cancel-button").addEventListener("click", function () {
+        contentField.innerHTML = oldContentField;
+    });
+    contentField.querySelector(".post-button").addEventListener("click", function () {
+    });
+    globalIncrement++;
 }
 if (typeof disableTimeline === 'undefined' || !disableTimeline) {
     function refresh(force_offset = false) {

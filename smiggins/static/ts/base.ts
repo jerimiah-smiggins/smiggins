@@ -167,7 +167,7 @@ function getPostHTML(
   pageFocus: boolean = false,
   isPinned: boolean = false
 ): string {
-  return `<div class="post-container" data-${isComment ? "comment" : "post"}-id="${postJSON.post_id}" data-content="${escapeHTML(postJSON.content)}">
+  return `<div class="post-container" data-${isComment ? "comment" : "post"}-id="${postJSON.post_id}">
     <div class="post">
       <div class="upper-content">
         ${includeUserLink ? `<a href="/u/${postJSON.creator.username}" class="no-underline text">` : "<span>"}
@@ -187,23 +187,26 @@ function getPostHTML(
         ${includeUserLink ? "</a>" : "</span>"}
       </div>
 
-      ${postJSON.c_warning ? `<details class="c-warning"><summary>${postJSON.c_warning}</summary>` : ""}
-      <div class="main-content">
-        ${includePostLink ? `<a aria-hidden="true" href="/${isComment ? "c" : "p"}/${postJSON.post_id}" tabindex="-1" class="text no-underline">` : ""}
-          ${
-            linkifyHtml(escapeHTML(postJSON.content), {
-              formatHref: {
-                mention: (href: string): string => fakeMentions ? "javascript:void(0);" : "/u" + href,
-                hashtag: (href: string): string => "/hashtag/" + href.slice(1)
-              }
-            }).replaceAll("\n", "<br>")
-              .replaceAll("<a", includePostLink ? "  \n" : "<a target=\"_blank\"")
-              .replaceAll("</a>", includePostLink ? `</a><a aria-hidden="true" href="/${isComment ? "c" : "p"}/${postJSON.post_id}" tabindex="-1" class="text no-underline">` : "</a>")
-              .replaceAll("  \n", "</a><a target=\"_blank\"")
-              .replaceAll(`<a aria-hidden="true" href="/${isComment ? "c" : "p"}/${postJSON.post_id}" tabindex="-1" class="text no-underline"></a>`, "")
-              .replaceAll("<a target=\"_blank\" href=\"/", "<a href=\"/")
-          }
-        ${includePostLink ? "</a>" : ""}
+      <div class="main-area-afjdkaslfjalksdjf">
+        ${postJSON.c_warning ? `<details class="c-warning"><summary>${escapeHTML(postJSON.c_warning)}</summary>` : ""}
+        <div class="main-content">
+          ${includePostLink ? `<a aria-hidden="true" href="/${isComment ? "c" : "p"}/${postJSON.post_id}" tabindex="-1" class="text no-underline">` : ""}
+            ${
+              linkifyHtml(escapeHTML(postJSON.content), {
+                formatHref: {
+                  mention: (href: string): string => fakeMentions ? "javascript:void(0);" : "/u" + href,
+                  hashtag: (href: string): string => "/hashtag/" + href.slice(1)
+                }
+              }).replaceAll("\n", "<br>")
+                .replaceAll("<a", includePostLink ? "  \n" : "<a target=\"_blank\"")
+                .replaceAll("</a>", includePostLink ? `</a><a aria-hidden="true" href="/${isComment ? "c" : "p"}/${postJSON.post_id}" tabindex="-1" class="text no-underline">` : "</a>")
+                .replaceAll("  \n", "</a><a target=\"_blank\"")
+                .replaceAll(`<a aria-hidden="true" href="/${isComment ? "c" : "p"}/${postJSON.post_id}" tabindex="-1" class="text no-underline"></a>`, "")
+                .replaceAll("<a target=\"_blank\" href=\"/", "<a href=\"/")
+            }
+          ${includePostLink ? "</a>" : ""}
+        </div>
+        ${postJSON.c_warning ? "</details>" : ""}
       </div>
 
       ${
@@ -230,7 +233,7 @@ function getPostHTML(
                     </a>
                   </div>
 
-                  ${postJSON.quote.c_warning ? `<details class="c-warning"><summary>${postJSON.quote.c_warning}</summary>` : ""}
+                  ${postJSON.quote.c_warning ? `<details class="c-warning"><summary>${escapeHTML(postJSON.quote.c_warning)}</summary>` : ""}
                   <div class="main-content">
                     <a aria-hidden="true" href="/${postJSON.quote.comment ? "c" : "p"}/${postJSON.quote.post_id}" class="text no-underline">
                       ${
@@ -342,7 +345,7 @@ function getPostHTML(
               ${lang.post.delete}
             </button>` : ""
           } ${
-            postJSON.can_edit ? `<button class="bottom-content-icon" onclick="editPost(${postJSON.post_id}, ${isComment})">
+            postJSON.can_edit ? `<button class="bottom-content-icon" onclick="editPost(${postJSON.post_id}, ${isComment}, ${postJSON.private})">
               ${icons.edit}
               ${lang.post.edit}
             </button>` : ""
@@ -353,6 +356,7 @@ function getPostHTML(
     </div>
   </div>`;
 }
+
 function trimWhitespace(string: string, purge_newlines: boolean = false): string {
   const whitespace: string[] = [
     "\x09",   "\x0b",   "\x0c",   "\xa0",
@@ -414,7 +418,7 @@ const icons: { [key: string]: string } = {
   message  : `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" aria-label="${escapeHTML(lang.messages.list_title)}"><path d="M48 64C21.5 64 0 85.5 0 112c0 15.1 7.1 29.3 19.2 38.4l217.6 163.2c11.4 8.5 27 8.5 38.4 0l217.6-163.2c12.1-9.1 19.2-23.3 19.2-38.4 0-26.5-21.5-48-48-48zM0 176v208c0 35.3 28.7 64 64 64h384c35.3 0 64-28.7 64-64V176L294.4 339.2a63.9 63.9 0 0 1-76.8 0z"/></svg>`,
   follower : `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 512" aria-label="${escapeHTML(lang.user_page.pending_title)}"><path d="M96 128a128 128 0 1 1 256 0 128 128 0 1 1-256 0M0 482.3C0 383.8 79.8 304 178.3 304h91.4c98.5 0 178.3 79.8 178.3 178.3 0 16.4-13.3 29.7-29.7 29.7H29.7C13.3 512 0 498.7 0 482.3M464 332v-64h-64c-13.3 0-24-10.7-24-24s10.7-24 24-24h64v-64c0-13.3 10.7-24 24-24s24 10.7 24 24v64h64c13.3 0 24 10.7 24 24s-10.7 24-24 24h-64v64c0 13.3-10.7 24-24 24s-24-10.7-24-24"/></svg>`,
   more     : `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512" aria-label="${escapeHTML(lang.post.more)}"><path d="M0 96c0-17.7 14.3-32 32-32h384c17.7 0 32 14.3 32 32s-14.3 32-32 32H32c-17.7 0-32-14.3-32-32m0 160c0-17.7 14.3-32 32-32h384c17.7 0 32 14.3 32 32s-14.3 32-32 32H32c-17.7 0-32-14.3-32-32m448 160c0 17.7-14.3 32-32 32H32c-17.7 0-32-14.3-32-32s14.3-32 32-32h384c17.7 0 32 14.3 32 32"/></svg>`,
-  edit     : `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" aria-label="${escapeHTML(lang.post.edit)}"><path d="M441 58.9 453.1 71c9.4 9.4 9.4 24.6 0 33.9L424 134.1 377.9 88 407 58.9c9.4-9.4 24.6-9.4 33.9 0zM209.8 256.2 344 121.9l46.1 46.1-134.3 134.2c-2.9 2.9-6.5 5-10.4 6.1L186.9 325l16.7-58.5c1.1-3.9 3.2-7.5 6.1-10.4zM373.1 25 175.8 222.2c-8.7 8.7-15 19.4-18.3 31.1l-28.6 100c-2.4 8.4-.1 17.4 6.1 23.6s15.2 8.5 23.6 6.1l100-28.6c11.8-3.4 22.5-9.7 31.1-18.3L487 138.9c28.1-28.1 28.1-73.7 0-101.8L474.9 25c-28.1-28.1-73.7-28.1-101.8 0M88 64c-48.6 0-88 39.4-88 88v272c0 48.6 39.4 88 88 88h272c48.6 0 88-39.4 88-88V312c0-13.3-10.7-24-24-24s-24 10.7-24 24v112c0 22.1-17.9 40-40 40H88c-22.1 0-40-17.9-40-40V152c0-22.1 17.9-40 40-40h112c13.3 0 24-10.7 24-24s-10.7-24-24-24z"/></svg>`
+  edit     : `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" aria-label="${escapeHTML(lang.post.edit)}"><path d="M395.8 39.6c9.4-9.4 24.6-9.4 33.9 0l42.6 42.6c9.4 9.4 9.4 24.6 0 33.9L417.6 171 341 94.4zM318.4 117l76.6 76.6-219 219V400c0-8.8-7.2-16-16-16h-32v-32c0-8.8-7.2-16-16-16H99.4zM66.9 379.5c1.2-4 2.7-7.9 4.7-11.5H96v32c0 8.8 7.2 16 16 16h32v24.4c-3.7 1.9-7.5 3.5-11.6 4.7l-92.8 27.3 27.3-92.8zM452.4 17c-21.9-21.9-57.3-21.9-79.2 0L60.4 329.7c-11.4 11.4-19.7 25.4-24.2 40.8L.7 491.5c-1.7 5.6-.1 11.7 4 15.8s10.2 5.7 15.8 4l121-35.6c15.4-4.5 29.4-12.9 40.8-24.2L495 138.8c21.9-21.9 21.9-57.3 0-79.2zM331.3 202.7c6.2-6.2 6.2-16.4 0-22.6s-16.4-6.2-22.6 0l-128 128c-6.2 6.2-6.2 16.4 0 22.6s16.4 6.2 22.6 0z"/></svg>`
 };
 
 function forEach(iter: NodeListOf<Element>, callback: CallableFunction): any[] {

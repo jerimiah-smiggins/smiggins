@@ -14,14 +14,10 @@
   <input id="default-private" type="checkbox" {% if DEFAULT_PRIVATE == "true" %}checked{% endif %}><br>
 
   {% if ENABLE_CONTENT_WARNINGS == 'true' %}
-    <label>
-      <input id="c-warning" maxlength="{{ MAX_CONTENT_WARNING_LENGTH }}" placeholder="{{ lang.home.c_warning_placeholder }}"><br>
-    </label>
+    <input id="c-warning" maxlength="{{ MAX_CONTENT_WARNING_LENGTH }}" placeholder="{{ lang.home.c_warning_placeholder }}"><br>
   {% endif %}
 
-  <label>
-    <textarea id="post-text" maxlength="{{ MAX_POST_LENGTH }}" placeholder="{{ lang.home.post_input_placeholder }}"></textarea>
-  </label><br>
+  <textarea id="post-text" maxlength="{{ MAX_POST_LENGTH }}" placeholder="{{ lang.home.post_input_placeholder }}"></textarea><br>
   <button id="post" class="inverted">{{ lang.generic.post }}</button><br>
 
   {% if ENABLE_POLLS == 'true' %}

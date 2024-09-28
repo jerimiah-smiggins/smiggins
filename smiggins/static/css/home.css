@@ -336,7 +336,7 @@ button.bottom-content-icon {
 }
 
 .more-container {
-  border: 1px solid var(--pink);
+  border: 2px solid var(--pink);
   background-color: var(--mantle);
   border-radius: 4px;
   position: absolute;
@@ -360,7 +360,7 @@ button.bottom-content-icon {
 
 .more-container > button {
   display: block;
-  padding: 4px 6px;
+  padding: 4px 12px 6px 6px;
   font-size: 1em;
   text-align: left;
   max-width: 10em;
@@ -375,9 +375,7 @@ button.bottom-content-icon {
 }
 
 .more-container > button:focus {
-  outline: 1px solid var(--accent);
-  border: 1px solid var(--accent) !important;
-  padding: 4px 5px 3px 5px;
+  border-color: var(--accent);
   scale: 100% !important;
 }
 
