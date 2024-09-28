@@ -13,7 +13,7 @@ from .schema import (AccountIdentifier, DeleteBadge, NewBadge, SaveUser,
 class BitMask:
     @staticmethod
     def can_use(user: User, identifier: int) -> bool:
-        return User.user_id == OWNER_USER_ID or bool(user.admin_level >> identifier & 1)
+        return user.user_id == OWNER_USER_ID or bool(user.admin_level >> identifier & 1)
 
     @staticmethod
     def can_use_direct(user_level: int, identifier: int) -> bool:
