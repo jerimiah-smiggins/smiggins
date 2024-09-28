@@ -42,7 +42,7 @@ class EditComment(Schema):
     c_warning: str
     content: str
     private: bool
-    comment_id: int
+    id: int
 
 class CommentID(Schema):
     id: int
@@ -73,7 +73,7 @@ class EditPost(Schema):
     c_warning: str
     content: str
     private: bool
-    post_id: int
+    id: int
 
 class NewQuote(Schema):
     c_warning: str

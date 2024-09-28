@@ -19,7 +19,7 @@ from ..variables import (API_TIMINGS, ENABLE_CONTENT_WARNINGS,
                          MAX_POST_LENGTH, OWNER_USER_ID, POST_WEBHOOKS,
                          POSTS_PER_REQUEST, SITE_NAME, VERSION)
 from .admin import log_admin_action
-from .schema import NewPost, NewQuote, Poll, PostID
+from .schema import NewPost, NewQuote, Poll, PostID, EditPost
 
 
 def post_hook(request, user: User, post: Post):
@@ -746,6 +746,53 @@ def poll_vote(request, data: Poll):
 
         return 200, {
             "success": True
+        }
+
+    return 400, {
+        "success": False
+    }
+
+def post_edit(request, data: EditPost):
+    token = request.COOKIES.get('token')
+
+    try:
+        post = Post.objects.get(post_id=data.id)
+        user = User.objects.get(token=token)
+    except Post.DoesNotExist:
+        return 404, {
+            "success": False
+        }
+    except User.DoesNotExist:
+        return 400, {
+            "success": False
+        }
+
+    if post.creator == user.user_id:
+        content = trim_whitespace(data.content)
+        c_warning = trim_whitespace(data.c_warning, True) if ENABLE_CONTENT_WARNINGS else ""
+
+        if len(c_warning) > MAX_CONTENT_WARNING_LENGTH or len(content) > MAX_POST_LENGTH or len(content) < (0 if post.poll else 1):
+            lang = get_lang(user)
+            return 400, {
+                "success": False,
+                "reason": lang["post"]["invalid_length"].replace("%s", str(MAX_POST_LENGTH))
+            }
+
+        post.edited = True
+        post.content = content
+        post.content_warning = c_warning
+        post.private_post = data.private
+
+        post.save()
+
+        return {
+            "success": True,
+            "post": get_post_json(
+                data.id,
+                user.user_id,
+                False,
+                {user.user_id: user}
+            )
         }
 
     return 400, {

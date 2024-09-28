@@ -2,14 +2,14 @@ from .admin import (account_info, account_save, badge_add, badge_create,
                     badge_delete, badge_remove, load_level, logs, set_level,
                     user_delete)
 from .comment import (comment_create, comment_delete, comment_like_add,
-                      comment_like_remove, comment_list)
+                      comment_like_remove, comment_list, comment_edit)
 from .email import password_reset, set_email
 from .info import notifications, username, version
 from .messages import (container_create, messages_list, recent_messages,
                        send_message)
 from .post import (hashtag_list, pin_post, poll_vote, post_create, post_delete,
                    post_like_add, post_like_remove, post_list_following,
-                   post_list_recent, post_list_user, quote_create, unpin_post)
+                   post_list_recent, post_list_user, quote_create, unpin_post, post_edit)
 from .user import (accept_pending, block_add, block_remove, change_password,
                    follower_add, follower_remove, list_pending, login,
                    notifications_list, read_notifs, remove_pending, settings,
@@ -34,6 +34,7 @@ class ApiComment:
     comment_like_add = comment_like_add
     comment_like_remove = comment_like_remove
     comment_list = comment_list
+    edit = comment_edit
 
 class ApiEmail:
     password_reset = password_reset
@@ -63,6 +64,7 @@ class ApiPost:
     quote_create = quote_create
     unpin_post = unpin_post
     poll_vote = poll_vote
+    edit = post_edit
 
 class ApiUser:
     block_add = block_add

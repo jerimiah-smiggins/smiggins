@@ -12,7 +12,7 @@ from ..variables import (API_TIMINGS, ENABLE_CONTENT_WARNINGS,
                          ENABLE_LOGGED_OUT_CONTENT, MAX_CONTENT_WARNING_LENGTH,
                          MAX_POST_LENGTH, OWNER_USER_ID, POSTS_PER_REQUEST)
 from .admin import log_admin_action
-from .schema import CommentID, NewComment
+from .schema import CommentID, NewComment, EditComment
 
 
 def comment_create(request, data: NewComment) -> tuple | dict:
@@ -309,6 +309,53 @@ def comment_delete(request, data: CommentID) -> tuple | dict:
 
         return {
             "success": True
+        }
+
+    return 400, {
+        "success": False
+    }
+
+def comment_edit(request, data: EditComment):
+    token = request.COOKIES.get('token')
+
+    try:
+        post = Comment.objects.get(comment_id=data.id)
+        user = User.objects.get(token=token)
+    except Comment.DoesNotExist:
+        return 404, {
+            "success": False
+        }
+    except User.DoesNotExist:
+        return 400, {
+            "success": False
+        }
+
+    if post.creator == user.user_id:
+        content = trim_whitespace(data.content)
+        c_warning = trim_whitespace(data.c_warning, True) if ENABLE_CONTENT_WARNINGS else ""
+
+        if len(c_warning) > MAX_CONTENT_WARNING_LENGTH or len(content) > MAX_POST_LENGTH:
+            lang = get_lang(user)
+            return 400, {
+                "success": False,
+                "reason": lang["post"]["invalid_length"].replace("%s", str(MAX_POST_LENGTH))
+            }
+
+        post.edited = True
+        post.content = content
+        post.content_warning = c_warning
+        post.private_comment = data.private
+
+        post.save()
+
+        return {
+            "success": True,
+            "post": get_post_json(
+                data.id,
+                user.user_id,
+                True,
+                {user.user_id: user}
+            )
         }
 
     return 400, {

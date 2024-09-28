@@ -132,11 +132,18 @@ function timeSince(date) {
     return `<span data-timestamp="${date}" title="${dateString}">${lang.generic.time.ago.replaceAll("%s", `${Math.floor(amount)} ${lang.generic.time[unit + (Math.floor(amount) == 1 ? "_singular" : "_plural")]}`)}</span>`;
 }
 function escapeHTML(str) {
-    return str.replaceAll("&", "&amp;").replaceAll("<", "&lt;").replaceAll("\"", "&quot;");
+    return str.replaceAll("&", "&amp;").replaceAll("<", "&lt;").replaceAll("\"", "&quot;").replaceAll("`", "&#96;");
 }
-function getPostHTML(postJSON, isComment = false, includeUserLink = true, includePostLink = true, fakeMentions = false, pageFocus = false, isPinned = false) {
-    return `<div class="post-container" data-${isComment ? "comment" : "post"}-id="${postJSON.post_id}">
-    <div class="post">
+function getPostHTML(postJSON, isComment = false, includeUserLink = true, includePostLink = true, fakeMentions = false, pageFocus = false, isPinned = false, includeContainer = true) {
+    return `${includeContainer ? `<div class="post-container" data-${isComment ? "comment" : "post"}-id="${postJSON.post_id}">` : ""}
+    <div class="post" data-settings="${escapeHTML(JSON.stringify({
+        isComment: isComment,
+        includeUserLink: includeUserLink,
+        includePostLink: includePostLink,
+        fakeMentions: fakeMentions,
+        pageFocus: pageFocus,
+        isPinned: isPinned
+    }))}">
       <div class="upper-content">
         ${includeUserLink ? `<a href="/u/${postJSON.creator.username}" class="no-underline text">` : "<span>"}
           <div class="main-area">
@@ -164,7 +171,7 @@ function getPostHTML(postJSON, isComment = false, includeUserLink = true, includ
             mention: (href) => fakeMentions ? "javascript:void(0);" : "/u" + href,
             hashtag: (href) => "/hashtag/" + href.slice(1)
         }
-    }).replaceAll("\n", "<br>")
+    }).replaceAll("\n", "<br>\n")
         .replaceAll("<a", includePostLink ? "  \n" : "<a target=\"_blank\"")
         .replaceAll("</a>", includePostLink ? `</a><a aria-hidden="true" href="/${isComment ? "c" : "p"}/${postJSON.post_id}" tabindex="-1" class="text no-underline">` : "</a>")
         .replaceAll("  \n", "</a><a target=\"_blank\"")
@@ -293,16 +300,16 @@ function getPostHTML(postJSON, isComment = false, includeUserLink = true, includ
             </button>` : ""} ${postJSON.can_delete && ENABLE_POST_DELETION ? `<button class="bottom-content-icon red" onclick="deletePost(${postJSON.post_id}, ${isComment}, ${pageFocus})">
               ${icons.delete}
               ${lang.post.delete}
-            </button>` : ""} ${postJSON.can_edit ? `<button class="bottom-content-icon" onclick="editPost(${postJSON.post_id}, ${isComment}, ${postJSON.private})">
+            </button>` : ""} ${postJSON.can_edit ? `<button class="bottom-content-icon" onclick="editPost(${postJSON.post_id}, ${isComment}, ${postJSON.private}, \`${escapeHTML(postJSON.content)}\`)">
               ${icons.edit}
               ${lang.post.edit}
             </button>` : ""}</div>` : ""}
       </div>
       <div class="post-after"></div>
     </div>
-  </div>`;
+  ${includeContainer ? "</div>" : ""}`;
 }
-function trimWhitespace(string, purge_newlines = false) {
+function trimWhitespace(string, purgeNewlines = false, trimEnd = false) {
     const whitespace = [
         "\x09", "\x0b", "\x0c", "\xa0",
         "\u1680", "\u2000", "\u2001", "\u2002",
@@ -312,7 +319,7 @@ function trimWhitespace(string, purge_newlines = false) {
         "\u205f", "\u2800", "\u3000", "\ufeff"
     ];
     string = string.replaceAll("\x0d", "");
-    if (purge_newlines) {
+    if (purgeNewlines) {
         string = string.replaceAll("\x0a", " ").replaceAll("\x85", " ");
     }
     for (const char of whitespace) {
@@ -321,7 +328,7 @@ function trimWhitespace(string, purge_newlines = false) {
     while (string.includes("\n ") || string.includes("   ") || string.includes("\n\n\n")) {
         string = string.replaceAll("\n ", "\n").replaceAll("   ", "  ").replaceAll("\n\n\n", "\n\n");
     }
-    return string;
+    return trimEnd ? string.trim() : string;
 }
 function postTextInputEvent() {
     if (typeof setUnload === "function") {

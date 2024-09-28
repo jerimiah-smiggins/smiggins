@@ -155,20 +155,28 @@ function timeSince(date: number): string {
 }
 
 function escapeHTML(str: string): string {
-  return str.replaceAll("&", "&amp;").replaceAll("<", "&lt;").replaceAll("\"", "&quot;");
+  return str.replaceAll("&", "&amp;").replaceAll("<", "&lt;").replaceAll("\"", "&quot;").replaceAll("`", "&#96;");
 }
 
 function getPostHTML(
   postJSON: _postJSON,
-  isComment: boolean = false,
-  includeUserLink: boolean = true,
-  includePostLink: boolean = true,
-  fakeMentions: boolean = false,
-  pageFocus: boolean = false,
-  isPinned: boolean = false
+  isComment: boolean=false,
+  includeUserLink: boolean=true,
+  includePostLink: boolean=true,
+  fakeMentions: boolean=false,
+  pageFocus: boolean=false,
+  isPinned: boolean=false,
+  includeContainer: boolean=true
 ): string {
-  return `<div class="post-container" data-${isComment ? "comment" : "post"}-id="${postJSON.post_id}">
-    <div class="post">
+  return `${includeContainer ? `<div class="post-container" data-${isComment ? "comment" : "post"}-id="${postJSON.post_id}">` : ""}
+    <div class="post" data-settings="${escapeHTML(JSON.stringify({
+      isComment: isComment,
+      includeUserLink: includeUserLink,
+      includePostLink: includePostLink,
+      fakeMentions: fakeMentions,
+      pageFocus: pageFocus,
+      isPinned: isPinned
+    }))}">
       <div class="upper-content">
         ${includeUserLink ? `<a href="/u/${postJSON.creator.username}" class="no-underline text">` : "<span>"}
           <div class="main-area">
@@ -197,7 +205,7 @@ function getPostHTML(
                   mention: (href: string): string => fakeMentions ? "javascript:void(0);" : "/u" + href,
                   hashtag: (href: string): string => "/hashtag/" + href.slice(1)
                 }
-              }).replaceAll("\n", "<br>")
+              }).replaceAll("\n", "<br>\n")
                 .replaceAll("<a", includePostLink ? "  \n" : "<a target=\"_blank\"")
                 .replaceAll("</a>", includePostLink ? `</a><a aria-hidden="true" href="/${isComment ? "c" : "p"}/${postJSON.post_id}" tabindex="-1" class="text no-underline">` : "</a>")
                 .replaceAll("  \n", "</a><a target=\"_blank\"")
@@ -345,7 +353,7 @@ function getPostHTML(
               ${lang.post.delete}
             </button>` : ""
           } ${
-            postJSON.can_edit ? `<button class="bottom-content-icon" onclick="editPost(${postJSON.post_id}, ${isComment}, ${postJSON.private})">
+            postJSON.can_edit ? `<button class="bottom-content-icon" onclick="editPost(${postJSON.post_id}, ${isComment}, ${postJSON.private}, \`${escapeHTML(postJSON.content)}\`)">
               ${icons.edit}
               ${lang.post.edit}
             </button>` : ""
@@ -354,10 +362,10 @@ function getPostHTML(
       </div>
       <div class="post-after"></div>
     </div>
-  </div>`;
+  ${includeContainer ? "</div>" : ""}`;
 }
 
-function trimWhitespace(string: string, purge_newlines: boolean = false): string {
+function trimWhitespace(string: string, purgeNewlines: boolean=false, trimEnd: boolean=false): string {
   const whitespace: string[] = [
     "\x09",   "\x0b",   "\x0c",   "\xa0",
     "\u1680", "\u2000", "\u2001", "\u2002",
@@ -369,7 +377,7 @@ function trimWhitespace(string: string, purge_newlines: boolean = false): string
 
   string = string.replaceAll("\x0d", "");
 
-  if (purge_newlines) {
+  if (purgeNewlines) {
     string = string.replaceAll("\x0a", " ").replaceAll("\x85", " ")
   }
 
@@ -381,7 +389,7 @@ function trimWhitespace(string: string, purge_newlines: boolean = false): string
     string = string.replaceAll("\n ", "\n").replaceAll("   ", "  ").replaceAll("\n\n\n", "\n\n");
   }
 
-  return string;
+  return trimEnd ? string.trim() : string;
 }
 
 function postTextInputEvent(): void {

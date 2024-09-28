@@ -4,7 +4,7 @@ from backend.api import (ApiAdmin, ApiComment, ApiEmail, ApiInfo, ApiMessages,
                          ApiPost, ApiUser)
 from backend.variables import (ENABLE_BADGES, ENABLE_EMAIL, ENABLE_HASHTAGS,
                                ENABLE_NEW_ACCOUNTS, ENABLE_POST_DELETION,
-                               ENABLE_PRIVATE_MESSAGES, ENABLE_QUOTES)
+                               ENABLE_PRIVATE_MESSAGES, ENABLE_QUOTES, ENABLE_EDITING_POSTS)
 from django.urls import path
 from ninja import NinjaAPI
 from ninja.renderers import BaseRenderer
@@ -73,6 +73,10 @@ api.post  ("post/like",    response=response_schema)(ApiPost.post_like_add)
 api.delete("post/like",    response=response_schema)(ApiPost.post_like_remove)
 api.post  ("comment/like", response=response_schema)(ApiComment.comment_like_add)
 api.delete("comment/like", response=response_schema)(ApiComment.comment_like_remove)
+
+if ENABLE_EDITING_POSTS:
+    api.patch("post/edit",    response=response_schema)(ApiPost.edit)
+    api.patch("comment/edit", response=response_schema)(ApiComment.edit)
 
 api.post("post/vote", response=response_schema)(ApiPost.poll_vote)
 

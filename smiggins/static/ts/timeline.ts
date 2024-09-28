@@ -235,16 +235,13 @@ function togglePollResults(gInc: number): void {
   });
 }
 
-function editPost(postID: number, isComment: boolean, private: boolean): void {
+function editPost(postID: number, isComment: boolean, private: boolean, originalText: string): void {
   let post: HTMLDivElement = document.querySelector(`[data-${isComment ? "comment" : "post"}-id="${postID}"]`);
   let contentField: HTMLDivElement = post.querySelector(".main-area-afjdkaslfjalksdjf");
 
   let oldContentField: string = contentField.innerHTML;
 
   let originalCW: string = contentField.querySelector("summary") ? contentField.querySelector("summary").innerText : "";
-  let originalText: string = (contentField.querySelector(".main-content") as HTMLElement).innerText;
-
-  console.log(originalText, contentField.querySelector(".main-content").innerHTML, (contentField.querySelector(".main-content") as HTMLElement).innerText)
 
   contentField.innerHTML = `
     <div class="log"></div>
@@ -253,21 +250,50 @@ function editPost(postID: number, isComment: boolean, private: boolean): void {
       <input id="default-private-${globalIncrement}" type="checkbox" ${private ? "checked" : ""}><br>
     </div>
     ${ENABLE_CONTENT_WARNINGS ? `<label><input class="c-warning" ${originalCW ? `value="${originalCW}"` : ""} maxlength="${MAX_CONTENT_WARNING_LENGTH}" placeholder="${lang.home.c_warning_placeholder}"></label><br>` : ""}
-    <label><textarea class="post-text" maxlength="${MAX_POST_LENGTH}" value="${escapeHTML(originalText)}" placeholder="${lang.home.quote_placeholders[Math.floor(Math.random() * lang.home.quote_placeholders.length)]}"></textarea></label><br>
+    <label><textarea class="post-text" maxlength="${MAX_POST_LENGTH}" placeholder="${lang.home.post_input_placeholder}">${escapeHTML(originalText)}</textarea></label><br>
     <button class="post-button inverted">${lang.generic.post}</button>
     <button class="cancel-button inverted">${lang.generic.cancel}</button>`;
 
   contentField.querySelector("textarea").focus();
+  globalIncrement++;
 
   contentField.querySelector(".cancel-button").addEventListener("click", function() {
     contentField.innerHTML = oldContentField;
   });
 
   contentField.querySelector(".post-button").addEventListener("click", function() {
-    //
+    fetch(`/api/${isComment ? "comment" : "post"}/edit`, {
+      method: "PATCH",
+      body: JSON.stringify({
+        c_warning: (contentField.querySelector(".c-warning") as HTMLInputElement).value,
+        content: contentField.querySelector("textarea").value,
+        private: (contentField.querySelector(".quote-visibility input") as HTMLInputElement).checked,
+        id: postID
+      })
+    }).then((response: Response) => (response.json()))
+      .then((json: {
+        success: boolean,
+        reason?: string,
+        post?: _postJSON
+      }) => {
+        if (json.success) {
+          let postSettings: {[key: string]: boolean} = JSON.parse(post.querySelector(".post").getAttribute("data-settings"));
+          post.innerHTML = getPostHTML(
+            json.post,
+            postSettings.isComment,
+            postSettings.includeUserLink,
+            postSettings.includePostLink,
+            postSettings.fakeMentions,
+            postSettings.pageFocus,
+            postSettings.isPinned,
+            false
+          );
+        } else {
+          showlog(json.reason);
+        }
+      });
   });
 
-  globalIncrement++;
 }
 
 if (typeof disableTimeline === 'undefined' || !disableTimeline) {
