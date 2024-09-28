@@ -2,19 +2,12 @@
 
 import time
 
-from ninja import Schema
 from posts.models import PrivateMessage, PrivateMessageContainer, User
 
 from ..helper import get_badges, get_container_id, get_lang, trim_whitespace
 from ..variables import MAX_POST_LENGTH, MESSAGES_PER_REQUEST
+from .schema import NewContainer, NewMessage
 
-
-class NewContainer(Schema):
-    username: str
-
-class NewMessage(Schema):
-    username: str
-    content: str
 
 def container_create(request, data: NewContainer) -> tuple | dict:
     # Called when a new comment is created.

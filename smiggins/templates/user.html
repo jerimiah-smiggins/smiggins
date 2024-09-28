@@ -23,10 +23,8 @@
 {% endblock %}
 
 {% block head %}
-  {% if NO_CSS_MODE == "false" %}
-    <link rel="stylesheet" href="{% static '/css/home.css' %}?v={{ VERSION }}">
-    <link rel="stylesheet" href="{% static '/css/user.css' %}?v={{ VERSION }}">
-  {% endif %}
+  <link rel="stylesheet" href="{% static '/css/home.css' %}?v={{ VERSION }}">
+  <link rel="stylesheet" href="{% static '/css/user.css' %}?v={{ VERSION }}">
 {% endblock %}
 
 {% block body_head %}

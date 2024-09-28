@@ -17,17 +17,17 @@ if (localStorage.getItem("checkboxes")) {
     document.body.setAttribute("data-disable-checkboxes", "");
 }
 if (logged_in) {
-    iconsElement.innerHTML = `<div><a title="${lang.settings.title}" href="/settings">${NO_CSS_MODE ? lang.settings.title : icons.settings}</a></div>`;
+    iconsElement.innerHTML = `<div><a title="${lang.settings.title}" href="/settings">${icons.settings}</a></div>`;
     if (typeof (home) !== 'undefined') {
-        iconsElement.innerHTML += `<div><a title="${lang.home.title}" href="/home">${NO_CSS_MODE ? lang.home.title : icons.home}</a></div>`;
+        iconsElement.innerHTML += `<div><a title="${lang.home.title}" href="/home">${icons.home}</a></div>`;
     }
-    iconsElement.innerHTML += `<div data-add-notification-dot><a title="${lang.notifications.title}" href="/notifications">${NO_CSS_MODE ? lang.notifications.title : icons.bell}</a></div>`;
+    iconsElement.innerHTML += `<div data-add-notification-dot><a title="${lang.notifications.title}" href="/notifications">${icons.bell}</a></div>`;
     if (ENABLE_PRIVATE_MESSAGES) {
-        iconsElement.innerHTML += `<div data-add-message-dot><a title="${lang.messages.list_title}" href="/messages">${NO_CSS_MODE ? lang.messages.list_title : icons.message}</a></div>`;
+        iconsElement.innerHTML += `<div data-add-message-dot><a title="${lang.messages.list_title}" href="/messages">${icons.message}</a></div>`;
     }
 }
 if (typeof (share) !== 'undefined') {
-    iconsElement.innerHTML += `<div><span title="${lang.generic.share}" role="button" onkeydown="genericKeyboardEvent(event, () => { navigator.clipboard.writeText('${escapeHTML(share)}'); showlog('${lang.generic.copied}'); })" tabindex="0" onclick="navigator.clipboard.writeText('${escapeHTML(share)}'); showlog('${lang.generic.copied}');">${NO_CSS_MODE ? lang.generic.share : icons.share}</span></div>`;
+    iconsElement.innerHTML += `<div><span title="${lang.generic.share}" role="button" onkeydown="genericKeyboardEvent(event, () => { navigator.clipboard.writeText('${escapeHTML(share)}'); showlog('${lang.generic.copied}'); })" tabindex="0" onclick="navigator.clipboard.writeText('${escapeHTML(share)}'); showlog('${lang.generic.copied}');">${icons.share}</span></div>`;
 }
 document.body.prepend(iconsElement);
 function getNotifications() {
@@ -52,7 +52,7 @@ function getNotifications() {
         });
         if (!pendingFollowersIconEnabled && json.followers) {
             pendingFollowersIconEnabled = true;
-            dom("icons").innerHTML += `<div class="dot" id="pending-followers-icon" title="${lang.user_page.pending_title}"><a href="/pending/">${NO_CSS_MODE ? lang.user_page.pending_title : icons.follower}</a></div>`;
+            dom("icons").innerHTML += `<div class="dot" id="pending-followers-icon" title="${lang.user_page.pending_title}"><a href="/pending/">${icons.follower}</a></div>`;
         }
         else if (pendingFollowersIconEnabled && !json.followers) {
             pendingFollowersIconEnabled = false;
@@ -83,7 +83,7 @@ if (logged_in) {
                 let username = _username.username;
                 if (usernameRegexFull.test(username)) {
                     localStorage.setItem("username", username);
-                    dom("icons").innerHTML += `<a title="${lang.settings.profile_title}" href="/u/${username}">${NO_CSS_MODE ? lang.settings.profile_title : icons.user}</a>`;
+                    dom("icons").innerHTML += `<a title="${lang.settings.profile_title}" href="/u/${username}">${icons.user}</a>`;
                 }
                 else {
                     console.log("Username returned from /api/info/username is invalid.");
@@ -92,7 +92,7 @@ if (logged_in) {
         }
         else {
             if (usernameRegexFull.test(localStorage.getItem("username"))) {
-                dom("icons").innerHTML += `<a title="${lang.settings.profile_title}" href="/u/${localStorage.getItem("username")}">${NO_CSS_MODE ? lang.settings.profile_title : icons.user}</a>`;
+                dom("icons").innerHTML += `<a title="${lang.settings.profile_title}" href="/u/${localStorage.getItem("username")}">${icons.user}</a>`;
             }
             else {
                 console.log("Username in localStorage is invalid.");
@@ -101,11 +101,9 @@ if (logged_in) {
         }
     }
 }
-if (!NO_CSS_MODE) {
-    forEach(document.querySelectorAll("[data-add-icon]"), (val, index) => {
-        val.innerHTML = icons[val.dataset.addIcon];
-    });
-    forEach(document.querySelectorAll("[data-add-badge]"), (val, index) => {
-        val.innerHTML = badges[val.dataset.addBadge];
-    });
-}
+forEach(document.querySelectorAll("[data-add-icon]"), (val, index) => {
+    val.innerHTML = icons[val.dataset.addIcon];
+});
+forEach(document.querySelectorAll("[data-add-badge]"), (val, index) => {
+    val.innerHTML = badges[val.dataset.addBadge];
+});

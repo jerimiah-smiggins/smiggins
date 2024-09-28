@@ -17,14 +17,18 @@ declare const ENABLE_POLLS: boolean;
 declare const ENABLE_CONTENT_WARNINGS: boolean;
 declare const ENABLE_EMAIL: boolean;
 
-declare const NO_CSS_MODE: boolean;
-
 declare const defaultPrivate: boolean;
 
 // Global variables
 declare const lang: { [key: string]: any };
 declare const badges: { [key: string]: string };
-declare const linkifyHtml: CallableFunction;
+declare function linkifyHtml(text: string, settings: object): string;
+
+// Defined in base.html, used in settings.ts for system theme
+declare function autoInit(): void;
+declare function autoCancel(): void;
+declare function autoSetFavicon(): void;
+declare const autoEnabled: boolean;
 
 declare let oldFavicon: boolean;
 declare let favicon: HTMLLinkElement;
@@ -44,6 +48,7 @@ type _postJSON = {
   private: boolean,
   can_delete: boolean,
   can_pin?: boolean,
+  can_edit: boolean,
   can_view: boolean,
   comments: number,
   content: string,
@@ -58,6 +63,7 @@ type _postJSON = {
   c_warning: string | null,
   timestamp: number,
   logged_in: boolean,
+  edited: boolean,
 
   poll: {
     votes: number,

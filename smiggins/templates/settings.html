@@ -6,10 +6,8 @@
 {% endblock %}
 
 {% block head %}
-  {% if NO_CSS_MODE == "false" %}
-    <link rel="stylesheet" href="{% static '/css/home.css' %}?v={{ VERSION }}">
-    <link rel="stylesheet" href="{% static '/css/settings.css' %}?v={{ VERSION }}">
-  {% endif %}
+  <link rel="stylesheet" href="{% static '/css/home.css' %}?v={{ VERSION }}">
+  <link rel="stylesheet" href="{% static '/css/settings.css' %}?v={{ VERSION }}">
 {% endblock %}
 
 {% block body_head %}
@@ -94,11 +92,12 @@
       <h2>{{ lang.settings.cosmetic_title }}</h2>
       <label for="theme">{{ lang.settings.cosmetic_theme }}:</label><br>
       <select id="theme">
-        <option {{ SELECTED_IF_LIGHT }} value="light">{{ lang.settings.cosmetic_theme_light }}</option>
-        <option {{ SELECTED_IF_GRAY }}  value="gray" >{{ lang.settings.cosmetic_theme_gray  }}</option>
-        <option {{ SELECTED_IF_DARK }}  value="dark" >{{ lang.settings.cosmetic_theme_dark  }}</option>
-        <option {{ SELECTED_IF_BLACK }} value="black">{{ lang.settings.cosmetic_theme_black }}</option>
-        <option {{ SELECTED_IF_OLED }}  value="oled" >{{ lang.settings.cosmetic_theme_oled  }}</option>
+        <option {{ SELECTED_IF_AUTO }}  value="auto" >{{ lang.settings.cosmetic_themes.auto  }}</option>
+        <option {{ SELECTED_IF_LIGHT }} value="light">{{ lang.settings.cosmetic_themes.light }}</option>
+        <option {{ SELECTED_IF_GRAY }}  value="gray" >{{ lang.settings.cosmetic_themes.gray  }}</option>
+        <option {{ SELECTED_IF_DARK }}  value="dark" >{{ lang.settings.cosmetic_themes.dark  }}</option>
+        <option {{ SELECTED_IF_BLACK }} value="black">{{ lang.settings.cosmetic_themes.black }}</option>
+        <option {{ SELECTED_IF_OLED }}  value="oled" >{{ lang.settings.cosmetic_themes.oled  }}</option>
       </select><br><br>
 
       <label for="lang">{{ lang.settings.cosmetic_language }}:</label><br>
@@ -136,10 +135,6 @@
           </td>
         </tr>
       </table><br><br>
-
-      <label for="no-css">{{ lang.settings.cosmetic_no_css}}</label>
-      <input type="checkbox" id="no-css" {% if NO_CSS_MODE == 'true' %}checked{% endif %}><br>
-      <small class="thin">{{ lang.settings.cosmetic_no_css_warning }}</small><br><br>
 
       <label for="old-favi">{{ lang.settings.cosmetic_old_favicon }}</label>
       <input type="checkbox" id="old-favi"><br><br>

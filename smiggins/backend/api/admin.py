@@ -1,37 +1,65 @@
 # For admin-related apis
 
-import base64
+import time
 
-from ninja import Schema
-from posts.models import Badge, Comment, Hashtag, Post, User
+from posts.models import AdminLog, Badge, Comment, Hashtag, Post, User
 
-from ..helper import find_hashtags, get_lang, log_admin_action, trim_whitespace
-from ..variables import ADMIN_LOG_PATH, BADGE_DATA, OWNER_USER_ID
+from ..helper import find_hashtags, get_lang, trim_whitespace
+from ..variables import BADGE_DATA, MAX_ADMIN_LOG_LINES, OWNER_USER_ID
+from .schema import (AccountIdentifier, DeleteBadge, NewBadge, SaveUser,
+                     UserBadge, UserLevel)
 
 
-class AccountIdentifier(Schema):
-    identifier: str | int
-    use_id: bool
+class BitMask:
+    @staticmethod
+    def can_use(user: User, identifier: int) -> bool:
+        return User.user_id == OWNER_USER_ID or bool(user.admin_level >> identifier & 1)
 
-class DeleteBadge(Schema):
-    badge_name: str
+    @staticmethod
+    def can_use_direct(user_level: int, identifier: int) -> bool:
+        return bool(user_level >> identifier & 1)
 
-class NewBadge(DeleteBadge):
-    badge_data: str
+    DELETE_POST = 0
+    DELETE_USER = 1
+    CREATE_BADGE = 2
+    DELETE_BADGE = 3
+    GIVE_BADGE_TO_USER = 4
+    MODIFY_ACCOUNT = 5
+    ACC_SWITCHER = 6 # requires MODIFY_ACCOUNT
+    ADMIN_LEVEL = 7
+    READ_LOGS = 8
 
-class UserBadge(AccountIdentifier):
-    badge_name: str
+    MAX_LEVEL = 8
 
-class SaveUser(Schema):
-    displ_name: str
-    bio: str
-    id: int
+def log_admin_action(
+    action_name: str,
+    admin_user_object: User,
+    for_user_object: User | None | str,
+    log_info: str
+) -> None:
+    # Logs an administrative action
 
-class UserLevel(AccountIdentifier):
-    level: int
+    if isinstance(for_user_object, str):
+        AdminLog.objects.create(
+            type=action_name,
+            u_by=admin_user_object,
+            uname_for=for_user_object,
+            info=log_info,
+            timestamp=round(time.time())
+        )
+    else:
+        AdminLog.objects.create(
+            type=action_name,
+            u_by=admin_user_object,
+            u_for=for_user_object,
+            info=log_info,
+            timestamp=round(time.time())
+        )
+
+    AdminLog.objects.filter(pk__in=AdminLog.objects.order_by("timestamp").reverse().values_list("pk", flat=True)[MAX_ADMIN_LOG_LINES:]).delete()
 
 def user_delete(request, data: AccountIdentifier) -> tuple | dict:
-    # Deleting an account (2+)
+    # Deleting an account
 
     token = request.COOKIES.get('token')
 
@@ -51,7 +79,7 @@ def user_delete(request, data: AccountIdentifier) -> tuple | dict:
         else:
             account = User.objects.get(username=identifier)
     except User.DoesNotExist:
-        log_admin_action("Delete user", user, f"User {identifier} (use_id: {use_id}) not found")
+        log_admin_action("Delete user", user, None, f"User {identifier} (use_id: {use_id}) not found")
         lang = get_lang(user)
 
         return 404, {
@@ -59,7 +87,7 @@ def user_delete(request, data: AccountIdentifier) -> tuple | dict:
             "reason": lang["generic"]["user_not_found"]
         }
 
-    if user.user_id == OWNER_USER_ID or user.admin_level >= 2:
+    if BitMask.can_use(user, BitMask.DELETE_USER):
         for badge in account.badges:
             b = Badge.objects.get(name=badge)
             b.users.remove(account.user_id)
@@ -121,7 +149,6 @@ def user_delete(request, data: AccountIdentifier) -> tuple | dict:
 
         for like in account.likes:
             post = (Comment if like[1] else Post).objects.get(pk=like[0])
-            print(account.user_id, type(account.user_id), post.likes, post.content, like)
             post.likes.remove(account.user_id)
             post.save()
             try:
@@ -152,22 +179,22 @@ def user_delete(request, data: AccountIdentifier) -> tuple | dict:
             follower.following.remove(account.user_id)
             follower.save()
 
-        account.delete()
+        log_admin_action("Delete user", user, account.username, "Success")
 
-        log_admin_action("Delete user", user, f"User {identifier} (use_id: {use_id}) deleted successfully")
+        account.delete()
 
         return {
             "success": True
         }
 
-    log_admin_action("Delete user", user, f"User {identifier} (use_id: {use_id}) attempted, however too low of an admin level was used")
+    log_admin_action("Delete user", user, account, "No permissions")
 
     return 400, {
         "success": False
     }
 
 def badge_create(request, data: NewBadge) -> tuple | dict:
-    # Creating a badge (3+)
+    # Creating a badge
 
     token = request.COOKIES.get('token')
 
@@ -179,33 +206,33 @@ def badge_create(request, data: NewBadge) -> tuple | dict:
             "success": False
         }
 
-    if self_user.admin_level >= 3 or self_user.user_id == OWNER_USER_ID:
+    if BitMask.can_use(self_user, BitMask.CREATE_BADGE):
         badge_name = data.badge_name.lower().replace(" ", "")
         badge_data = trim_whitespace(data.badge_data, True)
 
         if len(badge_name) > 64 or len(badge_name) <= 0:
-            log_admin_action("Create badge", self_user, f"Invalid badge name {badge_name}")
+            log_admin_action("Create badge", self_user, None, f"Invalid badge name {badge_name}")
             lang = get_lang(self_user)
             return 400, {
                 "success": False,
-                "reason": lang["admin"]["badge_invalid_name_size"]
+                "reason": lang["admin"]["badge"]["invalid_name_size"]
             }
 
         for i in badge_name:
             if i not in "abcdefghijklmnopqrstuvwxyz0123456789_":
-                log_admin_action("Create badge", self_user, f"Invalid badge name {badge_name}")
+                log_admin_action("Create badge", self_user, None, f"Invalid badge name {badge_name}")
                 lang = get_lang(self_user)
                 return 400, {
                     "success": False,
-                    "reason": lang["admin"]["badge_invalid_name"]
+                    "reason": lang["admin"]["badge"]["invalid_name"]
                 }
 
         if len(badge_data) > 65536 or len(badge_data) <= 0:
-            log_admin_action("Create badge", self_user, f"Invalid badge data with length {len(badge_data)}")
+            log_admin_action("Create badge", self_user, None, f"Invalid badge data with length {len(badge_data)}")
             lang = get_lang(self_user)
             return 400, {
                 "success": False,
-                "reason": lang["admin"]["badge_create_invalid_data_size"]
+                "reason": lang["admin"]["badge"]["create_invalid_data_size"]
             }
 
         try:
@@ -225,18 +252,18 @@ def badge_create(request, data: NewBadge) -> tuple | dict:
 
         BADGE_DATA[badge_name] = badge_data
 
-        log_admin_action("Create badge", self_user, f"Created badge {badge_name}")
+        log_admin_action("Create badge", self_user, None, f"Created badge {badge_name}")
         return {
             "success": True
         }
 
-    log_admin_action("Create badge", self_user, "Failed, too low of an admin level")
+    log_admin_action("Create badge", self_user, None, "No permissions")
     return 400, {
         "success": False
     }
 
 def badge_delete(request, data: DeleteBadge) -> tuple | dict:
-    # Deleting a badge (3+)
+    # Deleting a badge
 
     token = request.COOKIES.get('token')
 
@@ -248,32 +275,32 @@ def badge_delete(request, data: DeleteBadge) -> tuple | dict:
             "success": False
         }
 
-    if self_user.admin_level >= 3 or self_user.user_id == OWNER_USER_ID:
+    if BitMask.can_use(self_user, BitMask.DELETE_BADGE):
         badge_name = data.badge_name.lower().replace(" ", "")
 
         if len(badge_name) > 64 or len(badge_name) <= 0:
-            log_admin_action("Delete badge", self_user, f"Invalid badge name {badge_name}")
+            log_admin_action("Delete badge", self_user, None, f"Invalid badge name {badge_name}")
             lang = get_lang(self_user)
             return 400, {
                 "success": False,
-                "reason": lang["admin"]["badge_invalid_name_size"]
+                "reason": lang["admin"]["badge"]["invalid_name_size"]
             }
 
         for i in badge_name:
             if i not in "abcdefghijklmnopqrstuvwxyz0123456789_":
-                log_admin_action("Delete badge", self_user, f"Invalid badge name {badge_name}")
+                log_admin_action("Delete badge", self_user, None, f"Invalid badge name {badge_name}")
                 lang = get_lang(self_user)
                 return 400, {
                     "success": False,
-                    "reason": lang["admin"]["badge_invalid_name"]
+                    "reason": lang["admin"]["badge"]["invalid_name"]
                 }
 
         if badge_name in ["administrator"]:
-            log_admin_action("Delete badge", self_user, f"Badge {badge_name} can't be deleted")
+            log_admin_action("Delete badge", self_user, None, f"Badge {badge_name} can't be deleted")
             lang = get_lang(self_user)
             return 400, {
                 "success": False,
-                "reason": lang["admin"]["badge_delete_protected"]
+                "reason": lang["admin"]["badge"]["delete_protected"]
             }
 
         try:
@@ -281,11 +308,11 @@ def badge_delete(request, data: DeleteBadge) -> tuple | dict:
                 name=badge_name
             )
         except Badge.DoesNotExist:
-            log_admin_action("Delete badge", self_user, f"Badge {badge_name} doesn't exist")
+            log_admin_action("Delete badge", self_user, None, f"Badge {badge_name} doesn't exist")
             lang = get_lang(self_user)
             return 400, {
                 "success": False,
-                "reason": lang["admin"]["badge_not_found"].replace("%s", badge_name)
+                "reason": lang["admin"]["badge"]["not_found"].replace("%s", badge_name)
             }
 
         for i in badge.users:
@@ -297,18 +324,18 @@ def badge_delete(request, data: DeleteBadge) -> tuple | dict:
 
         del BADGE_DATA[badge_name]
 
-        log_admin_action("Delete badge", self_user, f"Badge {badge_name} successfully deleted")
+        log_admin_action("Delete badge", self_user, None, f"Badge {badge_name} successfully deleted")
         return {
             "success": True
         }
 
-    log_admin_action("Delete badge", self_user, "Failed, too low of an admin level")
+    log_admin_action("Delete badge", self_user, None, "No permissions")
     return 400, {
         "success": False
     }
 
 def badge_add(request, data: UserBadge) -> tuple | dict:
-    # Adding a badge to a user (3+)
+    # Adding a badge to a user
 
     token = request.COOKIES.get('token')
 
@@ -320,14 +347,13 @@ def badge_add(request, data: UserBadge) -> tuple | dict:
             "success": False
         }
 
-    if self_user.admin_level >= 3 or self_user.user_id == OWNER_USER_ID:
+    if BitMask.can_use(self_user, BitMask.GIVE_BADGE_TO_USER):
         try:
             if data.use_id:
                 user = User.objects.get(user_id=int(data.identifier))
             else:
                 user = User.objects.get(username=data.identifier)
         except User.DoesNotExist:
-            log_admin_action("Add badge", self_user, f"Couldn't add badge {data.badge_name} to {data.identifier} (use_id: {data.use_id}), user not found")
             lang = get_lang(self_user)
             return 404, {
                 "success": False,
@@ -335,7 +361,7 @@ def badge_add(request, data: UserBadge) -> tuple | dict:
             }
 
         if data.badge_name.lower() in ["administrator"]:
-            log_admin_action("Add badge", self_user, f"Couldn't add badge {data.badge_name} to {data.identifier} (use_id: {data.use_id})")
+            log_admin_action("Add badge", self_user, user, f"Couldn't add badge {data.badge_name}")
             lang = get_lang(self_user)
             return 400, {
                 "success": False,
@@ -351,25 +377,25 @@ def badge_add(request, data: UserBadge) -> tuple | dict:
                 badge.users.append(user.user_id)
                 badge.save()
 
-            log_admin_action("Add badge", self_user, f"Added badge {data.badge_name} to {data.identifier} (use_id: {data.use_id})")
+            log_admin_action("Add badge", self_user, user, f"Added badge {data.badge_name}")
             return {
                 "success": True
             }
 
-        log_admin_action("Add badge", self_user, f"Tried to add badge {data.badge_name} to {data.identifier} (use_id: {data.use_id}), but badge doesn't exist")
+        log_admin_action("Add badge", self_user, user, f"Tried to add badge {data.badge_name}, but badge doesn't exist")
         lang = get_lang(self_user)
         return 404, {
             "success": False,
-            "reason": lang["admin"]["badge_not_found"].replace("%s", data.badge_name)
+            "reason": lang["admin"]["badge"]["not_found"].replace("%s", data.badge_name)
         }
 
-    log_admin_action("Add badge", self_user, f"Tried to add badge {data.badge_name} to {data.identifier} (use_id: {data.use_id}), but too low of an admin level")
+    log_admin_action("Add badge", self_user, None, "No permissions")
     return 400, {
         "success": False
     }
 
 def badge_remove(request, data: UserBadge) -> tuple | dict:
-    # Removing a badge from a user (3+)
+    # Removing a badge from a user
 
     token = request.COOKIES.get('token')
 
@@ -381,7 +407,7 @@ def badge_remove(request, data: UserBadge) -> tuple | dict:
             "success": False
         }
 
-    if self_user.admin_level >= 3 or self_user.user_id == OWNER_USER_ID:
+    if BitMask.can_use(self_user, BitMask.GIVE_BADGE_TO_USER):
         try:
             if data.use_id:
                 user = User.objects.get(user_id=int(data.identifier))
@@ -395,7 +421,7 @@ def badge_remove(request, data: UserBadge) -> tuple | dict:
             }
 
         if data.badge_name.lower() in ["administrator"]:
-            log_admin_action("Remove badge", self_user, f"Couldn't remove badge {data.badge_name} to {data.identifier} (use_id: {data.use_id})")
+            log_admin_action("Remove badge", self_user, user, f"Couldn't remove badge {data.badge_name}")
             lang = get_lang(self_user)
             return 400, {
                 "success": False,
@@ -411,25 +437,25 @@ def badge_remove(request, data: UserBadge) -> tuple | dict:
                 badge.users.remove(user.user_id)
                 badge.save()
 
-            log_admin_action("Remove badge", self_user, f"Removed badge {data.badge_name} to {data.identifier} (use_id: {data.use_id})")
+            log_admin_action("Remove badge", self_user, user, f"Removed badge {data.badge_name}")
             return {
                 "success": True
             }
 
-        log_admin_action("Remove badge", self_user, f"Tried to remove badge {data.badge_name} to {data.identifier} (use_id: {data.use_id}), but badge doesn't exist")
+        log_admin_action("Remove badge", self_user, user, f"Tried to remove badge {data.badge_name}, but badge doesn't exist")
         lang = get_lang(self_user)
         return 404, {
             "success": False,
-            "reason": lang["admin"]["badge_not_found"].replace("%s", data.badge_name)
+            "reason": lang["admin"]["badge"]["not_found"].replace("%s", data.badge_name)
         }
 
-    log_admin_action("Remove badge", self_user, f"Tried to remove badge {data.badge_name} to {data.identifier} (use_id: {data.use_id}), but too low of an admin level")
+    log_admin_action("Remove badge", self_user, None, "No permissions")
     return 400, {
         "success": False
     }
 
 def account_info(request, identifier: int | str, use_id: bool) -> tuple | dict:
-    # Get account information (4+)
+    # Get account information
 
     token = request.COOKIES.get('token')
 
@@ -441,37 +467,51 @@ def account_info(request, identifier: int | str, use_id: bool) -> tuple | dict:
             "success": False
         }
 
-    if self_user.admin_level >= 4 or self_user.user_id == OWNER_USER_ID:
+    modify = BitMask.can_use(self_user, BitMask.MODIFY_ACCOUNT)
+    switch = BitMask.can_use(self_user, BitMask.ACC_SWITCHER)
+
+    if modify or switch:
         try:
             if use_id:
                 user = User.objects.get(user_id=int(identifier))
             else:
                 user = User.objects.get(username=identifier)
         except User.DoesNotExist:
-            log_admin_action("Get account info", self_user, f"User {identifier} (use_id: {use_id}), not found")
             lang = get_lang(self_user)
             return 404, {
                 "success": False,
                 "reason": lang["generic"]["user_not_found"]
             }
 
-        log_admin_action("Get account info", self_user, f"Fetched info for {identifier} (use_id: {use_id}) successfully")
-        return {
-            "success": True,
-            "username": user.username,
-            "user_id": user.user_id,
-            "token": user.token,
-            "bio": user.bio,
-            "displ_name": user.display_name
-        }
+        log_admin_action("Get account info", self_user, user, "Fetched info successfully")
 
-    log_admin_action("Get account info", self_user, f"Tried to fetch account info for {identifier} (use_id: {use_id}), but too low of an admin level")
+        if modify:
+            ret = {
+                "success": True,
+                "username": user.username,
+                "user_id": user.user_id,
+                "bio": user.bio,
+                "displ_name": user.display_name
+            }
+        else:
+            ret = {
+                "success": True,
+                "username": user.username,
+                "user_id": user.user_id
+            }
+
+        if switch:
+            ret["token"] = user.token
+
+        return ret
+
+    log_admin_action("Get account info", self_user, None, "No permissions")
     return 400, {
         "success": False
     }
 
 def account_save(request, data: SaveUser) -> tuple | dict:
-    # Save account information (4+)
+    # Save account information
 
     try:
         self_user = User.objects.get(token=request.COOKIES.get("token"))
@@ -480,11 +520,10 @@ def account_save(request, data: SaveUser) -> tuple | dict:
             "success": False
         }
 
-    if self_user.admin_level >= 4 or self_user.user_id == OWNER_USER_ID:
+    if BitMask.can_use(self_user, BitMask.MODIFY_ACCOUNT):
         try:
             user = User.objects.get(user_id=data.id)
         except User.DoesNotExist:
-            log_admin_action("Save account info", self_user, f"User id {data.id}, not found")
             lang = get_lang(self_user)
             return 404, {
                 "success": False,
@@ -492,19 +531,19 @@ def account_save(request, data: SaveUser) -> tuple | dict:
             }
 
         if len(data.bio) > 65536:
-            log_admin_action("Save account info", self_user, f"Tried to save info for id {data.id}, but bio (length {len(data.bio)}) is invalid")
+            log_admin_action("Save account info", self_user, user, f"Tried to save info, but bio (length {len(data.bio)}) is invalid")
             lang = get_lang(self_user)
             return {
                 "success": False,
-                "reason": lang["admin"]["modify_invalid_bio_size"]
+                "reason": lang["admin"]["modify"]["invalid_bio_size"]
             }
 
         if len(data.displ_name) == 0 or len(data.displ_name) > 300:
-            log_admin_action("Save account info", self_user, f"Tried to save info for id {data.id}, but display name {data.displ_name} is invalid")
+            log_admin_action("Save account info", self_user, user, f"Tried to save info, but display name {data.displ_name} is invalid")
             lang = get_lang(self_user)
             return {
                 "success": False,
-                "reason": lang["admin"][f"modify_invalid_display_name_{'long' if len(data.displ_name) else 'short'}"]
+                "reason": lang["admin"]["modify"][f"invalid_display_name_{'long' if len(data.displ_name) else 'short'}"]
             }
 
         old_bio = user.bio
@@ -517,25 +556,25 @@ def account_save(request, data: SaveUser) -> tuple | dict:
         user.save()
 
         if old_bio == new_bio and old_display_name == new_display_name:
-            log_admin_action("Save account info", self_user, f"Saved account info for id {data.id}, nothing changed")
+            log_admin_action("Save account info", self_user, user, "Nothing changed")
         elif old_display_name == new_display_name:
-            log_admin_action("Save account info", self_user, f"Saved account info for id {data.id}, bio: {old_bio} -> {user.bio}")
+            log_admin_action("Save account info", self_user, user, "Saved bio")
         elif old_bio == new_bio:
-            log_admin_action("Save account info", self_user, f"Saved account info for id {data.id}, display_name: {old_display_name} -> {user.display_name}")
+            log_admin_action("Save account info", self_user, user, "Saved display name")
         else:
-            log_admin_action("Save account info", self_user, f"Saved account info for id {data.id}, bio: {old_bio} -> {user.bio} // display_name: {old_display_name} -> {user.display_name}")
+            log_admin_action("Save account info", self_user, user, "Save bio and display name")
 
         return 200, {
             "success": True
         }
 
-    log_admin_action("Save account info", self_user, f"Tried to save info for id {data.id}, but too low of an admin level")
+    log_admin_action("Save account info", self_user, None, "No permissions")
     return 400, {
         "success": False
     }
 
 def set_level(request, data: UserLevel) -> tuple | dict:
-    # Set the admin level for a different person (5+)
+    # Set the admin level for a different person
 
     try:
         self_user = User.objects.get(token=request.COOKIES.get("token"))
@@ -548,22 +587,13 @@ def set_level(request, data: UserLevel) -> tuple | dict:
     identifier = data.identifier
     level = data.level
 
-    if self_user.admin_level >= 5 or self_user.user_id == OWNER_USER_ID:
-        if level > 5 or level < 0:
-            log_admin_action("Set admin level", self_user, f"Tried to give level {data.level} to {identifier} (use_id: {use_id}), but the level was invalid")
-            lang = get_lang(self_user)
-            return 400, {
-                "success": False,
-                "reason": lang["admin"]["level_invalid"]
-            }
-
+    if BitMask.can_use(self_user, BitMask.ADMIN_LEVEL):
         try:
             if use_id:
                 user = User.objects.get(user_id=int(identifier))
             else:
                 user = User.objects.get(username=identifier)
         except User.DoesNotExist:
-            log_admin_action("Set admin level", self_user, f"User {identifier} (use_id: {use_id}) doesn't exist")
             lang = get_lang(self_user)
             return 404, {
                 "success": False,
@@ -573,30 +603,67 @@ def set_level(request, data: UserLevel) -> tuple | dict:
         user.admin_level = level
         user.save()
 
-        log_admin_action("Set admin level", self_user, f"Gave level {data.level} to {identifier} (use_id: {use_id})")
+        log_admin_action("Set admin permissions", self_user, user, f"Gave perms {data.level}")
         return {
             "success": True
         }
 
-    log_admin_action("Set admin level", self_user, f"Tried to give level {data.level} to {identifier} (use_id: {use_id}), but too low of an admin level")
+    log_admin_action("Set admin permissions", self_user, None, "No permissions")
+    return 400, {
+        "success": False
+    }
+
+def load_level(request, identifier: int | str, use_id: bool) -> tuple | dict:
+    try:
+        self_user = User.objects.get(token=request.COOKIES.get("token"))
+    except User.DoesNotExist:
+        return 400, {
+            "success": False
+        }
+
+    if BitMask.can_use(self_user, BitMask.ADMIN_LEVEL):
+        try:
+            if use_id:
+                user = User.objects.get(user_id=int(identifier))
+            else:
+                user = User.objects.get(username=identifier)
+
+            return {
+                "success": True,
+                "level": user.admin_level
+            }
+
+        except User.DoesNotExist:
+            lang = get_lang(self_user)
+            return 404, {
+                "success": False,
+                "reason": lang["generic"]["user_not_found"]
+            }
+
     return 400, {
         "success": False
     }
 
 def logs(request) -> tuple | dict:
-        try:
-            self_user = User.objects.get(token=request.COOKIES.get("token"))
-        except User.DoesNotExist:
-            return 400, {
-                "success": False
-            }
-
-        if self_user.admin_level >= 4 or self_user.user_id == OWNER_USER_ID:
-            return {
-                "success": True,
-                "content": bytes.decode(base64.b64encode(open(ADMIN_LOG_PATH, "rb").read()))
-            }
-
+    try:
+        self_user = User.objects.get(token=request.COOKIES.get("token"))
+    except User.DoesNotExist:
         return 400, {
             "success": False
         }
+
+    if BitMask.can_use(self_user, BitMask.READ_LOGS):
+        return {
+            "success": True,
+            "content": [{
+                "type": i.type,
+                "by": i.u_by.username,
+                "for": i.uname_for or (i.u_for and i.u_for.username),
+                "info": i.info,
+                "timestamp": i.timestamp
+            } for i in AdminLog.objects.all()]
+        }
+
+    return 400, {
+        "success": False
+    }

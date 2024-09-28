@@ -21,8 +21,7 @@ dom("submit").addEventListener("click", function () {
         method: "POST",
         body: JSON.stringify({
             username: username,
-            password: password,
-            light_mode: window.matchMedia("(prefers-color-scheme: light)").matches
+            password: password
         })
     })
         .then((response) => {

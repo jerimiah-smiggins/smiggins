@@ -30,8 +30,6 @@
       const ENABLE_CONTENT_WARNINGS = {{ ENABLE_CONTENT_WARNINGS }};
       const ENABLE_EMAIL = {{ ENABLE_EMAIL }};
 
-      const NO_CSS_MODE = {{ NO_CSS_MODE }}
-
       const defaultPrivate = {{ DEFAULT_PRIVATE }};
     </script>
 
@@ -57,43 +55,40 @@
       <meta name="twitter:description" content="{{ VERSION }}">
     {% endblock %}
 
-    {% if NO_CSS_MODE == "false" %}
-      <link rel="stylesheet" href="{% static "/css/base.css" %}?v={{ VERSION }}">
-    {% endif %}
+    <link rel="stylesheet" href="{% static "/css/base.css" %}?v={{ VERSION }}">
 
-    <script src="{% static "/js/linkify-4.1.3.min.js" %}?v={{ VERSION }}"></script>
-    <script src="{% static "/js/linkify-html-4.1.3.min.js" %}?v={{ VERSION }}"></script>
-    <script src="{% static "/js/linkify-mentions-4.1.3.min.js" %}?v={{ VERSION }}"></script>
+    <script src="{% static "/js/linkify/linkify.min.js" %}?v={{ VERSION }}"></script>
+    <script src="{% static "/js/linkify/html.min.js" %}?v={{ VERSION }}"></script>
+    <script src="{% static "/js/linkify/mentions.min.js" %}?v={{ VERSION }}"></script>
 
     {% if ENABLE_HASHTAGS == "true" %}
-      <script src="{% static "/js/linkify-hashtags-4.1.3.min.js" %}?v={{ VERSION }}"></script>
+      <script src="{% static "/js/linkify/hashtags.min.js" %}?v={{ VERSION }}"></script>
     {% endif %}
 
     <script src="{% static "/js/base.js" %}?v={{ VERSION }}"></script>
-
-    <script>
-      let favicon = document.createElement("link");
-      favicon.rel = "icon";
-      favicon.type = "image/x-icon";
-
-      let oldFavicon = !!localStorage.getItem("old-favicon");
-
-      if (oldFavicon) {
-        favicon.href = "{% static "/img/old_favicon.ico" %}?v={{ VERSION }}";
-      } else {
-        favicon.href = `{% static "/img/favicons/" %}{{ THEME }}-${validColors.indexOf(localStorage.getItem("color")) == -1 ? "mauve" : localStorage.getItem("color")}.ico?v={{ VERSION }}`;
-      }
-
-      document.head.append(favicon);
-    </script>
 
     {% block head %}{% endblock %}
   </head>
 
   <body data-theme="{{ THEME }}" {% block body_head %}{% endblock %}>
-    <script> // theme normalization when logged out
-      if ("{{ THEME }}" == "auto") {
-        if (window.matchMedia("(prefers-color-scheme: light)").matches) {
+    <script>
+      let favicon = document.createElement("link");
+      let oldFavicon = !!localStorage.getItem("old-favicon");
+
+      // theme normalization when set to automatic
+      function _updateAuto(event) {
+        autoSetFavicon()
+        document.body.setAttribute("data-theme", event.matches ? "{{ DEFAULT_LIGHT_THEME }}" : "{{ DEFAULT_DARK_THEME }}");
+      }
+
+      function autoSetFavicon() {
+        favicon.href = `{% static "/img/favicons/" %}${event.matches ? "{{ DEFAULT_LIGHT_THEME }}" : "{{ DEFAULT_DARK_THEME }}"}-${validColors.indexOf(localStorage.getItem("color")) == -1 ? "mauve" : localStorage.getItem("color")}.ico?v={{ VERSION }}`;
+      }
+
+      function autoInit() {
+        autoEnabled = true;
+
+        if (_autoMM.matches) {
           document.body.setAttribute("data-theme", "{{ DEFAULT_LIGHT_THEME }}");
         } else {
           document.body.setAttribute("data-theme", "{{ DEFAULT_DARK_THEME }}");
@@ -103,11 +98,32 @@
           favicon.href = `{% static "/img/favicons/" %}${document.body.getAttribute("data-theme")}-${validColors.indexOf(localStorage.getItem("color")) == -1 ? "mauve" : localStorage.getItem("color")}.ico?v={{ VERSION }}`;
         }
 
-        window.matchMedia("(prefers-color-scheme: light)").addEventListener("change", (event) => {
-          favicon.href = `{% static "/img/favicons/" %}${event.matches ? "{{ DEFAULT_LIGHT_THEME }}" : "{{ DEFAULT_DARK_THEME }}"}-${validColors.indexOf(localStorage.getItem("color")) == -1 ? "mauve" : localStorage.getItem("color")}.ico?v={{ VERSION }}`;
-          document.body.setAttribute("data-theme", event.matches ? "{{ DEFAULT_LIGHT_THEME }}" : "{{ DEFAULT_DARK_THEME }}");
-        });
+        _autoMM.addEventListener("change", _updateAuto);
       }
+
+      function autoCancel() {
+        autoEnabled = false;
+        _autoMM.removeEventListener("change", _updateAuto);
+      }
+
+      let autoEnabled = false;
+      let _autoMM = matchMedia("(prefers-color-scheme: light)");
+
+      if ("{{ THEME }}" == "auto") {
+        autoInit();
+      }
+
+      // set proper favicon
+      favicon.rel = "icon";
+      favicon.type = "image/x-icon";
+
+      if (oldFavicon) {
+        favicon.href = "{% static "/img/old_favicon.ico" %}?v={{ VERSION }}";
+      } else {
+        favicon.href = `{% static "/img/favicons/" %}{{ THEME }}-${validColors.indexOf(localStorage.getItem("color")) == -1 ? "mauve" : localStorage.getItem("color")}.ico?v={{ VERSION }}`;
+      }
+
+      document.head.append(favicon);
     </script>
 
     {% block body %}{% endblock %}

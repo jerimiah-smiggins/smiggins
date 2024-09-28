@@ -126,11 +126,13 @@ select {
   resize: vertical;
 }
 
-body:not([data-disable-checkboxes]) label:has(+ input[type="checkbox"]) {
+body:not([data-disable-checkboxes]) label:has(+ input[type="checkbox"]),
+body:not([data-disable-checkboxes]) input[type="checkbox"] + label {
   cursor: pointer;
 }
 
-body:not([data-disable-checkboxes]) label + input[type="checkbox"] {
+body:not([data-disable-checkboxes]) label + input[type="checkbox"],
+body:not([data-disable-checkboxes]) input[type="checkbox"]:has(+ label) {
   width: 0;
   height: 0;
   opacity: 0;
@@ -140,7 +142,8 @@ body:not([data-disable-checkboxes]) label + input[type="checkbox"] {
   outline: none;
 }
 
-body:not([data-disable-checkboxes]) label:has(+ input[type="checkbox"])::after {
+body:not([data-disable-checkboxes]) label:has(+ input[type="checkbox"])::after,
+body:not([data-disable-checkboxes]) input[type="checkbox"] + label::before {
   content: "";
   transition: background-color 0.25s, outline-color 0.25s;
   background-color: var(--surface0);
@@ -149,16 +152,25 @@ body:not([data-disable-checkboxes]) label:has(+ input[type="checkbox"])::after {
   top: 0.1em;
   width: 1em;
   height: 1em;
-  margin-left: 0.4em;
   border-radius: 0.2em;
   outline: 1px solid var(--surface1);
 }
 
-body:not([data-disable-checkboxes]) label:has(+ input[type="checkbox"]:checked)::after {
+label::after {
+  margin-left: 0.4em;
+}
+
+label::before {
+  margin-right: 0.4em;
+}
+
+body:not([data-disable-checkboxes]) label:has(+ input[type="checkbox"]:checked)::after,
+body:not([data-disable-checkboxes]) input[type="checkbox"]:checked + label::before {
   background-color: var(--accent);
 }
 
-body:not([data-disable-checkboxes]) label:has(+ input[type="checkbox"]:focus)::after {
+body:not([data-disable-checkboxes]) label:has(+ input[type="checkbox"]:focus)::after,
+body:not([data-disable-checkboxes]) input[type="checkbox"]:focus + label::before {
   outline-color: var(--accent);
 }
 

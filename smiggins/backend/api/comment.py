@@ -2,27 +2,18 @@
 
 import time
 
-from ninja import Schema
 from posts.models import Comment, Notification, Post, User
 
 from ..helper import (DEFAULT_LANG, can_view_post, create_api_ratelimit,
                       create_notification, delete_notification,
                       ensure_ratelimit, find_mentions, get_lang, get_post_json,
-                      log_admin_action, trim_whitespace)
+                      trim_whitespace)
 from ..variables import (API_TIMINGS, ENABLE_CONTENT_WARNINGS,
                          ENABLE_LOGGED_OUT_CONTENT, MAX_CONTENT_WARNING_LENGTH,
                          MAX_POST_LENGTH, OWNER_USER_ID, POSTS_PER_REQUEST)
+from .admin import log_admin_action
+from .schema import CommentID, NewComment
 
-
-class NewComment(Schema):
-    c_warning: str
-    content: str
-    comment: bool
-    id: int
-    private: bool
-
-class CommentID(Schema):
-    id: int
 
 def comment_create(request, data: NewComment) -> tuple | dict:
     # Called when a new comment is created.
@@ -280,14 +271,17 @@ def comment_delete(request, data: CommentID) -> tuple | dict:
 
     if comment.parent:
         comment_parent = (Comment if comment.parent_is_comment else Post).objects.get(pk=comment.parent)
-        comment_parent.comments.remove(id)
+        try:
+            comment_parent.comments.remove(id)
+        except ValueError:
+            ...
         comment_parent.save()
 
     admin = user.user_id == OWNER_USER_ID or user.admin_level >= 1
     creator = comment.creator == user.user_id
 
     if admin and not creator:
-        log_admin_action("Delete comment", user, f"Deleted comment {id} (parent: {comment.parent} (is_comment: {comment.parent_is_comment}), content: {comment.content})")
+        log_admin_action("Delete comment", user, User.objects.get(user_id=comment.creator), f"Deleted comment {id}")
 
     if creator or admin:
         try:

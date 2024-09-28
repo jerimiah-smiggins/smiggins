@@ -93,6 +93,7 @@
     "noreply",
     "canadien",
     "noscript",
+    "typecheck",
     "venv"
   ],
 
@@ -106,7 +107,4 @@
   "typescript.inlayHints.variableTypes.enabled": true,
   "typescript.inlayHints.parameterTypes.enabled": true,
   "typescript.inlayHints.functionLikeReturnTypes.enabled": true,
-  "python.analysis.extraPaths": [
-    "./smiggins/backend"
-  ]
 }

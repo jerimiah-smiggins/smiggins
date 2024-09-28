@@ -1,5 +1,6 @@
 from django.db import models
 
+
 class User(models.Model):
     user_id  = models.IntegerField(primary_key=True, unique=True)
     username = models.CharField(max_length=300, unique=True)
@@ -8,12 +9,18 @@ class User(models.Model):
     email_valid = models.BooleanField(default=False)
 
     # Admin level
-    # 0 - Regular user
-    # 1 - Ability to delete any post
-    # 2 - Ability to delete any account
-    # 3 - Ability to add badges to accounts and create new badges
-    # 4 - Full access to modify anything in the database except for admin levels
-    # 5 - Ability to add anyone as an admin of any level, including level 5. This is automatically given to the owner specified in _settings.py
+    # Functions as a binary mask. Definitions (32 bit compatible):
+    #                        +- Read admin logs
+    #                        |+- Change admin levels for self and others
+    #                        ||+- Add any account to account switcher - requires modify info
+    #                        |||+- Modify account info
+    #                        ||||+- Add/remove badges from profiles
+    #                        |||||+- Delete badges
+    #                        ||||||+- Create/modify badges
+    #                        |||||||+- Delete accounts
+    #          unused        ||||||||+- Delete posts
+    #            |           |||||||||
+    # 00000000000000000000000XXXXXXXX
     admin_level = models.IntegerField(default=0)
 
     display_name = models.CharField(max_length=300)
@@ -23,7 +30,6 @@ class User(models.Model):
     color     = models.CharField(max_length=7)
     color_two = models.CharField(max_length=7, default="#000000", blank=True)
     gradient  = models.BooleanField(default=False)
-    no_css_mode = models.BooleanField(default=False)
 
     default_post_private = models.BooleanField(default=False)
     verify_followers = models.BooleanField(default=False)
@@ -56,6 +62,7 @@ class Post(models.Model):
     timestamp = models.IntegerField()
     quote     = models.IntegerField(default=0)
     quote_is_comment = models.BooleanField(default=False)
+    edited = models.BooleanField(default=False)
 
     likes    = models.JSONField(default=list, blank=True)
     comments = models.JSONField(default=list, blank=True)
@@ -90,6 +97,7 @@ class Comment(models.Model):
     creator    = models.IntegerField()
     timestamp  = models.IntegerField()
     parent     = models.IntegerField(default=0)
+    edited = models.BooleanField(default=False)
 
     parent_is_comment = models.BooleanField(default=False)
     private_comment = models.BooleanField(null=True)
@@ -176,3 +184,11 @@ class URLPart(models.Model):
     intent = models.TextField(max_length=6) # "reset", "remove", "verify", "pwd_fm", "change"
     extra_data = models.JSONField(default=dict, blank=True)
     expire = models.IntegerField()
+
+class AdminLog(models.Model):
+    type = models.TextField()
+    u_by = models.ForeignKey(User, on_delete=models.CASCADE, related_name="admin_log_by")
+    u_for = models.ForeignKey(User, on_delete=models.CASCADE, null=True, related_name="admin_log_for")
+    uname_for = models.TextField(null=True)
+    info = models.TextField()
+    timestamp = models.IntegerField()

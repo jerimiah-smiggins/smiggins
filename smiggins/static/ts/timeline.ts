@@ -1,11 +1,11 @@
 let end: boolean = false;
 offset = null;
 
-function deletePost(postId: number, isComment: boolean, pageFocus: boolean): void {
+function deletePost(postID: number, isComment: boolean, pageFocus: boolean): void {
   fetch(`/api/${isComment ? "comment" : "post"}`, {
     method: "DELETE",
     body: JSON.stringify({
-      id: postId
+      id: postID
     })
   }).then((response: Response) => (response.json()))
     .then((json: {
@@ -15,7 +15,7 @@ function deletePost(postId: number, isComment: boolean, pageFocus: boolean): voi
         if (pageFocus) {
           location.href = "/home";
         } else {
-          document.querySelector(`.post-container[data-${isComment ? "comment" : "post"}-id="${postId}"]`).remove();
+          document.querySelector(`.post-container[data-${isComment ? "comment" : "post"}-id="${postID}"]`).remove();
         }
       }
     });
@@ -149,18 +149,18 @@ function addQuote(postID: number, isComment: boolean): void {
   });
 }
 
-function toggleLike(postId: number, type: string): void {
+function toggleLike(postID: number, type: string): void {
   if (typeof logged_in !== "undefined" && !logged_in) { return; }
 
-  let q: HTMLElement = document.querySelector(`div[data-${type}-id="${postId}"] span.like-number`) as HTMLElement;
-  let h: HTMLElement = document.querySelector(`div[data-${type}-id="${postId}"] button.like`) as HTMLElement;
-  let x: HTMLElement = document.querySelector(`div[data-${type}-id="${postId}"] button.like svg`) as HTMLElement;
+  let q: HTMLElement = document.querySelector(`div[data-${type}-id="${postID}"] span.like-number`) as HTMLElement;
+  let h: HTMLElement = document.querySelector(`div[data-${type}-id="${postID}"] button.like`) as HTMLElement;
+  let x: HTMLElement = document.querySelector(`div[data-${type}-id="${postID}"] button.like svg`) as HTMLElement;
 
   if (h.dataset["liked"] == "true") {
     fetch(`/api/${type}/like`, {
       method: "DELETE",
       body: JSON.stringify({
-        id: postId
+        id: postID
       })
     });
 
@@ -171,7 +171,7 @@ function toggleLike(postId: number, type: string): void {
     fetch(`/api/${type}/like`, {
       method: "POST",
       body: JSON.stringify({
-        id: postId
+        id: postID
       })
     });
 
@@ -233,6 +233,10 @@ function togglePollResults(gInc: number): void {
     el.onkeydown = null;
     el.removeAttribute("tabindex");
   });
+}
+
+function editPost(postID: number, isComment: boolean): void {
+  //
 }
 
 if (typeof disableTimeline === 'undefined' || !disableTimeline) {
