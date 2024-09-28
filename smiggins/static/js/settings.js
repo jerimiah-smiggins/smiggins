@@ -84,7 +84,7 @@ dom("post-example").innerHTML = getPostHTML({
     timestamp: Date.now() / 1000 - Math.random() * 86400,
     poll: null,
     logged_in: true,
-    edited: true
+    edited: false
 }, false, false, false, true);
 function toggleGradient(setUnloadStatus) {
     if (typeof setUnloadStatus !== "boolean" || setUnloadStatus) {
