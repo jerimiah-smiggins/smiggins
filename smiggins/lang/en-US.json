@@ -537,7 +537,9 @@
           "2": "Added editing posts",
           "3": "Moved the delete and pin/unpin buttons to a menu",
           "4": "Rewrote the entire admin system",
-          "5": "Added a system theme that's based on the device's preferred color scheme"
+          "5": "Added a system theme that's based on the device's preferred color scheme",
+          "6": "Fixed the extended_isinstance function on python 3.11+",
+          "7": "Moved the admin log to the database"
         },
         "v0.12.4": {
           "1": "Fixed an exploit that allowed anyone to inject arbitrary code into post pages"
