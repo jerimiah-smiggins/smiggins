@@ -467,10 +467,7 @@ def account_info(request, identifier: int | str, use_id: bool) -> tuple | dict:
             "success": False
         }
 
-    modify = BitMask.can_use(self_user, BitMask.MODIFY_ACCOUNT)
-    switch = BitMask.can_use(self_user, BitMask.ACC_SWITCHER)
-
-    if modify or switch:
+    if BitMask.can_use(self_user, BitMask.MODIFY_ACCOUNT):
         try:
             if use_id:
                 user = User.objects.get(user_id=int(identifier))
@@ -485,22 +482,15 @@ def account_info(request, identifier: int | str, use_id: bool) -> tuple | dict:
 
         log_admin_action("Get account info", self_user, user, "Fetched info successfully")
 
-        if modify:
-            ret = {
-                "success": True,
-                "username": user.username,
-                "user_id": user.user_id,
-                "bio": user.bio,
-                "displ_name": user.display_name
-            }
-        else:
-            ret = {
-                "success": True,
-                "username": user.username,
-                "user_id": user.user_id
-            }
+        ret = {
+            "success": True,
+            "username": user.username,
+            "user_id": user.user_id,
+            "bio": user.bio,
+            "displ_name": user.display_name
+        }
 
-        if switch:
+        if BitMask.can_use(self_user, BitMask.ACC_SWITCHER):
             ret["token"] = user.token
 
         return ret
@@ -533,7 +523,7 @@ def account_save(request, data: SaveUser) -> tuple | dict:
         if len(data.bio) > 65536:
             log_admin_action("Save account info", self_user, user, f"Tried to save info, but bio (length {len(data.bio)}) is invalid")
             lang = get_lang(self_user)
-            return {
+            return 400, {
                 "success": False,
                 "reason": lang["admin"]["modify"]["invalid_bio_size"]
             }
@@ -541,7 +531,7 @@ def account_save(request, data: SaveUser) -> tuple | dict:
         if len(data.displ_name) == 0 or len(data.displ_name) > 300:
             log_admin_action("Save account info", self_user, user, f"Tried to save info, but display name {data.displ_name} is invalid")
             lang = get_lang(self_user)
-            return {
+            return 400, {
                 "success": False,
                 "reason": lang["admin"]["modify"][f"invalid_display_name_{'long' if len(data.displ_name) else 'short'}"]
             }
@@ -564,7 +554,7 @@ def account_save(request, data: SaveUser) -> tuple | dict:
         else:
             log_admin_action("Save account info", self_user, user, "Save bio and display name")
 
-        return 200, {
+        return {
             "success": True
         }
 
@@ -658,7 +648,7 @@ def logs(request) -> tuple | dict:
             "content": [{
                 "type": i.type,
                 "by": i.u_by.username,
-                "for": i.uname_for or (i.u_for and i.u_for.username),
+                "target": i.uname_for or (i.u_for and i.u_for.username),
                 "info": i.info,
                 "timestamp": i.timestamp
             } for i in AdminLog.objects.all()]

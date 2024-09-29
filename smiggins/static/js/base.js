@@ -166,7 +166,8 @@ function getPostHTML(postJSON, isComment = false, includeUserLink = true, includ
       </div>
 
       <div class="main-area-afjdkaslfjalksdjf">
-        ${postJSON.c_warning ? `<details class="c-warning"><summary>${escapeHTML(postJSON.c_warning)}</summary>` : ""}
+        ${postJSON.c_warning ? `<details class="c-warning">` : ""}
+        ${postJSON.c_warning ? `<summary>${escapeHTML(postJSON.c_warning)}</summary>` : ""}
         <div class="main-content">
           ${includePostLink ? `<a aria-hidden="true" href="/${isComment ? "c" : "p"}/${postJSON.post_id}" tabindex="-1" class="text no-underline">` : ""}
             ${linkifyHtml(escapeHTML(postJSON.content), {
@@ -182,8 +183,6 @@ function getPostHTML(postJSON, isComment = false, includeUserLink = true, includ
         .replaceAll("<a target=\"_blank\" href=\"/", "<a href=\"/")}
           ${includePostLink ? "</a>" : ""}
         </div>
-        ${postJSON.c_warning ? "</details>" : ""}
-      </div>
 
       ${postJSON.quote ? `
           <div class="quote-area">
@@ -272,6 +271,7 @@ function getPostHTML(postJSON, isComment = false, includeUserLink = true, includ
           </small></div>`;
     })() : ""}
       ${postJSON.c_warning ? `</details>` : ""}
+      </div>
 
       <div class="bottom-content">
         ${includePostLink ? `<a href="/${isComment ? "c" : "p"}/${postJSON.post_id}" class="text no-underline">` : ""}

@@ -27,14 +27,14 @@ def signup(request, data: Account) -> tuple | dict:
 
     # e3b0c44... is the sha256 hash for an empty string
     if len(password) != 64 or password == "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855":
-        return {
+        return 400, {
             "valid": False,
             "reason": DEFAULT_LANG["account"]["bad_password"]
         }
 
     for i in password:
         if i not in "abcdef0123456789":
-            return {
+            return 400, {
                 "valid": False,
                 "reason": DEFAULT_LANG["account"]["bad_password"]
             }
@@ -116,14 +116,14 @@ def login(request, data: Account) -> tuple | dict:
 
         else:
             create_api_ratelimit("api_account_login", API_TIMINGS["login unsuccessful"], request.META.get('REMOTE_ADDR'))
-            return {
+            return 400, {
                 "valid": False,
                 "reason": DEFAULT_LANG["account"]["bad_password"]
             }
 
     else:
         create_api_ratelimit("api_account_login", API_TIMINGS["login unsuccessful"], request.META.get('REMOTE_ADDR'))
-        return {
+        return 400, {
             "valid": False,
             "reason": DEFAULT_LANG["account"]["username_does_not_exist"].replace("%s", data.username)
         }
@@ -282,7 +282,7 @@ def follower_add(request, data: Username) -> tuple | dict:
 
         followed.save()
 
-    return 201, {
+    return {
         "success": True,
         "pending": followed.verify_followers
     }
@@ -320,7 +320,7 @@ def follower_remove(request, data: Username) -> tuple | dict:
             "success": False
         }
 
-    return 201, {
+    return {
         "success": True
     }
 
@@ -377,7 +377,7 @@ def block_add(request, data: Username) -> tuple | dict:
         user.blocking.append(blocked.user_id)
         user.save()
 
-    return 201, {
+    return {
         "success": True
     }
 
@@ -413,7 +413,7 @@ def block_remove(request, data: Username) -> tuple | dict:
             "success": False
         }
 
-    return 201, {
+    return {
         "success": True
     }
 
@@ -455,7 +455,7 @@ def change_password(request, data: ChangePassword) -> tuple | dict:
     user.token = new_token
     user.save()
 
-    return 200, {
+    return {
         "success": True,
         "token": new_token
     }

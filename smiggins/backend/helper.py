@@ -1,13 +1,13 @@
 # Contains helper functions. These aren't for routing, instead doing something that can be used in other places in the code.
 
 import hashlib
+import json as json_f
 import re
 import threading
 import time
 from typing import Any, Callable, Literal
 
 import json5 as json
-import json as json_f
 from django.core.mail import send_mail
 from django.http import HttpResponse, HttpResponseRedirect
 from django.template import loader
@@ -266,6 +266,9 @@ def can_view_post(self_user: User | None, creator: User | None, post: Post | Com
 
 def get_post_json(post_id: int, current_user_id: int=0, comment: bool=False, cache: dict[int, User] | None=None) -> dict[str, str | int | dict]:
     # Returns a dict object that includes information about the specified post
+    # When editing the json content response of this function, make sure you also
+    # correct the schema in static/ts/globals.d.ts
+
 
     if cache is None:
         cache = {}

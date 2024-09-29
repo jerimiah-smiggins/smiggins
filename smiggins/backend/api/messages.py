@@ -58,7 +58,7 @@ def container_create(request, data: NewContainer) -> tuple | dict:
     user.save()
     self_user.save()
 
-    return 201, {
+    return {
         "success": True
     }
 

@@ -13,20 +13,24 @@ from backend.variables import (CONTACT_INFO, DEBUG, DEFAULT_DARK_THEME,
                                ENABLE_SITEMAPS, GENERIC_CACHE_TIMEOUT,
                                REAL_VERSION, ROBOTS, SITEMAP_CACHE_TIMEOUT)
 from django.contrib import admin as django_admin
+from django.contrib.admin.exceptions import AlreadyRegistered  # type: ignore
 from django.http import HttpResponseRedirect
 from django.urls import include, path
 from django.views.decorators.cache import cache_page
 from posts.models import (Badge, Comment, Hashtag, Notification, Post,
                           PrivateMessage, PrivateMessageContainer, User)
 
-django_admin.site.register(User)
-django_admin.site.register(Post)
-django_admin.site.register(Comment)
-django_admin.site.register(Badge)
-django_admin.site.register(Notification)
-django_admin.site.register(PrivateMessageContainer)
-django_admin.site.register(PrivateMessage)
-django_admin.site.register(Hashtag)
+try:
+    django_admin.site.register(User)
+    django_admin.site.register(Post)
+    django_admin.site.register(Comment)
+    django_admin.site.register(Badge)
+    django_admin.site.register(Notification)
+    django_admin.site.register(PrivateMessageContainer)
+    django_admin.site.register(PrivateMessage)
+    django_admin.site.register(Hashtag)
+except AlreadyRegistered:
+    ...
 
 cache_prefix = ".".join([str(i) for i in REAL_VERSION])
 

@@ -532,6 +532,10 @@
       "unknown": "Unknown",
 
       "changes": {
+        "v0.13.1": {
+          "1": "Made /api/docs slightly better",
+          "2": "Content warnings now cover polls and quotes again"
+        },
         "v0.13.0": {
           "1": "Fixed a bug that caused content warnings to not be properly escaped",
           "2": "Added editing posts",
