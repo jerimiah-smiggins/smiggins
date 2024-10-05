@@ -269,7 +269,6 @@ def get_post_json(post_id: int, current_user_id: int=0, comment: bool=False, cac
     # When editing the json content response of this function, make sure you also
     # correct the schema in static/ts/globals.d.ts
 
-
     if cache is None:
         cache = {}
 

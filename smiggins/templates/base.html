@@ -59,10 +59,10 @@
 
     <script src="{% static "/js/linkify/linkify.min.js" %}?v={{ VERSION }}"></script>
     <script src="{% static "/js/linkify/html.min.js" %}?v={{ VERSION }}"></script>
-    <script src="{% static "/js/linkify/mentions.min.js" %}?v={{ VERSION }}"></script>
+    <script src="{% static "/js/linkify/mentions.js" %}?v={{ VERSION }}"></script>
 
     {% if ENABLE_HASHTAGS == "true" %}
-      <script src="{% static "/js/linkify/hashtags.min.js" %}?v={{ VERSION }}"></script>
+      <script src="{% static "/js/linkify/hashtags.js" %}?v={{ VERSION }}"></script>
     {% endif %}
 
     <script src="{% static "/js/base.js" %}?v={{ VERSION }}"></script>

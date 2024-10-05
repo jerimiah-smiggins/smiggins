@@ -220,6 +220,51 @@ function getPostHTML(
         </div>
 
       ${
+        postJSON.poll && typeof postJSON.poll == "object"? ((): string => {
+          let output: string = `<div id="gi-${globalIncrement}">`;
+          let c: number = 0;
+
+          if (postJSON.poll.voted || !postJSON.logged_in) {
+            for (const option of postJSON.poll.content) {
+              c++;
+              output += `<div class="poll-bar-container">
+                <div class="poll-bar ${option.voted ? "voted" : ""}">
+                  <div style="width:${option.votes / postJSON.poll.votes * 100 || 0}%"></div>
+                </div>
+                <div class="poll-text">
+                  ${Math.round(option.votes / postJSON.poll.votes * 1000) / 10 || 0}% - ${escapeHTML(option.value)}
+                </div>
+              </div>`;
+            }
+          } else {
+            for (const option of postJSON.poll.content) {
+              c++;
+              output += `<div data-index="${c}"
+                         data-total-votes="${postJSON.poll.votes}"
+                         data-votes="${option.votes}"
+                         class="poll-bar-container"
+                         role="button"
+                         onclick="vote(${c}, ${postJSON.post_id}, ${globalIncrement})"
+                         onkeydown="genericKeyboardEvent(event, () => (vote(${c}, ${postJSON.post_id}, ${globalIncrement})))"
+                         tabindex="0">
+                <div class="poll-text">${escapeHTML(option.value)}</div>
+              </div>`;
+            }
+          }
+
+          globalIncrement++;
+
+          return `${output}<small>
+            ${(postJSON.poll.votes == 1 ? lang.home.poll_total_singular : lang.home.poll_total_plural).replaceAll("%s", postJSON.poll.votes)}
+            ${postJSON.poll.voted || !postJSON.logged_in ? "" : `<span class="remove-when-the-poll-gets-shown"> -
+              <span class="toggle-poll" onclick="togglePollResults(${globalIncrement - 1})" role="button" onkeydown="genericKeyboardEvent(event, () => (togglePollResults(${globalIncrement - 1})))" tabindex="0">${lang.home.poll_view_results}</span>
+            </span>`}
+          </small></div>`;
+        })() : ""
+      }
+      ${postJSON.c_warning ? `</details>` : ""}
+
+      ${
         postJSON.quote ? `
           <div class="quote-area">
             <div class="post">
@@ -271,51 +316,6 @@ function getPostHTML(
           </div>
         ` : ""
       }
-
-      ${
-        postJSON.poll && typeof postJSON.poll == "object"? ((): string => {
-          let output: string = `<div id="gi-${globalIncrement}">`;
-          let c: number = 0;
-
-          if (postJSON.poll.voted || !postJSON.logged_in) {
-            for (const option of postJSON.poll.content) {
-              c++;
-              output += `<div class="poll-bar-container">
-                <div class="poll-bar ${option.voted ? "voted" : ""}">
-                  <div style="width:${option.votes / postJSON.poll.votes * 100 || 0}%"></div>
-                </div>
-                <div class="poll-text">
-                  ${Math.round(option.votes / postJSON.poll.votes * 1000) / 10 || 0}% - ${escapeHTML(option.value)}
-                </div>
-              </div>`;
-            }
-          } else {
-            for (const option of postJSON.poll.content) {
-              c++;
-              output += `<div data-index="${c}"
-                         data-total-votes="${postJSON.poll.votes}"
-                         data-votes="${option.votes}"
-                         class="poll-bar-container"
-                         role="button"
-                         onclick="vote(${c}, ${postJSON.post_id}, ${globalIncrement})"
-                         onkeydown="genericKeyboardEvent(event, () => (vote(${c}, ${postJSON.post_id}, ${globalIncrement})))"
-                         tabindex="0">
-                <div class="poll-text">${escapeHTML(option.value)}</div>
-              </div>`;
-            }
-          }
-
-          globalIncrement++;
-
-          return `${output}<small>
-            ${(postJSON.poll.votes == 1 ? lang.home.poll_total_singular : lang.home.poll_total_plural).replaceAll("%s", postJSON.poll.votes)}
-            ${postJSON.poll.voted || !postJSON.logged_in ? "" : `<span class="remove-when-the-poll-gets-shown"> -
-              <span class="toggle-poll" onclick="togglePollResults(${globalIncrement - 1})" role="button" onkeydown="genericKeyboardEvent(event, () => (togglePollResults(${globalIncrement - 1})))" tabindex="0">${lang.home.poll_view_results}</span>
-            </span>`}
-          </small></div>`;
-        })() : ""
-      }
-      ${postJSON.c_warning ? `</details>` : ""}
       </div>
 
       <div class="bottom-content">

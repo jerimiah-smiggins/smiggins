@@ -18,6 +18,7 @@ declare const ENABLE_CONTENT_WARNINGS: boolean;
 declare const ENABLE_EMAIL: boolean;
 
 declare const defaultPrivate: boolean;
+declare const linkify;
 
 // Global variables
 declare const lang: { [key: string]: any };
