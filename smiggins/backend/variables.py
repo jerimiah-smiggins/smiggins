@@ -2,7 +2,7 @@ import hashlib
 import os
 import pathlib
 import re
-from typing import Any
+from typing import Any, Literal
 
 import json5 as json
 from django.db.utils import OperationalError
@@ -86,8 +86,276 @@ SITEMAP_CACHE_TIMEOUT: int | None = 86400
 GENERIC_CACHE_TIMEOUT: int | None = 604800
 API_TIMINGS: dict[str, int] = {}
 
+THEMES = {
+  "warm": {
+    "name": {
+      "default": "Noon"
+    },
+    "id": "warm",
+    "light_theme": True,
+    "colors": {
+      "text": "#575279",
+      "subtext": "#9893a5",
+      "red": "#a03660",
+      "background": "#faf4ed",
+      "post_background": "#faf4ed",
+      "poll_voted_background": "#f2e9e1",
+      "poll_no_vote_background": "#fffaf3",
+      "content_warning_background": "#fffaf3",
+      "input_background": "#f2e9e1",
+      "checkbox_background": "#f4ede8",
+      "button_background": "#f2e9e1",
+      "button_hover_background": "#fffaf3",
+      "button_inverted_background": "#faf4ed",
+      "input_border": "#f4ede8",
+      "checkbox_border": "#f4ede8",
+      "button_border": "#f4ede8",
+      "table_border": "#f4ede8",
+      "gray": "#9893a5",
+      "accent": {
+        "rosewater": "#d7827e",
+        "flamingo": "#d8707e",
+        "pink": "#e56ed1",
+        "mauve": "#7a51cb",
+        "red": "#a03660",
+        "maroon": "#b4637a",
+        "peach": "#ff7322",
+        "yellow": "#ea9d34",
+        "green": "#7fa731",
+        "teal": "#56949f",
+        "sky": "#41a7eb",
+        "sapphire": "#286983",
+        "blue": "#2630c3",
+        "lavender": "#907aa9"
+      }
+    }
+  },
+  "light": {
+    "name": {
+      "default": "Dawn"
+    },
+    "id": "light",
+    "colors": {
+      "text": "#4c4f69",
+      "subtext": "#6c6f85",
+      "red": "#d20f39",
+      "background": "#eff1f5",
+      "post_background": "#eff1f5",
+      "poll_voted_background": "#dce0e8",
+      "poll_no_vote_background": "#e6e9ef",
+      "content_warning_background": "#e6e9ef",
+      "input_background": "#dce0e8",
+      "checkbox_background": "#ccd0da",
+      "button_background": "#dce0e8",
+      "button_hover_background": "#e6e9ef",
+      "button_inverted_background": "#eff1f5",
+      "input_border": "#ccd0da",
+      "checkbox_border": "#ccd0da",
+      "button_border": "#ccd0da",
+      "table_border": "#ccd0da",
+      "gray": "#6c6f85",
+      "accent": {
+        "rosewater": "#dc8a78",
+        "flamingo": "#dd7878",
+        "pink": "#ea76cb",
+        "mauve": "#8839ef",
+        "red": "#d20f39",
+        "maroon": "#e64553",
+        "peach": "#fe640b",
+        "yellow": "#df8e1d",
+        "green": "#40a02b",
+        "teal": "#179299",
+        "sky": "#04a5e5",
+        "sapphire": "#209fb5",
+        "blue": "#1e66f5",
+        "lavender": "#7287fd"
+      }
+    }
+  },
+  "gray": {
+    "name": {
+      "default": "Dusk"
+    },
+    "id": "gray",
+    "colors": {
+      "text": "#c6d0f5",
+      "subtext": "#a5adce",
+      "red": "#e78284",
+      "background": "#303446",
+      "post_background": "#303446",
+      "poll_voted_background": "#232634",
+      "poll_no_vote_background": "#292c3c",
+      "content_warning_background": "#292c3c",
+      "input_background": "#232634",
+      "checkbox_background": "#414559",
+      "button_background": "#232634",
+      "button_hover_background": "#292c3c",
+      "button_inverted_background": "#303446",
+      "input_border": "#414559",
+      "checkbox_border": "#414559",
+      "button_border": "#414559",
+      "table_border": "#414559",
+      "gray": "#a5adce",
+      "accent": {
+        "rosewater": "#f2d5cf",
+        "flamingo": "#eebebe",
+        "pink": "#f4b8e4",
+        "mauve": "#ca9ee6",
+        "red": "#e78284",
+        "maroon": "#ea999c",
+        "peach": "#ef9f76",
+        "yellow": "#e5c890",
+        "green": "#a6d189",
+        "teal": "#81c8be",
+        "sky": "#99d1db",
+        "sapphire": "#85c1dc",
+        "blue": "#8caaee",
+        "lavender": "#babbf1"
+      }
+    }
+  },
+  "dark": {
+    "name": {
+      "default": "Dark"
+    },
+    "id": "dark",
+    "colors": {
+      "text": "#cad3f5",
+      "subtext": "#a5adcb",
+      "red": "#ed8796",
+      "background": "#24273a",
+      "post_background": "#24273a",
+      "poll_voted_background": "#181926",
+      "poll_no_vote_background": "#1e2030",
+      "content_warning_background": "#1e2030",
+      "input_background": "#181926",
+      "checkbox_background": "#363a4f",
+      "button_background": "#181926",
+      "button_hover_background": "#1e2030",
+      "button_inverted_background": "#24273a",
+      "input_border": "#363a4f",
+      "checkbox_border": "#363a4f",
+      "button_border": "#363a4f",
+      "table_border": "#363a4f",
+      "gray": "#a5adcb",
+      "accent": {
+        "rosewater": "#f4dbd6",
+        "flamingo": "#f0c6c6",
+        "pink": "#f5bde6",
+        "mauve": "#c6a0f6",
+        "red": "#ed8796",
+        "maroon": "#ee99a0",
+        "peach": "#f5a97f",
+        "yellow": "#eed49f",
+        "green": "#a6da95",
+        "teal": "#8bd5ca",
+        "sky": "#91d7e3",
+        "sapphire": "#7dc4e4",
+        "blue": "#8aadf4",
+        "lavender": "#b7bdf8"
+      }
+    }
+  },
+  "black": {
+    "name": {
+      "default": "Midnight"
+    },
+    "id": "black",
+    "colors": {
+      "text": "#cdd6f4",
+      "subtext": "#a6adc8",
+      "red": "#f38ba8",
+      "background": "#1e1e2e",
+      "post_background": "#1e1e2e",
+      "poll_voted_background": "#11111b",
+      "poll_no_vote_background": "#181825",
+      "content_warning_background": "#181825",
+      "input_background": "#11111b",
+      "checkbox_background": "#313244",
+      "button_background": "#11111b",
+      "button_hover_background": "#181825",
+      "button_inverted_background": "#1e1e2e",
+      "input_border": "#313244",
+      "checkbox_border": "#313244",
+      "button_border": "#313244",
+      "table_border": "#313244",
+      "gray": "#a6adc8",
+      "accent": {
+        "rosewater": "#f5e0dc",
+        "flamingo": "#f2cdcd",
+        "pink": "#f5c2e7",
+        "mauve": "#cba6f7",
+        "red": "#f38ba8",
+        "maroon": "#eba0ac",
+        "peach": "#fab387",
+        "yellow": "#f9e2af",
+        "green": "#a6e3a1",
+        "teal": "#94e2d5",
+        "sky": "#89dceb",
+        "sapphire": "#74c7ec",
+        "blue": "#89b4fa",
+        "lavender": "#b4befe"
+      }
+    }
+  },
+  "oled": {
+    "name": {
+      "default": "Black"
+    },
+    "id": "oled",
+    "colors": {
+      "text": "#cdd6f4",
+      "subtext": "#a6adc8",
+      "red": "#f38ba8",
+      "background": "#000000",
+      "post_background": "#000000",
+      "poll_voted_background": "#11111b",
+      "poll_no_vote_background": "#080810",
+      "content_warning_background": "#080810",
+      "input_background": "#11111b",
+      "checkbox_background": "#313244",
+      "button_background": "#11111b",
+      "button_hover_background": "#080810",
+      "button_inverted_background": "#000000",
+      "input_border": "#313244",
+      "checkbox_border": "#313244",
+      "button_border": "#313244",
+      "table_border": "#313244",
+      "gray": "#a6adc8",
+      "accent": {
+        "rosewater": "#f5e0dc",
+        "flamingo": "#f2cdcd",
+        "pink": "#f5c2e7",
+        "mauve": "#cba6f7",
+        "red": "#f38ba8",
+        "maroon": "#eba0ac",
+        "peach": "#fab387",
+        "yellow": "#f9e2af",
+        "green": "#a6e3a1",
+        "teal": "#94e2d5",
+        "sky": "#89dceb",
+        "sapphire": "#74c7ec",
+        "blue": "#89b4fa",
+        "lavender": "#b4befe"
+      }
+    }
+  }
+}
+
+_THEMES_INTERNALS = {
+    "taken": [i for i in THEMES],
+    "map": {
+        "warm": "warm",
+        "dawn": "light",
+        "dusk": "gray",
+        "dark": "dark",
+        "midnight": "black",
+        "black": "oled"
+    }
+}
+
 # stores variable metadata
-_VARIABLES: list[tuple[str, list[str], type | str | list | tuple | dict, bool]] = [
+_VARIABLES: list[tuple[str | None, list[str], type | str | list | tuple | dict, bool]] = [
 #   ["VAR_NAME", keys, type, allow_null]
     ("VERSION", ["version"], str, False),
     ("SITE_NAME", ["site_name"], str, False),
@@ -141,7 +409,8 @@ _VARIABLES: list[tuple[str, list[str], type | str | list | tuple | dict, bool]] 
     ("GOOGLE_VERIFICATION_TAG", ["google_verification_tag"], str, False),
     ("DISCORD", ["discord", "discord_invite"], str, True),
     ("SITEMAP_CACHE_TIMEOUT", ["sitemap_cache_timeout"], int, True),
-    ("GENERIC_CACHE_TIMEOUT", ["generic_cache_timeout"], int, True)
+    ("GENERIC_CACHE_TIMEOUT", ["generic_cache_timeout"], int, True),
+    (None, ["custom_themes"], "theme-object", True)
 ]
 
 f = {}
@@ -153,7 +422,7 @@ except ValueError:
 except FileNotFoundError:
     error("settings.json not found")
 
-def typecheck(obj: Any, expected_type: type | str | list | tuple | dict, allow_null: bool=False) -> bool:
+def typecheck(obj: Any, expected_type: type | str | list | tuple | dict, allow_null: bool=False) -> bool | None:
     # Checks for a custom type format.
     # Lists should always have 0 or 1 indexes, and dicts should always have 0 or 1 keys.
     # If a list is empty, it allows any values. Same with dicts.
@@ -177,6 +446,81 @@ def typecheck(obj: Any, expected_type: type | str | list | tuple | dict, allow_n
 
         if expected_type == "theme":
             return isinstance(obj, str) and obj.lower() in ["dawn", "dusk", "dark", "midnight", "black"]
+
+        if expected_type == "theme-object":
+            if not isinstance(obj, list):
+                return False
+
+            def keycheck(object: dict, type_dict: dict[str, type | Literal["color"]], prefix: str=""):
+                for key, expected in type_dict.items():
+                    if key not in object:
+                        error(f"{prefix}{key} should be in theme definition {object}, discarding")
+                        return False
+                    elif not (isinstance(object[key], str) and bool(re.match(r"^#[0-9a-f]{6}$", object[key])) if expected == "color" else isinstance(object[key], expected)):
+                        error(f"{prefix}{key} should be type {expected} in theme definition {object}, discarding")
+                        return False
+                return True
+
+            for i in obj:
+                if not isinstance(i, dict):
+                    error(f"{i} should be object in theme definition, discarding")
+                    continue
+
+                if not (keycheck(i, {
+                    "name": dict,
+                    "id": str,
+                    "light_theme": bool,
+                    "colors": dict,
+                }) and keycheck(i["name"], {
+                    "default": str
+                }, "name.") and keycheck(i["colors"], {
+                    "text": "color",
+                    "subtext": "color",
+                    "red": "color",
+                    "background": "color",
+                    "post_background": "color",
+                    "poll_no_vote_background": "color",
+                    "poll_voted_background": "color",
+                    "content_warning_background": "color",
+                    "input_background": "color",
+                    "checkbox_background": "color",
+                    "button_background": "color",
+                    "button_hover_background": "color",
+                    "button_inverted_background": "color",
+                    "input_border": "color",
+                    "checkbox_border": "color",
+                    "button_border": "color",
+                    "table_border": "color",
+                    "gray": "color",
+                    "accent": dict
+                }, "colors.") and keycheck(i["colors"]["accent"], {
+                    "rosewater": "color",
+                    "flamingo": "color",
+                    "pink": "color",
+                    "mauve": "color",
+                    "red": "color",
+                    "maroon": "color",
+                    "peach": "color",
+                    "yellow": "color",
+                    "green": "color",
+                    "teal": "color",
+                    "sky": "color",
+                    "sapphire": "color",
+                    "blue": "color",
+                    "lavender": "color"
+                }, "colors.accent.")):
+                    continue
+
+                i["id"] = i["id"].lower()
+
+                if i["id"] in _THEMES_INTERNALS["taken"]:
+                    error(f"Theme with id '{i['id']}' already taken, discarding")
+                    continue
+
+                THEMES[i["id"]] = i
+                _THEMES_INTERNALS["taken"].append(i["id"])
+
+            return None
 
         # Add more special checks when needed
 
@@ -215,9 +559,12 @@ def typecheck(obj: Any, expected_type: type | str | list | tuple | dict, allow_n
 
     return False
 
-def is_ok(val: Any, var: str, t: type | str | list | tuple | dict, null: bool=False):
-    if typecheck(val, t, null):
+def is_ok(val: Any, var: str | None, t: type | str | list | tuple | dict, null: bool=False):
+    if x := typecheck(val, t, null):
         exec(f"global {var}\n{var} = {repr(val)}")
+
+    elif x is None:
+        ...
 
     elif val is not None:
         error(f"{val} should be {t}")
@@ -238,7 +585,7 @@ def clamp(
 
     return val
 
-_var_dict: dict[str, tuple[str, list[str], type | str | list | tuple | dict, bool]] = {}
+_var_dict: dict[str, tuple[str | None, list[str], type | str | list | tuple | dict, bool]] = {}
 for i in _VARIABLES:
     for alias in i[1]:
         _var_dict[alias] = i
@@ -285,13 +632,8 @@ if ENABLE_SITEMAPS and WEBSITE_URL is None:
     ENABLE_SITEMAPS = False
     error("You need to set the website_url setting to enable sitemaps!")
 
-DEFAULT_DARK_THEME = {
-    "dawn": "light", "dusk": "gray", "dark": "dark", "midnight": "black", "black": "oled"
-}[DEFAULT_DARK_THEME.lower()]
-
-DEFAULT_LIGHT_THEME = {
-    "dawn": "light", "dusk": "gray", "dark": "dark", "midnight": "black", "black": "oled"
-}[DEFAULT_LIGHT_THEME.lower()]
+DEFAULT_DARK_THEME = _THEMES_INTERNALS["map"][DEFAULT_DARK_THEME.lower()]
+DEFAULT_LIGHT_THEME = _THEMES_INTERNALS["map"][DEFAULT_LIGHT_THEME.lower()]
 
 for key, val in {
     "signup unsuccessful": 1000,

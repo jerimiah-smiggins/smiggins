@@ -1,5 +1,4 @@
 @import url("fonts.css");
-@import url("theme.css");
 
 ::selection {
   background-color: var(--accent-50);
@@ -15,7 +14,7 @@
 }
 
 body {
-  background-color: var(--base);
+  background-color: var(--background);
   color: var(--text);
   font-family: "Poppins", "Arial";
   padding: 5vh 0;
@@ -46,7 +45,7 @@ hr {
 small {
   display: block;
   font-size: 0.7em;
-  color: var(--subtext0);
+  color: var(--subtext);
 }
 
 noscript {
@@ -65,7 +64,7 @@ noscript ul {
 }
 
 button {
-  background-color: var(--crust);
+  background-color: var(--button-background);
   color: var(--text);
   padding: 5px 7px;
   border: none;
@@ -82,24 +81,24 @@ button:disabled {
 
 button:active {
   scale: 95%;
-  background-color: var(--mantle);
+  background-color: var(--button-hover-background);
 }
 
 button:hover,
 button.inverted:hover {
-  background-color: var(--mantle)
+  background-color: var(--button-hover-background);
 }
 
 button.inverted {
-  background-color: var(--base);;
+  background-color: var(--button-inverted-background);
 }
 
 button.primary,
 button.primary:hover {
   background-color: var(--accent);
-  color: var(--base);
-  border-color: var(--surface0);
-  outline-color: var(--surface0);
+  color: var(--background);
+  border-color: var(--button-border);
+  outline-color: var(--button-border);
 }
 
 .fake-input {
@@ -115,9 +114,9 @@ input:not([type="checkbox"]),
 textarea,
 option,
 select {
-  background-color: var(--crust);
+  background-color: var(--input-background);
   color: var(--text);
-  border: 1.5px solid var(--surface0);
+  border: 1.5px solid var(--input-border);
   margin: -1.5px;
   border-radius: 2px;
   padding: 5px 7px;
@@ -146,14 +145,14 @@ body:not([data-disable-checkboxes]) label:has(+ input[type="checkbox"])::after,
 body:not([data-disable-checkboxes]) input[type="checkbox"] + label::before {
   content: "";
   transition: background-color 0.25s, outline-color 0.25s;
-  background-color: var(--surface0);
+  background-color: var(--checkbox-background);
   display: inline-block;
   position: relative;
   top: 0.1em;
   width: 1em;
   height: 1em;
   border-radius: 0.2em;
-  outline: 1px solid var(--surface1);
+  outline: 1px solid var(--checkbox-border);
 }
 
 label::after {
@@ -187,20 +186,20 @@ select {
 
 input:not([type="checkbox"])::placeholder,
 textarea::placeholder {
-  color: var(--surface2);
+  color: var(--subtext);
   opacity: 100%;
 }
 
 input:not([type="checkbox"]):disabled,
 textarea:disabled {
-  color: var(--subtext0);
+  color: var(--subtext);
   opacity: 1;
   pointer-events: none;
 }
 
 input:not([type="checkbox"]):disabled::placeholder,
 textarea:disabled::placeholder {
-  color: var(--surface1);
+  color: var(--gray);
 }
 
 a:link, a:visited {
@@ -237,7 +236,7 @@ table.bordered {
 
 table.bordered th,
 table.bordered td {
-  border: 1.5px solid var(--surface0);
+  border: 1.5px solid var(--table-border);
 }
 
 .user-badge {
@@ -253,10 +252,6 @@ table.bordered td {
   color: var(--text);
 }
 
-.background:not(svg) {
-  color: var(--base);
-}
-
 .accent:not(svg) {
   color: var(--accent);
 }
@@ -268,11 +263,6 @@ table.bordered td {
 svg.text,
 .text svg {
   fill: var(--text);
-}
-
-svg.background,
-.background svg {
-  fill: var(--base);
 }
 
 svg.accent,
@@ -303,10 +293,6 @@ svg.red,
 
 .right {
   text-align: right;
-}
-
-.invis {
-  opacity: 0;
 }
 
 .hidden {
@@ -357,9 +343,9 @@ body[data-bar-dir="v"][data-bar-pos^="l"] {
 }
 
 .icons {
-  filter: drop-shadow(0 0 5px var(--base))
-          drop-shadow(0 0 5px var(--base))
-          drop-shadow(0 0 3px var(--base));
+  filter: drop-shadow(0 0 5px var(--background))
+          drop-shadow(0 0 5px var(--background))
+          drop-shadow(0 0 3px var(--background));
   display: flex;
   flex-wrap: wrap;
   position: fixed;

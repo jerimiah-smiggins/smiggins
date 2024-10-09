@@ -94,8 +94,8 @@
   "discord_invite": "tH7QnHApwu",
 
   /*
-  ** The default themes for the website. Can be "dawn", "dusk", "dark",
-  ** "midnight", or "black".
+  ** The default themes for the website. Can be "warm", "dawn", "dusk", "dark",
+  ** "midnight", "black", or the id of any custom theme.
   ## Default: "dark" (dark), "dawn" (light)
   */
   "default_dark_theme": "dark",
@@ -291,5 +291,104 @@
   ** the instance isn't accepting any new members
   && Aliases: enable_signup, enable_new_users, enable_new_accounts
   */
-  "enable_new_accounts": true
+  "enable_new_accounts": true,
+
+  /*
+  ** Any custom themes added to your website. Format is as follows:
+  ** {
+  **   "name": {
+  **     "default": "Theme Name",
+  **     // Optional: add more language variants - these get overwritten if there is a version in the language file
+  **     "en-GB": "Theme Name but British"
+  **    }, // Max 100 chars. Doesn't need to be unique.
+  **   "id": "theme-id", // Max 30 chars. Unique, case insensitive. Can't be any of:
+  **                            "custom", "auto", "warm", "light", "gray", "dark", "black", "oled", "dawn", "dusk", "midnight"
+  **   "light_theme": true/false, // Whether or not the theme is a light theme.
+  **   "colors" {
+  **     All of:
+  **     - text
+  **     - subtext
+  **     - red (used for delete/unpin buttons in extended post menu)
+  **     - background
+  **     - post_background
+  **     - content_warning_background
+  **     - input_background
+  **     - checkbox_background (applies to the custom checkboxes)
+  **     - button_background
+  **     - button_hover_background
+  **     - button_inverted_background (Ex: buttons on top of post boxes, uses same hover color)
+  **     - input_border (borders get set to accent when the element is focused/active/etc)
+  **     - checkbox_border
+  **     - button_border
+  **     - gray (used for read notifications/messages)
+  **
+  **     "accent": {
+  **       All of:
+  **       - rosewater
+  **       - flamingo
+  **       - pink
+  **       - mauve
+  **       - red
+  **       - maroon
+  **       - peach
+  **       - yellow
+  **       - green
+  **       - teal
+  **       - sky
+  **       - sapphire
+  **       - blue
+  **       - lavender
+  **     }
+  **
+  **     For these, the value should be a six digit hex code, case insensitive.
+  **     Example:
+  **     "background": "#1e1e2e"
+  **   }
+  ** }
+  */
+  "custom_themes": [
+    {
+      "name": {
+        "default": "Warm 2"
+      },
+      "id": "warm-2",
+      "light_theme": true,
+      "colors": {
+        "text": "#575279",
+        "subtext": "#9893a5",
+        "red": "#a03660",
+        "background": "#faf4ed",
+        "post_background": "#faf4ed",
+        "poll_no_vote_background": "#fffaf3",
+        "poll_voted_background": "#f2e9e1",
+        "content_warning_background": "#fffaf3",
+        "input_background": "#f2e9e1",
+        "checkbox_background": "#f4ede8",
+        "button_background": "#f2e9e1",
+        "button_hover_background": "#fffaf3",
+        "button_inverted_background": "#faf4ed",
+        "input_border": "#f4ede8",
+        "checkbox_border": "#f4ede8",
+        "button_border": "#f4ede8",
+        "table_border": "#f4ede8",
+        "gray": "#9893a5",
+        "accent": {
+          "rosewater": "#d7827e",
+          "flamingo": "#d8707e",
+          "pink": "#e56ed1",
+          "mauve": "#907aa9",
+          "red": "#a03660",
+          "maroon": "#b4637a",
+          "peach": "#ff7322",
+          "yellow": "#ea9d34",
+          "green": "#7fa731",
+          "teal": "#56949f",
+          "sky": "#41a7eb",
+          "sapphire": "#286983",
+          "blue": "#2630c3",
+          "lavender": "#7a51cb"
+        }
+      }
+    }
+  ]
 }

@@ -392,6 +392,7 @@
 
       "cosmetic_themes": {
         "auto": "System",
+        "warm": "Noon",
         "light": "Dawn",
         "gray": "Dusk",
         "dark": "Dark",

@@ -28,6 +28,7 @@
     "ratelimited",
     "notif",
     "notifs",
+    "keycheck",
 
     // Frontend variable names
     "showlog",
