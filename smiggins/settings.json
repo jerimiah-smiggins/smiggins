@@ -348,49 +348,5 @@
   **   }
   ** }
   */
-  "custom_themes": [
-    {
-      "name": {
-        "default": "Warm 2"
-      },
-      "id": "warm-2",
-      "light_theme": true,
-      "colors": {
-        "text": "#575279",
-        "subtext": "#9893a5",
-        "red": "#ff0000",
-        "background": "#faf4ed",
-        "post_background": "#faf4ed",
-        "poll_no_vote_background": "#fffaf3",
-        "poll_voted_background": "#f2e9e1",
-        "content_warning_background": "#fffaf3",
-        "input_background": "#f2e9e1",
-        "checkbox_background": "#f4ede8",
-        "button_background": "#f2e9e1",
-        "button_hover_background": "#fffaf3",
-        "button_inverted_background": "#faf4ed",
-        "input_border": "#f4ede8",
-        "checkbox_border": "#f4ede8",
-        "button_border": "#f4ede8",
-        "table_border": "#f4ede8",
-        "gray": "#9893a5",
-        "accent": {
-          "rosewater": "#d7827e",
-          "flamingo": "#d8707e",
-          "pink": "#e56ed1",
-          "mauve": "#907aa9",
-          "red": "#a03660",
-          "maroon": "#b4637a",
-          "peach": "#ff7322",
-          "yellow": "#ea9d34",
-          "green": "#7fa731",
-          "teal": "#56949f",
-          "sky": "#41a7eb",
-          "sapphire": "#286983",
-          "blue": "#2630c3",
-          "lavender": "#7a51cb"
-        }
-      }
-    }
-  ]
+  "custom_themes": []
 }

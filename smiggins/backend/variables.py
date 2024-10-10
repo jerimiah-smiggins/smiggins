@@ -343,7 +343,7 @@ THEMES = {
 }
 
 _THEMES_INTERNALS = {
-    "taken": [i for i in THEMES],
+    "taken": [i for i in THEMES] + ["auto", "custom"],
     "map": {
         "warm": "warm",
         "dawn": "light",
@@ -593,10 +593,15 @@ for i in _VARIABLES:
     for alias in i[1]:
         _var_dict[alias] = i
 
+_themes_check = []
+
 for key, val in f.items():
     key = key.lower()
-
     if key in _var_dict:
+        if _var_dict[key][2] == "theme":
+            _themes_check.append({"key": key, "val": val})
+            continue
+
         is_ok(val, _var_dict[key][0], _var_dict[key][2], null=_var_dict[key][3])
     else:
         error(f"Unknown setting {key}")
