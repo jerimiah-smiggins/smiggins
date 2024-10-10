@@ -513,6 +513,9 @@ def typecheck(obj: Any, expected_type: type | str | list | tuple | dict, allow_n
 
                 i["id"] = i["id"].lower()
 
+                if len(i["id"]) > 30:
+                    error(f"Theme id '{i['id']}' needs to be less than 30 characters. Truncating to {i['id'] := i['id'][:30]}")
+
                 if i["id"] in _THEMES_INTERNALS["taken"]:
                     error(f"Theme with id '{i['id']}' already taken, discarding")
                     continue

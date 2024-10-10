@@ -297,12 +297,14 @@
   ** Any custom themes added to your website. Format is as follows:
   ** {
   **   "name": {
+  **     // Doesn't need to be unique.
   **     "default": "Theme Name",
   **     // Optional: add more language variants - these get overwritten if there is a version in the language file
   **     "en-GB": "Theme Name but British"
-  **    }, // Max 100 chars. Doesn't need to be unique.
+  **    },
   **   "id": "theme-id", // Max 30 chars. Unique, case insensitive. Can't be any of:
-  **                            "custom", "auto", "warm", "light", "gray", "dark", "black", "oled", "dawn", "dusk", "midnight"
+  **                     // "custom", "auto", "warm", "light", "gray", "dark", "black", "oled", "dawn", "dusk", "midnight"
+  **                     // DO NOT CHANGE once your theme is registered! This is what's stored in the database for users.
   **   "light_theme": true/false, // Whether or not the theme is a light theme.
   **   "colors" {
   **     All of:
@@ -356,7 +358,7 @@
       "colors": {
         "text": "#575279",
         "subtext": "#9893a5",
-        "red": "#a03660",
+        "red": "#ff0000",
         "background": "#faf4ed",
         "post_background": "#faf4ed",
         "poll_no_vote_background": "#fffaf3",

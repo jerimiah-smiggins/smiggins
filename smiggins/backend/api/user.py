@@ -9,7 +9,7 @@ from ..variables import (API_TIMINGS, DEFAULT_BANNER_COLOR,
                          ENABLE_GRADIENT_BANNERS, ENABLE_PRONOUNS,
                          ENABLE_USER_BIOS, MAX_BIO_LENGTH,
                          MAX_DISPL_NAME_LENGTH, MAX_USERNAME_LENGTH,
-                         POSTS_PER_REQUEST, VALID_LANGUAGES)
+                         POSTS_PER_REQUEST, THEMES, VALID_LANGUAGES)
 from .schema import Account, ChangePassword, Settings, Theme, Username
 
 
@@ -138,7 +138,7 @@ def settings_theme(request, data: Theme) -> tuple | dict:
 
     lang = get_lang(user)
 
-    if theme.lower() not in ["auto", "light", "gray", "dark", "black", "oled"]:
+    if theme != "auto" and theme not in THEMES:
         return 400, {
             "success": False,
             "reason": lang["settings"]["cosmetic_theme_invalid"],
@@ -148,7 +148,9 @@ def settings_theme(request, data: Theme) -> tuple | dict:
     user.save()
 
     return {
-        "success": True
+        "success": True,
+        "auto": theme == "auto",
+        "themeJSON": THEMES[theme] if theme in THEMES else None
     }
 
 def settings(request, data: Settings) -> tuple | dict:

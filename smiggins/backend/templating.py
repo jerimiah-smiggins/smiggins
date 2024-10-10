@@ -12,7 +12,7 @@ from .variables import (BADGE_DATA, CACHE_LANGUAGES, CONTACT_INFO, CREDITS,
                         DEFAULT_BANNER_COLOR, DEFAULT_LANGUAGE,
                         ENABLE_GRADIENT_BANNERS, ENABLE_LOGGED_OUT_CONTENT,
                         MAX_CONTENT_WARNING_LENGTH, OWNER_USER_ID, SITE_NAME,
-                        VALID_LANGUAGES)
+                        THEMES, VALID_LANGUAGES)
 
 
 def settings(request) -> HttpResponse:
@@ -21,8 +21,10 @@ def settings(request) -> HttpResponse:
     except User.DoesNotExist:
         return HttpResponseRedirect("/logout/?from=token", status=307)
 
+    lang = get_lang(user)
+
     return get_HTTP_response(
-        request, "settings.html", user=user,
+        request, "settings.html", user=user, lang_override=lang,
 
         DISPLAY_NAME        = user.display_name,
         BANNER_COLOR        = user.color or DEFAULT_BANNER_COLOR,
@@ -42,12 +44,8 @@ def settings(request) -> HttpResponse:
 
         FOLLOWERS_REQUIRE_APPROVAL = str(user.verify_followers).lower(),
 
-        SELECTED_IF_AUTO  = "selected" if user.theme == "auto"  else "",
-        SELECTED_IF_LIGHT = "selected" if user.theme == "light" else "",
-        SELECTED_IF_GRAY  = "selected" if user.theme == "gray"  else "",
-        SELECTED_IF_DARK  = "selected" if user.theme == "dark"  else "",
-        SELECTED_IF_BLACK = "selected" if user.theme == "black" else "",
-        SELECTED_IF_OLED  = "selected" if user.theme == "oled"  else "",
+        themes = [{"id": i, "name": lang["settings"]["cosmetic_themes"][i] if i in lang["settings"]["cosmetic_themes"] else THEMES[i]["name"][user.language if user.language in THEMES[i]["name"] else "default"]} for i in THEMES],
+        user_theme_valid = user.theme in THEMES,
 
         LANGUAGE = user.language or DEFAULT_LANGUAGE,
         LANGUAGES = VALID_LANGUAGES,

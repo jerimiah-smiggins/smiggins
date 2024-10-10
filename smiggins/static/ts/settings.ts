@@ -211,12 +211,15 @@ dom("theme").addEventListener("change", function(): void {
   })
   .then((response: Response) => (response.json()))
   .then((json: {
-    success: boolean
+    success: boolean,
+    auto: boolean,
+    themeJSON?: object
   }) => {
     if (!json.success) {
       showlog(lang.generic.something_went_wrong);
-    }
+    } else {
       dom("theme").removeAttribute("disabled");
+      dom("theme-css").innerHTML = json.auto ? getThemeAuto() : getThemeCSS(json.themeJSON);
 
       if ((dom("theme") as HTMLInputElement).value == "auto") {
         !autoEnabled && autoInit();
@@ -228,11 +231,11 @@ dom("theme").addEventListener("change", function(): void {
           favicon.href = favicon.href.replace(faviconRegex, `/favicons/${(dom("theme") as HTMLInputElement).value}-$2.ico?v=$3`);
         }
       }
-    })
-    .catch((err: Error) => {
-      dom("theme").removeAttribute("disabled");
-      showlog(lang.generic.something_went_wrong);
-    });
+    }
+  }).catch((err: Error) => {
+    dom("theme").removeAttribute("disabled");
+    showlog(lang.generic.something_went_wrong);
+  });
 });
 
 dom("save").addEventListener("click", function(): void {

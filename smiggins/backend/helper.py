@@ -121,9 +121,8 @@ def get_HTTP_response(
         "DEFAULT_DARK_THEME": json_f.dumps(THEMES[DEFAULT_DARK_THEME]),
         "lang": lang,
         "lang_str": json_f.dumps(lang),
-        "theme": None if theme == "auto" else THEMES[theme],
-        "theme_str": "{}" if theme == "auto" else json_f.dumps(THEMES[theme]),
-        "THEME": theme,
+        "theme_str": "{}" if theme == "auto" or theme not in THEMES else json_f.dumps(THEMES[theme]),
+        "THEME": theme if theme in THEMES else "auto",
         "badges": BADGE_DATA,
         "badges_str": json_f.dumps(BADGE_DATA)
     }
