@@ -186,19 +186,21 @@ dom("theme").addEventListener("change", function () {
         if (!json.success) {
             showlog(lang.generic.something_went_wrong);
         }
-        dom("theme").removeAttribute("disabled");
-        if (dom("theme").value == "auto") {
-            !autoEnabled && autoInit();
-        }
         else {
-            autoEnabled && autoCancel();
-            if (!oldFavicon) {
-                document.querySelector("body").setAttribute("data-theme", dom("theme").value);
-                favicon.href = favicon.href.replace(faviconRegex, `/favicons/${dom("theme").value}-$2.ico?v=$3`);
+            dom("theme").removeAttribute("disabled");
+            dom("theme-css").innerHTML = json.auto ? getThemeAuto() : getThemeCSS(json.themeJSON);
+            if (dom("theme").value == "auto") {
+                !autoEnabled && autoInit();
+            }
+            else {
+                autoEnabled && autoCancel();
+                if (!oldFavicon) {
+                    document.querySelector("body").setAttribute("data-theme", dom("theme").value);
+                    favicon.href = favicon.href.replace(faviconRegex, `/favicons/${dom("theme").value}-$2.ico?v=$3`);
+                }
             }
         }
-    })
-        .catch((err) => {
+    }).catch((err) => {
         dom("theme").removeAttribute("disabled");
         showlog(lang.generic.something_went_wrong);
     });
