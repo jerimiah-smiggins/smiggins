@@ -94,8 +94,8 @@
   "discord_invite": "tH7QnHApwu",
 
   /*
-  ** The default themes for the website. Can be "dawn", "dusk", "dark",
-  ** "midnight", or "black".
+  ** The default themes for the website. Can be "warm", "dawn", "dusk", "dark",
+  ** "midnight", "black", or the id of any custom theme.
   ## Default: "dark" (dark), "dawn" (light)
   */
   "default_dark_theme": "dark",
@@ -291,5 +291,62 @@
   ** the instance isn't accepting any new members
   && Aliases: enable_signup, enable_new_users, enable_new_accounts
   */
-  "enable_new_accounts": true
+  "enable_new_accounts": true,
+
+  /*
+  ** Any custom themes added to your website. Format is as follows:
+  ** {
+  **   "name": {
+  **     // Doesn't need to be unique.
+  **     "default": "Theme Name",
+  **     // Optional: add more language variants - these get overwritten if there is a version in the language file
+  **     "en-GB": "Theme Name but British"
+  **    },
+  **   "id": "theme-id", // Max 30 chars. Unique, case insensitive. Can't be any of:
+  **                     // "custom", "auto", "warm", "light", "gray", "dark", "black", "oled", "dawn", "dusk", "midnight"
+  **                     // DO NOT CHANGE once your theme is registered! This is what's stored in the database for users.
+  **   "light_theme": true/false, // Whether or not the theme is a light theme.
+  **   "colors" {
+  **     All of:
+  **     - text
+  **     - subtext
+  **     - red (used for delete/unpin buttons in extended post menu)
+  **     - background
+  **     - post_background
+  **     - content_warning_background
+  **     - input_background
+  **     - checkbox_background (applies to the custom checkboxes)
+  **     - button_background
+  **     - button_hover_background
+  **     - button_inverted_background (Ex: buttons on top of post boxes, uses same hover color)
+  **     - input_border (borders get set to accent when the element is focused/active/etc)
+  **     - checkbox_border
+  **     - button_border
+  **     - gray (used for read notifications/messages)
+  **
+  **     "accent": {
+  **       All of:
+  **       - rosewater
+  **       - flamingo
+  **       - pink
+  **       - mauve
+  **       - red
+  **       - maroon
+  **       - peach
+  **       - yellow
+  **       - green
+  **       - teal
+  **       - sky
+  **       - sapphire
+  **       - blue
+  **       - lavender
+  **     }
+  **
+  **     For these, the value should be a six digit hex code, case insensitive.
+  **     Example:
+  **     "background": "#1e1e2e"
+  **   }
+  ** }
+  */
+  "custom_themes": []
 }

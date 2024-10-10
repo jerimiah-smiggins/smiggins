@@ -1,7 +1,7 @@
 .messages-container {
   width: calc(100vw - 2em);
   max-width: 40em;
-  background-color: var(--mantle);
+  background-color: var(--button-hover-background);
   border-radius: 0.25em;
   margin: 0 auto;
   padding: 1em;
@@ -41,7 +41,7 @@
 }
 
 .message.receive div {
-  background-color: var(--surface0);
+  background-color: var(--table-border);
   border-radius: 0.6em 0.6em 0.6em 0;
 }
 
@@ -53,17 +53,17 @@
 .message.send div {
   text-align: left;
   background-color: var(--accent);
-  color: var(--base);
+  color: var(--background);
   border-radius: 0.6em 0.6em 0 0.6em;
 }
 
 .message.send div::selection {
-  background-color: var(--subtext0);
-  color: var(--base);
+  background-color: var(--gray);
+  color: var(--background);
 }
 
 .message.send div > a {
-  color: var(--crust);
+  color: var(--background);
   text-decoration: underline;
 }
 
@@ -75,11 +75,9 @@
 }
 
 .header-container h1 {
-  text-shadow: 0 0 20px var(--crust), 0 0 19px var(--crust),
-               0 0 18px var(--crust), 0 0 17px var(--crust),
-               0 0 16px var(--crust), 0 0 15px var(--crust),
-               0 0 14px var(--crust), 0 0 13px var(--crust),
-               0 0 12px var(--crust), 0 0 11px var(--crust);
+  filter: drop-shadow(0 0 5px var(--background))
+          drop-shadow(0 0 5px var(--background))
+          drop-shadow(0 0 3px var(--background));
 }
 
 #your-mom {

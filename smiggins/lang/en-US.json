@@ -392,6 +392,7 @@
 
       "cosmetic_themes": {
         "auto": "System",
+        "warm": "Noon",
         "light": "Dawn",
         "gray": "Dusk",
         "dark": "Dark",
@@ -441,7 +442,7 @@
     "user_page": {
       "followers": "Followers: %s",
       "following": "Following: %s",
-      "user_on_smiggins": "%s on %t", // Ex: gerard on Twitter Clone (this would be if the site name is set to "Twitter Clone" and the user's display name is "gerard")
+      "user_on_smiggins": "%s on %t", // Ex: gerard on Smiggins (this would be if the site name is set to "Smiggins" and the user's display name is "gerard")
       "follow": "Follow",
       "unfollow": "Unfollow",
       "pending": "Pending",
@@ -532,6 +533,10 @@
       "unknown": "Unknown",
 
       "changes": {
+        "v0.13.1": {
+          "1": "Made /api/docs slightly better",
+          "2": "Content warnings now cover polls and quotes again"
+        },
         "v0.13.0": {
           "1": "Fixed a bug that caused content warnings to not be properly escaped",
           "2": "Added editing posts",

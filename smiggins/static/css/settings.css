@@ -28,12 +28,6 @@ hr {
   background: linear-gradient(90deg, var(--banner), var(--banner-two));
 }
 
-.post-container {
-  padding: 1em;
-  background-color: var(--base);
-  border-radius: 0.5em;
-}
-
 .post {
   margin: 0px;
 }
