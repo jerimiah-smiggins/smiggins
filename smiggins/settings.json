@@ -90,7 +90,7 @@
   */
   "debug": true,
 
-  // The maximum of lines of logs to store in the admin file at once. 1+
+  // The maximum of lines of logs to store in the database at once. 1+
   "max_admin_log_lines": 1000,
 
   /*

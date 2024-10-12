@@ -57,7 +57,7 @@ admin rewrite
 ```diff
 - admin.level
 - settings.cosmetic_no_css
-- settings.comsetic_no_css_warning
+- settings.cosmetic_no_css_warning
 + admin.permissions.title
 + admin.permissions.error
 + admin.permissions.invalid
@@ -70,7 +70,7 @@ admin rewrite
 + admin.logs.who_format_single
 + post.more
 + post.edit
-+ settings.comsetic_themes.auto
++ settings.cosmetic_themes.auto
 + changelogs.changes.v0.13.0 {1, 2, 3, 4, 5, 6, 7}
 admin.post_deletion_title -> admin.post_deletion.title
 admin.post_deletion_button -> admin.post_deletion.button

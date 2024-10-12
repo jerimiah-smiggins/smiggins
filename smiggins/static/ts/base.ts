@@ -198,7 +198,7 @@ function getPostHTML(
         ${includeUserLink ? "</a>" : "</span>"}
       </div>
 
-      <div class="main-area-afjdkaslfjalksdjf">
+      <div class="main-area">
         ${postJSON.c_warning ? `<details class="c-warning">` : ""}
         ${postJSON.c_warning ? `<summary>${escapeHTML(postJSON.c_warning)}</summary>` : ""}
         <div class="main-content">

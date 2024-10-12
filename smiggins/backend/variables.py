@@ -26,7 +26,7 @@ CREDITS: dict[str, list[str]] = {
 }
 
 # Set default variable states
-REAL_VERSION: tuple[int, int, int] = (0, 13, 0)
+REAL_VERSION: tuple[int, int, int] = (0, 13, 1)
 VERSION: str = ".".join([str(i) for i in REAL_VERSION])
 SITE_NAME: str = "Jerimiah Smiggins"
 WEBSITE_URL: str | None = None
@@ -699,15 +699,17 @@ User-agent: Google-Extended
 User-agent: GoogleOther
 User-agent: GoogleOther-Image
 User-agent: GoogleOther-Video
-User-agent: iaskspider/2.0
 User-agent: ICC-Crawler
+User-agent: ISSCyberRiskCrawler
 User-agent: ImagesiftBot
+User-agent: Kangaroo Bot
 User-agent: Meta-ExternalAgent
 User-agent: Meta-ExternalFetcher
 User-agent: OAI-SearchBot
 User-agent: PerplexityBot
 User-agent: PetalBot
 User-agent: Scrapy
+User-agent: Sidetrade indexer bot
 User-agent: Timpibot
 User-agent: VelenPublicWebCrawler
 User-agent: Webzio-Extended
@@ -715,6 +717,7 @@ User-agent: YouBot
 User-agent: anthropic-ai
 User-agent: cohere-ai
 User-agent: facebookexternalhit
+User-agent: iaskspider/2.0
 User-agent: img2dataset
 User-agent: omgili
 User-agent: omgilibot

@@ -2,6 +2,7 @@
 
 from django.db import migrations, models
 
+
 class Migration(migrations.Migration):
     dependencies = [
         ("posts", "0041_rename_reason_urlpart_intent_urlpart_extra_data")

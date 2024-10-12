@@ -1,13 +1,13 @@
 {
   "python.analysis.typeCheckingMode": "basic",
 
-  "[markdown]": {
-    "editor.rulers": [80]
-  },
-
   "editor.tabSize": 2,
   "[python]": {
       "editor.tabSize": 4
+  },
+
+  "[markdown]": {
+    "editor.rulers": [80]
   },
 
   "files.associations": {
@@ -16,100 +16,21 @@
 
   "files.eol": "\n",
 
-  "cSpell.ignoreWords": [
-    // Site name
-    "jerimiah",
-    "smiggins",
-
-    // Backend variable names
-    "subcomment",
-    "displ",
-    "ratelimit",
-    "ratelimited",
-    "notif",
-    "notifs",
-    "keycheck",
-
-    // Frontend variable names
-    "showlog",
-    "maxlength",
-    "accs",
-
-    // Strings that get detected as words
-    "sfjl",
-    "gbdjm",
-    "nkcdd",
-    "ufeff",
-
-    // Esperanto words not found in the default cspell dictionary or that were cut off by escaping
-    "detikedo",
-    "retpa",
-    "danje",
-    "refre",
-    "cargu",
-    "dtanbrunan",
-    "dajne",
-    "monanto",
-    "insigniaj",
-    "monantoj",
-    "insignioj",
-    "insignio",
-    "dargu",
-    "kont",
-    "dilo",
-    "dtipoj",
-    "dargi",
-    "ankora",
-    "anstata",
-    "dojn",
-    "mensiis",
-    "catojn",
-    "nesvaligdeg",
-    "cosmetika",
-    "vailida",
-    "caltanto",
-    "caltilo",
-    "elsalutu",
-    "dprotokolo",
-
-    // Stuff in backend docs
-    "makemigrations",
-    "addsuperuser",
-    "collectstatic",
-    "wsgi",
-    "signup",
-    "ratelimits",
-    "kwargs",
-    "catperson",
-    "traceback",
-    "asgi",
-
-    // Other
-    "trinkey",
-    "breaadyboy",
-    "catppuccin",
-    "soemthing",
-    "insvalagaeg",
-    "vailid",
-    "hitboxes",
-    "noreply",
-    "canadien",
-    "noscript",
-    "typecheck",
-    "venv"
-  ],
+  "cSpell.words": ["accs", "adminlog", "ankora", "anstata", "applebot", "apwu", "asgi", "bolditalic", "breaadyboy", "bytespider", "cairosvg", "caltanto", "caltilo", "canadien", "cargu", "catojn", "cosmetika", "dajne", "dargi", "dargu", "detikedo", "diffbot", "dilo", "displ", "dojn", "dolma", "dprotokolo", "dtanbrunan", "dtipoj", "elsalutu", "facebookexternalhit", "fontawesome", "gbdjm", "hitboxes", "iaskspider", "imagesift", "insigniaj", "insignio", "insignioj", "isinstance", "jerimiah", "keycheck", "kont", "linkifyjs", "maxlength", "mensiis", "monanto", "monantoj", "nesvaligdeg", "nkcdd", "noreply", "noscript", "notif", "notifs", "omgili", "omgilibot", "privatemessagecontainer", "ratelimited", "ratelimits", "refre", "retpa", "sfjl", "showlog", "sidetrade", "signup", "smiggins", "stmp", "subcomment", "timpibot", "typecheck", "ufeff", "unlikes", "urlpart", "vailida", "webzio"],
 
   "cSpell.ignorePaths": [
     ".vscode/"
   ],
 
-  "cSpell.language": "en,en-GB,en-US,lorem,eo",
+  "cSpell.language": "en,en-GB,en-US,eo",
 
   "typescript.inlayHints.propertyDeclarationTypes.enabled": true,
   "typescript.inlayHints.variableTypes.enabled": true,
   "typescript.inlayHints.parameterTypes.enabled": true,
   "typescript.inlayHints.functionLikeReturnTypes.enabled": true,
-  "cSpell.words": [
-    "linkifyjs"
-  ],
+
+  "isort.check": true,
+  "isort.severity": {
+      "E": "Warning"
+  },
 }

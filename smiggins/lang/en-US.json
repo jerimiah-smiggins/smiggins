@@ -344,10 +344,10 @@
     "post": {
       "invalid_length": "Invalid post length. Must be between 1 and %s characters.",
       "invalid_comment_id": "Idk your id is not right at all",
-      "comment_id_does_not_exist": "Your id broke soemthing owo",
+      "comment_id_does_not_exist": "Your id broke something owo",
       "invalid_quote_post": "The post you're quoting doesn't exist!",
       "invalid_quote_comment": "The comment you're quoting doesn't exist!",
-      "invalid_username": "Username is insvalagaeg... LOOK JUST SHUT UP",
+      "invalid_username": "Username is invalid",
       "invalid_poll": "The poll needs to have at least two options!",
       "type_public": "Public",
       "type_followers_only": "Followers only",
@@ -388,8 +388,9 @@
       "profile_followers_approval": "Manually approve followers?",
 
       "cosmetic_title": "Cosmetic",
-      "cosmetic_theme": "Theme",
 
+      "cosmetic_theme": "Theme",
+      "cosmetic_theme_invalid": "That's not a valid theme, idiot.",
       "cosmetic_themes": {
         "auto": "System",
         "warm": "Noon",
@@ -400,7 +401,6 @@
         "oled": "Black"
       },
 
-      "cosmetic_theme_invalid": "That's not a vailid theme, idiot.",
       "cosmetic_bar": "Icon bar positioning",
       "cosmetic_bar_position": "Position:",
       "cosmetic_bar_direction": "Direction:",
