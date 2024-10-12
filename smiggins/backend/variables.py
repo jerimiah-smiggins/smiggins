@@ -222,6 +222,48 @@ THEMES = {
       }
     }
   },
+  "purple": {
+    "name": {
+      "default": "Sunset"
+    },
+    "id": "purple",
+    "colors": {
+      "text": "#dadada",
+      "subtext": "#7d747a",
+      "red": "#d67677",
+      "background": "#190b14",
+      "post_background": "#200e19",
+      "poll_voted_background": "#3b2433",
+      "poll_no_vote_background": "#2b1a25",
+      "content_warning_background": "#2b1a25",
+      "input_background": "#2e1425",
+      "checkbox_background": "#2e1425",
+      "button_background": "#3c1a30",
+      "button_hover_background": "#5e2a4e",
+      "button_inverted_background": "#190b14",
+      "input_border": "#31202b",
+      "checkbox_border": "#31202b",
+      "button_border": "#31202b",
+      "table_border": "#31202b",
+      "gray": "#687390",
+      "accent": {
+        "rosewater": "#f4dbd6",
+        "flamingo": "#f0c6c6",
+        "pink": "#d8a4c6",
+        "mauve": "#c486da",
+        "red": "#d67677",
+        "maroon": "#ee99a0",
+        "peach": "#ffb675",
+        "yellow": "#d3d381",
+        "green": "#86b300",
+        "teal": "#229e82",
+        "sky": "#31b1ce",
+        "sapphire": "#56a4b6",
+        "blue": "#56a4e8",
+        "lavender": "#cea4da"
+      }
+    }
+  },
   "dark": {
     "name": {
       "default": "Dark"
@@ -353,10 +395,11 @@ THEMES = {
 _THEMES_INTERNALS = {
     "taken": [i for i in THEMES] + ["auto", "custom"],
     "map": {
-        "warm": "warm",
+        "noon": "warm",
         "dawn": "light",
         "dusk": "gray",
         "dark": "dark",
+        "sunset": "purple",
         "midnight": "black",
         "black": "oled"
     }
@@ -455,7 +498,7 @@ def typecheck(obj: Any, expected_type: type | str | list | tuple | dict, allow_n
             return isinstance(obj, str) and bool(re.match(r"^#[0-9a-f]{6}$", obj))
 
         if expected_type == "theme":
-            return isinstance(obj, str) and obj.lower() in ["dawn", "dusk", "dark", "midnight", "black"]
+            return isinstance(obj, str) and obj.lower() in _THEMES_INTERNALS["map"]
 
         if expected_type == "theme-object":
             if not isinstance(obj, list):
@@ -616,7 +659,10 @@ for key, val in f.items():
     else:
         error(f"Unknown setting {key}")
 
-del _VARIABLES, _var_dict
+for i in _themes_check:
+    is_ok(i["val"], _var_dict[i["key"]][0], _var_dict[i["key"]][2], null=_var_dict[i["key"]][3])
+
+del _VARIABLES, _var_dict, _themes_check
 
 MAX_ADMIN_LOG_LINES = clamp(MAX_ADMIN_LOG_LINES, minimum=1)
 MAX_USERNAME_LENGTH = clamp(MAX_USERNAME_LENGTH, minimum=1, maximum=200)

@@ -396,6 +396,7 @@
         "warm": "Noon",
         "light": "Dawn",
         "gray": "Dusk",
+        "purple": "Sunset",
         "dark": "Dark",
         "black": "Midnight",
         "oled": "Black"
@@ -536,7 +537,8 @@
         "v0.13.1": {
           "1": "Made /api/docs slightly better",
           "2": "Content warnings now cover polls and quotes again",
-          "3": "Added a way to add new custom themes in the backend configuration"
+          "3": "Added a way to add new custom themes in the backend configuration",
+          "4": "Added two new default themes"
         },
         "v0.13.0": {
           "1": "Fixed a bug that caused content warnings to not be properly escaped",

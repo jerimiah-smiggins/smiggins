@@ -111,12 +111,12 @@
   "discord_invite": "tH7QnHApwu",
 
   /*
-  ** The default themes for the website. Can be "warm", "dawn", "dusk", "dark",
-  ** "midnight", "black", or the id of any custom theme.
+  ** The default themes for the website. Can be "noon", "dawn", "dusk", "dark",
+  ** "sunset", "midnight", "black", or the id of any custom theme.
   ## Default: "dark" (dark), "dawn" (light)
   */
   "default_dark_theme": "dark",
-  "default_light_theme": "dawn",
+  "default_light_theme": "noon",
 
   /*
   ** Whether or not to cache languages. If this is on, then more ram will be

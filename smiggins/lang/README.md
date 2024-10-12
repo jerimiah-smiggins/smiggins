@@ -56,7 +56,8 @@ custom themes
 
 ```diff
 + settings.cosmetic_themes.warm
-+ changelog.changes.v0.13.1 {1, 2, 3}
++ settings.cosmetic_themes.purple
++ changelog.changes.v0.13.1 {1, 2, 3, 4}
 # Fix spelling
 post.comment_id_does_not_exist
 post.invalid_username
