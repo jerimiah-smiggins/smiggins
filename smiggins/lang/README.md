@@ -51,6 +51,20 @@ to the `maintainers` section
 Updates for each language version are listed below:
 
 <details>
+<summary>v1.8.1</summary>
+custom themes
+
+```diff
++ settings.cosmetic_themes.warm
++ changelog.changes.v0.13.1 {1, 2, 3}
+# Fix spelling
+post.comment_id_does_not_exist
+post.invalid_username
+settings.cosmetic_theme_invalid
+```
+</details>
+
+<details>
 <summary>v1.8.0</summary>
 admin rewrite
 

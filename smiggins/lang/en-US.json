@@ -2,7 +2,7 @@
   "meta": {
     "fallback": [],
     "name": "English (United States)",
-    "version": "1.8.0",
+    "version": "1.8.1",
     "maintainers": ["trinkey"],
     "past_maintainers": []
   },
@@ -535,7 +535,8 @@
       "changes": {
         "v0.13.1": {
           "1": "Made /api/docs slightly better",
-          "2": "Content warnings now cover polls and quotes again"
+          "2": "Content warnings now cover polls and quotes again",
+          "3": "Added a way to add new custom themes in the backend configuration"
         },
         "v0.13.0": {
           "1": "Fixed a bug that caused content warnings to not be properly escaped",
