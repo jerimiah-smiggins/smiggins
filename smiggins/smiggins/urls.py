@@ -3,22 +3,23 @@ from backend.api.email import test_link as test_email
 from backend.helper import create_simple_return
 from backend.sitemaps import (sitemap_base, sitemap_index, sitemap_post,
                               sitemap_user)
-from backend.templating import (admin, comment, contact, credit, hashtag,
-                                message, pending, post, settings, user,
-                                user_lists)
-from backend.variables import (CONTACT_INFO, DEBUG, DEFAULT_DARK_THEME,
-                               ENABLE_CHANGELOG_PAGE, ENABLE_CONTACT_PAGE,
-                               ENABLE_CREDITS_PAGE, ENABLE_EMAIL,
-                               ENABLE_HASHTAGS, ENABLE_PRIVATE_MESSAGES,
-                               ENABLE_SITEMAPS, GENERIC_CACHE_TIMEOUT,
+from backend.templating import (admin, comment, contact, credit,
+                                generate_favicon, hashtag, message, pending,
+                                post, settings, user, user_lists)
+from backend.variables import (CONTACT_INFO, DEBUG, ENABLE_CHANGELOG_PAGE,
+                               ENABLE_CONTACT_PAGE, ENABLE_CREDITS_PAGE,
+                               ENABLE_EMAIL, ENABLE_HASHTAGS,
+                               ENABLE_PRIVATE_MESSAGES, ENABLE_SITEMAPS,
+                               FAVICON_CACHE_TIMEOUT, GENERIC_CACHE_TIMEOUT,
                                REAL_VERSION, ROBOTS, SITEMAP_CACHE_TIMEOUT)
 from django.contrib import admin as django_admin
 from django.contrib.admin.exceptions import AlreadyRegistered  # type: ignore
 from django.http import HttpResponseRedirect
-from django.urls import include, path
+from django.urls import include, path, re_path
 from django.views.decorators.cache import cache_page
-from posts.models import (Badge, Comment, Hashtag, Notification, Post,
-                          PrivateMessage, PrivateMessageContainer, User)
+from posts.models import (AdminLog, Badge, Comment, Hashtag, Notification,
+                          Post, PrivateMessage, PrivateMessageContainer,
+                          URLPart, User)
 
 try:
     django_admin.site.register(User)
@@ -29,13 +30,15 @@ try:
     django_admin.site.register(PrivateMessageContainer)
     django_admin.site.register(PrivateMessage)
     django_admin.site.register(Hashtag)
+    django_admin.site.register(URLPart)
+    django_admin.site.register(AdminLog)
 except AlreadyRegistered:
     ...
 
 cache_prefix = ".".join([str(i) for i in REAL_VERSION])
 
 # variables to reduce code duplication
-_favicon = lambda request: HttpResponseRedirect(f"/static/img/favicons/{DEFAULT_DARK_THEME}-mauve.ico", status=308) # noqa: E731
+_favicon = lambda request: HttpResponseRedirect("/static/img/old_favicon.ico", status=308) # noqa: E731
 _robots_txt = create_simple_return("", content_type="text/plain", content_override=ROBOTS)
 _security_txt = create_simple_return("", content_type="text/plain", content_override="\n".join([{"email": "Email", "text": "Other", "url": "Link"}[i[0]] + f": {i[1]}" for i in CONTACT_INFO]) + "\n")
 
@@ -70,6 +73,9 @@ urlpatterns = list(filter(bool, [
     path("admin/", admin),
     path("django-admin/", django_admin.site.urls),
 
+    #                 base   crust  accent
+    #        /favicon-abcdef-123456-987654
+    re_path(r"^favicon-((?:[0-9a-fA-F]{6}-){2}[0-9a-fA-F]{6})$", cache_page(FAVICON_CACHE_TIMEOUT, key_prefix=cache_prefix)(generate_favicon) if FAVICON_CACHE_TIMEOUT else generate_favicon),
     path("favicon.ico", cache_page(GENERIC_CACHE_TIMEOUT, key_prefix=cache_prefix)(_favicon) if GENERIC_CACHE_TIMEOUT else _favicon),
     path("robots.txt", cache_page(GENERIC_CACHE_TIMEOUT, key_prefix=cache_prefix)(_robots_txt) if GENERIC_CACHE_TIMEOUT else _robots_txt),
     path(".well-known/security.txt", cache_page(GENERIC_CACHE_TIMEOUT, key_prefix=cache_prefix)(_security_txt) if GENERIC_CACHE_TIMEOUT else _security_txt),

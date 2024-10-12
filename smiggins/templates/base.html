@@ -36,6 +36,19 @@
       const defaultPrivate = {{ DEFAULT_PRIVATE }};
 
       function getThemeAuto(defLight=JSON.parse('{{ DEFAULT_LIGHT_THEME|escapejs }}'), defDark=JSON.parse('{{ DEFAULT_DARK_THEME|escapejs }}')) {
+        _autoColors = {
+          dark: {
+            background: defDark.colors.background,
+            background_alt: defDark.colors.button_background,
+            accents: defDark.colors.accent
+          },
+          light: {
+            background: defLight.colors.background,
+            background_alt: defLight.colors.button_background,
+            accents: defLight.colors.accent
+          }
+        }
+
         return `${getThemeCSS(defDark)} @media (prefers-color-scheme: light) { ${getThemeCSS(defLight)} }`
       }
 
@@ -78,9 +91,14 @@
         [data-color="lavender"] { --accent: ${ theme.colors.accent.lavender }; --accent-50: ${ theme.colors.accent.lavender }80; }`;
       }
 
+      let themeObject;
+      let _autoColors;
+
       if ("{{ THEME|escapejs }}" !== "auto") {
-        document.getElementById("theme-css").innerHTML = getThemeCSS(JSON.parse('{{ theme_str|escapejs }}'));
+        themeObject = JSON.parse('{{ theme_str|escapejs }}');
+        document.getElementById("theme-css").innerHTML = getThemeCSS(themeObject);
       } else {
+        themeObject = null;
         document.getElementById("theme-css").innerHTML = getThemeAuto();
       }
     </script>
@@ -128,51 +146,55 @@
       let oldFavicon = !!localStorage.getItem("old-favicon");
 
       // theme normalization when set to automatic
-      function _updateAuto(event) {
-        autoSetFavicon()
-        // document.body.setAttribute("data-theme", event.matches ? "{{ DEFAULT_LIGHT_THEME }}" : "{{ DEFAULT_DARK_THEME }}");
-      }
-
       function autoSetFavicon() {
-        // favicon.href = `{% static "/img/favicons/" %}${event.matches ? "{{ DEFAULT_LIGHT_THEME }}" : "{{ DEFAULT_DARK_THEME }}"}-${validColors.indexOf(localStorage.getItem("color")) == -1 ? "mauve" : localStorage.getItem("color")}.ico?v={{ VERSION }}`;
+        if (oldFavicon) { return };
+
+        let obj;
+        if (_autoMM.matches) {
+          obj = _autoColors.light;
+        } else {
+          obj = _autoColors.dark;
+        }
+
+        favicon.href = `/favicon-${obj.background}-${obj.background_alt}-${obj.accents[validColors.indexOf(localStorage.getItem("color")) == -1 ? "mauve" : localStorage.getItem("color")]}`.replaceAll("#", "");
       }
 
       function autoInit() {
         autoEnabled = true;
-
-        if (_autoMM.matches) {
-          // document.body.setAttribute("data-theme", "{{ DEFAULT_LIGHT_THEME }}");
-        } else {
-          // document.body.setAttribute("data-theme", "{{ DEFAULT_DARK_THEME }}");
-        }
-
-        if (!oldFavicon) {
-          favicon.href = `{% static "/img/favicons/" %}${document.body.getAttribute("data-theme")}-${validColors.indexOf(localStorage.getItem("color")) == -1 ? "mauve" : localStorage.getItem("color")}.ico?v={{ VERSION }}`;
-        }
-
-        _autoMM.addEventListener("change", _updateAuto);
+        autoSetFavicon();
+        _autoMM.addEventListener("change", autoSetFavicon);
       }
 
       function autoCancel() {
         autoEnabled = false;
-        _autoMM.removeEventListener("change", _updateAuto);
+        _autoMM.removeEventListener("change", autoSetFavicon);
+      }
+
+      function setOldFavicon() {
+        favicon.href = "{% static "/img/old_favicon.ico" %}?v={{ VERSION }}";
+      }
+
+      function setGenericFavicon() {
+        favicon.href = `/favicon-${themeObject.colors.background}-${themeObject.colors.button_background}-${themeObject.colors.accent[validColors.indexOf(localStorage.getItem("color")) == -1 ? "mauve" : localStorage.getItem("color")]}`.replaceAll("#", "");
       }
 
       let autoEnabled = false;
       let _autoMM = matchMedia("(prefers-color-scheme: light)");
 
-      if ("{{ THEME }}" == "auto") {
+      if ("{{ THEME|escapejs }}" == "auto") {
         autoInit();
       }
 
       // set proper favicon
       favicon.rel = "icon";
-      favicon.type = "image/x-icon";
+      favicon.type = "image/png";
 
       if (oldFavicon) {
-        favicon.href = "{% static "/img/old_favicon.ico" %}?v={{ VERSION }}";
+        setOldFavicon()
+      } else if (autoEnabled) {
+        autoInit();
       } else {
-        favicon.href = `{% static "/img/favicons/" %}{{ THEME }}-${validColors.indexOf(localStorage.getItem("color")) == -1 ? "mauve" : localStorage.getItem("color")}.ico?v={{ VERSION }}`;
+        favicon.href = `/favicon-${themeObject.colors.background}-${themeObject.colors.button_background}-${themeObject.colors.accent[validColors.indexOf(localStorage.getItem("color")) == -1 ? "mauve" : localStorage.getItem("color")]}`.replaceAll("#", "");
       }
 
       document.head.append(favicon);

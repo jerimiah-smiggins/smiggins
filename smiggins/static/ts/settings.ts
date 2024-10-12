@@ -1,10 +1,6 @@
 declare let user_pronouns: string;
 declare let hasEmail: boolean;
 
-let faviconRegex: RegExp = /\/favicons\/([a-z]+)-([a-z]+)\.ico\?v=(.*)$/;
-let oldFaviconRegex: RegExp = /\/old_favicon.ico\?v=(.*)$/;
-let newFaviconRegex: RegExp = /\/favicons\/[a-z]+-[a-z]+\.ico\?v=(.*)$/;
-
 inc = 0;
 home = true;
 
@@ -153,13 +149,13 @@ dom("old-favi").addEventListener("input", function(): void {
   oldFavicon = (this as HTMLInputElement).checked;
   if (oldFavicon) {
     localStorage.setItem("old-favicon", "1");
-    favicon.href = favicon.href.replace(newFaviconRegex, "/old_favicon.ico?v=$1");
+    setOldFavicon();
   } else {
     localStorage.removeItem("old-favicon");
-    if ((dom("theme") as HTMLInputElement).value == "auto") {
+    if (autoEnabled) {
       autoSetFavicon();
     } else {
-      favicon.href = favicon.href.replace(oldFaviconRegex, `/favicons/${(dom("theme") as HTMLInputElement).value}-${(dom("color") as HTMLInputElement).value}.ico?v=$1`);
+      setGenericFavicon();
     }
   }
 });
@@ -170,7 +166,7 @@ dom("color").addEventListener("change", function(): void {
     document.body.setAttribute('data-color', (dom("color") as HTMLInputElement).value);
 
     if (!oldFavicon) {
-      favicon.href = favicon.href.replace(faviconRegex, `/favicons/$1-${(dom("color") as HTMLInputElement).value}.ico?v=$3`);
+      setGenericFavicon();
     }
 });
 
@@ -213,7 +209,7 @@ dom("theme").addEventListener("change", function(): void {
   .then((json: {
     success: boolean,
     auto: boolean,
-    themeJSON?: object
+    themeJSON?: _themeObject
   }) => {
     if (!json.success) {
       showlog(lang.generic.something_went_wrong);
@@ -223,12 +219,13 @@ dom("theme").addEventListener("change", function(): void {
 
       if ((dom("theme") as HTMLInputElement).value == "auto") {
         !autoEnabled && autoInit();
+        themeObject = null;
       } else {
         autoEnabled && autoCancel();
+        themeObject = json.themeJSON;
 
         if (!oldFavicon) {
-          document.querySelector("body").setAttribute("data-theme", (dom("theme") as HTMLInputElement).value);
-          favicon.href = favicon.href.replace(faviconRegex, `/favicons/${(dom("theme") as HTMLInputElement).value}-$2.ico?v=$3`);
+          setGenericFavicon();
         }
       }
     }

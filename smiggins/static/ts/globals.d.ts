@@ -29,8 +29,11 @@ declare function linkifyHtml(text: string, settings: object): string;
 declare function autoInit(): void;
 declare function autoCancel(): void;
 declare function autoSetFavicon(): void;
+declare function setOldFavicon(): void;
+declare function setGenericFavicon(): void;
 declare function getThemeCSS(theme: object): string;
 declare function getThemeAuto(defLight?: object, defDark?: object): string;
+declare let themeObject: _themeObject | null;
 
 declare const autoEnabled: boolean;
 
@@ -86,3 +89,45 @@ type _postJSON = {
   has_quote?: boolean,
   blocked_by_self?: boolean
 };
+
+type _themeObject = {
+  name: {
+    default: string,
+    [key: string]: string | null
+  },
+  id: string,
+  light_theme: boolean,
+  colors: {
+    text: string,
+    subtext: string,
+    red: string,
+    background: string,
+    post_background: string,
+    content_warning_background: string,
+    input_background: string,
+    checkbox_background: string,
+    button_background: string,
+    button_hover_background: string,
+    button_inverted_background: string,
+    input_border: string,
+    checkbox_border: string,
+    button_border: string,
+    gray: string,
+    accent: {
+      rosewater: string,
+      flamingo: string,
+      pink: string,
+      mauve: string,
+      red: string,
+      maroon: string,
+      peach: string,
+      yellow: string,
+      green: string,
+      teal: string,
+      sky: string,
+      sapphire: string,
+      blue: string,
+      lavender: string
+    }
+  }
+}
