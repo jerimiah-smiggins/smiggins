@@ -1,6 +1,3 @@
-let faviconRegex = /\/favicons\/([a-z]+)-([a-z]+)\.ico\?v=(.*)$/;
-let oldFaviconRegex = /\/old_favicon.ico\?v=(.*)$/;
-let newFaviconRegex = /\/favicons\/[a-z]+-[a-z]+\.ico\?v=(.*)$/;
 inc = 0;
 home = true;
 let output = "<select id=\"color\">";
@@ -129,15 +126,15 @@ dom("old-favi").addEventListener("input", function () {
     oldFavicon = this.checked;
     if (oldFavicon) {
         localStorage.setItem("old-favicon", "1");
-        favicon.href = favicon.href.replace(newFaviconRegex, "/old_favicon.ico?v=$1");
+        setOldFavicon();
     }
     else {
         localStorage.removeItem("old-favicon");
-        if (dom("theme").value == "auto") {
+        if (autoEnabled) {
             autoSetFavicon();
         }
         else {
-            favicon.href = favicon.href.replace(oldFaviconRegex, `/favicons/${dom("theme").value}-${dom("color").value}.ico?v=$1`);
+            setGenericFavicon();
         }
     }
 });
@@ -146,7 +143,7 @@ dom("color").addEventListener("change", function () {
     localStorage.setItem("color", dom("color").value);
     document.body.setAttribute('data-color', dom("color").value);
     if (!oldFavicon) {
-        favicon.href = favicon.href.replace(faviconRegex, `/favicons/$1-${dom("color").value}.ico?v=$3`);
+        setGenericFavicon();
     }
 });
 dom("bar-pos").value = localStorage.getItem("bar-pos") || "ul";
@@ -186,19 +183,22 @@ dom("theme").addEventListener("change", function () {
         if (!json.success) {
             showlog(lang.generic.something_went_wrong);
         }
-        dom("theme").removeAttribute("disabled");
-        if (dom("theme").value == "auto") {
-            !autoEnabled && autoInit();
-        }
         else {
-            autoEnabled && autoCancel();
-            if (!oldFavicon) {
-                document.querySelector("body").setAttribute("data-theme", dom("theme").value);
-                favicon.href = favicon.href.replace(faviconRegex, `/favicons/${dom("theme").value}-$2.ico?v=$3`);
+            dom("theme").removeAttribute("disabled");
+            dom("theme-css").innerHTML = json.auto ? getThemeAuto() : getThemeCSS(json.themeJSON);
+            if (dom("theme").value == "auto") {
+                !autoEnabled && autoInit();
+                themeObject = null;
+            }
+            else {
+                autoEnabled && autoCancel();
+                themeObject = json.themeJSON;
+                if (!oldFavicon) {
+                    setGenericFavicon();
+                }
             }
         }
-    })
-        .catch((err) => {
+    }).catch((err) => {
         dom("theme").removeAttribute("disabled");
         showlog(lang.generic.something_went_wrong);
     });

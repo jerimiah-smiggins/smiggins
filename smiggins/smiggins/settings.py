@@ -4,7 +4,7 @@ import json5
 
 BASE_DIR = Path(__file__).resolve().parent.parent
 
-DEBUG = True
+DEBUG = False
 email = False
 url = None
 

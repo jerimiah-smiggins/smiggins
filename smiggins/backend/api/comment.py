@@ -12,7 +12,7 @@ from ..variables import (API_TIMINGS, ENABLE_CONTENT_WARNINGS,
                          ENABLE_LOGGED_OUT_CONTENT, MAX_CONTENT_WARNING_LENGTH,
                          MAX_POST_LENGTH, OWNER_USER_ID, POSTS_PER_REQUEST)
 from .admin import log_admin_action
-from .schema import CommentID, NewComment, EditComment
+from .schema import CommentID, EditComment, NewComment
 
 
 def comment_create(request, data: NewComment) -> tuple | dict:
@@ -104,9 +104,8 @@ def comment_create(request, data: NewComment) -> tuple | dict:
         except User.DoesNotExist:
             ...
 
-    return 201, {
-        "success": True,
-        "comment_id": comment.comment_id
+    return {
+        "success": True
     }
 
 def comment_list(request, id: int, comment: bool, offset: int=-1) -> tuple | dict:
@@ -131,11 +130,13 @@ def comment_list(request, id: int, comment: bool, offset: int=-1) -> tuple | dic
     try:
         if id < 0 or (Comment.objects.latest('comment_id').comment_id if comment else Post.objects.latest('post_id').post_id) < id:
             return 400, {
+                "success": False,
                 "reason": lang["post"]["commend_id_does_not_exist"]
             }
 
     except ValueError:
         return 400, {
+            "success": False,
             "reason": lang["post"]["invalid_comment_id"]
         }
 
@@ -151,7 +152,8 @@ def comment_list(request, id: int, comment: bool, offset: int=-1) -> tuple | dic
         comments.pop(0)
 
     if comments == []:
-        return 200, {
+        return {
+            "success": True,
             "posts": [],
             "end": True
         }
@@ -190,7 +192,7 @@ def comment_list(request, id: int, comment: bool, offset: int=-1) -> tuple | dic
         if len(outputList) >= POSTS_PER_REQUEST:
             break
 
-    return 200, {
+    return {
         "posts": outputList,
         "end": len(comments) - offset <= POSTS_PER_REQUEST
     }
@@ -251,7 +253,7 @@ def comment_like_remove(request, data: CommentID):
         comment.likes.remove(user.user_id)
         comment.save()
 
-    return 200, {
+    return {
         "success": True
     }
 

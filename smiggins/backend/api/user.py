@@ -9,7 +9,7 @@ from ..variables import (API_TIMINGS, DEFAULT_BANNER_COLOR,
                          ENABLE_GRADIENT_BANNERS, ENABLE_PRONOUNS,
                          ENABLE_USER_BIOS, MAX_BIO_LENGTH,
                          MAX_DISPL_NAME_LENGTH, MAX_USERNAME_LENGTH,
-                         POSTS_PER_REQUEST, VALID_LANGUAGES)
+                         POSTS_PER_REQUEST, THEMES, VALID_LANGUAGES)
 from .schema import Account, ChangePassword, Settings, Theme, Username
 
 
@@ -27,14 +27,14 @@ def signup(request, data: Account) -> tuple | dict:
 
     # e3b0c44... is the sha256 hash for an empty string
     if len(password) != 64 or password == "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855":
-        return {
+        return 400, {
             "valid": False,
             "reason": DEFAULT_LANG["account"]["bad_password"]
         }
 
     for i in password:
         if i not in "abcdef0123456789":
-            return {
+            return 400, {
                 "valid": False,
                 "reason": DEFAULT_LANG["account"]["bad_password"]
             }
@@ -116,14 +116,14 @@ def login(request, data: Account) -> tuple | dict:
 
         else:
             create_api_ratelimit("api_account_login", API_TIMINGS["login unsuccessful"], request.META.get('REMOTE_ADDR'))
-            return {
+            return 400, {
                 "valid": False,
                 "reason": DEFAULT_LANG["account"]["bad_password"]
             }
 
     else:
         create_api_ratelimit("api_account_login", API_TIMINGS["login unsuccessful"], request.META.get('REMOTE_ADDR'))
-        return {
+        return 400, {
             "valid": False,
             "reason": DEFAULT_LANG["account"]["username_does_not_exist"].replace("%s", data.username)
         }
@@ -138,7 +138,7 @@ def settings_theme(request, data: Theme) -> tuple | dict:
 
     lang = get_lang(user)
 
-    if theme.lower() not in ["auto", "light", "gray", "dark", "black", "oled"]:
+    if theme != "auto" and theme not in THEMES:
         return 400, {
             "success": False,
             "reason": lang["settings"]["cosmetic_theme_invalid"],
@@ -148,7 +148,9 @@ def settings_theme(request, data: Theme) -> tuple | dict:
     user.save()
 
     return {
-        "success": True
+        "success": True,
+        "auto": theme == "auto",
+        "themeJSON": THEMES[theme] if theme in THEMES else None
     }
 
 def settings(request, data: Settings) -> tuple | dict:
@@ -282,7 +284,7 @@ def follower_add(request, data: Username) -> tuple | dict:
 
         followed.save()
 
-    return 201, {
+    return {
         "success": True,
         "pending": followed.verify_followers
     }
@@ -320,7 +322,7 @@ def follower_remove(request, data: Username) -> tuple | dict:
             "success": False
         }
 
-    return 201, {
+    return {
         "success": True
     }
 
@@ -377,7 +379,7 @@ def block_add(request, data: Username) -> tuple | dict:
         user.blocking.append(blocked.user_id)
         user.save()
 
-    return 201, {
+    return {
         "success": True
     }
 
@@ -413,7 +415,7 @@ def block_remove(request, data: Username) -> tuple | dict:
             "success": False
         }
 
-    return 201, {
+    return {
         "success": True
     }
 
@@ -455,7 +457,7 @@ def change_password(request, data: ChangePassword) -> tuple | dict:
     user.token = new_token
     user.save()
 
-    return 200, {
+    return {
         "success": True,
         "token": new_token
     }

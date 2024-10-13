@@ -2,7 +2,7 @@
   "meta": {
     "fallback": [],
     "name": "English (United States)",
-    "version": "1.8.0",
+    "version": "1.8.1",
     "maintainers": ["trinkey"],
     "past_maintainers": []
   },
@@ -344,10 +344,10 @@
     "post": {
       "invalid_length": "Invalid post length. Must be between 1 and %s characters.",
       "invalid_comment_id": "Idk your id is not right at all",
-      "comment_id_does_not_exist": "Your id broke soemthing owo",
+      "comment_id_does_not_exist": "Your id broke something owo",
       "invalid_quote_post": "The post you're quoting doesn't exist!",
       "invalid_quote_comment": "The comment you're quoting doesn't exist!",
-      "invalid_username": "Username is insvalagaeg... LOOK JUST SHUT UP",
+      "invalid_username": "Username is invalid",
       "invalid_poll": "The poll needs to have at least two options!",
       "type_public": "Public",
       "type_followers_only": "Followers only",
@@ -388,18 +388,20 @@
       "profile_followers_approval": "Manually approve followers?",
 
       "cosmetic_title": "Cosmetic",
-      "cosmetic_theme": "Theme",
 
+      "cosmetic_theme": "Theme",
+      "cosmetic_theme_invalid": "That's not a valid theme, idiot.",
       "cosmetic_themes": {
         "auto": "System",
+        "warm": "Noon",
         "light": "Dawn",
         "gray": "Dusk",
+        "purple": "Sunset",
         "dark": "Dark",
         "black": "Midnight",
         "oled": "Black"
       },
 
-      "cosmetic_theme_invalid": "That's not a vailid theme, idiot.",
       "cosmetic_bar": "Icon bar positioning",
       "cosmetic_bar_position": "Position:",
       "cosmetic_bar_direction": "Direction:",
@@ -441,7 +443,7 @@
     "user_page": {
       "followers": "Followers: %s",
       "following": "Following: %s",
-      "user_on_smiggins": "%s on %t", // Ex: gerard on Twitter Clone (this would be if the site name is set to "Twitter Clone" and the user's display name is "gerard")
+      "user_on_smiggins": "%s on %t", // Ex: gerard on Smiggins (this would be if the site name is set to "Smiggins" and the user's display name is "gerard")
       "follow": "Follow",
       "unfollow": "Unfollow",
       "pending": "Pending",
@@ -532,6 +534,12 @@
       "unknown": "Unknown",
 
       "changes": {
+        "v0.13.1": {
+          "1": "Made /api/docs slightly better",
+          "2": "Content warnings now cover polls again, however quotes are no longer covered by content warnings",
+          "3": "Added a way to add new custom themes in the backend configuration",
+          "4": "Added two new default themes"
+        },
         "v0.13.0": {
           "1": "Fixed a bug that caused content warnings to not be properly escaped",
           "2": "Added editing posts",

@@ -2,7 +2,9 @@
 
 import json
 
-from django.http import HttpResponse, HttpResponseRedirect
+from cairosvg import svg2png
+from django.http import (HttpResponse, HttpResponseRedirect,
+                         HttpResponseServerError)
 from posts.models import Comment, Hashtag, Post, PrivateMessageContainer, User
 
 from .api.admin import BitMask
@@ -11,8 +13,8 @@ from .helper import (LANGS, can_view_post, get_badges, get_container_id,
 from .variables import (BADGE_DATA, CACHE_LANGUAGES, CONTACT_INFO, CREDITS,
                         DEFAULT_BANNER_COLOR, DEFAULT_LANGUAGE,
                         ENABLE_GRADIENT_BANNERS, ENABLE_LOGGED_OUT_CONTENT,
-                        MAX_CONTENT_WARNING_LENGTH, OWNER_USER_ID, SITE_NAME,
-                        VALID_LANGUAGES)
+                        FAVICON_DATA, MAX_CONTENT_WARNING_LENGTH,
+                        OWNER_USER_ID, SITE_NAME, THEMES, VALID_LANGUAGES)
 
 
 def settings(request) -> HttpResponse:
@@ -21,8 +23,10 @@ def settings(request) -> HttpResponse:
     except User.DoesNotExist:
         return HttpResponseRedirect("/logout/?from=token", status=307)
 
+    lang = get_lang(user)
+
     return get_HTTP_response(
-        request, "settings.html", user=user,
+        request, "settings.html", user=user, lang_override=lang,
 
         DISPLAY_NAME        = user.display_name,
         BANNER_COLOR        = user.color or DEFAULT_BANNER_COLOR,
@@ -42,12 +46,8 @@ def settings(request) -> HttpResponse:
 
         FOLLOWERS_REQUIRE_APPROVAL = str(user.verify_followers).lower(),
 
-        SELECTED_IF_AUTO  = "selected" if user.theme == "auto"  else "",
-        SELECTED_IF_LIGHT = "selected" if user.theme == "light" else "",
-        SELECTED_IF_GRAY  = "selected" if user.theme == "gray"  else "",
-        SELECTED_IF_DARK  = "selected" if user.theme == "dark"  else "",
-        SELECTED_IF_BLACK = "selected" if user.theme == "black" else "",
-        SELECTED_IF_OLED  = "selected" if user.theme == "oled"  else "",
+        themes = [{"id": i, "name": lang["settings"]["cosmetic_themes"][i] if i in lang["settings"]["cosmetic_themes"] else THEMES[i]["name"][user.language if user.language in THEMES[i]["name"] else "default"]} for i in THEMES],
+        user_theme_valid = user.theme in THEMES,
 
         LANGUAGE = user.language or DEFAULT_LANGUAGE,
         LANGUAGES = VALID_LANGUAGES,
@@ -416,6 +416,20 @@ def pending(request) -> HttpResponse | HttpResponseRedirect:
         return HttpResponseRedirect("/home/", status=307)
 
     return get_HTTP_response(request, "pending.html", user=user)
+
+def generate_favicon(request, a) -> HttpResponse | HttpResponseServerError:
+    colors: tuple[str, str, str] = a.split("-")
+
+    png_data: bytes | None = svg2png(
+        FAVICON_DATA.replace("@{background}", f"#{colors[0]}").replace("@{background_alt}", f"#{colors[1]}").replace("@{accent}", f"#{colors[2]}"),
+        output_width=32,
+        output_height=32
+    )
+
+    if not isinstance(png_data, bytes):
+        return HttpResponseServerError("500 Internal Server Error")
+
+    return HttpResponse(png_data, content_type="image/png")
 
 # These two functions are referenced in smiggins/urls.py
 def _404(request, exception) -> HttpResponse:

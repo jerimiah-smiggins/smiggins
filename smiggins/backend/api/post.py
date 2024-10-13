@@ -19,7 +19,7 @@ from ..variables import (API_TIMINGS, ENABLE_CONTENT_WARNINGS,
                          MAX_POST_LENGTH, OWNER_USER_ID, POST_WEBHOOKS,
                          POSTS_PER_REQUEST, SITE_NAME, VERSION)
 from .admin import log_admin_action
-from .schema import NewPost, NewQuote, Poll, PostID, EditPost
+from .schema import EditPost, NewPost, NewQuote, Poll, PostID
 
 
 def post_hook(request, user: User, post: Post):
@@ -159,9 +159,8 @@ def post_create(request, data: NewPost) -> tuple | dict:
     if user.username in POST_WEBHOOKS:
         post_hook(request, user, post)
 
-    return 201, {
-        "success": True,
-        "post_id": post.post_id
+    return {
+        "success": True
     }
 
 def quote_create(request, data: NewQuote) -> tuple | dict:
@@ -275,7 +274,7 @@ def quote_create(request, data: NewQuote) -> tuple | dict:
     if user.username in POST_WEBHOOKS:
         post_hook(request, user, post)
 
-    return 201, {
+    return {
         "post": get_post_json(post.post_id, user.user_id, cache={
             user.user_id: user
         }),
@@ -373,6 +372,7 @@ def post_list_following(request, offset: int=-1) -> tuple | dict:
             break
 
     return {
+        "success": True,
         "posts": outputList,
         "end": len(potential) - offset <= POSTS_PER_REQUEST
     }
@@ -387,6 +387,7 @@ def post_list_recent(request, offset: int=-1) -> tuple | dict:
             next_id = Post.objects.latest('post_id').post_id
         except Post.DoesNotExist:
             return {
+                "success": True,
                 "posts": [],
                 "end": True
             }
@@ -418,6 +419,7 @@ def post_list_recent(request, offset: int=-1) -> tuple | dict:
         i -= 1
 
     return {
+        "success": True,
         "posts": outputList,
         "end": end
     }

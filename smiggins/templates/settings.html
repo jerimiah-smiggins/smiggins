@@ -92,12 +92,10 @@
       <h2>{{ lang.settings.cosmetic_title }}</h2>
       <label for="theme">{{ lang.settings.cosmetic_theme }}:</label><br>
       <select id="theme">
-        <option {{ SELECTED_IF_AUTO }}  value="auto" >{{ lang.settings.cosmetic_themes.auto  }}</option>
-        <option {{ SELECTED_IF_LIGHT }} value="light">{{ lang.settings.cosmetic_themes.light }}</option>
-        <option {{ SELECTED_IF_GRAY }}  value="gray" >{{ lang.settings.cosmetic_themes.gray  }}</option>
-        <option {{ SELECTED_IF_DARK }}  value="dark" >{{ lang.settings.cosmetic_themes.dark  }}</option>
-        <option {{ SELECTED_IF_BLACK }} value="black">{{ lang.settings.cosmetic_themes.black }}</option>
-        <option {{ SELECTED_IF_OLED }}  value="oled" >{{ lang.settings.cosmetic_themes.oled  }}</option>
+        <option {% if not user_theme_valid %}selected{% endif %} value="auto">{{ lang.settings.cosmetic_themes.auto }}</option>
+        {% for t in themes %}
+          <option {% if THEME == t.id %}selected{% endif %} value="{{ t.id }}">{{ t.name }}</option>
+        {% endfor %}
       </select><br><br>
 
       <label for="lang">{{ lang.settings.cosmetic_language }}:</label><br>

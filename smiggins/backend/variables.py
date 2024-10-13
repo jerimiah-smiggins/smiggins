@@ -2,7 +2,7 @@ import hashlib
 import os
 import pathlib
 import re
-from typing import Any
+from typing import Any, Literal
 
 import json5 as json
 from django.db.utils import OperationalError
@@ -26,7 +26,7 @@ CREDITS: dict[str, list[str]] = {
 }
 
 # Set default variable states
-REAL_VERSION: tuple[int, int, int] = (0, 13, 0)
+REAL_VERSION: tuple[int, int, int] = (0, 13, 1)
 VERSION: str = ".".join([str(i) for i in REAL_VERSION])
 SITE_NAME: str = "Jerimiah Smiggins"
 WEBSITE_URL: str | None = None
@@ -82,12 +82,331 @@ ENABLE_SITEMAPS: bool = False
 ITEMS_PER_SITEMAP: int = 500
 GOOGLE_VERIFICATION_TAG: str | None = ""
 DISCORD: str | None = "tH7QnHApwu"
+FAVICON_CACHE_TIMEOUT: int | None = 7200
 SITEMAP_CACHE_TIMEOUT: int | None = 86400
 GENERIC_CACHE_TIMEOUT: int | None = 604800
 API_TIMINGS: dict[str, int] = {}
+FAVICON_DATA = """<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512">
+  <path fill="@{background}" d="M0 73.1C0 32.8 32.8 0 73.1 0h365.7c40.3 0 73.1 32.8 73.1 73.1v365.7c0 40.3-32.8 73.1-73.1 73.1H73.1C32.8 511.9 0 479.1 0 438.8z"/>
+  <path fill="@{background_alt}" d="m388.9 159.2 53.2-.6v235.6c0 42.9-34.8 77.8-77.8 77.8H247.6c-14.3 0-25.9-11.6-25.9-25.9s11.6-25.9 25.9-25.9H293L182.8 332v114.1c0 14.3-11.6 25.9-25.9 25.9S131 460.4 131 446.1V261.4c8.5 2.2 17.2 3.2 25.9 3.2 38.4 0 72-20.8 89.9-51.9h13.9c54.1 0 101.8 27.6 129.6 69.5v-69.1l-1.3-53.9zm-258 75c-17.7-6.2-32.5-18.7-41.6-34.8-6.5-11.3-10.2-24.6-10.2-38.6v-95c0-4.8 3.8-8.6 8.6-8.7h.2c2.7 0 5.2 1.3 6.8 3.4l10.4 13.9 22 29.4 3.9 5.2h51.9l3.9-5.2 22-29.4 10.4-13.8c1.6-2.2 4.1-3.5 6.8-3.5h.2c4.8 0 8.6 3.9 8.6 8.7v95c0 14.6-4.1 28.8-11.7 41.2-2.3 3.8-5 7.4-8 10.7-14.3 15.9-35 27.1-58 25.9s-18.1-1.5-26.2-4.4m51.9-60.4c7.2 0 13-5.8 13-13s-5.8-13-13-13-13 5.8-13 13 5.8 13 13 13m-38.9-13c0-7.2-5.8-13-13-13s-13 5.8-13 13 5.8 13 13 13 13-5.8 13-13"/>
+  <path fill="@{background_alt}" d="m389.2 169.1-.4-10.6v-.7c1.4-34.2-27.2-54.5-44.9-53.1h-1.8c-9.8.4-17.6 4.7-22.7 10.8-1.3 1.7-2.6 3.4-3.6 5.3 4.8-3 10.3-4.5 16.3-3.9 24.8 2.1 31.3 25.5 30.6 37.4-.8 14.8-10 28.6-25.5 35.4-16.9 8.4-36 3.6-48.6-4.5-14.3-9.1-25.6-24.7-28.3-45.3-3.7-21.5 4.7-43.2 17.9-59.2 14-16.3 35.5-28.9 61.5-29.7 52.4-3.9 104.2 45.4 102.5 107.6"/>
+  <path fill="@{accent}" d="m379.7 148.5 53.2-.6v235.6c0 42.9-34.8 77.8-77.8 77.8H238.4c-14.3 0-25.9-11.6-25.9-25.9s11.6-25.9 25.9-25.9h45.4l-110.2-88.2v114.1c0 14.3-11.6 25.9-25.9 25.9s-25.9-11.6-25.9-25.9V250.7c8.5 2.2 17.2 3.2 25.9 3.2 38.4 0 72-20.8 89.9-51.9h13.9c53.1 0 101.8 27.6 129.6 69.5v-69.1l-1.3-53.9zm-257.9 75c-17.7-6.2-32.5-18.7-41.6-34.8-6.5-11.3-10.2-24.6-10.2-38.6v-95c0-4.8 3.8-8.6 8.6-8.7h.2c2.7 0 5.2 1.3 6.8 3.4L96 63.7l22 29.4 3.9 5.2h51.9l3.9-5.2 22-29.4 10.4-13.8c1.6-2.2 4.1-3.5 6.8-3.5h.2c4.8 0 8.6 3.9 8.6 8.7v95c0 14.6-4.1 28.8-11.7 41.2-2.3 3.8-5 7.4-8 10.7-14.3 15.9-35 25.9-53 25.9s-23.1-1.5-31.2-4.4m56.8-60.4c7.2 0 13-5.8 13-13s-5.8-13-13-13-13 5.8-13 13 5.8 13 13 13m-38.9-13c0-7.2-5.8-13-13-13s-13 5.8-13 13 5.8 13 13 13 13-5.8 13-13"/>
+  <path fill="@{accent}" d="M379.8 149v-1.9c1.3-34.2-27.4-54.5-45.1-53.1h-1.8c-9.8.4-17.6 4.7-22.7 10.8-1.3 1.7-2.6 3.4-3.6 5.3 4.8-3 10.3-4.5 16.3-3.9 24.8 2.1 31.3 25.5 30.6 37.4-.8 14.8-10 28.6-25.5 35.4-16.9 8.4-36 3.6-48.6-4.5-14.3-9.1-25.6-24.7-28.3-45.3-3.7-21.5 4.7-43.2 17.9-59.2 14-16.3 35.5-28.9 61.5-29.7 52.4-3.9 104.2 45.9 102.5 108.1"/>
+</svg>"""
+
+THEMES = {
+  "warm": {
+    "name": {
+      "default": "Noon"
+    },
+    "id": "warm",
+    "light_theme": True,
+    "colors": {
+      "text": "#575279",
+      "subtext": "#9893a5",
+      "red": "#a03660",
+      "background": "#faf4ed",
+      "post_background": "#faf4ed",
+      "poll_voted_background": "#f2e9e1",
+      "poll_no_vote_background": "#fffaf3",
+      "content_warning_background": "#fffaf3",
+      "input_background": "#f2e9e1",
+      "checkbox_background": "#f4ede8",
+      "button_background": "#f2e9e1",
+      "button_hover_background": "#fffaf3",
+      "button_inverted_background": "#faf4ed",
+      "input_border": "#f4ede8",
+      "checkbox_border": "#f4ede8",
+      "button_border": "#f4ede8",
+      "table_border": "#f4ede8",
+      "gray": "#9893a5",
+      "accent": {
+        "rosewater": "#d7827e",
+        "flamingo": "#d8707e",
+        "pink": "#e56ed1",
+        "mauve": "#7a51cb",
+        "red": "#a03660",
+        "maroon": "#b4637a",
+        "peach": "#ff7322",
+        "yellow": "#ea9d34",
+        "green": "#7fa731",
+        "teal": "#56949f",
+        "sky": "#41a7eb",
+        "sapphire": "#286983",
+        "blue": "#2630c3",
+        "lavender": "#907aa9"
+      }
+    }
+  },
+  "light": {
+    "name": {
+      "default": "Dawn"
+    },
+    "id": "light",
+    "colors": {
+      "text": "#4c4f69",
+      "subtext": "#6c6f85",
+      "red": "#d20f39",
+      "background": "#eff1f5",
+      "post_background": "#eff1f5",
+      "poll_voted_background": "#dce0e8",
+      "poll_no_vote_background": "#e6e9ef",
+      "content_warning_background": "#e6e9ef",
+      "input_background": "#dce0e8",
+      "checkbox_background": "#ccd0da",
+      "button_background": "#dce0e8",
+      "button_hover_background": "#e6e9ef",
+      "button_inverted_background": "#eff1f5",
+      "input_border": "#ccd0da",
+      "checkbox_border": "#ccd0da",
+      "button_border": "#ccd0da",
+      "table_border": "#ccd0da",
+      "gray": "#6c6f85",
+      "accent": {
+        "rosewater": "#dc8a78",
+        "flamingo": "#dd7878",
+        "pink": "#ea76cb",
+        "mauve": "#8839ef",
+        "red": "#d20f39",
+        "maroon": "#e64553",
+        "peach": "#fe640b",
+        "yellow": "#df8e1d",
+        "green": "#40a02b",
+        "teal": "#179299",
+        "sky": "#04a5e5",
+        "sapphire": "#209fb5",
+        "blue": "#1e66f5",
+        "lavender": "#7287fd"
+      }
+    }
+  },
+  "gray": {
+    "name": {
+      "default": "Dusk"
+    },
+    "id": "gray",
+    "colors": {
+      "text": "#c6d0f5",
+      "subtext": "#a5adce",
+      "red": "#e78284",
+      "background": "#303446",
+      "post_background": "#303446",
+      "poll_voted_background": "#232634",
+      "poll_no_vote_background": "#292c3c",
+      "content_warning_background": "#292c3c",
+      "input_background": "#232634",
+      "checkbox_background": "#414559",
+      "button_background": "#232634",
+      "button_hover_background": "#292c3c",
+      "button_inverted_background": "#303446",
+      "input_border": "#414559",
+      "checkbox_border": "#414559",
+      "button_border": "#414559",
+      "table_border": "#414559",
+      "gray": "#a5adce",
+      "accent": {
+        "rosewater": "#f2d5cf",
+        "flamingo": "#eebebe",
+        "pink": "#f4b8e4",
+        "mauve": "#ca9ee6",
+        "red": "#e78284",
+        "maroon": "#ea999c",
+        "peach": "#ef9f76",
+        "yellow": "#e5c890",
+        "green": "#a6d189",
+        "teal": "#81c8be",
+        "sky": "#99d1db",
+        "sapphire": "#85c1dc",
+        "blue": "#8caaee",
+        "lavender": "#babbf1"
+      }
+    }
+  },
+  "purple": {
+    "name": {
+      "default": "Sunset"
+    },
+    "id": "purple",
+    "colors": {
+      "text": "#dadada",
+      "subtext": "#7d747a",
+      "red": "#d67677",
+      "background": "#190b14",
+      "post_background": "#200e19",
+      "poll_voted_background": "#3b2433",
+      "poll_no_vote_background": "#2b1a25",
+      "content_warning_background": "#2b1a25",
+      "input_background": "#2e1425",
+      "checkbox_background": "#2e1425",
+      "button_background": "#3c1a30",
+      "button_hover_background": "#5e2a4e",
+      "button_inverted_background": "#190b14",
+      "input_border": "#31202b",
+      "checkbox_border": "#31202b",
+      "button_border": "#31202b",
+      "table_border": "#31202b",
+      "gray": "#687390",
+      "accent": {
+        "rosewater": "#f4dbd6",
+        "flamingo": "#f0c6c6",
+        "pink": "#d8a4c6",
+        "mauve": "#c486da",
+        "red": "#d67677",
+        "maroon": "#ee99a0",
+        "peach": "#ffb675",
+        "yellow": "#d3d381",
+        "green": "#86b300",
+        "teal": "#229e82",
+        "sky": "#31b1ce",
+        "sapphire": "#56a4b6",
+        "blue": "#56a4e8",
+        "lavender": "#cea4da"
+      }
+    }
+  },
+  "dark": {
+    "name": {
+      "default": "Dark"
+    },
+    "id": "dark",
+    "colors": {
+      "text": "#cad3f5",
+      "subtext": "#a5adcb",
+      "red": "#ed8796",
+      "background": "#24273a",
+      "post_background": "#24273a",
+      "poll_voted_background": "#181926",
+      "poll_no_vote_background": "#1e2030",
+      "content_warning_background": "#1e2030",
+      "input_background": "#181926",
+      "checkbox_background": "#363a4f",
+      "button_background": "#181926",
+      "button_hover_background": "#1e2030",
+      "button_inverted_background": "#24273a",
+      "input_border": "#363a4f",
+      "checkbox_border": "#363a4f",
+      "button_border": "#363a4f",
+      "table_border": "#363a4f",
+      "gray": "#a5adcb",
+      "accent": {
+        "rosewater": "#f4dbd6",
+        "flamingo": "#f0c6c6",
+        "pink": "#f5bde6",
+        "mauve": "#c6a0f6",
+        "red": "#ed8796",
+        "maroon": "#ee99a0",
+        "peach": "#f5a97f",
+        "yellow": "#eed49f",
+        "green": "#a6da95",
+        "teal": "#8bd5ca",
+        "sky": "#91d7e3",
+        "sapphire": "#7dc4e4",
+        "blue": "#8aadf4",
+        "lavender": "#b7bdf8"
+      }
+    }
+  },
+  "black": {
+    "name": {
+      "default": "Midnight"
+    },
+    "id": "black",
+    "colors": {
+      "text": "#cdd6f4",
+      "subtext": "#a6adc8",
+      "red": "#f38ba8",
+      "background": "#1e1e2e",
+      "post_background": "#1e1e2e",
+      "poll_voted_background": "#11111b",
+      "poll_no_vote_background": "#181825",
+      "content_warning_background": "#181825",
+      "input_background": "#11111b",
+      "checkbox_background": "#313244",
+      "button_background": "#11111b",
+      "button_hover_background": "#181825",
+      "button_inverted_background": "#1e1e2e",
+      "input_border": "#313244",
+      "checkbox_border": "#313244",
+      "button_border": "#313244",
+      "table_border": "#313244",
+      "gray": "#a6adc8",
+      "accent": {
+        "rosewater": "#f5e0dc",
+        "flamingo": "#f2cdcd",
+        "pink": "#f5c2e7",
+        "mauve": "#cba6f7",
+        "red": "#f38ba8",
+        "maroon": "#eba0ac",
+        "peach": "#fab387",
+        "yellow": "#f9e2af",
+        "green": "#a6e3a1",
+        "teal": "#94e2d5",
+        "sky": "#89dceb",
+        "sapphire": "#74c7ec",
+        "blue": "#89b4fa",
+        "lavender": "#b4befe"
+      }
+    }
+  },
+  "oled": {
+    "name": {
+      "default": "Black"
+    },
+    "id": "oled",
+    "colors": {
+      "text": "#cdd6f4",
+      "subtext": "#a6adc8",
+      "red": "#f38ba8",
+      "background": "#000000",
+      "post_background": "#000000",
+      "poll_voted_background": "#11111b",
+      "poll_no_vote_background": "#080810",
+      "content_warning_background": "#080810",
+      "input_background": "#11111b",
+      "checkbox_background": "#313244",
+      "button_background": "#11111b",
+      "button_hover_background": "#080810",
+      "button_inverted_background": "#000000",
+      "input_border": "#313244",
+      "checkbox_border": "#313244",
+      "button_border": "#313244",
+      "table_border": "#313244",
+      "gray": "#a6adc8",
+      "accent": {
+        "rosewater": "#f5e0dc",
+        "flamingo": "#f2cdcd",
+        "pink": "#f5c2e7",
+        "mauve": "#cba6f7",
+        "red": "#f38ba8",
+        "maroon": "#eba0ac",
+        "peach": "#fab387",
+        "yellow": "#f9e2af",
+        "green": "#a6e3a1",
+        "teal": "#94e2d5",
+        "sky": "#89dceb",
+        "sapphire": "#74c7ec",
+        "blue": "#89b4fa",
+        "lavender": "#b4befe"
+      }
+    }
+  }
+}
+
+_THEMES_INTERNALS = {
+    "taken": [i for i in THEMES] + ["auto", "custom"],
+    "map": {
+        "noon": "warm",
+        "dawn": "light",
+        "dusk": "gray",
+        "dark": "dark",
+        "sunset": "purple",
+        "midnight": "black",
+        "black": "oled"
+    }
+}
 
 # stores variable metadata
-_VARIABLES: list[tuple[str, list[str], type | str | list | tuple | dict, bool]] = [
+_VARIABLES: list[tuple[str | None, list[str], type | str | list | tuple | dict, bool]] = [
 #   ["VAR_NAME", keys, type, allow_null]
     ("VERSION", ["version"], str, False),
     ("SITE_NAME", ["site_name"], str, False),
@@ -140,8 +459,11 @@ _VARIABLES: list[tuple[str, list[str], type | str | list | tuple | dict, bool]] 
     ("ITEMS_PER_SITEMAP", ["items_per_sitemap"], int, False),
     ("GOOGLE_VERIFICATION_TAG", ["google_verification_tag"], str, False),
     ("DISCORD", ["discord", "discord_invite"], str, True),
+    ("FAVICON_CACHE_TIMEOUT", ["favicon_cache_timeout"], int, True),
     ("SITEMAP_CACHE_TIMEOUT", ["sitemap_cache_timeout"], int, True),
-    ("GENERIC_CACHE_TIMEOUT", ["generic_cache_timeout"], int, True)
+    ("GENERIC_CACHE_TIMEOUT", ["generic_cache_timeout"], int, True),
+    (None, ["custom_themes"], "theme-object", False),
+    ("FAVICON_DATA", ["favicon", "favicon_data", "favicon_svg"], str, False)
 ]
 
 f = {}
@@ -153,7 +475,7 @@ except ValueError:
 except FileNotFoundError:
     error("settings.json not found")
 
-def typecheck(obj: Any, expected_type: type | str | list | tuple | dict, allow_null: bool=False) -> bool:
+def typecheck(obj: Any, expected_type: type | str | list | tuple | dict, allow_null: bool=False) -> bool | None:
     # Checks for a custom type format.
     # Lists should always have 0 or 1 indexes, and dicts should always have 0 or 1 keys.
     # If a list is empty, it allows any values. Same with dicts.
@@ -176,7 +498,85 @@ def typecheck(obj: Any, expected_type: type | str | list | tuple | dict, allow_n
             return isinstance(obj, str) and bool(re.match(r"^#[0-9a-f]{6}$", obj))
 
         if expected_type == "theme":
-            return isinstance(obj, str) and obj.lower() in ["dawn", "dusk", "dark", "midnight", "black"]
+            return isinstance(obj, str) and obj.lower() in _THEMES_INTERNALS["map"]
+
+        if expected_type == "theme-object":
+            if not isinstance(obj, list):
+                return False
+
+            def keycheck(object: dict, type_dict: dict[str, type | Literal["color"]], prefix: str=""):
+                for key, expected in type_dict.items():
+                    if key not in object:
+                        error(f"{prefix}{key} should be in theme definition {object}, discarding")
+                        return False
+                    elif not (isinstance(object[key], str) and bool(re.match(r"^#[0-9a-f]{6}$", object[key])) if expected == "color" else isinstance(object[key], expected)):
+                        error(f"{prefix}{key} should be type {expected} in theme definition {object}, discarding")
+                        return False
+                return True
+
+            for i in obj:
+                if not isinstance(i, dict):
+                    error(f"{i} should be object in theme definition, discarding")
+                    continue
+
+                if not (keycheck(i, {
+                    "name": dict,
+                    "id": str,
+                    "light_theme": bool,
+                    "colors": dict,
+                }) and keycheck(i["name"], {
+                    "default": str
+                }, "name.") and keycheck(i["colors"], {
+                    "text": "color",
+                    "subtext": "color",
+                    "red": "color",
+                    "background": "color",
+                    "post_background": "color",
+                    "poll_no_vote_background": "color",
+                    "poll_voted_background": "color",
+                    "content_warning_background": "color",
+                    "input_background": "color",
+                    "checkbox_background": "color",
+                    "button_background": "color",
+                    "button_hover_background": "color",
+                    "button_inverted_background": "color",
+                    "input_border": "color",
+                    "checkbox_border": "color",
+                    "button_border": "color",
+                    "table_border": "color",
+                    "gray": "color",
+                    "accent": dict
+                }, "colors.") and keycheck(i["colors"]["accent"], {
+                    "rosewater": "color",
+                    "flamingo": "color",
+                    "pink": "color",
+                    "mauve": "color",
+                    "red": "color",
+                    "maroon": "color",
+                    "peach": "color",
+                    "yellow": "color",
+                    "green": "color",
+                    "teal": "color",
+                    "sky": "color",
+                    "sapphire": "color",
+                    "blue": "color",
+                    "lavender": "color"
+                }, "colors.accent.")):
+                    continue
+
+                i["id"] = i["id"].lower()
+
+                if len(i["id"]) > 30:
+                    error(f"Theme id '{i['id']}' needs to be less than 30 characters. Truncating to {i['id'] := i['id'][:30]}")
+
+                if i["id"] in _THEMES_INTERNALS["taken"]:
+                    error(f"Theme with id '{i['id']}' already taken, discarding")
+                    continue
+
+                THEMES[i["id"]] = i
+                _THEMES_INTERNALS["taken"].append(i["id"])
+
+            return None
 
         # Add more special checks when needed
 
@@ -215,9 +615,12 @@ def typecheck(obj: Any, expected_type: type | str | list | tuple | dict, allow_n
 
     return False
 
-def is_ok(val: Any, var: str, t: type | str | list | tuple | dict, null: bool=False):
-    if typecheck(val, t, null):
+def is_ok(val: Any, var: str | None, t: type | str | list | tuple | dict, null: bool=False):
+    if x := typecheck(val, t, null):
         exec(f"global {var}\n{var} = {repr(val)}")
+
+    elif x is None:
+        ...
 
     elif val is not None:
         error(f"{val} should be {t}")
@@ -238,20 +641,28 @@ def clamp(
 
     return val
 
-_var_dict: dict[str, tuple[str, list[str], type | str | list | tuple | dict, bool]] = {}
+_var_dict: dict[str, tuple[str | None, list[str], type | str | list | tuple | dict, bool]] = {}
 for i in _VARIABLES:
     for alias in i[1]:
         _var_dict[alias] = i
 
+_themes_check = []
+
 for key, val in f.items():
     key = key.lower()
-
     if key in _var_dict:
+        if _var_dict[key][2] == "theme":
+            _themes_check.append({"key": key, "val": val})
+            continue
+
         is_ok(val, _var_dict[key][0], _var_dict[key][2], null=_var_dict[key][3])
     else:
         error(f"Unknown setting {key}")
 
-del _VARIABLES, _var_dict
+for i in _themes_check:
+    is_ok(i["val"], _var_dict[i["key"]][0], _var_dict[i["key"]][2], null=_var_dict[i["key"]][3])
+
+del _VARIABLES, _var_dict, _themes_check
 
 MAX_ADMIN_LOG_LINES = clamp(MAX_ADMIN_LOG_LINES, minimum=1)
 MAX_USERNAME_LENGTH = clamp(MAX_USERNAME_LENGTH, minimum=1, maximum=200)
@@ -285,13 +696,8 @@ if ENABLE_SITEMAPS and WEBSITE_URL is None:
     ENABLE_SITEMAPS = False
     error("You need to set the website_url setting to enable sitemaps!")
 
-DEFAULT_DARK_THEME = {
-    "dawn": "light", "dusk": "gray", "dark": "dark", "midnight": "black", "black": "oled"
-}[DEFAULT_DARK_THEME.lower()]
-
-DEFAULT_LIGHT_THEME = {
-    "dawn": "light", "dusk": "gray", "dark": "dark", "midnight": "black", "black": "oled"
-}[DEFAULT_LIGHT_THEME.lower()]
+DEFAULT_DARK_THEME = _THEMES_INTERNALS["map"][DEFAULT_DARK_THEME.lower()]
+DEFAULT_LIGHT_THEME = _THEMES_INTERNALS["map"][DEFAULT_LIGHT_THEME.lower()]
 
 for key, val in {
     "signup unsuccessful": 1000,
@@ -339,15 +745,17 @@ User-agent: Google-Extended
 User-agent: GoogleOther
 User-agent: GoogleOther-Image
 User-agent: GoogleOther-Video
-User-agent: iaskspider/2.0
 User-agent: ICC-Crawler
+User-agent: ISSCyberRiskCrawler
 User-agent: ImagesiftBot
+User-agent: Kangaroo Bot
 User-agent: Meta-ExternalAgent
 User-agent: Meta-ExternalFetcher
 User-agent: OAI-SearchBot
 User-agent: PerplexityBot
 User-agent: PetalBot
 User-agent: Scrapy
+User-agent: Sidetrade indexer bot
 User-agent: Timpibot
 User-agent: VelenPublicWebCrawler
 User-agent: Webzio-Extended
@@ -355,6 +763,7 @@ User-agent: YouBot
 User-agent: anthropic-ai
 User-agent: cohere-ai
 User-agent: facebookexternalhit
+User-agent: iaskspider/2.0
 User-agent: img2dataset
 User-agent: omgili
 User-agent: omgilibot

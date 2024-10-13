@@ -117,7 +117,7 @@ function addQuote(postID: number, isComment: boolean): void {
 
           if (
             location.pathname.toLowerCase().includes("/home") ||
-            location.pathname.toLowerCase().includes(`/u/${localStorage.getItem("username") || "LOL IT BROKE LOLLLLLLLLL SO FUNNY"}`)
+            location.pathname.toLowerCase().includes(`/u/${localStorage.getItem("username") || "LOL IT BROKE SO FUNNY"}`)
           ) {
             let x: HTMLDivElement = document.createElement("div");
             x.innerHTML = getPostHTML(json.post);
@@ -237,7 +237,7 @@ function togglePollResults(gInc: number): void {
 
 function editPost(postID: number, isComment: boolean, private: boolean, originalText: string): void {
   let post: HTMLDivElement = document.querySelector(`[data-${isComment ? "comment" : "post"}-id="${postID}"]`);
-  let contentField: HTMLDivElement = post.querySelector(".main-area-afjdkaslfjalksdjf");
+  let contentField: HTMLDivElement = post.querySelector(".main-area");
 
   let oldContentField: string = contentField.innerHTML;
 

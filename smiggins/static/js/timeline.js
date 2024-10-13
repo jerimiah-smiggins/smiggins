@@ -101,7 +101,7 @@ function addQuote(postID, isComment) {
                 let quoteNumber = document.querySelector(`.post-container[data-${isComment ? "comment" : "post"}-id="${postID}"] .quote-number`);
                 quoteNumber.innerText = String(+quoteNumber.innerText + 1);
                 if (location.pathname.toLowerCase().includes("/home") ||
-                    location.pathname.toLowerCase().includes(`/u/${localStorage.getItem("username") || "LOL IT BROKE LOLLLLLLLLL SO FUNNY"}`)) {
+                    location.pathname.toLowerCase().includes(`/u/${localStorage.getItem("username") || "LOL IT BROKE SO FUNNY"}`)) {
                     let x = document.createElement("div");
                     x.innerHTML = getPostHTML(json.post);
                     dom("posts").prepend(x);
@@ -205,7 +205,7 @@ function togglePollResults(gInc) {
 }
 function editPost(postID, isComment, private, originalText) {
     let post = document.querySelector(`[data-${isComment ? "comment" : "post"}-id="${postID}"]`);
-    let contentField = post.querySelector(".main-area-afjdkaslfjalksdjf");
+    let contentField = post.querySelector(".main-area");
     let oldContentField = contentField.innerHTML;
     let originalCW = contentField.querySelector("summary") ? contentField.querySelector("summary").innerText : "";
     contentField.innerHTML = `

@@ -1,13 +1,13 @@
 # Contains helper functions. These aren't for routing, instead doing something that can be used in other places in the code.
 
 import hashlib
+import json as json_f
 import re
 import threading
 import time
 from typing import Any, Callable, Literal
 
 import json5 as json
-import json as json_f
 from django.core.mail import send_mail
 from django.http import HttpResponse, HttpResponseRedirect
 from django.template import loader
@@ -28,8 +28,8 @@ from .variables import (BADGE_DATA, BASE_DIR, CACHE_LANGUAGES,
                         MAX_NOTIFICATIONS, MAX_POLL_OPTION_LENGTH,
                         MAX_POLL_OPTIONS, MAX_POST_LENGTH, MAX_USERNAME_LENGTH,
                         OWNER_USER_ID, PRIVATE_AUTHENTICATOR_KEY, RATELIMIT,
-                        SITE_NAME, SOURCE_CODE, VALID_LANGUAGES, VERSION,
-                        timeout_handler)
+                        SITE_NAME, SOURCE_CODE, THEMES, VALID_LANGUAGES,
+                        VERSION, timeout_handler)
 
 
 def sha(string: str | bytes) -> str:
@@ -117,11 +117,12 @@ def get_HTTP_response(
         "DISCORD": DISCORD or "",
 
         "DEFAULT_PRIVATE": str(default_post_visibility).lower(),
-        "THEME": theme,
-        "DEFAULT_LIGHT_THEME": DEFAULT_LIGHT_THEME,
-        "DEFAULT_DARK_THEME": DEFAULT_DARK_THEME,
+        "DEFAULT_LIGHT_THEME": json_f.dumps(THEMES[DEFAULT_LIGHT_THEME]),
+        "DEFAULT_DARK_THEME": json_f.dumps(THEMES[DEFAULT_DARK_THEME]),
         "lang": lang,
         "lang_str": json_f.dumps(lang),
+        "theme_str": "{}" if theme == "auto" or theme not in THEMES else json_f.dumps(THEMES[theme]),
+        "THEME": theme if theme in THEMES else "auto",
         "badges": BADGE_DATA,
         "badges_str": json_f.dumps(BADGE_DATA)
     }
@@ -266,6 +267,8 @@ def can_view_post(self_user: User | None, creator: User | None, post: Post | Com
 
 def get_post_json(post_id: int, current_user_id: int=0, comment: bool=False, cache: dict[int, User] | None=None) -> dict[str, str | int | dict]:
     # Returns a dict object that includes information about the specified post
+    # When editing the json content response of this function, make sure you also
+    # correct the schema in static/ts/globals.d.ts
 
     if cache is None:
         cache = {}
