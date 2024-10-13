@@ -185,7 +185,7 @@ testMask(Mask.ReadLogs) && dom("debug-button").addEventListener("click", functio
                     output += `<tr>
               <td class="nowrap">${timeSince(+line.timestamp)}</td>
               <td class="nowrap">${line.type}</td>
-              <td>${(lang.admin.logs[line.target ? "who_format" : "who_format_single"].replaceAll("%1", line.by).replaceAll("%2", line.target)).replaceAll(" ", "&nbsp;").replaceAll(",&nbsp;", ", ")}</td>
+              <td>${lang.admin.logs[line.target ? "who_format" : "who_format_single"].replaceAll(" ", "&nbsp;").replaceAll(",&nbsp;", ", ").replaceAll("%1", `<a href="/u/${line.by}">@${line.by}</a>`).replaceAll("%2", `<a href="/u/${line.target}">@${line.target}</a>`)}</td>
               <td>${escapeHTML(line.info)}</td>
             </tr>`;
                 }

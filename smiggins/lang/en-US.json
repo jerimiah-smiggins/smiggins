@@ -229,8 +229,8 @@
         "action": "Action",
         "who": "Who",
         "more_info": "More Info",
-        "who_format": "Done by @%1, at @%2",
-        "who_format_single": "Done by @%1"
+        "who_format": "Done by %1, at %2",
+        "who_format_single": "Done by %1"
       }
     },
 
