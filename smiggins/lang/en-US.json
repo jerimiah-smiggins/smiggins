@@ -536,7 +536,7 @@
       "changes": {
         "v0.13.1": {
           "1": "Made /api/docs slightly better",
-          "2": "Content warnings now cover polls and quotes again",
+          "2": "Content warnings now cover polls again, however quotes are no longer covered by content warnings",
           "3": "Added a way to add new custom themes in the backend configuration",
           "4": "Added two new default themes"
         },
