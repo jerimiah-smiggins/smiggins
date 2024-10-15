@@ -2,7 +2,7 @@
 
 <html xmlns="http://www.w3.org/1999/xhtml">
   <head>
-    <title>{% block title %}{% endblock %} - {{ SITE_NAME }} v{{ VERSION }}</title>
+    <title>{% block title %}{% endblock %} - {{ SITE_NAME }} {{ VERSION }}</title>
 
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width,initial-scale=1.0">
@@ -15,16 +15,16 @@
     <!-- <style> tags are likely ignored/parsed out by the email host -->
     <style>
       a {
-        color: {{ COLOR.accent }};
+        color: {{ theme.colors.accent.mauve }};
       }
     </style>
   </head>
 
-  <body style="margin: 0; background-color: {{ COLOR.base }}; color: {{ COLOR.text }}; font-family: 'Poppins', 'Arial'; padding: 5vh 3vw; text-align: center; font-size: 18px; overflow-x: hidden; word-wrap: break-word;">
+  <body style="margin: 0; background-color: {{ theme.colors.background }}; color: {{ theme.colors.text }}; font-family: 'Poppins', 'Arial'; padding: 5vh 3vw; text-align: center; font-size: 18px; overflow-x: hidden; word-wrap: break-word;">
     <h1 style="margin-top: 0;">{{ SITE_NAME }}</h1>
-    <h2>v{{ VERSION }}</h2>
+    <h2>{{ VERSION }}</h2>
 
-    <div style="max-width: calc(26.95em - (3em / 7)); border: calc(3em / 14) {{ COLOR.accent_50 }} solid; padding: 1.25em; margin-bottom: 1.75em; text-align: left; display: inline-block; border-radius: calc(3em / 14);">
+    <div style="max-width: calc(26.95em - (3em / 7)); border: calc(3em / 14) {{ theme.colors.accent.mauve }}80 solid; padding: 1.25em; margin-bottom: 1.75em; text-align: left; display: inline-block; border-radius: calc(3em / 14);">
       {% block body %}{% endblock %}
     </div>
   </body>

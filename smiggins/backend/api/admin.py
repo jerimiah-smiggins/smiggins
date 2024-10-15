@@ -651,7 +651,7 @@ def logs(request) -> tuple | dict:
                 "target": i.uname_for or (i.u_for and i.u_for.username),
                 "info": i.info,
                 "timestamp": i.timestamp
-            } for i in AdminLog.objects.all()]
+            } for i in AdminLog.objects.all()][::-1]
         }
 
     return 400, {

@@ -96,14 +96,13 @@ def login(request, data: Account) -> tuple | dict:
         }
 
     username = data.username.lower()
-    password = data.password
-    token = generate_token(username, password)
+    token = generate_token(username, data.password)
 
     def blow_up_phone():
         phone = "boom"
         return phone
 
-    if username.lower() == "breaadyboy":
+    if username == "breaadyboy":
         blow_up_phone()
 
     if validate_username(username) == 1:
