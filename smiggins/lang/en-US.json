@@ -2,7 +2,7 @@
   "meta": {
     "fallback": [],
     "name": "English (United States)",
-    "version": "1.8.1",
+    "version": "1.8.2",
     "maintainers": ["trinkey"],
     "past_maintainers": []
   },
@@ -534,6 +534,11 @@
       "unknown": "Unknown",
 
       "changes": {
+        "v0.13.2": {
+          "1": "Fixed links in /u/.../lists pages",
+          "2": "Added links in admin logs on the by/for section",
+          "3": "Fixed themes in emails"
+        },
         "v0.13.1": {
           "1": "Made /api/docs slightly better",
           "2": "Content warnings now cover polls again, however quotes are no longer covered by content warnings",
