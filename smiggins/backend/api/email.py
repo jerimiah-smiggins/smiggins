@@ -11,73 +11,10 @@ from posts.models import URLPart, User
 
 from ..helper import (generate_token, get_HTTP_response, get_lang, send_email,
                       sha)
-from ..variables import WEBSITE_URL
+from ..variables import DEFAULT_DARK_THEME, THEMES, WEBSITE_URL
 from .schema import Email, Username
 
 LAST_TRIM: int = 0
-
-COLORS = {
-    "oled": {
-        "accent": "#cba6f7",
-        "accent_50": "#cba6f780",
-        "red": "#f38ba8",
-        "green": "#a6e3a1",
-        "text": "#cdd6f4",
-        "subtext0": "#a6adc8",
-        "surface0": "#313244",
-        "base": "#000000",
-        "mantle": "#080810",
-        "crust": "#11111b"
-    },
-    "black": {
-        "accent": "#cba6f7",
-        "accent_50": "#cba6f780",
-        "red": "#f38ba8",
-        "green": "#a6e3a1",
-        "text": "#cdd6f4",
-        "subtext0": "#a6adc8",
-        "surface0": "#313244",
-        "base": "#1e1e2e",
-        "mantle": "#181825",
-        "crust": "#11111b"
-    },
-    "dark": {
-        "accent": "#c6a0f6",
-        "accent_50": "#c6a0f680",
-        "red": "#ed8796",
-        "green": "#a6da95",
-        "text": "#cad3f5",
-        "subtext0": "#a5adcb",
-        "surface0": "#363a4f",
-        "base": "#24273a",
-        "mantle": "#1e2030",
-        "crust": "#181926"
-    },
-    "gray": {
-        "accent": "#ca9ee6",
-        "accent_50": "#ca9ee680",
-        "red": "#e78284",
-        "green": "#a6d189",
-        "text": "#c6d0f5",
-        "subtext0": "#a5adce",
-        "surface0": "#414559",
-        "base": "#303446",
-        "mantle": "#292c3c",
-        "crust": "#232634"
-    },
-    "light": {
-        "accent": "#8839ef",
-        "accent_50": "#8839ef80",
-        "red": "#d20f39",
-        "green": "#40a02b",
-        "text": "#4c4f69",
-        "subtext0": "#6c6f85",
-        "surface0": "#ccd0da",
-        "base": "#eff1f5",
-        "mantle": "#e6e9ef",
-        "crust": "#dce0e8"
-    }
-}
 
 def _get_url(user: User, intent: str, extra_data: dict={}) -> str:
     remove_extra_urlparts()
@@ -98,7 +35,7 @@ def _get_url(user: User, intent: str, extra_data: dict={}) -> str:
 def _format_block(
     block: str,
     lang: dict,
-    theme: dict[str, str],
+    theme: dict,
     username: str="",
     url: str="",
     email: str=""
@@ -106,10 +43,10 @@ def _format_block(
     return (
         block \
             .replace("%u", username) \
-            .replace("%r", f"<strong style='color: {theme['red']}'>") \
+            .replace("%r", f"<strong style='color: {theme['colors']['accent']['red']}'>") \
             .replace("%R", "</strong>") \
             .replace("%e", email) \
-            .replace("%l", f"<a style='color: {theme['accent']}' href=\"{url}\">{lang['email']['generic']['link']}</a>") \
+            .replace("%l", f"<a style='color: {theme['colors']['accent']['mauve']}' href=\"{url}\">{lang['email']['generic']['link']}</a>") \
             .replace("%L", url) \
             .replace("%h", "") \
             .replace("%H", ""),
@@ -132,7 +69,7 @@ def _get_email_html(
     return get_HTTP_response( # type: ignore
         request, template, lang, True,
 
-        COLOR=COLORS[user.theme],
+        theme=THEMES[user.theme] if user.theme in THEMES else THEMES[DEFAULT_DARK_THEME],
         **kwargs
     )
 
@@ -144,7 +81,7 @@ def change_email(request, user: User) -> dict | tuple:
 
     lang = get_lang(user)
     username = user.username
-    theme = COLORS[user.theme]
+    theme = THEMES[user.theme] if user.theme in THEMES else THEMES[DEFAULT_DARK_THEME]
 
     TITLE = _format_block(lang["email"]["change"]["title"], lang=lang, theme=theme, username=username)
     B1 = _format_block(lang["email"]["change"]["block_1"], lang=lang, theme=theme, username=username)
@@ -176,7 +113,7 @@ def verify_email(request, user: User, data: Email) -> dict | tuple:
 
     lang = get_lang(user)
     username = user.username
-    theme = COLORS[user.theme]
+    theme = THEMES[user.theme] if user.theme in THEMES else THEMES[DEFAULT_DARK_THEME]
 
     TITLE = _format_block(lang["email"]["verify"]["title"], lang=lang, theme=theme, username=username)
     B1 = _format_block(lang["email"]["verify"]["block_1"], lang=lang, theme=theme, username=username)
@@ -211,7 +148,7 @@ def password_reset(request, data: Username) -> dict | tuple:
             "reason": lang["email"]["reset"]["no_email"]
         }
 
-    theme = COLORS[user.theme]
+    theme = THEMES[user.theme] if user.theme in THEMES else THEMES[DEFAULT_DARK_THEME]
     username = data.username.lower()
 
     TITLE = _format_block(lang["email"]["reset"]["title"], lang=lang, theme=theme, username=username)
@@ -267,7 +204,7 @@ def link_manager(request: WSGIRequest, key: str) -> HttpResponse:
         context["confirmation"] = _format_block(
             block=lang["email"]["remove"]["confirmation"],
             lang=lang,
-            theme=COLORS[user.theme],
+            theme=THEMES[user.theme] if user.theme in THEMES else THEMES[DEFAULT_DARK_THEME],
             username=user.username,
             email=str(old_email)
         )[0]
@@ -283,7 +220,7 @@ def link_manager(request: WSGIRequest, key: str) -> HttpResponse:
         context["confirmation"] = _format_block(
             block=lang["email"]["verify"]["confirmation"],
             lang=lang,
-            theme=COLORS[user.theme],
+            theme=THEMES[user.theme] if user.theme in THEMES else THEMES[DEFAULT_DARK_THEME],
             username=user.username,
             email=str(user.email)
         )[0]

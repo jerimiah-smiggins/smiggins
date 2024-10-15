@@ -143,6 +143,7 @@ THEMES = {
       "default": "Dawn"
     },
     "id": "light",
+    "light_theme": True,
     "colors": {
       "text": "#4c4f69",
       "subtext": "#6c6f85",
@@ -185,6 +186,7 @@ THEMES = {
       "default": "Dusk"
     },
     "id": "gray",
+    "light_theme": False,
     "colors": {
       "text": "#c6d0f5",
       "subtext": "#a5adce",
@@ -227,6 +229,7 @@ THEMES = {
       "default": "Sunset"
     },
     "id": "purple",
+    "light_theme": False,
     "colors": {
       "text": "#dadada",
       "subtext": "#7d747a",
@@ -269,6 +272,7 @@ THEMES = {
       "default": "Dark"
     },
     "id": "dark",
+    "light_theme": False,
     "colors": {
       "text": "#cad3f5",
       "subtext": "#a5adcb",
@@ -311,6 +315,7 @@ THEMES = {
       "default": "Midnight"
     },
     "id": "black",
+    "light_theme": False,
     "colors": {
       "text": "#cdd6f4",
       "subtext": "#a6adc8",
@@ -353,6 +358,7 @@ THEMES = {
       "default": "Black"
     },
     "id": "oled",
+    "light_theme": False,
     "colors": {
       "text": "#cdd6f4",
       "subtext": "#a6adc8",
