@@ -6,7 +6,7 @@
 {% endblock %}
 
 {% block head %}
-  <link rel="stylesheet" href="{% static '/css/messages.css' %}?v={{ VERSION }}">
+  <style>{% include "css/messages.css" %}</style>
 {% endblock %}
 
 {% block body_head %}
@@ -26,5 +26,5 @@
     <textarea id="your-mom" maxlength="{{ MAX_POST_LENGTH }}" placeholder="{{ PLACEHOLDER }}"></textarea>
   </div>
 
-  <script src="{% static '/js/message.js' %}?v={{ VERSION }}"></script>
+  <script>{% include "js/message.js" %}</script>
 {% endblock %}\

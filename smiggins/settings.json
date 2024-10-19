@@ -359,9 +359,14 @@
   **       - lavender
   **     }
   **
-  **     For these, the value should be a six digit hex code, case insensitive.
-  **     Example:
+  **     For the colors, you can also use "@accent" to use the accent color, or "@accent-50" to use a half opacity accent color.
+  **     Only full and half opacity accent colors are currently supported.
+  **
+  **     For these, the value should be a six digit hex code, case insensitive:
   **     "background": "#1e1e2e"
+  **     You can also use an eight digit hex code if you want to specify opacity too.
+  **     This can be done for anything except for "background" and all of the accent colors:
+  **     "subtext": "#ffffff80"
   **   }
   ** }
   */

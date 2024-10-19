@@ -14,6 +14,31 @@ with this, then don't start drama about it, just leave and pretend smiggins
 doesn't exist.
 
 <details>
+  <summary><h2 style="display: inline">
+    How can I contribute to this project
+  </h2></summary>
+
+  If you would like to help translate this website, read
+  [this file](smiggins/lang/README.md)
+
+  If there is a specific thing you want to do, you can make an issue (if an
+  existing doesn't already exist).
+
+  Once you finish programming you can create a new fork with your code and then
+  make a pull request with it.
+
+  Anyone who gets contributor access to the repository is decided by
+  [@trinkey](https://github.com/trinkey). If you think you are deserving of
+  getting it and don't currently have it, let her know.
+
+  Finally, to compile typescript/less, you need to install those npm packages
+  (`npm i -g less typescript less-plugin-clean-css`). Then, to compile
+  typescript, you can run `tsc` assuming your working directory in your console
+  is somewhere within this project. To compile less, you can run
+  `python compile-less.py` in the root directory of this project.
+</details>
+
+<details>
   <summary><h2 style="display: inline">How to run locally</h2></summary>
 
   1. Clone the github repo or download the files
@@ -239,25 +264,6 @@ doesn't exist.
 
   go to the [issues tab](https://github.com/jerimiah-smiggins/smiggins/issues)
   and make a new issue (make sure you're logged in with github)
-</details>
-
-<details>
-  <summary><h2 style="display: inline">
-    How can I contribute to this project
-  </h2></summary>
-
-  if you would like to help tranlate this website, read
-  [this file](smiggins/lang/README.md)
-
-  if there is a specific thing you want to do, you can make an issue (if a
-  duplicate doesn't already exist).
-
-  once you finish programming you can create a new fork with your code and then
-  make a pull request with it.
-
-  anyone who gets contributor access to the repository is decided by
-  [@trinkey](https://github.com/trinkey). if you think you are deserving of
-  getting it and don't currently have it, let her know.
 </details>
 
 <details>

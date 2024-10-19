@@ -2,13 +2,13 @@
   "compilerOptions": {
     "lib": [ "dom", "es2023" ],
     "noUnusedLocals": false,
-    "outDir": "./smiggins/static/js/",
+    "outDir": "./smiggins/templates/js/",
     "removeComments": true,
     "target": "es6"
   },
 
   "include": [
-    "./smiggins/static/ts/*.ts",
-    "./smiggins/static/ts/linkify/*.ts"
+    "./smiggins/ts/*.ts",
+    "./smiggins/ts/linkify/*.ts"
   ]
 }

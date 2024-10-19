@@ -6,7 +6,7 @@
 {% endblock %}
 
 {% block head %}
-  <link rel="stylesheet" href="{% static '/css/home.css' %}?v={{ VERSION }}">
+  <style>{% include "css/home.css" %}</style>
 {% endblock %}
 
 {% block body %}
@@ -31,6 +31,8 @@
   <div id="posts"></div>
   <button id="more" onclick="refresh(true)" hidden>{{ lang.generic.load_more }}</button>
 
-  <script src="{% static '/js/home.js' %}?v={{ VERSION }}"></script>
-  <script src="{% static '/js/timeline.js' %}?v={{ VERSION }}"></script>
+  <script>
+    {% include "js/home.js" %}
+    {% include "js/timeline.js" %}
+  </script>
 {% endblock %}

@@ -6,8 +6,10 @@
 {% endblock %}
 
 {% block head %}
-  <link rel="stylesheet" href="{% static '/css/home.css' %}?v={{ VERSION }}">
-  <link rel="stylesheet" href="{% static '/css/settings.css' %}?v={{ VERSION }}">
+  <style>
+    {% include "css/home.css" %}
+    {% include "css/settings.css" %}
+  </style>
 {% endblock %}
 
 {% block body_head %}
@@ -210,5 +212,5 @@
     let hasEmail = {{ has_email }};
   </script>
 
-  <script src="{% static '/js/settings.js' %}?v={{ VERSION }}"></script>
+  <script>{% include "js/settings.js" %}</script>
 {% endblock %}

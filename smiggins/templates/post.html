@@ -23,8 +23,10 @@
 {% endblock %}
 
 {% block head %}
-  <link rel="stylesheet" href="{% static '/css/home.css' %}?v={{ VERSION }}">
-  <link rel="stylesheet" href="{% static '/css/post.css' %}?v={{ VERSION }}">
+  <style>
+    {% include "css/home.css" %}
+    {% include "css/post.css" %}
+  </style>
 {% endblock %}
 
 {% block body %}
@@ -70,8 +72,8 @@
       false,         // fakeMentions
       true           // pageFocus
     );
-  </script>
 
-  <script src="{% static '/js/post.js' %}?v={{ VERSION }}"></script>
-  <script src="{% static '/js/timeline.js' %}?v={{ VERSION }}"></script>
+    {% include "js/post.js" %}
+    {% include "js/timeline.js" %}
+  </script>
 {% endblock %}

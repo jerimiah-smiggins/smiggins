@@ -51,6 +51,15 @@ to the `maintainers` section
 Updates for each language version are listed below:
 
 <details>
+<summary>v1.8.3</summary>
+embedding into html and theme update
+
+```diff
++ changelog.changes.v0.13.3 {1, 2, 3}
+```
+</details>
+
+<details>
 <summary>v1.8.2</summary>
 email theme fix
 

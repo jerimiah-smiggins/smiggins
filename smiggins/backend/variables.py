@@ -26,7 +26,7 @@ CREDITS: dict[str, list[str]] = {
 }
 
 # Set default variable states
-REAL_VERSION: tuple[int, int, int] = (0, 13, 2)
+REAL_VERSION: tuple[int, int, int] = (0, 13, 3)
 VERSION: str = ".".join([str(i) for i in REAL_VERSION])
 SITE_NAME: str = "Jerimiah Smiggins"
 WEBSITE_URL: str | None = None
@@ -510,12 +510,12 @@ def typecheck(obj: Any, expected_type: type | str | list | tuple | dict, allow_n
             if not isinstance(obj, list):
                 return False
 
-            def keycheck(object: dict, type_dict: dict[str, type | Literal["color"]], prefix: str=""):
+            def keycheck(object: dict, type_dict: dict[str, type | Literal["color", "color_noop", "color_noa"]], prefix: str=""):
                 for key, expected in type_dict.items():
                     if key not in object:
                         error(f"{prefix}{key} should be in theme definition {object}, discarding")
                         return False
-                    elif not (isinstance(object[key], str) and bool(re.match(r"^#[0-9a-f]{6}$", object[key])) if expected == "color" else isinstance(object[key], expected)):
+                    elif not (isinstance(object[key], str) and bool(re.match(f"^(?:#[0-9a-f]{{6}}{'' if expected == 'color_noop' or expected == 'color_noa' else '(?:[0-9a-f]{2})?'}{'' if expected == 'color_noa' else '|@accent(?:-50)?'})$", object[key])) if expected == "color" or expected == "color_noop" or expected == "color_noa" else isinstance(object[key], expected)):
                         error(f"{prefix}{key} should be type {expected} in theme definition {object}, discarding")
                         return False
                 return True
@@ -536,7 +536,7 @@ def typecheck(obj: Any, expected_type: type | str | list | tuple | dict, allow_n
                     "text": "color",
                     "subtext": "color",
                     "red": "color",
-                    "background": "color",
+                    "background": "color_noop",
                     "post_background": "color",
                     "poll_no_vote_background": "color",
                     "poll_voted_background": "color",
@@ -553,20 +553,20 @@ def typecheck(obj: Any, expected_type: type | str | list | tuple | dict, allow_n
                     "gray": "color",
                     "accent": dict
                 }, "colors.") and keycheck(i["colors"]["accent"], {
-                    "rosewater": "color",
-                    "flamingo": "color",
-                    "pink": "color",
-                    "mauve": "color",
-                    "red": "color",
-                    "maroon": "color",
-                    "peach": "color",
-                    "yellow": "color",
-                    "green": "color",
-                    "teal": "color",
-                    "sky": "color",
-                    "sapphire": "color",
-                    "blue": "color",
-                    "lavender": "color"
+                    "rosewater": "color_noa",
+                    "flamingo": "color_noa",
+                    "pink": "color_noa",
+                    "mauve": "color_noa",
+                    "red": "color_noa",
+                    "maroon": "color_noa",
+                    "peach": "color_noa",
+                    "yellow": "color_noa",
+                    "green": "color_noa",
+                    "teal": "color_noa",
+                    "sky": "color_noa",
+                    "sapphire": "color_noa",
+                    "blue": "color_noa",
+                    "lavender": "color_noa"
                 }, "colors.accent.")):
                     continue
 
