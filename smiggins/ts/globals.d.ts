@@ -26,19 +26,10 @@ declare const badges: { [key: string]: string };
 declare function linkifyHtml(text: string, settings: object): string;
 
 // Defined in base.html, used in settings.ts for themes
-declare function autoInit(): void;
-declare function autoCancel(): void;
-declare function autoSetFavicon(): void;
-declare function setOldFavicon(): void;
 declare function setGenericFavicon(): void;
 declare function getThemeCSS(theme: object): string;
 declare function getThemeAuto(defLight?: object, defDark?: object): string;
 declare let themeObject: _themeObject | null;
-
-declare const autoEnabled: boolean;
-
-declare let oldFavicon: boolean;
-declare let favicon: HTMLLinkElement;
 
 // Types
 type _postJSON = {

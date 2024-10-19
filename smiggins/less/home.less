@@ -4,62 +4,63 @@ button:not(.bottom-content-icon) {
 
 .toggle-poll {
   cursor: pointer;
-}
 
-.toggle-poll:hover {
-  text-decoration: underline;
+  &:hover {
+    text-decoration: underline;
+  }
 }
 
 .poll-bar-container {
   margin: 0.25em 0;
   border-radius: 0.5em;
   height: 2.2em;
+
+  &:has(.poll-bar) {
+    background-color: var(--poll-voted-background);
+  }
+
+  &:not(:has(.poll-bar)) {
+    background-color: var(--poll-no-vote-background);
+    cursor: pointer;
+
+    &:hover {
+      background-color: var(--poll-voted-background);
+    }
+  }
+
+  .poll-text {
+    margin: 0.25em;
+    padding: 0.1em 0.35em;
+    border-radius: 0.3em;
+    position: absolute;
+    overflow: hidden;
+    white-space: nowrap;
+    text-overflow: ellipsis;
+    max-width: calc(25.75em - (3em / 7));
+  }
+
+  .poll-bar {
+    color: transparent;
+    user-select: none;
+    position: absolute;
+    width: calc(26.95em - (3em / 7));
+
+    & ~ .poll-text {
+      background-color: var(--poll-voted-background);
+    }
+
+    &.voted div {
+      background-color: var(--accent);
+    }
+
+    div {
+      background-color: var(--accent-50);
+      border-radius: 0.5em;
+      height: 2.2em;
+    }
+  }
 }
 
-.poll-bar-container:has(.poll-bar) {
-  background-color: var(--poll-voted-background);
-}
-
-.poll-bar-container:not(:has(.poll-bar)) {
-  background-color: var(--poll-no-vote-background);
-  cursor: pointer;
-}
-
-.poll-bar-container:not(:has(.poll-bar)):hover {
-  background-color: var(--poll-voted-background);
-}
-
-.poll-bar-container .poll-text {
-  margin: 0.25em;
-  padding: 0.1em 0.35em;
-  border-radius: 0.3em;
-  position: absolute;
-  overflow: hidden;
-  white-space: nowrap;
-  text-overflow: ellipsis;
-  max-width: calc(25.75em - (3em / 7));
-}
-
-.poll-bar-container .poll-bar {
-  color: transparent;
-  user-select: none;
-  position: absolute;
-  width: calc(26.95em - (3em / 7));
-}
-
-.poll-bar-container .poll-bar ~ .poll-text {
-  background-color: var(--poll-voted-background);
-}
-
-.poll-bar-container .poll-bar.voted div {
-  background-color: var(--accent);
-}
-
-.poll-bar-container .poll-bar div {
-  background-color: var(--accent-50);
-  border-radius: 0.5em;
-  height: 2.2em;
-}
 
 .post-text {
   resize: none;
@@ -135,18 +136,19 @@ input.c-warning {
   text-overflow: ellipsis;
 }
 
-.quote-area .main-content {
-  -webkit-line-clamp: 5;
-  line-clamp: 5;
+.quote-area {
+  .main-content {
+    -webkit-line-clamp: 5;
+    line-clamp: 5;
+  }
+
+  .post {
+    margin-bottom: 0.5em;
+    margin-top: 0.75em;
+    width: 23.5em;
+  }
 }
 
-.quote-area .post {
-  margin-bottom: 0.5em;
-  margin-top: 0.75em;
-  width: 23.5em;
-}
-
-.post,
 .displ-name-container {
   width: calc(26.95em - (3em / 7));
 }
@@ -159,26 +161,23 @@ input.c-warning {
   display: inline-block;
   border-radius: calc(3em / 14);
   background-color: var(--post-background);
+  width: calc(26.95em - (3em / 7));
 }
 
 .upper-content {
   cursor: pointer;
-}
 
-.upper-content > * {
-  display: flex;
-  flex-direction: row;
-  flex-wrap: nowrap;
-  justify-content: left;
-  gap: 0.25em;
-}
+  & > * {
+    display: flex;
+    flex-direction: row;
+    flex-wrap: nowrap;
+    justify-content: left;
+    gap: 0.25em;
 
-.upper-content > * > div {
-  max-width: calc(100% - 3.25em);
-}
-
-.upper-lower-opacity {
-  color: var(--subtext);
+    & > div {
+      max-width: calc(100% - 3.25em);
+    }
+  }
 }
 
 .banner-pfp {
@@ -199,10 +198,10 @@ input.c-warning {
   border-radius: 0.2em;
   margin-bottom: 0.2em;
   cursor: pointer;
-}
 
-.c-warning summary:focus {
-  outline: none;
+  &:focus {
+    outline: none;
+  }
 }
 
 .bottom-content {
@@ -232,15 +231,16 @@ input.c-warning {
 .like-secondary {
   position: absolute;
   display: none;
-}
 
-.like-secondary:has(+ .like[data-liked="true"]) {
-  display: inline-block;
-  animation: like-anim 1s forwards ease-out;
+  &:has(+ .like[data-liked="true"]) {
+    display: inline-block;
+    animation: like-anim 1s forwards ease-out;
+  }
 }
 
 .upper-lower-opacity {
   display: block;
+  color: var(--subtext);
 }
 
 .displ-name-container {
@@ -248,10 +248,10 @@ input.c-warning {
   flex-direction: row-reverse;
   justify-content: left;
   align-items: flex-start;
-}
 
-.displ-name-container .spacing {
-  margin-left: auto;
+  .spacing {
+    margin-left: auto;
+  }
 }
 
 .bottom-content-icon svg,
@@ -352,6 +352,14 @@ button.bottom-content-icon {
   display: inline-block;
 }
 
+.more-button:focus + .more-container,
+.more-container:hover,
+.more-container:focus-within {
+  opacity: 1;
+  pointer-events: all;
+  user-select: auto;
+}
+
 .more-container {
   border: 2px solid var(--accent);
   background-color: var(--button-background);
@@ -365,47 +373,39 @@ button.bottom-content-icon {
   opacity: 0;
   pointer-events: none;
   user-select: none;
-}
 
-.more-button:focus + .more-container,
-.more-container:hover,
-.more-container:focus-within {
-  opacity: 1;
-  pointer-events: all;
-  user-select: auto;
-}
+  & > button {
+    display: block;
+    padding: 4px 12px 6px 6px;
+    font-size: 1em;
+    text-align: left;
+    max-width: 10em;
+    width: 100%;
+    cursor: pointer;
+    border: none;
+    background: none;
 
-.more-container > button {
-  display: block;
-  padding: 4px 12px 6px 6px;
-  font-size: 1em;
-  text-align: left;
-  max-width: 10em;
-  width: 100%;
-  cursor: pointer;
-  border: none;
-  background: none;
-}
+    &:hover {
+      background-color: var(--button-hover-background);
+    }
 
-.more-container > button:hover {
-  background-color: var(--button-hover-background);
-}
+    &:focus {
+      border-color: var(--accent);
+      scale: 100% !important;
+    }
 
-.more-container > button:focus {
-  border-color: var(--accent);
-  scale: 100% !important;
-}
+    &:first-child {
+      border-top-left-radius: 4px;
+      border-top-right-radius: 4px;
+    }
 
-.more-container > button:first-child {
-  border-top-left-radius: 4px;
-  border-top-right-radius: 4px;
-}
+    &:last-child {
+      border-bottom-left-radius: 4px;
+      border-bottom-right-radius: 4px;
+    }
 
-.more-container > button:last-child {
-  border-bottom-left-radius: 4px;
-  border-bottom-right-radius: 4px;
-}
-
-.more-container > button:not(:first-child) {
-  border-top: 1px solid var(--button-border-color);
+    &:not(:first-child) {
+      border-top: 1px solid var(--button-border-color);
+    }
+  }
 }

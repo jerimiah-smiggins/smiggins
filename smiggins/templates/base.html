@@ -115,6 +115,15 @@
     <meta property="og:type" content="website">
     <meta name="twitter:card" content="summary_large_image">
 
+    <link rel="preload" href="{% static '/font/cousine-normal.woff' %}" as="font" type="font/woff" crossorigin>
+    <link rel="preload" href="{% static '/font/cousine-bold.woff' %}" as="font" type="font/woff" crossorigin>
+    <link rel="preload" href="{% static '/font/cousine-italic.woff' %}" as="font" type="font/woff" crossorigin>
+    <link rel="preload" href="{% static '/font/cousine-bolditalic.woff' %}" as="font" type="font/woff" crossorigin>
+    <link rel="preload" href="{% static '/font/poppins-normal.woff' %}" as="font" type="font/woff" crossorigin>
+    <link rel="preload" href="{% static '/font/poppins-bold.woff' %}" as="font" type="font/woff" crossorigin>
+    <link rel="preload" href="{% static '/font/poppins-italic.woff' %}" as="font" type="font/woff" crossorigin>
+    <link rel="preload" href="{% static '/font/poppins-bolditalic.woff' %}" as="font" type="font/woff" crossorigin>
+
     {% block meta %}
       <meta name="author" content="{{ SITE_NAME }}">
       <meta name="description" content="{{ VERSION }}">
@@ -126,80 +135,26 @@
       <meta name="twitter:description" content="{{ VERSION }}">
     {% endblock %}
 
-    <link rel="stylesheet" href="{% static "/css/base.css" %}?v={{ VERSION }}">
+    <style>
+      {% include "css/fonts.css" %}
+      {% include "css/base.css" %}
+    </style>
 
-    <script src="{% static "/js/linkify/linkify.min.js" %}?v={{ VERSION }}"></script>
-    <script src="{% static "/js/linkify/html.min.js" %}?v={{ VERSION }}"></script>
-    <script src="{% static "/js/linkify/mentions.js" %}?v={{ VERSION }}"></script>
-
-    {% if ENABLE_HASHTAGS == "true" %}
-      <script src="{% static "/js/linkify/hashtags.js" %}?v={{ VERSION }}"></script>
-    {% endif %}
-
-    <script src="{% static "/js/base.js" %}?v={{ VERSION }}"></script>
+    <script>
+      {% include "js/linkify/linkify.min.js" %}
+      {% include "js/linkify/html.min.js" %}
+      {% include "js/linkify/mentions.js" %}
+      {% if ENABLE_HASHTAGS == "true" %}
+        {% include "js/linkify/hashtags.js" %}
+      {% endif %}
+      {% include "js/base.js" %}
+    </script>
 
     {% block head %}{% endblock %}
   </head>
 
   <body {% block body_head %}{% endblock %}>
-    <script>
-      let favicon = document.createElement("link");
-      let oldFavicon = !!localStorage.getItem("old-favicon");
-
-      // theme normalization when set to automatic
-      function autoSetFavicon() {
-        if (oldFavicon) { return };
-
-        let obj;
-        if (_autoMM.matches) {
-          obj = _autoColors.light;
-        } else {
-          obj = _autoColors.dark;
-        }
-
-        favicon.href = `/favicon-${obj.background}-${obj.background_alt}-${obj.accents[validColors.indexOf(localStorage.getItem("color")) == -1 ? "mauve" : localStorage.getItem("color")]}`.replaceAll("#", "");
-      }
-
-      function autoInit() {
-        autoEnabled = true;
-        autoSetFavicon();
-        _autoMM.addEventListener("change", autoSetFavicon);
-      }
-
-      function autoCancel() {
-        autoEnabled = false;
-        _autoMM.removeEventListener("change", autoSetFavicon);
-      }
-
-      function setOldFavicon() {
-        favicon.href = "{% static "/img/old_favicon.ico" %}?v={{ VERSION }}";
-      }
-
-      function setGenericFavicon() {
-        favicon.href = `/favicon-${themeObject.colors.background}-${themeObject.colors.button_background}-${themeObject.colors.accent[validColors.indexOf(localStorage.getItem("color")) == -1 ? "mauve" : localStorage.getItem("color")]}`.replaceAll("#", "");
-      }
-
-      let autoEnabled = false;
-      let _autoMM = matchMedia("(prefers-color-scheme: light)");
-
-      if ("{{ THEME|escapejs }}" == "auto") {
-        autoInit();
-      }
-
-      // set proper favicon
-      favicon.rel = "icon";
-      favicon.type = "image/png";
-
-      if (oldFavicon) {
-        setOldFavicon()
-      } else if (autoEnabled) {
-        autoInit();
-      } else {
-        favicon.href = `/favicon-${themeObject.colors.background}-${themeObject.colors.button_background}-${themeObject.colors.accent[validColors.indexOf(localStorage.getItem("color")) == -1 ? "mauve" : localStorage.getItem("color")]}`.replaceAll("#", "");
-      }
-
-      document.head.append(favicon);
-    </script>
+    <script>{% include "js/favicon.js" %}</script>
 
     {% block body %}{% endblock %}
 
@@ -213,6 +168,10 @@
       </ul>
     </noscript>
 
-    <script src="{% static "/js/base-footer.js" %}?v={{ VERSION }}"></script>
+    <script>{% include "js/base-footer.js" %}</script>
+    <div class="fake-hidden">
+      <!-- Ensure all fonts are preloaded -->
+       A<b>A</b><i>A<b>A</b></i>
+       <span class="mono">A<b>A</b><i>A<b>A</b></i></span>
   </body>
 </html>

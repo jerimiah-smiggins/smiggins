@@ -17,7 +17,7 @@
 {% endblock %}
 
 {% block head %}
-  <link rel="stylesheet" href="{% static '/css/home.css' %}?v={{ VERSION }}">
+  <style>{% include "css/home.css" %}</style>
 {% endblock %}
 
 {% block body %}
@@ -35,6 +35,8 @@
     const hashtag = "{{ HASHTAG }}";
   </script>
 
-  <script src="{% static '/js/hashtag.js' %}?v={{ VERSION }}"></script>
-  <script src="{% static '/js/timeline.js' %}?v={{ VERSION }}"></script>
+  <script>
+    {% include "js/hashtag.js" %}
+    {% include "js/timeline.js" %}
+  </script>
 {% endblock %}

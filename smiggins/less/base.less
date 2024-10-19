@@ -51,16 +51,15 @@ small {
 noscript {
   display: block;
   margin-bottom: 10vh;
-}
 
-noscript h1,
-noscript h2 {
-  color: var(--red);
-}
+  h1, h2 {
+    color: var(--red)
+  }
 
-noscript ul {
-  display: inline-block;
-  text-align: left;
+  ul {
+    display: inline-block;
+    text-align: left;
+  }
 }
 
 button {
@@ -72,33 +71,33 @@ button {
   cursor: pointer;
   font-size: 0.8em;
   transition: color 0.15s, scale 0.15s, margin 0.15s, background-color 0.15s;
-}
 
-button:disabled {
-  opacity: 60%;
-  pointer-events: none;
-}
+  &:disabled {
+    opacity: 60%;
+    pointer-events: none;
+  }
 
-button:active {
-  scale: 95%;
-  background-color: var(--button-hover-background);
-}
+  &:active {
+    scale: 95%;
+    background-color: var(--button-hover-background);
+  }
 
-button:hover,
-button.inverted:hover {
-  background-color: var(--button-hover-background);
-}
+  &:hover {
+    background-color: var(--button-hover-background);
+  }
 
-button.inverted {
-  background-color: var(--button-inverted-background);
-}
+  &.inverted {
+    background-color: var(--button-inverted-background);
+  }
 
-button.primary,
-button.primary:hover {
-  background-color: var(--accent);
-  color: var(--background);
-  border-color: var(--button-border);
-  outline-color: var(--button-border);
+  &.primary {
+    &, &:hover {
+      background-color: var(--accent);
+      color: var(--background);
+      border-color: var(--button-border);
+      outline-color: var(--button-border);
+    }
+  }
 }
 
 .fake-input {
@@ -107,6 +106,19 @@ button.primary:hover {
   max-width: 200px;
   width: 90vw;
   cursor: text;
+}
+
+.fake-hidden {
+  display: block;
+  user-select: none;
+  pointer-events: none;
+  opacity: 0;
+  height: 0;
+  width: 0;
+  position: absolute;
+  top: 0;
+  left: 0;
+  text-wrap: nowrap;
 }
 
 .fake-input,
@@ -125,52 +137,56 @@ select {
   resize: vertical;
 }
 
-body:not([data-disable-checkboxes]) label:has(+ input[type="checkbox"]),
-body:not([data-disable-checkboxes]) input[type="checkbox"] + label {
-  cursor: pointer;
+body:not([data-disable-checkboxes]) {
+  label:has(+ input[type="checkbox"]),
+  input[type="checkbox"] + label {
+    cursor: pointer;
+  }
+
+  label + input[type="checkbox"],
+  input[type="checkbox"]:has(+ label) {
+    width: 0;
+    height: 0;
+    opacity: 0;
+    margin: 0;
+    padding: 0;
+    border: none;
+    outline: none;
+  }
+
+  label:has(+ input[type="checkbox"])::after,
+  input[type="checkbox"] + label::before {
+    content: "";
+    transition: background-color 0.25s, outline-color 0.25s;
+    background-color: var(--checkbox-background);
+    display: inline-block;
+    position: relative;
+    top: 0.1em;
+    width: 1em;
+    height: 1em;
+    border-radius: 0.2em;
+    outline: 1px solid var(--checkbox-border);
+  }
+
+  label:has(+ input[type="checkbox"]:checked)::after,
+  input[type="checkbox"]:checked + label::before {
+    background-color: var(--accent);
+  }
+
+  label:has(+ input[type="checkbox"]:focus)::after,
+  input[type="checkbox"]:focus + label::before {
+    outline-color: var(--accent);
+  }
 }
 
-body:not([data-disable-checkboxes]) label + input[type="checkbox"],
-body:not([data-disable-checkboxes]) input[type="checkbox"]:has(+ label) {
-  width: 0;
-  height: 0;
-  opacity: 0;
-  margin: 0;
-  padding: 0;
-  border: none;
-  outline: none;
-}
+label {
+  &::after {
+    margin-left: 0.4em;
+  }
 
-body:not([data-disable-checkboxes]) label:has(+ input[type="checkbox"])::after,
-body:not([data-disable-checkboxes]) input[type="checkbox"] + label::before {
-  content: "";
-  transition: background-color 0.25s, outline-color 0.25s;
-  background-color: var(--checkbox-background);
-  display: inline-block;
-  position: relative;
-  top: 0.1em;
-  width: 1em;
-  height: 1em;
-  border-radius: 0.2em;
-  outline: 1px solid var(--checkbox-border);
-}
-
-label::after {
-  margin-left: 0.4em;
-}
-
-label::before {
-  margin-right: 0.4em;
-}
-
-body:not([data-disable-checkboxes]) label:has(+ input[type="checkbox"]:checked)::after,
-body:not([data-disable-checkboxes]) input[type="checkbox"]:checked + label::before {
-  background-color: var(--accent);
-}
-
-body:not([data-disable-checkboxes]) label:has(+ input[type="checkbox"]:focus)::after,
-body:not([data-disable-checkboxes]) input[type="checkbox"]:focus + label::before {
-  outline-color: var(--accent);
+  &::before {
+    margin-right: 0.4em;
+  }
 }
 
 option {
@@ -202,18 +218,20 @@ textarea:disabled::placeholder {
   color: var(--gray);
 }
 
-a:link, a:visited {
-  color: var(--accent);
-  text-decoration: none;
-}
+a {
+  &:link, &:visited {
+    color: var(--accent);
+    text-decoration: none;
+  }
 
-a:hover {
-  text-decoration: underline;
-}
+  &:hover {
+    text-decoration: underline;
+  }
 
-a::selection {
-  -webkit-text-decoration-color: var(--text);
-  text-decoration-color: var(--text);
+  &::selection {
+    -webkit-text-decoration-color: var(--text);
+    text-decoration-color: var(--text);
+  }
 }
 
 i {
@@ -225,18 +243,19 @@ p {
   padding: 2px;
 }
 
-table.center {
-  margin-left: auto;
-  margin-right: auto;
-}
+table {
+  .center {
+    margin-left: auto;
+    margin-right: auto;
+  }
 
-table.bordered {
-  border-collapse: collapse;
-}
+  .bordered {
+    border-collapse: collapse;
 
-table.bordered th,
-table.bordered td {
-  border: 1.5px solid var(--table-border);
+    th, td {
+      border: 1.5px solid var(--table-border);
+    }
+  }
 }
 
 .user-badge {
@@ -351,32 +370,32 @@ body[data-bar-dir="v"][data-bar-pos^="l"] {
   position: fixed;
   gap: 0.5em;
   z-index: 999;
-}
 
-.icons a {
-  display: inline-block;
-}
+  a {
+    display: inline-block;
+  }
 
-.icons svg {
-  height: 1.5em;
-  width: 1.5em;
-  display: inline-block;
-  fill: var(--text);
-  stroke: none;
-  cursor: pointer;
-}
+  svg {
+    height: 1.5em;
+    width: 1.5em;
+    display: inline-block;
+    fill: var(--text);
+    stroke: none;
+    cursor: pointer;
 
-.icons svg:active {
-  scale: 90%;
-}
+    &:active {
+      scale: 90%;
+    }
+  }
 
-.icons .dot::after {
-  position: absolute;
-  display: inline-block;
-  width: 0.5em;
-  height: 0.5em;
-  border-radius: 0.25em;
-  transform: translate(-0.3em, 0);
-  background-color: var(--accent);
-  content: "";
+  .dot::after {
+    position: absolute;
+    display: inline-block;
+    width: 0.5em;
+    height: 0.5em;
+    border-radius: 0.25em;
+    transform: translate(-0.3em, 0);
+    background-color: var(--accent);
+    content: "";
+  }
 }

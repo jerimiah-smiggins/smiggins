@@ -6,8 +6,10 @@
 {% endblock %}
 
 {% block head %}
-  <link rel="stylesheet" href="{% static '/css/messages.css' %}?v={{ VERSION }}">
-  <link rel="stylesheet" href="{% static '/css/home.css' %}?v={{ VERSION }}">
+  <style>
+    {% include "css/home.css" %}
+    {% include "css/messages.css" %}
+  </style>
 {% endblock %}
 
 {% block body %}
@@ -19,5 +21,5 @@
 
   <button id="more" onclick="refreshMessageList();" hidden>{{ lang.generic.load_more }}</button>
 
-  <script src="{% static '/js/messages.js' %}?v={{ VERSION }}"></script>
+  <script>{% include "js/messages.js" %}</script>
 {% endblock %}

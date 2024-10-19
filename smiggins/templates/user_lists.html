@@ -6,9 +6,11 @@
 {% endblock %}
 
 {% block head %}
-  <link rel="stylesheet" href="{% static '/css/home.css' %}?v={{ VERSION }}">
-  <link rel="stylesheet" href="{% static '/css/user.css' %}?v={{ VERSION }}">
-  <link rel="stylesheet" href="{% static '/css/user_lists.css' %}?v={{ VERSION }}">
+  <style>
+    {% include "css/home.css" %}
+    {% include "css/user.css" %}
+    {% include "css/user_lists.css" %}
+  </style>
 {% endblock %}
 
 {% block body_head %}

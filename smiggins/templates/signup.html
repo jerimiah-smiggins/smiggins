@@ -16,10 +16,6 @@
   <meta name="twitter:description" content="{{ lang.account.sign_up_title }}">
 {% endblock %}
 
-{% block head %}
-  <script src="{% static "/js/check-logged-out.js" %}?v={{ VERSION }}"></script>
-{% endblock %}
-
 {% block body %}
   <h1>{{ lang.account.sign_up_title }}</h1>
 
@@ -36,5 +32,5 @@
   <a href="/login/">{{ lang.account.log_in_instead }}</a>
   <div id="error"></div>
 
-  <script src="{% static '/js/signup.js' %}?v={{ VERSION }}"></script>
+  <script>{% include "js/signup.js" %}</script>
 {% endblock %}

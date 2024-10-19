@@ -1,13 +1,12 @@
 {% extends "base.html" %}
 {% load smiggins_custom %}
-{% load static %}
 
 {% block title %}
   {{ lang.admin.title }} - {{ SITE_NAME }} {{ VERSION }}
 {% endblock %}
 
 {% block head %}
-  <link rel="stylesheet" href="{% static "/css/admin.css" %}?v={{ VERSION }}">
+  <style>{% include "css/admin.css" %}</style>
 
   <script>
     const adminLevel = {{ LEVEL }};
@@ -133,5 +132,5 @@
     <div id="debug"><button id="debug-button">{{ lang.admin.logs.button }}</button></div>
   {% endif %}
 
-  <script src="{% static '/js/admin.js' %}?v={{ VERSION }}"></script>
+  <script>{% include "js/admin.js" %}</script>
 {% endblock %}

@@ -6,7 +6,7 @@
 {% endblock %}
 
 {% block head %}
-  <link rel="stylesheet" href="{% static '/css/home.css' %}?v={{ VERSION }}">
+  <style>{% include "css/home.css" %}</style>
 {% endblock %}
 
 {% block body %}
@@ -18,5 +18,5 @@
 
   <button id="more" onclick="refreshPendingList();" hidden>{{ lang.generic.load_more }}</button>
 
-  <script src="{% static '/js/pending.js' %}?v={{ VERSION }}"></script>
+  <script>{% include "js/pending.js" %}</script>
 {% endblock %}
