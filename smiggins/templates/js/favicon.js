@@ -13,7 +13,7 @@ function autoSetFavicon() {
     else {
         obj = _autoColors.dark;
     }
-    favicon.href = `/favicon-${obj.background}-${obj.background_alt}-${obj.accents[validColors.indexOf(localStorage.getItem("color")) == -1 ? "mauve" : localStorage.getItem("color")]}`.replaceAll("#", "");
+    setGenericFavicon();
 }
 function autoInit() {
     autoEnabled = true;
@@ -28,7 +28,10 @@ function setOldFavicon() {
     favicon.href = "{% static '/img/old_favicon.ico' %}?v={{ VERSION }}";
 }
 function setGenericFavicon() {
-    favicon.href = `/favicon-${themeObject.colors.background}-${themeObject.colors.button_background}-${themeObject.colors.accent[validColors.indexOf(localStorage.getItem("color")) == -1 ? "mauve" : localStorage.getItem("color")]}`.replaceAll("#", "");
+    let bg = themeObject.colors.background.slice(1, 7);
+    let bb = themeObject.colors.button_background.slice(1, 7);
+    let accent = themeObject.colors.accent[validColors.indexOf(localStorage.getItem("color")) == -1 ? "mauve" : localStorage.getItem("color")].slice(1, 7);
+    favicon.href = `/favicon-${bg == "accent" ? accent : bg}-${bb == "accent" ? accent : bb}-${accent}`;
 }
 let autoEnabled = false;
 let _autoMM = matchMedia("(prefers-color-scheme: light)");
@@ -44,6 +47,6 @@ else if (autoEnabled) {
     autoInit();
 }
 else {
-    favicon.href = `/favicon-${themeObject.colors.background}-${themeObject.colors.button_background}-${themeObject.colors.accent[validColors.indexOf(localStorage.getItem("color")) == -1 ? "mauve" : localStorage.getItem("color")]}`.replaceAll("#", "");
+    setGenericFavicon();
 }
 document.head.append(favicon);

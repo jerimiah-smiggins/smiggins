@@ -16,6 +16,9 @@
 
     "changelog": {
       "changes": {
+        "v0.13.3": {
+          "3": "Added support for opacity and accent colours in themes"
+        },
         "v0.13.0": {
           "5": "Added a system theme that's based on the device's preferred colour scheme"
         },
