@@ -168,7 +168,7 @@
     [...document.querySelectorAll("[data-linkify]")].forEach((val, index) => {
       val.innerHTML = linkifyHtml(val.innerHTML, {
         formatHref: {
-          mention: (href) => "/u" + href,
+          mention: (href) => "/u/" + href.slice(1),
           hashtag: (href) => "/hashtag/" + href.slice(1)
         }
       });

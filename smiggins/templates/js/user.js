@@ -9,7 +9,7 @@ function extra(json) {
     ENABLE_USER_BIOS && dom("user-bio").removeAttribute("hidden");
     ENABLE_USER_BIOS && (dom("user-bio").innerHTML = linkifyHtml(escapeHTML(json.bio), {
         formatHref: {
-            mention: (href) => "/u" + href,
+            mention: (href) => "/u/" + href.slice(1),
             hashtag: (href) => "/hashtag/" + href.slice(1)
         }
     }));

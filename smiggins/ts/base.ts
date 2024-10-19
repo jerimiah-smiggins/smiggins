@@ -206,7 +206,7 @@ function getPostHTML(
             ${
               linkifyHtml(escapeHTML(postJSON.content), {
                 formatHref: {
-                  mention: (href: string): string => fakeMentions ? "javascript:void(0);" : "/u" + href,
+                  mention: (href: string): string => fakeMentions ? "javascript:void(0);" : "/u/" + href.slice(1),
                   hashtag: (href: string): string => "/hashtag/" + href.slice(1)
                 }
               }).replaceAll("\n", "<br>\n")
@@ -294,7 +294,7 @@ function getPostHTML(
                       ${
                         linkifyHtml(escapeHTML(postJSON.quote.content), {
                           formatHref: {
-                            mention: (href: string): string => fakeMentions ? "javascript:void(0);" : "/u" + href,
+                            mention: (href: string): string => fakeMentions ? "javascript:void(0);" : "/u/" + href.slice(1),
                             hashtag: (href: string): string => "/hashtag/" + href.slice(1)
                           }
                         }).replaceAll("\n", "<br>")

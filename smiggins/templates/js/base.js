@@ -172,7 +172,7 @@ function getPostHTML(postJSON, isComment = false, includeUserLink = true, includ
           ${includePostLink ? `<a aria-hidden="true" href="/${isComment ? "c" : "p"}/${postJSON.post_id}" tabindex="-1" class="text no-underline">` : ""}
             ${linkifyHtml(escapeHTML(postJSON.content), {
         formatHref: {
-            mention: (href) => fakeMentions ? "javascript:void(0);" : "/u" + href,
+            mention: (href) => fakeMentions ? "javascript:void(0);" : "/u/" + href.slice(1),
             hashtag: (href) => "/hashtag/" + href.slice(1)
         }
     }).replaceAll("\n", "<br>\n")
@@ -252,7 +252,7 @@ function getPostHTML(postJSON, isComment = false, includeUserLink = true, includ
                     <a aria-hidden="true" href="/${postJSON.quote.comment ? "c" : "p"}/${postJSON.quote.post_id}" class="text no-underline">
                       ${linkifyHtml(escapeHTML(postJSON.quote.content), {
         formatHref: {
-            mention: (href) => fakeMentions ? "javascript:void(0);" : "/u" + href,
+            mention: (href) => fakeMentions ? "javascript:void(0);" : "/u/" + href.slice(1),
             hashtag: (href) => "/hashtag/" + href.slice(1)
         }
     }).replaceAll("\n", "<br>")

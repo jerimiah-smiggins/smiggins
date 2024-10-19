@@ -45,7 +45,7 @@ function refreshMessages(start=false, forward=true): void {
           y.setAttribute("class", `message ${message.from_self ? "send" : "receive"}`);
           y.innerHTML = `<div>${linkifyHtml(escapeHTML(message.content), {
             formatHref: {
-              mention: (href: string): string => "/u" + href,
+              mention: (href: string): string => "/u/" + href.slice(1),
               hashtag: (href: string): string => "/hashtag/" + href.slice(1)
             },
           })}</div><span class="timestamp">${timeSince(message.timestamp)}</span>`;

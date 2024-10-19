@@ -43,7 +43,7 @@ function refreshPendingList(fromStart = false) {
               <div class="main-content">
                 ${user.bio ? linkifyHtml(escapeHTML(user.bio), {
                     formatHref: {
-                        mention: (href) => "/u" + href,
+                        mention: (href) => "/u/" + href.slice(1),
                         hashtag: (href) => "/hashtag/" + href.slice(1)
                     }
                 }) : `<i>${lang.user_page.lists_no_bio}</i>`}
