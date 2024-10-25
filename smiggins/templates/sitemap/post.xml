@@ -3,7 +3,7 @@
   {% for post in posts %}
     <url>
       <loc>{{ URL }}/p/{{ post.0 }}/</loc>
-      <lastmod>{{ post.1 }}/</lastmod>
+      <lastmod>{{ post.1 }}</lastmod>
     </url>
   {% endfor %}
 </urlset>

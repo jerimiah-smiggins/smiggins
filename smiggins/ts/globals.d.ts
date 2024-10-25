@@ -62,6 +62,7 @@ type _postJSON = {
   timestamp: number,
   logged_in: boolean,
   edited: boolean,
+  edited_at?: number,
 
   poll: {
     votes: number,

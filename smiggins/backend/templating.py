@@ -2,7 +2,7 @@
 
 import json
 
-# from cairosvg import svg2png
+from cairosvg import svg2png
 from django.http import (HttpResponse, HttpResponseRedirect,
                          HttpResponseServerError)
 from posts.models import Comment, Hashtag, Post, PrivateMessageContainer, User
@@ -418,20 +418,18 @@ def pending(request) -> HttpResponse | HttpResponseRedirect:
     return get_HTTP_response(request, "pending.html", user=user)
 
 def generate_favicon(request, a) -> HttpResponse | HttpResponseServerError:
-    # colors: tuple[str, str, str] = a.split("-")
+    colors: tuple[str, str, str] = a.split("-")
 
-    # png_data: bytes | None = svg2png(
-    #     FAVICON_DATA.replace("@{background}", f"#{colors[0]}").replace("@{background_alt}", f"#{colors[1]}").replace("@{accent}", f"#{colors[2]}"),
-    #     output_width=32,
-    #     output_height=32
-    # )
+    png_data: bytes | None = svg2png(
+        FAVICON_DATA.replace("@{background}", f"#{colors[0]}").replace("@{background_alt}", f"#{colors[1]}").replace("@{accent}", f"#{colors[2]}"),
+        output_width=32,
+        output_height=32
+    )
 
-    # if not isinstance(png_data, bytes):
-    #     return HttpResponseServerError("500 Internal Server Error")
+    if not isinstance(png_data, bytes):
+        return HttpResponseServerError("500 Internal Server Error")
 
-    # return HttpResponse(png_data, content_type="image/png")
-
-    return HttpResponseRedirect("/static/img/old_favicon.ico")
+    return HttpResponse(png_data, content_type="image/png")
 
 # These two functions are referenced in smiggins/urls.py
 def _404(request, exception) -> HttpResponse:

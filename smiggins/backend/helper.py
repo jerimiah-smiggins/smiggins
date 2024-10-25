@@ -355,7 +355,8 @@ def get_post_json(post_id: int, current_user_id: int=0, comment: bool=False, cac
         "parent_is_comment": post.parent_is_comment if isinstance(post, Comment) else False,
         "poll": poll,
         "logged_in": user is not None,
-        "edited": post.edited
+        "edited": post.edited,
+        "edited_at": post.edited_at
     }
 
     if isinstance(post, Post) and post.quote != 0:
@@ -422,7 +423,8 @@ def get_post_json(post_id: int, current_user_id: int=0, comment: bool=False, cac
                     "blocked": False,
                     "has_quote": isinstance(quote, Post) and quote.quote,
                     "poll": bool(quote.poll) if isinstance(quote, Post) else False,
-                    "edited": post.edited
+                    "edited": quote.edited,
+                    "edited_at": quote.edited_at
                 }
 
         except Comment.DoesNotExist:

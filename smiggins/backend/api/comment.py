@@ -344,6 +344,7 @@ def comment_edit(request, data: EditComment):
             }
 
         post.edited = True
+        post.edited_at = round(time.time())
         post.content = content
         post.content_warning = c_warning
         post.private_comment = data.private
