@@ -535,10 +535,12 @@
 
       "changes": {
         "v0.13.3": {
-          "1": "Embedded all javascript/css into the html files",
+          "1": "Embedded all javascript/css into the html files, should make webpages load faster",
           "2": "Rewrote css in less",
           "3": "Added support for opacity and accent colors in themes",
-          "4": "Fixed a bug that caused editing posts to be completely broken"
+          "4": "Fixed a bug that caused editing posts to be completely broken",
+          "5": "Fixed a bug with setting your email",
+          "6": "Added an edited at timestamp that gets shown when you hover over the edit icon"
         },
         "v0.13.2": {
           "1": "Fixed links in /u/.../lists pages",
