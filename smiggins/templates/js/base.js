@@ -109,7 +109,7 @@ function sha256(ascii) {
     return result;
 }
 ;
-function timeSince(date, raw) {
+function timeSince(date, raw = false) {
     let dateObject = new Date(date * 1000);
     let dateString = `${months[dateObject.getMonth()]} ${dateObject.getDate()}, ${dateObject.getFullYear()}, ${String(dateObject.getHours()).padStart(2, "0")}:${String(dateObject.getMinutes()).padStart(2, "0")}:${String(dateObject.getSeconds()).padStart(2, "0")}`;
     let seconds = Math.floor((+(new Date()) / 1000 - date + 1));
