@@ -80,7 +80,7 @@
   && Aliases: email, enable_email
   ## Default: false
   */
-  "enable_email": false,
+  "enable_email": true,
 
   /*
   ** SET TO FALSE for production servers!!! This determines whether or not to

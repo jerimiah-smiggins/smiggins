@@ -537,7 +537,8 @@
         "v0.13.3": {
           "1": "Embedded all javascript/css into the html files",
           "2": "Rewrote css in less",
-          "3": "Added support for opacity and accent colors in themes"
+          "3": "Added support for opacity and accent colors in themes",
+          "4": "Fixed a bug that caused editing posts to be completely broken"
         },
         "v0.13.2": {
           "1": "Fixed links in /u/.../lists pages",
