@@ -205,9 +205,11 @@ function togglePollResults(gInc) {
 }
 function editPost(postID, isComment, private, originalText) {
     let post = document.querySelector(`[data-${isComment ? "comment" : "post"}-id="${postID}"]`);
-    let contentField = post.querySelector(".main-area");
+    let contentField = post.querySelectorAll(".main-area")[1];
     let oldContentField = contentField.innerHTML;
     let originalCW = contentField.querySelector("summary") ? contentField.querySelector("summary").innerText : "";
+    console.log(originalText, originalCW, contentField);
+    debugger;
     contentField.innerHTML = `
     <div class="log"></div>
     <div class="quote-visibility">

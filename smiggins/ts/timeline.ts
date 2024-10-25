@@ -237,11 +237,13 @@ function togglePollResults(gInc: number): void {
 
 function editPost(postID: number, isComment: boolean, private: boolean, originalText: string): void {
   let post: HTMLDivElement = document.querySelector(`[data-${isComment ? "comment" : "post"}-id="${postID}"]`);
-  let contentField: HTMLDivElement = post.querySelector(".main-area");
+  let contentField: HTMLDivElement = post.querySelectorAll(".main-area")[1] as HTMLDivElement;
 
   let oldContentField: string = contentField.innerHTML;
 
   let originalCW: string = contentField.querySelector("summary") ? contentField.querySelector("summary").innerText : "";
+
+  console.log(originalText, originalCW, contentField);
 
   contentField.innerHTML = `
     <div class="log"></div>
