@@ -209,7 +209,6 @@ function editPost(postID, isComment, private, originalText) {
     let oldContentField = contentField.innerHTML;
     let originalCW = contentField.querySelector("summary") ? contentField.querySelector("summary").innerText : "";
     console.log(originalText, originalCW, contentField);
-    debugger;
     contentField.innerHTML = `
     <div class="log"></div>
     <div class="quote-visibility">
