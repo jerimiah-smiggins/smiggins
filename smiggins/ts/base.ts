@@ -151,8 +151,7 @@ function timeSince(date: number, raw: boolean=false): string {
     }
   }
 
-  let fullDate = lang.generic.time.ago.replaceAll("%s", `${Math.floor(amount)} ${lang.generic.time[unit + (Math.floor(amount) == 1 ? "_singular" : "_plural")]}`);
-  return raw ? fullDate : `<span data-timestamp="${date}" title="${dateString}">${fullDate}</span>`;
+  return raw ? dateString : `<span data-timestamp="${date}" title="${dateString}">${lang.generic.time.ago.replaceAll("%s", `${Math.floor(amount)} ${lang.generic.time[unit + (Math.floor(amount) == 1 ? "_singular" : "_plural")]}`)}</span>`;
 }
 
 function escapeHTML(str: string): string {
