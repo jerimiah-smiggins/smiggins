@@ -53,7 +53,7 @@ def sitemap_post(request, index: int) -> HttpResponse:
         request, "sitemap/post.xml", user=None,
 
         URL=WEBSITE_URL,
-        posts=[[i[0], _get_lastmod(i[1])] for i in Post.objects.filter(Q(private_post=False) | Q(private_post=None)).order_by("post_id").values_list("post_id", "timestamp")[index * ITEMS_PER_SITEMAP : (index + 1) * ITEMS_PER_SITEMAP :]]
+        posts=[[i[0], _get_lastmod(i[2] if i[2] else i[1])] for i in Post.objects.filter(Q(private_post=False) | Q(private_post=None)).order_by("post_id").values_list("post_id", "timestamp", "edited_at")[index * ITEMS_PER_SITEMAP : (index + 1) * ITEMS_PER_SITEMAP :]]
     )
     r["Content-Type"] = "application/xml"
     return r

@@ -21,5 +21,5 @@
     {{ lang.account.log_out_description }}
   {% endautoescape %}
 
-  <script src="{% static "/js/logout.js" %}?v={{ VERSION }}"></script>
+  <script>{% include "js/logout.js" %}</script>
 {% endblock %}

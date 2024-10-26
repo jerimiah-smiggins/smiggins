@@ -781,6 +781,7 @@ def post_edit(request, data: EditPost):
             }
 
         post.edited = True
+        post.edited_at = round(time.time())
         post.content = content
         post.content_warning = c_warning
         post.private_post = data.private

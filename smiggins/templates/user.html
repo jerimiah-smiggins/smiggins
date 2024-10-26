@@ -23,8 +23,10 @@
 {% endblock %}
 
 {% block head %}
-  <link rel="stylesheet" href="{% static '/css/home.css' %}?v={{ VERSION }}">
-  <link rel="stylesheet" href="{% static '/css/user.css' %}?v={{ VERSION }}">
+  <style>
+    {% include "css/home.css" %}
+    {% include "css/user.css" %}
+  </style>
 {% endblock %}
 
 {% block body_head %}
@@ -76,8 +78,10 @@
     {% endif %}
   </script>
 
-  <script src="{% static '/js/user.js' %}?v={{ VERSION }}"></script>
-  {% if IS_BLOCKED == "false" %}
-    <script src="{% static '/js/timeline.js' %}?v={{ VERSION }}"></script>
-  {% endif %}
+  <script>
+    {% include "js/user.js" %}
+    {% if IS_BLOCKED == "false" %}
+      {% include "js/timeline.js" %}
+    {% endif %}
+  </script>
 {% endblock %}

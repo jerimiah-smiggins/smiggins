@@ -53,7 +53,24 @@
       }
 
       function getThemeCSS(theme) {
-        return `body {
+        return `
+        [data-color="gray"] { --accent: ${ theme.colors.gray }; --accent-50: ${ theme.colors.gray }80; }
+        [data-color="rosewater"] { --accent: ${ theme.colors.accent.rosewater }; --accent-50: ${ theme.colors.accent.rosewater }80; }
+        [data-color="flamingo"] { --accent: ${ theme.colors.accent.flamingo }; --accent-50: ${ theme.colors.accent.flamingo }80; }
+        [data-color="pink"] { --accent: ${ theme.colors.accent.pink }; --accent-50: ${ theme.colors.accent.pink }80; }
+        [data-color="mauve"], body:not([data-color]) { --accent: ${ theme.colors.accent.mauve }; --accent-50: ${ theme.colors.accent.mauve }80; }
+        [data-color="red"] { --accent: ${ theme.colors.accent.red }; --accent-50: ${ theme.colors.accent.red }80; }
+        [data-color="maroon"] { --accent: ${ theme.colors.accent.maroon }; --accent-50: ${ theme.colors.accent.maroon }80; }
+        [data-color="peach"] { --accent: ${ theme.colors.accent.peach }; --accent-50: ${ theme.colors.accent.peach }80; }
+        [data-color="yellow"] { --accent: ${ theme.colors.accent.yellow }; --accent-50: ${ theme.colors.accent.yellow }80; }
+        [data-color="green"] { --accent: ${ theme.colors.accent.green }; --accent-50: ${ theme.colors.accent.green }80; }
+        [data-color="teal"] { --accent: ${ theme.colors.accent.teal }; --accent-50: ${ theme.colors.accent.teal }80; }
+        [data-color="sky"] { --accent: ${ theme.colors.accent.sky }; --accent-50: ${ theme.colors.accent.sky }80; }
+        [data-color="sapphire"] { --accent: ${ theme.colors.accent.sapphire }; --accent-50: ${ theme.colors.accent.sapphire }80; }
+        [data-color="blue"] { --accent: ${ theme.colors.accent.blue }; --accent-50: ${ theme.colors.accent.blue }80; }
+        [data-color="lavender"] { --accent: ${ theme.colors.accent.lavender }; --accent-50: ${ theme.colors.accent.lavender }80; }
+
+        body {
           --text: ${ theme.colors.text };
           --subtext: ${ theme.colors.subtext };
           --red: ${ theme.colors.red };
@@ -73,23 +90,7 @@
           --table-border: ${ theme.colors.table_border };
           --gray: ${ theme.colors.gray };
           color-scheme: ${theme.light_theme ? "light" : "dark"};
-        }
-
-        [data-color="gray"] { --accent: ${ theme.colors.gray }; --accent-50: ${ theme.colors.gray }80; }
-        [data-color="rosewater"] { --accent: ${ theme.colors.accent.rosewater }; --accent-50: ${ theme.colors.accent.rosewater }80; }
-        [data-color="flamingo"] { --accent: ${ theme.colors.accent.flamingo }; --accent-50: ${ theme.colors.accent.flamingo }80; }
-        [data-color="pink"] { --accent: ${ theme.colors.accent.pink }; --accent-50: ${ theme.colors.accent.pink }80; }
-        [data-color="mauve"], body:not([data-color]) { --accent: ${ theme.colors.accent.mauve }; --accent-50: ${ theme.colors.accent.mauve }80; }
-        [data-color="red"] { --accent: ${ theme.colors.accent.red }; --accent-50: ${ theme.colors.accent.red }80; }
-        [data-color="maroon"] { --accent: ${ theme.colors.accent.maroon }; --accent-50: ${ theme.colors.accent.maroon }80; }
-        [data-color="peach"] { --accent: ${ theme.colors.accent.peach }; --accent-50: ${ theme.colors.accent.peach }80; }
-        [data-color="yellow"] { --accent: ${ theme.colors.accent.yellow }; --accent-50: ${ theme.colors.accent.yellow }80; }
-        [data-color="green"] { --accent: ${ theme.colors.accent.green }; --accent-50: ${ theme.colors.accent.green }80; }
-        [data-color="teal"] { --accent: ${ theme.colors.accent.teal }; --accent-50: ${ theme.colors.accent.teal }80; }
-        [data-color="sky"] { --accent: ${ theme.colors.accent.sky }; --accent-50: ${ theme.colors.accent.sky }80; }
-        [data-color="sapphire"] { --accent: ${ theme.colors.accent.sapphire }; --accent-50: ${ theme.colors.accent.sapphire }80; }
-        [data-color="blue"] { --accent: ${ theme.colors.accent.blue }; --accent-50: ${ theme.colors.accent.blue }80; }
-        [data-color="lavender"] { --accent: ${ theme.colors.accent.lavender }; --accent-50: ${ theme.colors.accent.lavender }80; }`;
+        }`.replaceAll("@accent-50", "var(--accent-50)").replaceAll("@accent", "var(--accent)");
       }
 
       let themeObject;
@@ -115,6 +116,15 @@
     <meta property="og:type" content="website">
     <meta name="twitter:card" content="summary_large_image">
 
+    <link rel="preload" href="{% static '/font/cousine-normal.woff' %}" as="font" type="font/woff" crossorigin>
+    <link rel="preload" href="{% static '/font/cousine-bold.woff' %}" as="font" type="font/woff" crossorigin>
+    <link rel="preload" href="{% static '/font/cousine-italic.woff' %}" as="font" type="font/woff" crossorigin>
+    <link rel="preload" href="{% static '/font/cousine-bolditalic.woff' %}" as="font" type="font/woff" crossorigin>
+    <link rel="preload" href="{% static '/font/poppins-normal.woff' %}" as="font" type="font/woff" crossorigin>
+    <link rel="preload" href="{% static '/font/poppins-bold.woff' %}" as="font" type="font/woff" crossorigin>
+    <link rel="preload" href="{% static '/font/poppins-italic.woff' %}" as="font" type="font/woff" crossorigin>
+    <link rel="preload" href="{% static '/font/poppins-bolditalic.woff' %}" as="font" type="font/woff" crossorigin>
+
     {% block meta %}
       <meta name="author" content="{{ SITE_NAME }}">
       <meta name="description" content="{{ VERSION }}">
@@ -126,80 +136,26 @@
       <meta name="twitter:description" content="{{ VERSION }}">
     {% endblock %}
 
-    <link rel="stylesheet" href="{% static "/css/base.css" %}?v={{ VERSION }}">
+    <style>
+      {% include "css/fonts.css" %}
+      {% include "css/base.css" %}
+    </style>
 
-    <script src="{% static "/js/linkify/linkify.min.js" %}?v={{ VERSION }}"></script>
-    <script src="{% static "/js/linkify/html.min.js" %}?v={{ VERSION }}"></script>
-    <script src="{% static "/js/linkify/mentions.js" %}?v={{ VERSION }}"></script>
-
-    {% if ENABLE_HASHTAGS == "true" %}
-      <script src="{% static "/js/linkify/hashtags.js" %}?v={{ VERSION }}"></script>
-    {% endif %}
-
-    <script src="{% static "/js/base.js" %}?v={{ VERSION }}"></script>
+    <script>
+      {% include "js/linkify/linkify.min.js" %}
+      {% include "js/linkify/html.min.js" %}
+      {% include "js/linkify/mentions.js" %}
+      {% if ENABLE_HASHTAGS == "true" %}
+        {% include "js/linkify/hashtags.js" %}
+      {% endif %}
+      {% include "js/base.js" %}
+    </script>
 
     {% block head %}{% endblock %}
   </head>
 
   <body {% block body_head %}{% endblock %}>
-    <script>
-      let favicon = document.createElement("link");
-      let oldFavicon = !!localStorage.getItem("old-favicon");
-
-      // theme normalization when set to automatic
-      function autoSetFavicon() {
-        if (oldFavicon) { return };
-
-        let obj;
-        if (_autoMM.matches) {
-          obj = _autoColors.light;
-        } else {
-          obj = _autoColors.dark;
-        }
-
-        favicon.href = `/favicon-${obj.background}-${obj.background_alt}-${obj.accents[validColors.indexOf(localStorage.getItem("color")) == -1 ? "mauve" : localStorage.getItem("color")]}`.replaceAll("#", "");
-      }
-
-      function autoInit() {
-        autoEnabled = true;
-        autoSetFavicon();
-        _autoMM.addEventListener("change", autoSetFavicon);
-      }
-
-      function autoCancel() {
-        autoEnabled = false;
-        _autoMM.removeEventListener("change", autoSetFavicon);
-      }
-
-      function setOldFavicon() {
-        favicon.href = "{% static "/img/old_favicon.ico" %}?v={{ VERSION }}";
-      }
-
-      function setGenericFavicon() {
-        favicon.href = `/favicon-${themeObject.colors.background}-${themeObject.colors.button_background}-${themeObject.colors.accent[validColors.indexOf(localStorage.getItem("color")) == -1 ? "mauve" : localStorage.getItem("color")]}`.replaceAll("#", "");
-      }
-
-      let autoEnabled = false;
-      let _autoMM = matchMedia("(prefers-color-scheme: light)");
-
-      if ("{{ THEME|escapejs }}" == "auto") {
-        autoInit();
-      }
-
-      // set proper favicon
-      favicon.rel = "icon";
-      favicon.type = "image/png";
-
-      if (oldFavicon) {
-        setOldFavicon()
-      } else if (autoEnabled) {
-        autoInit();
-      } else {
-        favicon.href = `/favicon-${themeObject.colors.background}-${themeObject.colors.button_background}-${themeObject.colors.accent[validColors.indexOf(localStorage.getItem("color")) == -1 ? "mauve" : localStorage.getItem("color")]}`.replaceAll("#", "");
-      }
-
-      document.head.append(favicon);
-    </script>
+    <script>{% include "js/favicon.js" %}</script>
 
     {% block body %}{% endblock %}
 
@@ -213,6 +169,10 @@
       </ul>
     </noscript>
 
-    <script src="{% static "/js/base-footer.js" %}?v={{ VERSION }}"></script>
+    <script>{% include "js/base-footer.js" %}</script>
+    <div class="fake-hidden">
+      <!-- Ensure all fonts are preloaded -->
+       A<b>A</b><i>A<b>A</b></i>
+       <span class="mono">A<b>A</b><i>A<b>A</b></i></span>
   </body>
 </html>

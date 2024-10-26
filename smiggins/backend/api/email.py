@@ -16,12 +16,16 @@ from .schema import Email, Username
 
 LAST_TRIM: int = 0
 
-def _get_url(user: User, intent: str, extra_data: dict={}) -> str:
+def _get_url(user: User, intent: str, extra_data: dict | None=None) -> str:
+    if extra_data is None:
+        extra_data = {}
+
     remove_extra_urlparts()
 
     url = sha(user.username + intent) + sha(f"{random.random()}{time.time()}")
     if "email" not in extra_data:
         extra_data["email"] = user.email
+
     URLPart.objects.create(
         url=url,
         user=user,
@@ -235,7 +239,6 @@ def link_manager(request: WSGIRequest, key: str) -> HttpResponse:
             }), status=400)
 
         password = json.loads(request.body)["passhash"]
-        print(password)
 
         if password is None:
             return HttpResponse(json.dumps({
