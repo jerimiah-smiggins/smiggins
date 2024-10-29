@@ -2,7 +2,6 @@
 
 import json
 
-from cairosvg import svg2png
 from django.http import (HttpResponse, HttpResponseRedirect,
                          HttpResponseServerError)
 from posts.models import Comment, Hashtag, Post, PrivateMessageContainer, User
@@ -12,9 +11,10 @@ from .helper import (LANGS, can_view_post, get_badges, get_container_id,
                      get_HTTP_response, get_lang, get_post_json)
 from .variables import (BADGE_DATA, CACHE_LANGUAGES, CONTACT_INFO, CREDITS,
                         DEFAULT_BANNER_COLOR, DEFAULT_LANGUAGE,
-                        ENABLE_GRADIENT_BANNERS, ENABLE_LOGGED_OUT_CONTENT,
-                        FAVICON_DATA, MAX_CONTENT_WARNING_LENGTH,
-                        OWNER_USER_ID, SITE_NAME, THEMES, VALID_LANGUAGES)
+                        ENABLE_DYNAMIC_FAVICON, ENABLE_GRADIENT_BANNERS,
+                        ENABLE_LOGGED_OUT_CONTENT, FAVICON_DATA,
+                        MAX_CONTENT_WARNING_LENGTH, OWNER_USER_ID, SITE_NAME,
+                        THEMES, VALID_LANGUAGES)
 
 
 def settings(request) -> HttpResponse:
@@ -224,7 +224,7 @@ def post(request, post_id: int) -> HttpResponse:
 
     try:
         post = Post.objects.get(pk=post_id)
-        creator = User.objects.get(pk=post.creator)
+        creator = post.creator
     except Post.DoesNotExist:
         return get_HTTP_response(
             request, "404-post.html", status=404
@@ -271,7 +271,7 @@ def comment(request, comment_id: int) -> HttpResponse:
 
     try:
         comment = Comment.objects.get(pk=comment_id)
-        creator = User.objects.get(pk=comment.creator)
+        creator = comment.creator
     except Comment.DoesNotExist:
         return get_HTTP_response(
             request, "404-post.html", status=404
@@ -416,6 +416,9 @@ def pending(request) -> HttpResponse | HttpResponseRedirect:
         return HttpResponseRedirect("/home/", status=307)
 
     return get_HTTP_response(request, "pending.html", user=user)
+
+if ENABLE_DYNAMIC_FAVICON:
+    from cairosvg import svg2png
 
 def generate_favicon(request, a) -> HttpResponse | HttpResponseServerError:
     colors: tuple[str, str, str] = a.split("-")

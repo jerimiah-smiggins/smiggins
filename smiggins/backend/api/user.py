@@ -506,10 +506,6 @@ def notifications_list(request) -> tuple | dict:
             "success": False
         }
 
-    cache = {
-        self_user.user_id: self_user
-    }
-
     notifs_list = []
     self_id = self_user.user_id
 
@@ -520,7 +516,7 @@ def notifications_list(request) -> tuple | dict:
             continue
 
         try:
-            x = get_post_json(notification.event_id, self_id, notification.event_type in ["comment", "ping_c"], cache)
+            x = get_post_json(notification.event_id, self_id, notification.event_type in ["comment", "ping_c"])
 
             if "content" in x:
                 notifs_list.append({

@@ -133,9 +133,6 @@ def post_create(request, data: NewPost) -> tuple | dict:
         content=content
     )
 
-    user.posts.append(post.post_id)
-    user.save()
-
     for i in find_mentions(content, [user.username]):
         try:
             notif_for = User.objects.get(username=i.lower())
@@ -236,9 +233,6 @@ def quote_create(request, data: NewQuote) -> tuple | dict:
     quoted_post.quotes.append(post.post_id)
     quoted_post.save()
 
-    user.posts.append(post.post_id)
-    user.save()
-
     try:
         quote_creator = User.objects.get(user_id=quoted_post.creator)
         if quoted_post.creator != user.user_id and quote_creator.user_id not in user.blocking and user.user_id not in quote_creator.blocking:
@@ -275,9 +269,7 @@ def quote_create(request, data: NewQuote) -> tuple | dict:
         post_hook(request, user, post)
 
     return {
-        "post": get_post_json(post.post_id, user.user_id, cache={
-            user.user_id: user
-        }),
+        "post": get_post_json(post.post_id, user.user_id),
         "success": True
     }
 
@@ -289,10 +281,8 @@ def hashtag_list(request, hashtag: str) -> tuple | dict:
     try:
         user = User.objects.get(token=token)
         user_id = user.user_id
-        cache = { user_id: user }
     except User.DoesNotExist:
         user_id = 0
-        cache = {}
 
     try:
         tag = Hashtag.objects.get(tag=hashtag)
@@ -307,7 +297,7 @@ def hashtag_list(request, hashtag: str) -> tuple | dict:
     removed = False
     post_list = []
     for i in posts:
-        x = get_post_json(i, user_id, cache=cache)
+        x = get_post_json(i, user_id)
 
         if x["can_view"]:
             post_list.append(x)
@@ -341,18 +331,19 @@ def post_list_following(request, offset: int=-1) -> tuple | dict:
             "success": False
         }
 
-    potential = []
-    for i in user.following:
-        potential += User.objects.get(pk=i).posts
-    potential = sorted(potential, reverse=True)
+    if len(user.following) == 0:
+        return {
+            "success": True,
+            "posts": [],
+            "end": True
+        }
 
-    index = 0
-    for i in range(len(potential)):
-        if potential[i] < offset:
-            index = i
-            break
+    potential = User.objects.get(pk=user.following[0]).posts.all().filter(post_id__lt=offset)
+    for i in user.following[1::]:
+        potential = potential.union(User.objects.get(pk=i).posts.all().filter(post_id__lt=offset))
 
-    potential = potential[index::]
+    potential = potential.order_by("-post_id")
+
     offset = 0
     outputList = []
 
@@ -400,7 +391,6 @@ def post_list_recent(request, offset: int=-1) -> tuple | dict:
     outputList = []
     offset = 0
     i = next_id
-    cache = {}
 
     while i > next_id - POSTS_PER_REQUEST - offset and i > 0:
         try:
@@ -410,13 +400,15 @@ def post_list_recent(request, offset: int=-1) -> tuple | dict:
             i -= 1
             continue
 
-        if not can_view_post(user, None, current_post, cache)[0]:
+        if not can_view_post(user, None, current_post)[0]:
             offset += 1
 
         else:
-            outputList.append(get_post_json(i, user.user_id, cache=cache))
+            outputList.append(get_post_json(i, user.user_id))
 
         i -= 1
+
+    print(outputList)
 
     return {
         "success": True,
@@ -457,43 +449,23 @@ def post_list_user(request, username: str, offset: int=-1) -> tuple | dict:
             "reason": lang["messages"]["blocked"]
         }
 
-    potential = user.posts[::-1]
-
-    index = 0
-    for i in range(len(potential)):
-        if potential[i] < offset:
-            index = i
-            break
-
-    potential = potential[index::]
-    cache = {
-        user.user_id: user
-    }
-
-    if logged_in:
-        cache[self_user.user_id] = self_user
+    potential = user.posts.filter(post_id__lt=offset)
 
     outputList = []
     c = 0
     for i in potential:
         c += 1
-        try:
-            x = get_post_json(i, self_user_id if logged_in else 0, cache=cache)
+        x = get_post_json(i, self_user_id if logged_in else 0)
 
-            if "private_acc" not in x or not x["private_acc"]:
-                outputList.append(x)
+        if "private_acc" not in x or not x["private_acc"]:
+            outputList.append(x)
 
-            if len(outputList) >= POSTS_PER_REQUEST:
-                break
-
-        except Post.DoesNotExist:
-            user.posts.remove(i)
-            user.save()
-
+        if len(outputList) >= POSTS_PER_REQUEST:
+            break
 
     if ENABLE_PINNED_POSTS:
         try:
-            pinned_post = get_post_json(user.pinned, self_user_id if logged_in else 0, False, cache)
+            pinned_post = get_post_json(user.pinned, self_user_id if logged_in else 0, False)
         except Post.DoesNotExist:
             pinned_post = {}
     else:

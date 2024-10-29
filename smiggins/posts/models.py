@@ -1,5 +1,5 @@
-from django.contrib.contenttypes.fields import GenericForeignKey, GenericRelation
-from django.contrib.contenttypes.models import ContentType
+from typing import TYPE_CHECKING
+
 from django.db import models
 
 
@@ -44,12 +44,20 @@ class User(models.Model):
     blocking  = models.JSONField(default=list, blank=True) #!#
 
     badges = models.JSONField(default=list, blank=True)
-    notifications = models.JSONField(default=list, blank=True) #!#
     read_notifs = models.BooleanField(default=True)
     messages = models.JSONField(default=list, blank=True) #!#
     unread_messages = models.JSONField(default=list, blank=True)
 
     pinned = models.IntegerField(default=0)
+
+    if TYPE_CHECKING:
+        posts: models.Manager["Post"]
+        comments: models.Manager["Comment"]
+        admin_log_for: models.Manager["AdminLog"]
+        admin_log_by: models.Manager["AdminLog"]
+        notifications: models.Manager["Notification"]
+        liked_posts: models.Manager["Post"]
+        liked_comments: models.Manager["Comment"]
 
     def __str__(self):
         return f"({self.user_id}) {self.username}"
@@ -67,7 +75,7 @@ class Post(models.Model):
     edited = models.BooleanField(default=False)
     edited_at = models.IntegerField(null=True)
 
-    likes = models.ManyToManyField(User, through='Like', related_name='liked_posts', blank=True)
+    likes = models.ManyToManyField(User, through="Like", related_name="liked_posts", blank=True)
     comments = models.JSONField(default=list, blank=True)
     quotes = models.JSONField(default=list, blank=True)
     # quotes = GenericRelation(Post, related_query_name="quoted_comments")
@@ -98,7 +106,7 @@ class Comment(models.Model):
     comment_id = models.IntegerField(primary_key=True, unique=True)
     content = models.TextField(max_length=65536, blank=True)
     content_warning = models.TextField(max_length=200, null=True, blank=True)
-    creator = models.ForeignKey(User, on_delete=models.CASCADE)
+    creator = models.ForeignKey(User, on_delete=models.CASCADE, related_name="comments")
     timestamp = models.IntegerField()
 
     parent = models.IntegerField(default=0) #!#
@@ -144,7 +152,7 @@ class Notification(models.Model):
     event_id = models.IntegerField() #!#
 
     # The user object for who the notification is for
-    is_for = models.ForeignKey(User, on_delete=models.CASCADE)
+    is_for = models.ForeignKey(User, on_delete=models.CASCADE, related_name="notifications")
 
     def __str__(self):
         return f"({'' if self.read else 'un'}read) {self.event_type} ({self.event_id}) for {self.is_for.username}"
@@ -157,7 +165,8 @@ class PrivateMessageContainer(models.Model):
     user_one = models.ForeignKey(User, on_delete=models.CASCADE, related_name="container_reference_one")
     user_two = models.ForeignKey(User, on_delete=models.CASCADE, related_name="container_reference_two")
 
-    messages = models.JSONField(default=list, blank=True) #!#
+    if TYPE_CHECKING:
+        messages: models.QuerySet["PrivateMessage"]
 
     def __str__(self):
         return f"Message group between {self.user_one.username} and {self.user_two.username}"
@@ -173,7 +182,7 @@ class PrivateMessage(models.Model):
     # user two.
     from_user_one = models.BooleanField()
 
-    message_container = models.ForeignKey(PrivateMessageContainer, on_delete=models.CASCADE)
+    message_container = models.ForeignKey(PrivateMessageContainer, on_delete=models.CASCADE, related_name="messages")
 
     def __str__(self):
         return f"({self.message_id}) From {self.message_container.user_one.username if self.from_user_one else self.message_container.user_two.username} to {self.message_container.user_two.username if self.from_user_one else self.message_container.user_one.username} - {self.content}"
