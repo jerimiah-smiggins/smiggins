@@ -19,7 +19,7 @@ from django.urls import include, path, re_path
 from django.views.decorators.cache import cache_page
 from posts.models import (AdminLog, Badge, Comment, Hashtag, Notification,
                           Post, PrivateMessage, PrivateMessageContainer,
-                          URLPart, User)
+                          URLPart, User, Like, LikeC)
 
 try:
     django_admin.site.register(User)
@@ -32,6 +32,9 @@ try:
     django_admin.site.register(Hashtag)
     django_admin.site.register(URLPart)
     django_admin.site.register(AdminLog)
+    django_admin.site.register(Like)
+    django_admin.site.register(LikeC)
+
 except AlreadyRegistered:
     ...
 

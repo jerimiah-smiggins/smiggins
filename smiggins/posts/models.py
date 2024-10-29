@@ -192,6 +192,9 @@ class URLPart(models.Model):
     extra_data = models.JSONField(default=dict, blank=True)
     expire = models.IntegerField()
 
+    def __str__(self):
+        return f"for {self.user.username} - /email/{self.url}?i={self.intent}"
+
 class AdminLog(models.Model):
     type = models.TextField()
     u_by = models.ForeignKey(User, on_delete=models.CASCADE, related_name="admin_log_by")
@@ -200,6 +203,9 @@ class AdminLog(models.Model):
     info = models.TextField()
     timestamp = models.IntegerField()
 
+    def __str__(self):
+        return f"{self.type} - {self.u_by.username} -> {self.uname_for or (self.u_for.username if isinstance(self.u_for, User) else self.u_for)} - {self.info}"
+
 class Like(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE)
     post = models.ForeignKey(Post, on_delete=models.CASCADE)
@@ -207,9 +213,15 @@ class Like(models.Model):
     class Meta:
         unique_together = ("user", "post")
 
+    def __str__(self):
+        return f"{self.user.username} liked post {self.post.post_id}"
+
 class LikeC(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE)
     post = models.ForeignKey(Comment, on_delete=models.CASCADE)
 
     class Meta:
         unique_together = ("user", "post")
+
+    def __str__(self):
+        return f"{self.user.username} liked comment {self.post.comment_id}"

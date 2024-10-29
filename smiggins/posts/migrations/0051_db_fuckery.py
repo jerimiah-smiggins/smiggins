@@ -2,6 +2,7 @@
 
 import django.db.models.deletion
 from django.db import migrations, models
+from django.db.utils import IntegrityError
 
 
 def migrate_likes(apps, schema_editor):
@@ -11,8 +12,12 @@ def migrate_likes(apps, schema_editor):
     LikeC = apps.get_model("posts", "LikeC")
     User = apps.get_model("posts", "User")
 
+    unique = []
     for post in Post.objects.all():
         for uid in post.likes1:
+            if [post.post_id, uid] in unique:
+                continue
+            unique.append([post.post_id, uid])
             try:
                 Like.objects.create(
                     user=User.objects.get(user_id=uid),
@@ -20,15 +25,23 @@ def migrate_likes(apps, schema_editor):
                 )
             except User.DoesNotExist:
                 ...
+            except IntegrityError:
+                ...
 
+    unique = []
     for comment in Comment.objects.all():
         for uid in comment.likes1:
+            if [post.post_id, uid] in unique:
+                continue
+            unique.append([post.post_id, uid])
             try:
                 LikeC.objects.create(
                     user=User.objects.get(user_id=uid),
                     post=comment
                 )
             except User.DoesNotExist:
+                ...
+            except IntegrityError:
                 ...
 
 class Migration(migrations.Migration):
