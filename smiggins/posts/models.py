@@ -1,11 +1,13 @@
+from django.contrib.contenttypes.fields import GenericForeignKey, GenericRelation
+from django.contrib.contenttypes.models import ContentType
 from django.db import models
 
 
 class User(models.Model):
-    user_id  = models.IntegerField(primary_key=True, unique=True)
+    user_id = models.IntegerField(primary_key=True, unique=True)
     username = models.CharField(max_length=300, unique=True)
-    token    = models.CharField(max_length=64, unique=True)
-    email    = models.TextField(null=True)
+    token = models.CharField(max_length=64, unique=True)
+    email = models.TextField(null=True)
     email_valid = models.BooleanField(default=False)
 
     # Admin level
@@ -24,55 +26,56 @@ class User(models.Model):
     admin_level = models.IntegerField(default=0)
 
     display_name = models.CharField(max_length=300)
-    bio       = models.CharField(max_length=65536, default="", blank=True)
-    pronouns  = models.CharField(max_length=2, default="__")
-    theme     = models.CharField(max_length=30)
-    color     = models.CharField(max_length=7)
+    bio = models.CharField(max_length=65536, default="", blank=True)
+    pronouns = models.CharField(max_length=2, default="__")
+    theme = models.CharField(max_length=30)
+    color = models.CharField(max_length=7)
     color_two = models.CharField(max_length=7, default="#000000", blank=True)
     gradient  = models.BooleanField(default=False)
 
     default_post_private = models.BooleanField(default=False)
     verify_followers = models.BooleanField(default=False)
-    pending_followers = models.JSONField(default=list, blank=True)
+    pending_followers = models.JSONField(default=list, blank=True) #!#
 
     language = models.CharField(max_length=5, blank=True)
 
-    following = models.JSONField(default=list, blank=True)
-    followers = models.JSONField(default=list, blank=True)
-    blocking  = models.JSONField(default=list, blank=True)
-    badges    = models.JSONField(default=list, blank=True)
-    notifications = models.JSONField(default=list, blank=True)
-    messages = models.JSONField(default=list, blank=True)
+    following = models.JSONField(default=list, blank=True) #!#
+    followers = models.JSONField(default=list, blank=True) #!#
+    blocking  = models.JSONField(default=list, blank=True) #!#
+
+    badges = models.JSONField(default=list, blank=True)
+    notifications = models.JSONField(default=list, blank=True) #!#
     read_notifs = models.BooleanField(default=True)
+    messages = models.JSONField(default=list, blank=True) #!#
     unread_messages = models.JSONField(default=list, blank=True)
 
-    pinned   = models.IntegerField(default=0)
-    posts    = models.JSONField(default=list, blank=True)
-    comments = models.JSONField(default=list, blank=True)
-    likes    = models.JSONField(default=list, blank=True)
+    pinned = models.IntegerField(default=0)
 
     def __str__(self):
         return f"({self.user_id}) {self.username}"
 
 class Post(models.Model):
-    post_id   = models.IntegerField(primary_key=True)
-    content   = models.TextField(max_length=65536, blank=True)
+    post_id = models.IntegerField(primary_key=True)
+    content = models.TextField(max_length=65536, blank=True)
     content_warning = models.TextField(max_length=200, null=True, blank=True)
-    creator   = models.IntegerField()
+    creator = models.ForeignKey(User, on_delete=models.CASCADE, related_name="posts")
     timestamp = models.IntegerField()
-    quote     = models.IntegerField(default=0)
+
+    quote = models.IntegerField(default=0)
     quote_is_comment = models.BooleanField(default=False)
+
     edited = models.BooleanField(default=False)
     edited_at = models.IntegerField(null=True)
 
-    likes    = models.JSONField(default=list, blank=True)
+    likes = models.ManyToManyField(User, through='Like', related_name='liked_posts', blank=True)
     comments = models.JSONField(default=list, blank=True)
-    quotes   = models.JSONField(default=list, blank=True)
+    quotes = models.JSONField(default=list, blank=True)
+    # quotes = GenericRelation(Post, related_query_name="quoted_comments")
 
     # null: anyone (compatibility only), run script 05 to fix
     # False: anyone
     # True: followers only
-    private_post = models.BooleanField(null=True)
+    private = models.BooleanField(null=True)
 
     # type == None: no poll
     # type == dict: yes poll
@@ -93,36 +96,38 @@ class Post(models.Model):
 
 class Comment(models.Model):
     comment_id = models.IntegerField(primary_key=True, unique=True)
-    content    = models.TextField(max_length=65536, blank=True)
+    content = models.TextField(max_length=65536, blank=True)
     content_warning = models.TextField(max_length=200, null=True, blank=True)
-    creator    = models.IntegerField()
-    timestamp  = models.IntegerField()
-    parent     = models.IntegerField(default=0)
+    creator = models.ForeignKey(User, on_delete=models.CASCADE)
+    timestamp = models.IntegerField()
+
+    parent = models.IntegerField(default=0) #!#
+    parent_is_comment = models.BooleanField(default=False)
+
     edited = models.BooleanField(default=False)
     edited_at = models.IntegerField(null=True)
 
-    parent_is_comment = models.BooleanField(default=False)
-    private_comment = models.BooleanField(null=True)
+    private = models.BooleanField(null=True)
 
-    likes    = models.JSONField(default=list, blank=True)
-    comments = models.JSONField(default=list, blank=True)
-    quotes   = models.JSONField(default=list, blank=True)
+    likes = models.ManyToManyField(User, through='LikeC', related_name='liked_comments', blank=True)
+    comments = models.JSONField(default=list, blank=True) #!#
+    quotes = models.JSONField(default=list, blank=True) #!#
 
     def __str__(self):
         return f"({self.comment_id}) {self.content}"
 
 class Badge(models.Model):
-    name     = models.CharField(max_length=64, primary_key=True, unique=True)
+    name = models.CharField(max_length=64, primary_key=True, unique=True)
     svg_data = models.CharField(max_length=65536)
-    users    = models.JSONField(default=list, blank=True)
+    users = models.JSONField(default=list, blank=True)
 
     def __str__(self):
         return f"{self.name} ({', '.join([str(i) for i in self.users]) or 'No users'})"
 
 class Notification(models.Model):
-    notif_id  = models.IntegerField(primary_key=True, unique=True)
+    notif_id = models.IntegerField(primary_key=True, unique=True)
     timestamp = models.IntegerField()
-    read      = models.BooleanField(default=False)
+    read = models.BooleanField(default=False)
 
     # The type of the event that caused the notification. Can be:
     # - comment (commenting on your post)
@@ -136,7 +141,7 @@ class Notification(models.Model):
     # - quote: the post id of the quote
     # - ping_p: it would be the post the ping came from
     # - ping_c: it would be the comment id from where the ping came from
-    event_id = models.IntegerField()
+    event_id = models.IntegerField() #!#
 
     # The user object for who the notification is for
     is_for = models.ForeignKey(User, on_delete=models.CASCADE)
@@ -152,7 +157,7 @@ class PrivateMessageContainer(models.Model):
     user_one = models.ForeignKey(User, on_delete=models.CASCADE, related_name="container_reference_one")
     user_two = models.ForeignKey(User, on_delete=models.CASCADE, related_name="container_reference_two")
 
-    messages = models.JSONField(default=list, blank=True)
+    messages = models.JSONField(default=list, blank=True) #!#
 
     def __str__(self):
         return f"Message group between {self.user_one.username} and {self.user_two.username}"
@@ -175,7 +180,7 @@ class PrivateMessage(models.Model):
 
 class Hashtag(models.Model):
     tag = models.CharField(max_length=64, unique=True, primary_key=True)
-    posts = models.JSONField(default=list, blank=True) # [[is_comment, post_id], ...]
+    posts = models.JSONField(default=list, blank=True) #!# [[is_comment, post_id], ...]
 
     def __str__(self):
         return f"#{self.tag} ({len(self.posts)} posts)"
@@ -194,3 +199,17 @@ class AdminLog(models.Model):
     uname_for = models.TextField(null=True)
     info = models.TextField()
     timestamp = models.IntegerField()
+
+class Like(models.Model):
+    user = models.ForeignKey(User, on_delete=models.CASCADE)
+    post = models.ForeignKey(Post, on_delete=models.CASCADE)
+
+    class Meta:
+        unique_together = ("user", "post")
+
+class LikeC(models.Model):
+    user = models.ForeignKey(User, on_delete=models.CASCADE)
+    post = models.ForeignKey(Comment, on_delete=models.CASCADE)
+
+    class Meta:
+        unique_together = ("user", "post")
