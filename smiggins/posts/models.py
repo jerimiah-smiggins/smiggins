@@ -48,7 +48,10 @@ class User(models.Model):
     messages = models.JSONField(default=list, blank=True) #!#
     unread_messages = models.JSONField(default=list, blank=True)
 
-    pinned = models.IntegerField(default=0)
+    if TYPE_CHECKING:
+        pinned: "Post | None"
+    else:
+        pinned = models.ForeignKey("Post", on_delete=models.SET_NULL, null=True)
 
     if TYPE_CHECKING:
         posts: models.Manager["Post"]

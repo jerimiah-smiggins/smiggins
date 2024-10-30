@@ -52,8 +52,7 @@ def signup(request, data: Account) -> tuple | dict:
             color=DEFAULT_BANNER_COLOR,
             color_two=DEFAULT_BANNER_COLOR,
             following=[],
-            followers=[],
-            posts=[],
+            followers=[]
         )
         user.save()
 
@@ -509,12 +508,8 @@ def notifications_list(request) -> tuple | dict:
     notifs_list = []
     self_id = self_user.user_id
 
-    for i in self_user.notifications[::-1]:
-        try:
-            notification = Notification.objects.get(pk=i)
-        except Notification.DoesNotExist:
-            continue
-
+    all_notifs = self_user.notifications.all().order_by("-notif_id")
+    for notification in all_notifs:
         try:
             x = get_post_json(notification.event_id, self_id, notification.event_type in ["comment", "ping_c"])
 
@@ -527,9 +522,9 @@ def notifications_list(request) -> tuple | dict:
                 })
 
         except Post.DoesNotExist:
-            continue
+            notification.delete()
         except Comment.DoesNotExist:
-            continue
+            notification.delete()
 
     return {
         "success": True,

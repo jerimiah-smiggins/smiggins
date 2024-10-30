@@ -6,10 +6,10 @@ import threading
 import time
 
 import requests
-from posts.models import Comment, Hashtag, Notification, Post, User
+from posts.models import Comment, Hashtag, Post, User, Like
 
 from ..helper import (DEFAULT_LANG, can_view_post, create_api_ratelimit,
-                      create_notification, delete_notification,
+                      create_notification,
                       ensure_ratelimit, find_hashtags, find_mentions, get_lang,
                       get_post_json, trim_whitespace, validate_username)
 from ..variables import (API_TIMINGS, ENABLE_CONTENT_WARNINGS,
@@ -20,6 +20,7 @@ from ..variables import (API_TIMINGS, ENABLE_CONTENT_WARNINGS,
                          POSTS_PER_REQUEST, SITE_NAME, VERSION)
 from .admin import log_admin_action
 from .schema import EditPost, NewPost, NewQuote, Poll, PostID
+from django.db.utils import IntegrityError
 
 
 def post_hook(request, user: User, post: Post):
@@ -112,15 +113,14 @@ def post_create(request, data: NewPost) -> tuple | dict:
 
     timestamp = round(time.time())
     post = Post.objects.create(
-        content = content,
-        content_warning = c_warning or None,
-        creator = user.user_id,
-        timestamp = timestamp,
-        likes = [],
-        comments = [],
-        quotes = [],
-        private_post = data.private,
-        poll = {
+        content=content,
+        content_warning=c_warning or None,
+        creator=user,
+        timestamp=timestamp,
+        comments=[],
+        quotes=[],
+        private=data.private,
+        poll={
             "votes": [],
             "choices": len(poll),
             "content": [{ "value": i, "votes": [] } for i in poll]
@@ -188,9 +188,7 @@ def quote_create(request, data: NewQuote) -> tuple | dict:
             "reason": lang["post"]["invalid_quote_comment"]
         }
 
-    post_owner = User.objects.get(user_id=quoted_post.creator)
-
-    can_view = can_view_post(user, post_owner, quoted_post)
+    can_view = can_view_post(user, quoted_post.creator, quoted_post)
 
     if can_view[0] is False and can_view[1] in ["private", "blocked"]:
         return 400, {
@@ -212,16 +210,15 @@ def quote_create(request, data: NewQuote) -> tuple | dict:
 
     timestamp = round(time.time())
     post = Post.objects.create(
-        content = content,
-        creator = user.user_id,
-        timestamp = timestamp,
-        content_warning = c_warning or None,
-        likes = [],
-        comments = [],
-        quotes = [],
-        private_post = data.private,
-        quote = data.quote_id,
-        quote_is_comment = data.quote_is_comment
+        content=content,
+        creator=user,
+        timestamp=timestamp,
+        content_warning=c_warning or None,
+        comments=[],
+        quotes=[],
+        private=data.private,
+        quote=data.quote_id,
+        quote_is_comment=data.quote_is_comment
     )
 
     post = Post.objects.get(
@@ -234,8 +231,8 @@ def quote_create(request, data: NewQuote) -> tuple | dict:
     quoted_post.save()
 
     try:
-        quote_creator = User.objects.get(user_id=quoted_post.creator)
-        if quoted_post.creator != user.user_id and quote_creator.user_id not in user.blocking and user.user_id not in quote_creator.blocking:
+        quote_creator = quoted_post.creator
+        if quote_creator.user_id != user.user_id and quote_creator.user_id not in user.blocking and user.user_id not in quote_creator.blocking:
             create_notification(
                 quote_creator,
                 "quote",
@@ -408,8 +405,6 @@ def post_list_recent(request, offset: int=-1) -> tuple | dict:
 
         i -= 1
 
-    print(outputList)
-
     return {
         "success": True,
         "posts": outputList,
@@ -449,7 +444,7 @@ def post_list_user(request, username: str, offset: int=-1) -> tuple | dict:
             "reason": lang["messages"]["blocked"]
         }
 
-    potential = user.posts.filter(post_id__lt=offset)
+    potential = user.posts.filter(post_id__lt=offset).order_by("-post_id")
 
     outputList = []
     c = 0
@@ -465,7 +460,7 @@ def post_list_user(request, username: str, offset: int=-1) -> tuple | dict:
 
     if ENABLE_PINNED_POSTS:
         try:
-            pinned_post = get_post_json(user.pinned, self_user_id if logged_in else 0, False)
+            pinned_post = get_post_json(user.pinned or 0, self_user_id if logged_in else 0, False)
         except Post.DoesNotExist:
             pinned_post = {}
     else:
@@ -502,21 +497,18 @@ def post_like_add(request, data: PostID) -> tuple | dict:
 
     user = User.objects.get(token=token)
     post = Post.objects.get(post_id=id)
-    post_owner = User.objects.get(user_id=post.creator)
 
-    can_view = can_view_post(user, post_owner, post)
+    can_view = can_view_post(user, post.creator, post)
 
     if can_view[0] is False and can_view[1] in ["private", "blocked"]:
         return 400, {
             "success": False
         }
 
-    if user.user_id not in post.likes:
-        user.likes.append([id, False])
-        post.likes.append(user.user_id)
-
-        user.save()
-        post.save()
+    try:
+        post.likes.add(user)
+    except IntegrityError:
+        ...
 
     return {
         "success": True
@@ -526,30 +518,14 @@ def post_like_remove(request, data: PostID) -> tuple | dict:
     # Called when someone unlikes a post.
 
     token = request.COOKIES.get('token')
-    id = data.id
 
     try:
-        if id > Post.objects.latest('post_id').post_id:
-            return 404, {
-                "success": False
-            }
-    except ValueError:
-        return 404, {
-            "success": False
-        }
-
-    user = User.objects.get(token=token)
-    post = Post.objects.get(post_id=id)
-
-    if user.user_id in post.likes:
-        try:
-            user.likes.remove([id, False])
-            user.save()
-        except ValueError:
-            pass
-
-        post.likes.remove(user.user_id)
-        post.save()
+        Like.objects.get(
+            user=User.objects.get(token=token),
+            post=Post.objects.get(post_id=data.id)
+        ).delete()
+    except Like.DoesNotExist:
+        ...
 
     return {
         "success": True
@@ -574,17 +550,13 @@ def post_delete(request, data: PostID) -> tuple | dict:
         }
 
     admin = user.user_id == OWNER_USER_ID or user.admin_level >= 1
-    creator = post.creator == user.user_id
+    creator = post.creator.user_id == user.user_id
 
     if admin and not creator:
-        log_admin_action("Delete post", user, User.objects.get(user_id=post.creator), f"Deleted post {id}")
+        log_admin_action("Delete post", user, post.creator, f"Deleted post {id}")
 
     if creator or admin:
-        creator = User.objects.get(user_id=post.creator)
-        creator.posts.remove(id)
-        creator.save()
-
-        for tag in find_hashtags(post.content):
+        for tag in find_hashtags(post.content): # TODO - add relation between posts and hashtags
             try:
                 tag_object = Hashtag.objects.get(tag=tag)
                 tag_object.posts.remove(id)
@@ -606,27 +578,6 @@ def post_delete(request, data: PostID) -> tuple | dict:
             except Comment.DoesNotExist:
                 pass
 
-        try:
-            for notif in Notification.objects.filter(
-                event_id=post.post_id,
-                event_type="ping_p"
-            ):
-                delete_notification(notif)
-
-        except Notification.DoesNotExist:
-            ...
-
-        try:
-            delete_notification(
-                Notification.objects.get(
-                    event_id=post.post_id,
-                    event_type="quote"
-                )
-            )
-
-        except Notification.DoesNotExist:
-            ...
-
         post.delete()
 
         return {
@@ -641,10 +592,9 @@ def pin_post(request, data: PostID) -> tuple | dict:
     # Called when someone pins a post.
 
     token = request.COOKIES.get('token')
-    id = data.id
 
     try:
-        post = Post.objects.get(post_id=id)
+        post = Post.objects.get(post_id=data.id)
         user = User.objects.get(token=token)
     except Post.DoesNotExist:
         return 404, {
@@ -655,8 +605,8 @@ def pin_post(request, data: PostID) -> tuple | dict:
             "success": False
         }
 
-    if post.creator == user.user_id:
-        user.pinned = post.post_id
+    if post.creator.user_id == user.user_id:
+        user.pinned = post
         user.save()
 
         return {
@@ -679,7 +629,7 @@ def unpin_post(request) -> tuple | dict:
             "success": False
         }
 
-    user.pinned = 0
+    user.pinned = None
     user.save()
 
     return {
@@ -697,9 +647,8 @@ def poll_vote(request, data: Poll):
             }
 
         user = User.objects.get(token=request.COOKIES.get('token'))
-        creator = User.objects.get(user_id=post.creator)
 
-        can_view = can_view_post(user, creator, post)
+        can_view = can_view_post(user, post.creator, post)
         if can_view[0] is False and can_view[1] in ["private", "blocked"]:
             return 400, {
                 "success": False
@@ -741,7 +690,7 @@ def post_edit(request, data: EditPost):
             "success": False
         }
 
-    if post.creator == user.user_id:
+    if post.creator.user_id == user.user_id:
         content = trim_whitespace(data.content)
         c_warning = trim_whitespace(data.c_warning, True) if ENABLE_CONTENT_WARNINGS else ""
 
@@ -756,7 +705,7 @@ def post_edit(request, data: EditPost):
         post.edited_at = round(time.time())
         post.content = content
         post.content_warning = c_warning
-        post.private_post = data.private
+        post.private = data.private
 
         post.save()
 
@@ -765,8 +714,7 @@ def post_edit(request, data: EditPost):
             "post": get_post_json(
                 data.id,
                 user.user_id,
-                False,
-                {user.user_id: user}
+                False
             )
         }
 

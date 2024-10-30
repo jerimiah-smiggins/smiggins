@@ -44,6 +44,17 @@ def migrate_likes(apps, schema_editor):
             except IntegrityError:
                 ...
 
+def migrate_pinned(apps, schema_editor):
+    Post = apps.get_model("posts", "Post")
+    User = apps.get_model("posts", "User")
+
+    for user in User.objects.all():
+        try:
+            user.pinned = Post.objects.get(post_id=user.pinned1)
+        except Post.DoesNotExist:
+            user.pinned = None
+        user.save()
+
 class Migration(migrations.Migration):
     dependencies = [
         ("posts", "0050_comment_edited_at_post_edited_at"),
@@ -84,4 +95,10 @@ class Migration(migrations.Migration):
         migrations.RunPython(migrate_likes),
         migrations.RemoveField(model_name="post", name="likes1"),
         migrations.RemoveField(model_name="comment", name="likes1"),
+
+        # Pinned posts
+        migrations.RenameField(model_name="user", old_name="pinned", new_name="pinned1"),
+        migrations.AddField(model_name="user", name="pinned", field=models.ForeignKey(on_delete=django.db.models.deletion.SET_NULL, to="posts.post", null=True)),
+        migrations.RunPython(migrate_pinned),
+        migrations.RemoveField(model_name="user", name="pinned1"),
     ]
