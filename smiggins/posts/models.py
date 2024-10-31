@@ -35,17 +35,19 @@ class User(models.Model):
 
     default_post_private = models.BooleanField(default=False)
     verify_followers = models.BooleanField(default=False)
-    pending_followers = models.JSONField(default=list, blank=True) #!#
+    pending_followers = models.JSONField(default=list, blank=True) #!# m2m
+                                               # pending_following #!# m2m
 
     language = models.CharField(max_length=5, blank=True)
 
-    following = models.JSONField(default=list, blank=True) #!#
-    followers = models.JSONField(default=list, blank=True) #!#
-    blocking  = models.JSONField(default=list, blank=True) #!#
+    following = models.JSONField(default=list, blank=True) #!# m2m
+    followers = models.JSONField(default=list, blank=True) #!# m2m
+    blocking  = models.JSONField(default=list, blank=True) #!# m2m
+                                                 # blocked #!# m2m
 
-    badges = models.JSONField(default=list, blank=True)
+    badges = models.JSONField(default=list, blank=True) #!# m2m
     read_notifs = models.BooleanField(default=True)
-    messages = models.JSONField(default=list, blank=True) #!#
+    messages = models.JSONField(default=list, blank=True)
     unread_messages = models.JSONField(default=list, blank=True)
 
     if TYPE_CHECKING:
@@ -79,8 +81,8 @@ class Post(models.Model):
     edited_at = models.IntegerField(null=True)
 
     likes = models.ManyToManyField(User, through="Like", related_name="liked_posts", blank=True)
-    comments = models.JSONField(default=list, blank=True)
-    quotes = models.JSONField(default=list, blank=True)
+    comments = models.JSONField(default=list, blank=True) #!# reverse foreignkey
+    quotes = models.JSONField(default=list, blank=True) #!# reverse foreignkey
     # quotes = GenericRelation(Post, related_query_name="quoted_comments")
 
     # null: anyone (compatibility only), run script 05 to fix
@@ -112,7 +114,7 @@ class Comment(models.Model):
     creator = models.ForeignKey(User, on_delete=models.CASCADE, related_name="comments")
     timestamp = models.IntegerField()
 
-    parent = models.IntegerField(default=0) #!#
+    parent = models.IntegerField(default=0) #!# foreignkey
     parent_is_comment = models.BooleanField(default=False)
 
     edited = models.BooleanField(default=False)
@@ -121,8 +123,8 @@ class Comment(models.Model):
     private = models.BooleanField(null=True)
 
     likes = models.ManyToManyField(User, through='LikeC', related_name='liked_comments', blank=True)
-    comments = models.JSONField(default=list, blank=True) #!#
-    quotes = models.JSONField(default=list, blank=True) #!#
+    comments = models.JSONField(default=list, blank=True) #!# reverse foreignkey
+    quotes = models.JSONField(default=list, blank=True) #!# reverse foreignkey
 
     def __str__(self):
         return f"({self.comment_id}) {self.content}"
@@ -130,7 +132,7 @@ class Comment(models.Model):
 class Badge(models.Model):
     name = models.CharField(max_length=64, primary_key=True, unique=True)
     svg_data = models.CharField(max_length=65536)
-    users = models.JSONField(default=list, blank=True)
+    users = models.JSONField(default=list, blank=True) #!# m2m
 
     def __str__(self):
         return f"{self.name} ({', '.join([str(i) for i in self.users]) or 'No users'})"
@@ -152,13 +154,13 @@ class Notification(models.Model):
     # - quote: the post id of the quote
     # - ping_p: it would be the post the ping came from
     # - ping_c: it would be the comment id from where the ping came from
-    event_id = models.IntegerField() #!#
+    event_id = models.IntegerField() #!# foreignkey
 
     # The user object for who the notification is for
     is_for = models.ForeignKey(User, on_delete=models.CASCADE, related_name="notifications")
 
     def __str__(self):
-        return f"({'' if self.read else 'un'}read) {self.event_type} ({self.event_id}) for {self.is_for.username}"
+        return f"({'' if self.read else 'un'}read) {self.event_type} ({self.event_id}) for {self.is_for.username if self.is_for else None}"
 
 class PrivateMessageContainer(models.Model):
     # Essentially f"{user_one.username}-{user_two.username}" where user_one
@@ -192,7 +194,7 @@ class PrivateMessage(models.Model):
 
 class Hashtag(models.Model):
     tag = models.CharField(max_length=64, unique=True, primary_key=True)
-    posts = models.JSONField(default=list, blank=True) #!# [[is_comment, post_id], ...]
+    posts = models.JSONField(default=list, blank=True) #!# m2m
 
     def __str__(self):
         return f"#{self.tag} ({len(self.posts)} posts)"
@@ -210,7 +212,7 @@ class URLPart(models.Model):
 class AdminLog(models.Model):
     type = models.TextField()
     u_by = models.ForeignKey(User, on_delete=models.CASCADE, related_name="admin_log_by")
-    u_for = models.ForeignKey(User, on_delete=models.CASCADE, null=True, related_name="admin_log_for")
+    u_for = models.ForeignKey(User, on_delete=models.SET_NULL, null=True, related_name="admin_log_for")
     uname_for = models.TextField(null=True)
     info = models.TextField()
     timestamp = models.IntegerField()

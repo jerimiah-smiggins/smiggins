@@ -42,7 +42,7 @@ except AlreadyRegistered:
 cache_prefix = ".".join([str(i) for i in REAL_VERSION])
 
 # variables to reduce code duplication
-_favicon = lambda request: HttpResponseRedirect("/static/img/old_favicon.ico", status=308) # noqa: E731
+_favicon = lambda request, a=0: HttpResponseRedirect("/static/img/old_favicon.ico", status=308) # noqa: E731
 _robots_txt = create_simple_return("", content_type="text/plain", content_override=ROBOTS)
 _security_txt = create_simple_return("", content_type="text/plain", content_override="\n".join([{"email": "Email", "text": "Other", "url": "Link"}[i[0]] + f": {i[1]}" for i in CONTACT_INFO]) + "\n")
 
@@ -79,7 +79,7 @@ urlpatterns = list(filter(bool, [
 
     #                 base   crust  accent
     #        /favicon-abcdef-123456-987654
-    re_path(r"^favicon-((?:[0-9a-fA-F]{6}-){2}[0-9a-fA-F]{6})$", (cache_page(FAVICON_CACHE_TIMEOUT, key_prefix=cache_prefix)(generate_favicon) if FAVICON_CACHE_TIMEOUT else generate_favicon) if ENABLE_DYNAMIC_FAVICON else lambda a: HttpResponseRedirect("/static/img/old_favicon.ico")),
+    re_path(r"^favicon-((?:[0-9a-fA-F]{6}-){2}[0-9a-fA-F]{6})$", (cache_page(FAVICON_CACHE_TIMEOUT, key_prefix=cache_prefix)(generate_favicon) if FAVICON_CACHE_TIMEOUT else generate_favicon) if ENABLE_DYNAMIC_FAVICON else _favicon),
     path("favicon.ico", cache_page(GENERIC_CACHE_TIMEOUT, key_prefix=cache_prefix)(_favicon) if GENERIC_CACHE_TIMEOUT else _favicon),
     path("robots.txt", cache_page(GENERIC_CACHE_TIMEOUT, key_prefix=cache_prefix)(_robots_txt) if GENERIC_CACHE_TIMEOUT else _robots_txt),
     path(".well-known/security.txt", cache_page(GENERIC_CACHE_TIMEOUT, key_prefix=cache_prefix)(_security_txt) if GENERIC_CACHE_TIMEOUT else _security_txt),

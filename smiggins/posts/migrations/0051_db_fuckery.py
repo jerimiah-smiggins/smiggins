@@ -65,9 +65,12 @@ class Migration(migrations.Migration):
         migrations.RenameField(model_name="post", old_name="private_post", new_name="private"),
         migrations.RemoveField(model_name="user", name="comments"),
         migrations.RemoveField(model_name="user", name="likes"),
+        migrations.RemoveField(model_name="user", name="notifications"),
         migrations.RemoveField(model_name="user", name="posts"),
-        migrations.AlterField(model_name="comment", name="creator", field=models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, to="posts.user")),
+        migrations.AlterField(model_name="comment", name="creator", field=models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, related_name="comments", to="posts.user")),
         migrations.AlterField(model_name="post", name="creator", field=models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, related_name="posts", to="posts.user")),
+        migrations.AlterField(model_name="adminlog", name="u_for", field=models.ForeignKey(on_delete=django.db.models.deletion.SET_NULL, null=True, related_name="admin_log_for", to="posts.user")),
+        migrations.AlterField(model_name="notification", name="is_for", field=models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, related_name="notifications", to="posts.user")),
 
         # Likes
         migrations.CreateModel(
@@ -101,4 +104,8 @@ class Migration(migrations.Migration):
         migrations.AddField(model_name="user", name="pinned", field=models.ForeignKey(on_delete=django.db.models.deletion.SET_NULL, to="posts.post", null=True)),
         migrations.RunPython(migrate_pinned),
         migrations.RemoveField(model_name="user", name="pinned1"),
+
+        # Messages
+        migrations.RemoveField(model_name="privatemessagecontainer", name="messages"),
+        migrations.AlterField(model_name="privatemessage", name="message_container", field=models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, related_name="messages", to="posts.privatemessagecontainer"))
     ]

@@ -1,6 +1,7 @@
 # For API functions that relate to messages for example sending, deleting, etc.
 
 import time
+from sys import maxsize
 
 from posts.models import PrivateMessage, PrivateMessageContainer, User
 
@@ -103,10 +104,12 @@ def send_message(request, data: NewMessage) -> tuple | dict:
         x.remove(container_id)
     except ValueError:
         pass
+
     try:
         y.remove(container_id)
     except ValueError:
         pass
+
     x.insert(0, container_id)
     y.insert(0, container_id)
 
@@ -124,20 +127,11 @@ def send_message(request, data: NewMessage) -> tuple | dict:
     container.user_two.save()
 
     x = PrivateMessage.objects.create(
-        timestamp = timestamp,
-        content = content,
-        from_user_one = data.username == container_id.split(":")[1],
-        message_container = container
+        timestamp=timestamp,
+        content=content,
+        from_user_one=data.username == container_id.split(":")[1],
+        message_container=container
     )
-
-    x = PrivateMessage.objects.get(
-        content = content,
-        timestamp = timestamp,
-        message_container = container
-    )
-
-    container.messages.append(x.message_id)
-    container.save()
 
     return {
         "success": True
@@ -153,7 +147,6 @@ def messages_list(request, username: str, forward: bool=True, offset: int=-1) ->
 
     container_id = get_container_id(username, user.username)
     container = PrivateMessageContainer.objects.get(container_id=container_id)
-    container_messages = container.messages
     is_user_one = username == container_id.split(":")[1]
 
     if is_user_one and container_id in container.user_one.unread_messages:
@@ -165,41 +158,23 @@ def messages_list(request, username: str, forward: bool=True, offset: int=-1) ->
         container.user_two.save()
 
     if forward:
-        try:
-            index = container_messages.index(offset)
-        except ValueError:
-            index = len(container_messages)
-
-        list_of_messages = container_messages[max(0, index - MESSAGES_PER_REQUEST) : index if index else None :][::-1]
-        more = len(container_messages) - MESSAGES_PER_REQUEST * max(1, offset + 1) > 0
-
+        list_of_messages = container.messages.filter(message_id__lt=maxsize if offset == -1 else offset).order_by("-message_id")
     else:
-        try:
-            index = container_messages.index(offset)
-        except ValueError:
-            index = 0
+        list_of_messages = container.messages.filter(message_id__gt=offset).order_by("-message_id")
 
-        list_of_messages = container_messages[index + 1 : index + MESSAGES_PER_REQUEST :][::-1]
-        more = len(list_of_messages) - index - MESSAGES_PER_REQUEST > 0
+    more = list_of_messages.count() > MESSAGES_PER_REQUEST
+    list_of_messages = list_of_messages[:MESSAGES_PER_REQUEST]
 
     messages = []
-    for i in list_of_messages:
-        try:
-            message = PrivateMessage.objects.get(
-                message_id=i,
-            )
+    for message in list_of_messages:
+        messages.append({
+            "timestamp": message.timestamp,
+            "content": message.content,
+            "from_self": is_user_one == message.from_user_one,
+            "id": message.message_id
+        })
 
-            messages.append({
-                "timestamp": message.timestamp,
-                "content": message.content,
-                "from_self": is_user_one == message.from_user_one,
-                "id": i
-            })
-
-        except PrivateMessage.DoesNotExist:
-            ...
-
-    return 200, {
+    return {
         "success": True,
         "messages": messages,
         "more": more
@@ -222,7 +197,8 @@ def recent_messages(request, offset: int=-1) -> tuple | dict:
             )
 
             other_user = container.user_one if i.split(":")[1] == self_username else container.user_two
-            message = PrivateMessage.objects.get(message_id=container.messages[-1]) if len(container.messages) else ""
+            recent_message = container.messages.last()
+            message = PrivateMessage.objects.get(message_id=recent_message.message_id) if recent_message else ""
 
             message_json.append({
                 "content": message.content if isinstance(message, PrivateMessage) else "",

@@ -2,9 +2,9 @@
 
 import time
 
-from posts.models import AdminLog, Badge, Comment, Hashtag, Post, User
+from posts.models import AdminLog, Badge, User
 
-from ..helper import find_hashtags, get_lang, trim_whitespace
+from ..helper import get_lang, trim_whitespace
 from ..variables import BADGE_DATA, MAX_ADMIN_LOG_LINES, OWNER_USER_ID
 from .schema import (AccountIdentifier, DeleteBadge, NewBadge, SaveUser,
                      UserBadge, UserLevel)
@@ -92,76 +92,6 @@ def user_delete(request, data: AccountIdentifier) -> tuple | dict:
             b = Badge.objects.get(name=badge)
             b.users.remove(account.user_id)
             b.save()
-
-        for post_id in account.posts:
-            try:
-                post = Post.objects.get(post_id=post_id)
-
-                for tag in find_hashtags(post.content):
-                    try:
-                        tag_object = Hashtag.objects.get(tag=tag)
-                        tag_object.posts.remove(id)
-                        tag_object.save()
-
-                    except Hashtag.DoesNotExist:
-                        pass
-                    except ValueError:
-                        pass
-
-                if post.quote:
-                    try:
-                        quoted_post = (Comment if post.quote_is_comment else Post).objects.get(pk=post.quote)
-                        quoted_post.quotes.remove(post.post_id)
-                        quoted_post.save()
-                    except Post.DoesNotExist:
-                        pass
-                    except Comment.DoesNotExist:
-                        pass
-
-                for quote_id in post.quotes:
-                    quoting_post = Post.objects.get(post_id=quote_id)
-                    quoting_post.quote = -1
-                    quoting_post.save()
-
-                post.delete()
-
-            except Post.DoesNotExist:
-                pass
-
-        for comment_id in account.comments:
-            try:
-                comment = Comment.objects.get(comment_id=comment_id)
-
-                try:
-                    commented_post = (Comment if comment.parent_is_comment else Post).objects.get(pk=comment.parent)
-                    commented_post.comments.remove(comment.comment_id)
-                    commented_post.save()
-
-                except Post.DoesNotExist:
-                    pass
-                except Comment.DoesNotExist:
-                    pass
-
-                comment.delete()
-
-            except Comment.DoesNotExist:
-                pass
-
-        for like in account.likes:
-            post = (Comment if like[1] else Post).objects.get(pk=like[0])
-            post.likes.remove(account.user_id)
-            post.save()
-            try:
-                post = (Comment if like[1] else Post).objects.get(pk=like[0])
-                post.likes.remove(account.user_id)
-                post.save()
-
-            except Post.DoesNotExist:
-                pass
-            except Comment.DoesNotExist:
-                pass
-            except ValueError:
-                pass
 
         for followed_id in account.following:
             if followed_id == account.user_id:

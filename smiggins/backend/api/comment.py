@@ -2,7 +2,8 @@
 
 import time
 
-from posts.models import Comment, Notification, Post, User
+from django.db.utils import IntegrityError
+from posts.models import Comment, LikeC, Notification, Post, User
 
 from ..helper import (DEFAULT_LANG, can_view_post, create_api_ratelimit,
                       create_notification, delete_notification,
@@ -38,7 +39,7 @@ def comment_create(request, data: NewComment) -> tuple | dict:
     c_warning = trim_whitespace(data.c_warning, True) if ENABLE_CONTENT_WARNINGS else ""
 
     parent = (Comment if is_comment else Post).objects.get(pk=id)
-    can_view = can_view_post(user, User.objects.get(user_id=parent.creator), parent)
+    can_view = can_view_post(user, parent.creator, parent)
     if can_view[0] is False and (can_view[1] == "blocked" or can_view[1] == "private"):
         return 400, {
             "success": False
@@ -55,47 +56,38 @@ def comment_create(request, data: NewComment) -> tuple | dict:
 
     timestamp = round(time.time())
 
-    comment = Comment(
+    Comment.objects.create(
         content=content,
-        creator=user.user_id,
+        creator=user,
         timestamp=timestamp,
         content_warning=c_warning or None,
-        likes=[],
         comments=[],
         quotes=[],
         parent=id,
-        private_comment=data.private,
+        private=data.private,
         parent_is_comment=is_comment
     )
-    comment.save()
 
     comment = Comment.objects.get(
+        content=content,
+        creator=user,
         timestamp=timestamp,
-        creator=user.user_id,
-        content=content
+        parent=id
     )
-
-    user.comments.append(comment.comment_id)
-    user.save()
 
     if comment.comment_id not in parent.comments:
         parent.comments.append(comment.comment_id)
+        parent.save()
 
-    parent.save()
+    creator = parent.creator
+    if creator.user_id != user.user_id and user.user_id not in creator.blocking and creator.user_id not in user.blocking:
+        create_notification(
+            parent.creator,
+            "comment",
+            comment.comment_id
+        )
 
-    try:
-        creator = User.objects.get(user_id=parent.creator)
-        if parent.creator != user.user_id and user.user_id not in creator.blocking and parent.creator not in user.blocking:
-            create_notification(
-                User.objects.get(user_id=parent.creator),
-                "comment",
-                comment.comment_id
-            )
-    except User.DoesNotExist:
-        print("how")
-        creator = None
-
-    for i in find_mentions(content, [user.username, creator.username if creator else ""]):
+    for i in find_mentions(content, [user.username, creator.username]):
         try:
             notif_for = User.objects.get(username=i.lower())
             if user.user_id not in notif_for.blocking and notif_for.user_id not in user.blocking:
@@ -160,7 +152,6 @@ def comment_list(request, id: int, comment: bool, offset: int=-1) -> tuple | dic
 
     outputList = []
     offset = 0
-    cache = {}
 
     if logged_in:
         self_user = User.objects.get(token=token)
@@ -174,20 +165,13 @@ def comment_list(request, id: int, comment: bool, offset: int=-1) -> tuple | dic
             offset += 1
             continue
 
-        try:
-            creator = User.objects.get(pk=comment_object.creator)
-
-        except User.DoesNotExist:
-            offset += 1
-            continue
-
-        can_view = can_view_post(self_user, creator, comment_object)
+        can_view = can_view_post(self_user, comment_object.creator, comment_object)
         if can_view[0] is False and (can_view[1] == "blocked" or can_view[1] == "private"):
             offset += 1
             continue
 
         else:
-            outputList.append(get_post_json(i, user_id, True, cache=cache))
+            outputList.append(get_post_json(i, user_id, True))
 
         if len(outputList) >= POSTS_PER_REQUEST:
             break
@@ -205,20 +189,17 @@ def comment_like_add(request, data: CommentID):
 
     user = User.objects.get(token=token)
     comment = Comment.objects.get(comment_id=id)
-    comment_owner = User.objects.get(user_id=comment.creator)
 
-    can_view = can_view_post(user, comment_owner, comment)
+    can_view = can_view_post(user, comment.creator, comment)
     if can_view[0] is False and (can_view[1] == "blocked" or can_view[1] == "private"):
         return 400, {
             "success": False
         }
 
-    if user.user_id not in comment.likes:
-        user.likes.append([id, True])
-        comment.likes.append(user.user_id)
-
-        user.save()
-        comment.save()
+    try:
+        comment.likes.add(user)
+    except IntegrityError:
+        ...
 
     return {
         "success": True
@@ -228,30 +209,14 @@ def comment_like_remove(request, data: CommentID):
     # Called when someone removes a like from a comment.
 
     token = request.COOKIES.get('token')
-    id = data.id
 
     try:
-        if id > Comment.objects.latest('comment_id').comment_id:
-            return 404, {
-                "success": False
-            }
-    except ValueError:
-        return 404, {
-            "success": False
-        }
-
-    user = User.objects.get(token=token)
-    comment = Comment.objects.get(comment_id=id)
-
-    if user.user_id in comment.likes:
-        try:
-            user.likes.remove([id, True])
-            user.save()
-        except ValueError:
-            ...
-
-        comment.likes.remove(user.user_id)
-        comment.save()
+        LikeC.objects.get(
+            user=User.objects.get(token=token),
+            post=Comment.objects.get(comment_id=data.id)
+        ).delete()
+    except LikeC.DoesNotExist:
+        ...
 
     return {
         "success": True
@@ -283,7 +248,7 @@ def comment_delete(request, data: CommentID) -> tuple | dict:
     creator = comment.creator == user.user_id
 
     if admin and not creator:
-        log_admin_action("Delete comment", user, User.objects.get(user_id=comment.creator), f"Deleted comment {id}")
+        log_admin_action("Delete comment", user, comment.creator, f"Deleted comment {id}")
 
     if creator or admin:
         try:
@@ -347,7 +312,7 @@ def comment_edit(request, data: EditComment):
         post.edited_at = round(time.time())
         post.content = content
         post.content_warning = c_warning
-        post.private_comment = data.private
+        post.private = data.private
 
         post.save()
 
@@ -356,8 +321,7 @@ def comment_edit(request, data: EditComment):
             "post": get_post_json(
                 data.id,
                 user.user_id,
-                True,
-                {user.user_id: user}
+                True
             )
         }
 

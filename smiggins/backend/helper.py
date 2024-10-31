@@ -457,7 +457,8 @@ def delete_notification(
     user = notif.is_for
 
     try:
-        if Notification.objects.get(notif_id=user.notifications[-1]).read:
+        last = user.notifications.last()
+        if last and last.read:
             user.read_notifs = True
             user.save()
 
@@ -476,18 +477,19 @@ def create_notification(
     timestamp = round(time.time())
 
     Notification.objects.create(
-        is_for = is_for,
-        event_type = event_type,
-        event_id = event_id,
-        timestamp = timestamp
+        is_for=is_for,
+        event_type=event_type,
+        event_id=event_id,
+        timestamp=timestamp
     )
 
     is_for.read_notifs = False
 
-    if is_for.notifications.count() > MAX_NOTIFICATIONS:
-        to_delete = is_for.notifications[:-MAX_NOTIFICATIONS:]
-        for i in to_delete:
-            i.delete()
+    c = is_for.notifications.count() - MAX_NOTIFICATIONS
+    for i in range(max(c, 0)):
+        f = is_for.notifications.first()
+        if f:
+            f.delete()
 
     is_for.save()
 

@@ -6,12 +6,13 @@ import threading
 import time
 
 import requests
-from posts.models import Comment, Hashtag, Post, User, Like
+from django.db.utils import IntegrityError
+from posts.models import Comment, Hashtag, Like, Post, User
 
 from ..helper import (DEFAULT_LANG, can_view_post, create_api_ratelimit,
-                      create_notification,
-                      ensure_ratelimit, find_hashtags, find_mentions, get_lang,
-                      get_post_json, trim_whitespace, validate_username)
+                      create_notification, ensure_ratelimit, find_hashtags,
+                      find_mentions, get_lang, get_post_json, trim_whitespace,
+                      validate_username)
 from ..variables import (API_TIMINGS, ENABLE_CONTENT_WARNINGS,
                          ENABLE_LOGGED_OUT_CONTENT, ENABLE_PINNED_POSTS,
                          ENABLE_POLLS, MAX_CONTENT_WARNING_LENGTH,
@@ -20,7 +21,6 @@ from ..variables import (API_TIMINGS, ENABLE_CONTENT_WARNINGS,
                          POSTS_PER_REQUEST, SITE_NAME, VERSION)
 from .admin import log_admin_action
 from .schema import EditPost, NewPost, NewQuote, Poll, PostID
-from django.db.utils import IntegrityError
 
 
 def post_hook(request, user: User, post: Post):
@@ -484,22 +484,10 @@ def post_like_add(request, data: PostID) -> tuple | dict:
     token = request.COOKIES.get('token')
     id = data.id
 
-    try:
-        if id > Post.objects.latest('post_id').post_id:
-            return 404, {
-                "success": False
-            }
-
-    except ValueError:
-        return 404, {
-            "success": False
-        }
-
     user = User.objects.get(token=token)
     post = Post.objects.get(post_id=id)
 
     can_view = can_view_post(user, post.creator, post)
-
     if can_view[0] is False and can_view[1] in ["private", "blocked"]:
         return 400, {
             "success": False
