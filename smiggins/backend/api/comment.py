@@ -3,7 +3,7 @@
 import time
 
 from django.db.utils import IntegrityError
-from posts.models import Comment, LikeC, Notification, Post, User
+from posts.models import Comment, M2MLikeC, Notification, Post, User
 
 from ..helper import (DEFAULT_LANG, can_view_post, create_api_ratelimit,
                       create_notification, delete_notification,
@@ -211,11 +211,11 @@ def comment_like_remove(request, data: CommentID):
     token = request.COOKIES.get('token')
 
     try:
-        LikeC.objects.get(
+        M2MLikeC.objects.get(
             user=User.objects.get(token=token),
             post=Comment.objects.get(comment_id=data.id)
         ).delete()
-    except LikeC.DoesNotExist:
+    except M2MLikeC.DoesNotExist:
         ...
 
     return {

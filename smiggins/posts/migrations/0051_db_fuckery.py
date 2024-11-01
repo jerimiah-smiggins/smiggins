@@ -8,9 +8,10 @@ from django.db.utils import IntegrityError
 def migrate_likes(apps, schema_editor):
     Post = apps.get_model("posts", "Post")
     Comment = apps.get_model("posts", "Comment")
-    Like = apps.get_model("posts", "Like")
-    LikeC = apps.get_model("posts", "LikeC")
     User = apps.get_model("posts", "User")
+
+    M2MLike = apps.get_model("posts", "M2MLike")
+    M2MLikeC = apps.get_model("posts", "M2MLikeC")
 
     unique = []
     for post in Post.objects.all():
@@ -19,7 +20,7 @@ def migrate_likes(apps, schema_editor):
                 continue
             unique.append([post.post_id, uid])
             try:
-                Like.objects.create(
+                M2MLike.objects.create(
                     user=User.objects.get(user_id=uid),
                     post=post
                 )
@@ -35,9 +36,53 @@ def migrate_likes(apps, schema_editor):
                 continue
             unique.append([post.post_id, uid])
             try:
-                LikeC.objects.create(
+                M2MLikeC.objects.create(
                     user=User.objects.get(user_id=uid),
                     post=comment
+                )
+            except User.DoesNotExist:
+                ...
+            except IntegrityError:
+                ...
+
+def migrate_relationships(apps, schema_editor):
+    User = apps.get_model("posts", "User")
+
+    M2MFollow = apps.get_model("posts", "M2MFollow")
+    M2MBlock = apps.get_model("posts", "M2MBlock")
+
+    for user in User.objects.all():
+        unique = {
+            "block": [],
+            "follow": []
+        }
+
+        for uid in user.following1:
+            if uid in unique["follow"] or uid == user.user_id:
+                continue
+
+            unique["follow"].append(uid)
+
+            try:
+                M2MFollow.objects.create(
+                    user=user,
+                    following=User.objects.get(user_id=uid)
+                )
+            except User.DoesNotExist:
+                ...
+            except IntegrityError:
+                ...
+
+        for uid in user.blocking1:
+            if uid in unique["block"] or uid == user.user_id:
+                continue
+
+            unique["block"].append(uid)
+
+            try:
+                M2MBlock.objects.create(
+                    user=user,
+                    blocking=User.objects.get(user_id=uid)
                 )
             except User.DoesNotExist:
                 ...
@@ -61,6 +106,45 @@ class Migration(migrations.Migration):
     ]
 
     operations = [
+        # Make models
+        migrations.CreateModel(
+            name="M2MLike",
+            fields=[
+                ("id", models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name="ID")),
+                ("post", models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, to="posts.post")),
+                ("user", models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, to="posts.user"))
+            ],
+            options={ "unique_together": {("user", "post")} }
+        ),
+        migrations.CreateModel(
+            name="M2MLikeC",
+            fields=[
+                ("id", models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name="ID")),
+                ("post", models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, to="posts.comment")),
+                ("user", models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, to="posts.user"))
+            ],
+            options={ "unique_together": {("user", "post")} }
+        ),
+        migrations.CreateModel(
+            name="M2MBlock",
+            fields=[
+                ("id", models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name="ID")),
+                ("blocking", models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, related_name="blocked_obj", to="posts.user")),
+                ("user", models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, related_name="blocking_obj", to="posts.user"))
+            ],
+            options={ "unique_together": {("user", "blocking")} }
+        ),
+        migrations.CreateModel(
+            name="M2MFollow",
+            fields=[
+                ("id", models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name="ID")),
+                ("following", models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, related_name="followers_obj", to="posts.user")),
+                ("user", models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, related_name="following_obj", to="posts.user"))
+            ],
+            options={ "unique_together": {("user", "following")} }
+        ),
+
+        # Misc.
         migrations.RenameField(model_name="comment", old_name="private_comment", new_name="private"),
         migrations.RenameField(model_name="post", old_name="private_post", new_name="private"),
         migrations.RemoveField(model_name="user", name="comments"),
@@ -73,28 +157,10 @@ class Migration(migrations.Migration):
         migrations.AlterField(model_name="notification", name="is_for", field=models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, related_name="notifications", to="posts.user")),
 
         # Likes
-        migrations.CreateModel(
-            name="Like",
-            fields=[
-                ("id", models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name="ID")),
-                ("post", models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, to="posts.post")),
-                ("user", models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, to="posts.user"))
-            ],
-            options={ "unique_together": {("user", "post")} }
-        ),
-        migrations.CreateModel(
-            name="LikeC",
-            fields=[
-                ("id", models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name="ID")),
-                ("post", models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, to="posts.comment")),
-                ("user", models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, to="posts.user"))
-            ],
-            options={ "unique_together": {("user", "post")} }
-        ),
         migrations.RenameField(model_name="post", old_name="likes", new_name="likes1"),
         migrations.RenameField(model_name="comment", old_name="likes", new_name="likes1"),
-        migrations.AddField(model_name="post", name="likes", field=models.ManyToManyField(blank=True, related_name="liked_posts", through="posts.Like", to="posts.user")),
-        migrations.AddField(model_name="comment", name="likes", field=models.ManyToManyField(blank=True, related_name="liked_comments", through="posts.LikeC", to="posts.user")),
+        migrations.AddField(model_name="post", name="likes", field=models.ManyToManyField(blank=True, related_name="liked_posts", through="posts.M2MLike", to="posts.user")),
+        migrations.AddField(model_name="comment", name="likes", field=models.ManyToManyField(blank=True, related_name="liked_comments", through="posts.M2MLikeC", to="posts.user")),
         migrations.RunPython(migrate_likes),
         migrations.RemoveField(model_name="post", name="likes1"),
         migrations.RemoveField(model_name="comment", name="likes1"),
@@ -107,5 +173,15 @@ class Migration(migrations.Migration):
 
         # Messages
         migrations.RemoveField(model_name="privatemessagecontainer", name="messages"),
-        migrations.AlterField(model_name="privatemessage", name="message_container", field=models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, related_name="messages", to="posts.privatemessagecontainer"))
+        migrations.AlterField(model_name="privatemessage", name="message_container", field=models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, related_name="messages", to="posts.privatemessagecontainer")),
+
+        # Following/blocking nonsense
+        migrations.RemoveField(model_name="user", name="followers"),
+        migrations.RenameField(model_name="user", old_name="following", new_name="following1"),
+        migrations.RenameField(model_name="user", old_name="blocking", new_name="blocking1"),
+        migrations.AddField(model_name="user", name="blocking", field=models.ManyToManyField(blank=True, related_name="blockers", through="posts.M2MBlock", to="posts.user")),
+        migrations.AddField(model_name="user", name="following", field=models.ManyToManyField(blank=True, related_name="followers", through="posts.M2MFollow", to="posts.user")),
+        migrations.RunPython(migrate_relationships),
+        migrations.RemoveField(model_name="user", name="following1"),
+        migrations.RemoveField(model_name="user", name="blocking1")
     ]

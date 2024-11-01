@@ -7,7 +7,7 @@ import time
 
 import requests
 from django.db.utils import IntegrityError
-from posts.models import Comment, Hashtag, Like, Post, User
+from posts.models import Comment, Hashtag, M2MLike, Post, User
 
 from ..helper import (DEFAULT_LANG, can_view_post, create_api_ratelimit,
                       create_notification, ensure_ratelimit, find_hashtags,
@@ -508,11 +508,11 @@ def post_like_remove(request, data: PostID) -> tuple | dict:
     token = request.COOKIES.get('token')
 
     try:
-        Like.objects.get(
+        M2MLike.objects.get(
             user=User.objects.get(token=token),
             post=Post.objects.get(post_id=data.id)
         ).delete()
-    except Like.DoesNotExist:
+    except M2MLike.DoesNotExist:
         ...
 
     return {

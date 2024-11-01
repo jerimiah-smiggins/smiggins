@@ -40,10 +40,8 @@ class User(models.Model):
 
     language = models.CharField(max_length=5, blank=True)
 
-    following = models.JSONField(default=list, blank=True) #!# m2m
-    followers = models.JSONField(default=list, blank=True) #!# m2m
-    blocking  = models.JSONField(default=list, blank=True) #!# m2m
-                                                 # blocked #!# m2m
+    following = models.ManyToManyField("self", symmetrical=False, through_fields=("user", "following"), through="M2MFollow", related_name="followers", blank=True)
+    blocking = models.ManyToManyField("self", symmetrical=False, through_fields=("user", "blocking"), through="M2MBlock", related_name="blockers", blank=True)
 
     badges = models.JSONField(default=list, blank=True) #!# m2m
     read_notifs = models.BooleanField(default=True)
@@ -63,6 +61,8 @@ class User(models.Model):
         notifications: models.Manager["Notification"]
         liked_posts: models.Manager["Post"]
         liked_comments: models.Manager["Comment"]
+        followers: models.Manager["User"]
+        blockers: models.Manager["User"]
 
     def __str__(self):
         return f"({self.user_id}) {self.username}"
@@ -80,7 +80,7 @@ class Post(models.Model):
     edited = models.BooleanField(default=False)
     edited_at = models.IntegerField(null=True)
 
-    likes = models.ManyToManyField(User, through="Like", related_name="liked_posts", blank=True)
+    likes = models.ManyToManyField(User, through="M2MLike", related_name="liked_posts", blank=True)
     comments = models.JSONField(default=list, blank=True) #!# reverse foreignkey
     quotes = models.JSONField(default=list, blank=True) #!# reverse foreignkey
     # quotes = GenericRelation(Post, related_query_name="quoted_comments")
@@ -122,7 +122,7 @@ class Comment(models.Model):
 
     private = models.BooleanField(null=True)
 
-    likes = models.ManyToManyField(User, through='LikeC', related_name='liked_comments', blank=True)
+    likes = models.ManyToManyField(User, through="M2MLikeC", related_name="liked_comments", blank=True)
     comments = models.JSONField(default=list, blank=True) #!# reverse foreignkey
     quotes = models.JSONField(default=list, blank=True) #!# reverse foreignkey
 
@@ -220,7 +220,7 @@ class AdminLog(models.Model):
     def __str__(self):
         return f"{self.type} - {self.u_by.username} -> {self.uname_for or (self.u_for.username if isinstance(self.u_for, User) else self.u_for)} - {self.info}"
 
-class Like(models.Model):
+class M2MLike(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE)
     post = models.ForeignKey(Post, on_delete=models.CASCADE)
 
@@ -230,7 +230,7 @@ class Like(models.Model):
     def __str__(self):
         return f"{self.user.username} liked post {self.post.post_id}"
 
-class LikeC(models.Model):
+class M2MLikeC(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE)
     post = models.ForeignKey(Comment, on_delete=models.CASCADE)
 
@@ -239,3 +239,23 @@ class LikeC(models.Model):
 
     def __str__(self):
         return f"{self.user.username} liked comment {self.post.comment_id}"
+
+class M2MFollow(models.Model):
+    user = models.ForeignKey(User, on_delete=models.CASCADE, related_name="following_obj")
+    following = models.ForeignKey(User, on_delete=models.CASCADE, related_name="followers_obj")
+
+    class Meta:
+        unique_together = ("user", "following")
+
+    def __str__(self):
+        return f"{self.user.username} follows {self.following.username}"
+
+class M2MBlock(models.Model):
+    user = models.ForeignKey(User, on_delete=models.CASCADE, related_name="blocking_obj")
+    blocking = models.ForeignKey(User, on_delete=models.CASCADE, related_name="blocked_obj")
+
+    class Meta:
+        unique_together = ("user", "blocking")
+
+    def __str__(self):
+        return f"{self.user.username} blocks {self.blocking.username}"
