@@ -230,7 +230,7 @@ def ensure_ratelimit(api_id: str, identifier: str | None) -> bool:
 def get_badges(user: User) -> list[str]:
     # Returns the list of badges for the specified user
 
-    return user.badges + (["administrator"] if user.admin_level != 0 or user.user_id == OWNER_USER_ID else []) if ENABLE_BADGES else []
+    return list(user.badges.all().values_list("name", flat=True)) + (["administrator"] if user.admin_level != 0 or user.user_id == OWNER_USER_ID else []) if ENABLE_BADGES else []
 
 def can_view_post(self_user: User | None, creator: User | None, post: Post | Comment) -> tuple[Literal[True]] | tuple[Literal[False], Literal["blocked", "private", "blocking"]]:
     if self_user is None:
@@ -241,13 +241,13 @@ def can_view_post(self_user: User | None, creator: User | None, post: Post | Com
     if creator.user_id == self_user.user_id:
         return True,
 
-    if self_user.user_id in creator.blocking:
+    if creator.blocking.contains(self_user):
         return False, "blocked"
 
-    if post.private and self_user.user_id not in creator.followers:
+    if post.private and not creator.followers.contains(self_user):
         return False, "private"
 
-    if creator.user_id in self_user.blocking:
+    if self_user.blocking.contains(creator):
         return False, "blocking"
 
     return True,

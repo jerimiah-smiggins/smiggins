@@ -1,6 +1,5 @@
 # For API functions that relate to posts, for example creating, fetching home lists, etc.
 
-import random
 import sys
 import threading
 import time
@@ -150,8 +149,7 @@ def post_create(request, data: NewPost) -> tuple | dict:
                 tag = i
             )
 
-        tag.posts.append(post.post_id)
-        tag.save()
+        tag.posts.add(post)
 
     if user.username in POST_WEBHOOKS:
         post_hook(request, user, post)
@@ -259,8 +257,7 @@ def quote_create(request, data: NewQuote) -> tuple | dict:
                 tag=i
             )
 
-        tag.posts.append(post.post_id)
-        tag.save()
+    tag.posts.add(post)
 
     if user.username in POST_WEBHOOKS:
         post_hook(request, user, post)
@@ -283,31 +280,23 @@ def hashtag_list(request, hashtag: str) -> tuple | dict:
 
     try:
         tag = Hashtag.objects.get(tag=hashtag)
-        posts = tag.posts
-        p2 = [i for i in posts]
-        random.shuffle(posts)
     except Hashtag.DoesNotExist:
-        return 400, {
-            "success": False
+        return {
+            "success": True,
+            "end": True,
+            "posts": []
         }
 
-    removed = False
+    posts = tag.posts.all().order_by("?")
     post_list = []
-    for i in posts:
-        x = get_post_json(i, user_id)
+    for post in posts:
+        x = get_post_json(post, user_id)
 
-        if x["can_view"]:
+        if "can_view" in x and x["can_view"]:
             post_list.append(x)
 
             if len(post_list) >= POSTS_PER_REQUEST:
                 break
-        else:
-            p2.remove(i)
-            removed = True
-
-    if removed:
-        tag.posts = p2
-        tag.save()
 
     return {
         "success": True,
@@ -438,7 +427,7 @@ def post_list_user(request, username: str, offset: int=-1) -> tuple | dict:
     offset = sys.maxsize if offset == -1 or not isinstance(offset, int) else offset
     user = User.objects.get(username=username)
 
-    if self_user_id in user.blocking:
+    if user.blocking.contains(self_user):
         return 400, {
             "success": False,
             "reason": lang["messages"]["blocked"]
@@ -471,8 +460,8 @@ def post_list_user(request, username: str, offset: int=-1) -> tuple | dict:
         "posts": outputList,
         "end": len(potential) <= c,
         "can_view": True,
-        "following": len(user.following) - 1,
-        "followers": len(user.followers),
+        "following": user.following.count(),
+        "followers": user.followers.count(),
         "bio": user.bio or "",
         "self": False if not logged_in else self_user.username == username,
         "pinned": pinned_post

@@ -63,6 +63,8 @@ class User(models.Model):
         liked_comments: models.Manager["Comment"]
         followers: models.Manager["User"]
         blockers: models.Manager["User"]
+        pending_following: models.Manager["User"]
+        badges: models.Manager["Badge"]
 
     def __str__(self):
         return f"({self.user_id}) {self.username}"
@@ -103,6 +105,9 @@ class Post(models.Model):
     #   ]
     # }
     poll = models.JSONField(default=None, null=True, blank=True)
+
+    if TYPE_CHECKING:
+        hashtags: models.Manager["Hashtag"]
 
     def __str__(self):
         return f"({self.post_id}) {self.content}"
@@ -197,7 +202,7 @@ class Hashtag(models.Model):
     posts = models.ManyToManyField(Post, through="M2MHashtagPost", related_name="hashtags", blank=True)
 
     def __str__(self):
-        return f"#{self.tag} ({len(self.posts)} posts)"
+        return f"#{self.tag} ({self.posts.count()} posts)"
 
 class URLPart(models.Model):
     url = models.TextField(max_length=128, primary_key=True, unique=True)
@@ -308,7 +313,6 @@ try:
     django_admin.site.register(M2MPending)
     django_admin.site.register(M2MHashtagPost)
     django_admin.site.register(M2MBadgeUser)
-
 
 except AlreadyRegistered:
     ...

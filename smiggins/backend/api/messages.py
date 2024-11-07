@@ -80,7 +80,7 @@ def send_message(request, data: NewMessage) -> tuple | dict:
             "success": False
         }
 
-    if container.user_one.user_id in container.user_two.blocking or container.user_two.user_id in container.user_one.blocking:
+    if container.user_two.blocking.contains(container.user_one) or container.user_one.blocking.contains(container.user_two):
         lang = get_lang(user)
         return 400, {
             "success": False,

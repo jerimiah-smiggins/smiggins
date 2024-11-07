@@ -88,8 +88,8 @@ def user(request, username: str) -> HttpResponse | HttpResponseRedirect:
 
         BIO = user.bio,
 
-        FOLLOWER_COUNT = lang["user_page"]["followers"].replace("%s", str(len(user.followers))),
-        FOLLOWING_COUNT = lang["user_page"]["following"].replace("%s", str(len(user.following) - 1)),
+        FOLLOWER_COUNT = lang["user_page"]["followers"].replace("%s", str(user.followers.count())),
+        FOLLOWING_COUNT = lang["user_page"]["following"].replace("%s", str(user.following.count())),
 
         EMBED_TITLE = lang["user_page"]["user_on_smiggins"].replace("%t", SITE_NAME).replace("%s", user.display_name),
 
@@ -99,11 +99,11 @@ def user(request, username: str) -> HttpResponse | HttpResponseRedirect:
         BANNER_COLOR = user.color or DEFAULT_BANNER_COLOR,
         BANNER_COLOR_TWO = user.color_two or DEFAULT_BANNER_COLOR,
 
-        IS_BLOCKED   = "false" if self_user is None else str(self_user.user_id in user.blocking).lower(),
-        IS_BLOCKING  = "false" if self_user is None else str(user.user_id in self_user.blocking).lower(),
-        IS_FOLLOWING = "false" if self_user is None else str(user.user_id in self_user.following).lower(),
-        IS_PENDING   = "false" if self_user is None else str(self_user.user_id in user.pending_followers).lower(),
-        IS_FOLLOWED  = "false" if self_user is None else str(self_user.user_id in user.following and self_user.user_id != user.user_id).lower()
+        IS_BLOCKED   = "false" if self_user is None else str(user.blocking.contains(self_user)).lower(),
+        IS_BLOCKING  = "false" if self_user is None else str(self_user.blocking.contains(user)).lower(),
+        IS_FOLLOWING = "false" if self_user is None else str(self_user.following.contains(user)).lower(),
+        IS_PENDING   = "false" if self_user is None else str(user.pending_followers.contains(self_user)).lower(),
+        IS_FOLLOWED  = "false" if self_user is None else str(self_user.user_id != user.user_id and user.following.contains(self_user)).lower()
     )
 
 def user_lists(request, username: str) -> HttpResponse:
@@ -127,60 +127,48 @@ def user_lists(request, username: str) -> HttpResponse:
     lang = get_lang(self_user)
 
     followers = []
-    for i in user.followers:
-        if i != user.user_id:
-            f_user = User.objects.get(user_id=i)
+    for i in user.followers.all():
+        if i.user_id != user.user_id:
             followers.append({
-                "user_id": i,
-                "username": f_user.username,
-                "display_name": f_user.display_name,
-                "bio": f_user.bio or "\n\n\n",
-                "badges": get_badges(f_user),
-                "color_one": f_user.color,
-                "color_two": f_user.color_two,
-                "is_gradient": str(ENABLE_GRADIENT_BANNERS and f_user.gradient).lower()
+                "username": i.username,
+                "display_name": i.display_name,
+                "bio": i.bio or "\n\n\n",
+                "badges": get_badges(i),
+                "color_one": i.color,
+                "color_two": i.color_two,
+                "is_gradient": str(ENABLE_GRADIENT_BANNERS and i.gradient).lower()
             })
 
     following = []
-    for i in user.following:
-        if i != user.user_id:
-            f_user = User.objects.get(user_id=i)
+    for i in user.following.all():
+        if i.user_id != user.user_id:
             following.append({
-                "user_id": i,
-                "username": f_user.username,
-                "display_name": f_user.display_name,
-                "bio": f_user.bio or "\n\n\n",
-                "badges": get_badges(f_user),
-                "color_one": f_user.color,
-                "color_two": f_user.color_two,
-                "is_gradient": str(ENABLE_GRADIENT_BANNERS and f_user.gradient).lower()
+                "username": i.username,
+                "display_name": i.display_name,
+                "bio": i.bio or "\n\n\n",
+                "badges": get_badges(i),
+                "color_one": i.color,
+                "color_two": i.color_two,
+                "is_gradient": str(ENABLE_GRADIENT_BANNERS and i.gradient).lower()
             })
 
     blocking = []
-    removed_deleted_accounts = []
     if self_user is not None and username == self_user.username:
-        for i in user.blocking:
+        for i in user.blocking.all():
             try:
-                if i != user.user_id:
-                    f_user = User.objects.get(user_id=i)
-                    removed_deleted_accounts.append(i)
+                if i.user_id != user.user_id:
                     blocking.append({
-                        "user_id": i,
-                        "username": f_user.username,
-                        "display_name": f_user.display_name,
-                        "bio": f_user.bio or "\n\n\n",
-                        "badges": get_badges(f_user),
-                        "color_one": f_user.color,
-                        "color_two": f_user.color_two,
-                        "is_gradient": str(ENABLE_GRADIENT_BANNERS and f_user.gradient).lower()
+                        "username": i.username,
+                        "display_name": i.display_name,
+                        "bio": i.bio or "\n\n\n",
+                        "badges": get_badges(i),
+                        "color_one": i.color,
+                        "color_two": i.color_two,
+                        "is_gradient": str(ENABLE_GRADIENT_BANNERS and i.gradient).lower()
                     })
 
             except User.DoesNotExist:
                 continue
-
-        if removed_deleted_accounts != user.blocking:
-            user.blocking = removed_deleted_accounts
-            user.save()
 
     return get_HTTP_response(
         request, "user_lists.html", lang, user=self_user,
@@ -196,8 +184,8 @@ def user_lists(request, username: str) -> HttpResponse:
         FOLLOWERS = followers,
         BLOCKS = blocking,
 
-        FOLLOWER_COUNT = lang["user_page"]["followers"].replace("%s", str(len(user.followers))),
-        FOLLOWING_COUNT = lang["user_page"]["following"].replace("%s", str(len(user.following) - 1)),
+        FOLLOWER_COUNT = lang["user_page"]["followers"].replace("%s", str(user.followers.count())),
+        FOLLOWING_COUNT = lang["user_page"]["following"].replace("%s", str(user.following.count())),
 
         BADGES = "".join([f"<span aria-hidden='true' class='user-badge' data-add-badge='{i}'></span> " for i in get_badges(user)]),
 
@@ -205,9 +193,11 @@ def user_lists(request, username: str) -> HttpResponse:
         BANNER_COLOR = user.color or DEFAULT_BANNER_COLOR,
         BANNER_COLOR_TWO = user.color_two or DEFAULT_BANNER_COLOR,
 
-        IS_FOLLOWING = str(user.user_id in self_user.following).lower() if self_user is not None else "false",
-        IS_BLOCKED   = "false" if self_user is None else str(self_user.user_id in user.blocking).lower(),
-        IS_FOLLOWED  = "false" if self_user is None else str(self_user.user_id in user.following).lower(),
+        IS_BLOCKED   = "false" if self_user is None else str(user.blocking.contains(self_user)).lower(),
+        IS_BLOCKING  = "false" if self_user is None else str(self_user.blocking.contains(user)).lower(),
+        IS_FOLLOWING = "false" if self_user is None else str(self_user.following.contains(user)).lower(),
+        IS_PENDING   = "false" if self_user is None else str(user.pending_followers.contains(self_user)).lower(),
+        IS_FOLLOWED  = "false" if self_user is None else str(self_user.user_id != user.user_id and user.following.contains(self_user)).lower(),
 
         INCLUDE_BLOCKS = str(self_user is not None and username == self_user.username).lower(),
         LOGGED_IN = str(self_user is not None).lower()
@@ -333,11 +323,11 @@ def admin(request) -> HttpResponse | HttpResponseRedirect:
     return get_HTTP_response(
         request, "admin.html", user=user,
 
-        LEVEL = lv,
-        BADGE_DATA = BADGE_DATA,
+        LEVEL=lv,
+        BADGE_DATA=BADGE_DATA,
         mask=BitMask,
         LEVEL_RANGE=[str(i) for i in range(BitMask.MAX_LEVEL + 1)],
-        LEVEL_BINARY = f"{'0' * (BitMask.MAX_LEVEL - len(f'{lv:b}'))}{lv:b}"
+        LEVEL_BINARY=f"{'0' * (BitMask.MAX_LEVEL - len(f'{lv:b}'))}{lv:b}"
     )
 
 def message(request, username: str) -> HttpResponse | HttpResponseRedirect:
@@ -371,7 +361,7 @@ def message(request, username: str) -> HttpResponse | HttpResponseRedirect:
 
 def hashtag(request, hashtag: str) -> HttpResponse:
     try:
-        num_posts = len(Hashtag.objects.get(tag=hashtag.lower()).posts)
+        num_posts = Hashtag.objects.get(tag=hashtag.lower()).posts.count()
     except Hashtag.DoesNotExist:
         num_posts = 0
 
