@@ -6,7 +6,6 @@ from typing import Any, Literal
 
 import json5 as json
 from django.db.utils import OperationalError
-from ensure_file import ensure_file
 from posts.models import Badge
 
 from ._api_keys import auth_key
@@ -32,7 +31,6 @@ SITE_NAME: str = "Jerimiah Smiggins"
 WEBSITE_URL: str | None = None
 DEBUG: bool = True
 OWNER_USER_ID: int = 1
-ADMIN_LOG_PATH: str = "./admin.log"
 MAX_ADMIN_LOG_LINES: int = 1000
 DEFAULT_LANGUAGE: str = "en-US"
 DEFAULT_DARK_THEME: str = "dark"
@@ -420,7 +418,6 @@ _VARIABLES: list[tuple[str | None, list[str], type | str | list | tuple | dict, 
     ("WEBSITE_URL", ["website_url"], str, False),
     ("OWNER_USER_ID", ["owner_user_id"], int, False),
     ("DEBUG", ["debug"], bool, False),
-    ("ADMIN_LOG_PATH", ["admin_log_path"], str, True),
     ("MAX_ADMIN_LOG_LINES", ["max_admin_log_lines"], int, False),
     ("DEFAULT_LANGUAGE", ["default_lang", "default_language"], str, False),
     ("DEFAULT_DARK_THEME", ["default_dark_theme"], "theme", False),
@@ -813,9 +810,3 @@ except Badge.DoesNotExist:
 
 except OperationalError:
     print("\x1b[91mYou need to migrate your database! Do this by running 'manage.py migrate'. If you are already doing that, ignore this message.\x1b[0m")
-
-if ADMIN_LOG_PATH is not None:
-    if ADMIN_LOG_PATH[:2:] == "./":
-        ADMIN_LOG_PATH = str(pathlib.Path(__file__).parent.absolute()) + "/../" + ADMIN_LOG_PATH[2::]
-
-    ensure_file(ADMIN_LOG_PATH)

@@ -1,5 +1,7 @@
 from typing import TYPE_CHECKING
 
+from django.contrib import admin as django_admin
+from django.contrib.admin.exceptions import AlreadyRegistered  # type: ignore
 from django.db import models
 
 
@@ -35,15 +37,13 @@ class User(models.Model):
 
     default_post_private = models.BooleanField(default=False)
     verify_followers = models.BooleanField(default=False)
-    pending_followers = models.JSONField(default=list, blank=True) #!# m2m
-                                               # pending_following #!# m2m
 
     language = models.CharField(max_length=5, blank=True)
 
     following = models.ManyToManyField("self", symmetrical=False, through_fields=("user", "following"), through="M2MFollow", related_name="followers", blank=True)
     blocking = models.ManyToManyField("self", symmetrical=False, through_fields=("user", "blocking"), through="M2MBlock", related_name="blockers", blank=True)
+    pending_followers = models.ManyToManyField("self", symmetrical=False, through_fields=("user", "following"), through="M2MPending", related_name="pending_following", blank=True)
 
-    badges = models.JSONField(default=list, blank=True) #!# m2m
     read_notifs = models.BooleanField(default=True)
     messages = models.JSONField(default=list, blank=True)
     unread_messages = models.JSONField(default=list, blank=True)
@@ -132,7 +132,7 @@ class Comment(models.Model):
 class Badge(models.Model):
     name = models.CharField(max_length=64, primary_key=True, unique=True)
     svg_data = models.CharField(max_length=65536)
-    users = models.JSONField(default=list, blank=True) #!# m2m
+    users = models.ManyToManyField(User, through="M2MBadgeUser", related_name="badges", blank=True)
 
     def __str__(self):
         return f"{self.name} ({', '.join([str(i) for i in self.users]) or 'No users'})"
@@ -194,7 +194,7 @@ class PrivateMessage(models.Model):
 
 class Hashtag(models.Model):
     tag = models.CharField(max_length=64, unique=True, primary_key=True)
-    posts = models.JSONField(default=list, blank=True) #!# m2m
+    posts = models.ManyToManyField(Post, through="M2MHashtagPost", related_name="hashtags", blank=True)
 
     def __str__(self):
         return f"#{self.tag} ({len(self.posts)} posts)"
@@ -259,3 +259,56 @@ class M2MBlock(models.Model):
 
     def __str__(self):
         return f"{self.user.username} blocks {self.blocking.username}"
+
+class M2MPending(models.Model):
+    user = models.ForeignKey(User, on_delete=models.CASCADE, related_name="pending_obj")
+    following = models.ForeignKey(User, on_delete=models.CASCADE, related_name="pending_follow_obj")
+
+    class Meta:
+        unique_together = ("user", "following")
+
+    def __str__(self):
+        return f"{self.user.username} pending follow to {self.following.username}"
+
+class M2MHashtagPost(models.Model):
+    post = models.ForeignKey(Post, on_delete=models.CASCADE)
+    hashtag = models.ForeignKey(Hashtag, on_delete=models.CASCADE)
+
+    class Meta:
+        unique_together = ("post", "hashtag")
+
+    def __str__(self):
+        return f"post {self.post.post_id} has the hashtag {self.hashtag.tag}"
+
+class M2MBadgeUser(models.Model):
+    user = models.ForeignKey(User, on_delete=models.CASCADE)
+    badge = models.ForeignKey(Badge, on_delete=models.CASCADE)
+
+    class Meta:
+        unique_together = ("user", "badge")
+
+    def __str__(self):
+        return f"{self.user.username} has the badge {self.badge.name}"
+
+try:
+    django_admin.site.register(User)
+    django_admin.site.register(Post)
+    django_admin.site.register(Comment)
+    django_admin.site.register(Badge)
+    django_admin.site.register(Notification)
+    django_admin.site.register(PrivateMessageContainer)
+    django_admin.site.register(PrivateMessage)
+    django_admin.site.register(Hashtag)
+    django_admin.site.register(URLPart)
+    django_admin.site.register(AdminLog)
+    django_admin.site.register(M2MLike)
+    django_admin.site.register(M2MLikeC)
+    django_admin.site.register(M2MFollow)
+    django_admin.site.register(M2MBlock)
+    django_admin.site.register(M2MPending)
+    django_admin.site.register(M2MHashtagPost)
+    django_admin.site.register(M2MBadgeUser)
+
+
+except AlreadyRegistered:
+    ...
