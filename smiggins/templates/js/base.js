@@ -24,6 +24,94 @@ const pronouns = lang.generic.pronouns;
 pronouns._a = pronouns.a;
 pronouns._o = pronouns.o;
 pronouns._v = pronouns.v;
+function apiResponse(json, extraData) {
+    if (json.message) {
+        showlog(json.message);
+    }
+    else if (!json.success) {
+        showlog(lang.generic.something_went_wrong);
+    }
+    for (const action of json.actions) {
+        if (action.name == "populate_timeline") {
+            if (!extraData.force_offset && !action.posts.length) {
+                dom("posts").innerHTML = `<i>${escapeHTML(lang.post.no_posts)}</i>`;
+            }
+            let output = "";
+            for (const post of action.posts) {
+                output += getPostHTML(post, type == "comment", includeUserLink, includePostLink, false, false, false);
+                offset = post.post_id;
+            }
+            if (action.extra && action.extra.type == "user") {
+                ENABLE_USER_BIOS && dom("user-bio").removeAttribute("hidden");
+                ENABLE_USER_BIOS && (dom("user-bio").innerHTML = linkifyHtml(escapeHTML(action.extra.bio), {
+                    formatHref: {
+                        mention: (href) => "/u/" + href.slice(1),
+                        hashtag: (href) => "/hashtag/" + href.slice(1)
+                    }
+                }));
+                if (action.extra.pinned && action.extra.pinned.content) {
+                    dom("pinned").innerHTML = getPostHTML(action.extra.pinned, false, false, true, false, false, true) + "<hr>";
+                }
+                else {
+                    dom("pinned").innerHTML = "";
+                }
+                if (!action.extra.can_view) {
+                    dom("toggle").setAttribute("hidden", "");
+                }
+                dom("follow").innerText = `${lang.user_page.followers.replaceAll("%s", action.extra.followers)} - ${lang.user_page.following.replaceAll("%s", action.extra.following)}`;
+            }
+            let x = document.createElement("div");
+            x.innerHTML = output;
+            dom("posts").append(x);
+            if (dom("more")) {
+                if (extraData.force_offset !== true) {
+                    dom("more").removeAttribute("hidden");
+                }
+                if (action.end) {
+                    dom("more").setAttribute("hidden", "");
+                }
+                else {
+                    dom("more").removeAttribute("hidden");
+                }
+            }
+        }
+        else if (action.name == "set_auth") {
+            setCookie("token", action.token);
+            if (action.redirect) {
+                location.href = "/home/";
+            }
+        }
+        else if (action.name == "update_element") {
+            let element = document.querySelector(action.query);
+            if (action.text !== undefined) {
+                element.innerText = action.text;
+            }
+            else if (action.html !== undefined) {
+                element.innerHTML = action.html;
+            }
+            if (action.value !== undefined) {
+                element.value = action.value;
+            }
+            else if (action.checked !== undefined) {
+                element.checked = action.checked;
+            }
+            else if (action.value !== undefined) {
+                element.disabled = action.disabled;
+            }
+            for (const cls of action.set_class) {
+                if (cls.enable) {
+                    element.classList.add(cls.class_name);
+                }
+                else {
+                    element.classList.remove(cls.class_name);
+                }
+            }
+        }
+        else {
+            console.log(`Unknown API action`, action);
+        }
+    }
+}
 function showlog(str, time = 3000) {
     inc++;
     dom("error").innerText = str;
