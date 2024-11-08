@@ -31,6 +31,140 @@ pronouns._a = pronouns.a;
 pronouns._o = pronouns.o;
 pronouns._v = pronouns.v;
 
+function apiResponse(json: {
+  success: boolean,
+  message?: string | null,
+  actions?: ({
+    name: "populate_timeline",
+    end: boolean,
+    extra?: {
+      type: "user",
+      pinned: _postJSON,
+      can_view: boolean,
+      bio: string,
+      followers: number,
+      following: number
+    },
+    posts: _postJSON[]
+  } | {
+    name: "set_auth",
+    token: string,
+    redirect: boolean
+  } | {
+    name: "update_element",
+    query: string, // ex: "#posts" for the posts container
+    text?: string,
+    html?: string,
+    value?: string, // For inputs
+    checked?: boolean, // For checkbox inputs
+    disabled?: boolean,
+    set_class?: { class_name: string, enable: boolean }[]
+  })[]
+}, extraData?: { [key: string]: any }): void {
+  if (json.message) {
+    showlog(json.message);
+  } else if (!json.success) {
+    showlog(lang.generic.something_went_wrong);
+  }
+
+  for (const action of json.actions) {
+    if (action.name == "populate_timeline") {
+      if (!extraData.force_offset && !action.posts.length) {
+        dom("posts").innerHTML = `<i>${escapeHTML(lang.post.no_posts)}</i>`
+      }
+
+      let output: string = "";
+      for (const post of action.posts) {
+        output += getPostHTML(
+          post,
+          type == "comment",
+          includeUserLink,
+          includePostLink,
+          false, false, false
+        );
+        offset = post.post_id;
+      }
+
+      if (action.extra && action.extra.type == "user") {
+        ENABLE_USER_BIOS && dom("user-bio").removeAttribute("hidden");
+        ENABLE_USER_BIOS && (dom("user-bio").innerHTML = linkifyHtml(escapeHTML(action.extra.bio), {
+          formatHref: {
+            mention: (href: string): string => "/u/" + href.slice(1),
+            hashtag: (href: string): string => "/hashtag/" + href.slice(1)
+          }
+        }));
+
+        if (action.extra.pinned && action.extra.pinned.content) {
+          dom("pinned").innerHTML = getPostHTML(
+            action.extra.pinned, // postJSON
+            false, // isComment
+            false, // includeUserLink
+            true,  // includePostLink,
+            false, // fakeMentions
+            false, // pageFocus
+            true   // isPinned
+          ) + "<hr>";
+        } else {
+          dom("pinned").innerHTML = "";
+        }
+
+        if (!action.extra.can_view) {
+          dom("toggle").setAttribute("hidden", "");
+        }
+
+        dom("follow").innerText = `${lang.user_page.followers.replaceAll("%s", action.extra.followers)} - ${lang.user_page.following.replaceAll("%s", action.extra.following)}`;
+      }
+
+      let x: HTMLElement = document.createElement("div");
+      x.innerHTML = output;
+      dom("posts").append(x);
+
+      if (dom("more")) {
+        if (extraData.force_offset !== true) {
+          dom("more").removeAttribute("hidden");
+        }
+
+        if (action.end) {
+          dom("more").setAttribute("hidden", "");
+        } else {
+          dom("more").removeAttribute("hidden");
+        }
+      }
+    } else if (action.name == "set_auth") {
+      setCookie("token", action.token);
+      if (action.redirect) {
+        location.href = "/home/";
+      }
+    } else if (action.name == "update_element") {
+      let element: HTMLElement = document.querySelector(action.query);
+
+      if (action.text !== undefined) {
+        element.innerText = action.text;
+      } else if (action.html !== undefined) {
+        element.innerHTML = action.html;
+      }
+
+      if (action.value !== undefined) {
+        (element as HTMLInputElement).value = action.value;
+      } else if (action.checked !== undefined) {
+        (element as HTMLInputElement).checked = action.checked;
+      } else if (action.value !== undefined) {
+        (element as HTMLInputElement).disabled = action.disabled;
+      }
+
+      for (const cls of action.set_class) {
+        if (cls.enable) {
+          element.classList.add(cls.class_name);
+        } else {
+          element.classList.remove(cls.class_name);
+        }
+      }
+    } else {
+      console.log(`Unknown API action`, action);
+    }
+  }
+}
+
 function showlog(str: string, time: number = 3000): void {
   inc++;
   dom("error").innerText = str;
