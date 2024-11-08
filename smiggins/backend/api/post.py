@@ -145,9 +145,7 @@ def post_create(request, data: NewPost) -> tuple | dict:
         try:
             tag = Hashtag.objects.get(tag=i.lower())
         except Hashtag.DoesNotExist:
-            tag = Hashtag(
-                tag = i
-            )
+            tag = Hashtag.objects.create(tag=i.lower())
 
         tag.posts.add(post)
 
