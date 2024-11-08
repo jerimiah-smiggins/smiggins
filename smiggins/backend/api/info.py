@@ -35,7 +35,7 @@ def notifications(request) -> tuple | dict:
         "success": True,
         "notifications": not user.read_notifs,
         "messages": len(user.unread_messages) != 0,
-        "followers": user.verify_followers and len(user.pending_followers)
+        "followers": user.verify_followers and bool(user.pending_followers.count())
     }
 
 def version(request) -> dict:

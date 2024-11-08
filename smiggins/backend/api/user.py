@@ -1,10 +1,10 @@
 # For API functions that are user-specific, like settings, following, etc.
 
-from posts.models import Comment, Notification, Post, User
+from posts.models import Comment, Post, User
 
 from ..helper import (DEFAULT_LANG, create_api_ratelimit, ensure_ratelimit,
-                      generate_token, get_lang, get_post_json, trim_whitespace,
-                      validate_username)
+                      generate_token, get_badges, get_lang, get_post_json,
+                      trim_whitespace, validate_username)
 from ..variables import (API_TIMINGS, DEFAULT_BANNER_COLOR,
                          ENABLE_GRADIENT_BANNERS, ENABLE_PRONOUNS,
                          ENABLE_USER_BIOS, MAX_BIO_LENGTH,
@@ -215,14 +215,10 @@ def settings(request, data: Settings) -> tuple | dict:
 
     user.verify_followers = data.approve_followers
     if not data.approve_followers:
-        user.followers = user.followers + [i for i in user.pending_followers if i not in user.followers]
-
-        for user_id in user.pending_followers:
-            other_user = User.objects.get(user_id=user_id)
-            other_user.following.append(user.user_id)
-            other_user.save()
-
-        user.pending_followers = []
+        pending = user.pending_followers.all()
+        for f in pending:
+            f.following.add(user)
+            user.pending_followers.remove(f)
 
     user.default_post_private = data.default_post_visibility == "followers"
 
@@ -247,40 +243,34 @@ def follower_add(request, data: Username) -> tuple | dict:
     username = data.username.lower()
     user = User.objects.get(token=token)
 
-    if not validate_username(username):
+    try:
+        followed = User.objects.get(username=username)
+    except User.DoesNotExist:
         lang = get_lang(user)
         return 400, {
             "success": False,
             "reason": lang["account"]["username_does_not_exist"].replace("%s", data.username)
         }
 
-    followed = User.objects.get(username=username)
-
-    if followed.user_id in user.blocking:
+    if user.blocking.contains(followed):
         lang = get_lang(user)
         return 400, {
             "success": False,
             "reason": lang["account"]["follow_blocking"]
         }
 
-    if user.user_id in followed.blocking:
+    if followed.blocking.contains(user):
         lang = get_lang(user)
         return 400, {
             "success": False,
             "reason": lang["account"]["follow_blocked"]
         }
 
-    if followed.user_id not in user.following and not followed.verify_followers:
-        user.following.append(followed.user_id)
-        user.save()
-
-    if user.user_id not in followed.followers + followed.pending_followers:
+    if not user.following.contains(followed):
         if followed.verify_followers:
-            followed.pending_followers.append(user.user_id)
+            followed.pending_followers.add(user)
         else:
-            followed.followers.append(user.user_id)
-
-        followed.save()
+            user.following.add(followed)
 
     return {
         "success": True,
@@ -303,16 +293,12 @@ def follower_remove(request, data: Username) -> tuple | dict:
 
     followed = User.objects.get(username=username)
     if user.user_id != followed.user_id:
-        if followed.user_id in user.following:
-            user.following.remove(followed.user_id)
-            user.save()
-
-        if user.user_id in followed.followers:
-            followed.followers.remove(user.user_id)
+        if user.following.contains(followed):
+            user.following.remove(followed)
             followed.save()
 
-        elif user.user_id in followed.pending_followers:
-            followed.pending_followers.remove(user.user_id)
+        elif followed.pending_followers.contains(user):
+            followed.pending_followers.remove(user)
             followed.save()
 
     else:
@@ -347,35 +333,20 @@ def block_add(request, data: Username) -> tuple | dict:
 
     blocked = User.objects.get(username=username)
 
-    if blocked.user_id not in user.blocking:
-        save_blocked = False
+    if not user.blocking.contains(blocked):
+        if user.following.contains(blocked):
+            user.following.remove(blocked)
 
-        if blocked.user_id in user.following:
-            user.following.remove(blocked.user_id)
+        elif user.pending_followers.contains(blocked):
+            user.pending_followers.remove(blocked)
 
-        if blocked.user_id in user.followers:
-            user.followers.remove(blocked.user_id)
+        if blocked.following.contains(user):
+            blocked.following.remove(user)
 
-        elif blocked.user_id in user.pending_followers:
-            user.pending_followers.remove(blocked.user_id)
+        elif blocked.pending_followers.contains(user):
+            blocked.pending_followers.remove(user)
 
-        if user.user_id in blocked.following:
-            blocked.following.remove(user.user_id)
-            save_blocked = True
-
-        if user.user_id in blocked.followers:
-            blocked.followers.remove(user.user_id)
-            save_blocked = True
-
-        elif user.user_id in blocked.pending_followers:
-            blocked.pending_followers.remove(user.user_id)
-            save_blocked = True
-
-        if save_blocked:
-            blocked.save()
-
-        user.blocking.append(blocked.user_id)
-        user.save()
+        user.blocking.add(blocked)
 
     return {
         "success": True
@@ -403,10 +374,8 @@ def block_remove(request, data: Username) -> tuple | dict:
         }
 
     blocked = User.objects.get(username=username)
-    if user.user_id != blocked.user_id:
-        if blocked.user_id in user.blocking:
-            user.blocking.remove(blocked.user_id)
-            user.save()
+    if user.blocking.contains(blocked):
+        user.blocking.remove(blocked)
 
     else:
         return 400, {
@@ -476,17 +445,9 @@ def read_notifs(request) -> tuple | dict:
     self_user.read_notifs = True
     self_user.save()
 
-    for i in self_user.notifications[::-1]:
-        try:
-            notification = Notification.objects.get(pk=i)
-        except Notification.DoesNotExist:
-            continue
-
-        if notification.read:
-            break
-
-        notification.read = True
-        notification.save()
+    for notif in self_user.notifications.filter(read=False):
+        notif.read = True
+        notif.save()
 
     return {
         "success": True
@@ -544,34 +505,30 @@ def list_pending(request, offset: int=-1) -> dict:
             "pending": []
         }
 
-    pending = user.pending_followers[offset * POSTS_PER_REQUEST ::]
-    count = 0
     pending_json = []
 
-    for user_id in pending:
-        count += 1
-        try:
-            other_user = User.objects.get(user_id=user_id)
-        except User.DoesNotExist:
-            user.pending_followers.remove(user_id)
-            continue
-
+    for other_user in user.pending_followers.all():
         pending_json.append({
             "username": other_user.username,
             "display_name": other_user.display_name,
-            "badges": other_user.badges,
+            "badges": get_badges(other_user),
             "color_one": other_user.color,
             "color_two": other_user.color_two,
             "gradient_banner": other_user.gradient,
             "bio": other_user.bio
         })
 
-    if count != POSTS_PER_REQUEST:
-        user.save()
+        if len(pending_json) >= POSTS_PER_REQUEST:
+            break
 
+    print({
+"success": True,
+"more": user.pending_followers.count() > POSTS_PER_REQUEST,
+"pending": pending_json
+})
     return {
         "success": True,
-        "more": len(user.pending_followers) - (offset + 1) * POSTS_PER_REQUEST > 0,
+        "more": user.pending_followers.count() > POSTS_PER_REQUEST,
         "pending": pending_json
     }
 
@@ -584,13 +541,9 @@ def accept_pending(request, data: Username) -> tuple | dict:
             "success": False
         }
 
-    if user.user_id in self_user.pending_followers:
-        self_user.pending_followers.remove(user.user_id)
-        self_user.followers.append(user.user_id)
-        user.following.append(self_user.user_id)
-
-        self_user.save()
-        user.save()
+    if self_user.pending_followers.contains(user):
+        self_user.pending_followers.remove(user)
+        user.following.add(self_user)
 
     return {
         "success": True
@@ -605,9 +558,8 @@ def remove_pending(request, data: Username) -> tuple | dict:
             "success": False
         }
 
-    if user.user_id in self_user.pending_followers:
-        self_user.pending_followers.remove(user.user_id)
-        self_user.save()
+    if self_user.pending_followers.contains(user):
+        self_user.pending_followers.remove(user)
 
     return {
         "success": True

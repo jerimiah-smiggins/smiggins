@@ -8,11 +8,10 @@ from backend.templating import (admin, comment, contact, credit,
                                 post, settings, user, user_lists)
 from backend.variables import (CONTACT_INFO, DEBUG, ENABLE_CHANGELOG_PAGE,
                                ENABLE_CONTACT_PAGE, ENABLE_CREDITS_PAGE,
-                               ENABLE_DYNAMIC_FAVICON, ENABLE_EMAIL,
-                               ENABLE_HASHTAGS, ENABLE_PRIVATE_MESSAGES,
-                               ENABLE_SITEMAPS, FAVICON_CACHE_TIMEOUT,
-                               GENERIC_CACHE_TIMEOUT, REAL_VERSION, ROBOTS,
-                               SITEMAP_CACHE_TIMEOUT)
+                               ENABLE_EMAIL, ENABLE_HASHTAGS,
+                               ENABLE_PRIVATE_MESSAGES, ENABLE_SITEMAPS,
+                               FAVICON_CACHE_TIMEOUT, GENERIC_CACHE_TIMEOUT,
+                               REAL_VERSION, ROBOTS, SITEMAP_CACHE_TIMEOUT)
 from django.contrib import admin as django_admin
 from django.http import HttpResponseRedirect
 from django.urls import include, path, re_path
@@ -58,7 +57,7 @@ urlpatterns = list(filter(bool, [
 
     #                 base   crust  accent
     #        /favicon-abcdef-123456-987654
-    re_path(r"^favicon-((?:[0-9a-fA-F]{6}-){2}[0-9a-fA-F]{6})$", (cache_page(FAVICON_CACHE_TIMEOUT, key_prefix=cache_prefix)(generate_favicon) if FAVICON_CACHE_TIMEOUT else generate_favicon) if ENABLE_DYNAMIC_FAVICON else _favicon),
+    re_path(r"^favicon-((?:[0-9a-fA-F]{6}-){2}[0-9a-fA-F]{6})$", cache_page(FAVICON_CACHE_TIMEOUT, key_prefix=cache_prefix)(generate_favicon) if FAVICON_CACHE_TIMEOUT else generate_favicon),
     path("favicon.ico", cache_page(GENERIC_CACHE_TIMEOUT, key_prefix=cache_prefix)(_favicon) if GENERIC_CACHE_TIMEOUT else _favicon),
     path("robots.txt", cache_page(GENERIC_CACHE_TIMEOUT, key_prefix=cache_prefix)(_robots_txt) if GENERIC_CACHE_TIMEOUT else _robots_txt),
     path(".well-known/security.txt", cache_page(GENERIC_CACHE_TIMEOUT, key_prefix=cache_prefix)(_security_txt) if GENERIC_CACHE_TIMEOUT else _security_txt),

@@ -135,7 +135,7 @@ def post_create(request, data: NewPost) -> tuple | dict:
     for i in find_mentions(content, [user.username]):
         try:
             notif_for = User.objects.get(username=i.lower())
-            if user.user_id not in notif_for.blocking and notif_for.user_id not in user.blocking:
+            if not notif_for.blocking.contains(user) and not user.blocking.contains(notif_for):
                 create_notification(notif_for, "ping_p", post.post_id)
 
         except User.DoesNotExist:
@@ -230,7 +230,7 @@ def quote_create(request, data: NewQuote) -> tuple | dict:
 
     try:
         quote_creator = quoted_post.creator
-        if quote_creator.user_id != user.user_id and quote_creator.user_id not in user.blocking and user.user_id not in quote_creator.blocking:
+        if quote_creator.user_id != user.user_id and not user.blocking.contains(quote_creator) and not quote_creator.blocking.contains(user):
             create_notification(
                 quote_creator,
                 "quote",
@@ -240,7 +240,7 @@ def quote_create(request, data: NewQuote) -> tuple | dict:
         for i in find_mentions(content, [user.username, quote_creator.username]):
             try:
                 notif_for = User.objects.get(username=i.lower())
-                if user.user_id not in notif_for.blocking and notif_for.user_id not in user.blocking:
+                if not notif_for.blocking.contains(user) and not user.blocking.contains(notif_for):
                     create_notification(notif_for, "ping_p", post.post_id)
 
             except User.DoesNotExist:
@@ -257,7 +257,7 @@ def quote_create(request, data: NewQuote) -> tuple | dict:
                 tag=i
             )
 
-    tag.posts.add(post)
+        tag.posts.add(post)
 
     if user.username in POST_WEBHOOKS:
         post_hook(request, user, post)
@@ -317,7 +317,7 @@ def post_list_following(request, offset: int=-1) -> tuple | dict:
             "success": False
         }
 
-    if len(user.following) == 0:
+    if user.following.count():
         return {
             "success": True,
             "posts": [],

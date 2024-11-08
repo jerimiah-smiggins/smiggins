@@ -88,27 +88,6 @@ def user_delete(request, data: AccountIdentifier) -> tuple | dict:
         }
 
     if BitMask.can_use(user, BitMask.DELETE_USER):
-        for badge in account.badges:
-            b = Badge.objects.get(name=badge)
-            b.users.remove(account.user_id)
-            b.save()
-
-        for followed_id in account.following:
-            if followed_id == account.user_id:
-                continue
-
-            followed = User.objects.get(user_id=followed_id)
-            followed.followers.remove(account.user_id)
-            followed.save()
-
-        for follower_id in account.followers:
-            if follower_id == account.user_id:
-                continue
-
-            follower = User.objects.get(user_id=follower_id)
-            follower.following.remove(account.user_id)
-            follower.save()
-
         log_admin_action("Delete user", user, account.username, "Success")
 
         account.delete()
@@ -247,8 +226,7 @@ def badge_delete(request, data: DeleteBadge) -> tuple | dict:
 
         for i in badge.users:
             user = User.objects.get(user_id=i)
-            user.badges.remove(badge_name)
-            user.save()
+            Badge.objects.get(badge_name).users.remove(user)
 
         badge.delete()
 
@@ -299,13 +277,8 @@ def badge_add(request, data: UserBadge) -> tuple | dict:
             }
 
         if data.badge_name.lower() in BADGE_DATA:
-            if data.badge_name.lower() not in user.badges:
-                user.badges.append(data.badge_name.lower())
-                user.save()
-
-                badge = Badge.objects.get(name=data.badge_name)
-                badge.users.append(user.user_id)
-                badge.save()
+            if user.badges.contains(badge := Badge.objects.get(name=data.badge_name.lower())):
+                badge.users.add(user)
 
             log_admin_action("Add badge", self_user, user, f"Added badge {data.badge_name}")
             return {
@@ -360,12 +333,7 @@ def badge_remove(request, data: UserBadge) -> tuple | dict:
 
         if data.badge_name.lower() in BADGE_DATA:
             if data.badge_name.lower() in user.badges:
-                user.badges.remove(data.badge_name.lower())
-                user.save()
-
-                badge = Badge.objects.get(name=data.badge_name)
-                badge.users.remove(user.user_id)
-                badge.save()
+                Badge.objects.get(name=data.badge_name).users.remove(user)
 
             log_admin_action("Remove badge", self_user, user, f"Removed badge {data.badge_name}")
             return {

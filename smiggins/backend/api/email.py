@@ -126,7 +126,7 @@ def verify_email(request, user: User, data: Email) -> dict | tuple:
 
     response = send_email(
         subject=TITLE[1],
-        recipients=[user.email],
+        recipients=[user.email], # type: ignore
         raw_message=f"{TITLE[1]}\n\n{lang['email']['generic']['greeting']}\n{B1[1]}\n{B2[1]}\n{B3[1]}\n{lang['email']['generic']['expire']}",
         html_message=_get_email_html(
             request, "email/change.html", lang, user,

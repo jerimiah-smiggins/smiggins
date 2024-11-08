@@ -4,6 +4,7 @@ from django.contrib import admin as django_admin
 from django.contrib.admin.exceptions import AlreadyRegistered  # type: ignore
 from django.db import models
 
+# The "#!# <something>" comment shows something that might happen in the future but has yet to be implemented
 
 class User(models.Model):
     user_id = models.IntegerField(primary_key=True, unique=True)

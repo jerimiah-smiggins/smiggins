@@ -26,13 +26,13 @@ def container_create(request, data: NewContainer) -> tuple | dict:
     user = User.objects.get(username=data.username)
     container_id = get_container_id(user.username, self_user.username)
 
-    if user.user_id in self_user.blocking:
+    if self_user.blocking.contains(user):
         lang = get_lang(self_user)
         return 400, {
             "success": False,
             "reason": lang["messages"]["blocking"]
         }
-    elif self_user.user_id in user.blocking:
+    elif user.blocking.contains(self_user):
         lang = get_lang(self_user)
         return 400, {
             "success": False,

@@ -80,9 +80,9 @@ def comment_create(request, data: NewComment) -> tuple | dict:
         parent.save()
 
     creator = parent.creator
-    if creator.user_id != user.user_id and user.user_id not in creator.blocking and creator.user_id not in user.blocking:
+    if creator.user_id != user.user_id and creator.blocking.contains(user) and not user.blocking.contains(creator):
         create_notification(
-            parent.creator,
+            creator,
             "comment",
             comment.comment_id
         )
@@ -90,7 +90,7 @@ def comment_create(request, data: NewComment) -> tuple | dict:
     for i in find_mentions(content, [user.username, creator.username]):
         try:
             notif_for = User.objects.get(username=i.lower())
-            if user.user_id not in notif_for.blocking and notif_for.user_id not in user.blocking:
+            if not notif_for.blocking.contains(user) and not user.blocking.contains(notif_for):
                 create_notification(notif_for, "ping_c", comment.comment_id)
 
         except User.DoesNotExist:

@@ -14,7 +14,7 @@ from .variables import (BADGE_DATA, CACHE_LANGUAGES, CONTACT_INFO, CREDITS,
                         ENABLE_DYNAMIC_FAVICON, ENABLE_GRADIENT_BANNERS,
                         ENABLE_LOGGED_OUT_CONTENT, FAVICON_DATA,
                         MAX_CONTENT_WARNING_LENGTH, OWNER_USER_ID, SITE_NAME,
-                        THEMES, VALID_LANGUAGES)
+                        THEMES, VALID_LANGUAGES, error)
 
 
 def settings(request) -> HttpResponse:
@@ -407,22 +407,29 @@ def pending(request) -> HttpResponse | HttpResponseRedirect:
 
     return get_HTTP_response(request, "pending.html", user=user)
 
+generate_favicon = lambda request, a: HttpResponseRedirect("/static/img/old_favicon.ico", status=308) # noqa: E731
+
 if ENABLE_DYNAMIC_FAVICON:
-    from cairosvg import svg2png
+    try:
+        from cairosvg import svg2png
+    except ImportError:
+        error("Something went wrong importing the cariosvg library!\n- Try turning 'enable_dynamic_favicon' off in settings?")
 
-def generate_favicon(request, a) -> HttpResponse | HttpResponseServerError:
-    colors: tuple[str, str, str] = a.split("-")
+    else:
+        del generate_favicon
+        def generate_favicon(request, a) -> HttpResponse | HttpResponseServerError:
+            colors: tuple[str, str, str] = a.split("-")
 
-    png_data: bytes | None = svg2png(
-        FAVICON_DATA.replace("@{background}", f"#{colors[0]}").replace("@{background_alt}", f"#{colors[1]}").replace("@{accent}", f"#{colors[2]}"),
-        output_width=32,
-        output_height=32
-    )
+            png_data: bytes | None = svg2png(
+                FAVICON_DATA.replace("@{background}", f"#{colors[0]}").replace("@{background_alt}", f"#{colors[1]}").replace("@{accent}", f"#{colors[2]}"),
+                output_width=32,
+                output_height=32
+            )
 
-    if not isinstance(png_data, bytes):
-        return HttpResponseServerError("500 Internal Server Error")
+            if not isinstance(png_data, bytes):
+                return HttpResponseServerError("500 Internal Server Error")
 
-    return HttpResponse(png_data, content_type="image/png")
+            return HttpResponse(png_data, content_type="image/png")
 
 # These two functions are referenced in smiggins/urls.py
 def _404(request, exception) -> HttpResponse:
