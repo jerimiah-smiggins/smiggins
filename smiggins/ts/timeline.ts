@@ -2,60 +2,30 @@ let end: boolean = false;
 offset = null;
 
 function deletePost(postID: number, isComment: boolean, pageFocus: boolean): void {
-  fetch(`/api/${isComment ? "comment" : "post"}`, {
+  s_fetch(`/api/${isComment ? "comment" : "post"}`, {
     method: "DELETE",
     body: JSON.stringify({
       id: postID
-    })
-  }).then((response: Response) => (response.json()))
-    .then((json: {
-      success: boolean
-    }) => {
-      if (json.success) {
-        if (pageFocus) {
-          location.href = "/home/";
-        } else {
-          document.querySelector(`.post-container[data-${isComment ? "comment" : "post"}-id="${postID}"]`).remove();
-        }
-      }
-    });
+    }),
+    extraData: {
+      pageFocus: pageFocus
+    }
+  })
 }
 
 function pinPost(postID: number): void {
-  fetch(`/api/user/pin`, {
+  s_fetch(`/api/user/pin`, {
     method: "PATCH",
     body: JSON.stringify({
       id: postID
     })
-  }).then((response: Response) => (response.json()))
-    .then((json: {
-      success: boolean
-    }) => {
-      if (json.success) {
-        if (location.href.includes("/u/")) {
-          refresh();
-        } else {
-          showlog(lang.generic.success);
-        }
-      } else {
-        showlog(lang.generic.something_went_wrong);
-      }
-    });
+  });
 }
 
 function unpinPost(): void {
-  fetch(`/api/user/pin`, {
-    method: "DELETE",
-  }).then((response: Response) => (response.json()))
-    .then((json: {
-      success: boolean
-    }) => {
-      if (json.success) {
-        refresh();
-      } else {
-        showlog(lang.generic.something_went_wrong);
-      }
-    });
+  s_fetch(`/api/user/pin`, {
+    method: "DELETE"
+  });
 }
 
 function addQuote(postID: number, isComment: boolean): void {
@@ -89,19 +59,22 @@ function addQuote(postID: number, isComment: boolean): void {
   post.querySelector("button.post-button").addEventListener("click", function(): void {
     if (!post.querySelector("textarea").value.length) { return; }
 
-    s_fetch("/api/quote/create", "PUT", JSON.stringify({
+    s_fetch("/api/quote/create", {
+      method: "PUT",
+      body: JSON.stringify({
         c_warning: ENABLE_CONTENT_WARNINGS ? (post.querySelector("input.c-warning") as HTMLInputElement).value : "",
         content: post.querySelector("textarea").value,
         quote_id: postID,
         quote_is_comment: isComment,
         private: (dom(`default-private-${localGI}`) as HTMLInputElement).checked
-      }), [
+      }),
+      disable: [
         post.querySelector("textarea"),
         post.querySelector("button.post-button"),
         post.querySelector("button.cancel-button"),
         ENABLE_CONTENT_WARNINGS && post.querySelector("input.c-warning")
       ]
-    );
+    });
   });
 
   post.querySelector("textarea").addEventListener("input", postTextInputEvent);
@@ -114,69 +87,25 @@ function addQuote(postID: number, isComment: boolean): void {
 function toggleLike(postID: number, type: string): void {
   if (typeof logged_in !== "undefined" && !logged_in) { return; }
 
-  let q: HTMLElement = document.querySelector(`div[data-${type}-id="${postID}"] span.like-number`) as HTMLElement;
-  let h: HTMLElement = document.querySelector(`div[data-${type}-id="${postID}"] button.like`) as HTMLElement;
-  let x: HTMLElement = document.querySelector(`div[data-${type}-id="${postID}"] button.like svg`) as HTMLElement;
+  let likeButton: HTMLButtonElement = (document.querySelector(`div[data-${type}-id="${postID}"] button.like`) as HTMLButtonElement)
 
-  if (h.dataset["liked"] == "true") {
-    fetch(`/api/${type}/like`, {
-      method: "DELETE",
-      body: JSON.stringify({
-        id: postID
-      })
-    });
-
-    h.setAttribute("data-liked", "false");
-    x.innerHTML = icons.unlike;
-    q.innerHTML = String(+q.innerHTML - 1);
-  } else {
-    fetch(`/api/${type}/like`, {
-      method: "POST",
-      body: JSON.stringify({
-        id: postID
-      })
-    });
-
-    h.setAttribute("data-liked", "true");
-    x.innerHTML = icons.like;
-    q.innerHTML = String(+q.innerHTML + 1);
-  }
+  s_fetch(`/api/${type}/like`, {
+    method: likeButton.dataset["liked"] == "true" ? "DELETE" : "POST",
+    body: JSON.stringify({
+      id: postID
+    }),
+    disable: [likeButton]
+  });
 }
 
 function vote(option: number, postID: number, gInc: number): void {
-  fetch("/api/post/vote", {
+  s_fetch("/api/post/vote", {
     method: "POST",
     body: JSON.stringify({
       id: postID,
       option: option
     })
-  }).then((response: Response) => (response.json()))
-    .then((json: {
-      success: boolean
-    }) => {
-      if (json.success) {
-        let v: HTMLElement;
-        document.querySelector(`#gi-${gInc} .remove-when-the-poll-gets-shown`).remove();
-
-        forEach(dom(`gi-${gInc}`).querySelectorAll(".poll-bar-container"), function(val: Element, index: number) {
-          let el: HTMLElement = val as HTMLElement;
-          let isVoted: boolean = +el.dataset.index == option;
-
-          v = el;
-          el.innerHTML = `<div class="poll-bar ${isVoted ? "voted" : ""}">
-            <div style="width: ${(+el.dataset.votes + (isVoted ? 1 : 0)) / (+el.dataset.totalVotes + 1) * 100}%"></div>
-          </div>
-          <div class="poll-text">
-            ${Math.round(((+el.dataset.votes + (isVoted ? 1 : 0))) / (+el.dataset.totalVotes + 1) * 1000) / 10}% - ` + el.innerHTML.replace('<div class="poll-text">', "");
-
-          el.onclick = null;
-          el.onkeydown = null;
-          el.removeAttribute("tabindex");
-        });
-
-        dom(`gi-${gInc}`).querySelector("small").innerHTML = (+v.dataset.totalVotes ? lang.home.poll_total_plural : lang.home.poll_total_singular).replaceAll("%s", +v.dataset.totalVotes + 1);
-      }
-    });
+  });
 }
 
 function togglePollResults(gInc: number): void {
@@ -205,8 +134,6 @@ function editPost(postID: number, isComment: boolean, private: boolean, original
 
   let originalCW: string = contentField.querySelector("summary") ? contentField.querySelector("summary").innerText : "";
 
-  console.log(originalText, originalCW, contentField);
-
   contentField.innerHTML = `
     <div class="log"></div>
     <div class="quote-visibility">
@@ -226,103 +153,33 @@ function editPost(postID: number, isComment: boolean, private: boolean, original
   });
 
   contentField.querySelector(".post-button").addEventListener("click", function() {
-    fetch(`/api/${isComment ? "comment" : "post"}/edit`, {
+    s_fetch(`/api/${isComment ? "comment" : "post"}/edit`, {
       method: "PATCH",
       body: JSON.stringify({
         c_warning: (contentField.querySelector(".c-warning") as HTMLInputElement).value,
         content: contentField.querySelector("textarea").value,
         private: (contentField.querySelector(".quote-visibility input") as HTMLInputElement).checked,
         id: postID
-      })
-    }).then((response: Response) => (response.json()))
-      .then((json: {
-        success: boolean,
-        reason?: string,
-        post?: _postJSON
-      }) => {
-        if (json.success) {
-          let postSettings: {[key: string]: boolean} = JSON.parse(post.querySelector(".post").getAttribute("data-settings"));
-          post.innerHTML = getPostHTML(
-            json.post,
-            postSettings.isComment,
-            postSettings.includeUserLink,
-            postSettings.includePostLink,
-            postSettings.fakeMentions,
-            postSettings.pageFocus,
-            postSettings.isPinned,
-            false
-          );
-        } else {
-          showlog(json.reason);
-        }
-      });
+      }),
+      disable: [this]
+    });
   });
-
 }
 
-if (typeof disableTimeline === 'undefined' || !disableTimeline) {
-  function refresh(force_offset=false): void {
-    c++;
-    if (force_offset !== true) { dom("posts").innerHTML = ""; }
+if (typeof disableTimeline === "undefined" || !disableTimeline) {
+  function refresh(forceOffset=false): void {
+    if (forceOffset !== true) {
+      dom("posts").innerHTML = "";
+    }
 
-    fetch(`${url}${force_offset === true && !end ? `${url.includes("?") ? "&" : "?"}offset=${offset}` : ""}`)
-      .then((response: Response) => (response.json()))
-      .then((json: {
-        bio: string,
-        can_view: boolean,
-        end: boolean,
-        followers: boolean,
-        following: boolean,
-        pinned: _postJSON,
-        posts: _postJSON[]
-      }) => {
-        --c;
-        if (c) {
-          return;
+    s_fetch(
+      `${url}${forceOffset === true && !end ? `${url.includes("?") ? "&" : "?"}offset=${offset}` : ""}`, {
+        disable: [...document.querySelectorAll("button[onclick*='refresh(']")],
+        extraData: {
+          forceOffset: forceOffset
         }
-
-        if (!force_offset && !json.posts.length) {
-          dom("posts").innerHTML = `<i>${escapeHTML(lang.post.no_posts)}</i>`
-        }
-
-        end = json.end;
-        let output: string = "";
-        for (const post of json.posts) {
-          output += getPostHTML(
-            post,
-            type == "comment",
-            includeUserLink,
-            includePostLink,
-            false, false, false
-          );
-          offset = post.post_id;
-        }
-
-        if (typeof extra !== "undefined") {
-          extra(json);
-        }
-
-        let x: HTMLElement = document.createElement("div");
-        x.innerHTML = output;
-        dom("posts").append(x);
-
-        if (dom("more")) {
-          if (force_offset !== true) {
-            dom("more").removeAttribute("hidden");
-          }
-
-          if (json.end) {
-            dom("more").setAttribute("hidden", "");
-          } else {
-            dom("more").removeAttribute("hidden");
-          }
-        }
-      })
-      .catch((err: Error) => {
-        --c;
-        showlog(lang.generic.something_went_wrong, 5000);
-        throw err;
-      });
+      }
+    );
   }
 
   refresh();

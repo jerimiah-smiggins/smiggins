@@ -27,16 +27,20 @@ dom("post-text").addEventListener("input", postTextInputEvent);
 
 dom("post").addEventListener("click", function(): void {
   if ((dom("post-text") as HTMLInputElement).value || getPollText().length) {
-    s_fetch("/api/post/create", "PUT", JSON.stringify({
-      c_warning: ENABLE_CONTENT_WARNINGS ? (dom("c-warning") as HTMLInputElement).value : "",
-      content: (dom("post-text") as HTMLInputElement).value,
-      poll: getPollText(),
-      private: (dom("default-private") as HTMLInputElement).checked
-    }), [
-      this,
-      dom("post-text"),
-      ENABLE_CONTENT_WARNINGS && dom("c-warning")
-    ]);
+    s_fetch("/api/post/create", {
+      method: "PUT",
+      body: JSON.stringify({
+        c_warning: ENABLE_CONTENT_WARNINGS ? (dom("c-warning") as HTMLInputElement).value : "",
+        content: (dom("post-text") as HTMLInputElement).value,
+        poll: getPollText(),
+        private: (dom("default-private") as HTMLInputElement).checked
+      }),
+      disable: [
+        this,
+        dom("post-text"),
+        ENABLE_CONTENT_WARNINGS && dom("c-warning")
+      ]
+    });
   }
 });
 

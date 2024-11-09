@@ -220,6 +220,14 @@ input.c-warning {
   text-align: center;
 }
 
+.like[data-liked="true"] .hidden-if-like {
+  display: none;
+}
+
+.like:not([data-liked="true"]) .hidden-if-unlike {
+  display: none;
+}
+
 @keyframes like-anim {
   0% {
     translate: 0 0;

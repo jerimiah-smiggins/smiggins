@@ -19,10 +19,10 @@ from ..variables import (API_TIMINGS, ENABLE_CONTENT_WARNINGS,
                          MAX_POST_LENGTH, OWNER_USER_ID, POST_WEBHOOKS,
                          POSTS_PER_REQUEST, SITE_NAME, VERSION)
 from .admin import log_admin_action
-from .schema import EditPost, NewPost, NewQuote, Poll, PostID
+from .schema import APIResponse, EditPost, NewPost, NewQuote, Poll, PostID
 
 
-def post_hook(request, user: User, post: Post):
+def post_hook(request, user: User, post: Post) -> None:
     def post_inside(request, user: User, post: Post):
         meta = POST_WEBHOOKS[user.username]
         lang = get_lang()
@@ -58,7 +58,7 @@ def post_hook(request, user: User, post: Post):
         "post": post
     }).start()
 
-def post_create(request, data: NewPost) -> tuple | dict:
+def post_create(request, data: NewPost) -> APIResponse:
     # Called when a new post is created.
 
     token = request.COOKIES.get('token')
@@ -162,7 +162,7 @@ def post_create(request, data: NewPost) -> tuple | dict:
         ]
     }
 
-def quote_create(request, data: NewQuote) -> tuple | dict:
+def quote_create(request, data: NewQuote) -> APIResponse:
     # Called when a post is quoted.
 
     user = User.objects.get(token=request.COOKIES.get('token'))
@@ -275,7 +275,7 @@ def quote_create(request, data: NewQuote) -> tuple | dict:
         ]
     }
 
-def hashtag_list(request, hashtag: str) -> tuple | dict:
+def hashtag_list(request, hashtag: str) -> APIResponse:
     # Returns a list of hashtags. `offset` is a filler variable.
 
     token = request.COOKIES.get("token")
@@ -291,8 +291,9 @@ def hashtag_list(request, hashtag: str) -> tuple | dict:
     except Hashtag.DoesNotExist:
         return {
             "success": True,
-            "end": True,
-            "posts": []
+            "actions": [
+                { "name": "populate_timeline", "end": True, "posts": [] }
+            ]
         }
 
     posts = tag.posts.all().order_by("?")
@@ -308,11 +309,12 @@ def hashtag_list(request, hashtag: str) -> tuple | dict:
 
     return {
         "success": True,
-        "end": True,
-        "posts": post_list
+        "actions": [
+            { "name": "populate_timeline", "end": True, "posts": post_list }
+        ]
     }
 
-def post_list_following(request, offset: int=-1) -> tuple | dict:
+def post_list_following(request, offset: int=-1) -> APIResponse:
     # Called when the following tab is refreshed.
 
     token = request.COOKIES.get('token')
@@ -325,16 +327,9 @@ def post_list_following(request, offset: int=-1) -> tuple | dict:
             "success": False
         }
 
-    if user.following.count():
-        return {
-            "success": True,
-            "posts": [],
-            "end": True
-        }
-
-    potential = User.objects.get(pk=user.following[0]).posts.all().filter(post_id__lt=offset)
-    for i in user.following[1::]:
-        potential = potential.union(User.objects.get(pk=i).posts.all().filter(post_id__lt=offset))
+    potential = user.posts.all().filter(post_id__lt=offset)
+    for u in user.following.all():
+        potential = potential.union(u.posts.all().filter(post_id__lt=offset))
 
     potential = potential.order_by("-post_id")
 
@@ -358,11 +353,12 @@ def post_list_following(request, offset: int=-1) -> tuple | dict:
 
     return {
         "success": True,
-        "posts": outputList,
-        "end": len(potential) - offset <= POSTS_PER_REQUEST
+        "actions": [
+            { "name": "populate_timeline", "posts": outputList, "end": len(potential) - offset <= POSTS_PER_REQUEST }
+        ]
     }
 
-def post_list_recent(request, offset: int=-1) -> tuple | dict:
+def post_list_recent(request, offset: int=-1) -> APIResponse:
     # Called when the recent posts tab is refreshed.
 
     token = request.COOKIES.get('token')
@@ -370,11 +366,12 @@ def post_list_recent(request, offset: int=-1) -> tuple | dict:
     if offset == -1:
         try:
             next_id = Post.objects.latest('post_id').post_id
-        except Post.DoesNotExist:
+        except Post.DoesNotExist: # No posts exist
             return {
                 "success": True,
-                "posts": [],
-                "end": True
+                "actions": [
+                    { "name": "populate_timeline", "posts": [], "end": True }
+                ]
             }
     else:
         next_id = offset - 1
@@ -404,11 +401,12 @@ def post_list_recent(request, offset: int=-1) -> tuple | dict:
 
     return {
         "success": True,
-        "posts": outputList,
-        "end": end
+        "actions": [
+            {  "name": "populate_timeline", "posts": outputList, "end": end }
+        ]
     }
 
-def post_list_user(request, username: str, offset: int=-1) -> tuple | dict:
+def post_list_user(request, username: str, offset: int=-1) -> APIResponse:
     # Called when getting posts from a specific user.
 
     try:
@@ -429,7 +427,7 @@ def post_list_user(request, username: str, offset: int=-1) -> tuple | dict:
     if not validate_username(username):
         return 404, {
             "success": False,
-            "reason" : lang["post"]["invalid_username"]
+            "message" : lang["post"]["invalid_username"]
         }
 
     offset = sys.maxsize if offset == -1 or not isinstance(offset, int) else offset
@@ -438,7 +436,7 @@ def post_list_user(request, username: str, offset: int=-1) -> tuple | dict:
     if user.blocking.contains(self_user):
         return 400, {
             "success": False,
-            "reason": lang["messages"]["blocked"]
+            "message": lang["messages"]["blocked"]
         }
 
     potential = user.posts.filter(post_id__lt=offset).order_by("-post_id")
@@ -455,27 +453,30 @@ def post_list_user(request, username: str, offset: int=-1) -> tuple | dict:
         if len(outputList) >= POSTS_PER_REQUEST:
             break
 
+    pinned_post = None
     if ENABLE_PINNED_POSTS:
-        try:
-            pinned_post = get_post_json(user.pinned or 0, self_user_id if logged_in else 0, False)
-        except Post.DoesNotExist:
-            pinned_post = {}
-    else:
-        pinned_post = {}
+        if user.pinned:
+            pinned_post = get_post_json(user.pinned, self_user_id if logged_in else 0, False)
 
     return {
         "success": True,
-        "posts": outputList,
-        "end": len(potential) <= c,
-        "can_view": True,
-        "following": user.following.count(),
-        "followers": user.followers.count(),
-        "bio": user.bio or "",
-        "self": False if not logged_in else self_user.username == username,
-        "pinned": pinned_post
+        "actions": [
+            {
+                "name": "populate_timeline",
+                "posts": outputList,
+                "end": len(potential) <= c,
+                "extra": {
+                    "type": "user",
+                    "pinned": pinned_post,
+                    "bio": user.bio or "",
+                    "following": user.following.count(),
+                    "followers": user.followers.count()
+                }
+            }
+        ]
     }
 
-def post_like_add(request, data: PostID) -> tuple | dict:
+def post_like_add(request, data: PostID) -> APIResponse:
     # Called when someone likes a post.
 
     token = request.COOKIES.get('token')
@@ -496,10 +497,14 @@ def post_like_add(request, data: PostID) -> tuple | dict:
         ...
 
     return {
-        "success": True
+        "success": True,
+        "actions": [
+            { "name": "update_element", "query": f"div[data-post-id='{data.id}'] button.like", "attribute": [{ "name": "data-liked", "value": "true" }] },
+            { "name": "update_element", "query": f"div[data-post-id='{data.id}'] span.like-number", "inc": 1 }
+        ]
     }
 
-def post_like_remove(request, data: PostID) -> tuple | dict:
+def post_like_remove(request, data: PostID) -> APIResponse:
     # Called when someone unlikes a post.
 
     token = request.COOKIES.get('token')
@@ -513,10 +518,14 @@ def post_like_remove(request, data: PostID) -> tuple | dict:
         ...
 
     return {
-        "success": True
+        "success": True,
+        "actions": [
+            { "name": "update_element", "query": f"div[data-post-id='{data.id}'] button.like", "attribute": [{ "name": "data-liked", "value": "false" }] },
+            { "name": "update_element", "query": f"div[data-post-id='{data.id}'] span.like-number", "inc": -1 }
+        ]
     }
 
-def post_delete(request, data: PostID) -> tuple | dict:
+def post_delete(request, data: PostID) -> APIResponse:
     # Called when someone deletes a post.
 
     token = request.COOKIES.get('token')
@@ -541,46 +550,38 @@ def post_delete(request, data: PostID) -> tuple | dict:
         log_admin_action("Delete post", user, post.creator, f"Deleted post {id}")
 
     if creator or admin:
-        for tag in find_hashtags(post.content): # TODO - add relation between posts and hashtags
-            try:
-                tag_object = Hashtag.objects.get(tag=tag)
-                tag_object.posts.remove(id)
-                tag_object.save()
-
-            except Hashtag.DoesNotExist:
-                pass
-            except ValueError:
-                pass
-
         if post.quote:
             try:
                 quoted_post = (Comment if post.quote_is_comment else Post).objects.get(pk=post.quote)
                 quoted_post.quotes.remove(id)
                 quoted_post.save()
 
+            except ValueError:
+                ...
             except Post.DoesNotExist:
-                pass
+                ...
             except Comment.DoesNotExist:
-                pass
+                ...
 
         post.delete()
 
         return {
-            "success": True
+            "success": True,
+            "actions": [
+                { "name": "remove_from_timeline", "post_id": data.id, "comment": False }
+            ]
         }
 
     return 400, {
         "success": False
     }
 
-def pin_post(request, data: PostID) -> tuple | dict:
+def pin_post(request, data: PostID) -> APIResponse:
     # Called when someone pins a post.
-
-    token = request.COOKIES.get('token')
 
     try:
         post = Post.objects.get(post_id=data.id)
-        user = User.objects.get(token=token)
+        user = User.objects.get(token=request.COOKIES.get("token"))
     except Post.DoesNotExist:
         return 404, {
             "success": False
@@ -590,19 +591,20 @@ def pin_post(request, data: PostID) -> tuple | dict:
             "success": False
         }
 
-    if post.creator.user_id == user.user_id:
-        user.pinned = post
-        user.save()
+    user.pinned = post
+    user.save()
 
-        return {
-            "success": True
-        }
+    lang = get_lang(user)
 
-    return 400, {
-        "success": False
+    return {
+        "success": True,
+        "message": lang["generic"]["success"],
+        "actions": [
+            { "name": "refresh_timeline", "url_includes": ["/u/"] }
+        ]
     }
 
-def unpin_post(request) -> tuple | dict:
+def unpin_post(request) -> APIResponse:
     # Called when someone unpins a post.
 
     token = request.COOKIES.get('token')
@@ -618,10 +620,13 @@ def unpin_post(request) -> tuple | dict:
     user.save()
 
     return {
-        "success": True
+        "success": True,
+        "actions": [
+            { "name": "refresh_timeline", "url_includes": ["/u/"] }
+        ]
     }
 
-def poll_vote(request, data: Poll):
+def poll_vote(request, data: Poll) -> APIResponse:
     post = Post.objects.get(post_id=data.id)
     poll = post.poll
 
@@ -639,28 +644,25 @@ def poll_vote(request, data: Poll):
                 "success": False
             }
 
-        user_id = user.user_id
+        if user.user_id not in poll["votes"]:
+            poll["votes"].append(user.user_id)
+            poll["content"][data.option - 1]["votes"].append(user.user_id)
 
-        if user_id in poll["votes"]:
-            return 400, {
-                "success": False
-            }
+            post.poll = poll
+            post.save()
 
-        poll["votes"].append(user_id)
-        poll["content"][data.option - 1]["votes"].append(user_id)
-
-        post.poll = poll
-        post.save()
-
-        return 200, {
-            "success": True
+        return {
+            "success": True,
+            "actions": [
+                { "name": "reset_post_html", "post_id": data.id, "comment": False, "post": get_post_json(post, user.user_id, False) }
+            ]
         }
 
     return 400, {
         "success": False
     }
 
-def post_edit(request, data: EditPost):
+def post_edit(request, data: EditPost) -> APIResponse:
     token = request.COOKIES.get('token')
 
     try:
@@ -683,7 +685,7 @@ def post_edit(request, data: EditPost):
             lang = get_lang(user)
             return 400, {
                 "success": False,
-                "reason": lang["post"]["invalid_length"].replace("%s", str(MAX_POST_LENGTH))
+                "message": lang["post"]["invalid_length"].replace("%s", str(MAX_POST_LENGTH))
             }
 
         post.edited = True
@@ -696,11 +698,9 @@ def post_edit(request, data: EditPost):
 
         return {
             "success": True,
-            "post": get_post_json(
-                data.id,
-                user.user_id,
-                False
-            )
+            "actions": [
+                { "name": "reset_post_html", "post_id": data.id, "comment": False, "post": get_post_json(post, user.user_id, False) }
+            ]
         }
 
     return 400, {

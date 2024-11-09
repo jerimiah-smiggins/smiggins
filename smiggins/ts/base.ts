@@ -32,15 +32,19 @@ pronouns._o = pronouns.o;
 pronouns._v = pronouns.v;
 
 function s_fetch(
-  url: string,
-  method: "POST" | "GET" | "PATCH" | "DELETE" | "PUT" = "GET",
-  body?: string | null,
-  disable: (Element | string | false | null)[] = [],
-  extraData?: { [key: string]: any },
-  customLog?: HTMLDivElement,
-  postFunction?: (success: boolean) => void
+  url: string, data: {
+    method?: "POST" | "GET" | "PATCH" | "DELETE" | "PUT",
+    body?: string | null,
+    disable?: (Element | string | false | null)[],
+    extraData?: { [key: string]: any },
+    customLog?: HTMLDivElement,
+    postFunction?: (success: boolean) => void
+  }
 ): void {
-  for (const el of disable) {
+  data.method = data.method || "GET";
+  data.disable = data.disable || [];
+
+  for (const el of data.disable) {
     if (el === false || el === null) {
       continue;
     }
@@ -58,23 +62,23 @@ function s_fetch(
     }
   }
 
-  let success: boolean;
+  let success: boolean | null;
 
   fetch(url, {
-    method: method,
-    body: body
+    method: data.method,
+    body: data.body
   }).then((response: Response) => (response.json()))
     .then((json: _actions) => {
-      apiResponse(json, extraData, customLog);
+      apiResponse(json, data.extraData, data.customLog);
       success = json.success;
     })
     .catch((err) => {
       showlog(lang.generic.something_went_wrong);
       console.error(err);
-      success = false;
+      success = null;
     })
     .finally(() => {
-      for (const el of disable) {
+      for (const el of data.disable) {
         if (el === false || el === null) {
           continue;
         }
@@ -92,9 +96,9 @@ function s_fetch(
         }
       }
 
-      if (typeof postFunction == "function") {
+      if (typeof data.postFunction == "function") {
         try {
-          postFunction(success);
+          data.postFunction(success);
         } catch (err) {
           console.error("Request post function error", err);
         }
@@ -118,8 +122,9 @@ function apiResponse(
   }
 
   for (const action of json.actions) {
+    console.log(action.name, action);
     if (action.name == "populate_timeline") {
-      if (!extraData.force_offset && !action.posts.length) {
+      if (!extraData.forceOffset && !action.posts.length) {
         dom("posts").innerHTML = `<i>${escapeHTML(lang.post.no_posts)}</i>`
       }
 
@@ -158,10 +163,6 @@ function apiResponse(
           dom("pinned").innerHTML = "";
         }
 
-        if (!action.extra.can_view) {
-          dom("toggle").setAttribute("hidden", "");
-        }
-
         dom("follow").innerText = `${lang.user_page.followers.replaceAll("%s", action.extra.followers)} - ${lang.user_page.following.replaceAll("%s", action.extra.following)}`;
       }
 
@@ -170,7 +171,7 @@ function apiResponse(
       dom("posts").append(x);
 
       if (dom("more")) {
-        if (extraData.force_offset !== true) {
+        if (extraData.forceOffset !== true) {
           dom("more").removeAttribute("hidden");
         }
 
@@ -189,8 +190,37 @@ function apiResponse(
         x.innerHTML = getPostHTML(action.post);
         dom("posts").prepend(x);
       }
+    } else if (action.name == "reset_post_html") {
+      let post: HTMLDivElement = document.querySelector(`[data-${action.comment ? "comment" : "post"}-id="${action.post_id}"]`);
+      let postSettings: { [key: string]: boolean } = JSON.parse(post.querySelector(".post").getAttribute("data-settings"));
+      post.innerHTML = getPostHTML(
+        action.post,
+        postSettings.isComment,
+        postSettings.includeUserLink,
+        postSettings.includePostLink,
+        postSettings.fakeMentions,
+        postSettings.pageFocus,
+        postSettings.isPinned,
+        false
+      );
+    } else if (action.name == "remove_from_timeline") {
+      if (extraData.pageFocus) {
+        window.location.href = "/home/";
+      } else {
+        document.querySelector(`.post-container[data-${action.comment ? "comment" : "post"}-id="${action.post_id}"]`).remove();
+      }
     } else if (action.name == "refresh_timeline") {
-      refresh();
+      if (action.url_includes) {
+        for (const url of action.url_includes) {
+          if (location.href.includes(url)) {
+            refresh();
+            break;
+          }
+        }
+      } else {
+        refresh();
+      }
+
     } else if (action.name == "set_auth") {
       setCookie("token", action.token);
       if (action.redirect) {
@@ -221,6 +251,16 @@ function apiResponse(
           (element as HTMLInputElement).checked = action.checked;
         } else if (action.value !== undefined) {
           (element as HTMLInputElement).disabled = action.disabled;
+        }
+
+        if (action.attribute) {
+          for (const attr of action.attribute) {
+            if (attr.value === null) {
+              element.removeAttribute(attr.name);
+            } else {
+              element.setAttribute(attr.name, attr.value);
+            }
+          }
         }
 
         if (action.set_class) {
@@ -547,7 +587,8 @@ function getPostHTML(
         </span>
 
         <button class="bottom-content-icon like" data-liked="${postJSON.liked}" ${fakeMentions ? "" : `onclick="toggleLike(${postJSON.post_id}, ${isComment ? "'comment'" : "'post'"})"`}>
-          ${postJSON.liked ? icons.like : icons.unlike}
+          <span class="hidden-if-unlike">${icons.like}</span>
+          <span class="hidden-if-like">${icons.unlike}</span>
           <span class="like-number">${postJSON.likes}</span>
         </button>
 

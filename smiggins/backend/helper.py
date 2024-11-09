@@ -326,7 +326,7 @@ def get_post_json(post_id: int | Post | Comment, current_user_id: int=0, comment
         "quotes": len(post.quotes),
         "c_warning": post.content_warning,
         "can_delete": can_delete_all or creator.user_id == current_user_id,
-        "can_pin": not comment and creator.user_id == current_user_id,
+        "can_pin": ENABLE_PINNED_POSTS and user is not None,
         "can_edit": creator.user_id == current_user_id and ENABLE_EDITING_POSTS,
         "can_view": True,
         "parent": post.parent if isinstance(post, Comment) else -1,

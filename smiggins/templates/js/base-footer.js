@@ -86,7 +86,6 @@ if (logged_in) {
                     dom("icons").innerHTML += `<a title="${lang.settings.profile_title}" href="/u/${username}">${icons.user}</a>`;
                 }
                 else {
-                    console.log("Username returned from /api/info/username is invalid.");
                 }
             });
         }
@@ -95,7 +94,6 @@ if (logged_in) {
                 dom("icons").innerHTML += `<a title="${lang.settings.profile_title}" href="/u/${localStorage.getItem("username")}">${icons.user}</a>`;
             }
             else {
-                console.log("Username in localStorage is invalid.");
                 localStorage.removeItem("username");
             }
         }

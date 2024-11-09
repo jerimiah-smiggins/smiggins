@@ -279,7 +279,6 @@ testMask(Mask.AdminLevel) && dom("level-load").addEventListener("click", functio
       success: boolean
     }) => {
       if (json.success) {
-        console.log(json.level);
         forEach(
           document.querySelectorAll("#level-selection input[type='checkbox']"),
           (val: HTMLInputElement, index: number) => {

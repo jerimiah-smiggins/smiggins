@@ -1,6 +1,14 @@
 # For ninja api schemas
 
+import sys
+from typing import Literal
+
 from ninja import Schema
+
+if sys.version_info >= (3, 11):
+    from typing import NotRequired, TypedDict
+else:
+    from typing_extensions import NotRequired, TypedDict
 
 
 class Username(Schema):
@@ -111,3 +119,71 @@ class Settings(Schema):
     is_gradient: bool
     approve_followers: bool
     default_post_visibility: str
+
+# types
+_postJSON = dict
+
+class _actions_timeline_extra(TypedDict):
+    type: Literal["user"]
+    pinned: _postJSON | None
+    bio: str
+    followers: int
+    following: int
+
+class _actions_timeline(TypedDict):
+    name: Literal["populate_timeline"]
+    end: bool
+    extra: NotRequired[_actions_timeline_extra]
+    posts: list[_postJSON]
+
+class _actions_prepend(TypedDict):
+    name: Literal["prepend_timeline"]
+    post: _postJSON
+
+class _actions_reset(TypedDict):
+    name: Literal["reset_post_html"]
+    post_id: int
+    comment: bool
+    post: _postJSON
+
+class _actions_remove(TypedDict):
+    name: Literal["remove_from_timeline"]
+    post_id: int
+    comment: bool
+
+class _actions_refresh(TypedDict):
+    name: Literal["refresh_timeline"]
+    url_includes: NotRequired[list[str]]
+
+class _actions_auth(TypedDict):
+    name: Literal["set_auth"]
+    token: str
+    redirect: bool
+
+class _actions_element_class(TypedDict):
+    class_name: str
+    enable: bool
+
+class _actions_element_attribute(TypedDict):
+    name: str
+    value: str | None
+
+class _actions_element(TypedDict):
+    name: Literal["update_element"]
+    query: str
+    all: NotRequired[bool]
+    inc: NotRequired[int]
+    text: NotRequired[str]
+    html: NotRequired[str]
+    value: NotRequired[str]
+    checked: NotRequired[bool]
+    disabled: NotRequired[bool]
+    attribute: NotRequired[list[_actions_element_attribute]]
+    set_class: NotRequired[list[_actions_element_class]]
+
+class _actions(TypedDict):
+    success: bool
+    message: NotRequired[str]
+    actions: NotRequired[list[_actions_timeline | _actions_prepend | _actions_reset | _actions_remove | _actions_refresh | _actions_auth | _actions_element]]
+
+APIResponse = tuple[int, _actions] | _actions

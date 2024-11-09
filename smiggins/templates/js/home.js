@@ -22,16 +22,20 @@ dom("switch").innerText = page == "recent" ? lang.home.switch_following : lang.h
 dom("post-text").addEventListener("input", postTextInputEvent);
 dom("post").addEventListener("click", function () {
     if (dom("post-text").value || getPollText().length) {
-        s_fetch("/api/post/create", "PUT", JSON.stringify({
-            c_warning: ENABLE_CONTENT_WARNINGS ? dom("c-warning").value : "",
-            content: dom("post-text").value,
-            poll: getPollText(),
-            private: dom("default-private").checked
-        }), [
-            this,
-            dom("post-text"),
-            ENABLE_CONTENT_WARNINGS && dom("c-warning")
-        ]);
+        s_fetch("/api/post/create", {
+            method: "PUT",
+            body: JSON.stringify({
+                c_warning: ENABLE_CONTENT_WARNINGS ? dom("c-warning").value : "",
+                content: dom("post-text").value,
+                poll: getPollText(),
+                private: dom("default-private").checked
+            }),
+            disable: [
+                this,
+                dom("post-text"),
+                ENABLE_CONTENT_WARNINGS && dom("c-warning")
+            ]
+        });
     }
 });
 dom("switch").addEventListener("click", function () {

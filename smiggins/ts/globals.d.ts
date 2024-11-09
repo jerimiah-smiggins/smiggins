@@ -132,8 +132,7 @@ type _actions = {
     end: boolean,
     extra?: {
       type: "user",
-      pinned: _postJSON,
-      can_view: boolean,
+      pinned: _postJSON | null,
       bio: string,
       followers: number,
       following: number
@@ -143,7 +142,17 @@ type _actions = {
     name: "prepend_timeline",
     post: _postJSON
   } | {
-    name: "refresh_timeline"
+    name: "remove_from_timeline",
+    post_id: number,
+    comment: boolean
+  } | {
+    name: "reset_post_html",
+    post_id: number,
+    comment: boolean,
+    post:  _postJSON
+  } | {
+    name: "refresh_timeline",
+    url_includes?: string[]
   } | {
     name: "set_auth",
     token: string,
@@ -158,6 +167,7 @@ type _actions = {
     value?: string, // For inputs
     checked?: boolean, // For checkbox inputs
     disabled?: boolean,
+    attribute?: { name: string, value: string | null }[]
     set_class?: { class_name: string, enable: boolean }[]
   })[]
 }
