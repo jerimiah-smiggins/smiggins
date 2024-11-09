@@ -71,7 +71,7 @@ def post_create(request, data: NewPost) -> tuple | dict:
         lang = get_lang(user)
         return 429, {
             "success": False,
-            "reason": lang["generic"]["ratelimit"]
+            "message": lang["generic"]["ratelimit"]
         }
 
     if len(data.poll) > MAX_POLL_OPTIONS:
@@ -94,7 +94,7 @@ def post_create(request, data: NewPost) -> tuple | dict:
         lang = get_lang(user)
         return 400, {
             "success": False,
-            "reason": lang["post"]["invalid_poll"]
+            "message": lang["post"]["invalid_poll"]
         }
 
     content = trim_whitespace(data.content)
@@ -105,7 +105,7 @@ def post_create(request, data: NewPost) -> tuple | dict:
         lang = get_lang(user)
         return 400, {
             "success": False,
-            "reason": lang["post"]["invalid_length"].replace("%s", str(MAX_POST_LENGTH))
+            "message": lang["post"]["invalid_length"].replace("%s", str(MAX_POST_LENGTH))
         }
 
     create_api_ratelimit("api_post_create", API_TIMINGS["create post"], token)
@@ -153,7 +153,13 @@ def post_create(request, data: NewPost) -> tuple | dict:
         post_hook(request, user, post)
 
     return {
-        "success": True
+        "success": True,
+        "actions": [
+            { "name": "prepend_timeline", "post": get_post_json(post, user.user_id) },
+            { "name": "update_element", "query": "#post-text", "value": "" },
+            { "name": "update_element", "query": "#c-warning", "value": "" },
+            { "name": "update_element", "query": "#poll input", "value": "", "all": True }
+        ]
     }
 
 def quote_create(request, data: NewQuote) -> tuple | dict:
@@ -165,7 +171,7 @@ def quote_create(request, data: NewQuote) -> tuple | dict:
         lang = get_lang(user)
         return 429, {
             "success": False,
-            "reason": "Ratelimited"
+            "message": lang["generic"]["ratelimit"]
         }
 
     try:
@@ -175,13 +181,13 @@ def quote_create(request, data: NewQuote) -> tuple | dict:
         lang = get_lang(user)
         return 400, {
             "success": False,
-            "reason": lang["post"]["invalid_quote_post"]
+            "message": lang["post"]["invalid_quote_post"]
         }
     except Comment.DoesNotExist:
         lang = get_lang(user)
         return 400, {
             "success": False,
-            "reason": lang["post"]["invalid_quote_comment"]
+            "message": lang["post"]["invalid_quote_comment"]
         }
 
     can_view = can_view_post(user, quoted_post.creator, quoted_post)
@@ -199,7 +205,7 @@ def quote_create(request, data: NewQuote) -> tuple | dict:
         lang = get_lang(user)
         return 400, {
             "success": False,
-            "reason": lang["post"]["invalid_length"].replace("%s", str(MAX_POST_LENGTH))
+            "message": lang["post"]["invalid_length"].replace("%s", str(MAX_POST_LENGTH))
         }
 
     create_api_ratelimit("api_post_create", API_TIMINGS["create post"], request.COOKIES.get("token"))
@@ -261,8 +267,12 @@ def quote_create(request, data: NewQuote) -> tuple | dict:
         post_hook(request, user, post)
 
     return {
-        "post": get_post_json(post.post_id, user.user_id),
-        "success": True
+        "success": True,
+        "actions": [
+            { "name": "prepend_timeline", "post": get_post_json(post, user.user_id) },
+            { "name": "update_element", "query": f".post-container[data-{'comment' if data.quote_is_comment else 'post'}-id='{data.quote_id}'] .post-after", "html": "" },
+            { "name": "update_element", "query": f".post-container[data-{'comment' if data.quote_is_comment else 'post'}-id='{data.quote_id}'] .quote-number", "inc": 1 }
+        ]
     }
 
 def hashtag_list(request, hashtag: str) -> tuple | dict:

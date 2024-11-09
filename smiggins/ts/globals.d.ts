@@ -123,3 +123,41 @@ type _themeObject = {
     }
   }
 }
+
+type _actions = {
+  success: boolean,
+  message?: string | null,
+  actions?: ({
+    name: "populate_timeline",
+    end: boolean,
+    extra?: {
+      type: "user",
+      pinned: _postJSON,
+      can_view: boolean,
+      bio: string,
+      followers: number,
+      following: number
+    },
+    posts: _postJSON[]
+  } | {
+    name: "prepend_timeline",
+    post: _postJSON
+  } | {
+    name: "refresh_timeline"
+  } | {
+    name: "set_auth",
+    token: string,
+    redirect: boolean
+  } | {
+    name: "update_element",
+    query: string, // ex: "#posts" for the posts container
+    all?: boolean, // Whether or not to use querySelectorAll instead of querySelector
+    inc?: number, // Increments the innerHTML as if it's a number
+    text?: string, // sets innerText
+    html?: string, // sets innerHTML
+    value?: string, // For inputs
+    checked?: boolean, // For checkbox inputs
+    disabled?: boolean,
+    set_class?: { class_name: string, enable: boolean }[]
+  })[]
+}

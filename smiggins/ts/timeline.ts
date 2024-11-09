@@ -13,7 +13,7 @@ function deletePost(postID: number, isComment: boolean, pageFocus: boolean): voi
     }) => {
       if (json.success) {
         if (pageFocus) {
-          location.href = "/home";
+          location.href = "/home/";
         } else {
           document.querySelector(`.post-container[data-${isComment ? "comment" : "post"}-id="${postID}"]`).remove();
         }
@@ -61,7 +61,7 @@ function unpinPost(): void {
 function addQuote(postID: number, isComment: boolean): void {
   if (typeof logged_in !== "undefined" && !logged_in) { return; }
 
-  const post: Element = document.querySelector(`[data-${isComment ? "comment" : "post"}-id="${postID}"]`).querySelector(".post-after");
+  const post: Element = document.querySelector(`[data-${isComment ? "comment" : "post"}-id="${postID}"] .post-after`);
   if (post.querySelector("button")) { return; }
 
   let c: number = 0;
@@ -89,57 +89,19 @@ function addQuote(postID: number, isComment: boolean): void {
   post.querySelector("button.post-button").addEventListener("click", function(): void {
     if (!post.querySelector("textarea").value.length) { return; }
 
-    ENABLE_CONTENT_WARNINGS && post.querySelector("input.c-warning").setAttribute("disabled", "");
-    post.querySelector("textarea").setAttribute("disabled", "");
-    post.querySelector("button.post-button").setAttribute("disabled", "");
-    post.querySelector("button.cancel-button").setAttribute("disabled", "");
-
-    fetch("/api/quote/create", {
-      method: "PUT",
-      body: JSON.stringify({
+    s_fetch("/api/quote/create", "PUT", JSON.stringify({
         c_warning: ENABLE_CONTENT_WARNINGS ? (post.querySelector("input.c-warning") as HTMLInputElement).value : "",
         content: post.querySelector("textarea").value,
         quote_id: postID,
         quote_is_comment: isComment,
         private: (dom(`default-private-${localGI}`) as HTMLInputElement).checked
-      })
-    }).then((response: Response) => (response.json()))
-      .then((json: {
-        post: _postJSON,
-        reason?: string,
-        success: boolean
-      }) => {
-        if (json.success) {
-          post.innerHTML = "";
-
-          let quoteNumber: HTMLElement = (document.querySelector(`.post-container[data-${isComment ? "comment" : "post"}-id="${postID}"] .quote-number`) as HTMLElement);
-          quoteNumber.innerText = String(+quoteNumber.innerText + 1);
-
-          if (
-            location.pathname.toLowerCase().includes("/home") ||
-            location.pathname.toLowerCase().includes(`/u/${localStorage.getItem("username") || "LOL IT BROKE SO FUNNY"}`)
-          ) {
-            let x: HTMLDivElement = document.createElement("div");
-            x.innerHTML = getPostHTML(json.post);
-            dom("posts").prepend(x);
-          }
-        } else {
-          (post.querySelector(".log") as HTMLElement).innerText = json.reason;
-          c++;
-          setTimeout(function() {
-            --c;
-            if (!c) {
-              (post.querySelector(".log") as HTMLElement).innerText = "";
-            }
-          });
-          throw json.reason;
-        }
-      }).catch((err: Error) => {
-        ENABLE_CONTENT_WARNINGS && post.querySelector("input.c-warning").removeAttribute("disabled");
-        post.querySelector("textarea").removeAttribute("disabled");
-        post.querySelector("button.post-button").removeAttribute("disabled");
-        post.querySelector("button.cancel-button").removeAttribute("disabled");
-      });
+      }), [
+        post.querySelector("textarea"),
+        post.querySelector("button.post-button"),
+        post.querySelector("button.cancel-button"),
+        ENABLE_CONTENT_WARNINGS && post.querySelector("input.c-warning")
+      ]
+    );
   });
 
   post.querySelector("textarea").addEventListener("input", postTextInputEvent);

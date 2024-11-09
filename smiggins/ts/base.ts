@@ -31,40 +31,90 @@ pronouns._a = pronouns.a;
 pronouns._o = pronouns.o;
 pronouns._v = pronouns.v;
 
-function apiResponse(json: {
-  success: boolean,
-  message?: string | null,
-  actions?: ({
-    name: "populate_timeline",
-    end: boolean,
-    extra?: {
-      type: "user",
-      pinned: _postJSON,
-      can_view: boolean,
-      bio: string,
-      followers: number,
-      following: number
-    },
-    posts: _postJSON[]
-  } | {
-    name: "set_auth",
-    token: string,
-    redirect: boolean
-  } | {
-    name: "update_element",
-    query: string, // ex: "#posts" for the posts container
-    text?: string,
-    html?: string,
-    value?: string, // For inputs
-    checked?: boolean, // For checkbox inputs
-    disabled?: boolean,
-    set_class?: { class_name: string, enable: boolean }[]
-  })[]
-}, extraData?: { [key: string]: any }): void {
+function s_fetch(
+  url: string,
+  method: "POST" | "GET" | "PATCH" | "DELETE" | "PUT" = "GET",
+  body?: string | null,
+  disable: (Element | string | false | null)[] = [],
+  extraData?: { [key: string]: any },
+  customLog?: HTMLDivElement,
+  postFunction?: (success: boolean) => void
+): void {
+  for (const el of disable) {
+    if (el === false || el === null) {
+      continue;
+    }
+
+    let element: HTMLInputElement;
+
+    if (typeof el == "string") {
+      element = document.querySelector(el);
+    } else {
+      element = el as HTMLInputElement;
+    }
+
+    if (element) {
+      element.disabled = true;
+    }
+  }
+
+  let success: boolean;
+
+  fetch(url, {
+    method: method,
+    body: body
+  }).then((response: Response) => (response.json()))
+    .then((json: _actions) => {
+      apiResponse(json, extraData, customLog);
+      success = json.success;
+    })
+    .catch((err) => {
+      showlog(lang.generic.something_went_wrong);
+      console.error(err);
+      success = false;
+    })
+    .finally(() => {
+      for (const el of disable) {
+        if (el === false || el === null) {
+          continue;
+        }
+
+        let element: HTMLInputElement;
+
+        if (typeof el == "string") {
+          element = document.querySelector(el);
+        } else {
+          element = el as HTMLInputElement;
+        }
+
+        if (element) {
+          element.disabled = false;
+        }
+      }
+
+      if (typeof postFunction == "function") {
+        try {
+          postFunction(success);
+        } catch (err) {
+          console.error("Request post function error", err);
+        }
+      }
+    });
+}
+
+function apiResponse(
+  json: _actions,
+  extraData?: { [key: string]: any },
+  customLog?: HTMLDivElement
+): void {
   if (json.message) {
-    showlog(json.message);
+    showlog(json.message, 3000, customLog);
   } else if (!json.success) {
-    showlog(lang.generic.something_went_wrong);
+    showlog(lang.generic.something_went_wrong, 5000, customLog);
+  }
+
+  if (!json.actions) {
+    return;
   }
 
   for (const action of json.actions) {
@@ -130,33 +180,57 @@ function apiResponse(json: {
           dom("more").removeAttribute("hidden");
         }
       }
+    } else if (action.name == "prepend_timeline") {
+      if (
+        location.pathname.toLowerCase().includes("/home") ||
+        location.pathname.toLowerCase().includes(`/u/${localStorage.getItem("username") || "LOL IT BROKE SO FUNNY"}`)
+      ) {
+        let x: HTMLDivElement = document.createElement("div");
+        x.innerHTML = getPostHTML(action.post);
+        dom("posts").prepend(x);
+      }
+    } else if (action.name == "refresh_timeline") {
+      refresh();
     } else if (action.name == "set_auth") {
       setCookie("token", action.token);
       if (action.redirect) {
         location.href = "/home/";
       }
     } else if (action.name == "update_element") {
-      let element: HTMLElement = document.querySelector(action.query);
-
-      if (action.text !== undefined) {
-        element.innerText = action.text;
-      } else if (action.html !== undefined) {
-        element.innerHTML = action.html;
+      let iter: NodeListOf<Element> | Element[];
+      if (action.all) {
+        iter = document.querySelectorAll(action.query);
+      } else {
+        iter = [document.querySelector(action.query)]
       }
 
-      if (action.value !== undefined) {
-        (element as HTMLInputElement).value = action.value;
-      } else if (action.checked !== undefined) {
-        (element as HTMLInputElement).checked = action.checked;
-      } else if (action.value !== undefined) {
-        (element as HTMLInputElement).disabled = action.disabled;
-      }
+      for (const el of iter) {
+        let element: HTMLElement = el as HTMLElement;
 
-      for (const cls of action.set_class) {
-        if (cls.enable) {
-          element.classList.add(cls.class_name);
-        } else {
-          element.classList.remove(cls.class_name);
+        if (action.inc !== undefined) {
+          element.innerHTML = String(+element.innerHTML + action.inc);
+        } else if (action.text !== undefined) {
+          element.innerText = action.text;
+        } else if (action.html !== undefined) {
+          element.innerHTML = action.html;
+        }
+
+        if (action.value !== undefined) {
+          (element as HTMLInputElement).value = action.value;
+        } else if (action.checked !== undefined) {
+          (element as HTMLInputElement).checked = action.checked;
+        } else if (action.value !== undefined) {
+          (element as HTMLInputElement).disabled = action.disabled;
+        }
+
+        if (action.set_class) {
+          for (const cls of action.set_class) {
+            if (cls.enable) {
+              element.classList.add(cls.class_name);
+            } else {
+              element.classList.remove(cls.class_name);
+            }
+          }
         }
       }
     } else {
@@ -165,13 +239,13 @@ function apiResponse(json: {
   }
 }
 
-function showlog(str: string, time: number = 3000): void {
+function showlog(str: string, time: number = 3000, customLog?: HTMLDivElement): void {
   inc++;
-  dom("error").innerText = str;
+  (customLog || dom("error")).innerText = str;
   setTimeout(() => {
     --inc;
     if (!inc) {
-      dom("error").innerText = "";
+      (customLog || dom("error")).innerText = "";
     }
   }, time);
 };

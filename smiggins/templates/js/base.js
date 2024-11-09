@@ -24,12 +24,68 @@ const pronouns = lang.generic.pronouns;
 pronouns._a = pronouns.a;
 pronouns._o = pronouns.o;
 pronouns._v = pronouns.v;
-function apiResponse(json, extraData) {
+function s_fetch(url, method = "GET", body, disable = [], extraData, customLog, postFunction) {
+    for (const el of disable) {
+        if (el === false || el === null) {
+            continue;
+        }
+        let element;
+        if (typeof el == "string") {
+            element = document.querySelector(el);
+        }
+        else {
+            element = el;
+        }
+        if (element) {
+            element.disabled = true;
+        }
+    }
+    let success;
+    fetch(url, {
+        method: method,
+        body: body
+    }).then((response) => (response.json()))
+        .then((json) => { apiResponse(json, extraData, customLog); success = json.success; })
+        .catch((err) => {
+        showlog(lang.generic.something_went_wrong);
+        console.error(err);
+        success = false;
+    })
+        .finally(() => {
+        for (const el of disable) {
+            if (el === false || el === null) {
+                continue;
+            }
+            let element;
+            if (typeof el == "string") {
+                element = document.querySelector(el);
+            }
+            else {
+                element = el;
+            }
+            if (element) {
+                element.disabled = false;
+            }
+        }
+        if (typeof postFunction == "function") {
+            try {
+                postFunction(success);
+            }
+            catch (err) {
+                console.error("Request post function error", err);
+            }
+        }
+    });
+}
+function apiResponse(json, extraData, customLog) {
     if (json.message) {
-        showlog(json.message);
+        showlog(json.message, 3000, customLog);
     }
     else if (!json.success) {
-        showlog(lang.generic.something_went_wrong);
+        showlog(lang.generic.something_went_wrong, 5000, customLog);
+    }
+    if (!json.actions) {
+        return;
     }
     for (const action of json.actions) {
         if (action.name == "populate_timeline") {
@@ -75,6 +131,17 @@ function apiResponse(json, extraData) {
                 }
             }
         }
+        else if (action.name == "prepend_timeline") {
+            if (location.pathname.toLowerCase().includes("/home") ||
+                location.pathname.toLowerCase().includes(`/u/${localStorage.getItem("username") || "LOL IT BROKE SO FUNNY"}`)) {
+                let x = document.createElement("div");
+                x.innerHTML = getPostHTML(action.post);
+                dom("posts").prepend(x);
+            }
+        }
+        else if (action.name == "refresh_timeline") {
+            refresh();
+        }
         else if (action.name == "set_auth") {
             setCookie("token", action.token);
             if (action.redirect) {
@@ -82,28 +149,42 @@ function apiResponse(json, extraData) {
             }
         }
         else if (action.name == "update_element") {
-            let element = document.querySelector(action.query);
-            if (action.text !== undefined) {
-                element.innerText = action.text;
+            let iter;
+            if (action.all) {
+                iter = document.querySelectorAll(action.query);
             }
-            else if (action.html !== undefined) {
-                element.innerHTML = action.html;
+            else {
+                iter = [document.querySelector(action.query)];
             }
-            if (action.value !== undefined) {
-                element.value = action.value;
-            }
-            else if (action.checked !== undefined) {
-                element.checked = action.checked;
-            }
-            else if (action.value !== undefined) {
-                element.disabled = action.disabled;
-            }
-            for (const cls of action.set_class) {
-                if (cls.enable) {
-                    element.classList.add(cls.class_name);
+            for (const el of iter) {
+                let element = el;
+                if (action.inc !== undefined) {
+                    element.innerHTML = String(+element.innerHTML + action.inc);
                 }
-                else {
-                    element.classList.remove(cls.class_name);
+                else if (action.text !== undefined) {
+                    element.innerText = action.text;
+                }
+                else if (action.html !== undefined) {
+                    element.innerHTML = action.html;
+                }
+                if (action.value !== undefined) {
+                    element.value = action.value;
+                }
+                else if (action.checked !== undefined) {
+                    element.checked = action.checked;
+                }
+                else if (action.value !== undefined) {
+                    element.disabled = action.disabled;
+                }
+                if (action.set_class) {
+                    for (const cls of action.set_class) {
+                        if (cls.enable) {
+                            element.classList.add(cls.class_name);
+                        }
+                        else {
+                            element.classList.remove(cls.class_name);
+                        }
+                    }
                 }
             }
         }
@@ -112,13 +193,13 @@ function apiResponse(json, extraData) {
         }
     }
 }
-function showlog(str, time = 3000) {
+function showlog(str, time = 3000, customLog) {
     inc++;
-    dom("error").innerText = str;
+    (customLog || dom("error")).innerText = str;
     setTimeout(() => {
         --inc;
         if (!inc) {
-            dom("error").innerText = "";
+            (customLog || dom("error")).innerText = "";
         }
     }, time);
 }

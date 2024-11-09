@@ -10,7 +10,7 @@ function deletePost(postID, isComment, pageFocus) {
         .then((json) => {
         if (json.success) {
             if (pageFocus) {
-                location.href = "/home";
+                location.href = "/home/";
             }
             else {
                 document.querySelector(`.post-container[data-${isComment ? "comment" : "post"}-id="${postID}"]`).remove();
@@ -56,7 +56,7 @@ function addQuote(postID, isComment) {
     if (typeof logged_in !== "undefined" && !logged_in) {
         return;
     }
-    const post = document.querySelector(`[data-${isComment ? "comment" : "post"}-id="${postID}"]`).querySelector(".post-after");
+    const post = document.querySelector(`[data-${isComment ? "comment" : "post"}-id="${postID}"] .post-after`);
     if (post.querySelector("button")) {
         return;
     }
@@ -81,49 +81,18 @@ function addQuote(postID, isComment) {
         if (!post.querySelector("textarea").value.length) {
             return;
         }
-        ENABLE_CONTENT_WARNINGS && post.querySelector("input.c-warning").setAttribute("disabled", "");
-        post.querySelector("textarea").setAttribute("disabled", "");
-        post.querySelector("button.post-button").setAttribute("disabled", "");
-        post.querySelector("button.cancel-button").setAttribute("disabled", "");
-        fetch("/api/quote/create", {
-            method: "PUT",
-            body: JSON.stringify({
-                c_warning: ENABLE_CONTENT_WARNINGS ? post.querySelector("input.c-warning").value : "",
-                content: post.querySelector("textarea").value,
-                quote_id: postID,
-                quote_is_comment: isComment,
-                private: dom(`default-private-${localGI}`).checked
-            })
-        }).then((response) => (response.json()))
-            .then((json) => {
-            if (json.success) {
-                post.innerHTML = "";
-                let quoteNumber = document.querySelector(`.post-container[data-${isComment ? "comment" : "post"}-id="${postID}"] .quote-number`);
-                quoteNumber.innerText = String(+quoteNumber.innerText + 1);
-                if (location.pathname.toLowerCase().includes("/home") ||
-                    location.pathname.toLowerCase().includes(`/u/${localStorage.getItem("username") || "LOL IT BROKE SO FUNNY"}`)) {
-                    let x = document.createElement("div");
-                    x.innerHTML = getPostHTML(json.post);
-                    dom("posts").prepend(x);
-                }
-            }
-            else {
-                post.querySelector(".log").innerText = json.reason;
-                c++;
-                setTimeout(function () {
-                    --c;
-                    if (!c) {
-                        post.querySelector(".log").innerText = "";
-                    }
-                });
-                throw json.reason;
-            }
-        }).catch((err) => {
-            ENABLE_CONTENT_WARNINGS && post.querySelector("input.c-warning").removeAttribute("disabled");
-            post.querySelector("textarea").removeAttribute("disabled");
-            post.querySelector("button.post-button").removeAttribute("disabled");
-            post.querySelector("button.cancel-button").removeAttribute("disabled");
-        });
+        s_fetch("/api/quote/create", "PUT", JSON.stringify({
+            c_warning: ENABLE_CONTENT_WARNINGS ? post.querySelector("input.c-warning").value : "",
+            content: post.querySelector("textarea").value,
+            quote_id: postID,
+            quote_is_comment: isComment,
+            private: dom(`default-private-${localGI}`).checked
+        }), [
+            post.querySelector("textarea"),
+            post.querySelector("button.post-button"),
+            post.querySelector("button.cancel-button"),
+            ENABLE_CONTENT_WARNINGS && post.querySelector("input.c-warning")
+        ]);
     });
     post.querySelector("textarea").addEventListener("input", postTextInputEvent);
     post.querySelector("button.cancel-button").addEventListener("click", function () {
