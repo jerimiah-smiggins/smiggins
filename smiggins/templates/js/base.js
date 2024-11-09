@@ -45,7 +45,10 @@ function s_fetch(url, method = "GET", body, disable = [], extraData, customLog, 
         method: method,
         body: body
     }).then((response) => (response.json()))
-        .then((json) => { apiResponse(json, extraData, customLog); success = json.success; })
+        .then((json) => {
+        apiResponse(json, extraData, customLog);
+        success = json.success;
+    })
         .catch((err) => {
         showlog(lang.generic.something_went_wrong);
         console.error(err);
