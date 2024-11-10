@@ -190,6 +190,10 @@ type _actions = {
     name: "set_auth",
     token: string
   } | {
+    name: "localstorage",
+    key: string,
+    value: any
+  } | {
     name: "reload"
   } | {
     name: "redirect",
@@ -210,7 +214,7 @@ type _actions = {
     focus?: any,
     checked?: boolean, // For checkbox inputs
     disabled?: boolean,
-    attribute?: { name: string, value: string | null }[]
+    attribute?: { name: string, value: string | null }[],
     set_class?: { class_name: string, enable: boolean }[]
   })[]
 }

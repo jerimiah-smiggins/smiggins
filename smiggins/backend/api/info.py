@@ -4,9 +4,10 @@
 from posts.models import User
 
 from ..variables import REAL_VERSION
+from .schema import APIResponse
 
 
-def username(request) -> tuple | dict:
+def username(request) -> APIResponse:
     # Returns the username from token
 
     try:
@@ -18,17 +19,19 @@ def username(request) -> tuple | dict:
 
     return {
         "success": True,
-        "username": user.username
+        "actions": [
+            { "name": "localstorage", "key": "username", "value": user.username }
+        ]
     }
 
-def notifications(request) -> tuple | dict:
+def notifications(request) -> tuple[int, dict] | dict:
     # Returns whether or not you have unread notifications
 
     try:
         user = User.objects.get(token=request.COOKIES.get('token'))
     except User.DoesNotExist:
         return 400, {
-            "success": False,
+            "success": False
         }
 
     return {
@@ -43,6 +46,5 @@ def version(request) -> dict:
 
     return {
         "success": True,
-        # Hardcoded version, this should NEVER be changed by the instance owner
         "version": list(REAL_VERSION)
     }

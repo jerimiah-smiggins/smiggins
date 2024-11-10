@@ -375,6 +375,12 @@ function apiResponse(
       }
     } else if (action.name == "set_auth") {
       setCookie("token", action.token);
+    } else if (action.name == "localstorage") {
+      if (action.value === null) {
+        localStorage.removeItem(action.key);
+      } else {
+        localStorage.setItem(action.key, action.value);
+      }
     } else if (action.name == "reload") {
       location.href = location.href;
       break;

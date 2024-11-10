@@ -198,6 +198,11 @@ class _actions_auth(TypedDict):
     name: Literal["set_auth"]
     token: str
 
+class _actions_localstorage(TypedDict):
+    name: Literal["localstorage"]
+    key: str
+    value: Any
+
 class _actions_reload(TypedDict):
     name: Literal["reload"]
 
@@ -246,6 +251,7 @@ class _actions(TypedDict):
       | _actions_notification
       | _actions_message
       | _actions_auth
+      | _actions_localstorage
       | _actions_reload
       | _actions_redirect
       | _actions_theme
