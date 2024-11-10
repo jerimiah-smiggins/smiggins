@@ -32,7 +32,7 @@ pronouns._o = pronouns.o;
 pronouns._v = pronouns.v;
 
 function s_fetch(
-  url: string, data: {
+  url: string, data?: {
     method?: "POST" | "GET" | "PATCH" | "DELETE" | "PUT",
     body?: string | null,
     disable?: (Element | string | false | null)[],
@@ -210,21 +210,135 @@ function apiResponse(
         document.querySelector(`.post-container[data-${action.comment ? "comment" : "post"}-id="${action.post_id}"]`).remove();
       }
     } else if (action.name == "refresh_timeline") {
+      let rfFunc: (forceOffset?: boolean) => void = action.special == "notifications" ? refreshNotifications : action.special == "pending" ? refreshPendingList : refresh;
       if (action.url_includes) {
         for (const url of action.url_includes) {
           if (location.href.includes(url)) {
-            refresh();
+            if (action.special == "pending") {
+              rfFunc(true);
+            } else {
+              rfFunc();
+            }
             break;
           }
         }
       } else {
-        refresh();
+        if (action.special == "pending") {
+          rfFunc(true);
+        } else {
+          rfFunc();
+        }
+      }
+    } else if (action.name == "user_timeline") {
+      let x: DocumentFragment = document.createDocumentFragment();
+
+      if (action.users.length == 0) {
+        let y: HTMLElement = document.createElement("i");
+        y.innerHTML = lang.generic.none;
+        x.append(y);
       }
 
+      for (const user of action.users) {
+        let y: HTMLElement = document.createElement("div");
+        y.innerHTML = `
+          <div class="post">
+            <div class="upper-content">
+              <a href="/u/${user.username}" class="no-underline text">
+                <div class="displ-name">
+                  <div style="--color-one: ${user.color_one}; --color-two: ${user[ENABLE_GRADIENT_BANNERS && user.gradient_banner ? "color_two" : "color_one"]}" class="user-badge banner-pfp"></div>
+                  ${escapeHTML(user.display_name)}
+                  ${user.badges.length ? `<span aria-hidden="true" class="user-badge">${user.badges.map((icon) => (badges[icon])).join("</span> <span aria-hidden=\"true\" class=\"user-badge\">")}</span>` : ""}<br>
+                  <span class="upper-lower-opacity">
+                    <div class="username">@${user.username}</div>
+                  </span>
+                </div>
+              </a>
+            </div>
+
+            <div class="main-content">
+              ${
+                user.bio ? linkifyHtml(escapeHTML(user.bio), {
+                  formatHref: {
+                    mention: (href: string): string => "/u/" + href.slice(1),
+                    hashtag: (href: string): string => "/hashtag/" + href.slice(1)
+                  }
+                }) : `<i>${lang.user_page.lists_no_bio}</i>`
+              }
+            </div>
+
+            ${
+              action.special == "pending" ? `<div class="bottom-content">
+                <button onclick="_followAction('${user.username}', 'POST');">${ lang.user_page.pending_accept }</button>
+                <button onclick="_followAction('${user.username}', 'DELETE');">${ lang.user_page.pending_deny }</button>
+                <button onclick="block('${user.username}');">${ lang.user_page.block }</button>
+              </div>` : ""
+            }
+          </div>
+        `;
+        x.append(y);
+      }
+
+      dom("pending-list").append(x);
+      dom("refresh").removeAttribute("disabled");
+      dom("more").removeAttribute("disabled");
+
+      if (action.more) {
+        dom("more").removeAttribute("hidden");
+      } else {
+        dom("more").setAttribute("hidden", "");
+      }
+    } else if (action.name == "notification_list") {
+      let x: DocumentFragment = document.createDocumentFragment();
+      let hasBeenRead: boolean = false;
+      let first: boolean = true;
+
+      for (const notif of action.notifications) {
+        if (notif.data.can_view) {
+          let y: HTMLElement = document.createElement("div");
+
+          if (!hasBeenRead && notif.read) {
+            if (!first) {
+              y.innerHTML = "<hr>";
+            }
+
+            hasBeenRead = true;
+          }
+
+          y.innerHTML += escapeHTML(lang.notifications[notif.event_type].replaceAll("%s", notif.data.creator.display_name)) + "<br>";
+          y.innerHTML += getPostHTML(
+            notif.data, // postJSON
+            ["comment", "ping_c"].includes(notif.event_type),
+          ).replace("\"post\"", hasBeenRead ? "\"post\" data-color='gray'" : "\"post\"");
+
+          x.append(y);
+          x.append(document.createElement("br"));
+
+          first = false;
+        }
+      }
+
+      dom("notif-container").append(x);
     } else if (action.name == "set_auth") {
       setCookie("token", action.token);
       if (action.redirect) {
         location.href = "/home/";
+      }
+    } else if (action.name == "reload") {
+      location.href = location.href;
+      break;
+    } else if (action.name == "set_theme") {
+      dom("theme-css").innerHTML = action.auto ? getThemeAuto() : getThemeCSS(action.theme);
+
+      if ((dom("theme") as HTMLInputElement).value == "auto") {
+        !autoEnabled && autoInit();
+        themeObject = null;
+      } else {
+        autoEnabled && autoCancel();
+        themeObject = action.theme;
+
+        if (!oldFavicon) {
+          setGenericFavicon();
+        }
       }
     } else if (action.name == "update_element") {
       let iter: NodeListOf<Element> | Element[];
@@ -235,6 +349,10 @@ function apiResponse(
       }
 
       for (const el of iter) {
+        if (!el) {
+          continue;
+        }
+
         let element: HTMLElement = el as HTMLElement;
 
         if (action.inc !== undefined) {

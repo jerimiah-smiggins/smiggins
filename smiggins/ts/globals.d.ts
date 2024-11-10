@@ -149,14 +149,41 @@ type _actions = {
     name: "reset_post_html",
     post_id: number,
     comment: boolean,
-    post:  _postJSON
+    post: _postJSON
   } | {
     name: "refresh_timeline",
-    url_includes?: string[]
+    url_includes?: string[],
+    special?: "notifications" | "pending" | null
+  } | {
+    name: "user_timeline",
+    users: {
+      username: string,
+      display_name: string,
+      badges: string[],
+      color_one: string,
+      color_two: string,
+      gradient_banner: boolean,
+      bio: string
+    }[],
+    more: boolean
+    special?: "pending" | null
+  } | {
+    name: "notification_list",
+    notifications: {
+      data: _postJSON,
+      read: boolean,
+      event_type: string
+    }[],
   } | {
     name: "set_auth",
     token: string,
     redirect: boolean
+  } | {
+    name: "reload"
+  } | {
+    name: "set_theme",
+    auto: boolean,
+    theme: _themeObject | null
   } | {
     name: "update_element",
     query: string, // ex: "#posts" for the posts container

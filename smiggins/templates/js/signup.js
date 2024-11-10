@@ -16,36 +16,16 @@ dom("submit").addEventListener("click", function () {
         showlog(lang.account.password_match_failure);
         return;
     }
-    this.setAttribute("disabled", "");
-    fetch("/api/user/signup", {
+    if (!username || password === "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855") {
+        return;
+    }
+    s_fetch("/api/user/signup", {
         method: "POST",
         body: JSON.stringify({
             username: username,
             password: password
-        })
-    })
-        .then((response) => {
-        if (response.status == 429) {
-            dom("post").removeAttribute("disabled");
-            dom("post-text").removeAttribute("disabled");
-            showlog(lang.generic.ratelimit_verbose);
-        }
-        else {
-            response.json().then((json) => {
-                if (json.valid) {
-                    setCookie("token", json.token);
-                    location.href = "/home";
-                }
-                else {
-                    dom("submit").removeAttribute("disabled");
-                    showlog(lang.account.sign_up_failure.replaceAll("%s", json.reason));
-                }
-            });
-        }
-    })
-        .catch((err) => {
-        dom("submit").removeAttribute("disabled");
-        showlog(lang.generic.something_went_wrong);
+        }),
+        disable: [this, dom("username"), dom("password"), dom("confirm")]
     });
 });
 dom("username").addEventListener("keydown", function (event) {

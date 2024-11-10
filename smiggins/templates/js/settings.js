@@ -172,48 +172,16 @@ dom("default-post").addEventListener("input", setUnload);
 dom("followers-approval").addEventListener("input", setUnload);
 dom("theme").addEventListener("change", function () {
     dom("theme").setAttribute("disabled", "");
-    fetch("/api/user/settings/theme", {
+    s_fetch("/api/user/settings/theme", {
         method: "PATCH",
         body: JSON.stringify({
             theme: dom("theme").value
-        })
-    })
-        .then((response) => (response.json()))
-        .then((json) => {
-        if (!json.success) {
-            showlog(lang.generic.something_went_wrong);
-        }
-        else {
-            dom("theme").removeAttribute("disabled");
-            dom("theme-css").innerHTML = json.auto ? getThemeAuto() : getThemeCSS(json.themeJSON);
-            if (dom("theme").value == "auto") {
-                !autoEnabled && autoInit();
-                themeObject = null;
-            }
-            else {
-                autoEnabled && autoCancel();
-                themeObject = json.themeJSON;
-                if (!oldFavicon) {
-                    setGenericFavicon();
-                }
-            }
-        }
-    }).catch((err) => {
-        dom("theme").removeAttribute("disabled");
-        showlog(lang.generic.something_went_wrong);
+        }),
+        disable: [this]
     });
 });
 dom("save").addEventListener("click", function () {
-    ENABLE_USER_BIOS && dom("bio").setAttribute("disabled", "");
-    dom("save").setAttribute("disabled", "");
-    dom("displ-name").setAttribute("disabled", "");
-    dom("banner-color").setAttribute("disabled", "");
-    dom("lang").setAttribute("disabled", "");
-    dom("default-post").setAttribute("disabled", "");
-    dom("followers-approval").setAttribute("disabled", "");
-    ENABLE_GRADIENT_BANNERS && dom("banner-color-two").setAttribute("disabled", "");
-    ENABLE_GRADIENT_BANNERS && dom("banner-is-gradient").setAttribute("disabled", "");
-    fetch("/api/user/settings", {
+    s_fetch("/api/user/settings", {
         method: "PATCH",
         body: JSON.stringify({
             bio: ENABLE_USER_BIOS ? dom("bio").value : "",
@@ -225,31 +193,20 @@ dom("save").addEventListener("click", function () {
             is_gradient: ENABLE_GRADIENT_BANNERS ? dom("banner-is-gradient").checked : false,
             approve_followers: dom("followers-approval").checked,
             default_post_visibility: dom("default-post").value
-        })
-    }).then((response) => (response.json()))
-        .then((json) => {
-        if (json.success) {
-            onbeforeunload = null;
-            showlog(lang.generic.success);
-            if (lang.meta.language !== dom("lang").value) {
-                location.reload();
-            }
-        }
-        else {
-            showlog(`${lang.generic.something_went_wrong} ${lang.generic.reason.replaceAll("%s", json.reason)}`);
-        }
-        throw "erm what the flip";
-    })
-        .catch((err) => {
-        ENABLE_USER_BIOS && dom("bio").removeAttribute("disabled");
-        dom("save").removeAttribute("disabled");
-        dom("displ-name").removeAttribute("disabled");
-        dom("banner-color").removeAttribute("disabled");
-        dom("lang").removeAttribute("disabled");
-        dom("default-post").removeAttribute("disabled");
-        dom("followers-approval").removeAttribute("disabled");
-        ENABLE_GRADIENT_BANNERS && dom("banner-color-two").removeAttribute("disabled");
-        ENABLE_GRADIENT_BANNERS && dom("banner-is-gradient").removeAttribute("disabled");
+        }),
+        disable: [
+            this,
+            dom("displ-name"),
+            ENABLE_USER_BIOS && dom("bio"),
+            ENABLE_PRONOUNS && dom("pronouns-primary"),
+            ENABLE_PRONOUNS && dom("pronouns-secondary"),
+            dom("banner-color"),
+            ENABLE_GRADIENT_BANNERS && dom("banner-color-two"),
+            ENABLE_GRADIENT_BANNERS && dom("banner-is-gradient"),
+            dom("default-post"),
+            dom("followers-approval"),
+            dom("lang"),
+        ]
     });
 });
 dom("banner-color").addEventListener("input", function () {
@@ -298,35 +255,26 @@ dom("set-password").addEventListener("click", function () {
         showlog(lang.account.password_match_failure);
         return;
     }
-    this.setAttribute("disabled", "");
-    fetch("/api/user/password", {
+    s_fetch("/api/user/password", {
         method: "PATCH",
         body: JSON.stringify({
             password: old_password,
             new_password: password
-        })
-    }).then((response) => (response.json()))
-        .then((json) => {
-        if (json.success) {
-            setCookie("token", json.token);
-            if (ENABLE_ACCOUNT_SWITCHER) {
+        }),
+        disable: [this],
+        postFunction: (success) => {
+            if (success && ENABLE_ACCOUNT_SWITCHER) {
                 let switcher = JSON.parse(localStorage.getItem("acc-switcher"));
+                let newToken = document.cookie.match(/token=([a-f0-9]{64})/)[0].split("=")[1];
                 for (let i = 0; i < switcher.length; i++) {
                     if (switcher[i][1] == currentAccount) {
-                        switcher[i][1] = json.token;
+                        switcher[i][1] = newToken;
                     }
                 }
+                currentAccount = newToken;
                 localStorage.setItem("acc-switcher", JSON.stringify(switcher));
             }
-            showlog(lang.settings.account_password_success, 5000);
         }
-        else {
-            showlog(lang.settings.account_password_failure.replaceAll("%s", json.reason));
-        }
-        this.removeAttribute("disabled");
-    }).catch((err) => {
-        this.removeAttribute("disabled");
-        showlog(lang.generic.something_went_wrong);
     });
 });
 dom("current").addEventListener("keydown", function (event) {
