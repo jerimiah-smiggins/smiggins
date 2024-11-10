@@ -1,7 +1,7 @@
 # For ninja api schemas
 
 import sys
-from typing import Literal
+from typing import Any, Literal
 
 from ninja import Schema
 
@@ -154,7 +154,7 @@ class _actions_remove(TypedDict):
 class _actions_refresh(TypedDict):
     name: Literal["refresh_timeline"]
     url_includes: NotRequired[list[str]]
-    special: NotRequired[Literal["notifications", "pending"]]
+    special: NotRequired[Literal["notifications", "pending", "message"]]
 
 class _actions_user_tl_user(TypedDict):
     username: str
@@ -164,12 +164,14 @@ class _actions_user_tl_user(TypedDict):
     color_two: str
     gradient_banner: bool
     bio: str
+    timestamp: NotRequired[int]
+    unread: NotRequired[bool]
 
 class _actions_user_tl(TypedDict):
     name: Literal["user_timeline"]
     users: list[_actions_user_tl_user]
     more: bool
-    special: NotRequired[Literal["pending"]]
+    special: NotRequired[Literal["pending", "messages"]]
 
 class _actions_notification_list(TypedDict):
     data: _postJSON
@@ -180,13 +182,29 @@ class _actions_notification(TypedDict):
     name: Literal["notification_list"]
     notifications: list[_actions_notification_list]
 
+class _actions_message_message(TypedDict):
+    content: str
+    from_self: bool
+    id: int
+    timestamp: int
+
+class _actions_message(TypedDict):
+    name: Literal["message_list"]
+    messages: list[_actions_message_message]
+    more: bool
+    forward: bool
+
 class _actions_auth(TypedDict):
     name: Literal["set_auth"]
     token: str
-    redirect: bool
 
 class _actions_reload(TypedDict):
     name: Literal["reload"]
+
+class _actions_redirect(TypedDict):
+    name: Literal["redirect"]
+    to: Literal["message", "home"]
+    extra: NotRequired[str]
 
 class _actions_theme(TypedDict):
     name: Literal["set_theme"]
@@ -209,6 +227,7 @@ class _actions_element(TypedDict):
     text: NotRequired[str]
     html: NotRequired[str]
     value: NotRequired[str]
+    focus: NotRequired[Any]
     checked: NotRequired[bool]
     disabled: NotRequired[bool]
     attribute: NotRequired[list[_actions_element_attribute]]
@@ -217,6 +236,20 @@ class _actions_element(TypedDict):
 class _actions(TypedDict):
     success: bool
     message: NotRequired[str]
-    actions: NotRequired[list[_actions_timeline | _actions_prepend | _actions_reset | _actions_remove | _actions_refresh | _actions_user_tl | _actions_notification | _actions_auth | _actions_reload | _actions_theme | _actions_element]]
+    actions: NotRequired[list[
+        _actions_timeline
+      | _actions_prepend
+      | _actions_reset
+      | _actions_remove
+      | _actions_refresh
+      | _actions_user_tl
+      | _actions_notification
+      | _actions_message
+      | _actions_auth
+      | _actions_reload
+      | _actions_redirect
+      | _actions_theme
+      | _actions_element
+    ]]
 
 APIResponse = tuple[int, _actions] | _actions

@@ -210,7 +210,7 @@ function apiResponse(
         document.querySelector(`.post-container[data-${action.comment ? "comment" : "post"}-id="${action.post_id}"]`).remove();
       }
     } else if (action.name == "refresh_timeline") {
-      let rfFunc: (forceOffset?: boolean) => void = action.special == "notifications" ? refreshNotifications : action.special == "pending" ? refreshPendingList : refresh;
+      let rfFunc = action.special == "notifications" ? refreshNotifications : action.special == "pending" ? refreshPendingList : action.special == "message" ? refreshMessages : refresh;
       if (action.url_includes) {
         for (const url of action.url_includes) {
           if (location.href.includes(url)) {
@@ -225,7 +225,13 @@ function apiResponse(
       } else {
         if (action.special == "pending") {
           rfFunc(true);
-        } else {
+        } else if (action.special == "message") {
+          if (dom("messages-go-here-btw").innerText == "") {
+            rfFunc(true);
+          } else {
+            rfFunc(false, false);
+          }
+        } {
           rfFunc();
         }
       }
@@ -241,7 +247,7 @@ function apiResponse(
       for (const user of action.users) {
         let y: HTMLElement = document.createElement("div");
         y.innerHTML = `
-          <div class="post">
+          <div class="post" ${user.unread === undefined || user.unread ? "" : "data-color=\"gray\""}">
             <div class="upper-content">
               <a href="/u/${user.username}" class="no-underline text">
                 <div class="displ-name">
@@ -250,6 +256,7 @@ function apiResponse(
                   ${user.badges.length ? `<span aria-hidden="true" class="user-badge">${user.badges.map((icon) => (badges[icon])).join("</span> <span aria-hidden=\"true\" class=\"user-badge\">")}</span>` : ""}<br>
                   <span class="upper-lower-opacity">
                     <div class="username">@${user.username}</div>
+                    ${user.timestamp ? `- <div class="username">${timeSince(user.timestamp)}</div>` : ""}
                   </span>
                 </div>
               </a>
@@ -257,12 +264,16 @@ function apiResponse(
 
             <div class="main-content">
               ${
-                user.bio ? linkifyHtml(escapeHTML(user.bio), {
+                action.special == "messages" ? `
+                  <a class="no-underline text" href="/m/${user.username}">
+                    ${escapeHTML(user.bio) || `<i>${lang.messages.no_messages}</i>`}
+                  </a>
+                ` : (user.bio ? linkifyHtml(escapeHTML(user.bio), {
                   formatHref: {
                     mention: (href: string): string => "/u/" + href.slice(1),
                     hashtag: (href: string): string => "/hashtag/" + href.slice(1)
                   }
-                }) : `<i>${lang.user_page.lists_no_bio}</i>`
+                }) : `<i>${lang.user_page.lists_no_bio}</i>`)
               }
             </div>
 
@@ -278,7 +289,7 @@ function apiResponse(
         x.append(y);
       }
 
-      dom("pending-list").append(x);
+      dom("user-list").append(x);
       dom("refresh").removeAttribute("disabled");
       dom("more").removeAttribute("disabled");
 
@@ -318,13 +329,63 @@ function apiResponse(
       }
 
       dom("notif-container").append(x);
+    } else if (action.name == "message_list") {
+      let x: DocumentFragment = document.createDocumentFragment();
+      for (const message of action.messages) {
+        let y: HTMLElement = document.createElement("div");
+        y.setAttribute("class", `message ${message.from_self ? "send" : "receive"}`);
+        y.innerHTML = `<div>${linkifyHtml(escapeHTML(message.content), {
+          formatHref: {
+            mention: (href: string): string => "/u/" + href.slice(1),
+            hashtag: (href: string): string => "/hashtag/" + href.slice(1)
+          },
+        })}</div><span class="timestamp">${timeSince(message.timestamp)}</span>`;
+
+        x.append(y);
+
+        if (action.forward || extraData.start) {
+          if (message.id < forwardOffset || forwardOffset == 0) {
+            forwardOffset = message.id;
+          }
+        }
+        if (!action.forward || extraData.start) {
+          if (message.id > reverseOffset || reverseOffset == 0) {
+            reverseOffset = message.id;
+          }
+        }
+      }
+
+      if (action.forward) {
+        if (dom("more")) {
+          dom("more").remove();
+        }
+
+        if (action.more) {
+          let y: HTMLButtonElement = document.createElement("button");
+          y.innerText = lang.generic.load_more;
+          y.id = "more";
+          y.setAttribute("onclick", "refreshMessages();");
+
+          x.append(y);
+        }
+
+        dom("messages-go-here-btw").append(x);
+      } else {
+        dom("messages-go-here-btw").prepend(x);
+      }
     } else if (action.name == "set_auth") {
       setCookie("token", action.token);
-      if (action.redirect) {
-        location.href = "/home/";
-      }
     } else if (action.name == "reload") {
       location.href = location.href;
+      break;
+    } else if (action.name == "redirect") {
+      let url: string = "/";
+      if (action.to == "message") {
+        url = `/m/${action.extra}`;
+      } else if (action.to == "home") {
+        url = "/home/";
+      }
+      location.href = url;
       break;
     } else if (action.name == "set_theme") {
       dom("theme-css").innerHTML = action.auto ? getThemeAuto() : getThemeCSS(action.theme);
@@ -389,6 +450,10 @@ function apiResponse(
               element.classList.remove(cls.class_name);
             }
           }
+        }
+
+        if (action.focus !== undefined) {
+          element.focus();
         }
       }
     } else {

@@ -4,7 +4,7 @@ offset = -1;
 function refreshPendingList(fromStart=false): void {
   if (fromStart) {
     offset = -1;
-    dom("pending-list").innerHTML = "";
+    dom("user-list").innerHTML = "";
   } else {
     offset++;
     if (!offset) {

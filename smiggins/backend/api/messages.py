@@ -7,63 +7,63 @@ from posts.models import PrivateMessage, PrivateMessageContainer, User
 
 from ..helper import get_badges, get_container_id, get_lang, trim_whitespace
 from ..variables import MAX_POST_LENGTH, MESSAGES_PER_REQUEST
-from .schema import NewContainer, NewMessage
+from .schema import APIResponse, NewContainer, NewMessage
 
 
-def container_create(request, data: NewContainer) -> tuple | dict:
+def container_create(request, data: NewContainer) -> APIResponse:
     # Called when a new comment is created.
+
 
     token = request.COOKIES.get('token')
     self_user = User.objects.get(token=token)
+    username = data.username.strip().lower()
 
-    if self_user.username == data.username:
+    if self_user.username == username:
         lang = get_lang(self_user)
         return 400, {
             "success": False,
-            "reason": lang["messages"]["yourself"]
+            "message": lang["messages"]["yourself"]
         }
 
-    user = User.objects.get(username=data.username)
-    container_id = get_container_id(user.username, self_user.username)
+    user = User.objects.get(username=username)
+    container_id = get_container_id(username, self_user.username)
 
     if self_user.blocking.contains(user):
         lang = get_lang(self_user)
         return 400, {
             "success": False,
-            "reason": lang["messages"]["blocking"]
+            "message": lang["messages"]["blocking"]
         }
     elif user.blocking.contains(self_user):
         lang = get_lang(self_user)
         return 400, {
             "success": False,
-            "reason": lang["messages"]["blocked"]
+            "message": lang["messages"]["blocked"]
         }
 
     try:
         PrivateMessageContainer.objects.get(container_id=container_id)
-        return {
-            "success": True
-        }
     except PrivateMessageContainer.DoesNotExist:
-        pass
+        PrivateMessageContainer.objects.create(
+            container_id = container_id,
+            user_one = self_user if user.username > self_user.username else user,
+            user_two = user if user.username > self_user.username else self_user
+        )
 
-    PrivateMessageContainer.objects.create(
-        container_id = container_id,
-        user_one = self_user if user.username > self_user.username else user,
-        user_two = user if user.username > self_user.username else self_user
-    )
+        user.messages.append(container_id)
+        self_user.messages.append(container_id)
 
-    user.messages.append(container_id)
-    self_user.messages.append(container_id)
-
-    user.save()
-    self_user.save()
+        user.save()
+        self_user.save()
 
     return {
-        "success": True
+        "success": True,
+        "actions": [
+            { "name": "redirect", "to": "message", "extra": username }
+        ]
     }
 
-def send_message(request, data: NewMessage) -> tuple | dict:
+def send_message(request, data: NewMessage) -> APIResponse:
     user = User.objects.get(token=request.COOKIES.get("token"))
 
     if user.username == data.username:
@@ -84,7 +84,7 @@ def send_message(request, data: NewMessage) -> tuple | dict:
         lang = get_lang(user)
         return 400, {
             "success": False,
-            "reason": lang["messages"]["blocking_blocked"]
+            "message": lang["messages"]["blocking_blocked"]
         }
 
     content = trim_whitespace(data.content, True)
@@ -92,7 +92,7 @@ def send_message(request, data: NewMessage) -> tuple | dict:
         lang = get_lang(user)
         return 400, {
             "success": False,
-            "reason": lang["messages"]["invalid_size"]
+            "message": lang["messages"]["invalid_size"]
         }
 
     timestamp = round(time.time())
@@ -126,7 +126,7 @@ def send_message(request, data: NewMessage) -> tuple | dict:
     container.user_one.save()
     container.user_two.save()
 
-    x = PrivateMessage.objects.create(
+    PrivateMessage.objects.create(
         timestamp=timestamp,
         content=content,
         from_user_one=data.username == container_id.split(":")[1],
@@ -134,10 +134,14 @@ def send_message(request, data: NewMessage) -> tuple | dict:
     )
 
     return {
-        "success": True
+        "success": True,
+        "actions": [
+            { "name": "update_element", "query": "#your-mom", "value": "", "focus": True, "attribute": [{ "name": "disabled", "value": None }] },
+            { "name": "refresh_timeline", "special": "message" },
+        ]
     }
 
-def messages_list(request, username: str, forward: bool=True, offset: int=-1) -> tuple | dict:
+def messages_list(request, username: str, forward: bool=True, offset: int=-1) -> APIResponse:
     user = User.objects.get(token=request.COOKIES.get("token"))
 
     if user.username == username:
@@ -176,11 +180,12 @@ def messages_list(request, username: str, forward: bool=True, offset: int=-1) ->
 
     return {
         "success": True,
-        "messages": messages,
-        "more": more
+        "actions": [
+            { "name": "message_list", "messages": messages, "more": more, "forward": forward }
+        ] if len(messages) else []
     }
 
-def recent_messages(request, offset: int=-1) -> tuple | dict:
+def recent_messages(request, offset: int=-1) -> APIResponse:
     user = User.objects.get(token=request.COOKIES.get("token"))
 
     if offset == -1:
@@ -201,15 +206,15 @@ def recent_messages(request, offset: int=-1) -> tuple | dict:
             message = PrivateMessage.objects.get(message_id=recent_message.message_id) if recent_message else ""
 
             message_json.append({
-                "content": message.content if isinstance(message, PrivateMessage) else "",
-                "timestamp": message.timestamp if isinstance(message, PrivateMessage) else 0,
                 "username": other_user.username,
                 "display_name": other_user.display_name,
                 "badges": get_badges(other_user),
-                "unread": i in user.unread_messages,
                 "color_one": other_user.color,
                 "color_two": other_user.color_two,
-                "gradient_banner": other_user.gradient
+                "gradient_banner": other_user.gradient,
+                "bio": message.content if isinstance(message, PrivateMessage) else "",
+                "timestamp": message.timestamp if isinstance(message, PrivateMessage) else 0,
+                "unread": i in user.unread_messages
             })
 
         except PrivateMessageContainer.DoesNotExist:
@@ -217,6 +222,7 @@ def recent_messages(request, offset: int=-1) -> tuple | dict:
 
     return {
         "success": True,
-        "more": len(user.messages) - (offset + 1) * MESSAGES_PER_REQUEST > 0,
-        "messages": message_json
+        "actions": [
+            { "name": "user_timeline", "special": "messages", "users": message_json, "more": len(user.messages) - (offset + 1) * MESSAGES_PER_REQUEST > 0 }
+        ]
     }

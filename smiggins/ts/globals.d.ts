@@ -153,7 +153,7 @@ type _actions = {
   } | {
     name: "refresh_timeline",
     url_includes?: string[],
-    special?: "notifications" | "pending" | null
+    special?: "notifications" | "pending" | "message" | null
   } | {
     name: "user_timeline",
     users: {
@@ -163,10 +163,12 @@ type _actions = {
       color_one: string,
       color_two: string,
       gradient_banner: boolean,
-      bio: string
+      bio: string,
+      timestamp?: number,
+      unread?: boolean
     }[],
     more: boolean
-    special?: "pending" | null
+    special?: "pending" | "messages" | null
   } | {
     name: "notification_list",
     notifications: {
@@ -175,11 +177,24 @@ type _actions = {
       event_type: string
     }[],
   } | {
+    name: "message_list",
+    messages: {
+      content: string,
+      from_self: boolean,
+      id: number,
+      timestamp: number
+    }[],
+    more: boolean,
+    forward: boolean
+  } | {
     name: "set_auth",
-    token: string,
-    redirect: boolean
+    token: string
   } | {
     name: "reload"
+  } | {
+    name: "redirect",
+    to: "message" | "home",
+    extra?: string
   } | {
     name: "set_theme",
     auto: boolean,
@@ -192,6 +207,7 @@ type _actions = {
     text?: string, // sets innerText
     html?: string, // sets innerHTML
     value?: string, // For inputs
+    focus?: any,
     checked?: boolean, // For checkbox inputs
     disabled?: boolean,
     attribute?: { name: string, value: string | null }[]

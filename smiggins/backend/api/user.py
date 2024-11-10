@@ -57,7 +57,8 @@ def signup(request, data: Account) -> APIResponse:
         return {
             "success": True,
             "actions": [
-                { "name": "set_auth", "token": token, "redirect": True }
+                { "name": "set_auth", "token": token },
+                { "name": "redirect", "to": "home" }
             ]
         }
 
@@ -98,7 +99,8 @@ def login(request, data: Account) -> APIResponse:
             return {
                 "success": True,
                 "actions": [
-                    { "name": "set_auth", "token": token, "redirect": True }
+                    { "name": "set_auth", "token": token },
+                    { "name": "redirect", "to": "home" }
                 ]
             }
 
@@ -456,7 +458,7 @@ def change_password(request, data: ChangePassword) -> APIResponse:
         "success": True,
         "message": lang["generic"]["success"],
         "actions": [
-            { "name": "set_auth", "token": new_token, "redirect": False }
+            { "name": "set_auth", "token": new_token }
         ]
     }
 
