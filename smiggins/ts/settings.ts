@@ -209,6 +209,7 @@ dom("theme").addEventListener("change", function(): void {
 });
 
 dom("save").addEventListener("click", function(): void {
+  onbeforeunload = null;
   s_fetch("/api/user/settings", {
     method: "PATCH",
     body: JSON.stringify({
@@ -234,7 +235,12 @@ dom("save").addEventListener("click", function(): void {
       dom("default-post"),
       dom("followers-approval"),
       dom("lang"),
-    ]
+    ],
+    postFunction: (success: boolean) => {
+      if (!success) {
+        setUnload();
+      }
+    }
   });
 });
 

@@ -51,6 +51,15 @@ to the `maintainers` section
 Updates for each language version are listed below:
 
 <details>
+<summary>v1.8.4</summary>
+db rewrite
+
+```diff
++ changelog.changes.v0.13.4 {1, 2, 3, 4}
+```
+</details>
+
+<details>
 <summary>v1.8.3</summary>
 embedding into html and theme update
 

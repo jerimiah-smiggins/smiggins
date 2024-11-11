@@ -534,6 +534,12 @@
       "unknown": "Unknown",
 
       "changes": {
+        "v0.13.4": {
+          "1": "Rewrote the database structure",
+          "2": "Rewrote how (almost all) api endpoints return data",
+          "3": "Added a backend setting to disable dynamic favicons",
+          "4": "You can now pin anyone's post to your profile, not just your own"
+        },
         "v0.13.3": {
           "1": "Embedded all javascript/css into the html files, should make webpages load faster",
           "2": "Rewrote css in less",

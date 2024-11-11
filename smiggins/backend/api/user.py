@@ -51,7 +51,8 @@ def signup(request, data: Account) -> APIResponse:
             display_name=trim_whitespace(data.username, purge_newlines=True),
             theme="auto",
             color=DEFAULT_BANNER_COLOR,
-            color_two=DEFAULT_BANNER_COLOR
+            color_two=DEFAULT_BANNER_COLOR,
+            lang=DEFAULT_LANG
         )
 
         return {
