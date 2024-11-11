@@ -181,6 +181,7 @@ dom("theme").addEventListener("change", function () {
     });
 });
 dom("save").addEventListener("click", function () {
+    onbeforeunload = null;
     s_fetch("/api/user/settings", {
         method: "PATCH",
         body: JSON.stringify({
@@ -206,7 +207,12 @@ dom("save").addEventListener("click", function () {
             dom("default-post"),
             dom("followers-approval"),
             dom("lang"),
-        ]
+        ],
+        postFunction: (success) => {
+            if (!success) {
+                setUnload();
+            }
+        }
     });
 });
 dom("banner-color").addEventListener("input", function () {
