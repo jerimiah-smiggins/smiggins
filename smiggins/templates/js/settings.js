@@ -294,25 +294,11 @@ dom("confirm").addEventListener("keydown", function (event) {
     }
 });
 ENABLE_EMAIL && dom("email-submit").addEventListener("click", function () {
-    dom("email").setAttribute("disabled", "");
-    dom("email-submit").setAttribute("disbaled", "");
-    fetch("/api/email/save", {
+    s_fetch("/api/email/save", {
+        method: "POST",
         body: JSON.stringify({
             email: dom("email").value
         }),
-        method: "POST"
-    }).then((response) => (response.json()))
-        .then((json) => {
-        if (json.success) {
-            if (hasEmail) {
-                dom("email-output").innerHTML = lang.settings.account_email_check;
-            }
-            else {
-                dom("email-output").innerHTML = lang.settings.account_email_verify;
-            }
-        }
-        else {
-            dom("email-output").innerHTML = json.reason;
-        }
+        disable: [dom("email"), dom("email-submit")]
     });
 });

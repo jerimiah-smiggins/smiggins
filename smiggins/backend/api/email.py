@@ -12,7 +12,7 @@ from posts.models import URLPart, User
 from ..helper import (generate_token, get_HTTP_response, get_lang, send_email,
                       sha)
 from ..variables import DEFAULT_DARK_THEME, THEMES, WEBSITE_URL
-from .schema import Email, Username
+from .schema import APIResponse, Email, Username
 
 LAST_TRIM: int = 0
 
@@ -77,7 +77,7 @@ def _get_email_html(
         **kwargs
     )
 
-def change_email(request, user: User) -> dict | tuple:
+def change_email(request, user: User) -> APIResponse:
     if user.email is None or not user.email_valid:
         return 400, {
             "success": False
@@ -107,10 +107,13 @@ def change_email(request, user: User) -> dict | tuple:
     )
 
     return {
-        "success": response > 0
+        "success": response > 0,
+        "actions": [
+            { "name": "update_element", "query": "#email-output", "text": lang["settings"]["account_email_check"] }
+        ]
     }
 
-def verify_email(request, user: User, data: Email) -> dict | tuple:
+def verify_email(request, user: User, data: Email) -> APIResponse:
     user.email = data.email
     user.email_valid = False
     user.save()
@@ -139,17 +142,20 @@ def verify_email(request, user: User, data: Email) -> dict | tuple:
     )
 
     return {
-        "success": response > 0
+        "success": response > 0,
+        "actions": [
+            { "name": "update_element", "query": "#email-output", "text": lang["settings"]["account_email_verify"] }
+        ]
     }
 
-def password_reset(request, data: Username) -> dict | tuple:
+def password_reset(request, data: Username) -> APIResponse:
     user = User.objects.get(username=data.username.lower())
     lang = get_lang(user)
 
     if user.email is None or not user.email_valid:
         return 400, {
             "success": False,
-            "reason": lang["email"]["reset"]["no_email"]
+            "message": lang["email"]["reset"]["no_email"]
         }
 
     theme = THEMES[user.theme] if user.theme in THEMES else THEMES[DEFAULT_DARK_THEME]
@@ -175,7 +181,8 @@ def password_reset(request, data: Username) -> dict | tuple:
     )
 
     return {
-        "success": response > 0
+        "success": response > 0,
+        "message": lang["settings"]["account_email_check"]
     }
 
 @csrf_exempt
@@ -234,29 +241,29 @@ def link_manager(request: WSGIRequest, key: str) -> HttpResponse:
         if user.email != part.extra_data["email"]:
             part.delete()
             return HttpResponse(json.dumps({
-                "valid": False,
-                "reason": lang['email']['pwd_fm']['email_changed']
+                "success": False,
+                "message": lang['email']['pwd_fm']['email_changed']
             }), status=400)
 
         password = json.loads(request.body)["passhash"]
 
         if password is None:
             return HttpResponse(json.dumps({
-                "valid": False,
-                "reason": lang['account']['bad_password']
+                "success": False,
+                "message": lang['account']['bad_password']
             }), status=400)
 
         if len(password) != 64 or password == "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855":
             return HttpResponse(json.dumps({
-                "valid": False,
-                "reason": lang['account']['bad_password']
+                "success": False,
+                "message": lang['account']['bad_password']
             }), status=400)
 
         for i in password:
             if i not in "abcdef0123456789":
                 return HttpResponse(json.dumps({
-                    "valid": False,
-                    "reason": lang['account']['bad_password']
+                    "success": False,
+                    "message": lang['account']['bad_password']
                 }), status=400)
 
         token = generate_token(user.username, password)
@@ -265,8 +272,11 @@ def link_manager(request: WSGIRequest, key: str) -> HttpResponse:
         part.delete()
 
         return HttpResponse(json.dumps({
-            "valid": True,
-            "token": token
+            "success": True,
+            "actions": [
+                { "name": "set_auth", "token": token },
+                { "name": "redirect", "to": "home" }
+            ]
         }))
 
     part.delete()
@@ -299,7 +309,7 @@ def test_link(request, intent=True) -> HttpResponse:
 
     return HttpResponse(f"/email/test-key/?i={intent}")
 
-def set_email(request, data: Email) -> dict | tuple:
+def set_email(request, data: Email) -> APIResponse:
     user = User.objects.get(token=request.COOKIES.get("token"))
 
     if user.email and user.email_valid:

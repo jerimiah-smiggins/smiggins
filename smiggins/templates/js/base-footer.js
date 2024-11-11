@@ -75,27 +75,17 @@ function getNotifications() {
 if (logged_in) {
     getNotifications();
     setInterval(getNotifications, 2 * 60 * 1000);
+    function addUserIcon(a) {
+        dom("icons").innerHTML += `<a title="${lang.settings.profile_title}" href="/u/${localStorage.getItem("username")}">${icons.user}</a>`;
+    }
     if (typeof (profile) === "undefined") {
         if (localStorage.getItem("username") === null) {
-            fetch("/api/info/username")
-                .then((response) => (response.json()))
-                .then((_username) => {
-                let username = _username.username;
-                if (usernameRegexFull.test(username)) {
-                    localStorage.setItem("username", username);
-                    dom("icons").innerHTML += `<a title="${lang.settings.profile_title}" href="/u/${username}">${icons.user}</a>`;
-                }
-                else {
-                }
+            s_fetch("/api/info/username", {
+                postFunction: addUserIcon
             });
         }
         else {
-            if (usernameRegexFull.test(localStorage.getItem("username"))) {
-                dom("icons").innerHTML += `<a title="${lang.settings.profile_title}" href="/u/${localStorage.getItem("username")}">${icons.user}</a>`;
-            }
-            else {
-                localStorage.removeItem("username");
-            }
+            addUserIcon();
         }
     }
 }

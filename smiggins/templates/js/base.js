@@ -197,7 +197,7 @@ function apiResponse(json, extraData, customLog) {
             for (const user of action.users) {
                 let y = document.createElement("div");
                 y.innerHTML = `
-          <div class="post" data-color="${user.unread === undefined || user.unread ? "" : "gray"}">
+          <div class="post" ${user.unread === undefined || user.unread ? "" : "data-color=\"gray\""}">
             <div class="upper-content">
               <a href="/u/${user.username}" class="no-underline text">
                 <div class="displ-name">
@@ -308,6 +308,14 @@ function apiResponse(json, extraData, customLog) {
         }
         else if (action.name == "set_auth") {
             setCookie("token", action.token);
+        }
+        else if (action.name == "localstorage") {
+            if (action.value === null) {
+                localStorage.removeItem(action.key);
+            }
+            else {
+                localStorage.setItem(action.key, action.value);
+            }
         }
         else if (action.name == "reload") {
             location.href = location.href;
