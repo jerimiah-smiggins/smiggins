@@ -183,6 +183,25 @@ class _actions_notification(TypedDict):
     name: Literal["notification_list"]
     notifications: list[_actions_notification_list]
 
+class _actions_admin_info(TypedDict):
+    name: Literal["admin_info"]
+    username: str
+    user_id: int
+    bio: str
+    displ_name: str
+    token: NotRequired[str | None]
+
+class _actions_admin_log_item(TypedDict):
+    type: str
+    by: str
+    target: str | None
+    info: str
+    timestamp: int
+
+class _actions_admin_log(TypedDict):
+    name: Literal["admin_log"]
+    content: list[_actions_admin_log_item]
+
 class _actions_message_message(TypedDict):
     content: str
     from_self: bool
@@ -250,6 +269,8 @@ class _actions(TypedDict):
       | _actions_refresh
       | _actions_user_tl
       | _actions_notification
+      | _actions_admin_info
+      | _actions_admin_log
       | _actions_message
       | _actions_auth
       | _actions_localstorage

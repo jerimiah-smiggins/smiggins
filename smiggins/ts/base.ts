@@ -331,6 +331,66 @@ function apiResponse(
       }
 
       dom("notif-container").append(x);
+    } else if (action.name == "admin_info") {
+      dom("data-section").innerHTML = `
+        ${lang.admin.modify.current} <a href="/u/${action.username}"><code>@${action.username}</code></a> (${lang.admin.modify.id.replaceAll("%s", action.user_id)})<br>
+        <input maxlength="300" id="data-display-name" placeholder="${lang.settings.profile_display_name_placeholder}" value="${escapeHTML(action.displ_name || "")}"><br>
+        <textarea maxlength="65536" id="data-bio" placeholder="${lang.settings.profile_bio_placeholder}">${escapeHTML(action.bio || "")}</textarea><br>
+        <button id="data-save" data-user-id="${action.user_id}">${lang.admin.modify.save}</button><br>
+        ${ENABLE_ACCOUNT_SWITCHER && action.token ? `<button id="data-switcher" data-token="${action.token}" data-username="${action.username}">${lang.admin.modify.switcher}</button>` : ""}
+      `;
+
+      dom("data-display-name").addEventListener("input", postTextInputEvent);
+      dom("data-bio").addEventListener("input", postTextInputEvent);
+
+      ENABLE_ACCOUNT_SWITCHER && dom("data-switcher").addEventListener("click", function(): void {
+        let username: string = this.dataset.username;
+        let token: string = this.dataset.token;
+        let accounts: string[][] = JSON.parse(localStorage.getItem("acc-switcher") || "[]");
+
+        if (!accounts.includes([username, token])) {
+          accounts.push([username, token]);
+          localStorage.setItem("acc-switcher", JSON.stringify(accounts));
+        }
+
+        showlog(lang.generic.success);
+      });
+
+      dom("data-save").addEventListener("click", function(): void {
+        s_fetch("/api/admin/save-acc", {
+          method: "PATCH",
+          body: JSON.stringify({
+            id: this.dataset.userId,
+            bio: (dom("data-bio") as HTMLInputElement).value,
+            displ_name: (dom("data-display-name") as HTMLInputElement).value
+          }),
+          disable: [this]
+        });
+      });
+    } else if (action.name == "admin_log") {
+      let output: string = `<table class="admin-logs bordered">
+        <tr>
+          <th>${lang.admin.logs.timestamp}</th>
+          <th>${lang.admin.logs.action}</th>
+          <th>${lang.admin.logs.who}</th>
+          <th class="nowrap">${lang.admin.logs.more_info}</th>
+        </tr>
+      `;
+
+      for (const line of action.content) {
+        try {
+          output += `<tr>
+            <td class="nowrap">${timeSince(+line.timestamp)}</td>
+            <td class="nowrap">${line.type}</td>
+            <td>${lang.admin.logs[line.target ? "who_format" : "who_format_single"].replaceAll(" ", "&nbsp;").replaceAll(",&nbsp;", ", ").replaceAll("%1", `<a href="/u/${line.by}">@${line.by}</a>`).replaceAll("%2", `<a href="/u/${line.target}">@${line.target}</a>`)}</td>
+            <td>${escapeHTML(line.info)}</td>
+          </tr>`;
+        } catch(err) {
+          console.error(err);
+        }
+      }
+
+      dom("admin-logs").innerHTML = output + "</table>";
     } else if (action.name == "message_list") {
       let x: DocumentFragment = document.createDocumentFragment();
       for (const message of action.messages) {

@@ -178,6 +178,22 @@ type _actions = {
       event_type: string
     }[],
   } | {
+    name: "admin_info",
+    username: string,
+    user_id: number,
+    bio: string,
+    displ_name: string,
+    token?: string | null
+  } | {
+    name: "admin_log",
+    content: {
+      type: string,
+      by: string,
+      target: string | null,
+      info: string,
+      timestamp: number
+    }[]
+  } | {
     name: "message_list",
     messages: {
       content: string,
