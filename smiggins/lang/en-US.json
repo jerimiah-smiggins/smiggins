@@ -2,7 +2,7 @@
   "meta": {
     "fallback": [],
     "name": "English (United States)",
-    "version": "1.8.3",
+    "version": "1.8.4",
     "maintainers": ["trinkey"],
     "past_maintainers": []
   },
@@ -40,9 +40,6 @@
       "version": "v%v", // Replaces all instances of "%v" with the version. If the version format for the locale is something like "1.0.0v", then it would be represented as "%vv"
       "success": "Success!",
       "something_went_wrong": "Something went wrong!",
-      "something_went_wrong_x": "Something went wrong %s!", // Ex: Something went wrong loading the posts!
-      "try_again": "Try again in a few moments...",
-      "ratelimit_verbose": "You are being ratelimited!",
       "ratelimit": "Ratelimited",
       "refresh": "Refresh",
       "load_more": "Load More",
@@ -51,7 +48,6 @@
       "source_code": "Source code",
       "save": "Save",
       "none": "None",
-      "reason": "Reason: %s",
       "user_not_found": "User not found!",
       "share": "Share",
       "copied": "Copied to clipboard!",
@@ -149,14 +145,12 @@
 
       "post_deletion": {
         "title": "Post Deletion",
-        "button": "Delete Post",
-        "error": "deleting the specified post/comment"
+        "button": "Delete Post"
       },
 
       "account_deletion": {
         "title": "Account Deletion",
-        "button": "Delete Account",
-        "error": "deleting the specified account"
+        "button": "Delete Account"
       },
 
       "badge": {
@@ -166,9 +160,7 @@
         "manage_title": "Add/remove Badges",
         "manage_empty": "Somehow there are no existing badges. This shouldn't happen.",
         "manage_add_button": "Add Badge",
-        "manage_add_error": "adding the badge",
         "manage_remove_button": "Remove Badge",
-        "manage_remove_error": "removing the badge",
         "manage_add_protected": "Cannot set that badge as it is done automatically",
         "manage_remove_protected": "Cannot remove that badge as it is done automatically",
         "create_title": "Create/Override Badge",
@@ -189,16 +181,13 @@
         "current": "Current account:",
         "save": "Save info",
         "switcher": "Add to account switcher",
-        "invalid_bio_size": "User bio is too long! It should be between 0 and 65536 characters.",
-        "invalid_display_name_long": "Display name is too long! It should be between 1 and 300 characters.",
-        "invalid_display_name_short": "Display name is too short! It should be between 1 and 300 characters.",
+        "invalid_bio_size": "Invalid user bio! It should be between 0 and 65536 characters.",
+        "invalid_display_name": "Invalid display name! It should be between 1 and 300 characters.",
         "id": "id: %s"
       },
 
       "permissions": {
         "title": "Change Admin Permissions",
-        "error": "setting that account's permissions",
-        "invalid": "Invalid permission mask. This shouldn't happen.",
         "label": "Permissions:",
         "set": "Set permissions",
         "load": "Load permissions",
@@ -224,7 +213,6 @@
 
       "logs": {
         "button": "Load Logs",
-        "error": "loading the logs",
         "timestamp": "Timestamp",
         "action": "Action",
         "who": "Who",
@@ -248,7 +236,6 @@
       "title": "Home",
       "post_input_placeholder": "What's on your mind?",
       "c_warning_placeholder": "Content warning...",
-      "c_warning_label": "Content warning:",
 
       "switch_recent": "Switch to recent...",
       "switch_following": "Switch to following...",
@@ -276,11 +263,9 @@
     "account": {
       "log_in_title": "Log In",
       "log_in_instead": "Log in instead...",
-      "log_in_failure": "Unable to log in! Reason: %s",
 
       "sign_up_title": "Sign Up",
       "sign_up_instead": "Sign up instead...",
-      "sign_up_failure": "Unable to sign up! Reason: %s",
 
       "no_new": "This instance isn't accepting any new users.",
       "password_match_failure": "Passwords don't match!",
@@ -307,7 +292,6 @@
 
     "messages": {
       "title": "Messaging %s", // Ex: Messaging gerard
-      "error": "loading recent messages",
       "input_placeholder": "What would you like to tell %s?", // Ex: What would you like to tell gerard?
 
       "no_messages": "No messages sent",
@@ -325,12 +309,13 @@
     "notifications": {
       "title": "Notifications",
       "read": "Mark as read",
-      "error": "loading the notifications list",
 
-      "comment": "%s commented on your post:",
-      "quote": "%s quoted your post:",
-      "ping_p": "%s mentioned you in a post:",
-      "ping_c": "%s mentioned you in a comment:"
+      "event": {
+        "comment": "%s commented on your post:",
+        "quote": "%s quoted your post:",
+        "ping_p": "%s mentioned you in a post:",
+        "ping_c": "%s mentioned you in a comment:"
+      }
     },
 
     "post_page": {
@@ -344,7 +329,6 @@
     "post": {
       "invalid_length": "Invalid post length. Must be between 1 and %s characters.",
       "invalid_comment_id": "Idk your id is not right at all",
-      "comment_id_does_not_exist": "Your id broke something owo",
       "invalid_quote_post": "The post you're quoting doesn't exist!",
       "invalid_quote_comment": "The comment you're quoting doesn't exist!",
       "invalid_username": "Username is invalid",
@@ -367,7 +351,6 @@
 
     "settings": {
       "title": "Settings",
-      "username_load_failure": "Username couldn't be loaded! Try reloading the page?",
       "unload": "You have unsaved changes! Are you sure you want to leave?",
 
       "profile_title": "Profile",
@@ -382,7 +365,6 @@
       "profile_pronouns_unset": "unset",
       "profile_pronouns_inherit": "same as primary",
       "profile_banner_title": "Banner color",
-      "profile_banner_invalid_color": "Color no tasty",
       "profile_gradient": "Gradient banner?",
       "profile_default_post": "Default post visibility:",
       "profile_followers_approval": "Manually approve followers?",
@@ -412,7 +394,6 @@
       "cosmetic_bar_h": "Horizontal",
       "cosmetic_bar_v": "Vertical",
       "cosmetic_language": "Language",
-      "cosmetic_language_invalid": "Invalid language '%s'",
       "cosmetic_color": "Color",
       "cosmetic_example_post_display_name": "Example",
       "cosmetic_example_post_username": "example",
@@ -425,7 +406,6 @@
       "account_password_current": "Current password...",
       "account_password_new": "New password...",
       "account_password_success": "Your password has been changed",
-      "account_password_failure": "Unable to set your password! Reason: %s",
       "account_switcher": "Account Switcher",
       "account_switcher_switch": "Switch",
       "account_switcher_remove": "Remove",
@@ -539,7 +519,8 @@
           "2": "Rewrote how (almost all) api endpoints return data",
           "3": "Added a backend setting to disable dynamic favicons",
           "4": "You can now pin anyone's post to your profile, not just your own",
-          "5": "Hashtags now get updated properly when editing a post"
+          "5": "Hashtags now get updated properly when editing a post",
+          "6": "Mentions get automatically filled in when replying to a post"
         },
         "v0.13.3": {
           "1": "Embedded all javascript/css into the html files, should make webpages load faster",

@@ -119,6 +119,7 @@ def get_HTTP_response(
         "DEFAULT_PRIVATE": str(default_post_visibility).lower(),
         "DEFAULT_LIGHT_THEME": json_f.dumps(THEMES[DEFAULT_LIGHT_THEME]),
         "DEFAULT_DARK_THEME": json_f.dumps(THEMES[DEFAULT_DARK_THEME]),
+        "username": user.username if user else None,
         "lang": lang,
         "lang_str": json_f.dumps(lang),
         "theme_str": "{}" if theme == "auto" or theme not in THEMES else json_f.dumps(THEMES[theme]),

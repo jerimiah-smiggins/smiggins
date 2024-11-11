@@ -7,8 +7,9 @@ from django.http import (HttpResponse, HttpResponseRedirect,
 from posts.models import Comment, Hashtag, Post, PrivateMessageContainer, User
 
 from .api.admin import BitMask
-from .helper import (LANGS, can_view_post, get_badges, get_container_id,
-                     get_HTTP_response, get_lang, get_post_json)
+from .helper import (LANGS, can_view_post, find_mentions, get_badges,
+                     get_container_id, get_HTTP_response, get_lang,
+                     get_post_json)
 from .variables import (BADGE_DATA, CACHE_LANGUAGES, CONTACT_INFO, CREDITS,
                         DEFAULT_BANNER_COLOR, DEFAULT_LANGUAGE,
                         ENABLE_DYNAMIC_FAVICON, ENABLE_GRADIENT_BANNERS,
@@ -234,6 +235,8 @@ def post(request, post_id: int) -> HttpResponse:
     post_json = get_post_json(post_id, user.user_id if user is not None else 0)
     lang = get_lang(user)
 
+    mentions = find_mentions(post.content + " @" + post.creator.username, exclude_users=[user.username if user else ""])
+
     return get_HTTP_response(
         request, "post.html", lang, user=user,
 
@@ -248,7 +251,9 @@ def post(request, post_id: int) -> HttpResponse:
 
         LIKES = lang["post_page"]["likes"].replace("%s", str(post_json["likes"])),
         COMMENTS = lang["post_page"]["comments"].replace("%s", str(post_json["comments"])),
-        QUOTES = lang["post_page"]["quotes"].replace("%s", str(post_json["quotes"]))
+        QUOTES = lang["post_page"]["quotes"].replace("%s", str(post_json["quotes"])),
+
+        mentions = ("@" + (" @".join(sorted(mentions))) + " ") if mentions else ""
     )
 
 def comment(request, comment_id: int) -> HttpResponse:
@@ -281,6 +286,8 @@ def comment(request, comment_id: int) -> HttpResponse:
     comment_json = get_post_json(comment_id, user.user_id if user is not None else 0, True)
     lang = get_lang(user if user is not None else None)
 
+    mentions = find_mentions(comment.content + " @" + comment.creator.username, exclude_users=[user.username if user else ""])
+
     return get_HTTP_response(
         request, "post.html", lang, user=user,
 
@@ -295,7 +302,9 @@ def comment(request, comment_id: int) -> HttpResponse:
 
         LIKES = lang["post_page"]["likes"].replace("%s", str(comment_json["likes"])),
         COMMENTS = lang["post_page"]["comments"].replace("%s", str(comment_json["comments"])),
-        QUOTES = lang["post_page"]["quotes"].replace("%s", str(comment_json["quotes"]))
+        QUOTES = lang["post_page"]["quotes"].replace("%s", str(comment_json["quotes"])),
+
+        mentions = ("@" + (" @".join(sorted(mentions))) + " ") if mentions else ""
     )
 
 def contact(request) -> HttpResponse:

@@ -55,7 +55,32 @@ Updates for each language version are listed below:
 db rewrite
 
 ```diff
-+ changelog.changes.v0.13.4 {1, 2, 3, 4, 5}
+admin.modify.invalid_bio_size
+- generic.something_went_wrong_x
+- generic.try_again
+- generic.ratelimit_verbose
+- generic.reason
+- admin.post_deletion.error
+- admin.account_deletion.error
+- admin.badge.manage_add_error
+- admin.badge.manage_remove_error
+- admin.modify.invalid_display_name_long
+- admin.modify.invalid_display_name_short
+- admin.permissions.error
+- admin.permissions.invalid
+- admin.logs.error
+- home.c_warning_label
+- account.log_in_failure
+- account.sign_up_failure
+- messages.error
+- notifications.error
+- post.comment_id_does_not_exist
+- settings.username_load_failure
+- settings.profile_banner_invalid_color
+- settings.cosmetic_language_invalid
+- settings.account_password_failure
++ admin.modify.invalid_display_name
++ changelog.changes.v0.13.4 {1, 2, 3, 4, 5, 6}
 ```
 </details>
 

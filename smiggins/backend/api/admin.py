@@ -270,7 +270,7 @@ def badge_add(request, data: UserBadge) -> APIResponse:
             log_admin_action("Add badge", self_user, user, f"Couldn't add badge {data.badge_name}")
             return 400, {
                 "success": False,
-                "message": lang["generic"]["badge_manage_add_protected"]
+                "message": lang["admin"]["badge"]["manage_add_protected"]
             }
 
         if data.badge_name.lower() in BADGE_DATA:
@@ -324,7 +324,7 @@ def badge_remove(request, data: UserBadge) -> APIResponse:
             log_admin_action("Remove badge", self_user, user, f"Couldn't remove badge {data.badge_name}")
             return 400, {
                 "success": False,
-                "message": lang["generic"]["badge_manage_remove_protected"]
+                "message": lang["admin"]["badge"]["manage_remove_protected"]
             }
 
         if data.badge_name.lower() in BADGE_DATA:
@@ -427,7 +427,7 @@ def account_save(request, data: SaveUser) -> APIResponse:
             log_admin_action("Save account info", self_user, user, f"Tried to save info, but display name {data.displ_name} is invalid")
             return 400, {
                 "success": False,
-                "message": lang["admin"]["modify"][f"invalid_display_name_{'long' if len(data.displ_name) else 'short'}"]
+                "message": lang["admin"]["modify"]["invalid_display_name"]
             }
 
         old_bio = user.bio

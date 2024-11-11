@@ -317,7 +317,7 @@ function apiResponse(
             hasBeenRead = true;
           }
 
-          y.innerHTML += escapeHTML(lang.notifications[notif.event_type].replaceAll("%s", notif.data.creator.display_name)) + "<br>";
+          y.innerHTML += escapeHTML(lang.notifications.event[notif.event_type].replaceAll("%s", notif.data.creator.display_name)) + "<br>";
           y.innerHTML += getPostHTML(
             notif.data, // postJSON
             ["comment", "ping_c"].includes(notif.event_type),

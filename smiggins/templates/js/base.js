@@ -259,7 +259,7 @@ function apiResponse(json, extraData, customLog) {
                         }
                         hasBeenRead = true;
                     }
-                    y.innerHTML += escapeHTML(lang.notifications[notif.event_type].replaceAll("%s", notif.data.creator.display_name)) + "<br>";
+                    y.innerHTML += escapeHTML(lang.notifications.event[notif.event_type].replaceAll("%s", notif.data.creator.display_name)) + "<br>";
                     y.innerHTML += getPostHTML(notif.data, ["comment", "ping_c"].includes(notif.event_type)).replace("\"post\"", hasBeenRead ? "\"post\" data-color='gray'" : "\"post\"");
                     x.append(y);
                     x.append(document.createElement("br"));

@@ -4,7 +4,7 @@ from .admin import (account_info, account_save, badge_add, badge_create,
 from .comment import (comment_create, comment_delete, comment_edit,
                       comment_like_add, comment_like_remove, comment_list)
 from .email import password_reset, set_email
-from .info import notifications, username, version
+from .info import notifications, version
 from .messages import (container_create, messages_list, recent_messages,
                        send_message)
 from .post import (hashtag_list, pin_post, poll_vote, post_create, post_delete,
@@ -43,7 +43,6 @@ class ApiEmail:
 
 class ApiInfo:
     notifications = notifications
-    username = username
     version = version
 
 class ApiMessages:

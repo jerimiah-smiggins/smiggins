@@ -457,7 +457,7 @@ def change_password(request, data: ChangePassword) -> APIResponse:
 
     return {
         "success": True,
-        "message": lang["generic"]["success"],
+        "message": lang["settings"]["account_password_success"],
         "actions": [
             { "name": "set_auth", "token": new_token }
         ]

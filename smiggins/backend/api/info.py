@@ -4,25 +4,7 @@
 from posts.models import User
 
 from ..variables import REAL_VERSION
-from .schema import APIResponse
 
-
-def username(request) -> APIResponse:
-    # Returns the username from token
-
-    try:
-        user = User.objects.get(token=request.COOKIES.get('token'))
-    except User.DoesNotExist:
-        return 400, {
-            "success": False,
-        }
-
-    return {
-        "success": True,
-        "actions": [
-            { "name": "localstorage", "key": "username", "value": user.username }
-        ]
-    }
 
 def notifications(request) -> tuple[int, dict] | dict:
     # Returns whether or not you have unread notifications

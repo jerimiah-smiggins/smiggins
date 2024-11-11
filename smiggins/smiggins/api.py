@@ -80,7 +80,6 @@ routes: list[tuple[str, str, Callable, bool | None, str, str, str | list[str]]] 
     ("admin/logs", "GET", ApiAdmin.logs, None, "Get logs", "Returns a list of admin logs", "Admin"),
     ("email/password", "POST", ApiEmail.password_reset, ENABLE_EMAIL, "Reset password", "Sends an email that allows the user to reset their password if forgotten", ["Email", "User"]),
     ("email/save", "POST", ApiEmail.set_email, ENABLE_EMAIL, "Set email", "Sets the email for a user", ["Email", "User"]),
-    ("info/username", "GET", ApiInfo.username, None, "Get username", "Returns the current user's username", ["Misc", "User"]),
     ("info/notifications", "GET", ApiInfo.notifications, None, "Notifications", "Returns the status of any notifications", ["Misc", "User"]),
     ("info/version", "GET", ApiInfo.version, None, "Get version", "Returns the real version of the server. Isn't based on the configuration in settings", "Misc")
 ]

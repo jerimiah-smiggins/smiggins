@@ -103,20 +103,7 @@ function getNotifications(): void {
 if (logged_in) {
   getNotifications();
   setInterval(getNotifications, 2 * 60 * 1000);
-
-  function addUserIcon(a?) {
-    dom("icons").innerHTML += `<a title="${lang.settings.profile_title}" href="/u/${localStorage.getItem("username")}">${icons.user}</a>`;
-  }
-
-  if (typeof(profile) === "undefined") {
-    if (localStorage.getItem("username") === null) {
-      s_fetch("/api/info/username", {
-        postFunction: addUserIcon
-      });
-    } else {
-      addUserIcon();
-    }
-  }
+  dom("icons").innerHTML += `<a title="${lang.settings.profile_title}" href="/u/${localStorage.getItem("username")}">${icons.user}</a>`;
 }
 
 forEach(document.querySelectorAll("[data-add-icon]"), (val: HTMLElement, index: number): void => {

@@ -103,6 +103,10 @@
         themeObject = null;
         document.getElementById("theme-css").innerHTML = getThemeAuto();
       }
+
+      {% if username %}
+        localStorage.setItem("username", "{{ username }}");
+      {% endif %}
     </script>
 
     {% if GOOGLE_VERIFICATION_TAG %}
