@@ -6,9 +6,9 @@ type = "comment";
 includeUserLink = true;
 includePostLink = true;
 
-dom("post-text").addEventListener("input", postTextInputEvent);
+dom("post-text") && dom("post-text").addEventListener("input", postTextInputEvent);
 
-dom("post").addEventListener("click", function() {
+dom("post") && dom("post").addEventListener("click", function() {
   if ((dom("post-text") as HTMLButtonElement).value) {
     s_fetch("/api/comment/create", {
       method: "PUT",

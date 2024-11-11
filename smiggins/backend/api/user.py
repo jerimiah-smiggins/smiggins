@@ -52,7 +52,7 @@ def signup(request, data: Account) -> APIResponse:
             theme="auto",
             color=DEFAULT_BANNER_COLOR,
             color_two=DEFAULT_BANNER_COLOR,
-            lang=DEFAULT_LANG
+            language=DEFAULT_LANG
         )
 
         return {

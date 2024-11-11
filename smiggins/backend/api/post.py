@@ -433,7 +433,7 @@ def post_list_user(request, username: str, offset: int=-1) -> APIResponse:
     offset = sys.maxsize if offset == -1 or not isinstance(offset, int) else offset
     user = User.objects.get(username=username)
 
-    if user.blocking.contains(self_user):
+    if logged_in and user.blocking.contains(self_user):
         return 400, {
             "success": False,
             "message": lang["messages"]["blocked"]
