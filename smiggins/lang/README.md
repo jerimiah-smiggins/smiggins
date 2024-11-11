@@ -55,7 +55,7 @@ Updates for each language version are listed below:
 db rewrite
 
 ```diff
-+ changelog.changes.v0.13.4 {1, 2, 3, 4}
++ changelog.changes.v0.13.4 {1, 2, 3, 4, 5}
 ```
 </details>
 
