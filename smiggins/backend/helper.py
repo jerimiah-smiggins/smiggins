@@ -514,7 +514,7 @@ def get_lang(lang: User | str | None=None, override_cache=False) -> dict[str, di
         lang = DEFAULT_LANGUAGE
 
     if not override_cache and CACHE_LANGUAGES:
-        return LANGS[lang]
+        return LANGS[lang] if lang in LANGS else LANGS[DEFAULT_LANGUAGE]
 
     parsed = []
 

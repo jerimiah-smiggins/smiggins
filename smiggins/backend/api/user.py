@@ -5,7 +5,7 @@ from posts.models import Comment, Post, User
 from ..helper import (DEFAULT_LANG, create_api_ratelimit, ensure_ratelimit,
                       generate_token, get_badges, get_lang, get_post_json,
                       trim_whitespace, validate_username)
-from ..variables import (API_TIMINGS, DEFAULT_BANNER_COLOR,
+from ..variables import (API_TIMINGS, DEFAULT_BANNER_COLOR, DEFAULT_LANGUAGE,
                          ENABLE_GRADIENT_BANNERS, ENABLE_PRONOUNS,
                          ENABLE_USER_BIOS, MAX_BIO_LENGTH,
                          MAX_DISPL_NAME_LENGTH, MAX_USERNAME_LENGTH,
@@ -52,7 +52,7 @@ def signup(request, data: Account) -> APIResponse:
             theme="auto",
             color=DEFAULT_BANNER_COLOR,
             color_two=DEFAULT_BANNER_COLOR,
-            language=DEFAULT_LANG
+            language=DEFAULT_LANGUAGE
         )
 
         return {
