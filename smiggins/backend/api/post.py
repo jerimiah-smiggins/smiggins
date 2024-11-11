@@ -155,8 +155,8 @@ def post_create(request, data: NewPost) -> APIResponse:
     return {
         "success": True,
         "actions": [
-            { "name": "prepend_timeline", "post": get_post_json(post, user.user_id) },
-            { "name": "update_element", "query": "#post-text", "value": "" },
+            { "name": "prepend_timeline", "post": get_post_json(post, user.user_id), "comment": False },
+            { "name": "update_element", "query": "#post-text", "value": "", "focus": True },
             { "name": "update_element", "query": "#c-warning", "value": "" },
             { "name": "update_element", "query": "#poll input", "value": "", "all": True }
         ]
@@ -269,7 +269,7 @@ def quote_create(request, data: NewQuote) -> APIResponse:
     return {
         "success": True,
         "actions": [
-            { "name": "prepend_timeline", "post": get_post_json(post, user.user_id) },
+            { "name": "prepend_timeline", "post": get_post_json(post, user.user_id), "comment": False },
             { "name": "update_element", "query": f".post-container[data-{'comment' if data.quote_is_comment else 'post'}-id='{data.quote_id}'] .post-after", "html": "" },
             { "name": "update_element", "query": f".post-container[data-{'comment' if data.quote_is_comment else 'post'}-id='{data.quote_id}'] .quote-number", "inc": 1 }
         ]

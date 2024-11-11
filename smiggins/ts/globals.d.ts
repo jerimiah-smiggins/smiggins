@@ -140,7 +140,8 @@ type _actions = {
     posts: _postJSON[]
   } | {
     name: "prepend_timeline",
-    post: _postJSON
+    post: _postJSON,
+    comment: boolean
   } | {
     name: "remove_from_timeline",
     post_id: number,

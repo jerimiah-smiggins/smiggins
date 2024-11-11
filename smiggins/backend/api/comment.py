@@ -13,10 +13,10 @@ from ..variables import (API_TIMINGS, ENABLE_CONTENT_WARNINGS,
                          ENABLE_LOGGED_OUT_CONTENT, MAX_CONTENT_WARNING_LENGTH,
                          MAX_POST_LENGTH, OWNER_USER_ID, POSTS_PER_REQUEST)
 from .admin import log_admin_action
-from .schema import CommentID, EditComment, NewComment
+from .schema import APIResponse, CommentID, EditComment, NewComment
 
 
-def comment_create(request, data: NewComment) -> tuple | dict:
+def comment_create(request, data: NewComment) -> APIResponse:
     # Called when a new comment is created.
 
     token = request.COOKIES.get('token')
@@ -28,7 +28,7 @@ def comment_create(request, data: NewComment) -> tuple | dict:
     if not ensure_ratelimit("api_comment_create", token):
         return 429, {
             "success": False,
-            "reason": lang["generic"]["ratelimit"]
+            "message": lang["generic"]["ratelimit"]
         }
 
     id = data.id
@@ -49,7 +49,7 @@ def comment_create(request, data: NewComment) -> tuple | dict:
         create_api_ratelimit("api_comment_create", API_TIMINGS["create post failure"], token)
         return 400, {
             "success": False,
-            "reason": lang["post"]["invalid_length"].replace("%s", str(MAX_POST_LENGTH))
+            "message": lang["post"]["invalid_length"].replace("%s", str(MAX_POST_LENGTH))
         }
 
     create_api_ratelimit("api_comment_create", API_TIMINGS["create comment"], token)
@@ -97,10 +97,15 @@ def comment_create(request, data: NewComment) -> tuple | dict:
             ...
 
     return {
-        "success": True
+        "success": True,
+        "actions": [
+            { "name": "prepend_timeline", "post": get_post_json(comment, user.user_id, True), "comment": True },
+            { "name": "update_element", "query": "#post-text", "value": "" },
+            { "name": "update_element", "query": "#c-warning", "value": "", "focus": True }
+        ]
     }
 
-def comment_list(request, id: int, comment: bool, offset: int=-1) -> tuple | dict:
+def comment_list(request, id: int, comment: bool, offset: int=-1) -> APIResponse:
     # Called when the comments for a post are refreshed.
 
     token = request.COOKIES.get('token')
@@ -123,13 +128,13 @@ def comment_list(request, id: int, comment: bool, offset: int=-1) -> tuple | dic
         if id < 0 or (Comment.objects.latest('comment_id').comment_id if comment else Post.objects.latest('post_id').post_id) < id:
             return 400, {
                 "success": False,
-                "reason": lang["post"]["commend_id_does_not_exist"]
+                "message": lang["post"]["commend_id_does_not_exist"]
             }
 
     except ValueError:
         return 400, {
             "success": False,
-            "reason": lang["post"]["invalid_comment_id"]
+            "message": lang["post"]["invalid_comment_id"]
         }
 
     if comment:
@@ -146,8 +151,9 @@ def comment_list(request, id: int, comment: bool, offset: int=-1) -> tuple | dic
     if comments == []:
         return {
             "success": True,
-            "posts": [],
-            "end": True
+            "actions": [
+                { "name": "populate_timeline", "posts": [], "end": True }
+            ]
         }
 
     outputList = []
@@ -177,11 +183,13 @@ def comment_list(request, id: int, comment: bool, offset: int=-1) -> tuple | dic
             break
 
     return {
-        "posts": outputList,
-        "end": len(comments) - offset <= POSTS_PER_REQUEST
+        "success": True,
+        "actions": [
+            { "name": "populate_timeline", "posts": outputList, "end": len(comments) - offset <= POSTS_PER_REQUEST }
+        ]
     }
 
-def comment_like_add(request, data: CommentID):
+def comment_like_add(request, data: CommentID) -> APIResponse:
     # Called when someone likes a comment.
 
     token = request.COOKIES.get('token')
@@ -202,10 +210,14 @@ def comment_like_add(request, data: CommentID):
         ...
 
     return {
-        "success": True
+        "success": True,
+        "actions": [
+            { "name": "update_element", "query": f"div[data-comment-id='{data.id}'] button.like", "attribute": [{ "name": "data-liked", "value": "true" }] },
+            { "name": "update_element", "query": f"div[data-comment-id='{data.id}'] span.like-number", "inc": 1 }
+        ]
     }
 
-def comment_like_remove(request, data: CommentID):
+def comment_like_remove(request, data: CommentID) -> APIResponse:
     # Called when someone removes a like from a comment.
 
     token = request.COOKIES.get('token')
@@ -219,10 +231,14 @@ def comment_like_remove(request, data: CommentID):
         ...
 
     return {
-        "success": True
+        "success": True,
+        "actions": [
+            { "name": "update_element", "query": f"div[data-comment-id='{data.id}'] button.like", "attribute": [{ "name": "data-liked", "value": "false" }] },
+            { "name": "update_element", "query": f"div[data-comment-id='{data.id}'] span.like-number", "inc": -1 }
+        ]
     }
 
-def comment_delete(request, data: CommentID) -> tuple | dict:
+def comment_delete(request, data: CommentID) -> APIResponse:
     # Called when someone deletes a post.
 
     token = request.COOKIES.get('token')
@@ -275,14 +291,17 @@ def comment_delete(request, data: CommentID) -> tuple | dict:
         comment.delete()
 
         return {
-            "success": True
+            "success": True,
+            "actions": [
+                { "name": "remove_from_timeline", "post_id": data.id, "comment": True }
+            ]
         }
 
     return 400, {
         "success": False
     }
 
-def comment_edit(request, data: EditComment):
+def comment_edit(request, data: EditComment) -> APIResponse:
     token = request.COOKIES.get('token')
 
     try:
@@ -297,7 +316,7 @@ def comment_edit(request, data: EditComment):
             "success": False
         }
 
-    if post.creator == user.user_id:
+    if post.creator.user_id == user.user_id:
         content = trim_whitespace(data.content)
         c_warning = trim_whitespace(data.c_warning, True) if ENABLE_CONTENT_WARNINGS else ""
 
@@ -305,7 +324,7 @@ def comment_edit(request, data: EditComment):
             lang = get_lang(user)
             return 400, {
                 "success": False,
-                "reason": lang["post"]["invalid_length"].replace("%s", str(MAX_POST_LENGTH))
+                "message": lang["post"]["invalid_length"].replace("%s", str(MAX_POST_LENGTH))
             }
 
         post.edited = True
@@ -318,11 +337,9 @@ def comment_edit(request, data: EditComment):
 
         return {
             "success": True,
-            "post": get_post_json(
-                data.id,
-                user.user_id,
-                True
-            )
+            "actions": [
+                { "name": "reset_post_html", "post_id": data.id, "comment": True, "post": get_post_json(data.id, user.user_id, True) }
+            ]
         }
 
     return 400, {

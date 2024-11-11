@@ -139,6 +139,7 @@ class _actions_timeline(TypedDict):
 class _actions_prepend(TypedDict):
     name: Literal["prepend_timeline"]
     post: _postJSON
+    comment: bool
 
 class _actions_reset(TypedDict):
     name: Literal["reset_post_html"]

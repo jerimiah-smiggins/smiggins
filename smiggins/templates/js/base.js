@@ -136,9 +136,11 @@ function apiResponse(json, extraData, customLog) {
         }
         else if (action.name == "prepend_timeline") {
             if (location.pathname.toLowerCase().includes("/home") ||
+                (location.pathname.toLowerCase().includes("/p/") && action.comment) ||
+                (location.pathname.toLowerCase().includes("/c/") && action.comment) ||
                 location.pathname.toLowerCase().includes(`/u/${localStorage.getItem("username") || "LOL IT BROKE SO FUNNY"}`)) {
                 let x = document.createElement("div");
-                x.innerHTML = getPostHTML(action.post);
+                x.innerHTML = getPostHTML(action.post, action.comment);
                 dom("posts").prepend(x);
             }
         }
