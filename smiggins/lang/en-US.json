@@ -37,7 +37,7 @@
     },
 
     "generic": {
-      "version": "v%v", // Replaces all instances of "%v" with the version. If the version format for the local is something like "1.0.0v", then it would be represented as "%vv"
+      "version": "v%v", // Replaces all instances of "%v" with the version. If the version format for the locale is something like "1.0.0v", then it would be represented as "%vv"
       "success": "Success!",
       "something_went_wrong": "Something went wrong!",
       "something_went_wrong_x": "Something went wrong %s!", // Ex: Something went wrong loading the posts!
@@ -198,7 +198,7 @@
       "permissions": {
         "title": "Change Admin Permissions",
         "error": "setting that account's permissions",
-        "invalid": "Invalid permission mask. This shouldn't happen",
+        "invalid": "Invalid permission mask. This shouldn't happen.",
         "label": "Permissions:",
         "set": "Set permissions",
         "load": "Load permissions",
@@ -217,7 +217,7 @@
 
         "descriptions_extra": {
           "5": "(Allows changing display name and user bio)",
-          "6": "(Requires modify account information)",
+          "6": "(Requires 'Modify account information')",
           "7": "(Allows changing for self and others)"
         }
       },
@@ -402,7 +402,7 @@
         "oled": "Black"
       },
 
-      "cosmetic_bar": "Icon bar positioning",
+      "cosmetic_bar": "Icon bar position",
       "cosmetic_bar_position": "Position:",
       "cosmetic_bar_direction": "Direction:",
       "cosmetic_bar_ur": "Upper right",
