@@ -52,7 +52,7 @@ doesn't exist.
       touch ~/smiggins/smiggins/backend/_api_keys.py
       echo "auth_key = b'some random text this can be anything'" > ~/smiggins/smiggins/backend/_api_keys.py
       ```
-      if you're on Windows then ~~fuck you~~ it's probably easier to do this
+      if you're on Windows then ~~use linux~~ it's probably easier to do this
       using file explorer
   4. In the folder REPO_BASE/smiggins run the command
   `python3 manage.py migrate` (once again `py ...` for windows)
