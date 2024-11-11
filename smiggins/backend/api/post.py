@@ -563,7 +563,7 @@ def post_delete(request, data: PostID) -> APIResponse:
             except Comment.DoesNotExist:
                 ...
 
-        for tag in post.hashtags:
+        for tag in post.hashtags.all():
             if tag.posts.count() == 1:
                 tag.delete()
 
