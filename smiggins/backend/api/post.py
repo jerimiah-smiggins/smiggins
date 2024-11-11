@@ -563,6 +563,10 @@ def post_delete(request, data: PostID) -> APIResponse:
             except Comment.DoesNotExist:
                 ...
 
+        for tag in post.hashtags:
+            if tag.posts.count() == 1:
+                tag.delete()
+
         post.delete()
 
         return {
@@ -695,6 +699,22 @@ def post_edit(request, data: EditPost) -> APIResponse:
         post.private = data.private
 
         post.save()
+
+        for tag in post.hashtags.all():
+            if tag.posts.count() == 1:
+                tag.delete()
+            else:
+                tag.posts.remove(post)
+
+        hashtags = find_hashtags(content)
+
+        for tag in hashtags:
+            try:
+                tag_obj = Hashtag.objects.get(tag=tag)
+            except Hashtag.DoesNotExist:
+                tag_obj = Hashtag.objects.create(tag=tag)
+
+            tag_obj.posts.add(post)
 
         return {
             "success": True,
