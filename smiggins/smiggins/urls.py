@@ -13,32 +13,14 @@ from backend.variables import (CONTACT_INFO, DEBUG, ENABLE_CHANGELOG_PAGE,
                                FAVICON_CACHE_TIMEOUT, GENERIC_CACHE_TIMEOUT,
                                REAL_VERSION, ROBOTS, SITEMAP_CACHE_TIMEOUT)
 from django.contrib import admin as django_admin
-from django.contrib.admin.exceptions import AlreadyRegistered  # type: ignore
 from django.http import HttpResponseRedirect
 from django.urls import include, path, re_path
 from django.views.decorators.cache import cache_page
-from posts.models import (AdminLog, Badge, Comment, Hashtag, Notification,
-                          Post, PrivateMessage, PrivateMessageContainer,
-                          URLPart, User)
-
-try:
-    django_admin.site.register(User)
-    django_admin.site.register(Post)
-    django_admin.site.register(Comment)
-    django_admin.site.register(Badge)
-    django_admin.site.register(Notification)
-    django_admin.site.register(PrivateMessageContainer)
-    django_admin.site.register(PrivateMessage)
-    django_admin.site.register(Hashtag)
-    django_admin.site.register(URLPart)
-    django_admin.site.register(AdminLog)
-except AlreadyRegistered:
-    ...
 
 cache_prefix = ".".join([str(i) for i in REAL_VERSION])
 
 # variables to reduce code duplication
-_favicon = lambda request: HttpResponseRedirect("/static/img/old_favicon.ico", status=308) # noqa: E731
+_favicon = lambda request, a=0: HttpResponseRedirect("/static/img/old_favicon.ico", status=308) # noqa: E731
 _robots_txt = create_simple_return("", content_type="text/plain", content_override=ROBOTS)
 _security_txt = create_simple_return("", content_type="text/plain", content_override="\n".join([{"email": "Email", "text": "Other", "url": "Link"}[i[0]] + f": {i[1]}" for i in CONTACT_INFO]) + "\n")
 

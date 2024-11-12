@@ -2,7 +2,7 @@
   "meta": {
     "fallback": ["en-US"],
     "name": "Esperanto",
-    "version": "1.2.0",
+    "version": "1.8.3",
     "maintainers": ["Subroutine7901"],
     "past_maintainers": []
   },
@@ -10,8 +10,6 @@
   "texts": {
     "http": {
       "404": {
-        "hashtag_title": "Ha\u015detikedo Estas Ne Trovita",
-        "hashtag_description": "\u0108i tiu ha\u015detikedo ne ekzistas!",
         "post_title": "Afi\u015do Ne Trovita",
         "post_description": "\u0108i tiu afi\u015do ne ekzistas!",
         "standard_title": "Retpa\u011do Ne Ekzistas",
@@ -29,7 +27,17 @@
       "home": "Hejmeniru"
     },
 
+    "noscript": {
+      "title": "Bonvolu aktivigi JavaSkripton!",
+      "subtitle": "Sen \u011di, ĉi tiu retejo ne funkcios!",
+
+      "tutorial_title": "Kiel mi faru ĉi tion?",
+      "tutorial_ff": "En Firefox, iru al %u kaj agordu \"%k\" al \"%v\"",
+      "tutorial_chrome": "En Chrome, iru al %u kaj aldonu ĉi tiun retejon al la \"Allowed to use JavaScript\" listo" // Note for translators: Copy the "Allowed to use JavaScript" section directly from chrome instead of translating it yourself
+    },
+
     "generic": {
+      "version": "La ver\u015dinudo estas %v",
       "success": "Sukceso!",
       "something_went_wrong": "Io misfunkciis!",
       "something_went_wrong_x": "Io misfunkciis %s!",
@@ -48,6 +56,7 @@
       "share": "Kunhavigu",
       "copied": "Kopiita al tondujo!",
       "see_more": "%s vidi pli!",
+      "discord": "Diskorda Servilo",
 
       "pronouns": {
         "a": "Demandu pronomojn",
@@ -130,70 +139,99 @@
         "ago": "Anta\u016d %s"
       }
     },
+
     "admin": {
       "title": "Administra Panelo",
-      "level": "Nevelo",
       "is_comment_label": "Komento?",
       "use_id_label": "Uzas legitimilo?",
       "post_id_placeholder": "Afi\u015da/komenta legitimilo...",
       "user_id_placeholder": "Konta uzantnomo/legitimilo...",
 
-      "post_deletion_title": "Afi\u015da Forigo",
-      "post_deletion_button": "Forigas Afi\u015da",
-      "post_deletion_error": "forigi la precizigis afi\u015da/komenta",
+      "post_deletion": {
+        "title": "Afi\u015da Forigo",
+        "button": "Forigas Afi\u015da",
+        "error": "forigi la precizigis afi\u015da/komenta"
+      },
 
-      "account_deletion_title": "Konta Forigo",
-      "account_deletion_button": "Forigas Konto",
-      "account_deletion_error": "forigi la precizigis konto",
+      "account_deletion": {
+        "title": "Konta Forigo",
+        "button": "Forigas Konto",
+        "error": "forigi la precizigis konto"
+      },
 
-      "badge_name_placeholder": "Insignia nomo...",
-      "badge_data_placeholder": "Insigniaj SVG datumoj...",
-      "badge_manage_title": "Aldonas/forigas Insignioj",
-      "badge_manage_empty": "Kiel mankas insignoj... Kion vi faris?",
-      "badge_manage_add_button": "Aldonu Insignio",
-      "badge_manage_add_error": "aldoni la insignio",
-      "badge_manage_remove_button": "Forigu Insignio",
-      "badge_manage_remove_error": "forigi la insignio",
-      "badge_manage_add_protected": "Ne povas aldoni tiun insignon \u0109ar \u011di estas protektita",
-      "badge_manage_remove_protected": "Ne povas forigi tiun insignon \u0109ar \u011di estas protektita",
-      "badge_create_title": "Kreas/Superregas Insignio",
-      "badge_create_button": "Kreu Badge",
-      "badge_create_invalid_data_size": "Insignia datumoj devas esti inter 1 kaj 65536 signoj longaj",
-      "badge_create_success": "Re\u015dargu por ke viaj \u015dan\u011doj efektivi\u011du.",
-      "badge_delete_title": "Forigas Insignio",
-      "badge_delete_button": "Forigu Insignio",
-      "badge_delete_protected": "Ne povas forigi tiun insignon",
-      "badge_invalid_name_size": "Insignia nomo devas esti inter 1 kaj 64 signoj longaj",
-      "badge_invalid_name": "Insignia nomo devas nur enhavi a-z, 0-9, kaj substrekojn",
-      "badge_not_found": "Insignio kun la nomo '%s' ne ekzistas!",
+      "badge": {
+        "name_placeholder": "Insignia nomo...",
+        "name_label": "Insignio:",
+        "data_placeholder": "Insigniaj SVG datumoj...",
+        "manage_title": "Aldonas/forigas Insignioj",
+        "manage_empty": "Kiel mankas insignoj... Kion vi faris?",
+        "manage_add_button": "Aldonu Insignio",
+        "manage_add_error": "aldoni la insignio",
+        "manage_remove_button": "Forigu Insignio",
+        "manage_remove_error": "forigi la insignio",
+        "manage_add_protected": "Ne povas aldoni tiun insignon \u0109ar \u011di estas protektita",
+        "manage_remove_protected": "Ne povas forigi tiun insignon \u0109ar \u011di estas protektita",
+        "create_title": "Kreas/Superregas Insignio",
+        "create_button": "Kreu Badge",
+        "create_invalid_data_size": "Insignia datumoj devas esti inter 1 kaj 65536 signoj longaj",
+        "create_success": "Re\u015dargu por ke viaj \u015dan\u011doj efektivi\u011du.",
+        "delete_title": "Forigas Insignio",
+        "delete_button": "Forigu Insignio",
+        "delete_protected": "Ne povas forigi tiun insignon",
+        "invalid_name_size": "Insignia nomo devas esti inter 1 kaj 64 signoj longaj",
+        "invalid_name": "Insignia nomo devas nur enhavi a-z, 0-9, kaj substrekojn",
+        "not_found": "Insignio kun la nomo '%s' ne ekzistas!"
+      },
 
-      "modify_title": "Modifas Konta Informoj",
-      "modify_get_button": "Akiru Informoj",
-      "modify_current": "Aktuala konta:",
-      "modify_save": "Savu informoj",
-      "modify_switcher": "Aldonu al kont\u015dan\u011dilo",
-      "modify_invalid_bio_size": "La biografio de uzanto estas tro longa! \u011ci devas esti inter 1 kaj 65536 signoj longaj.",
-      "modify_invalid_display_name_long": "La Montrnomo estas tro longa! \u011ci devas esti inter 1 kaj 300 signoj longaj.",
-      "modify_invalid_display_name_short": "La Montrnomo estas tro mallonga! \u011ci devas esti inter 1 kaj 300 signoj longaj.",
-      "modify_id": "legitimilo: %s",
+      "modify": {
+        "title": "Modifas Konta Informoj",
+        "get_button": "Akiru Informoj",
+        "current": "Aktuala konta:",
+        "save": "Savu informoj",
+        "switcher": "Aldonu al kont\u015dan\u011dilo",
+        "invalid_bio_size": "La biografio de uzanto estas tro longa! \u011ci devas esti inter 1 kaj 65536 signoj longaj.",
+        "invalid_display_name_long": "La Montrnomo estas tro longa! \u011ci devas esti inter 1 kaj 300 signoj longaj.",
+        "invalid_display_name_short": "La Montrnomo estas tro mallonga! \u011ci devas esti inter 1 kaj 300 signoj longaj.",
+        "id": "legitimilo: %s"
+      },
 
-      "level_title": "\u015can\u011das Administra Nevelo",
-      "level_zero": "Ne Administra Permesoj (Nevelo 0)",
-      "level_one": "Forigas afi\u015doj/komentoj (Nevelo 1)",
-      "level_two": "Forigas kontoj (Nevelo 2)",
-      "level_three": "Administras insignio (Nevelo 3)",
-      "level_four": "Modifas uzanto datumoj (Nevelo 4)",
-      "level_five": "Kreas nova administrantoj (Nevelo 5)",
-      "level_button": "\u015can\u011du administra nevelo",
-      "level_invalid": "Nevalida nevelo",
-      "level_error": "\u015dan\u011di la nivelon de tiu konto",
+      "permissions": {
+        "title": "\u015can\u011das Administra Permesoj",
+        "error": "\u015dan\u011di la permesoj de tiu konto",
+        "invalid": "Nevalida permesa masko. Ĉi tio ne devus okazi.",
+        "label": "Permesojn:",
+        "set": "\u015dan\u011di permesojn",
+        "load": "\u015dar\u011di permesojn",
 
-      "logs_button": "\u015cargu \u015dtipoj",
-      "logs_error": "\u015dargi la \u015dtipoj",
-      "logs_timestamp": "Tempmarko",
-      "logs_action": "Ago:",
-      "logs_who": "Kiu",
-      "logs_more_info": "Pliaj Informoj"
+        "descriptions": {
+          "0": "Forigas afi\u015dojn",
+          "1": "Forigas uzantojn",
+          "2": "Kreas/Modifas insignojn",
+          "3": "Forigas insignojn",
+          "4": "Aldonas/Forigas insignojn de uzantoj",
+          "5": "Modifas uzantajn datumojn",
+          "6": "Aldonas ajnan konton al la konta \u015caltanto",
+          "7": "\u015dan\u011di administrantajn Permesojn",
+          "8": "Legas administrantajn \u015dtipojn"
+        },
+
+        "descriptions_extra": {
+          "5": "(Permesas \u015dan\u011di afi\u015dan nomon kaj biografion de la uzanto)",
+          "6": "(Postulas 'Modifas uzanto datumoj')",
+          "7": "(Permesas \u015dan\u011di por si mem kaj aliaj)"
+        }
+      },
+
+      "logs": {
+        "button": "\u015cargu \u015dtipoj",
+        "error": "\u015dargi la \u015dtipoj",
+        "timestamp": "Tempmarko",
+        "action": "Ago",
+        "who": "Kiu",
+        "more_info": "Pliaj Informoj",
+        "who_format": "Farite de %1, je %2",
+        "who_format_single": "Farite de %1"
+      }
     },
 
     "contact": {
@@ -209,19 +247,30 @@
     "home": {
       "title": "Hejmo",
       "post_input_placeholder": "Kio estas en via menso?",
+      "c_warning_placeholder": "Enhavaverto...",
+      "c_warning_label": "Enhavaverto:",
 
       "switch_recent": "\u015can\u011du al lastatempaj afi\u015doj...",
       "switch_following": "\u015can\u011du al sekvantaraj afi\u015doj...",
 
       "quote_blocked": "\u0108i tiu afi\u015do estas de konto, kiun vi blokis",
+      "quote_blocked_other": "\u0108i tiu afi\u015do estas de konto, kiu blokas vin",
       "quote_deleted": "La originala afi\u015do forigis",
+      "quote_poll": "\u0108i tiu afi\u015do havas balotenketon",
       "quote_private": "\u0108i tiu persono limigas kiuj povas vidi sian profilon.",
       "quote_recursive": "Cita\u0135as alia afi\u015do...",
       "quote_placeholders": [
         "Kion ili faris \u0109i-foje?",
         "Ankora\u016d alia eraro por atentigi?",
         "Uf... ne denove..."
-      ]
+      ],
+
+      "poll": "Balotenketon",
+      "poll_option": "Opcio %s", // Ex: Option 3
+      "poll_optional": "Opcio %s (nedeviga)", // Ex: Option 3 (optional)
+      "poll_total_plural": "%s totalaj voĉoj",
+      "poll_total_singular": "%s totala voĉo",
+      "poll_view_results": "Rigardu rezultojn"
     },
 
     "account": {
@@ -233,7 +282,9 @@
       "sign_up_instead": "Registri\u011du anstata\u016de...",
       "sign_up_failure": "Ne povas registri\u011di! Kialo: %s",
 
+      "no_new": "Ĉi tiu kazo ne akceptas novajn uzantojn.",
       "password_match_failure": "La pasvortoj ne kongruas!",
+      "forgot_password": "Forgesis pasvorton?",
 
       "log_out_title": "Alidirektas vin",
       "log_out_description": "Se vi ne estas alidirektita balda\u016d, klaku <a href=\"/\">\u0109i tie...</a>",
@@ -249,7 +300,8 @@
       "invalid_username_length": "Uzantnomo devas esti inter 1 kaj %s signoj longaj.",
       "username_does_not_exist": "Konto kun uzantnomo '%s' ne ekzistas",
       "follow_blocking": "Vi ne povas sekvantari konto vi blokas!",
-      "block_self": "\u0108u? Rigardu, mi scias, ke vi malamas vin, sed mi ne povas lasi vin fari tion.",
+      "follow_blocked": "Ĉi tiu persono blokas vin.",
+      "block_self": "\u0108u? Rigardu, mi scias, ke vi malamas vin mem, sed mi ne povas lasi vin fari tion.",
       "password_empty": "Pasvorton devas ne esti malplena!"
     },
 
@@ -262,6 +314,7 @@
 
       "list_title": "Mesa\u011dojn",
       "list_subtitle": "Lastatempajn Mesa\u011dojn",
+
       "yourself": "Rigardu, manki amikoj estas kutima afero, sed vi ne povas paroli kun vi mem.",
       "blocking": "Vi blokas \u0109i tiun personon!",
       "blocked": "\u0108i tiun persono blokas vin!",
@@ -283,7 +336,7 @@
     "post_page": {
       "likes": "\u015catojn: %s",
       "comments": "Komentojn: %s",
-      "quotes": "Citiloj: %s",
+      "quotes": "Cita\u0135oj: %s",
       "comment_parent": "Iru al originala afi\u015do...",
       "comment_input_placeholder": "\u0108u vi havas ion por diri pri \u0109i tio?"
     },
@@ -294,7 +347,22 @@
       "comment_id_does_not_exist": "Via legitimilo rompis iom owo",
       "invalid_quote_post": "La afi\u015co, kiun vi citas, ne ekzistas!",
       "invalid_quote_comment": "La kommento, kiun vi citas, ne ekzistas!",
-      "invalid_username": "Uzantnomo estas nesvaligdeg... RIGARDU NUR SILENTU"
+      "invalid_username": "Uzantnomo estas nesvaligdeg... RIGARDU NUR SILENTU",
+      "invalid_poll": "La balotenketo devas havi pli ol unu opcion!",
+      "type_public": "Publika",
+      "type_followers_only": "Nur por sekvantoj",
+      "no_posts": "Neniuj afi\u015doj",
+      "private_post": "Privata afi\u015do",
+
+      "like": "\u015cato",
+      "unlike": "Forigas \u015caton",
+      "comment": "Komento",
+      "quote": "Cita\u0135o",
+      "delete": "Forigu",
+      "pin": "Pinglu",
+      "unpin": "Malpinglu",
+      "more": "Pli...",
+      "edit": "Redaktu"
     },
 
     "settings": {
@@ -316,23 +384,41 @@
       "profile_banner_title": "Standarda kolora",
       "profile_banner_invalid_color": "Koloro ne bongusta",
       "profile_gradient": "Kolortransira standardo?",
-      "profile_private": "Nepublika konto?",
-      "profile_private_description": "Se via konto estas privata, tio signifas, ke nur vi kaj homoj, kiujn vi sekvas, povas vidi viajn afi\u015dojn.",
+      "profile_default_post": "Defaŭlta afi\u015dvidebleco:",
+      "profile_followers_approval": "Ĉu permane aprobi sekvantojn?",
 
       "cosmetic_title": "Cosmetika",
+
       "cosmetic_theme": "Tema",
-      "cosmetic_theme_light": "Tagi\u011da",
-      "cosmetic_theme_gray": "Krepuska",
-      "cosmetic_theme_dark": "Malhela",
-      "cosmetic_theme_black": "Noktomeza",
-      "cosmetic_theme_oled": "Nigra",
       "cosmetic_theme_invalid": "Tio ne estas vailida temo, idioto.",
-      "cosmetic_color": "Kolora",
+      "cosmetic_themes": {
+        "auto": "Sistemo",
+        "warm": "Tagmezo",
+        "light": "Tagi\u011da",
+        "gray": "Krepuska",
+        "purple": "Sunset",
+        "dark": "Malhela",
+        "black": "Noktomeza",
+        "oled": "Nigra"
+      },
+
+      "cosmetic_bar": "Ikona trinkeja pozicio",
+      "cosmetic_bar_position": "Pozicio:",
+      "cosmetic_bar_direction": "Direkto:",
+      "cosmetic_bar_ur": "Supra dekstro",
+      "cosmetic_bar_lr": "Malsupra dekstro",
+      "cosmetic_bar_ul": "Supra maldekstro",
+      "cosmetic_bar_ll": "Malsupra maldekstro",
+      "cosmetic_bar_h": "Horizontala",
+      "cosmetic_bar_v": "Vertikala",
       "cosmetic_language": "Lingvo",
       "cosmetic_language_invalid": "Nevalida lingvo '%s'",
+      "cosmetic_color": "Kolora",
       "cosmetic_example_post_display_name": "Ekzemplo",
       "cosmetic_example_post_username": "ekzemplo",
       "cosmetic_example_post_content": "Tio estas ekzempla afi\u015do. Mi estas @ekzemplo.",
+      "cosmetic_checkboxes": "Malebligu kutimajn markobutonojn?",
+      "cosmetic_old_favicon": "Uzas maljuna retejo ikono (favikono)?",
 
       "account_title": "Konto",
       "account_password": "\u015can\u011du pasvorton",
@@ -345,6 +431,10 @@
       "account_switcher_remove": "Forigu",
       "account_switcher_remove_error": "Vi ne povas forigi la konton, al kiu vi estas nun ensalutinta!",
       "account_switcher_add": "Aldonu novan konton...",
+      "account_email": "Retpo\u015dto",
+      "account_email_update": "\u015can\u011du/\u011cisdatigu",
+      "account_email_verify": "Kontrolu vian retpo\u015dton al konfirmas \u015din",
+      "account_email_check": "Kontrolu vian retpo\u015dton",
 
       "admin": "Administra retpa\u011do",
       "logout": "Elsalutu el \u0109iuj kontojn"

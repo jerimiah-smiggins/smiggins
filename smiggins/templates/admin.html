@@ -129,7 +129,8 @@
   {% admin_level LEVEL mask.READ_LOGS as can %}
   {% if can %}
     <br><br>
-    <div id="debug"><button id="debug-button">{{ lang.admin.logs.button }}</button></div>
+    <button id="load-logs">{{ lang.admin.logs.button }}</button>
+    <div id="admin-logs"></div>
   {% endif %}
 
   <script>{% include "js/admin.js" %}</script>

@@ -41,6 +41,7 @@ function setOldFavicon(): void {
 }
 
 function setGenericFavicon(): void {
+  // TODO: This doesn't work with "auto" theme
   let bg: string = themeObject.colors.background.slice(1, 7);
   let bb: string = themeObject.colors.button_background.slice(1, 7);
   let accent: string = themeObject.colors.accent[validColors.indexOf(localStorage.getItem("color")) == -1 ? "mauve" : localStorage.getItem("color")].slice(1, 7)

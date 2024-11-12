@@ -38,8 +38,8 @@ routes: list[tuple[str, str, Callable, bool | None, str, str, str | list[str]]] 
     ("user/settings/theme", "PATCH", ApiUser.settings_theme, None, "Set theme", "Sets the user's theme", "User"),
     ("user/settings", "PATCH", ApiUser.settings, None, "Set settings", "Sets all global settings for a user besides theme", "User"),
     ("user/password", "PATCH", ApiUser.change_password, None, "Set password", "Handles changing a user's password", "User"),
-    ("user/follower", "POST", ApiUser.follower_add, None, "Follow", "Handles following someone", "User"),
-    ("user/follower", "DELETE", ApiUser.follower_remove, None, "Unfollow", "Handles unfollowing someone", "User"),
+    ("user/follow", "POST", ApiUser.follower_add, None, "Follow", "Handles following someone", "User"),
+    ("user/follow", "DELETE", ApiUser.follower_remove, None, "Unfollow", "Handles unfollowing someone", "User"),
     ("user/pending", "GET", ApiUser.list_pending, None, "Follow request list", "Lists pending follow requests", "User"),
     ("user/pending", "POST", ApiUser.accept_pending, None, "Accept follow request", "Accepts a follow request", "User"),
     ("user/pending", "DELETE", ApiUser.remove_pending, None, "Deny follow request", "Denies a follow request", "User"),
@@ -80,7 +80,6 @@ routes: list[tuple[str, str, Callable, bool | None, str, str, str | list[str]]] 
     ("admin/logs", "GET", ApiAdmin.logs, None, "Get logs", "Returns a list of admin logs", "Admin"),
     ("email/password", "POST", ApiEmail.password_reset, ENABLE_EMAIL, "Reset password", "Sends an email that allows the user to reset their password if forgotten", ["Email", "User"]),
     ("email/save", "POST", ApiEmail.set_email, ENABLE_EMAIL, "Set email", "Sets the email for a user", ["Email", "User"]),
-    ("info/username", "GET", ApiInfo.username, None, "Get username", "Returns the current user's username", ["Misc", "User"]),
     ("info/notifications", "GET", ApiInfo.notifications, None, "Notifications", "Returns the status of any notifications", ["Misc", "User"]),
     ("info/version", "GET", ApiInfo.version, None, "Get version", "Returns the real version of the server. Isn't based on the configuration in settings", "Misc")
 ]

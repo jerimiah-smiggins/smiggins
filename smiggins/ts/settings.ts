@@ -199,54 +199,18 @@ dom("followers-approval").addEventListener("input", setUnload);
 
 dom("theme").addEventListener("change", function(): void {
   dom("theme").setAttribute("disabled", "");
-  fetch("/api/user/settings/theme", {
+  s_fetch("/api/user/settings/theme", {
     method: "PATCH",
     body: JSON.stringify({
       theme: (dom("theme") as HTMLInputElement).value
-    })
-  })
-  .then((response: Response) => (response.json()))
-  .then((json: {
-    success: boolean,
-    auto: boolean,
-    themeJSON?: _themeObject
-  }) => {
-    if (!json.success) {
-      showlog(lang.generic.something_went_wrong);
-    } else {
-      dom("theme").removeAttribute("disabled");
-      dom("theme-css").innerHTML = json.auto ? getThemeAuto() : getThemeCSS(json.themeJSON);
-
-      if ((dom("theme") as HTMLInputElement).value == "auto") {
-        !autoEnabled && autoInit();
-        themeObject = null;
-      } else {
-        autoEnabled && autoCancel();
-        themeObject = json.themeJSON;
-
-        if (!oldFavicon) {
-          setGenericFavicon();
-        }
-      }
-    }
-  }).catch((err: Error) => {
-    dom("theme").removeAttribute("disabled");
-    showlog(lang.generic.something_went_wrong);
+    }),
+    disable: [this]
   });
 });
 
 dom("save").addEventListener("click", function(): void {
-  ENABLE_USER_BIOS && dom("bio").setAttribute("disabled", "");
-  dom("save").setAttribute("disabled", "");
-  dom("displ-name").setAttribute("disabled", "");
-  dom("banner-color").setAttribute("disabled", "");
-  dom("lang").setAttribute("disabled", "");
-  dom("default-post").setAttribute("disabled", "");
-  dom("followers-approval").setAttribute("disabled", "");
-  ENABLE_GRADIENT_BANNERS && dom("banner-color-two").setAttribute("disabled", "");
-  ENABLE_GRADIENT_BANNERS && dom("banner-is-gradient").setAttribute("disabled", "");
-
-  fetch("/api/user/settings", {
+  onbeforeunload = null;
+  s_fetch("/api/user/settings", {
     method: "PATCH",
     body: JSON.stringify({
       bio: ENABLE_USER_BIOS ? (dom("bio") as HTMLInputElement).value : "",
@@ -258,36 +222,26 @@ dom("save").addEventListener("click", function(): void {
       is_gradient: ENABLE_GRADIENT_BANNERS ? (dom("banner-is-gradient") as HTMLInputElement).checked : false,
       approve_followers: (dom("followers-approval") as HTMLInputElement).checked,
       default_post_visibility: (dom("default-post") as HTMLInputElement).value
-    })
-  }).then((response: Response) => (response.json()))
-    .then((json: {
-      reason: string,
-      success: boolean
-    }) => {
-      if (json.success) {
-        onbeforeunload = null;
-        showlog(lang.generic.success);
-
-        if (lang.meta.language !== (dom("lang") as HTMLInputElement).value) {
-          location.reload();
-        }
-      } else {
-        showlog(`${lang.generic.something_went_wrong} ${lang.generic.reason.replaceAll("%s", json.reason)}`);
+    }),
+    disable: [
+      this,
+      dom("displ-name"),
+      ENABLE_USER_BIOS && dom("bio"),
+      ENABLE_PRONOUNS && dom("pronouns-primary"),
+      ENABLE_PRONOUNS && dom("pronouns-secondary"),
+      dom("banner-color"),
+      ENABLE_GRADIENT_BANNERS && dom("banner-color-two"),
+      ENABLE_GRADIENT_BANNERS && dom("banner-is-gradient"),
+      dom("default-post"),
+      dom("followers-approval"),
+      dom("lang"),
+    ],
+    postFunction: (success: boolean) => {
+      if (!success) {
+        setUnload();
       }
-
-      throw "erm what the flip";
-    })
-    .catch((err: Error) => {
-      ENABLE_USER_BIOS && dom("bio").removeAttribute("disabled");
-      dom("save").removeAttribute("disabled");
-      dom("displ-name").removeAttribute("disabled");
-      dom("banner-color").removeAttribute("disabled");
-      dom("lang").removeAttribute("disabled");
-      dom("default-post").removeAttribute("disabled");
-      dom("followers-approval").removeAttribute("disabled");
-      ENABLE_GRADIENT_BANNERS && dom("banner-color-two").removeAttribute("disabled");
-      ENABLE_GRADIENT_BANNERS && dom("banner-is-gradient").removeAttribute("disabled");
-    });
+    }
+  });
 });
 
 dom("banner-color").addEventListener("input", function(): void {
@@ -346,43 +300,29 @@ dom("set-password").addEventListener("click", function(): void {
     return;
   }
 
-  this.setAttribute("disabled", "");
-  fetch("/api/user/password", {
+  s_fetch("/api/user/password", {
     method: "PATCH",
     body: JSON.stringify({
       password: old_password,
       new_password: password
-    })
-  }).then((response: Response) => (response.json()))
-    .then((json: {
-      reason: string,
-      success: boolean,
-      token: string
-    }) => {
-      if (json.success) {
-        setCookie("token", json.token);
+    }),
+    disable: [this],
+    postFunction: (success: boolean) => {
+      if (success && ENABLE_ACCOUNT_SWITCHER) {
+        let switcher: string[][] = JSON.parse(localStorage.getItem("acc-switcher"));
+        let newToken: string = document.cookie.match(/token=([a-f0-9]{64})/)[0].split("=")[1];
 
-        if (ENABLE_ACCOUNT_SWITCHER) {
-          let switcher: string[][] = JSON.parse(localStorage.getItem("acc-switcher"));
-          for (let i: number = 0; i < switcher.length; i++) {
-            if (switcher[i][1] == currentAccount) {
-              switcher[i][1] = json.token;
-            }
+        for (let i: number = 0; i < switcher.length; i++) {
+          if (switcher[i][1] == currentAccount) {
+            switcher[i][1] = newToken;
           }
-
-          localStorage.setItem("acc-switcher", JSON.stringify(switcher));
         }
 
-        showlog(lang.settings.account_password_success, 5000);
-      } else {
-        showlog(lang.settings.account_password_failure.replaceAll("%s", json.reason));
+        currentAccount = newToken;
+        localStorage.setItem("acc-switcher", JSON.stringify(switcher));
       }
-
-      this.removeAttribute("disabled");
-    }).catch((err: Error) => {
-      this.removeAttribute("disabled");
-      showlog(lang.generic.something_went_wrong);
-    });
+    }
+  });
 });
 
 dom("current").addEventListener("keydown", function(event: KeyboardEvent): void {
@@ -405,27 +345,11 @@ dom("confirm").addEventListener("keydown", function(event: KeyboardEvent): void 
 });
 
 ENABLE_EMAIL && dom("email-submit").addEventListener("click", function(): void {
-  dom("email").setAttribute("disabled", "");
-  dom("email-submit").setAttribute("disbaled", "");
-
-  fetch("/api/email/save", {
+  s_fetch("/api/email/save", {
+    method: "POST",
     body: JSON.stringify({
       email: (dom("email") as HTMLInputElement).value
     }),
-    method: "POST"
-  }).then((response) => (response.json()))
-    .then((json: {
-      success: boolean,
-      reason?: string
-    }) => {
-      if (json.success) {
-        if (hasEmail) {
-          dom("email-output").innerHTML = lang.settings.account_email_check;
-        } else {
-          dom("email-output").innerHTML = lang.settings.account_email_verify;
-        }
-      } else {
-        dom("email-output").innerHTML = json.reason;
-      }
-    });
+    disable: [dom("email"), dom("email-submit")]
+  });
 });

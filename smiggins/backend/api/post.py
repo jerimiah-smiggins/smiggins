@@ -1,17 +1,17 @@
 # For API functions that relate to posts, for example creating, fetching home lists, etc.
 
-import random
 import sys
 import threading
 import time
 
 import requests
-from posts.models import Comment, Hashtag, Notification, Post, User
+from django.db.utils import IntegrityError
+from posts.models import Comment, Hashtag, M2MLike, Post, User
 
 from ..helper import (DEFAULT_LANG, can_view_post, create_api_ratelimit,
-                      create_notification, delete_notification,
-                      ensure_ratelimit, find_hashtags, find_mentions, get_lang,
-                      get_post_json, trim_whitespace, validate_username)
+                      create_notification, ensure_ratelimit, find_hashtags,
+                      find_mentions, get_lang, get_post_json, trim_whitespace,
+                      validate_username)
 from ..variables import (API_TIMINGS, ENABLE_CONTENT_WARNINGS,
                          ENABLE_LOGGED_OUT_CONTENT, ENABLE_PINNED_POSTS,
                          ENABLE_POLLS, MAX_CONTENT_WARNING_LENGTH,
@@ -19,10 +19,10 @@ from ..variables import (API_TIMINGS, ENABLE_CONTENT_WARNINGS,
                          MAX_POST_LENGTH, OWNER_USER_ID, POST_WEBHOOKS,
                          POSTS_PER_REQUEST, SITE_NAME, VERSION)
 from .admin import log_admin_action
-from .schema import EditPost, NewPost, NewQuote, Poll, PostID
+from .schema import APIResponse, EditPost, NewPost, NewQuote, Poll, PostID
 
 
-def post_hook(request, user: User, post: Post):
+def post_hook(request, user: User, post: Post) -> None:
     def post_inside(request, user: User, post: Post):
         meta = POST_WEBHOOKS[user.username]
         lang = get_lang()
@@ -58,7 +58,7 @@ def post_hook(request, user: User, post: Post):
         "post": post
     }).start()
 
-def post_create(request, data: NewPost) -> tuple | dict:
+def post_create(request, data: NewPost) -> APIResponse:
     # Called when a new post is created.
 
     token = request.COOKIES.get('token')
@@ -71,7 +71,7 @@ def post_create(request, data: NewPost) -> tuple | dict:
         lang = get_lang(user)
         return 429, {
             "success": False,
-            "reason": lang["generic"]["ratelimit"]
+            "message": lang["generic"]["ratelimit"]
         }
 
     if len(data.poll) > MAX_POLL_OPTIONS:
@@ -94,7 +94,7 @@ def post_create(request, data: NewPost) -> tuple | dict:
         lang = get_lang(user)
         return 400, {
             "success": False,
-            "reason": lang["post"]["invalid_poll"]
+            "message": lang["post"]["invalid_poll"]
         }
 
     content = trim_whitespace(data.content)
@@ -105,22 +105,21 @@ def post_create(request, data: NewPost) -> tuple | dict:
         lang = get_lang(user)
         return 400, {
             "success": False,
-            "reason": lang["post"]["invalid_length"].replace("%s", str(MAX_POST_LENGTH))
+            "message": lang["post"]["invalid_length"].replace("%s", str(MAX_POST_LENGTH))
         }
 
     create_api_ratelimit("api_post_create", API_TIMINGS["create post"], token)
 
     timestamp = round(time.time())
     post = Post.objects.create(
-        content = content,
-        content_warning = c_warning or None,
-        creator = user.user_id,
-        timestamp = timestamp,
-        likes = [],
-        comments = [],
-        quotes = [],
-        private_post = data.private,
-        poll = {
+        content=content,
+        content_warning=c_warning or None,
+        creator=user,
+        timestamp=timestamp,
+        comments=[],
+        quotes=[],
+        private=data.private,
+        poll={
             "votes": [],
             "choices": len(poll),
             "content": [{ "value": i, "votes": [] } for i in poll]
@@ -133,13 +132,10 @@ def post_create(request, data: NewPost) -> tuple | dict:
         content=content
     )
 
-    user.posts.append(post.post_id)
-    user.save()
-
     for i in find_mentions(content, [user.username]):
         try:
             notif_for = User.objects.get(username=i.lower())
-            if user.user_id not in notif_for.blocking and notif_for.user_id not in user.blocking:
+            if not notif_for.blocking.contains(user) and not user.blocking.contains(notif_for):
                 create_notification(notif_for, "ping_p", post.post_id)
 
         except User.DoesNotExist:
@@ -149,21 +145,24 @@ def post_create(request, data: NewPost) -> tuple | dict:
         try:
             tag = Hashtag.objects.get(tag=i.lower())
         except Hashtag.DoesNotExist:
-            tag = Hashtag(
-                tag = i
-            )
+            tag = Hashtag.objects.create(tag=i.lower())
 
-        tag.posts.append(post.post_id)
-        tag.save()
+        tag.posts.add(post)
 
     if user.username in POST_WEBHOOKS:
         post_hook(request, user, post)
 
     return {
-        "success": True
+        "success": True,
+        "actions": [
+            { "name": "prepend_timeline", "post": get_post_json(post, user.user_id), "comment": False },
+            { "name": "update_element", "query": "#post-text", "value": "", "focus": True },
+            { "name": "update_element", "query": "#c-warning", "value": "" },
+            { "name": "update_element", "query": "#poll input", "value": "", "all": True }
+        ]
     }
 
-def quote_create(request, data: NewQuote) -> tuple | dict:
+def quote_create(request, data: NewQuote) -> APIResponse:
     # Called when a post is quoted.
 
     user = User.objects.get(token=request.COOKIES.get('token'))
@@ -172,7 +171,7 @@ def quote_create(request, data: NewQuote) -> tuple | dict:
         lang = get_lang(user)
         return 429, {
             "success": False,
-            "reason": "Ratelimited"
+            "message": lang["generic"]["ratelimit"]
         }
 
     try:
@@ -182,18 +181,16 @@ def quote_create(request, data: NewQuote) -> tuple | dict:
         lang = get_lang(user)
         return 400, {
             "success": False,
-            "reason": lang["post"]["invalid_quote_post"]
+            "message": lang["post"]["invalid_quote_post"]
         }
     except Comment.DoesNotExist:
         lang = get_lang(user)
         return 400, {
             "success": False,
-            "reason": lang["post"]["invalid_quote_comment"]
+            "message": lang["post"]["invalid_quote_comment"]
         }
 
-    post_owner = User.objects.get(user_id=quoted_post.creator)
-
-    can_view = can_view_post(user, post_owner, quoted_post)
+    can_view = can_view_post(user, quoted_post.creator, quoted_post)
 
     if can_view[0] is False and can_view[1] in ["private", "blocked"]:
         return 400, {
@@ -208,23 +205,22 @@ def quote_create(request, data: NewQuote) -> tuple | dict:
         lang = get_lang(user)
         return 400, {
             "success": False,
-            "reason": lang["post"]["invalid_length"].replace("%s", str(MAX_POST_LENGTH))
+            "message": lang["post"]["invalid_length"].replace("%s", str(MAX_POST_LENGTH))
         }
 
     create_api_ratelimit("api_post_create", API_TIMINGS["create post"], request.COOKIES.get("token"))
 
     timestamp = round(time.time())
     post = Post.objects.create(
-        content = content,
-        creator = user.user_id,
-        timestamp = timestamp,
-        content_warning = c_warning or None,
-        likes = [],
-        comments = [],
-        quotes = [],
-        private_post = data.private,
-        quote = data.quote_id,
-        quote_is_comment = data.quote_is_comment
+        content=content,
+        creator=user,
+        timestamp=timestamp,
+        content_warning=c_warning or None,
+        comments=[],
+        quotes=[],
+        private=data.private,
+        quote=data.quote_id,
+        quote_is_comment=data.quote_is_comment
     )
 
     post = Post.objects.get(
@@ -236,12 +232,9 @@ def quote_create(request, data: NewQuote) -> tuple | dict:
     quoted_post.quotes.append(post.post_id)
     quoted_post.save()
 
-    user.posts.append(post.post_id)
-    user.save()
-
     try:
-        quote_creator = User.objects.get(user_id=quoted_post.creator)
-        if quoted_post.creator != user.user_id and quote_creator.user_id not in user.blocking and user.user_id not in quote_creator.blocking:
+        quote_creator = quoted_post.creator
+        if quote_creator.user_id != user.user_id and not user.blocking.contains(quote_creator) and not quote_creator.blocking.contains(user):
             create_notification(
                 quote_creator,
                 "quote",
@@ -251,7 +244,7 @@ def quote_create(request, data: NewQuote) -> tuple | dict:
         for i in find_mentions(content, [user.username, quote_creator.username]):
             try:
                 notif_for = User.objects.get(username=i.lower())
-                if user.user_id not in notif_for.blocking and notif_for.user_id not in user.blocking:
+                if not notif_for.blocking.contains(user) and not user.blocking.contains(notif_for):
                     create_notification(notif_for, "ping_p", post.post_id)
 
             except User.DoesNotExist:
@@ -268,20 +261,21 @@ def quote_create(request, data: NewQuote) -> tuple | dict:
                 tag=i
             )
 
-        tag.posts.append(post.post_id)
-        tag.save()
+        tag.posts.add(post)
 
     if user.username in POST_WEBHOOKS:
         post_hook(request, user, post)
 
     return {
-        "post": get_post_json(post.post_id, user.user_id, cache={
-            user.user_id: user
-        }),
-        "success": True
+        "success": True,
+        "actions": [
+            { "name": "prepend_timeline", "post": get_post_json(post, user.user_id), "comment": False },
+            { "name": "update_element", "query": f".post-container[data-{'comment' if data.quote_is_comment else 'post'}-id='{data.quote_id}'] .post-after", "html": "" },
+            { "name": "update_element", "query": f".post-container[data-{'comment' if data.quote_is_comment else 'post'}-id='{data.quote_id}'] .quote-number", "inc": 1 }
+        ]
     }
 
-def hashtag_list(request, hashtag: str) -> tuple | dict:
+def hashtag_list(request, hashtag: str) -> APIResponse:
     # Returns a list of hashtags. `offset` is a filler variable.
 
     token = request.COOKIES.get("token")
@@ -289,46 +283,38 @@ def hashtag_list(request, hashtag: str) -> tuple | dict:
     try:
         user = User.objects.get(token=token)
         user_id = user.user_id
-        cache = { user_id: user }
     except User.DoesNotExist:
         user_id = 0
-        cache = {}
 
     try:
         tag = Hashtag.objects.get(tag=hashtag)
-        posts = tag.posts
-        p2 = [i for i in posts]
-        random.shuffle(posts)
     except Hashtag.DoesNotExist:
-        return 400, {
-            "success": False
+        return {
+            "success": True,
+            "actions": [
+                { "name": "populate_timeline", "end": True, "posts": [] }
+            ]
         }
 
-    removed = False
+    posts = tag.posts.all().order_by("?")
     post_list = []
-    for i in posts:
-        x = get_post_json(i, user_id, cache=cache)
+    for post in posts:
+        x = get_post_json(post, user_id)
 
-        if x["can_view"]:
+        if "can_view" in x and x["can_view"]:
             post_list.append(x)
 
             if len(post_list) >= POSTS_PER_REQUEST:
                 break
-        else:
-            p2.remove(i)
-            removed = True
-
-    if removed:
-        tag.posts = p2
-        tag.save()
 
     return {
         "success": True,
-        "end": True,
-        "posts": post_list
+        "actions": [
+            { "name": "populate_timeline", "end": True, "posts": post_list }
+        ]
     }
 
-def post_list_following(request, offset: int=-1) -> tuple | dict:
+def post_list_following(request, offset: int=-1) -> APIResponse:
     # Called when the following tab is refreshed.
 
     token = request.COOKIES.get('token')
@@ -341,18 +327,12 @@ def post_list_following(request, offset: int=-1) -> tuple | dict:
             "success": False
         }
 
-    potential = []
-    for i in user.following:
-        potential += User.objects.get(pk=i).posts
-    potential = sorted(potential, reverse=True)
+    potential = user.posts.all().filter(post_id__lt=offset)
+    for u in user.following.all():
+        potential = potential.union(u.posts.all().filter(post_id__lt=offset))
 
-    index = 0
-    for i in range(len(potential)):
-        if potential[i] < offset:
-            index = i
-            break
+    potential = potential.order_by("-post_id")
 
-    potential = potential[index::]
     offset = 0
     outputList = []
 
@@ -373,11 +353,12 @@ def post_list_following(request, offset: int=-1) -> tuple | dict:
 
     return {
         "success": True,
-        "posts": outputList,
-        "end": len(potential) - offset <= POSTS_PER_REQUEST
+        "actions": [
+            { "name": "populate_timeline", "posts": outputList, "end": len(potential) - offset <= POSTS_PER_REQUEST }
+        ]
     }
 
-def post_list_recent(request, offset: int=-1) -> tuple | dict:
+def post_list_recent(request, offset: int=-1) -> APIResponse:
     # Called when the recent posts tab is refreshed.
 
     token = request.COOKIES.get('token')
@@ -385,11 +366,12 @@ def post_list_recent(request, offset: int=-1) -> tuple | dict:
     if offset == -1:
         try:
             next_id = Post.objects.latest('post_id').post_id
-        except Post.DoesNotExist:
+        except Post.DoesNotExist: # No posts exist
             return {
                 "success": True,
-                "posts": [],
-                "end": True
+                "actions": [
+                    { "name": "populate_timeline", "posts": [], "end": True }
+                ]
             }
     else:
         next_id = offset - 1
@@ -400,7 +382,6 @@ def post_list_recent(request, offset: int=-1) -> tuple | dict:
     outputList = []
     offset = 0
     i = next_id
-    cache = {}
 
     while i > next_id - POSTS_PER_REQUEST - offset and i > 0:
         try:
@@ -410,21 +391,22 @@ def post_list_recent(request, offset: int=-1) -> tuple | dict:
             i -= 1
             continue
 
-        if not can_view_post(user, None, current_post, cache)[0]:
+        if not can_view_post(user, None, current_post)[0]:
             offset += 1
 
         else:
-            outputList.append(get_post_json(i, user.user_id, cache=cache))
+            outputList.append(get_post_json(i, user.user_id))
 
         i -= 1
 
     return {
         "success": True,
-        "posts": outputList,
-        "end": end
+        "actions": [
+            {  "name": "populate_timeline", "posts": outputList, "end": end }
+        ]
     }
 
-def post_list_user(request, username: str, offset: int=-1) -> tuple | dict:
+def post_list_user(request, username: str, offset: int=-1) -> APIResponse:
     # Called when getting posts from a specific user.
 
     try:
@@ -445,145 +427,105 @@ def post_list_user(request, username: str, offset: int=-1) -> tuple | dict:
     if not validate_username(username):
         return 404, {
             "success": False,
-            "reason" : lang["post"]["invalid_username"]
+            "message" : lang["post"]["invalid_username"]
         }
 
     offset = sys.maxsize if offset == -1 or not isinstance(offset, int) else offset
     user = User.objects.get(username=username)
 
-    if self_user_id in user.blocking:
+    if logged_in and user.blocking.contains(self_user):
         return 400, {
             "success": False,
-            "reason": lang["messages"]["blocked"]
+            "message": lang["messages"]["blocked"]
         }
 
-    potential = user.posts[::-1]
-
-    index = 0
-    for i in range(len(potential)):
-        if potential[i] < offset:
-            index = i
-            break
-
-    potential = potential[index::]
-    cache = {
-        user.user_id: user
-    }
-
-    if logged_in:
-        cache[self_user.user_id] = self_user
+    potential = user.posts.filter(post_id__lt=offset).order_by("-post_id")
 
     outputList = []
     c = 0
     for i in potential:
         c += 1
-        try:
-            x = get_post_json(i, self_user_id if logged_in else 0, cache=cache)
+        x = get_post_json(i, self_user_id if logged_in else 0)
 
-            if "private_acc" not in x or not x["private_acc"]:
-                outputList.append(x)
+        if "private_acc" not in x or not x["private_acc"]:
+            outputList.append(x)
 
-            if len(outputList) >= POSTS_PER_REQUEST:
-                break
+        if len(outputList) >= POSTS_PER_REQUEST:
+            break
 
-        except Post.DoesNotExist:
-            user.posts.remove(i)
-            user.save()
-
-
+    pinned_post = None
     if ENABLE_PINNED_POSTS:
-        try:
-            pinned_post = get_post_json(user.pinned, self_user_id if logged_in else 0, False, cache)
-        except Post.DoesNotExist:
-            pinned_post = {}
-    else:
-        pinned_post = {}
+        if user.pinned:
+            pinned_post = get_post_json(user.pinned, self_user_id if logged_in else 0, False)
 
     return {
         "success": True,
-        "posts": outputList,
-        "end": len(potential) <= c,
-        "can_view": True,
-        "following": len(user.following) - 1,
-        "followers": len(user.followers),
-        "bio": user.bio or "",
-        "self": False if not logged_in else self_user.username == username,
-        "pinned": pinned_post
+        "actions": [
+            {
+                "name": "populate_timeline",
+                "posts": outputList,
+                "end": len(potential) <= c,
+                "extra": {
+                    "type": "user",
+                    "pinned": pinned_post,
+                    "bio": user.bio or "",
+                    "following": user.following.count(),
+                    "followers": user.followers.count()
+                }
+            }
+        ]
     }
 
-def post_like_add(request, data: PostID) -> tuple | dict:
+def post_like_add(request, data: PostID) -> APIResponse:
     # Called when someone likes a post.
 
     token = request.COOKIES.get('token')
     id = data.id
 
-    try:
-        if id > Post.objects.latest('post_id').post_id:
-            return 404, {
-                "success": False
-            }
-
-    except ValueError:
-        return 404, {
-            "success": False
-        }
-
     user = User.objects.get(token=token)
     post = Post.objects.get(post_id=id)
-    post_owner = User.objects.get(user_id=post.creator)
 
-    can_view = can_view_post(user, post_owner, post)
-
+    can_view = can_view_post(user, post.creator, post)
     if can_view[0] is False and can_view[1] in ["private", "blocked"]:
         return 400, {
             "success": False
         }
 
-    if user.user_id not in post.likes:
-        user.likes.append([id, False])
-        post.likes.append(user.user_id)
-
-        user.save()
-        post.save()
+    try:
+        post.likes.add(user)
+    except IntegrityError:
+        ...
 
     return {
-        "success": True
+        "success": True,
+        "actions": [
+            { "name": "update_element", "query": f"div[data-post-id='{data.id}'] button.like", "attribute": [{ "name": "data-liked", "value": "true" }] },
+            { "name": "update_element", "query": f"div[data-post-id='{data.id}'] span.like-number", "inc": 1 }
+        ]
     }
 
-def post_like_remove(request, data: PostID) -> tuple | dict:
+def post_like_remove(request, data: PostID) -> APIResponse:
     # Called when someone unlikes a post.
 
     token = request.COOKIES.get('token')
-    id = data.id
 
     try:
-        if id > Post.objects.latest('post_id').post_id:
-            return 404, {
-                "success": False
-            }
-    except ValueError:
-        return 404, {
-            "success": False
-        }
-
-    user = User.objects.get(token=token)
-    post = Post.objects.get(post_id=id)
-
-    if user.user_id in post.likes:
-        try:
-            user.likes.remove([id, False])
-            user.save()
-        except ValueError:
-            pass
-
-        post.likes.remove(user.user_id)
-        post.save()
+        M2MLike.objects.get(
+            user=User.objects.get(token=token),
+            post=Post.objects.get(post_id=data.id)
+        ).delete()
+    except M2MLike.DoesNotExist:
+        ...
 
     return {
-        "success": True
+        "success": True,
+        "actions": [
+            { "name": "update_element", "query": f"div[data-post-id='{data.id}'] button.like", "attribute": [{ "name": "data-liked", "value": "false" }] },
+            { "name": "update_element", "query": f"div[data-post-id='{data.id}'] span.like-number", "inc": -1 }
+        ]
     }
 
-def post_delete(request, data: PostID) -> tuple | dict:
+def post_delete(request, data: PostID) -> APIResponse:
     # Called when someone deletes a post.
 
     token = request.COOKIES.get('token')
@@ -602,78 +544,48 @@ def post_delete(request, data: PostID) -> tuple | dict:
         }
 
     admin = user.user_id == OWNER_USER_ID or user.admin_level >= 1
-    creator = post.creator == user.user_id
+    creator = post.creator.user_id == user.user_id
 
     if admin and not creator:
-        log_admin_action("Delete post", user, User.objects.get(user_id=post.creator), f"Deleted post {id}")
+        log_admin_action("Delete post", user, post.creator, f"Deleted post {id}")
 
     if creator or admin:
-        creator = User.objects.get(user_id=post.creator)
-        creator.posts.remove(id)
-        creator.save()
-
-        for tag in find_hashtags(post.content):
-            try:
-                tag_object = Hashtag.objects.get(tag=tag)
-                tag_object.posts.remove(id)
-                tag_object.save()
-
-            except Hashtag.DoesNotExist:
-                pass
-            except ValueError:
-                pass
-
         if post.quote:
             try:
                 quoted_post = (Comment if post.quote_is_comment else Post).objects.get(pk=post.quote)
                 quoted_post.quotes.remove(id)
                 quoted_post.save()
 
+            except ValueError:
+                ...
             except Post.DoesNotExist:
-                pass
+                ...
             except Comment.DoesNotExist:
-                pass
+                ...
 
-        try:
-            for notif in Notification.objects.filter(
-                event_id=post.post_id,
-                event_type="ping_p"
-            ):
-                delete_notification(notif)
-
-        except Notification.DoesNotExist:
-            ...
-
-        try:
-            delete_notification(
-                Notification.objects.get(
-                    event_id=post.post_id,
-                    event_type="quote"
-                )
-            )
-
-        except Notification.DoesNotExist:
-            ...
+        for tag in post.hashtags.all():
+            if tag.posts.count() == 1:
+                tag.delete()
 
         post.delete()
 
         return {
-            "success": True
+            "success": True,
+            "actions": [
+                { "name": "remove_from_timeline", "post_id": data.id, "comment": False }
+            ]
         }
 
     return 400, {
         "success": False
     }
 
-def pin_post(request, data: PostID) -> tuple | dict:
+def pin_post(request, data: PostID) -> APIResponse:
     # Called when someone pins a post.
 
-    token = request.COOKIES.get('token')
-    id = data.id
-
     try:
-        post = Post.objects.get(post_id=id)
-        user = User.objects.get(token=token)
+        post = Post.objects.get(post_id=data.id)
+        user = User.objects.get(token=request.COOKIES.get("token"))
     except Post.DoesNotExist:
         return 404, {
             "success": False
@@ -683,19 +595,20 @@ def pin_post(request, data: PostID) -> tuple | dict:
             "success": False
         }
 
-    if post.creator == user.user_id:
-        user.pinned = post.post_id
-        user.save()
+    user.pinned = post
+    user.save()
 
-        return {
-            "success": True
-        }
+    lang = get_lang(user)
 
-    return 400, {
-        "success": False
+    return {
+        "success": True,
+        "message": lang["generic"]["success"],
+        "actions": [
+            { "name": "refresh_timeline", "url_includes": ["/u/"] }
+        ]
     }
 
-def unpin_post(request) -> tuple | dict:
+def unpin_post(request) -> APIResponse:
     # Called when someone unpins a post.
 
     token = request.COOKIES.get('token')
@@ -707,14 +620,17 @@ def unpin_post(request) -> tuple | dict:
             "success": False
         }
 
-    user.pinned = 0
+    user.pinned = None
     user.save()
 
     return {
-        "success": True
+        "success": True,
+        "actions": [
+            { "name": "refresh_timeline", "url_includes": ["/u/"] }
+        ]
     }
 
-def poll_vote(request, data: Poll):
+def poll_vote(request, data: Poll) -> APIResponse:
     post = Post.objects.get(post_id=data.id)
     poll = post.poll
 
@@ -725,36 +641,32 @@ def poll_vote(request, data: Poll):
             }
 
         user = User.objects.get(token=request.COOKIES.get('token'))
-        creator = User.objects.get(user_id=post.creator)
 
-        can_view = can_view_post(user, creator, post)
+        can_view = can_view_post(user, post.creator, post)
         if can_view[0] is False and can_view[1] in ["private", "blocked"]:
             return 400, {
                 "success": False
             }
 
-        user_id = user.user_id
+        if user.user_id not in poll["votes"]:
+            poll["votes"].append(user.user_id)
+            poll["content"][data.option - 1]["votes"].append(user.user_id)
 
-        if user_id in poll["votes"]:
-            return 400, {
-                "success": False
-            }
+            post.poll = poll
+            post.save()
 
-        poll["votes"].append(user_id)
-        poll["content"][data.option - 1]["votes"].append(user_id)
-
-        post.poll = poll
-        post.save()
-
-        return 200, {
-            "success": True
+        return {
+            "success": True,
+            "actions": [
+                { "name": "reset_post_html", "post_id": data.id, "comment": False, "post": get_post_json(post, user.user_id, False) }
+            ]
         }
 
     return 400, {
         "success": False
     }
 
-def post_edit(request, data: EditPost):
+def post_edit(request, data: EditPost) -> APIResponse:
     token = request.COOKIES.get('token')
 
     try:
@@ -769,7 +681,7 @@ def post_edit(request, data: EditPost):
             "success": False
         }
 
-    if post.creator == user.user_id:
+    if post.creator.user_id == user.user_id:
         content = trim_whitespace(data.content)
         c_warning = trim_whitespace(data.c_warning, True) if ENABLE_CONTENT_WARNINGS else ""
 
@@ -777,25 +689,38 @@ def post_edit(request, data: EditPost):
             lang = get_lang(user)
             return 400, {
                 "success": False,
-                "reason": lang["post"]["invalid_length"].replace("%s", str(MAX_POST_LENGTH))
+                "message": lang["post"]["invalid_length"].replace("%s", str(MAX_POST_LENGTH))
             }
 
         post.edited = True
         post.edited_at = round(time.time())
         post.content = content
         post.content_warning = c_warning
-        post.private_post = data.private
+        post.private = data.private
 
         post.save()
 
+        for tag in post.hashtags.all():
+            if tag.posts.count() == 1:
+                tag.delete()
+            else:
+                tag.posts.remove(post)
+
+        hashtags = find_hashtags(content)
+
+        for tag in hashtags:
+            try:
+                tag_obj = Hashtag.objects.get(tag=tag)
+            except Hashtag.DoesNotExist:
+                tag_obj = Hashtag.objects.create(tag=tag)
+
+            tag_obj.posts.add(post)
+
         return {
             "success": True,
-            "post": get_post_json(
-                data.id,
-                user.user_id,
-                False,
-                {user.user_id: user}
-            )
+            "actions": [
+                { "name": "reset_post_html", "post_id": data.id, "comment": False, "post": get_post_json(post, user.user_id, False) }
+            ]
         }
 
     return 400, {

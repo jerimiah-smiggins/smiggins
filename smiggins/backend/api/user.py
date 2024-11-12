@@ -1,25 +1,26 @@
 # For API functions that are user-specific, like settings, following, etc.
 
-from posts.models import Comment, Notification, Post, User
+from posts.models import Comment, Post, User
 
 from ..helper import (DEFAULT_LANG, create_api_ratelimit, ensure_ratelimit,
-                      generate_token, get_lang, get_post_json, trim_whitespace,
-                      validate_username)
-from ..variables import (API_TIMINGS, DEFAULT_BANNER_COLOR,
+                      generate_token, get_badges, get_lang, get_post_json,
+                      trim_whitespace, validate_username)
+from ..variables import (API_TIMINGS, DEFAULT_BANNER_COLOR, DEFAULT_LANGUAGE,
                          ENABLE_GRADIENT_BANNERS, ENABLE_PRONOUNS,
                          ENABLE_USER_BIOS, MAX_BIO_LENGTH,
                          MAX_DISPL_NAME_LENGTH, MAX_USERNAME_LENGTH,
                          POSTS_PER_REQUEST, THEMES, VALID_LANGUAGES)
-from .schema import Account, ChangePassword, Settings, Theme, Username
+from .schema import (Account, APIResponse, ChangePassword, Settings, Theme,
+                     Username)
 
 
-def signup(request, data: Account) -> tuple | dict:
+def signup(request, data: Account) -> APIResponse:
     # Called when someone requests to follow another account.
 
     if not ensure_ratelimit("api_account_signup", request.META.get("REMOTE_ADDR")):
         return 429, {
-            "valid": False,
-            "reason": DEFAULT_LANG["generic"]["ratelimit"]
+            "success": False,
+            "message": DEFAULT_LANG["generic"]["ratelimit"]
         }
 
     username = data.username.lower().replace(" ", "")
@@ -28,15 +29,15 @@ def signup(request, data: Account) -> tuple | dict:
     # e3b0c44... is the sha256 hash for an empty string
     if len(password) != 64 or password == "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855":
         return 400, {
-            "valid": False,
-            "reason": DEFAULT_LANG["account"]["bad_password"]
+            "success": False,
+            "message": DEFAULT_LANG["account"]["bad_password"]
         }
 
     for i in password:
         if i not in "abcdef0123456789":
             return 400, {
-                "valid": False,
-                "reason": DEFAULT_LANG["account"]["bad_password"]
+                "success": False,
+                "message": DEFAULT_LANG["account"]["bad_password"]
             }
 
     user_valid = validate_username(username, existing=False)
@@ -44,90 +45,79 @@ def signup(request, data: Account) -> tuple | dict:
         create_api_ratelimit("api_account_signup", API_TIMINGS["signup successful"], request.META.get('REMOTE_ADDR'))
 
         token = generate_token(username, password)
-        user = User(
+        User.objects.create(
             username=username,
             token=token,
-            display_name=username,
+            display_name=trim_whitespace(data.username, purge_newlines=True),
             theme="auto",
             color=DEFAULT_BANNER_COLOR,
             color_two=DEFAULT_BANNER_COLOR,
-            following=[],
-            followers=[],
-            posts=[],
+            language=DEFAULT_LANGUAGE
         )
-        user.save()
-
-        user = User.objects.get(username=username)
-
-        user.following = [user.user_id]
-        user.save()
 
         return {
-            "valid": True,
-            "token": token
+            "success": True,
+            "actions": [
+                { "name": "set_auth", "token": token },
+                { "name": "redirect", "to": "home" }
+            ]
         }
 
     create_api_ratelimit("api_account_signup", API_TIMINGS["signup unsuccessful"], request.META.get('REMOTE_ADDR'))
 
     if user_valid == -1:
         return {
-            "valid": False,
-            "reason": DEFAULT_LANG["account"]["username_taken"]
+            "success": False,
+            "message": DEFAULT_LANG["account"]["username_taken"]
         }
 
     elif user_valid == -2:
         return {
-            "valid": False,
-            "reason": DEFAULT_LANG["account"]["invalid_username_chars"]
+            "success": False,
+            "message": DEFAULT_LANG["account"]["invalid_username_chars"]
         }
 
     return {
-        "valid": False,
-        "reason": DEFAULT_LANG["account"]["invalid_username_length"].replace("%s", str(MAX_USERNAME_LENGTH))
+        "success": False,
+        "message": DEFAULT_LANG["account"]["invalid_username_length"].replace("%s", str(MAX_USERNAME_LENGTH))
     }
 
-def login(request, data: Account) -> tuple | dict:
+def login(request, data: Account) -> APIResponse:
     # Called when someone attempts to log in.
 
     if not ensure_ratelimit("api_account_login", request.META.get("REMOTE_ADDR")):
         return 429, {
-            "valid": False,
-            "reason": DEFAULT_LANG["generic"]["ratelimit"]
+            "success": False,
+            "message": DEFAULT_LANG["generic"]["ratelimit"]
         }
 
     username = data.username.lower()
     token = generate_token(username, data.password)
 
-    def blow_up_phone():
-        phone = "boom"
-        return phone
-
-    if username == "breaadyboy":
-        blow_up_phone()
-
     if validate_username(username) == 1:
         if token == User.objects.get(username=username).token:
             create_api_ratelimit("api_account_login", API_TIMINGS["login successful"], request.META.get('REMOTE_ADDR'))
             return {
-                "valid": True,
-                "token": token
+                "success": True,
+                "actions": [
+                    { "name": "set_auth", "token": token },
+                    { "name": "redirect", "to": "home" }
+                ]
             }
 
-        else:
-            create_api_ratelimit("api_account_login", API_TIMINGS["login unsuccessful"], request.META.get('REMOTE_ADDR'))
-            return 400, {
-                "valid": False,
-                "reason": DEFAULT_LANG["account"]["bad_password"]
-            }
-
-    else:
         create_api_ratelimit("api_account_login", API_TIMINGS["login unsuccessful"], request.META.get('REMOTE_ADDR'))
         return 400, {
-            "valid": False,
-            "reason": DEFAULT_LANG["account"]["username_does_not_exist"].replace("%s", data.username)
+            "success": False,
+            "message": DEFAULT_LANG["account"]["bad_password"]
         }
 
-def settings_theme(request, data: Theme) -> tuple | dict:
+    create_api_ratelimit("api_account_login", API_TIMINGS["login unsuccessful"], request.META.get('REMOTE_ADDR'))
+    return 400, {
+        "success": False,
+        "message": DEFAULT_LANG["account"]["username_does_not_exist"].replace("%s", data.username)
+    }
+
+def settings_theme(request, data: Theme) -> APIResponse:
     # Called when the user changes their theme.
 
     token = request.COOKIES.get('token')
@@ -140,7 +130,7 @@ def settings_theme(request, data: Theme) -> tuple | dict:
     if theme != "auto" and theme not in THEMES:
         return 400, {
             "success": False,
-            "reason": lang["settings"]["cosmetic_theme_invalid"],
+            "message": lang["settings"]["cosmetic_theme_invalid"],
         }
 
     user.theme = theme
@@ -148,14 +138,18 @@ def settings_theme(request, data: Theme) -> tuple | dict:
 
     return {
         "success": True,
-        "auto": theme == "auto",
-        "themeJSON": THEMES[theme] if theme in THEMES else None
+        "actions": [
+            { "name": "set_theme", "auto": theme == "auto", "theme": THEMES[theme] if theme in THEMES else None }
+        ]
     }
 
-def settings(request, data: Settings) -> tuple | dict:
+def settings(request, data: Settings) -> APIResponse:
     # Called when someone saves their settings
 
-    token = request.COOKIES.get('token')
+    user = User.objects.get(token=request.COOKIES.get('token'))
+    lang = get_lang(user)
+
+    reload = False
 
     color = data.color.lower()
     color_two = data.color_two.lower()
@@ -164,32 +158,32 @@ def settings(request, data: Settings) -> tuple | dict:
     pronouns = data.pronouns.lower()
     language = data.lang
 
-    user = User.objects.get(token=token)
-    lang = get_lang(user)
+    if language != user.language:
+        reload = True
 
     if ENABLE_PRONOUNS and (len(pronouns) != 2 or pronouns not in ["__", "_a", "_o", "_v", "aa", "af", "ai", "am", "an", "ao", "ax", "fa", "ff", "fi", "fm", "fn", "fo", "fx", "ma", "mf", "mi", "mm", "mn", "mo", "mx", "na", "nf", "ni", "nm", "nn", "no", "nx", "oa", "of", "oi", "om", "on", "oo", "ox"]):
         return 400, {
             "success": False,
-            "reason": lang["settings"]["profile_pronouns_invalid"].replace("%s", pronouns)
+            "message": lang["settings"]["profile_pronouns_invalid"].replace("%s", pronouns)
         }
 
     if (len(displ_name) > MAX_DISPL_NAME_LENGTH or len(displ_name) < 1) or (ENABLE_USER_BIOS and len(bio) > MAX_BIO_LENGTH):
         return 400, {
             "success": False,
-            "reason": lang["settings"]["profile_display_name_invalid_length"].replace("%s", str(MAX_DISPL_NAME_LENGTH))
+            "message": lang["settings"]["profile_display_name_invalid_length"].replace("%s", str(MAX_DISPL_NAME_LENGTH))
         }
 
     if color[0] != "#" or len(color) != 7 or (ENABLE_GRADIENT_BANNERS and (color_two[0] != "#" or len(color_two) != 7)):
         return 400, {
         "success": False,
-        "reason": lang["settings"]["profile_color_invalid"]
+        "message": lang["settings"]["profile_color_invalid"]
     }
 
     for i in color[1::]:
         if i not in "abcdef0123456789":
             return 400, {
                 "success": False,
-                "reason": lang["settings"]["profile_color_invalid"]
+                "message": lang["settings"]["profile_color_invalid"]
             }
 
     if ENABLE_GRADIENT_BANNERS:
@@ -197,13 +191,13 @@ def settings(request, data: Settings) -> tuple | dict:
             if i not in "abcdef0123456789":
                 return 400, {
                     "success": False,
-                    "reason": lang["settings"]["profile_color_invalid"]
+                    "message": lang["settings"]["profile_color_invalid"]
                 }
 
     if language not in [i["code"] for i in VALID_LANGUAGES]:
         return 400, {
             "success": False,
-            "reason": lang["settings"]["invalid_language"].replace("%s", language)
+            "message": lang["settings"]["invalid_language"].replace("%s", language)
         }
 
     user.color = color
@@ -216,14 +210,10 @@ def settings(request, data: Settings) -> tuple | dict:
 
     user.verify_followers = data.approve_followers
     if not data.approve_followers:
-        user.followers = user.followers + [i for i in user.pending_followers if i not in user.followers]
-
-        for user_id in user.pending_followers:
-            other_user = User.objects.get(user_id=user_id)
-            other_user.following.append(user.user_id)
-            other_user.save()
-
-        user.pending_followers = []
+        pending = user.pending_followers.all()
+        for f in pending:
+            f.following.add(user)
+            user.pending_followers.remove(f)
 
     user.default_post_private = data.default_post_visibility == "followers"
 
@@ -238,94 +228,100 @@ def settings(request, data: Settings) -> tuple | dict:
     user.save()
 
     return {
-        "success": True
+        "success": True,
+        "message": lang["generic"]["success"],
+        "actions": [
+            { "name": "reload" }
+        ] if reload else []
     }
 
-def follower_add(request, data: Username) -> tuple | dict:
+def follower_add(request, data: Username) -> APIResponse:
     # Called when someone requests to follow another account.
 
     token = request.COOKIES.get('token')
     username = data.username.lower()
     user = User.objects.get(token=token)
+    lang = get_lang(user)
 
-    if not validate_username(username):
-        lang = get_lang(user)
+    try:
+        followed = User.objects.get(username=username)
+    except User.DoesNotExist:
         return 400, {
             "success": False,
-            "reason": lang["account"]["username_does_not_exist"].replace("%s", data.username)
+            "message": lang["account"]["username_does_not_exist"].replace("%s", data.username)
         }
 
-    followed = User.objects.get(username=username)
-
-    if followed.user_id in user.blocking:
-        lang = get_lang(user)
+    if user.blocking.contains(followed):
         return 400, {
             "success": False,
-            "reason": lang["account"]["follow_blocking"]
+            "message": lang["account"]["follow_blocking"]
         }
 
-    if user.user_id in followed.blocking:
-        lang = get_lang(user)
+    if followed.blocking.contains(user):
         return 400, {
             "success": False,
-            "reason": lang["account"]["follow_blocked"]
+            "message": lang["account"]["follow_blocked"]
         }
 
-    if followed.user_id not in user.following and not followed.verify_followers:
-        user.following.append(followed.user_id)
-        user.save()
-
-    if user.user_id not in followed.followers + followed.pending_followers:
+    if not user.following.contains(followed):
         if followed.verify_followers:
-            followed.pending_followers.append(user.user_id)
+            followed.pending_followers.add(user)
         else:
-            followed.followers.append(user.user_id)
-
-        followed.save()
+            user.following.add(followed)
 
     return {
         "success": True,
-        "pending": followed.verify_followers
+        "actions": [
+            {
+                "name": "update_element",
+                "query": "#toggle",
+                "text": lang["user_page"]["pending" if followed.verify_followers else "unfollow"],
+                "attribute": [{ "name": "data-followed", "value": "1"}]
+            }
+        ]
     }
 
-def follower_remove(request, data: Username) -> tuple | dict:
+def follower_remove(request, data: Username) -> APIResponse:
     # Called when someone requests to unfollow another account.
 
-    token = request.COOKIES.get('token')
     username = data.username.lower()
-    user = User.objects.get(token=token)
+    user = User.objects.get(token=request.COOKIES.get("token"))
 
     if not validate_username(username):
         lang = get_lang(user)
         return 400, {
-            "valid": False,
-            "reason": lang["account"]["username_does_not_exist"].replace("%s", data.username)
+            "success": False,
+            "message": lang["account"]["username_does_not_exist"].replace("%s", data.username)
         }
 
     followed = User.objects.get(username=username)
     if user.user_id != followed.user_id:
-        if followed.user_id in user.following:
-            user.following.remove(followed.user_id)
-            user.save()
+        if user.following.contains(followed):
+            user.following.remove(followed)
 
-        if user.user_id in followed.followers:
-            followed.followers.remove(user.user_id)
-            followed.save()
-
-        elif user.user_id in followed.pending_followers:
-            followed.pending_followers.remove(user.user_id)
-            followed.save()
+        elif followed.pending_followers.contains(user):
+            followed.pending_followers.remove(user)
 
     else:
         return 400, {
             "success": False
         }
 
+    lang = get_lang(user)
+
     return {
-        "success": True
+        "success": True,
+        "actions": [
+            {
+                "name": "update_element",
+                "query": "#toggle",
+                "text": lang["user_page"]["follow"],
+                "attribute": [{ "name": "data-followed", "value": "0"}]
+            }
+        ]
     }
 
-def block_add(request, data: Username) -> tuple | dict:
+def block_add(request, data: Username) -> APIResponse:
     # Called when someone requests to block another account.
 
     token = request.COOKIES.get('token')
@@ -336,53 +332,48 @@ def block_add(request, data: Username) -> tuple | dict:
         lang = get_lang(user)
         return 400, {
             "success": False,
-            "reason": lang["account"]["username_does_not_exist"].replace("%s", data.username)
+            "message": lang["account"]["username_does_not_exist"].replace("%s", data.username)
         }
 
     if user.username == username:
         lang = get_lang(user)
         return 400, {
             "success": False,
-            "reason": lang["account"]["block_self"]
+            "message": lang["account"]["block_self"]
         }
 
     blocked = User.objects.get(username=username)
 
-    if blocked.user_id not in user.blocking:
-        save_blocked = False
+    if not user.blocking.contains(blocked):
+        if user.following.contains(blocked):
+            user.following.remove(blocked)
 
-        if blocked.user_id in user.following:
-            user.following.remove(blocked.user_id)
+        if user.pending_followers.contains(blocked):
+            user.pending_followers.remove(blocked)
 
-        if blocked.user_id in user.followers:
-            user.followers.remove(blocked.user_id)
+        if blocked.following.contains(user):
+            blocked.following.remove(user)
 
-        elif blocked.user_id in user.pending_followers:
-            user.pending_followers.remove(blocked.user_id)
+        if blocked.pending_followers.contains(user):
+            blocked.pending_followers.remove(user)
 
-        if user.user_id in blocked.following:
-            blocked.following.remove(user.user_id)
-            save_blocked = True
+        user.blocking.add(blocked)
 
-        if user.user_id in blocked.followers:
-            blocked.followers.remove(user.user_id)
-            save_blocked = True
-
-        elif user.user_id in blocked.pending_followers:
-            blocked.pending_followers.remove(user.user_id)
-            save_blocked = True
-
-        if save_blocked:
-            blocked.save()
-
-        user.blocking.append(blocked.user_id)
-        user.save()
+    lang = get_lang(user)
 
     return {
-        "success": True
+        "success": True,
+        "actions": [
+            {
+                "name": "update_element",
+                "query": "#block",
+                "text": lang["user_page"]["unblock"],
+                "attribute": [{ "name": "data-blocked", "value": "1"}]
+            }
+        ]
     }
 
-def block_remove(request, data: Username) -> tuple | dict:
+def block_remove(request, data: Username) -> APIResponse:
     # Called when someone requests to unblock another account.
 
     token = request.COOKIES.get('token')
@@ -393,32 +384,40 @@ def block_remove(request, data: Username) -> tuple | dict:
         lang = get_lang(user)
         return 400, {
             "success": False,
-            "reason": lang["account"]["username_does_not_exist"].replace("%s", data.username)
+            "message": lang["account"]["username_does_not_exist"].replace("%s", data.username)
         }
 
     if user.username == username:
         lang = get_lang(user)
         return 400, {
             "success": False,
-            "reason": lang["account"]["block_self"]
+            "message": lang["account"]["block_self"]
         }
 
     blocked = User.objects.get(username=username)
-    if user.user_id != blocked.user_id:
-        if blocked.user_id in user.blocking:
-            user.blocking.remove(blocked.user_id)
-            user.save()
+    if user.blocking.contains(blocked):
+        user.blocking.remove(blocked)
 
     else:
         return 400, {
             "success": False
         }
 
+    lang = get_lang(user)
+
     return {
-        "success": True
+        "success": True,
+        "actions": [
+            {
+                "name": "update_element",
+                "query": "#block",
+                "text": lang["user_page"]["block"],
+                "attribute": [{ "name": "data-blocked", "value": "0"}]
+            }
+        ]
     }
 
-def change_password(request, data: ChangePassword) -> tuple | dict:
+def change_password(request, data: ChangePassword) -> APIResponse:
     try:
         user = User.objects.get(token=request.COOKIES.get("token"))
     except User.DoesNotExist:
@@ -437,18 +436,18 @@ def change_password(request, data: ChangePassword) -> tuple | dict:
                 "success": False
             }
 
+    lang = get_lang(user)
+
     if data.password == "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855":
-        lang = get_lang(user)
         return 400, {
             "success": False,
-            "reason": lang["account"]["password_empty"]
+            "message": lang["account"]["password_empty"]
         }
 
     if generate_token(user.username, data.password) != request.COOKIES.get("token"):
-        lang = get_lang(user)
         return 400, {
             "success": False,
-            "reason": lang["account"]["password_match_failure"]
+            "message": lang["account"]["password_match_failure"]
         }
 
     new_token = generate_token(user.username, data.new_password)
@@ -458,10 +457,13 @@ def change_password(request, data: ChangePassword) -> tuple | dict:
 
     return {
         "success": True,
-        "token": new_token
+        "message": lang["settings"]["account_password_success"],
+        "actions": [
+            { "name": "set_auth", "token": new_token }
+        ]
     }
 
-def read_notifs(request) -> tuple | dict:
+def read_notifs(request) -> APIResponse:
     try:
         token = request.COOKIES.get('token')
         self_user = User.objects.get(token=token)
@@ -477,23 +479,18 @@ def read_notifs(request) -> tuple | dict:
     self_user.read_notifs = True
     self_user.save()
 
-    for i in self_user.notifications[::-1]:
-        try:
-            notification = Notification.objects.get(pk=i)
-        except Notification.DoesNotExist:
-            continue
-
-        if notification.read:
-            break
-
-        notification.read = True
-        notification.save()
+    for notif in self_user.notifications.filter(read=False):
+        notif.read = True
+        notif.save()
 
     return {
-        "success": True
+        "success": True,
+        "actions": [
+            { "name": "refresh_timeline", "special": "notifications" }
+        ]
     }
 
-def notifications_list(request) -> tuple | dict:
+def notifications_list(request) -> APIResponse:
     try:
         token = request.COOKIES.get('token')
         self_user = User.objects.get(token=token)
@@ -506,41 +503,34 @@ def notifications_list(request) -> tuple | dict:
             "success": False
         }
 
-    cache = {
-        self_user.user_id: self_user
-    }
-
     notifs_list = []
     self_id = self_user.user_id
 
-    for i in self_user.notifications[::-1]:
+    all_notifs = self_user.notifications.all().order_by("-notif_id")
+    for notification in all_notifs:
         try:
-            notification = Notification.objects.get(pk=i)
-        except Notification.DoesNotExist:
-            continue
-
-        try:
-            x = get_post_json(notification.event_id, self_id, notification.event_type in ["comment", "ping_c"], cache)
+            x = get_post_json(notification.event_id, self_id, notification.event_type in ["comment", "ping_c"])
 
             if "content" in x:
                 notifs_list.append({
                     "event_type": notification.event_type,
                     "read": notification.read,
-                    "timestamp": notification.timestamp,
                     "data": x
                 })
 
         except Post.DoesNotExist:
-            continue
+            notification.delete()
         except Comment.DoesNotExist:
-            continue
+            notification.delete()
 
     return {
         "success": True,
-        "notifications": notifs_list
+        "actions": [
+            { "name": "notification_list", "notifications": notifs_list }
+        ]
     }
 
-def list_pending(request, offset: int=-1) -> dict:
+def list_pending(request, offset: int=-1) -> APIResponse:
     user = User.objects.get(token=request.COOKIES.get("token"))
 
     if offset == -1:
@@ -549,42 +539,35 @@ def list_pending(request, offset: int=-1) -> dict:
     if not user.verify_followers:
         return {
             "success": True,
-            "end": True,
-            "pending": []
+            "actions": [
+                { "name": "user_timeline", "users": [], "more": False, "special": "pending" }
+            ]
         }
 
-    pending = user.pending_followers[offset * POSTS_PER_REQUEST ::]
-    count = 0
     pending_json = []
 
-    for user_id in pending:
-        count += 1
-        try:
-            other_user = User.objects.get(user_id=user_id)
-        except User.DoesNotExist:
-            user.pending_followers.remove(user_id)
-            continue
-
+    for other_user in user.pending_followers.all()[POSTS_PER_REQUEST * offset::]:
         pending_json.append({
             "username": other_user.username,
             "display_name": other_user.display_name,
-            "badges": other_user.badges,
+            "badges": get_badges(other_user),
             "color_one": other_user.color,
             "color_two": other_user.color_two,
             "gradient_banner": other_user.gradient,
             "bio": other_user.bio
         })
 
-    if count != POSTS_PER_REQUEST:
-        user.save()
+        if len(pending_json) >= POSTS_PER_REQUEST:
+            break
 
     return {
         "success": True,
-        "more": len(user.pending_followers) - (offset + 1) * POSTS_PER_REQUEST > 0,
-        "pending": pending_json
+        "actions": [
+            { "name": "user_timeline", "users": pending_json, "more": user.pending_followers.count() > POSTS_PER_REQUEST * (offset + 1), "special": "pending" }
+        ]
     }
 
-def accept_pending(request, data: Username) -> tuple | dict:
+def accept_pending(request, data: Username) -> APIResponse:
     self_user = User.objects.get(token=request.COOKIES.get("token"))
     user = User.objects.get(username=data.username)
 
@@ -593,19 +576,18 @@ def accept_pending(request, data: Username) -> tuple | dict:
             "success": False
         }
 
-    if user.user_id in self_user.pending_followers:
-        self_user.pending_followers.remove(user.user_id)
-        self_user.followers.append(user.user_id)
-        user.following.append(self_user.user_id)
-
-        self_user.save()
-        user.save()
+    if self_user.pending_followers.contains(user):
+        self_user.pending_followers.remove(user)
+        user.following.add(self_user)
 
     return {
-        "success": True
+        "success": True,
+        "actions": [
+            { "name": "refresh_timeline", "special": "pending" }
+        ]
     }
 
-def remove_pending(request, data: Username) -> tuple | dict:
+def remove_pending(request, data: Username) -> APIResponse:
     self_user = User.objects.get(token=request.COOKIES.get("token"))
     user = User.objects.get(username=data.username)
 
@@ -614,10 +596,12 @@ def remove_pending(request, data: Username) -> tuple | dict:
             "success": False
         }
 
-    if user.user_id in self_user.pending_followers:
-        self_user.pending_followers.remove(user.user_id)
-        self_user.save()
+    if self_user.pending_followers.contains(user):
+        self_user.pending_followers.remove(user)
 
     return {
-        "success": True
+        "success": True,
+        "actions": [
+            { "name": "refresh_timeline", "special": "pending" }
+        ]
     }

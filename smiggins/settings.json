@@ -69,10 +69,12 @@
   ** - "@{accent}" is replaced with the accent color
   ** - "@{background}" is replaced with the background color ([theme].background)
   ** - "@{background_alt}" is replaced with an alternate background color ([theme].button_background])
+  ** You can also set enable_dynamic_favicon to false in order to always use the favicon at /static/img/old_favicon.ico
   ** NOTE: Favicon data may be cached if you change this on a production server.
   && Aliases: favicon, favicon_data, favicon_svg
   */
   "favicon_data": null,
+  "enable_dynamic_favicon": true,
 
   /*
   ** This toggles allowing emails. In order for this to work, you need to set up
@@ -123,7 +125,7 @@
   ** used to store them, however in the long run it will take a bit less CPU
   ** usage and disk usage. If you are testing/creating a language, set this to
   ** false to make the language refresh automatically. If set to `null`, then it
-  ** will be the opposite of debug.
+  ** will be the opposite of debug (debug=true, cache=false).
   && Aliases: cache_langs, cache_languages
   ## Default: null
   */

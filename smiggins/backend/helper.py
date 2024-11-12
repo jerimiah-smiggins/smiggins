@@ -119,6 +119,7 @@ def get_HTTP_response(
         "DEFAULT_PRIVATE": str(default_post_visibility).lower(),
         "DEFAULT_LIGHT_THEME": json_f.dumps(THEMES[DEFAULT_LIGHT_THEME]),
         "DEFAULT_DARK_THEME": json_f.dumps(THEMES[DEFAULT_DARK_THEME]),
+        "username": user.username if user else None,
         "lang": lang,
         "lang_str": json_f.dumps(lang),
         "theme_str": "{}" if theme == "auto" or theme not in THEMES else json_f.dumps(THEMES[theme]),
@@ -230,72 +231,50 @@ def ensure_ratelimit(api_id: str, identifier: str | None) -> bool:
 def get_badges(user: User) -> list[str]:
     # Returns the list of badges for the specified user
 
-    return user.badges + (["administrator"] if user.admin_level != 0 or user.user_id == OWNER_USER_ID else []) if ENABLE_BADGES else []
+    return list(user.badges.all().values_list("name", flat=True)) + (["administrator"] if user.admin_level != 0 or user.user_id == OWNER_USER_ID else []) if ENABLE_BADGES else []
 
-def can_view_post(self_user: User | None, creator: User | None, post: Post | Comment, cache: dict[int, User] | None=None) -> tuple[Literal[True]] | tuple[Literal[False], Literal["blocked", "private", "blocking"]]:
-    if cache is None:
-        cache = {}
-
+def can_view_post(self_user: User | None, creator: User | None, post: Post | Comment) -> tuple[Literal[True]] | tuple[Literal[False], Literal["blocked", "private", "blocking"]]:
     if self_user is None:
         return True,
 
-    creator_uid = post.creator
+    creator = post.creator
 
-    if creator_uid == self_user.user_id:
+    if creator.user_id == self_user.user_id:
         return True,
 
-    if creator is None:
-        if creator_uid in cache:
-            creator = cache[creator_uid]
-        else:
-            creator = User.objects.get(user_id=creator_uid)
-            cache[creator_uid] = creator
-
-    if self_user.user_id == creator.user_id:
-        return True,
-
-    if self_user.user_id in creator.blocking:
+    if creator.blocking.contains(self_user):
         return False, "blocked"
 
-    if (post.private_comment if isinstance(post, Comment) else post.private_post) and self_user.user_id not in creator.followers:
+    if post.private and not creator.followers.contains(self_user):
         return False, "private"
 
-    if creator_uid in self_user.blocking:
+    if self_user.blocking.contains(creator):
         return False, "blocking"
 
     return True,
 
-def get_post_json(post_id: int, current_user_id: int=0, comment: bool=False, cache: dict[int, User] | None=None) -> dict[str, str | int | dict]:
+def get_post_json(post_id: int | Post | Comment, current_user_id: int=0, comment: bool=False) -> dict[str, str | int | dict]:
     # Returns a dict object that includes information about the specified post
     # When editing the json content response of this function, make sure you also
     # correct the schema in static/ts/globals.d.ts
 
-    if cache is None:
-        cache = {}
-
     if comment:
-        post = Comment.objects.get(comment_id=post_id)
+        post = Comment.objects.get(comment_id=post_id) if isinstance(post_id, int) else post_id
     else:
-        post = Post.objects.get(post_id=post_id)
+        post = Post.objects.get(post_id=post_id) if isinstance(post_id, int) else post_id
 
-    if post.creator in cache:
-        creator = cache[post.creator]
-    else:
-        creator = User.objects.get(user_id=post.creator)
-        cache[post.creator] = creator
+    post_id = post.post_id if isinstance(post, Post) else post.comment_id
+
+    creator = post.creator
 
     try:
-        if current_user_id in cache:
-            user = cache[current_user_id]
-        else:
-            user = User.objects.get(user_id=current_user_id)
-            cache[current_user_id] = user
+        user = User.objects.get(user_id=current_user_id)
     except User.DoesNotExist:
         user = None
 
     can_delete_all = current_user_id != 0 and (current_user_id == OWNER_USER_ID or User.objects.get(pk=current_user_id).admin_level >= 1)
 
-    can_view = can_view_post(user, creator, post,  cache)
+    can_view = can_view_post(user, creator, post)
 
     if can_view[0] is False:
         if can_view[1] == "private":
@@ -338,17 +317,17 @@ def get_post_json(post_id: int, current_user_id: int=0, comment: bool=False, cac
             "color_two": creator.color_two,
             "gradient_banner": creator.gradient
         },
-        "private": (post.private_post if isinstance(post, Post) else post.private_comment),
+        "private": post.private,
         "post_id": post_id,
         "content": post.content,
         "timestamp": post.timestamp,
-        "liked": current_user_id in (post.likes),
-        "likes": len(post.likes),
+        "liked": post.likes.filter(user_id=user.user_id).exists() if user else False,
+        "likes": post.likes.count(),
         "comments": len(post.comments),
         "quotes": len(post.quotes),
         "c_warning": post.content_warning,
         "can_delete": can_delete_all or creator.user_id == current_user_id,
-        "can_pin": not comment and creator.user_id == current_user_id,
+        "can_pin": ENABLE_PINNED_POSTS and user is not None,
         "can_edit": creator.user_id == current_user_id and ENABLE_EDITING_POSTS,
         "can_view": True,
         "parent": post.parent if isinstance(post, Comment) else -1,
@@ -366,13 +345,8 @@ def get_post_json(post_id: int, current_user_id: int=0, comment: bool=False, cac
             else:
                 quote = Post.objects.get(post_id=post.quote)
 
-            if quote.creator in cache:
-                quote_creator = cache[quote.creator]
-            else:
-                quote_creator = User.objects.get(user_id=quote.creator)
-                cache[quote.creator] = quote_creator
-
-            can_view_quote = can_view_post(user, quote_creator, quote, cache)
+            quote_creator = quote.creator
+            can_view_quote = can_view_post(user, quote_creator, quote)
 
             if can_view_quote[0] is False:
                 if can_view_quote[1] == "blocking":
@@ -408,14 +382,14 @@ def get_post_json(post_id: int, current_user_id: int=0, comment: bool=False, cac
                         "color_two": quote_creator.color_two,
                         "gradient_banner": quote_creator.gradient
                     },
-                    "private": (quote.private_post if isinstance(quote, Post) else quote.private_comment),
+                    "private": quote.private,
                     "deleted": False,
                     "comment": post.quote_is_comment,
                     "post_id": quote.post_id if isinstance(quote, Post) else quote.comment_id,
                     "content": quote.content,
                     "timestamp": quote.timestamp,
-                    "liked": current_user_id in (quote.likes),
-                    "likes": len(quote.likes),
+                    "liked": quote.likes.filter(user_id=user.user_id).exists() if user else False,
+                    "likes": quote.likes.count(),
                     "comments": len(quote.comments),
                     "quotes": len(quote.quotes),
                     "c_warning": quote.content_warning,
@@ -481,19 +455,15 @@ def find_hashtags(message: str) -> list[str]:
 def delete_notification(
     notif: Notification
 ) -> None:
+    user = notif.is_for
+
     try:
-        user = notif.is_for
-        user.notifications.remove(notif.notif_id)
+        last = user.notifications.last()
+        if last and last.read:
+            user.read_notifs = True
+            user.save()
 
-        try:
-            if Notification.objects.get(notif_id=user.notifications[-1]).read:
-                user.read_notifs = True
-        except IndexError:
-            ...
-
-        user.save()
-
-    except ValueError:
+    except IndexError:
         ...
 
     notif.delete()
@@ -507,27 +477,20 @@ def create_notification(
 
     timestamp = round(time.time())
 
-    x = Notification.objects.create(
-        is_for = is_for,
-        event_type = event_type,
-        event_id = event_id,
-        timestamp = timestamp
-    )
-
-    x = Notification.objects.get(
-        is_for = is_for,
-        event_type = event_type,
-        event_id = event_id,
-        timestamp = timestamp
+    Notification.objects.create(
+        is_for=is_for,
+        event_type=event_type,
+        event_id=event_id,
+        timestamp=timestamp
     )
 
     is_for.read_notifs = False
-    is_for.notifications.append(x.notif_id)
 
-    if len(is_for.notifications) >= MAX_NOTIFICATIONS:
-        for i in is_for.notifications[:-MAX_NOTIFICATIONS:]:
-            is_for.notifications.remove(i)
-            Notification.objects.get(notif_id=i).delete()
+    c = is_for.notifications.count() - MAX_NOTIFICATIONS
+    for i in range(max(c, 0)):
+        f = is_for.notifications.first()
+        if f:
+            f.delete()
 
     is_for.save()
 
@@ -552,7 +515,7 @@ def get_lang(lang: User | str | None=None, override_cache=False) -> dict[str, di
         lang = DEFAULT_LANGUAGE
 
     if not override_cache and CACHE_LANGUAGES:
-        return LANGS[lang]
+        return LANGS[lang] if lang in LANGS else LANGS[DEFAULT_LANGUAGE]
 
     parsed = []
 

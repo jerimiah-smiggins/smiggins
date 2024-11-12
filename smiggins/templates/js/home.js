@@ -22,47 +22,19 @@ dom("switch").innerText = page == "recent" ? lang.home.switch_following : lang.h
 dom("post-text").addEventListener("input", postTextInputEvent);
 dom("post").addEventListener("click", function () {
     if (dom("post-text").value || getPollText().length) {
-        this.setAttribute("disabled", "");
-        dom("post-text").setAttribute("disabled", "");
-        ENABLE_CONTENT_WARNINGS && dom("c-warning").setAttribute("disabled", "");
-        fetch("/api/post/create", {
+        s_fetch("/api/post/create", {
             method: "PUT",
             body: JSON.stringify({
                 c_warning: ENABLE_CONTENT_WARNINGS ? dom("c-warning").value : "",
                 content: dom("post-text").value,
                 poll: getPollText(),
                 private: dom("default-private").checked
-            })
-        })
-            .then((response) => {
-            dom("post").removeAttribute("disabled");
-            dom("post-text").removeAttribute("disabled");
-            ENABLE_CONTENT_WARNINGS && dom("c-warning").removeAttribute("disabled");
-            if (response.status == 429) {
-                showlog(lang.generic.ratelimit_verbose);
-            }
-            else {
-                response.json().then((json) => {
-                    if (json.success) {
-                        dom("post-text").value = "";
-                        dom("c-warning").value = "";
-                        forEach(document.querySelectorAll("#poll input"), function (val, index) {
-                            val.value = "";
-                        });
-                        refresh();
-                    }
-                    else {
-                        showlog(lang.generic.something_went_wrong);
-                    }
-                });
-            }
-        })
-            .catch((err) => {
-            dom("post").removeAttribute("disabled");
-            dom("post-text").removeAttribute("disabled");
-            ENABLE_CONTENT_WARNINGS && dom("c-warning").removeAttribute("disabled");
-            showlog(lang.generic.something_went_wrong);
-            throw (err);
+            }),
+            disable: [
+                this,
+                dom("post-text"),
+                ENABLE_CONTENT_WARNINGS && dom("c-warning")
+            ]
         });
     }
 });

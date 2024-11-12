@@ -108,19 +108,6 @@ button {
   cursor: text;
 }
 
-.fake-hidden {
-  display: block;
-  user-select: none;
-  pointer-events: none;
-  opacity: 0;
-  height: 0;
-  width: 0;
-  position: absolute;
-  top: 0;
-  left: 0;
-  text-wrap: nowrap;
-}
-
 .fake-input,
 input:not([type="checkbox"]),
 textarea,
@@ -244,12 +231,12 @@ p {
 }
 
 table {
-  .center {
+  &.center {
     margin-left: auto;
     margin-right: auto;
   }
 
-  .bordered {
+  &.bordered {
     border-collapse: collapse;
 
     th, td {

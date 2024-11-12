@@ -6,7 +6,6 @@ from typing import Any, Literal
 
 import json5 as json
 from django.db.utils import OperationalError
-from ensure_file import ensure_file
 from posts.models import Badge
 
 from ._api_keys import auth_key
@@ -26,13 +25,12 @@ CREDITS: dict[str, list[str]] = {
 }
 
 # Set default variable states
-REAL_VERSION: tuple[int, int, int] = (0, 13, 3)
+REAL_VERSION: tuple[int, int, int] = (0, 13, 4)
 VERSION: str = ".".join([str(i) for i in REAL_VERSION])
 SITE_NAME: str = "Jerimiah Smiggins"
 WEBSITE_URL: str | None = None
 DEBUG: bool = True
 OWNER_USER_ID: int = 1
-ADMIN_LOG_PATH: str = "./admin.log"
 MAX_ADMIN_LOG_LINES: int = 1000
 DEFAULT_LANGUAGE: str = "en-US"
 DEFAULT_DARK_THEME: str = "dark"
@@ -86,13 +84,14 @@ FAVICON_CACHE_TIMEOUT: int | None = 7200
 SITEMAP_CACHE_TIMEOUT: int | None = 86400
 GENERIC_CACHE_TIMEOUT: int | None = 604800
 API_TIMINGS: dict[str, int] = {}
-FAVICON_DATA = """<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512">
+FAVICON_DATA: str = """<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512">
   <path fill="@{background}" d="M0 73.1C0 32.8 32.8 0 73.1 0h365.7c40.3 0 73.1 32.8 73.1 73.1v365.7c0 40.3-32.8 73.1-73.1 73.1H73.1C32.8 511.9 0 479.1 0 438.8z"/>
   <path fill="@{background_alt}" d="m388.9 159.2 53.2-.6v235.6c0 42.9-34.8 77.8-77.8 77.8H247.6c-14.3 0-25.9-11.6-25.9-25.9s11.6-25.9 25.9-25.9H293L182.8 332v114.1c0 14.3-11.6 25.9-25.9 25.9S131 460.4 131 446.1V261.4c8.5 2.2 17.2 3.2 25.9 3.2 38.4 0 72-20.8 89.9-51.9h13.9c54.1 0 101.8 27.6 129.6 69.5v-69.1l-1.3-53.9zm-258 75c-17.7-6.2-32.5-18.7-41.6-34.8-6.5-11.3-10.2-24.6-10.2-38.6v-95c0-4.8 3.8-8.6 8.6-8.7h.2c2.7 0 5.2 1.3 6.8 3.4l10.4 13.9 22 29.4 3.9 5.2h51.9l3.9-5.2 22-29.4 10.4-13.8c1.6-2.2 4.1-3.5 6.8-3.5h.2c4.8 0 8.6 3.9 8.6 8.7v95c0 14.6-4.1 28.8-11.7 41.2-2.3 3.8-5 7.4-8 10.7-14.3 15.9-35 27.1-58 25.9s-18.1-1.5-26.2-4.4m51.9-60.4c7.2 0 13-5.8 13-13s-5.8-13-13-13-13 5.8-13 13 5.8 13 13 13m-38.9-13c0-7.2-5.8-13-13-13s-13 5.8-13 13 5.8 13 13 13 13-5.8 13-13"/>
   <path fill="@{background_alt}" d="m389.2 169.1-.4-10.6v-.7c1.4-34.2-27.2-54.5-44.9-53.1h-1.8c-9.8.4-17.6 4.7-22.7 10.8-1.3 1.7-2.6 3.4-3.6 5.3 4.8-3 10.3-4.5 16.3-3.9 24.8 2.1 31.3 25.5 30.6 37.4-.8 14.8-10 28.6-25.5 35.4-16.9 8.4-36 3.6-48.6-4.5-14.3-9.1-25.6-24.7-28.3-45.3-3.7-21.5 4.7-43.2 17.9-59.2 14-16.3 35.5-28.9 61.5-29.7 52.4-3.9 104.2 45.4 102.5 107.6"/>
   <path fill="@{accent}" d="m379.7 148.5 53.2-.6v235.6c0 42.9-34.8 77.8-77.8 77.8H238.4c-14.3 0-25.9-11.6-25.9-25.9s11.6-25.9 25.9-25.9h45.4l-110.2-88.2v114.1c0 14.3-11.6 25.9-25.9 25.9s-25.9-11.6-25.9-25.9V250.7c8.5 2.2 17.2 3.2 25.9 3.2 38.4 0 72-20.8 89.9-51.9h13.9c53.1 0 101.8 27.6 129.6 69.5v-69.1l-1.3-53.9zm-257.9 75c-17.7-6.2-32.5-18.7-41.6-34.8-6.5-11.3-10.2-24.6-10.2-38.6v-95c0-4.8 3.8-8.6 8.6-8.7h.2c2.7 0 5.2 1.3 6.8 3.4L96 63.7l22 29.4 3.9 5.2h51.9l3.9-5.2 22-29.4 10.4-13.8c1.6-2.2 4.1-3.5 6.8-3.5h.2c4.8 0 8.6 3.9 8.6 8.7v95c0 14.6-4.1 28.8-11.7 41.2-2.3 3.8-5 7.4-8 10.7-14.3 15.9-35 25.9-53 25.9s-23.1-1.5-31.2-4.4m56.8-60.4c7.2 0 13-5.8 13-13s-5.8-13-13-13-13 5.8-13 13 5.8 13 13 13m-38.9-13c0-7.2-5.8-13-13-13s-13 5.8-13 13 5.8 13 13 13 13-5.8 13-13"/>
   <path fill="@{accent}" d="M379.8 149v-1.9c1.3-34.2-27.4-54.5-45.1-53.1h-1.8c-9.8.4-17.6 4.7-22.7 10.8-1.3 1.7-2.6 3.4-3.6 5.3 4.8-3 10.3-4.5 16.3-3.9 24.8 2.1 31.3 25.5 30.6 37.4-.8 14.8-10 28.6-25.5 35.4-16.9 8.4-36 3.6-48.6-4.5-14.3-9.1-25.6-24.7-28.3-45.3-3.7-21.5 4.7-43.2 17.9-59.2 14-16.3 35.5-28.9 61.5-29.7 52.4-3.9 104.2 45.9 102.5 108.1"/>
 </svg>"""
+ENABLE_DYNAMIC_FAVICON: bool = True
 
 THEMES = {
   "warm": {
@@ -419,7 +418,6 @@ _VARIABLES: list[tuple[str | None, list[str], type | str | list | tuple | dict, 
     ("WEBSITE_URL", ["website_url"], str, False),
     ("OWNER_USER_ID", ["owner_user_id"], int, False),
     ("DEBUG", ["debug"], bool, False),
-    ("ADMIN_LOG_PATH", ["admin_log_path"], str, True),
     ("MAX_ADMIN_LOG_LINES", ["max_admin_log_lines"], int, False),
     ("DEFAULT_LANGUAGE", ["default_lang", "default_language"], str, False),
     ("DEFAULT_DARK_THEME", ["default_dark_theme"], "theme", False),
@@ -469,7 +467,8 @@ _VARIABLES: list[tuple[str | None, list[str], type | str | list | tuple | dict, 
     ("SITEMAP_CACHE_TIMEOUT", ["sitemap_cache_timeout"], int, True),
     ("GENERIC_CACHE_TIMEOUT", ["generic_cache_timeout"], int, True),
     (None, ["custom_themes"], "theme-object", False),
-    ("FAVICON_DATA", ["favicon", "favicon_data", "favicon_svg"], str, False)
+    ("FAVICON_DATA", ["favicon", "favicon_data", "favicon_svg"], str, False),
+    ("ENABLE_DYNAMIC_FAVICON", ["dynamic_favicon", "enable_dynamic_favicon"], bool, False)
 ]
 
 f = {}
@@ -811,9 +810,3 @@ except Badge.DoesNotExist:
 
 except OperationalError:
     print("\x1b[91mYou need to migrate your database! Do this by running 'manage.py migrate'. If you are already doing that, ignore this message.\x1b[0m")
-
-if ADMIN_LOG_PATH is not None:
-    if ADMIN_LOG_PATH[:2:] == "./":
-        ADMIN_LOG_PATH = str(pathlib.Path(__file__).parent.absolute()) + "/../" + ADMIN_LOG_PATH[2::]
-
-    ensure_file(ADMIN_LOG_PATH)

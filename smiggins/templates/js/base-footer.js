@@ -75,31 +75,7 @@ function getNotifications() {
 if (logged_in) {
     getNotifications();
     setInterval(getNotifications, 2 * 60 * 1000);
-    if (typeof (profile) === "undefined") {
-        if (localStorage.getItem("username") === null) {
-            fetch("/api/info/username")
-                .then((response) => (response.json()))
-                .then((_username) => {
-                let username = _username.username;
-                if (usernameRegexFull.test(username)) {
-                    localStorage.setItem("username", username);
-                    dom("icons").innerHTML += `<a title="${lang.settings.profile_title}" href="/u/${username}">${icons.user}</a>`;
-                }
-                else {
-                    console.log("Username returned from /api/info/username is invalid.");
-                }
-            });
-        }
-        else {
-            if (usernameRegexFull.test(localStorage.getItem("username"))) {
-                dom("icons").innerHTML += `<a title="${lang.settings.profile_title}" href="/u/${localStorage.getItem("username")}">${icons.user}</a>`;
-            }
-            else {
-                console.log("Username in localStorage is invalid.");
-                localStorage.removeItem("username");
-            }
-        }
-    }
+    dom("icons").innerHTML += `<a title="${lang.settings.profile_title}" href="/u/${localStorage.getItem("username")}">${icons.user}</a>`;
 }
 forEach(document.querySelectorAll("[data-add-icon]"), (val, index) => {
     val.innerHTML = icons[val.dataset.addIcon];

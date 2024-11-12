@@ -10,27 +10,12 @@ dom("save").addEventListener("click", function() {
     return;
   }
 
-  fetch(formURL, {
+  s_fetch(formURL, {
     body: JSON.stringify({
       passhash: sha256((dom("password") as HTMLInputElement).value)
     }),
     method: "POST"
-  }).then((response) => (response.json()))
-    .then((json: {
-      valid: boolean,
-      token?: string,
-      reason?: string
-    }): void => {
-      if (json.valid) {
-        setCookie("token", json.token);
-        location.href = "/home/";
-      } else {
-        showlog(json.reason);
-      }
-    }).catch((err) => {
-      showlog(lang.generic.something_went_wrong);
-      throw err;
-    })
+  });
 });
 
 dom("toggle-password").addEventListener("click", function(): void {

@@ -41,7 +41,7 @@
       <label><input id="c-warning" {% if C_WARNING %}value="re: {{ C_WARNING }}"{% endif %} maxlength="{{ MAX_CONTENT_WARNING_LENGTH }}" placeholder="{{ lang.home.c_warning_placeholder }}"></label><br>
     {% endif %}
 
-    <label><textarea id="post-text" maxlength="{{ MAX_POST_LENGTH }}" placeholder="{{ lang.post_page.comment_input_placeholder }}"></textarea></label><br>
+    <label><textarea id="post-text" maxlength="{{ MAX_POST_LENGTH }}" placeholder="{{ lang.post_page.comment_input_placeholder }}">{{ mentions }}</textarea></label><br>
     <button id="post">{{ lang.generic.post }}</button><br>
   {% endif %}
 

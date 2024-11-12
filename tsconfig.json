@@ -1,6 +1,6 @@
 {
   "compilerOptions": {
-    "lib": [ "dom", "es2023" ],
+    "lib": [ "dom", "es2023", "dom.iterable" ],
     "noUnusedLocals": false,
     "outDir": "./smiggins/templates/js/",
     "removeComments": true,

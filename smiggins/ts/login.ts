@@ -13,38 +13,14 @@ dom("submit").addEventListener("click", function(): void {
   let username: string = (dom("username") as HTMLInputElement).value;
   let password: string = sha256((dom("password") as HTMLInputElement).value);
 0
-  fetch("/api/user/login", {
+  s_fetch("/api/user/login", {
     method: "POST",
     body: JSON.stringify({
       username: username,
       password: password
-    })
-  })
-    .then((response: Response) => {
-      if (response.status == 429) {
-        dom("post").removeAttribute("disabled");
-        dom("post-text").removeAttribute("disabled");
-        showlog(lang.generic.ratelimit_verbose);
-      } else {
-        response.json().then((json: {
-          valid: boolean,
-          token?: string,
-          reason?: string
-        }) => {
-          if (json.valid) {
-            setCookie("token", json.token);
-            location.href = "/home";
-          } else {
-            dom("submit").removeAttribute("disabled")
-            showlog(lang.account.log_in_failure.replaceAll("%s", json.reason));
-          }
-        })
-      }
-    })
-    .catch((err: Error) => {
-      dom("submit").removeAttribute("disabled")
-      showlog(lang.generic.something_went_wrong);
-    });
+    }),
+    disable: [this, dom("username"), dom("password")]
+  });
 });
 
 dom("username").addEventListener("keydown", function(event: KeyboardEvent): void {

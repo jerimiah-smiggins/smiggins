@@ -31,13 +31,512 @@ pronouns._a = pronouns.a;
 pronouns._o = pronouns.o;
 pronouns._v = pronouns.v;
 
-function showlog(str: string, time: number = 3000): void {
+function s_fetch(
+  url: string, data?: {
+    method?: "POST" | "GET" | "PATCH" | "DELETE" | "PUT",
+    body?: string | null,
+    disable?: (Element | string | false | null)[],
+    extraData?: { [key: string]: any },
+    customLog?: HTMLDivElement,
+    postFunction?: (success: boolean) => void
+  }
+): void {
+  data.method = data.method || "GET";
+  data.disable = data.disable || [];
+
+  for (const el of data.disable) {
+    if (el === false || el === null) {
+      continue;
+    }
+
+    let element: HTMLInputElement;
+
+    if (typeof el == "string") {
+      element = document.querySelector(el);
+    } else {
+      element = el as HTMLInputElement;
+    }
+
+    if (element) {
+      element.disabled = true;
+    }
+  }
+
+  let success: boolean | null;
+
+  fetch(url, {
+    method: data.method,
+    body: data.body
+  }).then((response: Response) => (response.json()))
+    .then((json: _actions) => {
+      apiResponse(json, data.extraData, data.customLog);
+      success = json.success;
+    })
+    .catch((err) => {
+      showlog(lang.generic.something_went_wrong);
+      console.error(err);
+      success = null;
+    })
+    .finally(() => {
+      for (const el of data.disable) {
+        if (el === false || el === null) {
+          continue;
+        }
+
+        let element: HTMLInputElement;
+
+        if (typeof el == "string") {
+          element = document.querySelector(el);
+        } else {
+          element = el as HTMLInputElement;
+        }
+
+        if (element) {
+          element.disabled = false;
+        }
+      }
+
+      if (typeof data.postFunction == "function") {
+        try {
+          data.postFunction(success);
+        } catch (err) {
+          console.error("Request post function error", err);
+        }
+      }
+    });
+}
+
+function apiResponse(
+  json: _actions,
+  extraData?: { [key: string]: any },
+  customLog?: HTMLDivElement
+): void {
+  if (json.message) {
+    showlog(json.message, 3000, customLog);
+  } else if (!json.success) {
+    showlog(lang.generic.something_went_wrong, 5000, customLog);
+  }
+
+  if (!json.actions) {
+    return;
+  }
+
+  for (const action of json.actions) {
+    console.log(action.name, action);
+    if (action.name == "populate_timeline") {
+      if (!extraData.forceOffset && !action.posts.length) {
+        dom("posts").innerHTML = `<i>${escapeHTML(lang.post.no_posts)}</i>`
+      }
+
+      let output: string = "";
+      for (const post of action.posts) {
+        output += getPostHTML(
+          post,
+          type == "comment",
+          includeUserLink,
+          includePostLink,
+          false, false, false
+        );
+        offset = post.post_id;
+      }
+
+      if (action.extra && action.extra.type == "user") {
+        ENABLE_USER_BIOS && dom("user-bio").removeAttribute("hidden");
+        ENABLE_USER_BIOS && (dom("user-bio").innerHTML = linkifyHtml(escapeHTML(action.extra.bio), {
+          formatHref: {
+            mention: (href: string): string => "/u/" + href.slice(1),
+            hashtag: (href: string): string => "/hashtag/" + href.slice(1)
+          }
+        }));
+
+        if (action.extra.pinned && action.extra.pinned.content) {
+          dom("pinned").innerHTML = getPostHTML(
+            action.extra.pinned, // postJSON
+            false, // isComment
+            false, // includeUserLink
+            true,  // includePostLink,
+            false, // fakeMentions
+            false, // pageFocus
+            true   // isPinned
+          ) + "<hr>";
+        } else {
+          dom("pinned").innerHTML = "";
+        }
+
+        dom("follow").innerText = `${lang.user_page.followers.replaceAll("%s", action.extra.followers)} - ${lang.user_page.following.replaceAll("%s", action.extra.following)}`;
+      }
+
+      let x: HTMLElement = document.createElement("div");
+      x.innerHTML = output;
+      dom("posts").append(x);
+
+      if (dom("more")) {
+        if (extraData.forceOffset !== true) {
+          dom("more").removeAttribute("hidden");
+        }
+
+        if (action.end) {
+          dom("more").setAttribute("hidden", "");
+        } else {
+          dom("more").removeAttribute("hidden");
+        }
+      }
+    } else if (action.name == "prepend_timeline") {
+      if (
+        location.pathname.toLowerCase().includes("/home") ||
+        (location.pathname.toLowerCase().includes("/p/") && action.comment) ||
+        (location.pathname.toLowerCase().includes("/c/") && action.comment) ||
+        location.pathname.toLowerCase().includes(`/u/${localStorage.getItem("username") || "LOL IT BROKE SO FUNNY"}`)
+      ) {
+        let x: HTMLDivElement = document.createElement("div");
+        x.innerHTML = getPostHTML(action.post, action.comment);
+        dom("posts").prepend(x);
+      }
+    } else if (action.name == "reset_post_html") {
+      let post: HTMLDivElement = document.querySelector(`[data-${action.comment ? "comment" : "post"}-id="${action.post_id}"]`);
+      let postSettings: { [key: string]: boolean } = JSON.parse(post.querySelector(".post").getAttribute("data-settings"));
+      post.innerHTML = getPostHTML(
+        action.post,
+        postSettings.isComment,
+        postSettings.includeUserLink,
+        postSettings.includePostLink,
+        postSettings.fakeMentions,
+        postSettings.pageFocus,
+        postSettings.isPinned,
+        false
+      );
+    } else if (action.name == "remove_from_timeline") {
+      if (extraData.pageFocus) {
+        window.location.href = "/home/";
+      } else {
+        document.querySelector(`.post-container[data-${action.comment ? "comment" : "post"}-id="${action.post_id}"]`).remove();
+      }
+    } else if (action.name == "refresh_timeline") {
+      let rfFunc = action.special == "notifications" ? refreshNotifications : action.special == "pending" ? refreshPendingList : action.special == "message" ? refreshMessages : refresh;
+      if (action.url_includes) {
+        for (const url of action.url_includes) {
+          if (location.href.includes(url)) {
+            if (action.special == "pending") {
+              rfFunc(true);
+            } else {
+              rfFunc();
+            }
+            break;
+          }
+        }
+      } else {
+        if (action.special == "pending") {
+          rfFunc(true);
+        } else if (action.special == "message") {
+          if (dom("messages-go-here-btw").innerText == "") {
+            rfFunc(true);
+          } else {
+            rfFunc(false, false);
+          }
+        } {
+          rfFunc();
+        }
+      }
+    } else if (action.name == "user_timeline") {
+      let x: DocumentFragment = document.createDocumentFragment();
+
+      if (action.users.length == 0) {
+        let y: HTMLElement = document.createElement("i");
+        y.innerHTML = lang.generic.none;
+        x.append(y);
+      }
+
+      for (const user of action.users) {
+        let y: HTMLElement = document.createElement("div");
+        y.innerHTML = `
+          <div class="post" ${user.unread === undefined || user.unread ? "" : "data-color=\"gray\""}">
+            <div class="upper-content">
+              <a href="/u/${user.username}" class="no-underline text">
+                <div class="displ-name">
+                  <div style="--color-one: ${user.color_one}; --color-two: ${user[ENABLE_GRADIENT_BANNERS && user.gradient_banner ? "color_two" : "color_one"]}" class="user-badge banner-pfp"></div>
+                  ${escapeHTML(user.display_name)}
+                  ${user.badges.length ? `<span aria-hidden="true" class="user-badge">${user.badges.map((icon) => (badges[icon])).join("</span> <span aria-hidden=\"true\" class=\"user-badge\">")}</span>` : ""}<br>
+                  <span class="upper-lower-opacity">
+                    <div class="username">@${user.username}</div>
+                    ${user.timestamp ? `- <div class="username">${timeSince(user.timestamp)}</div>` : ""}
+                  </span>
+                </div>
+              </a>
+            </div>
+
+            <div class="main-content">
+              ${
+                action.special == "messages" ? `
+                  <a class="no-underline text" href="/m/${user.username}">
+                    ${escapeHTML(user.bio) || `<i>${lang.messages.no_messages}</i>`}
+                  </a>
+                ` : (user.bio ? linkifyHtml(escapeHTML(user.bio), {
+                  formatHref: {
+                    mention: (href: string): string => "/u/" + href.slice(1),
+                    hashtag: (href: string): string => "/hashtag/" + href.slice(1)
+                  }
+                }) : `<i>${lang.user_page.lists_no_bio}</i>`)
+              }
+            </div>
+
+            ${
+              action.special == "pending" ? `<div class="bottom-content">
+                <button onclick="_followAction('${user.username}', 'POST');">${ lang.user_page.pending_accept }</button>
+                <button onclick="_followAction('${user.username}', 'DELETE');">${ lang.user_page.pending_deny }</button>
+                <button onclick="block('${user.username}');">${ lang.user_page.block }</button>
+              </div>` : ""
+            }
+          </div>
+        `;
+        x.append(y);
+      }
+
+      dom("user-list").append(x);
+      dom("refresh").removeAttribute("disabled");
+      dom("more").removeAttribute("disabled");
+
+      if (action.more) {
+        dom("more").removeAttribute("hidden");
+      } else {
+        dom("more").setAttribute("hidden", "");
+      }
+    } else if (action.name == "notification_list") {
+      let x: DocumentFragment = document.createDocumentFragment();
+      let hasBeenRead: boolean = false;
+      let first: boolean = true;
+
+      for (const notif of action.notifications) {
+        if (notif.data.can_view) {
+          let y: HTMLElement = document.createElement("div");
+
+          if (!hasBeenRead && notif.read) {
+            if (!first) {
+              y.innerHTML = "<hr>";
+            }
+
+            hasBeenRead = true;
+          }
+
+          y.innerHTML += escapeHTML(lang.notifications.event[notif.event_type].replaceAll("%s", notif.data.creator.display_name)) + "<br>";
+          y.innerHTML += getPostHTML(
+            notif.data, // postJSON
+            ["comment", "ping_c"].includes(notif.event_type),
+          ).replace("\"post\"", hasBeenRead ? "\"post\" data-color='gray'" : "\"post\"");
+
+          x.append(y);
+          x.append(document.createElement("br"));
+
+          first = false;
+        }
+      }
+
+      dom("notif-container").append(x);
+    } else if (action.name == "admin_info") {
+      dom("data-section").innerHTML = `
+        ${lang.admin.modify.current} <a href="/u/${action.username}"><code>@${action.username}</code></a> (${lang.admin.modify.id.replaceAll("%s", action.user_id)})<br>
+        <input maxlength="300" id="data-display-name" placeholder="${lang.settings.profile_display_name_placeholder}" value="${escapeHTML(action.displ_name || "")}"><br>
+        <textarea maxlength="65536" id="data-bio" placeholder="${lang.settings.profile_bio_placeholder}">${escapeHTML(action.bio || "")}</textarea><br>
+        <button id="data-save" data-user-id="${action.user_id}">${lang.admin.modify.save}</button><br>
+        ${ENABLE_ACCOUNT_SWITCHER && action.token ? `<button id="data-switcher" data-token="${action.token}" data-username="${action.username}">${lang.admin.modify.switcher}</button>` : ""}
+      `;
+
+      dom("data-display-name").addEventListener("input", postTextInputEvent);
+      dom("data-bio").addEventListener("input", postTextInputEvent);
+
+      ENABLE_ACCOUNT_SWITCHER && dom("data-switcher").addEventListener("click", function(): void {
+        let username: string = this.dataset.username;
+        let token: string = this.dataset.token;
+        let accounts: string[][] = JSON.parse(localStorage.getItem("acc-switcher") || "[]");
+
+        if (!accounts.includes([username, token])) {
+          accounts.push([username, token]);
+          localStorage.setItem("acc-switcher", JSON.stringify(accounts));
+        }
+
+        showlog(lang.generic.success);
+      });
+
+      dom("data-save").addEventListener("click", function(): void {
+        s_fetch("/api/admin/save-acc", {
+          method: "PATCH",
+          body: JSON.stringify({
+            id: this.dataset.userId,
+            bio: (dom("data-bio") as HTMLInputElement).value,
+            displ_name: (dom("data-display-name") as HTMLInputElement).value
+          }),
+          disable: [this]
+        });
+      });
+    } else if (action.name == "admin_log") {
+      let output: string = `<table class="admin-logs bordered">
+        <tr>
+          <th>${lang.admin.logs.timestamp}</th>
+          <th>${lang.admin.logs.action}</th>
+          <th>${lang.admin.logs.who}</th>
+          <th class="nowrap">${lang.admin.logs.more_info}</th>
+        </tr>
+      `;
+
+      for (const line of action.content) {
+        try {
+          output += `<tr>
+            <td class="nowrap">${timeSince(+line.timestamp)}</td>
+            <td class="nowrap">${line.type}</td>
+            <td>${lang.admin.logs[line.target ? "who_format" : "who_format_single"].replaceAll(" ", "&nbsp;").replaceAll(",&nbsp;", ", ").replaceAll("%1", `<a href="/u/${line.by}">@${line.by}</a>`).replaceAll("%2", `<a href="/u/${line.target}">@${line.target}</a>`)}</td>
+            <td>${escapeHTML(line.info)}</td>
+          </tr>`;
+        } catch(err) {
+          console.error(err);
+        }
+      }
+
+      dom("admin-logs").innerHTML = output + "</table>";
+    } else if (action.name == "message_list") {
+      let x: DocumentFragment = document.createDocumentFragment();
+      for (const message of action.messages) {
+        let y: HTMLElement = document.createElement("div");
+        y.setAttribute("class", `message ${message.from_self ? "send" : "receive"}`);
+        y.innerHTML = `<div>${linkifyHtml(escapeHTML(message.content), {
+          formatHref: {
+            mention: (href: string): string => "/u/" + href.slice(1),
+            hashtag: (href: string): string => "/hashtag/" + href.slice(1)
+          },
+        })}</div><span class="timestamp">${timeSince(message.timestamp)}</span>`;
+
+        x.append(y);
+
+        if (action.forward || extraData.start) {
+          if (message.id < forwardOffset || forwardOffset == 0) {
+            forwardOffset = message.id;
+          }
+        }
+        if (!action.forward || extraData.start) {
+          if (message.id > reverseOffset || reverseOffset == 0) {
+            reverseOffset = message.id;
+          }
+        }
+      }
+
+      if (action.forward) {
+        if (dom("more")) {
+          dom("more").remove();
+        }
+
+        if (action.more) {
+          let y: HTMLButtonElement = document.createElement("button");
+          y.innerText = lang.generic.load_more;
+          y.id = "more";
+          y.setAttribute("onclick", "refreshMessages();");
+
+          x.append(y);
+        }
+
+        dom("messages-go-here-btw").append(x);
+      } else {
+        dom("messages-go-here-btw").prepend(x);
+      }
+    } else if (action.name == "set_auth") {
+      setCookie("token", action.token);
+    } else if (action.name == "localstorage") {
+      if (action.value === null) {
+        localStorage.removeItem(action.key);
+      } else {
+        localStorage.setItem(action.key, action.value);
+      }
+    } else if (action.name == "reload") {
+      location.href = location.href;
+      break;
+    } else if (action.name == "redirect") {
+      let url: string = "/";
+      if (action.to == "message") {
+        url = `/m/${action.extra}`;
+      } else if (action.to == "home") {
+        url = "/home/";
+      }
+      location.href = url;
+      break;
+    } else if (action.name == "set_theme") {
+      dom("theme-css").innerHTML = action.auto ? getThemeAuto() : getThemeCSS(action.theme);
+
+      if ((dom("theme") as HTMLInputElement).value == "auto") {
+        !autoEnabled && autoInit();
+        themeObject = null;
+      } else {
+        autoEnabled && autoCancel();
+        themeObject = action.theme;
+
+        if (!oldFavicon) {
+          setGenericFavicon();
+        }
+      }
+    } else if (action.name == "update_element") {
+      let iter: NodeListOf<Element> | Element[];
+      if (action.all) {
+        iter = document.querySelectorAll(action.query);
+      } else {
+        iter = [document.querySelector(action.query)]
+      }
+
+      for (const el of iter) {
+        if (!el) {
+          continue;
+        }
+
+        let element: HTMLElement = el as HTMLElement;
+
+        if (action.inc !== undefined) {
+          element.innerHTML = String(+element.innerHTML + action.inc);
+        } else if (action.text !== undefined) {
+          element.innerText = action.text;
+        } else if (action.html !== undefined) {
+          element.innerHTML = action.html;
+        }
+
+        if (action.value !== undefined) {
+          (element as HTMLInputElement).value = action.value;
+        } else if (action.checked !== undefined) {
+          (element as HTMLInputElement).checked = action.checked;
+        } else if (action.value !== undefined) {
+          (element as HTMLInputElement).disabled = action.disabled;
+        }
+
+        if (action.attribute) {
+          for (const attr of action.attribute) {
+            if (attr.value === null) {
+              element.removeAttribute(attr.name);
+            } else {
+              element.setAttribute(attr.name, attr.value);
+            }
+          }
+        }
+
+        if (action.set_class) {
+          for (const cls of action.set_class) {
+            if (cls.enable) {
+              element.classList.add(cls.class_name);
+            } else {
+              element.classList.remove(cls.class_name);
+            }
+          }
+        }
+
+        if (action.focus !== undefined) {
+          element.focus();
+        }
+      }
+    } else {
+      console.log(`Unknown API action`, action);
+    }
+  }
+}
+
+function showlog(str: string, time: number = 3000, customLog?: HTMLDivElement): void {
   inc++;
-  dom("error").innerText = str;
+  (customLog || dom("error")).innerText = str;
   setTimeout(() => {
     --inc;
     if (!inc) {
-      dom("error").innerText = "";
+      (customLog || dom("error")).innerText = "";
     }
   }, time);
 };
@@ -339,7 +838,8 @@ function getPostHTML(
         </span>
 
         <button class="bottom-content-icon like" data-liked="${postJSON.liked}" ${fakeMentions ? "" : `onclick="toggleLike(${postJSON.post_id}, ${isComment ? "'comment'" : "'post'"})"`}>
-          ${postJSON.liked ? icons.like : icons.unlike}
+          <span class="hidden-if-unlike">${icons.like}</span>
+          <span class="hidden-if-like">${icons.unlike}</span>
           <span class="like-number">${postJSON.likes}</span>
         </button>
 

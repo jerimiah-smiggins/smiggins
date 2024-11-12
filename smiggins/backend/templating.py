@@ -2,19 +2,20 @@
 
 import json
 
-from cairosvg import svg2png
 from django.http import (HttpResponse, HttpResponseRedirect,
                          HttpResponseServerError)
 from posts.models import Comment, Hashtag, Post, PrivateMessageContainer, User
 
 from .api.admin import BitMask
-from .helper import (LANGS, can_view_post, get_badges, get_container_id,
-                     get_HTTP_response, get_lang, get_post_json)
+from .helper import (LANGS, can_view_post, find_mentions, get_badges,
+                     get_container_id, get_HTTP_response, get_lang,
+                     get_post_json)
 from .variables import (BADGE_DATA, CACHE_LANGUAGES, CONTACT_INFO, CREDITS,
                         DEFAULT_BANNER_COLOR, DEFAULT_LANGUAGE,
-                        ENABLE_GRADIENT_BANNERS, ENABLE_LOGGED_OUT_CONTENT,
-                        FAVICON_DATA, MAX_CONTENT_WARNING_LENGTH,
-                        OWNER_USER_ID, SITE_NAME, THEMES, VALID_LANGUAGES)
+                        ENABLE_DYNAMIC_FAVICON, ENABLE_GRADIENT_BANNERS,
+                        ENABLE_LOGGED_OUT_CONTENT, FAVICON_DATA,
+                        MAX_CONTENT_WARNING_LENGTH, OWNER_USER_ID, SITE_NAME,
+                        THEMES, VALID_LANGUAGES, error)
 
 
 def settings(request) -> HttpResponse:
@@ -88,8 +89,8 @@ def user(request, username: str) -> HttpResponse | HttpResponseRedirect:
 
         BIO = user.bio,
 
-        FOLLOWER_COUNT = lang["user_page"]["followers"].replace("%s", str(len(user.followers))),
-        FOLLOWING_COUNT = lang["user_page"]["following"].replace("%s", str(len(user.following) - 1)),
+        FOLLOWER_COUNT = lang["user_page"]["followers"].replace("%s", str(user.followers.count())),
+        FOLLOWING_COUNT = lang["user_page"]["following"].replace("%s", str(user.following.count())),
 
         EMBED_TITLE = lang["user_page"]["user_on_smiggins"].replace("%t", SITE_NAME).replace("%s", user.display_name),
 
@@ -99,11 +100,11 @@ def user(request, username: str) -> HttpResponse | HttpResponseRedirect:
         BANNER_COLOR = user.color or DEFAULT_BANNER_COLOR,
         BANNER_COLOR_TWO = user.color_two or DEFAULT_BANNER_COLOR,
 
-        IS_BLOCKED   = "false" if self_user is None else str(self_user.user_id in user.blocking).lower(),
-        IS_BLOCKING  = "false" if self_user is None else str(user.user_id in self_user.blocking).lower(),
-        IS_FOLLOWING = "false" if self_user is None else str(user.user_id in self_user.following).lower(),
-        IS_PENDING   = "false" if self_user is None else str(self_user.user_id in user.pending_followers).lower(),
-        IS_FOLLOWED  = "false" if self_user is None else str(self_user.user_id in user.following and self_user.user_id != user.user_id).lower()
+        IS_BLOCKED   = "false" if self_user is None else str(user.blocking.contains(self_user)).lower(),
+        IS_BLOCKING  = "false" if self_user is None else str(self_user.blocking.contains(user)).lower(),
+        IS_FOLLOWING = "false" if self_user is None else str(self_user.following.contains(user)).lower(),
+        IS_PENDING   = "false" if self_user is None else str(user.pending_followers.contains(self_user)).lower(),
+        IS_FOLLOWED  = "false" if self_user is None else str(self_user.user_id != user.user_id and user.following.contains(self_user)).lower()
     )
 
 def user_lists(request, username: str) -> HttpResponse:
@@ -127,60 +128,48 @@ def user_lists(request, username: str) -> HttpResponse:
     lang = get_lang(self_user)
 
     followers = []
-    for i in user.followers:
-        if i != user.user_id:
-            f_user = User.objects.get(user_id=i)
+    for i in user.followers.all():
+        if i.user_id != user.user_id:
             followers.append({
-                "user_id": i,
-                "username": f_user.username,
-                "display_name": f_user.display_name,
-                "bio": f_user.bio or "\n\n\n",
-                "badges": get_badges(f_user),
-                "color_one": f_user.color,
-                "color_two": f_user.color_two,
-                "is_gradient": str(ENABLE_GRADIENT_BANNERS and f_user.gradient).lower()
+                "username": i.username,
+                "display_name": i.display_name,
+                "bio": i.bio or "\n\n\n",
+                "badges": get_badges(i),
+                "color_one": i.color,
+                "color_two": i.color_two,
+                "is_gradient": str(ENABLE_GRADIENT_BANNERS and i.gradient).lower()
             })
 
     following = []
-    for i in user.following:
-        if i != user.user_id:
-            f_user = User.objects.get(user_id=i)
+    for i in user.following.all():
+        if i.user_id != user.user_id:
             following.append({
-                "user_id": i,
-                "username": f_user.username,
-                "display_name": f_user.display_name,
-                "bio": f_user.bio or "\n\n\n",
-                "badges": get_badges(f_user),
-                "color_one": f_user.color,
-                "color_two": f_user.color_two,
-                "is_gradient": str(ENABLE_GRADIENT_BANNERS and f_user.gradient).lower()
+                "username": i.username,
+                "display_name": i.display_name,
+                "bio": i.bio or "\n\n\n",
+                "badges": get_badges(i),
+                "color_one": i.color,
+                "color_two": i.color_two,
+                "is_gradient": str(ENABLE_GRADIENT_BANNERS and i.gradient).lower()
             })
 
     blocking = []
-    removed_deleted_accounts = []
     if self_user is not None and username == self_user.username:
-        for i in user.blocking:
+        for i in user.blocking.all():
             try:
-                if i != user.user_id:
-                    f_user = User.objects.get(user_id=i)
-                    removed_deleted_accounts.append(i)
+                if i.user_id != user.user_id:
                     blocking.append({
-                        "user_id": i,
-                        "username": f_user.username,
-                        "display_name": f_user.display_name,
-                        "bio": f_user.bio or "\n\n\n",
-                        "badges": get_badges(f_user),
-                        "color_one": f_user.color,
-                        "color_two": f_user.color_two,
-                        "is_gradient": str(ENABLE_GRADIENT_BANNERS and f_user.gradient).lower()
+                        "username": i.username,
+                        "display_name": i.display_name,
+                        "bio": i.bio or "\n\n\n",
+                        "badges": get_badges(i),
+                        "color_one": i.color,
+                        "color_two": i.color_two,
+                        "is_gradient": str(ENABLE_GRADIENT_BANNERS and i.gradient).lower()
                     })
 
             except User.DoesNotExist:
                 continue
-
-        if removed_deleted_accounts != user.blocking:
-            user.blocking = removed_deleted_accounts
-            user.save()
 
     return get_HTTP_response(
         request, "user_lists.html", lang, user=self_user,
@@ -196,8 +185,8 @@ def user_lists(request, username: str) -> HttpResponse:
         FOLLOWERS = followers,
         BLOCKS = blocking,
 
-        FOLLOWER_COUNT = lang["user_page"]["followers"].replace("%s", str(len(user.followers))),
-        FOLLOWING_COUNT = lang["user_page"]["following"].replace("%s", str(len(user.following) - 1)),
+        FOLLOWER_COUNT = lang["user_page"]["followers"].replace("%s", str(user.followers.count())),
+        FOLLOWING_COUNT = lang["user_page"]["following"].replace("%s", str(user.following.count())),
 
         BADGES = "".join([f"<span aria-hidden='true' class='user-badge' data-add-badge='{i}'></span> " for i in get_badges(user)]),
 
@@ -205,9 +194,11 @@ def user_lists(request, username: str) -> HttpResponse:
         BANNER_COLOR = user.color or DEFAULT_BANNER_COLOR,
         BANNER_COLOR_TWO = user.color_two or DEFAULT_BANNER_COLOR,
 
-        IS_FOLLOWING = str(user.user_id in self_user.following).lower() if self_user is not None else "false",
-        IS_BLOCKED   = "false" if self_user is None else str(self_user.user_id in user.blocking).lower(),
-        IS_FOLLOWED  = "false" if self_user is None else str(self_user.user_id in user.following).lower(),
+        IS_BLOCKED   = "false" if self_user is None else str(user.blocking.contains(self_user)).lower(),
+        IS_BLOCKING  = "false" if self_user is None else str(self_user.blocking.contains(user)).lower(),
+        IS_FOLLOWING = "false" if self_user is None else str(self_user.following.contains(user)).lower(),
+        IS_PENDING   = "false" if self_user is None else str(user.pending_followers.contains(self_user)).lower(),
+        IS_FOLLOWED  = "false" if self_user is None else str(self_user.user_id != user.user_id and user.following.contains(self_user)).lower(),
 
         INCLUDE_BLOCKS = str(self_user is not None and username == self_user.username).lower(),
         LOGGED_IN = str(self_user is not None).lower()
@@ -224,7 +215,7 @@ def post(request, post_id: int) -> HttpResponse:
 
     try:
         post = Post.objects.get(pk=post_id)
-        creator = User.objects.get(pk=post.creator)
+        creator = post.creator
     except Post.DoesNotExist:
         return get_HTTP_response(
             request, "404-post.html", status=404
@@ -244,6 +235,8 @@ def post(request, post_id: int) -> HttpResponse:
     post_json = get_post_json(post_id, user.user_id if user is not None else 0)
     lang = get_lang(user)
 
+    mentions = find_mentions(post.content + " @" + post.creator.username, exclude_users=[user.username if user else ""])
+
     return get_HTTP_response(
         request, "post.html", lang, user=user,
 
@@ -258,7 +251,9 @@ def post(request, post_id: int) -> HttpResponse:
 
         LIKES = lang["post_page"]["likes"].replace("%s", str(post_json["likes"])),
         COMMENTS = lang["post_page"]["comments"].replace("%s", str(post_json["comments"])),
-        QUOTES = lang["post_page"]["quotes"].replace("%s", str(post_json["quotes"]))
+        QUOTES = lang["post_page"]["quotes"].replace("%s", str(post_json["quotes"])),
+
+        mentions = ("@" + (" @".join(sorted(mentions))) + " ") if mentions else ""
     )
 
 def comment(request, comment_id: int) -> HttpResponse:
@@ -271,7 +266,7 @@ def comment(request, comment_id: int) -> HttpResponse:
 
     try:
         comment = Comment.objects.get(pk=comment_id)
-        creator = User.objects.get(pk=comment.creator)
+        creator = comment.creator
     except Comment.DoesNotExist:
         return get_HTTP_response(
             request, "404-post.html", status=404
@@ -291,6 +286,8 @@ def comment(request, comment_id: int) -> HttpResponse:
     comment_json = get_post_json(comment_id, user.user_id if user is not None else 0, True)
     lang = get_lang(user if user is not None else None)
 
+    mentions = find_mentions(comment.content + " @" + comment.creator.username, exclude_users=[user.username if user else ""])
+
     return get_HTTP_response(
         request, "post.html", lang, user=user,
 
@@ -305,7 +302,9 @@ def comment(request, comment_id: int) -> HttpResponse:
 
         LIKES = lang["post_page"]["likes"].replace("%s", str(comment_json["likes"])),
         COMMENTS = lang["post_page"]["comments"].replace("%s", str(comment_json["comments"])),
-        QUOTES = lang["post_page"]["quotes"].replace("%s", str(comment_json["quotes"]))
+        QUOTES = lang["post_page"]["quotes"].replace("%s", str(comment_json["quotes"])),
+
+        mentions = ("@" + (" @".join(sorted(mentions))) + " ") if mentions else ""
     )
 
 def contact(request) -> HttpResponse:
@@ -333,11 +332,11 @@ def admin(request) -> HttpResponse | HttpResponseRedirect:
     return get_HTTP_response(
         request, "admin.html", user=user,
 
-        LEVEL = lv,
-        BADGE_DATA = BADGE_DATA,
+        LEVEL=lv,
+        BADGE_DATA=BADGE_DATA,
         mask=BitMask,
         LEVEL_RANGE=[str(i) for i in range(BitMask.MAX_LEVEL + 1)],
-        LEVEL_BINARY = f"{'0' * (BitMask.MAX_LEVEL - len(f'{lv:b}'))}{lv:b}"
+        LEVEL_BINARY=f"{'0' * (BitMask.MAX_LEVEL - len(f'{lv:b}'))}{lv:b}"
     )
 
 def message(request, username: str) -> HttpResponse | HttpResponseRedirect:
@@ -371,7 +370,7 @@ def message(request, username: str) -> HttpResponse | HttpResponseRedirect:
 
 def hashtag(request, hashtag: str) -> HttpResponse:
     try:
-        num_posts = len(Hashtag.objects.get(tag=hashtag.lower()).posts)
+        num_posts = Hashtag.objects.get(tag=hashtag.lower()).posts.count()
     except Hashtag.DoesNotExist:
         num_posts = 0
 
@@ -417,19 +416,29 @@ def pending(request) -> HttpResponse | HttpResponseRedirect:
 
     return get_HTTP_response(request, "pending.html", user=user)
 
-def generate_favicon(request, a) -> HttpResponse | HttpResponseServerError:
-    colors: tuple[str, str, str] = a.split("-")
+generate_favicon = lambda request, a: HttpResponseRedirect("/static/img/old_favicon.ico", status=308) # noqa: E731
 
-    png_data: bytes | None = svg2png(
-        FAVICON_DATA.replace("@{background}", f"#{colors[0]}").replace("@{background_alt}", f"#{colors[1]}").replace("@{accent}", f"#{colors[2]}"),
-        output_width=32,
-        output_height=32
-    )
+if ENABLE_DYNAMIC_FAVICON:
+    try:
+        from cairosvg import svg2png
+    except ImportError:
+        error("Something went wrong importing the cariosvg library!\n- Try turning 'enable_dynamic_favicon' off in settings?")
 
-    if not isinstance(png_data, bytes):
-        return HttpResponseServerError("500 Internal Server Error")
+    else:
+        del generate_favicon
+        def generate_favicon(request, a) -> HttpResponse | HttpResponseServerError:
+            colors: tuple[str, str, str] = a.split("-")
 
-    return HttpResponse(png_data, content_type="image/png")
+            png_data: bytes | None = svg2png(
+                FAVICON_DATA.replace("@{background}", f"#{colors[0]}").replace("@{background_alt}", f"#{colors[1]}").replace("@{accent}", f"#{colors[2]}"),
+                output_width=32,
+                output_height=32
+            )
+
+            if not isinstance(png_data, bytes):
+                return HttpResponseServerError("500 Internal Server Error")
+
+            return HttpResponse(png_data, content_type="image/png")
 
 # These two functions are referenced in smiggins/urls.py
 def _404(request, exception) -> HttpResponse:
