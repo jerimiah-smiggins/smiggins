@@ -388,9 +388,9 @@ onLoad = function(): void {
       return;
     }
 
-    val.addEventListener("click", (): void => {
+    val.addEventListener("click", (event: MouseEvent): void => {
       if (unload) {
-        let url: string = this.href;
+        let url: string = val.href;
         event.preventDefault();
         createModal(lang.settings.unload.title, lang.settings.unload.content, [
           {
