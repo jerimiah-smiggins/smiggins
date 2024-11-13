@@ -337,9 +337,9 @@ onLoad = function () {
         if (!val.href || val.href[0] === "#" || val.href.startsWith("javascript:") || val.target === "_blank") {
             return;
         }
-        val.addEventListener("click", () => {
+        val.addEventListener("click", (event) => {
             if (unload) {
-                let url = this.href;
+                let url = val.href;
                 event.preventDefault();
                 createModal(lang.settings.unload.title, lang.settings.unload.content, [
                     {
