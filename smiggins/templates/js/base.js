@@ -388,6 +388,9 @@ function apiResponse(json, extraData, customLog) {
             else if (action.to == "home") {
                 url = "/home/";
             }
+            else if (action.to == "logout") {
+                url = "/logout/";
+            }
             location.href = url;
             break;
         }
