@@ -414,6 +414,8 @@
       "account_email_update": "Change/Update",
       "account_email_verify": "Check your email to verify it",
       "account_email_check": "Check your email",
+      "account_deletion_warning": "Are you COMPLETELY SURE you want to delete your account? This is an IRREVERSIBLE ACTION that CAN NOT BE UNDONE.",
+      "account_deletion_confirm": "Yes, delete my account",
 
       "admin": "Admin page",
       "logout": "Log out of ALL accounts",

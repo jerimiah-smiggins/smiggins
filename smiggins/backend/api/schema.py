@@ -99,6 +99,9 @@ class Poll(Schema):
 
 # user.py
 
+class Password(Schema):
+    password: str
+
 class Account(Username):
     password: str
 

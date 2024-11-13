@@ -11,7 +11,7 @@ from ..variables import (API_TIMINGS, DEFAULT_BANNER_COLOR, DEFAULT_LANGUAGE,
                          MAX_DISPL_NAME_LENGTH, MAX_USERNAME_LENGTH,
                          POSTS_PER_REQUEST, THEMES, VALID_LANGUAGES)
 from .schema import (Account, APIResponse, ChangePassword, Settings, Theme,
-                     Username)
+                     Username, Password)
 
 
 def signup(request, data: Account) -> APIResponse:
@@ -604,4 +604,24 @@ def remove_pending(request, data: Username) -> APIResponse:
         "actions": [
             { "name": "refresh_timeline", "special": "pending" }
         ]
+    }
+
+def user_delete(request, data: Password) -> APIResponse:
+    user = User.objects.get(token=request.COOKIES.get("token"))
+
+    if user.token == generate_token(user.username, data.password):
+        user.delete()
+
+        return {
+            "success": True,
+            "actions": [
+                { "name": "reload" }
+            ]
+        }
+
+    lang = get_lang(user)
+
+    return 400, {
+        "success": False,
+        "message": lang["account"]["bad_password"]
     }

@@ -382,6 +382,15 @@ ENABLE_EMAIL && dom("email-submit").addEventListener("click", function(): void {
   });
 });
 
+dom("delete-account").addEventListener("click", function(): void {
+  createModal(escapeHTML(lang.admin.account_deletion.title), escapeHTML(lang.settings.account_deletion_warning), [
+    { name: lang.generic.cancel, onclick: closeModal },
+    { name: lang.settings.account_deletion_confirm, onclick: () => {
+      createModal(escapeHTML(lang.admin.account_deletion.title), "");
+    }}
+  ])
+});
+
 onLoad = function(): void {
   document.querySelectorAll("a").forEach((val: HTMLAnchorElement, index: number): void => {
     if (!val.href || val.href[0] === "#" || val.href.startsWith("javascript:") || val.target === "_blank") {
