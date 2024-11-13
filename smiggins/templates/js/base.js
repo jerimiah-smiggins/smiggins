@@ -827,7 +827,7 @@ function createModal(title, text, buttons = []) {
     for (const button of buttons) {
         buttonHTML += `<button>${button.name}</button>`;
     }
-    container.innerHTML = `<div id="modal"><h1>${title}</h1>${text}<div id="modal-buttons">${buttonHTML}</div></div>`;
+    container.innerHTML = `<div id="modal"><h1>${title}</h1><p>${text}</p><div id="modal-buttons">${buttonHTML}</div></div>`;
     let buttonsQSA = document.querySelectorAll("#modal-buttons > button");
     for (let i = 0; i < buttons.length; i++) {
         buttonsQSA[i].addEventListener("click", buttons[i].onclick);
