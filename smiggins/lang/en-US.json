@@ -2,7 +2,7 @@
   "meta": {
     "fallback": [],
     "name": "English (United States)",
-    "version": "1.8.4",
+    "version": "1.9.0",
     "maintainers": ["trinkey"],
     "past_maintainers": []
   },
@@ -522,6 +522,10 @@
       "unknown": "Unknown",
 
       "changes": {
+        "v0.13.5": {
+          "1": "Added a custom modal when leaving the settings page with unsaved changes",
+          "2": "Added a way to delete your own account"
+        },
         "v0.13.4": {
           "1": "Rewrote the database structure",
           "2": "Rewrote how (almost all) api endpoints return data",

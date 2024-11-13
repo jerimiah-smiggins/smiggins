@@ -51,6 +51,22 @@ to the `maintainers` section
 Updates for each language version are listed below:
 
 <details>
+<summary>v1.9.0</summary>
+modals
+
+```diff
+home.c_warning_placeholder
+- settings.unload
++ settings.account_deletion_warning
++ settings.account_deletion_confirm
++ settings.account_deletion_password
++ settings.unload.title
++ settings.unload.content
++ settings.unload.leave
++ changelog.changes.v0.13.5 {1, 2}
+```
+
+<details>
 <summary>v1.8.4</summary>
 db rewrite
 
