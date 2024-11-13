@@ -1,6 +1,6 @@
 # For API functions that are user-specific, like settings, following, etc.
 
-from posts.models import Comment, Post, User
+from posts.models import Comment, Post, PrivateMessageContainer, User
 
 from ..helper import (DEFAULT_LANG, create_api_ratelimit, ensure_ratelimit,
                       generate_token, get_badges, get_lang, get_post_json,
@@ -610,6 +610,28 @@ def user_delete(request, data: Password) -> APIResponse:
     user = User.objects.get(token=request.COOKIES.get("token"))
 
     if user.token == generate_token(user.username, data.password):
+        for mid in user.messages:
+            try:
+                pmc = PrivateMessageContainer.objects.get(container_id=mid)
+            except PrivateMessageContainer.DoesNotExist:
+                continue
+
+            u1 = pmc.user_one
+            u2 = pmc.user_two
+
+            if u1.user_id == user.user_id:
+                u2.messages.remove(mid)
+                if mid in u2.unread_messages:
+                    u2.unread_messages.remove(mid)
+
+                u2.save()
+            else:
+                u1.messages.remove(mid)
+                if mid in u1.unread_messages:
+                    u1.unread_messages.remove(mid)
+
+                u1.save()
+
         user.delete()
 
         return {
