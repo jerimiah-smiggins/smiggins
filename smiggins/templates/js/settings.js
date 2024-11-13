@@ -128,7 +128,7 @@ function removeUnload() {
 if (oldFavicon) {
     dom("old-favi").setAttribute("checked", "");
 }
-dom("old-favi").addEventListener("input", function () {
+ENABLE_DYNAMIC_FAVICON && dom("old-favi").addEventListener("input", function () {
     oldFavicon = this.checked;
     if (oldFavicon) {
         localStorage.setItem("old-favicon", "1");

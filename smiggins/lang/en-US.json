@@ -235,7 +235,7 @@
     "home": {
       "title": "Home",
       "post_input_placeholder": "What's on your mind?",
-      "c_warning_placeholder": "Content warning...",
+      "c_warning_placeholder": "Content warning (optional)",
 
       "switch_recent": "Switch to recent...",
       "switch_following": "Switch to following...",

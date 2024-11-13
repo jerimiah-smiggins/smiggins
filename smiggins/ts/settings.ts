@@ -154,7 +154,7 @@ if (oldFavicon) {
   dom("old-favi").setAttribute("checked", "");
 }
 
-dom("old-favi").addEventListener("input", function(): void {
+ENABLE_DYNAMIC_FAVICON && dom("old-favi").addEventListener("input", function(): void {
   oldFavicon = (this as HTMLInputElement).checked;
   if (oldFavicon) {
     localStorage.setItem("old-favicon", "1");

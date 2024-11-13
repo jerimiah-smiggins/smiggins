@@ -136,8 +136,10 @@
         </tr>
       </table><br><br>
 
-      <label for="old-favi">{{ lang.settings.cosmetic_old_favicon }}</label>
-      <input type="checkbox" id="old-favi"><br><br>
+      {% if ENABLE_DYNAMIC_FAVICON == "true" %}
+        <label for="old-favi">{{ lang.settings.cosmetic_old_favicon }}</label>
+        <input type="checkbox" id="old-favi"><br><br>
+      {% endif %}
 
       <label for="color">{{ lang.settings.cosmetic_color }}:</label><br>
       <div id="color-selector"></div>

@@ -9,7 +9,7 @@ declare const _autoColors: {
 };
 
 let favicon: HTMLLinkElement = document.createElement("link");
-let oldFavicon: boolean = !!localStorage.getItem("old-favicon");
+let oldFavicon: boolean = !!localStorage.getItem("old-favicon") && ENABLE_DYNAMIC_FAVICON;
 
 // theme normalization when set to automatic
 function autoSetFavicon(): void {
