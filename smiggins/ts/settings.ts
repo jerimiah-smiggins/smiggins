@@ -388,7 +388,7 @@ dom("delete-account").addEventListener("click", function(): void {
     { name: lang.settings.account_deletion_confirm, onclick: (): void => {
       createModal(
         escapeHTML(lang.admin.account_deletion.title),
-        `<div id="modal-log"></div>${escapeHTML(lang.settings.account_deletion_password)}<br><input id="account-deletion-password" placeholder="${escapeHTML(lang.account.password_placeholder)}">`,
+        `<div id="modal-log"></div>${escapeHTML(lang.settings.account_deletion_password)}<br><input type="password" id="account-deletion-password" placeholder="${escapeHTML(lang.account.password_placeholder)}">`,
         [
           { name: lang.generic.cancel, onclick: closeModal },
           { name: lang.admin.account_deletion.button, onclick: (): void => {

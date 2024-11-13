@@ -35,15 +35,15 @@ if (localStorage.getItem("checkboxes")) {
 }
 
 if (logged_in) {
-  iconsElement.innerHTML = `<div><a title="${lang.settings.title}" href="/settings">${icons.settings}</a></div>`;
+  iconsElement.innerHTML = `<div><a title="${lang.settings.title}" href="/settings/">${icons.settings}</a></div>`;
 
   if (typeof(home) !== 'undefined') {
-    iconsElement.innerHTML += `<div><a title="${lang.home.title}" href="/home">${icons.home}</a></div>`;
+    iconsElement.innerHTML += `<div><a title="${lang.home.title}" href="/home/">${icons.home}</a></div>`;
   }
 
-  iconsElement.innerHTML += `<div data-add-notification-dot><a title="${lang.notifications.title}" href="/notifications">${icons.bell}</a></div>`;
+  iconsElement.innerHTML += `<div data-add-notification-dot><a title="${lang.notifications.title}" href="/notifications/">${icons.bell}</a></div>`;
   if (ENABLE_PRIVATE_MESSAGES) {
-    iconsElement.innerHTML += `<div data-add-message-dot><a title="${lang.messages.list_title}" href="/messages">${icons.message}</a></div>`;
+    iconsElement.innerHTML += `<div data-add-message-dot><a title="${lang.messages.list_title}" href="/messages/">${icons.message}</a></div>`;
   }
 }
 
@@ -103,7 +103,7 @@ function getNotifications(): void {
 if (logged_in) {
   getNotifications();
   setInterval(getNotifications, 2 * 60 * 1000);
-  dom("icons").innerHTML += `<a title="${lang.settings.profile_title}" href="/u/${localStorage.getItem("username")}">${icons.user}</a>`;
+  dom("icons").innerHTML += `<a title="${lang.settings.profile_title}" href="/u/${localStorage.getItem("username")}/">${icons.user}</a>`;
 }
 
 forEach(document.querySelectorAll("[data-add-icon]"), (val: HTMLElement, index: number): void => {

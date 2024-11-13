@@ -231,7 +231,7 @@ class _actions_reload(TypedDict):
 
 class _actions_redirect(TypedDict):
     name: Literal["redirect"]
-    to: Literal["message", "home"]
+    to: Literal["message", "home", "logout"]
     extra: NotRequired[str]
 
 class _actions_theme(TypedDict):

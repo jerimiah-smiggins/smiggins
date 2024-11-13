@@ -215,7 +215,7 @@ type _actions = {
     name: "reload"
   } | {
     name: "redirect",
-    to: "message" | "home",
+    to: "message" | "home" | "logout",
     extra?: string
   } | {
     name: "set_theme",

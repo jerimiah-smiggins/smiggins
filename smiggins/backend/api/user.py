@@ -10,8 +10,8 @@ from ..variables import (API_TIMINGS, DEFAULT_BANNER_COLOR, DEFAULT_LANGUAGE,
                          ENABLE_USER_BIOS, MAX_BIO_LENGTH,
                          MAX_DISPL_NAME_LENGTH, MAX_USERNAME_LENGTH,
                          POSTS_PER_REQUEST, THEMES, VALID_LANGUAGES)
-from .schema import (Account, APIResponse, ChangePassword, Settings, Theme,
-                     Username, Password)
+from .schema import (Account, APIResponse, ChangePassword, Password, Settings,
+                     Theme, Username)
 
 
 def signup(request, data: Account) -> APIResponse:
@@ -615,7 +615,7 @@ def user_delete(request, data: Password) -> APIResponse:
         return {
             "success": True,
             "actions": [
-                { "name": "reload" }
+                { "name": "redirect", "to": "logout" }
             ]
         }
 
