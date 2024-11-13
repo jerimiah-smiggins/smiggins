@@ -332,6 +332,14 @@ ENABLE_EMAIL && dom("email-submit").addEventListener("click", function () {
         disable: [dom("email"), dom("email-submit")]
     });
 });
+dom("delete-account").addEventListener("click", function () {
+    createModal(escapeHTML(lang.admin.account_deletion.title), escapeHTML(lang.settings.account_deletion_warning), [
+        { name: lang.generic.cancel, onclick: closeModal },
+        { name: lang.settings.account_deletion_confirm, onclick: () => {
+                createModal(escapeHTML(lang.admin.account_deletion.title), "");
+            } }
+    ]);
+});
 onLoad = function () {
     document.querySelectorAll("a").forEach((val, index) => {
         if (!val.href || val.href[0] === "#" || val.href.startsWith("javascript:") || val.target === "_blank") {
