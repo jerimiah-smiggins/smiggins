@@ -385,10 +385,30 @@ ENABLE_EMAIL && dom("email-submit").addEventListener("click", function(): void {
 dom("delete-account").addEventListener("click", function(): void {
   createModal(escapeHTML(lang.admin.account_deletion.title), escapeHTML(lang.settings.account_deletion_warning), [
     { name: lang.generic.cancel, onclick: closeModal },
-    { name: lang.settings.account_deletion_confirm, onclick: () => {
-      createModal(escapeHTML(lang.admin.account_deletion.title), "");
+    { name: lang.settings.account_deletion_confirm, onclick: (): void => {
+      createModal(
+        escapeHTML(lang.admin.account_deletion.title),
+        `<div id="modal-log"></div>${escapeHTML(lang.settings.account_deletion_password)}<br><input id="account-deletion-password" placeholder="${escapeHTML(lang.account.password_placeholder)}">`,
+        [
+          { name: lang.generic.cancel, onclick: closeModal },
+          { name: lang.admin.account_deletion.button, onclick: (): void => {
+            s_fetch("/api/user", {
+              method: "DELETE",
+              body: JSON.stringify({
+                password: sha256((dom("account-deletion-password") as HTMLInputElement).value)
+              }),
+              customLog: dom("modal-log") as HTMLDivElement,
+              postFunction: (success: boolean): void => {
+                if (success) {
+                  closeModal();
+                }
+              }
+            })
+          }}
+        ]
+      );
     }}
-  ])
+  ]);
 });
 
 onLoad = function(): void {

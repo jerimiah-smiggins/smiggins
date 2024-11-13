@@ -967,7 +967,7 @@ function createModal(
     buttonHTML += `<button>${button.name}</button>`;
   }
 
-  container.innerHTML = `<div id="modal"><h1>${title}</h1>${text}<div id="modal-buttons">${buttonHTML}</div></div>`;
+  container.innerHTML = `<div id="modal"><h1>${title}</h1><p>${text}</p><div id="modal-buttons">${buttonHTML}</div></div>`;
 
   let buttonsQSA: NodeListOf<Element> = document.querySelectorAll("#modal-buttons > button");
   for (let i: number = 0; i < buttons.length; i++) {
