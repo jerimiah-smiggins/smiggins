@@ -394,6 +394,11 @@ body[data-bar-dir="v"][data-bar-pos^="l"] {
   left: 0;
   width: 100vw;
   height: 100vh;
+  display: flex;
+  flex-direction: column;
+  flex-wrap: nowrap;
+  justify-content: center;
+  align-items: center;
 
   #modal {
     background-color: var(--modal-background);
@@ -401,11 +406,9 @@ body[data-bar-dir="v"][data-bar-pos^="l"] {
     border-radius: 10px;
     width: calc(100vw - 120px);
     max-width: 500px;
-    top: 5vw;
-    margin: 0 auto;
-    margin-top: 20px;
     padding: 20px 40px;
     text-align: center;
+    height: fit-content;
 
     h1 {
       margin-top: 0;
