@@ -141,7 +141,7 @@ class Badge(models.Model):
     users = models.ManyToManyField(User, through="M2MBadgeUser", related_name="badges", blank=True)
 
     def __str__(self):
-        return f"{self.name} ({', '.join([str(i) for i in self.users]) or 'No users'})"
+        return f"{self.name} ({', '.join(self.users.values_list('username', flat=True)) or 'No users'}"
 
 class Notification(models.Model):
     notif_id = models.IntegerField(primary_key=True, unique=True)

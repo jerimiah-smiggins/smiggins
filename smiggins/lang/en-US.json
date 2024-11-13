@@ -351,7 +351,6 @@
 
     "settings": {
       "title": "Settings",
-      "unload": "You have unsaved changes! Are you sure you want to leave?",
 
       "profile_title": "Profile",
       "profile_basic_title": "Basic information",
@@ -417,7 +416,13 @@
       "account_email_check": "Check your email",
 
       "admin": "Admin page",
-      "logout": "Log out of ALL accounts"
+      "logout": "Log out of ALL accounts",
+
+      "unload": {
+        "title": "Unsaved changes!",
+        "content": "You have unsaved changes! Are you sure that you want to leave this page?",
+        "leave": "Leave page"
+      }
     },
 
     "user_page": {

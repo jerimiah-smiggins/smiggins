@@ -368,7 +368,9 @@
     "settings": {
       "title": "Agordoj",
       "username_load_failure": "Uzantnomo ne eblis \u015dar\u011di! Provu re\u015dargi la pagojn?",
-      "unload": "Vi havas nekonservitajn \u015dan\u011dojn! \u0108u vi certas, ke vi volas foriri?",
+      "unload": {
+        "description": "Vi havas nekonservitajn \u015dan\u011dojn! \u0108u vi certas, ke vi volas foriri?"
+      },
 
       "profile_title": "Profilo",
       "profile_basic_title": "Baza informoj",

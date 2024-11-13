@@ -113,3 +113,7 @@ forEach(document.querySelectorAll("[data-add-icon]"), (val: HTMLElement, index: 
 forEach(document.querySelectorAll("[data-add-badge]"), (val: HTMLElement, index: number): void => {
   val.innerHTML = badges[val.dataset.addBadge];
 });
+
+if (typeof onLoad === "function") {
+  onLoad();
+}

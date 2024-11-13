@@ -1,3 +1,4 @@
+let unload = false;
 inc = 0;
 home = true;
 let output = "<select id=\"color\">";
@@ -113,11 +114,16 @@ function updatePronouns() {
     }
 }
 function setUnload() {
+    unload = true;
     if (!onbeforeunload) {
-        onbeforeunload = function () {
+        onbeforeunload = function (event) {
             return lang.settings.unload;
         };
     }
+}
+function removeUnload() {
+    unload = false;
+    onbeforeunload = null;
 }
 if (oldFavicon) {
     dom("old-favi").setAttribute("checked", "");
@@ -181,7 +187,7 @@ dom("theme").addEventListener("change", function () {
     });
 });
 dom("save").addEventListener("click", function () {
-    onbeforeunload = null;
+    removeUnload();
     s_fetch("/api/user/settings", {
         method: "PATCH",
         body: JSON.stringify({
@@ -225,10 +231,28 @@ ENABLE_GRADIENT_BANNERS && dom("banner-color-two").addEventListener("input", fun
 });
 ENABLE_GRADIENT_BANNERS && dom("banner-is-gradient").addEventListener("input", toggleGradient);
 ENABLE_ACCOUNT_SWITCHER && dom("acc-switch").addEventListener("click", function () {
-    let val = dom("accs").value.split("-", 2);
-    setCookie("token", val[0]);
-    localStorage.setItem("username", val[1]);
-    location.reload();
+    if (unload) {
+        createModal(lang.settings.unload.title, lang.settings.unload.content, [
+            {
+                name: lang.settings.unload.leave,
+                onclick: () => {
+                    let val = dom("accs").value.split("-", 2);
+                    setCookie("token", val[0]);
+                    localStorage.setItem("username", val[1]);
+                    removeUnload();
+                    location.href = location.href;
+                    closeModal();
+                }
+            },
+            { name: lang.generic.cancel, onclick: closeModal }
+        ]);
+    }
+    else {
+        let val = dom("accs").value.split("-", 2);
+        setCookie("token", val[0]);
+        localStorage.setItem("username", val[1]);
+        location.href = location.href;
+    }
 });
 ENABLE_ACCOUNT_SWITCHER && dom("acc-remove").addEventListener("click", function () {
     let removed = dom("accs").value.split("-", 2);
@@ -308,3 +332,27 @@ ENABLE_EMAIL && dom("email-submit").addEventListener("click", function () {
         disable: [dom("email"), dom("email-submit")]
     });
 });
+onLoad = function () {
+    document.querySelectorAll("a").forEach((val, index) => {
+        if (!val.href || val.href[0] === "#" || val.href.startsWith("javascript:") || val.target === "_blank") {
+            return;
+        }
+        val.addEventListener("click", () => {
+            if (unload) {
+                let url = this.href;
+                event.preventDefault();
+                createModal(lang.settings.unload.title, lang.settings.unload.content, [
+                    {
+                        name: lang.settings.unload.leave,
+                        onclick: () => {
+                            removeUnload();
+                            location.href = url;
+                            closeModal();
+                        }
+                    },
+                    { name: lang.generic.cancel, onclick: closeModal }
+                ]);
+            }
+        });
+    });
+};

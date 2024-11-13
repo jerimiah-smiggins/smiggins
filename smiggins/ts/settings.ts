@@ -1,6 +1,8 @@
 declare let user_pronouns: string;
 declare let hasEmail: boolean;
 
+let unload: boolean = false;
+
 inc = 0;
 home = true;
 
@@ -134,11 +136,18 @@ function updatePronouns(): void {
 }
 
 function setUnload(): void {
+  unload = true;
+
   if (!onbeforeunload) {
-    onbeforeunload = function(): string {
+    onbeforeunload = function(event: BeforeUnloadEvent): string {
       return lang.settings.unload;
     };
   }
+}
+
+function removeUnload(): void {
+  unload = false;
+  onbeforeunload = null;
 }
 
 if (oldFavicon) {
@@ -209,7 +218,8 @@ dom("theme").addEventListener("change", function(): void {
 });
 
 dom("save").addEventListener("click", function(): void {
-  onbeforeunload = null;
+  removeUnload();
+
   s_fetch("/api/user/settings", {
     method: "PATCH",
     body: JSON.stringify({
@@ -236,7 +246,7 @@ dom("save").addEventListener("click", function(): void {
       dom("followers-approval"),
       dom("lang"),
     ],
-    postFunction: (success: boolean) => {
+    postFunction: (success: boolean): void => {
       if (!success) {
         setUnload();
       }
@@ -257,10 +267,28 @@ ENABLE_GRADIENT_BANNERS && dom("banner-color-two").addEventListener("input", fun
 ENABLE_GRADIENT_BANNERS && dom("banner-is-gradient").addEventListener("input", toggleGradient);
 
 ENABLE_ACCOUNT_SWITCHER && dom("acc-switch").addEventListener("click", function(): void {
-  let val: string[] = (dom("accs") as HTMLInputElement).value.split("-", 2);
-  setCookie("token", val[0]);
-  localStorage.setItem("username", val[1]);
-  location.reload();
+  if (unload) {
+    createModal(lang.settings.unload.title, lang.settings.unload.content, [
+      {
+        name: lang.settings.unload.leave,
+        onclick: (): void => {
+          let val: string[] = (dom("accs") as HTMLInputElement).value.split("-", 2);
+          setCookie("token", val[0]);
+          localStorage.setItem("username", val[1]);
+
+          removeUnload();
+          location.href = location.href;
+          closeModal();
+        }
+      },
+      { name: lang.generic.cancel, onclick: closeModal }
+    ]);
+  } else {
+    let val: string[] = (dom("accs") as HTMLInputElement).value.split("-", 2);
+    setCookie("token", val[0]);
+    localStorage.setItem("username", val[1]);
+    location.href = location.href;
+  }
 });
 
 ENABLE_ACCOUNT_SWITCHER && dom("acc-remove").addEventListener("click", function(): void {
@@ -353,3 +381,29 @@ ENABLE_EMAIL && dom("email-submit").addEventListener("click", function(): void {
     disable: [dom("email"), dom("email-submit")]
   });
 });
+
+onLoad = function(): void {
+  document.querySelectorAll("a").forEach((val: HTMLAnchorElement, index: number): void => {
+    if (!val.href || val.href[0] === "#" || val.href.startsWith("javascript:") || val.target === "_blank") {
+      return;
+    }
+
+    val.addEventListener("click", (): void => {
+      if (unload) {
+        let url: string = this.href;
+        event.preventDefault();
+        createModal(lang.settings.unload.title, lang.settings.unload.content, [
+          {
+            name: lang.settings.unload.leave,
+            onclick: (): void => {
+              removeUnload();
+              location.href = url;
+              closeModal();
+            }
+          },
+          { name: lang.generic.cancel, onclick: closeModal }
+        ]);
+      }
+    });
+  });
+}

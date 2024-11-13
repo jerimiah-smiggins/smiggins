@@ -83,3 +83,6 @@ forEach(document.querySelectorAll("[data-add-icon]"), (val, index) => {
 forEach(document.querySelectorAll("[data-add-badge]"), (val, index) => {
     val.innerHTML = badges[val.dataset.addBadge];
 });
+if (typeof onLoad === "function") {
+    onLoad();
+}

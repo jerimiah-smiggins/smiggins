@@ -386,3 +386,42 @@ body[data-bar-dir="v"][data-bar-pos^="l"] {
     content: "";
   }
 }
+
+#modal-container {
+  background-color: var(--modal-backdrop);
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+
+  #modal {
+    background-color: var(--modal-background);
+    outline: 1px solid var(--modal-border);
+    border-radius: 10px;
+    width: calc(100vw - 120px);
+    max-width: 500px;
+    top: 5vw;
+    margin: 0 auto;
+    margin-top: 20px;
+    padding: 20px 40px;
+    text-align: center;
+
+    h1 {
+      margin-top: 0;
+    }
+
+    #modal-buttons {
+      display: flex;
+      flex-direction: row;
+      flex-wrap: wrap;
+      gap: 10px;
+      justify-content: center;
+    }
+  }
+}
+
+[disabled][data-modal-disable]:is(button, input, textarea) {
+  opacity: 100% !important;
+  pointer-events: none !important;
+}
