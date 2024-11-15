@@ -34,7 +34,7 @@ function addQuote(postID, isComment) {
     }
     let c = 0;
     let originalPost = document.querySelector(`[data-${isComment ? "comment" : "post"}-id="${postID}"]`);
-    let originalCWEl = originalPost.querySelector(".c-warning summary");
+    let originalCWEl = originalPost.querySelector(".c-warning summary .c-warning-main");
     let originalCW = originalCWEl ? originalCWEl.innerHTML : null;
     post.innerHTML = `
     <div class="log"></div>
@@ -115,7 +115,7 @@ function editPost(postID, isComment, private, originalText) {
     let post = document.querySelector(`[data-${isComment ? "comment" : "post"}-id="${postID}"]`);
     let contentField = post.querySelectorAll(".main-area")[1];
     let oldContentField = contentField.innerHTML;
-    let originalCW = contentField.querySelector("summary") ? contentField.querySelector("summary").innerText : "";
+    let originalCW = contentField.querySelector("summary") ? contentField.querySelector("summary > .c-warning-main").innerText : "";
     contentField.innerHTML = `
     <div class="log"></div>
     <div class="quote-visibility">

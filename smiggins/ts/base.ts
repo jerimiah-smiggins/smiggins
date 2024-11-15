@@ -703,7 +703,14 @@ function getPostHTML(
 
       <div class="main-area">
         ${postJSON.c_warning ? `<details class="c-warning">` : ""}
-        ${postJSON.c_warning ? `<summary>${escapeHTML(postJSON.c_warning)}</summary>` : ""}
+        ${postJSON.c_warning ? `<summary>
+          <div class="c-warning-main">${escapeHTML(postJSON.c_warning)}</div>
+          <div class="c-warning-stats">
+            (${lang.post[postJSON.content.length == 1 ? "chars_singular" : "chars_plural"].replaceAll("%c", postJSON.content.length)
+            }${postJSON.quote ? `, ${lang.post.quote}` : ""
+            }${postJSON.poll ? `, ${lang.home.poll}` : ""})
+          </div>
+        </summary>` : ""}
         <div class="main-content">
           ${includePostLink ? `<a aria-hidden="true" href="/${isComment ? "c" : "p"}/${postJSON.post_id}" tabindex="-1" class="text no-underline">` : ""}
             ${
@@ -766,7 +773,6 @@ function getPostHTML(
           </small></div>`;
         })() : ""
       }
-      ${postJSON.c_warning ? `</details>` : ""}
 
       ${
         postJSON.quote ? `
@@ -795,7 +801,14 @@ function getPostHTML(
                     </a>
                   </div>
 
-                  ${postJSON.quote.c_warning ? `<details class="c-warning"><summary>${escapeHTML(postJSON.quote.c_warning)}</summary>` : ""}
+                  ${postJSON.quote.c_warning ? `<details class="c-warning"><summary>
+                    <div class="c-warning-main">${escapeHTML(postJSON.quote.c_warning)}</div>
+                    <div class="c-warning-stats">
+                      (${lang.post[postJSON.quote.content.length == 1 ? "chars_singular" : "chars_plural"].replaceAll("%c", postJSON.quote.content.length)
+                      }${postJSON.quote.quote ? `, ${lang.post.quote}` : ""
+                      }${postJSON.quote.poll ? `, ${lang.home.poll}` : ""})
+                    </div>
+                  </summary>` : ""}
                   <div class="main-content">
                     <a aria-hidden="true" href="/${postJSON.quote.comment ? "c" : "p"}/${postJSON.quote.post_id}" class="text no-underline">
                       ${
@@ -825,6 +838,7 @@ function getPostHTML(
         ` : ""
       }
       </div>
+      ${postJSON.c_warning ? `</details>` : ""}
 
       <div class="bottom-content">
         ${includePostLink ? `<a href="/${isComment ? "c" : "p"}/${postJSON.post_id}" class="text no-underline">` : ""}

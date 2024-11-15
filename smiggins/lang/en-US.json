@@ -346,7 +346,9 @@
       "pin": "Pin",
       "unpin": "Unpin",
       "more": "More...",
-      "edit": "Edit"
+      "edit": "Edit",
+      "chars_singular": "%c char",
+      "chars_plural": "%c chars" // home.poll + post.quote
     },
 
     "settings": {
@@ -524,7 +526,8 @@
       "changes": {
         "v0.13.5": {
           "1": "Added a custom modal when leaving the settings page with unsaved changes",
-          "2": "Added a way to delete your own account"
+          "2": "Added a way to delete your own account",
+          "3": "Changed content warning previews"
         },
         "v0.13.4": {
           "1": "Rewrote the database structure",

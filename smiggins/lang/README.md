@@ -63,7 +63,9 @@ home.c_warning_placeholder
 + settings.unload.title
 + settings.unload.content
 + settings.unload.leave
-+ changelog.changes.v0.13.5 {1, 2}
++ post.chars_singular
++ post.chars_plural
++ changelog.changes.v0.13.5 {1, 2, 3}
 ```
 
 <details>

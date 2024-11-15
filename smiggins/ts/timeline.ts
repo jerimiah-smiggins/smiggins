@@ -37,7 +37,7 @@ function addQuote(postID: number, isComment: boolean): void {
   let c: number = 0;
 
   let originalPost: HTMLElement = document.querySelector(`[data-${isComment ? "comment" : "post"}-id="${postID}"]`);
-  let originalCWEl: HTMLElement = originalPost.querySelector(".c-warning summary");
+  let originalCWEl: HTMLElement = originalPost.querySelector(".c-warning summary .c-warning-main");
   let originalCW: string | null = originalCWEl ? originalCWEl.innerHTML : null;
 
   post.innerHTML = `
@@ -132,7 +132,7 @@ function editPost(postID: number, isComment: boolean, private: boolean, original
 
   let oldContentField: string = contentField.innerHTML;
 
-  let originalCW: string = contentField.querySelector("summary") ? contentField.querySelector("summary").innerText : "";
+  let originalCW: string = contentField.querySelector("summary") ? (contentField.querySelector("summary > .c-warning-main") as HTMLElement).innerText : "";
 
   contentField.innerHTML = `
     <div class="log"></div>
