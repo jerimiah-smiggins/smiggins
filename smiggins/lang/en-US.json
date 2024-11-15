@@ -426,7 +426,8 @@
       "unload": {
         "title": "Unsaved changes!",
         "content": "You have unsaved changes! Are you sure that you want to leave this page?",
-        "leave": "Leave page"
+        "leave": "Leave page",
+        "save": "Save and leave"
       }
     },
 

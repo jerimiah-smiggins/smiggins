@@ -186,7 +186,7 @@ dom("theme").addEventListener("change", function () {
         disable: [this]
     });
 });
-dom("save").addEventListener("click", function () {
+function save(post, log) {
     removeUnload();
     s_fetch("/api/user/settings", {
         method: "PATCH",
@@ -201,6 +201,7 @@ dom("save").addEventListener("click", function () {
             approve_followers: dom("followers-approval").checked,
             default_post_visibility: dom("default-post").value
         }),
+        customLog: log,
         disable: [
             this,
             dom("displ-name"),
@@ -218,9 +219,13 @@ dom("save").addEventListener("click", function () {
             if (!success) {
                 setUnload();
             }
+            if (typeof post == "function") {
+                post(success);
+            }
         }
     });
-});
+}
+dom("save").addEventListener("click", () => (save()));
 dom("banner-color").addEventListener("input", function () {
     setUnload();
     document.body.style.setProperty("--banner", this.value);
@@ -336,7 +341,7 @@ dom("delete-account").addEventListener("click", function () {
     createModal(escapeHTML(lang.admin.account_deletion.title), escapeHTML(lang.settings.account_deletion_warning), [
         { name: lang.generic.cancel, onclick: closeModal },
         { name: lang.settings.account_deletion_confirm, onclick: () => {
-                createModal(escapeHTML(lang.admin.account_deletion.title), `<div id="modal-log"></div>${escapeHTML(lang.settings.account_deletion_password)}<br><input type="password" id="account-deletion-password" placeholder="${escapeHTML(lang.account.password_placeholder)}">`, [
+                createModal(escapeHTML(lang.admin.account_deletion.title), `${escapeHTML(lang.settings.account_deletion_password)}<br><input type="password" id="account-deletion-password" placeholder="${escapeHTML(lang.account.password_placeholder)}">`, [
                     { name: lang.generic.cancel, onclick: closeModal },
                     { name: lang.admin.account_deletion.button, onclick: () => {
                             s_fetch("/api/user", {
@@ -372,6 +377,15 @@ onLoad = function () {
                             removeUnload();
                             location.href = url;
                             closeModal();
+                        }
+                    }, {
+                        name: lang.settings.unload.save,
+                        onclick: () => {
+                            save((success) => {
+                                if (success) {
+                                    location.href = url;
+                                }
+                            }, dom("modal-log"));
                         }
                     },
                     { name: lang.generic.cancel, onclick: closeModal }

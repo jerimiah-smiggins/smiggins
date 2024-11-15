@@ -217,7 +217,7 @@ dom("theme").addEventListener("change", function(): void {
   });
 });
 
-dom("save").addEventListener("click", function(): void {
+function save(post?: (success: boolean) => void, log?: null | HTMLDivElement): void {
   removeUnload();
 
   s_fetch("/api/user/settings", {
@@ -233,6 +233,7 @@ dom("save").addEventListener("click", function(): void {
       approve_followers: (dom("followers-approval") as HTMLInputElement).checked,
       default_post_visibility: (dom("default-post") as HTMLInputElement).value
     }),
+    customLog: log,
     disable: [
       this,
       dom("displ-name"),
@@ -250,9 +251,15 @@ dom("save").addEventListener("click", function(): void {
       if (!success) {
         setUnload();
       }
+
+      if (typeof post == "function") {
+        post(success);
+      }
     }
   });
-});
+}
+
+dom("save").addEventListener("click", (): void => (save()));
 
 dom("banner-color").addEventListener("input", function(): void {
   setUnload();
@@ -388,7 +395,7 @@ dom("delete-account").addEventListener("click", function(): void {
     { name: lang.settings.account_deletion_confirm, onclick: (): void => {
       createModal(
         escapeHTML(lang.admin.account_deletion.title),
-        `<div id="modal-log"></div>${escapeHTML(lang.settings.account_deletion_password)}<br><input type="password" id="account-deletion-password" placeholder="${escapeHTML(lang.account.password_placeholder)}">`,
+        `${escapeHTML(lang.settings.account_deletion_password)}<br><input type="password" id="account-deletion-password" placeholder="${escapeHTML(lang.account.password_placeholder)}">`,
         [
           { name: lang.generic.cancel, onclick: closeModal },
           { name: lang.admin.account_deletion.button, onclick: (): void => {
@@ -428,6 +435,18 @@ onLoad = function(): void {
               removeUnload();
               location.href = url;
               closeModal();
+            }
+          }, {
+            name: lang.settings.unload.save,
+            onclick: (): void => {
+              save(
+                (success: boolean) => {
+                  if (success) {
+                    location.href = url;
+                  }
+                },
+                dom("modal-log") as HTMLDivElement
+              );
             }
           },
           { name: lang.generic.cancel, onclick: closeModal }
