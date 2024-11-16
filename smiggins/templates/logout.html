@@ -17,9 +17,7 @@
 {% endblock %}
 
 {% block body %}
-  {% autoescape off %}
-    {{ lang.account.log_out_description }}
-  {% endautoescape %}
+  <a href="/">{{ lang.account.log_out_description }}</a>
 
   <script>{% include "js/logout.js" %}</script>
 {% endblock %}

@@ -48,6 +48,16 @@ to the `maintainers` section
 Updates for each language version are listed below:
 
 <details>
+<summary>v1.9.1</summary>
+
+
+```diff
+# Remove HTML tag
+account.log_out_description
+```
+</details>
+
+<details>
 <summary>v1.9.0</summary>
 modals
 

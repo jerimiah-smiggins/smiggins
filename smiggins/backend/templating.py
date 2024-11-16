@@ -421,7 +421,7 @@ generate_favicon = lambda request, a: HttpResponseRedirect("/static/img/old_favi
 if ENABLE_DYNAMIC_FAVICON:
     try:
         from cairosvg import svg2png
-    except ImportError:
+    except BaseException:
         error("Something went wrong importing the cariosvg library!\n- Try turning 'enable_dynamic_favicon' off in settings?")
 
     else:

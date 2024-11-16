@@ -272,7 +272,7 @@
       "forgot_password": "Forgot password?",
 
       "log_out_title": "Redirecting you shortly...",
-      "log_out_description": "If you don't get redirected soon, click <a href=\"/\">here...</a>",
+      "log_out_description": "If you don't get redirected soon, click here",
 
       "username_placeholder": "Username...",
       "password_placeholder": "Password...",
