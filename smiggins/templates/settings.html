@@ -158,7 +158,7 @@
       {% if ENABLE_EMAIL == "true" %}
         <label for="email">{{ lang.settings.account_email }}</label><br>
         <input {% if has_email == "true" and email_valid == "true" %}disabled{% endif %} value="{{ email }}" id="email" type="email" placeholder="email@example.com"></br>
-        <button class="primary" id="email-submit">{% if has_email == "true" and email_valid == "true" %}{{ lang.settings.account_email_update }}{% else %}{{ lang.generic.save }}{% endif %}</button>
+        <button id="email-submit">{% if has_email == "true" and email_valid == "true" %}{{ lang.settings.account_email_update }}{% else %}{{ lang.generic.save }}{% endif %}</button>
         <div id="email-output">{% if email_valid == "false" and has_email == "true" %}{{ lang.settings.account_email_verify }}{% endif %}</div><br><br>
       {% endif %}
 

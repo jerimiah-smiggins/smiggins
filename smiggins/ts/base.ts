@@ -946,6 +946,7 @@ function createModal(
   text: string,
   buttons: {
     name: string,
+    class?: string,
     onclick: (event?: MouseEvent) => void
   }[]=[]
  ): void {
@@ -981,7 +982,7 @@ function createModal(
 
   let buttonHTML: string = "";
   for (const button of buttons) {
-    buttonHTML += `<button>${button.name}</button>`;
+    buttonHTML += `<button class="${button.class}">${button.name}</button>`;
   }
 
   container.innerHTML = `<div id="modal"><h1>${title}</h1><p><div id="modal-log"></div>${text}</p><div id="modal-buttons">${buttonHTML}</div></div>`;

@@ -440,6 +440,7 @@ onLoad = function(): void {
             }
           }, {
             name: lang.settings.unload.save,
+            class: "primary",
             onclick: (): void => {
               save(
                 (success: boolean) => {
