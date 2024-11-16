@@ -4,7 +4,7 @@
 3. Changed content warning previews
 4. Commenting on posts now gives notifications properly again
 5. Fixed a bug that caused banners to never be gradient on profiles
-6. Moved changelogs from langs to a dedicated markdown file from langs
+6. Moved changelogs from langs to a dedicated markdown file
 ## v0.13.4
 1. Rewrote the database structure
 2. Rewrote how (almost all) api endpoints return data
