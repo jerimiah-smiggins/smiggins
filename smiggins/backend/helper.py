@@ -540,7 +540,7 @@ def get_lang(lang: User | str | None=None, override_cache=False) -> dict[str, di
         if context is None:
             context = {}
 
-        f = json.load(open(BASE_DIR / f"lang/{lang}.json"))
+        f = json.load(open(BASE_DIR / f"lang/{lang}.json", "r", encoding="utf-8"))
         parsed.append(lang)
 
         context = loop_through(context, f["texts"])

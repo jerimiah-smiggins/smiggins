@@ -493,7 +493,7 @@ _VARIABLES: list[tuple[str | None, list[str], type | str | list | tuple | dict, 
 f = {}
 
 try:
-    f = json.load(open(BASE_DIR / "settings.json", "r"))
+    f = json.load(open(BASE_DIR / "settings.json", "r", encoding="utf-8"))
 except ValueError:
     error("Invalid settings.json")
 except FileNotFoundError:
@@ -708,7 +708,7 @@ if CACHE_LANGUAGES is None:
 
 VALID_LANGUAGES_TEMP = [i for i in os.listdir(BASE_DIR / "lang") if len(i) <= 10 and i[-5::] == ".json"]
 VALID_LANGUAGES: list[dict[str, str]] = [{
-    "name": json.load(open(BASE_DIR / f"lang/{i}"))["meta"]["name"],
+    "name": json.load(open(BASE_DIR / f"lang/{i}", "r", encoding="utf-8"))["meta"]["name"],
     "code": i[:-5:]
 } for i in sorted(VALID_LANGUAGES_TEMP)]
 

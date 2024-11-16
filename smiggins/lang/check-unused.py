@@ -60,11 +60,11 @@ for path in search_dirs:
         if not os.path.isfile(path[0] / file) or file.split(".")[-1] not in path[1]:
             continue
 
-        all_files += " ".join([i for i in open(path[0] / file, "r").read().split(" ") if "lang" in i.lower()])
+        all_files += " ".join([i for i in open(path[0] / file, "r", encoding="utf-8").read().split(" ") if "lang" in i.lower()])
 
 langs = [i for i in os.listdir() if len(i) <= 10 and i[-5::] == ".json"]
 
 for lang in langs:
     print(lang)
-    loop_through(json.load(open(lang))["texts"])
+    loop_through(json.load(open(lang, "r", encoding="utf-8"))["texts"])
     print("-" * 20)
