@@ -416,7 +416,7 @@
       "account_email_update": "Change/Update",
       "account_email_verify": "Check your email to verify it",
       "account_email_check": "Check your email",
-      "account_deletion_warning": "Are you COMPLETELY SURE you want to delete your account? This is an IRREVERSIBLE ACTION that CAN NOT BE UNDONE.",
+      "account_deletion_warning": "Are you COMPLETELY SURE you want to delete your account? This is an IRREVERSIBLE ACTION that CAN NOT BE UNDONE. All posts, comments, likes, messages, etc. that you have created will be deleted and unable to be recovered.",
       "account_deletion_confirm": "Yes, Delete My Account",
       "account_deletion_password": "Enter your password to continue with account deletion.",
 
