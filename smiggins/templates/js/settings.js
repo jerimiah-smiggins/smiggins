@@ -382,6 +382,7 @@ onLoad = function () {
                         }
                     }, {
                         name: lang.settings.unload.save,
+                        class: "primary",
                         onclick: () => {
                             save((success) => {
                                 if (success) {

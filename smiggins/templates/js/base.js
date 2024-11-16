@@ -838,7 +838,7 @@ function createModal(title, text, buttons = []) {
     document.addEventListener("keydown", _modalKeyEvent);
     let buttonHTML = "";
     for (const button of buttons) {
-        buttonHTML += `<button>${button.name}</button>`;
+        buttonHTML += `<button class="${button.class}">${button.name}</button>`;
     }
     container.innerHTML = `<div id="modal"><h1>${title}</h1><p><div id="modal-log"></div>${text}</p><div id="modal-buttons">${buttonHTML}</div></div>`;
     let buttonsQSA = document.querySelectorAll("#modal-buttons > button");
