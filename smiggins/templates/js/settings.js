@@ -176,6 +176,8 @@ ENABLE_USER_BIOS && dom("bio").addEventListener("input", postTextInputEvent);
 dom("displ-name").addEventListener("input", setUnload);
 dom("default-post").addEventListener("input", setUnload);
 dom("followers-approval").addEventListener("input", setUnload);
+dom("lang").addEventListener("input", setUnload);
+dom("lang").addEventListener("change", setUnload);
 dom("theme").addEventListener("change", function () {
     dom("theme").setAttribute("disabled", "");
     s_fetch("/api/user/settings/theme", {
