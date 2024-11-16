@@ -199,8 +199,8 @@
 
   {{ SITE_NAME }} {{ VERSION }}<br>
 
-  {% if ENABLE_CHANGELOG_PAGE == 'true' %}
-    <a href="/changelog/">{{ lang.changelog.title }}</a><br>
+  {% if SOURCE == "true" %}
+    <a href="https://github.com/jerimiah-smiggins/smiggins/tree/main/CHANGELOG.md">{{ lang.settings.changelogs }}</a><br>
   {% endif %}
 
   {% if ENABLE_CONTACT_PAGE == 'true' %}

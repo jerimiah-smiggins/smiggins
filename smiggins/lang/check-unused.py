@@ -28,8 +28,9 @@ ignore: list[list[str]] = [
     ["admin", "logs", "who_format_single"],
     ["notifications", "event"],
     ["settings", "cosmetic_themes"],
-    ["changelog", "changes"],
-    ["generic", "pronouns"]
+    ["generic", "pronouns"],
+    ["post", "chars_singular"],
+    ["post", "chars_plural"]
 ]
 
 all_files = ""

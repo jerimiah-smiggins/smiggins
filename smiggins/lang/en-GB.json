@@ -2,7 +2,7 @@
   "meta": {
     "fallback": ["en-US"],
     "name": "English (Great Britain)",
-    "version": "1.8.4",
+    "version": "1.9.0",
     "maintainers": ["trinkey"],
     "past_maintainers": []
   },
@@ -11,50 +11,6 @@
     "settings": {
       "profile_banner_title": "Banner colour",
       "cosmetic_color": "Colour"
-    },
-
-    "changelog": {
-      "changes": {
-        "v0.13.3": {
-          "3": "Added support for opacity and accent colours in themes"
-        },
-        "v0.13.0": {
-          "5": "Added a system theme that's based on the device's preferred colour scheme"
-        },
-        "v0.12.1": {
-          "1": "When logged out, the user's preferred colour scheme is respected"
-        },
-        "v0.12.0": {
-          "6": "Added a new favicon and variations for all colour combinations, and a frontend setting to use the old one"
-        },
-        "v0.11.0": {
-          "2": "Fixed an issue that caused read notifications/messages to not be coloured grey"
-        },
-        "v0.8.6": {
-          "1": "Added a fake profile picture next to your name. This is based off of your banner colour"
-        },
-        "v0.8.2": {
-          "1": "Fixed an issue with the text colour of timestamps on message pages"
-        },
-        "v0.8.1": {
-          "3": "The link colour in messages you send has been changed to make them visible"
-        },
-        "v0.7.4": {
-          "2": "The delete and unpin buttons are both coloured red by default. In the future, there may be a setting to disable this"
-        },
-        "v0.6.7": {
-          "3": "Added a new theme with a black base instead of a dark blueish colour"
-        },
-        "v0.4.0": {
-          "11": "Remade all themes using the catppuccin colour scheme"
-        },
-        "v0.1.0": {
-          "2": "Made banner colour update when refreshing posts on a user profile"
-        },
-        "v0.0.9": {
-          "1": "Added profile banner colour configuration"
-        }
-      }
     }
   }
 }

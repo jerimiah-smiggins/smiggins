@@ -278,7 +278,6 @@
   "enable_post_deletion": true,
   "enable_editing_posts": true,
 
-  "enable_changelog_page": true,
   "enable_contact_page": true,
   "enable_credits_page": true,
 

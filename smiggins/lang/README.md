@@ -31,10 +31,7 @@ maintaining a language.
 4. Start translating. Go through the file and add any translations needed. Note
 that for the colors (like rosewater), you can just describe them (like "dull
 pink" or "yellowish orange"). If you have any questions, feel free to ask about
-it in [the discord server](https://discord.gg/tH7QnHApwu). Note that
-**translating the changelogs is OPTIONAL.** You should do the title, however
-other than that, the rest of the changelogs don't need to be done for a language
-to be considered complete.
+it in [the discord server](https://discord.gg/tH7QnHApwu).
 5. When you're done, fork the git repository, add the file, and make a pull
 request **to the `dev` branch**. Your changes will likely be added to production
 by the next update.
@@ -56,7 +53,9 @@ modals
 
 ```diff
 home.c_warning_placeholder
+changelog.title -> settings.changelogs
 - settings.unload
+- changelog
 + settings.account_deletion_warning
 + settings.account_deletion_confirm
 + settings.account_deletion_password
@@ -65,8 +64,8 @@ home.c_warning_placeholder
 + settings.unload.leave
 + post.chars_singular
 + post.chars_plural
-+ changelog.changes.v0.13.5 {1, 2, 3, 4, 5}
 ```
+</details>
 
 <details>
 <summary>v1.8.4</summary>
@@ -98,25 +97,6 @@ admin.modify.invalid_bio_size
 - settings.cosmetic_language_invalid
 - settings.account_password_failure
 + admin.modify.invalid_display_name
-+ changelog.changes.v0.13.4 {1, 2, 3, 4, 5, 6}
-```
-</details>
-
-<details>
-<summary>v1.8.3</summary>
-embedding into html and theme update
-
-```diff
-+ changelog.changes.v0.13.3 {1, 2, 3}
-```
-</details>
-
-<details>
-<summary>v1.8.2</summary>
-email theme fix
-
-```diff
-+ changelog.changes.v0.13.2 {1, 2, 3}
 ```
 </details>
 
@@ -127,7 +107,6 @@ custom themes
 ```diff
 + settings.cosmetic_themes.warm
 + settings.cosmetic_themes.purple
-+ changelog.changes.v0.13.1 {1, 2, 3, 4}
 # Fix spelling
 post.comment_id_does_not_exist
 post.invalid_username
@@ -156,7 +135,6 @@ admin rewrite
 + post.more
 + post.edit
 + settings.cosmetic_themes.auto
-+ changelogs.changes.v0.13.0 {1, 2, 3, 4, 5, 6, 7}
 admin.post_deletion_title -> admin.post_deletion.title
 admin.post_deletion_button -> admin.post_deletion.button
 admin.post_deletion_error -> admin.post_deletion.error
@@ -221,27 +199,6 @@ Caching, accessibility, custom static files
 + post.unlike
 + settings.cosmetic_bar_position
 + settings.cosmetic_bar_direction
-+ changelog.changes.v0.12.3 {1, 2, 3, 4, 5, 6}
-```
-</details>
-
-<details>
-<summary>v1.6.2</summary>
-
-Small bugfixes
-
-```diff
-+ changelog.changes.v0.12.2 {1}
-```
-</details>
-
-<details>
-<summary>v1.6.1</summary>
-
-Small bugfixes
-
-```diff
-+ changelog.changes.v0.12.1 {1, 2, 3}
 ```
 </details>
 
@@ -275,7 +232,6 @@ Reworked private accounts
 + user_page.pending_title
 + user_page.pending_accept
 + user_page.pending_deny
-+ changelog.changes.v0.12.0 {1, 2, 3, 4, 5, 6, 7}
 home.quote_private
 ```
 </details>
@@ -283,7 +239,7 @@ home.quote_private
 <details>
 <summary>v1.5.0</summary>
 
-Added emails and legacy changelogs
+Added emails
 
 ```diff
 - credits.credits
@@ -327,33 +283,12 @@ Added emails and legacy changelogs
 + email.reset.block_1
 + email.reset.block_2
 + email.reset.block_3
-+ changelog.changes.v0.11.0 {1, 2, 3, 4, 5, 6}
-+ changelog.changes.v0.3.6 {1, 2, 3}
-+ changelog.changes.v0.3.5 {1, 2, 3}
-+ changelog.changes.v0.3.4 {1, 2}
-+ changelog.changes.v0.3.3 {1}
-+ changelog.changes.v0.3.2 {1, 2, 3, 4}
-+ changelog.changes.v0.3.1 {1, 2}
-+ changelog.changes.v0.3.0 {1, 2}
-+ changelog.changes.v0.2.0 {1}
-+ changelog.changes.v0.1.1 {1}
-+ changelog.changes.v0.1.0 {1, 2}
-+ changelog.changes.v0.0.10 {1, 2, 3}
-+ changelog.changes.v0.0.9 {1, 2}
-+ changelog.changes.v0.0.8 {1, 2}
-+ changelog.changes.v0.0.7 {1}
-+ changelog.changes.v0.0.6 {1}
-+ changelog.changes.v0.0.5 {1, 2}
-+ changelog.changes.v0.0.4 {1, 2}
-+ changelog.changes.v0.0.3 {1, 2}
-+ changelog.changes.v0.0.2 {1, 2}
-+ changelog.changes.v0.0.1 {1, 2}
 settings.profile_display_name_invalid_length
 ```
 </details>
 
 <details>
-<summary>1.4.0</summary>
+<summary>v1.4.0</summary>
 
 Added polls
 
@@ -367,12 +302,11 @@ Added polls
 + home.poll_view_results
 + credits.title
 + credits.credits
-+ changelog.changes.v0.10.1 {1, 2, 3, 4, 5, 6, 7, 8, 9, 10}
 ```
 </details>
 
 <details>
-<summary>1.3.0</summary>
+<summary>v1.3.0</summary>
 
 Added polls
 
@@ -386,103 +320,11 @@ Added polls
 + home.poll_total_singular
 + account.no_new
 + post.invalid_poll
-+ changelog.changes.v0.10.0 {1, 2, 3, 4, 5}
-changelog.v0.9.1 {2}
 ```
 </details>
 
 <details>
-<summary>1.2.0</summary>
-
-Rewrote how changelogs are stored to make translating bit-by-bit easier
-
-```diff
-- changelog.logs
-+ changelog.changes.v0.9.3 {1, 2, 3}
-+ changelog.changes.v0.9.2 {1, 2, 3, 4, 5}
-+ changelog.changes.v0.9.1 {1, 2, 3, 4, 5, 6, 7}
-+ changelog.changes.v0.9.0 {1, 2, 3}
-+ changelog.changes.v0.8.6 {1}
-+ changelog.changes.v0.8.5 {1}
-+ changelog.changes.v0.8.4 {1, 2}
-+ changelog.changes.v0.8.3 {1, 2, 3, 4, 5}
-+ changelog.changes.v0.8.2 {1}
-+ changelog.changes.v0.8.1 {1, 2, 3}
-+ changelog.changes.v0.8.0 {1}
-+ changelog.changes.v0.7.4 {1, 2}
-+ changelog.changes.v0.7.3 {1, 2, 3, 4, 5, 6}
-+ changelog.changes.v0.7.2 {1}
-+ changelog.changes.v0.7.1 {1}
-+ changelog.changes.v0.7.0 {1, 2, 3}
-+ changelog.changes.v0.6.8 {1, 2, 3, 4}
-+ changelog.changes.v0.6.7 {1, 2, 3}
-+ changelog.changes.v0.6.6 {1}
-+ changelog.changes.v0.6.5 {1, 2, 3}
-+ changelog.changes.v0.6.4 {1}
-+ changelog.changes.v0.6.3 {1}
-+ changelog.changes.v0.6.2 {1}
-+ changelog.changes.v0.6.1 {1}
-+ changelog.changes.v0.6.0 {1, 2, 3, 4, 5, 6}
-+ changelog.changes.v0.5.2 {1, 2}
-+ changelog.changes.v0.5.1 {1}
-+ changelog.changes.v0.5.0 {1}
-+ changelog.changes.v0.4.3 {1, 2}
-+ changelog.changes.v0.4.2 {1, 2, 3}
-+ changelog.changes.v0.4.1 {1, 2, 3}
-+ changelog.changes.v0.4.0 {1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17}
-+ changelog.changes.v0.3.8 {1}
-+ changelog.changes.v0.3.7 {1}
-+ changelog.changes.v0.0.1 - v0.3.6
-```
-</details>
-
-<details>
-<summary>1.1.0</summary>
-
-Added changelogs
-
-```diff
-+ changelog.title
-+ changelog.unknown
-+ changelog.logs v0.9.2
-+ changelog.logs v0.9.1
-+ changelog.logs v0.9.0
-+ changelog.logs v0.8.6
-+ changelog.logs v0.8.5
-+ changelog.logs v0.8.4
-+ changelog.logs v0.8.3
-+ changelog.logs v0.8.2
-+ changelog.logs v0.8.1
-+ changelog.logs v0.8.0
-+ changelog.logs v0.7.4
-+ changelog.logs v0.7.3
-+ changelog.logs v0.7.2
-+ changelog.logs v0.7.1
-+ changelog.logs v0.7.0
-+ changelog.logs v0.6.8
-+ changelog.logs v0.6.7
-+ changelog.logs v0.6.6
-+ changelog.logs v0.6.5
-+ changelog.logs v0.6.4
-+ changelog.logs v0.6.3
-+ changelog.logs v0.6.2
-+ changelog.logs v0.6.1
-+ changelog.logs v0.6.0
-+ changelog.logs v0.5.2
-+ changelog.logs v0.5.1
-+ changelog.logs v0.5.0
-+ changelog.logs v0.4.3
-+ changelog.logs v0.4.2
-+ changelog.logs v0.4.1
-+ changelog.logs v0.4.0
-+ changelog.logs v0.3.8
-+ changelog.logs v0.3.7
-+ changelog.logs v0.0.1 - v0.3.6
-```
-</details>
-
-<details>
-<summary>1.0.0</summary>
+<summary>v1.0.0</summary>
 
 Initial commit
 

@@ -6,12 +6,12 @@ from backend.sitemaps import (sitemap_base, sitemap_index, sitemap_post,
 from backend.templating import (admin, comment, contact, credit,
                                 generate_favicon, hashtag, message, pending,
                                 post, settings, user, user_lists)
-from backend.variables import (CONTACT_INFO, DEBUG, ENABLE_CHANGELOG_PAGE,
-                               ENABLE_CONTACT_PAGE, ENABLE_CREDITS_PAGE,
-                               ENABLE_EMAIL, ENABLE_HASHTAGS,
-                               ENABLE_PRIVATE_MESSAGES, ENABLE_SITEMAPS,
-                               FAVICON_CACHE_TIMEOUT, GENERIC_CACHE_TIMEOUT,
-                               REAL_VERSION, ROBOTS, SITEMAP_CACHE_TIMEOUT)
+from backend.variables import (CONTACT_INFO, DEBUG, ENABLE_CONTACT_PAGE,
+                               ENABLE_CREDITS_PAGE, ENABLE_EMAIL,
+                               ENABLE_HASHTAGS, ENABLE_PRIVATE_MESSAGES,
+                               ENABLE_SITEMAPS, FAVICON_CACHE_TIMEOUT,
+                               GENERIC_CACHE_TIMEOUT, REAL_VERSION, ROBOTS,
+                               SITEMAP_CACHE_TIMEOUT)
 from django.contrib import admin as django_admin
 from django.http import HttpResponseRedirect
 from django.urls import include, path, re_path
@@ -37,7 +37,6 @@ urlpatterns = list(filter(bool, [
     path("settings/", settings),
     path("contact/", contact) if ENABLE_CONTACT_PAGE else None,
     path("notifications/", create_simple_return("notifications.html", redirect_logged_out=True)),
-    path("changelog/", create_simple_return("changelog.html")) if ENABLE_CHANGELOG_PAGE else None,
     path("credits/", credit) if ENABLE_CREDITS_PAGE else None,
     path("messages/", create_simple_return("messages.html", redirect_logged_out=True)) if ENABLE_PRIVATE_MESSAGES else None,
     path("pending/", pending),
