@@ -16,6 +16,7 @@ declare const ENABLE_ACCOUNT_SWITCHER: boolean;
 declare const ENABLE_POLLS: boolean;
 declare const ENABLE_CONTENT_WARNINGS: boolean;
 declare const ENABLE_EMAIL: boolean;
+declare const ENABLE_DYNAMIC_FAVICON: boolean;
 
 declare const defaultPrivate: boolean;
 declare const linkify;
@@ -214,7 +215,7 @@ type _actions = {
     name: "reload"
   } | {
     name: "redirect",
-    to: "message" | "home",
+    to: "message" | "home" | "logout",
     extra?: string
   } | {
     name: "set_theme",

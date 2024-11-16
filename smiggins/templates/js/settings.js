@@ -1,3 +1,4 @@
+let unload = false;
 inc = 0;
 home = true;
 let output = "<select id=\"color\">";
@@ -113,16 +114,21 @@ function updatePronouns() {
     }
 }
 function setUnload() {
+    unload = true;
     if (!onbeforeunload) {
-        onbeforeunload = function () {
+        onbeforeunload = function (event) {
             return lang.settings.unload;
         };
     }
 }
+function removeUnload() {
+    unload = false;
+    onbeforeunload = null;
+}
 if (oldFavicon) {
     dom("old-favi").setAttribute("checked", "");
 }
-dom("old-favi").addEventListener("input", function () {
+ENABLE_DYNAMIC_FAVICON && dom("old-favi").addEventListener("input", function () {
     oldFavicon = this.checked;
     if (oldFavicon) {
         localStorage.setItem("old-favicon", "1");
@@ -170,6 +176,8 @@ ENABLE_USER_BIOS && dom("bio").addEventListener("input", postTextInputEvent);
 dom("displ-name").addEventListener("input", setUnload);
 dom("default-post").addEventListener("input", setUnload);
 dom("followers-approval").addEventListener("input", setUnload);
+dom("lang").addEventListener("input", setUnload);
+dom("lang").addEventListener("change", setUnload);
 dom("theme").addEventListener("change", function () {
     dom("theme").setAttribute("disabled", "");
     s_fetch("/api/user/settings/theme", {
@@ -180,8 +188,8 @@ dom("theme").addEventListener("change", function () {
         disable: [this]
     });
 });
-dom("save").addEventListener("click", function () {
-    onbeforeunload = null;
+function save(post, log) {
+    removeUnload();
     s_fetch("/api/user/settings", {
         method: "PATCH",
         body: JSON.stringify({
@@ -195,6 +203,7 @@ dom("save").addEventListener("click", function () {
             approve_followers: dom("followers-approval").checked,
             default_post_visibility: dom("default-post").value
         }),
+        customLog: log,
         disable: [
             this,
             dom("displ-name"),
@@ -212,9 +221,13 @@ dom("save").addEventListener("click", function () {
             if (!success) {
                 setUnload();
             }
+            if (typeof post == "function") {
+                post(success);
+            }
         }
     });
-});
+}
+dom("save").addEventListener("click", () => (save()));
 dom("banner-color").addEventListener("input", function () {
     setUnload();
     document.body.style.setProperty("--banner", this.value);
@@ -225,10 +238,28 @@ ENABLE_GRADIENT_BANNERS && dom("banner-color-two").addEventListener("input", fun
 });
 ENABLE_GRADIENT_BANNERS && dom("banner-is-gradient").addEventListener("input", toggleGradient);
 ENABLE_ACCOUNT_SWITCHER && dom("acc-switch").addEventListener("click", function () {
-    let val = dom("accs").value.split("-", 2);
-    setCookie("token", val[0]);
-    localStorage.setItem("username", val[1]);
-    location.reload();
+    if (unload) {
+        createModal(lang.settings.unload.title, lang.settings.unload.content, [
+            {
+                name: lang.settings.unload.leave,
+                onclick: () => {
+                    let val = dom("accs").value.split("-", 2);
+                    setCookie("token", val[0]);
+                    localStorage.setItem("username", val[1]);
+                    removeUnload();
+                    location.href = location.href;
+                    closeModal();
+                }
+            },
+            { name: lang.generic.cancel, onclick: closeModal }
+        ]);
+    }
+    else {
+        let val = dom("accs").value.split("-", 2);
+        setCookie("token", val[0]);
+        localStorage.setItem("username", val[1]);
+        location.href = location.href;
+    }
 });
 ENABLE_ACCOUNT_SWITCHER && dom("acc-remove").addEventListener("click", function () {
     let removed = dom("accs").value.split("-", 2);
@@ -308,3 +339,61 @@ ENABLE_EMAIL && dom("email-submit").addEventListener("click", function () {
         disable: [dom("email"), dom("email-submit")]
     });
 });
+dom("delete-account").addEventListener("click", function () {
+    createModal(escapeHTML(lang.admin.account_deletion.title), escapeHTML(lang.settings.account_deletion_warning), [
+        { name: lang.generic.cancel, onclick: closeModal },
+        { name: lang.settings.account_deletion_confirm, onclick: () => {
+                createModal(escapeHTML(lang.admin.account_deletion.title), `${escapeHTML(lang.settings.account_deletion_password)}<br><input type="password" id="account-deletion-password" placeholder="${escapeHTML(lang.account.password_placeholder)}">`, [
+                    { name: lang.generic.cancel, onclick: closeModal },
+                    { name: lang.admin.account_deletion.button, onclick: () => {
+                            s_fetch("/api/user", {
+                                method: "DELETE",
+                                body: JSON.stringify({
+                                    password: sha256(dom("account-deletion-password").value)
+                                }),
+                                customLog: dom("modal-log"),
+                                postFunction: (success) => {
+                                    if (success) {
+                                        closeModal();
+                                    }
+                                }
+                            });
+                        } }
+                ]);
+            } }
+    ]);
+});
+onLoad = function () {
+    document.querySelectorAll("a").forEach((val, index) => {
+        if (!val.href || val.href[0] === "#" || val.href.startsWith("javascript:") || val.target === "_blank") {
+            return;
+        }
+        val.addEventListener("click", (event) => {
+            if (unload) {
+                let url = val.href;
+                event.preventDefault();
+                createModal(lang.settings.unload.title, lang.settings.unload.content, [
+                    {
+                        name: lang.settings.unload.leave,
+                        onclick: () => {
+                            removeUnload();
+                            location.href = url;
+                            closeModal();
+                        }
+                    }, {
+                        name: lang.settings.unload.save,
+                        class: "primary",
+                        onclick: () => {
+                            save((success) => {
+                                if (success) {
+                                    location.href = url;
+                                }
+                            }, dom("modal-log"));
+                        }
+                    },
+                    { name: lang.generic.cancel, onclick: closeModal }
+                ]);
+            }
+        });
+    });
+};

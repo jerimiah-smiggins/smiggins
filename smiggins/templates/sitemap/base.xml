@@ -3,9 +3,6 @@
   <url><loc>{{ URL }}/</loc></url>
   <url><loc>{{ URL }}/login/</loc></url>
   <url><loc>{{ URL }}/signup/</loc></url>
-  {% if ENABLE_CHANGELOG_PAGE == "true" %}
-    <url><loc>{{ URL }}/changelog/</loc></url>
-  {% endif %}
   {% if ENABLE_CREDITS_PAGE == "true" %}
     <url><loc>{{ URL }}/credits/</loc></url>
   {% endif %}

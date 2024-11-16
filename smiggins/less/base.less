@@ -356,7 +356,7 @@ body[data-bar-dir="v"][data-bar-pos^="l"] {
   flex-wrap: wrap;
   position: fixed;
   gap: 0.5em;
-  z-index: 999;
+  z-index: 2;
 
   a {
     display: inline-block;
@@ -385,4 +385,47 @@ body[data-bar-dir="v"][data-bar-pos^="l"] {
     background-color: var(--accent);
     content: "";
   }
+}
+
+#modal-container {
+  background-color: var(--modal-backdrop);
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  display: flex;
+  flex-direction: column;
+  flex-wrap: nowrap;
+  justify-content: center;
+  align-items: center;
+  z-index: 50;
+
+  #modal {
+    background-color: var(--modal-background);
+    outline: 1px solid var(--modal-border);
+    border-radius: 10px;
+    width: calc(100vw - 120px);
+    max-width: 500px;
+    padding: 20px 40px;
+    text-align: center;
+    height: fit-content;
+
+    h1 {
+      margin-top: 0;
+    }
+
+    #modal-buttons {
+      display: flex;
+      flex-direction: row;
+      flex-wrap: wrap;
+      gap: 10px;
+      justify-content: center;
+    }
+  }
+}
+
+[disabled][data-modal-disable]:is(button, input, textarea) {
+  opacity: 100% !important;
+  pointer-events: none !important;
 }

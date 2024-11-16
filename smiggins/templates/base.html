@@ -32,6 +32,7 @@
       const ENABLE_POLLS = {{ ENABLE_POLLS }};
       const ENABLE_CONTENT_WARNINGS = {{ ENABLE_CONTENT_WARNINGS }};
       const ENABLE_EMAIL = {{ ENABLE_EMAIL }};
+      const ENABLE_DYNAMIC_FAVICON = {{ ENABLE_DYNAMIC_FAVICON }};
 
       const defaultPrivate = {{ DEFAULT_PRIVATE }};
 
@@ -88,6 +89,9 @@
           --checkbox-border: ${ theme.colors.checkbox_border };
           --button-border: ${ theme.colors.button_border };
           --table-border: ${ theme.colors.table_border };
+          --modal-backdrop: ${ theme.colors.modal_backdrop };
+          --modal-background: ${ theme.colors.modal_background };
+          --modal-border: ${ theme.colors.modal_border };
           --gray: ${ theme.colors.gray };
           color-scheme: ${theme.light_theme ? "light" : "dark"};
         }`.replaceAll("@accent-50", "var(--accent-50)").replaceAll("@accent", "var(--accent)");

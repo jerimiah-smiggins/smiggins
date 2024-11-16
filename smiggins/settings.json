@@ -278,7 +278,6 @@
   "enable_post_deletion": true,
   "enable_editing_posts": true,
 
-  "enable_changelog_page": true,
   "enable_contact_page": true,
   "enable_credits_page": true,
 
@@ -341,6 +340,9 @@
   **     - input_border (borders get set to accent when the element is focused/active/etc)
   **     - checkbox_border
   **     - button_border
+  **     - modal_backdrop
+  **     - modal_background
+  **     - modal_border
   **     - gray (used for read notifications/messages)
   **
   **     "accent": {

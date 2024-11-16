@@ -80,7 +80,7 @@ def comment_create(request, data: NewComment) -> APIResponse:
         parent.save()
 
     creator = parent.creator
-    if creator.user_id != user.user_id and creator.blocking.contains(user) and not user.blocking.contains(creator):
+    if creator.user_id != user.user_id and not creator.blocking.contains(user) and not user.blocking.contains(creator):
         create_notification(
             creator,
             "comment",

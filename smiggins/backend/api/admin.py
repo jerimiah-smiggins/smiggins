@@ -2,7 +2,7 @@
 
 import time
 
-from posts.models import AdminLog, Badge, User
+from posts.models import AdminLog, Badge, PrivateMessageContainer, User
 
 from ..helper import get_lang, trim_whitespace
 from ..variables import BADGE_DATA, MAX_ADMIN_LOG_LINES, OWNER_USER_ID
@@ -89,6 +89,28 @@ def user_delete(request, data: AccountIdentifier) -> APIResponse:
 
     if BitMask.can_use(user, BitMask.DELETE_USER):
         log_admin_action("Delete user", user, account.username, "Success")
+
+        for mid in account.messages:
+            try:
+                pmc = PrivateMessageContainer.objects.get(container_id=mid)
+            except PrivateMessageContainer.DoesNotExist:
+                continue
+
+            u1 = pmc.user_one
+            u2 = pmc.user_two
+
+            if u1.user_id == account.user_id:
+                u2.messages.remove(mid)
+                if mid in u2.unread_messages:
+                    u2.unread_messages.remove(mid)
+
+                u2.save()
+            else:
+                u1.messages.remove(mid)
+                if mid in u1.unread_messages:
+                    u1.unread_messages.remove(mid)
+
+                u1.save()
 
         account.delete()
 

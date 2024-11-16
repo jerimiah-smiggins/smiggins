@@ -16,9 +16,9 @@ from posts.models import Comment, Notification, Post, User
 from .variables import (BADGE_DATA, BASE_DIR, CACHE_LANGUAGES,
                         DEFAULT_DARK_THEME, DEFAULT_LANGUAGE,
                         DEFAULT_LIGHT_THEME, DISCORD, ENABLE_ACCOUNT_SWITCHER,
-                        ENABLE_BADGES, ENABLE_CHANGELOG_PAGE,
-                        ENABLE_CONTACT_PAGE, ENABLE_CONTENT_WARNINGS,
-                        ENABLE_CREDITS_PAGE, ENABLE_EDITING_POSTS,
+                        ENABLE_BADGES, ENABLE_CONTACT_PAGE,
+                        ENABLE_CONTENT_WARNINGS, ENABLE_CREDITS_PAGE,
+                        ENABLE_DYNAMIC_FAVICON, ENABLE_EDITING_POSTS,
                         ENABLE_EMAIL, ENABLE_GRADIENT_BANNERS, ENABLE_HASHTAGS,
                         ENABLE_NEW_ACCOUNTS, ENABLE_PINNED_POSTS, ENABLE_POLLS,
                         ENABLE_POST_DELETION, ENABLE_PRIVATE_MESSAGES,
@@ -104,7 +104,6 @@ def get_HTTP_response(
         "ENABLE_QUOTES": str(ENABLE_QUOTES).lower(),
         "ENABLE_POST_DELETION": str(ENABLE_POST_DELETION).lower(),
         "ENABLE_HASHTAGS": str(ENABLE_HASHTAGS).lower(),
-        "ENABLE_CHANGELOG_PAGE": str(ENABLE_CHANGELOG_PAGE).lower(),
         "ENABLE_CONTACT_PAGE": str(ENABLE_CONTACT_PAGE).lower(),
         "ENABLE_CREDITS_PAGE": str(ENABLE_CREDITS_PAGE).lower(),
         "ENABLE_PINNED_POSTS": str(ENABLE_PINNED_POSTS).lower(),
@@ -113,6 +112,7 @@ def get_HTTP_response(
         "ENABLE_POLLS": str(ENABLE_POLLS).lower(),
         "ENABLE_NEW_ACCOUNTS": str(ENABLE_NEW_ACCOUNTS).lower(),
         "ENABLE_EMAIL": str(ENABLE_EMAIL).lower(),
+        "ENABLE_DYNAMIC_FAVICON": str(ENABLE_DYNAMIC_FAVICON).lower(),
 
         "DISCORD": DISCORD or "",
 
@@ -560,15 +560,6 @@ def get_lang(lang: User | str | None=None, override_cache=False) -> dict[str, di
         "past_maintainers": full["meta"]["past_maintainers"],
         "name": full["meta"]["name"]
     }
-
-    temp_lang = {}
-    for i in sorted(x["changelog"]["changes"], reverse=True, key=lambda a: tuple(map(int, a[1::].split('.')))):
-        temp_vals = {}
-        for o in sorted(x["changelog"]["changes"][i], key=int):
-            temp_vals[str(o)] = x["changelog"]["changes"][i][str(o)]
-        temp_lang[i] = temp_vals
-
-    x["changelog"]["changes"] = temp_lang
 
     return x
 

@@ -1,6 +1,6 @@
 # For API functions that are user-specific, like settings, following, etc.
 
-from posts.models import Comment, Post, User
+from posts.models import Comment, Post, PrivateMessageContainer, User
 
 from ..helper import (DEFAULT_LANG, create_api_ratelimit, ensure_ratelimit,
                       generate_token, get_badges, get_lang, get_post_json,
@@ -10,8 +10,8 @@ from ..variables import (API_TIMINGS, DEFAULT_BANNER_COLOR, DEFAULT_LANGUAGE,
                          ENABLE_USER_BIOS, MAX_BIO_LENGTH,
                          MAX_DISPL_NAME_LENGTH, MAX_USERNAME_LENGTH,
                          POSTS_PER_REQUEST, THEMES, VALID_LANGUAGES)
-from .schema import (Account, APIResponse, ChangePassword, Settings, Theme,
-                     Username)
+from .schema import (Account, APIResponse, ChangePassword, Password, Settings,
+                     Theme, Username)
 
 
 def signup(request, data: Account) -> APIResponse:
@@ -604,4 +604,46 @@ def remove_pending(request, data: Username) -> APIResponse:
         "actions": [
             { "name": "refresh_timeline", "special": "pending" }
         ]
+    }
+
+def user_delete(request, data: Password) -> APIResponse:
+    user = User.objects.get(token=request.COOKIES.get("token"))
+
+    if user.token == generate_token(user.username, data.password):
+        for mid in user.messages:
+            try:
+                pmc = PrivateMessageContainer.objects.get(container_id=mid)
+            except PrivateMessageContainer.DoesNotExist:
+                continue
+
+            u1 = pmc.user_one
+            u2 = pmc.user_two
+
+            if u1.user_id == user.user_id:
+                u2.messages.remove(mid)
+                if mid in u2.unread_messages:
+                    u2.unread_messages.remove(mid)
+
+                u2.save()
+            else:
+                u1.messages.remove(mid)
+                if mid in u1.unread_messages:
+                    u1.unread_messages.remove(mid)
+
+                u1.save()
+
+        user.delete()
+
+        return {
+            "success": True,
+            "actions": [
+                { "name": "redirect", "to": "logout" }
+            ]
+        }
+
+    lang = get_lang(user)
+
+    return 400, {
+        "success": False,
+        "message": lang["account"]["bad_password"]
     }

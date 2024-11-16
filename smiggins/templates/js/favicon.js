@@ -1,6 +1,6 @@
 '{% load static %}';
 let favicon = document.createElement("link");
-let oldFavicon = !!localStorage.getItem("old-favicon");
+let oldFavicon = !!localStorage.getItem("old-favicon") && ENABLE_DYNAMIC_FAVICON;
 function autoSetFavicon() {
     if (oldFavicon) {
         return;

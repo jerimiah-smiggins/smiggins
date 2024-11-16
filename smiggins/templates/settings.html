@@ -136,8 +136,10 @@
         </tr>
       </table><br><br>
 
-      <label for="old-favi">{{ lang.settings.cosmetic_old_favicon }}</label>
-      <input type="checkbox" id="old-favi"><br><br>
+      {% if ENABLE_DYNAMIC_FAVICON == "true" %}
+        <label for="old-favi">{{ lang.settings.cosmetic_old_favicon }}</label>
+        <input type="checkbox" id="old-favi"><br><br>
+      {% endif %}
 
       <label for="color">{{ lang.settings.cosmetic_color }}:</label><br>
       <div id="color-selector"></div>
@@ -151,15 +153,17 @@
       <label><input type="password" autocomplete="off" placeholder="{{ lang.settings.account_password_new }}" id="password"></label><br>
       <label><input type="password" autocomplete="off" placeholder="{{ lang.account.confirm_placeholder }}" id="confirm"></label><br>
       <button id="toggle-password">{{ lang.account.toggle_password }}</button>
-      <button id="set-password">{{ lang.generic.save }}</button>
+      <button id="set-password">{{ lang.generic.save }}</button><br><br>
 
       {% if ENABLE_EMAIL == "true" %}
-        <br><br>
         <label for="email">{{ lang.settings.account_email }}</label><br>
         <input {% if has_email == "true" and email_valid == "true" %}disabled{% endif %} value="{{ email }}" id="email" type="email" placeholder="email@example.com"></br>
-        <button class="primary" id="email-submit">{% if has_email == "true" and email_valid == "true" %}{{ lang.settings.account_email_update }}{% else %}{{ lang.generic.save }}{% endif %}</button>
-        <div id="email-output">{% if email_valid == "false" and has_email == "true" %}{{ lang.settings.account_email_verify }}{% endif %}</div>
+        <button id="email-submit">{% if has_email == "true" and email_valid == "true" %}{{ lang.settings.account_email_update }}{% else %}{{ lang.generic.save }}{% endif %}</button>
+        <div id="email-output">{% if email_valid == "false" and has_email == "true" %}{{ lang.settings.account_email_verify }}{% endif %}</div><br><br>
       {% endif %}
+
+      {{ lang.admin.account_deletion.title }}<br>
+      <button id="delete-account">{{ lang.admin.account_deletion.button }}</button>
 
       {% if ENABLE_ACCOUNT_SWITCHER == "true" %}
         <br><br>
@@ -195,8 +199,8 @@
 
   {{ SITE_NAME }} {{ VERSION }}<br>
 
-  {% if ENABLE_CHANGELOG_PAGE == 'true' %}
-    <a href="/changelog/">{{ lang.changelog.title }}</a><br>
+  {% if SOURCE == "true" %}
+    <a target="_blank" href="https://github.com/jerimiah-smiggins/smiggins/tree/main/CHANGELOG.md">{{ lang.settings.changelogs }}</a><br>
   {% endif %}
 
   {% if ENABLE_CONTACT_PAGE == 'true' %}

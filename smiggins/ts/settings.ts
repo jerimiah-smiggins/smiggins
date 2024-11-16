@@ -1,6 +1,8 @@
 declare let user_pronouns: string;
 declare let hasEmail: boolean;
 
+let unload: boolean = false;
+
 inc = 0;
 home = true;
 
@@ -134,18 +136,25 @@ function updatePronouns(): void {
 }
 
 function setUnload(): void {
+  unload = true;
+
   if (!onbeforeunload) {
-    onbeforeunload = function(): string {
+    onbeforeunload = function(event: BeforeUnloadEvent): string {
       return lang.settings.unload;
     };
   }
+}
+
+function removeUnload(): void {
+  unload = false;
+  onbeforeunload = null;
 }
 
 if (oldFavicon) {
   dom("old-favi").setAttribute("checked", "");
 }
 
-dom("old-favi").addEventListener("input", function(): void {
+ENABLE_DYNAMIC_FAVICON && dom("old-favi").addEventListener("input", function(): void {
   oldFavicon = (this as HTMLInputElement).checked;
   if (oldFavicon) {
     localStorage.setItem("old-favicon", "1");
@@ -196,6 +205,8 @@ ENABLE_USER_BIOS && dom("bio").addEventListener("input", postTextInputEvent);
 dom("displ-name").addEventListener("input", setUnload);
 dom("default-post").addEventListener("input", setUnload);
 dom("followers-approval").addEventListener("input", setUnload);
+dom("lang").addEventListener("input", setUnload);
+dom("lang").addEventListener("change", setUnload);
 
 dom("theme").addEventListener("change", function(): void {
   dom("theme").setAttribute("disabled", "");
@@ -208,8 +219,9 @@ dom("theme").addEventListener("change", function(): void {
   });
 });
 
-dom("save").addEventListener("click", function(): void {
-  onbeforeunload = null;
+function save(post?: (success: boolean) => void, log?: null | HTMLDivElement): void {
+  removeUnload();
+
   s_fetch("/api/user/settings", {
     method: "PATCH",
     body: JSON.stringify({
@@ -223,6 +235,7 @@ dom("save").addEventListener("click", function(): void {
       approve_followers: (dom("followers-approval") as HTMLInputElement).checked,
       default_post_visibility: (dom("default-post") as HTMLInputElement).value
     }),
+    customLog: log,
     disable: [
       this,
       dom("displ-name"),
@@ -236,13 +249,19 @@ dom("save").addEventListener("click", function(): void {
       dom("followers-approval"),
       dom("lang"),
     ],
-    postFunction: (success: boolean) => {
+    postFunction: (success: boolean): void => {
       if (!success) {
         setUnload();
       }
+
+      if (typeof post == "function") {
+        post(success);
+      }
     }
   });
-});
+}
+
+dom("save").addEventListener("click", (): void => (save()));
 
 dom("banner-color").addEventListener("input", function(): void {
   setUnload();
@@ -257,10 +276,28 @@ ENABLE_GRADIENT_BANNERS && dom("banner-color-two").addEventListener("input", fun
 ENABLE_GRADIENT_BANNERS && dom("banner-is-gradient").addEventListener("input", toggleGradient);
 
 ENABLE_ACCOUNT_SWITCHER && dom("acc-switch").addEventListener("click", function(): void {
-  let val: string[] = (dom("accs") as HTMLInputElement).value.split("-", 2);
-  setCookie("token", val[0]);
-  localStorage.setItem("username", val[1]);
-  location.reload();
+  if (unload) {
+    createModal(lang.settings.unload.title, lang.settings.unload.content, [
+      {
+        name: lang.settings.unload.leave,
+        onclick: (): void => {
+          let val: string[] = (dom("accs") as HTMLInputElement).value.split("-", 2);
+          setCookie("token", val[0]);
+          localStorage.setItem("username", val[1]);
+
+          removeUnload();
+          location.href = location.href;
+          closeModal();
+        }
+      },
+      { name: lang.generic.cancel, onclick: closeModal }
+    ]);
+  } else {
+    let val: string[] = (dom("accs") as HTMLInputElement).value.split("-", 2);
+    setCookie("token", val[0]);
+    localStorage.setItem("username", val[1]);
+    location.href = location.href;
+  }
 });
 
 ENABLE_ACCOUNT_SWITCHER && dom("acc-remove").addEventListener("click", function(): void {
@@ -353,3 +390,71 @@ ENABLE_EMAIL && dom("email-submit").addEventListener("click", function(): void {
     disable: [dom("email"), dom("email-submit")]
   });
 });
+
+dom("delete-account").addEventListener("click", function(): void {
+  createModal(escapeHTML(lang.admin.account_deletion.title), escapeHTML(lang.settings.account_deletion_warning), [
+    { name: lang.generic.cancel, onclick: closeModal },
+    { name: lang.settings.account_deletion_confirm, onclick: (): void => {
+      createModal(
+        escapeHTML(lang.admin.account_deletion.title),
+        `${escapeHTML(lang.settings.account_deletion_password)}<br><input type="password" id="account-deletion-password" placeholder="${escapeHTML(lang.account.password_placeholder)}">`,
+        [
+          { name: lang.generic.cancel, onclick: closeModal },
+          { name: lang.admin.account_deletion.button, onclick: (): void => {
+            s_fetch("/api/user", {
+              method: "DELETE",
+              body: JSON.stringify({
+                password: sha256((dom("account-deletion-password") as HTMLInputElement).value)
+              }),
+              customLog: dom("modal-log") as HTMLDivElement,
+              postFunction: (success: boolean): void => {
+                if (success) {
+                  closeModal();
+                }
+              }
+            })
+          }}
+        ]
+      );
+    }}
+  ]);
+});
+
+onLoad = function(): void {
+  document.querySelectorAll("a").forEach((val: HTMLAnchorElement, index: number): void => {
+    if (!val.href || val.href[0] === "#" || val.href.startsWith("javascript:") || val.target === "_blank") {
+      return;
+    }
+
+    val.addEventListener("click", (event: MouseEvent): void => {
+      if (unload) {
+        let url: string = val.href;
+        event.preventDefault();
+        createModal(lang.settings.unload.title, lang.settings.unload.content, [
+          {
+            name: lang.settings.unload.leave,
+            onclick: (): void => {
+              removeUnload();
+              location.href = url;
+              closeModal();
+            }
+          }, {
+            name: lang.settings.unload.save,
+            class: "primary",
+            onclick: (): void => {
+              save(
+                (success: boolean) => {
+                  if (success) {
+                    location.href = url;
+                  }
+                },
+                dom("modal-log") as HTMLDivElement
+              );
+            }
+          },
+          { name: lang.generic.cancel, onclick: closeModal }
+        ]);
+      }
+    });
+  });
+}

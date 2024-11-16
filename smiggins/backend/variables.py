@@ -25,7 +25,7 @@ CREDITS: dict[str, list[str]] = {
 }
 
 # Set default variable states
-REAL_VERSION: tuple[int, int, int] = (0, 13, 4)
+REAL_VERSION: tuple[int, int, int] = (0, 13, 5)
 VERSION: str = ".".join([str(i) for i in REAL_VERSION])
 SITE_NAME: str = "Jerimiah Smiggins"
 WEBSITE_URL: str | None = None
@@ -64,7 +64,6 @@ ENABLE_PRIVATE_MESSAGES: bool = True
 ENABLE_POST_DELETION: bool = True
 ENABLE_EDITING_POSTS: bool = True
 ENABLE_HASHTAGS: bool = True
-ENABLE_CHANGELOG_PAGE: bool = True
 ENABLE_CONTACT_PAGE: bool = True
 ENABLE_CREDITS_PAGE: bool = True
 ENABLE_PINNED_POSTS: bool = True
@@ -118,6 +117,9 @@ THEMES = {
       "checkbox_border": "#f4ede8",
       "button_border": "#f4ede8",
       "table_border": "#f4ede8",
+      "modal_backdrop": "#9893a580",
+      "modal_background": "#faf4ed",
+      "modal_border": "@accent",
       "gray": "#9893a5",
       "accent": {
         "rosewater": "#d7827e",
@@ -161,6 +163,9 @@ THEMES = {
       "checkbox_border": "#ccd0da",
       "button_border": "#ccd0da",
       "table_border": "#ccd0da",
+      "modal_backdrop": "#6c6f8580",
+      "modal_background": "#eff1f5",
+      "modal_border": "@accent",
       "gray": "#6c6f85",
       "accent": {
         "rosewater": "#dc8a78",
@@ -204,6 +209,9 @@ THEMES = {
       "checkbox_border": "#414559",
       "button_border": "#414559",
       "table_border": "#414559",
+      "modal_backdrop": "#23263480",
+      "modal_background": "#303446",
+      "modal_border": "@accent",
       "gray": "#a5adce",
       "accent": {
         "rosewater": "#f2d5cf",
@@ -247,6 +255,9 @@ THEMES = {
       "checkbox_border": "#31202b",
       "button_border": "#31202b",
       "table_border": "#31202b",
+      "modal_backdrop": "#00000080",
+      "modal_background": "#190b14",
+      "modal_border": "@accent",
       "gray": "#687390",
       "accent": {
         "rosewater": "#f4dbd6",
@@ -290,6 +301,9 @@ THEMES = {
       "checkbox_border": "#363a4f",
       "button_border": "#363a4f",
       "table_border": "#363a4f",
+      "modal_backdrop": "#18192680",
+      "modal_background": "#24273a",
+      "modal_border": "@accent",
       "gray": "#a5adcb",
       "accent": {
         "rosewater": "#f4dbd6",
@@ -333,6 +347,9 @@ THEMES = {
       "checkbox_border": "#313244",
       "button_border": "#313244",
       "table_border": "#313244",
+      "modal_backdrop": "#11111b80",
+      "modal_background": "#1e1e2e",
+      "modal_border": "@accent",
       "gray": "#a6adc8",
       "accent": {
         "rosewater": "#f5e0dc",
@@ -376,6 +393,9 @@ THEMES = {
       "checkbox_border": "#313244",
       "button_border": "#313244",
       "table_border": "#313244",
+      "modal_backdrop": "#00000080",
+      "modal_background": "#000000",
+      "modal_border": "@accent",
       "gray": "#a6adc8",
       "accent": {
         "rosewater": "#f5e0dc",
@@ -449,7 +469,6 @@ _VARIABLES: list[tuple[str | None, list[str], type | str | list | tuple | dict, 
     ("ENABLE_PINNED_POSTS", ["enable_pinned_posts"], bool, False),
     ("ENABLE_POST_DELETION", ["enable_post_deletion"], bool, False),
     ("ENABLE_EDITING_POSTS", ["enable_editing_posts"], bool, False),
-    ("ENABLE_CHANGELOG_PAGE", ["enable_changelog_page"], bool, False),
     ("ENABLE_CONTACT_PAGE", ["enable_contact_page"], bool, False),
     ("ENABLE_CREDITS_PAGE", ["enable_credits_page"], bool, False),
     ("ENABLE_BADGES", ["enable_badges"], bool, False),
