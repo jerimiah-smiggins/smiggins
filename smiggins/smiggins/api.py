@@ -5,9 +5,8 @@ from backend.api import (ApiAdmin, ApiComment, ApiEmail, ApiInfo, ApiMessages,
                          ApiPost, ApiUser)
 from backend.variables import (ENABLE_BADGES, ENABLE_EDITING_POSTS,
                                ENABLE_EMAIL, ENABLE_HASHTAGS,
-                               ENABLE_NEW_ACCOUNTS, ENABLE_POST_DELETION,
-                               ENABLE_PRIVATE_MESSAGES, ENABLE_QUOTES,
-                               SITE_NAME, VERSION)
+                               ENABLE_NEW_ACCOUNTS, ENABLE_PRIVATE_MESSAGES,
+                               ENABLE_QUOTES, SITE_NAME, VERSION)
 from django.urls import path
 from ninja import NinjaAPI
 from ninja.renderers import BaseRenderer
@@ -31,7 +30,7 @@ api = NinjaAPI(
 
 routes: list[tuple[str, str, Callable, bool | None, str, str, str | list[str]]] = [
 #   ["path/to/endpoint", "METHOD", function,, requirements, "summary", "description", "group"]
-    ("user/signup", "POST", ApiUser.signup, ENABLE_NEW_ACCOUNTS, "Sign up", "Handles signing up for a new account", "User"),
+    ("user/signup", "POST", ApiUser.signup, bool(ENABLE_NEW_ACCOUNTS), "Sign up", "Handles signing up for a new account", "User"),
     ("user/login", "POST", ApiUser.login, None, "Log in", "Handles logging in to an account", "User"),
     ("user/notifications", "GET", ApiUser.notifications_list, None, "Get notification list", "Returns a list of notifications for a user", "User"),
     ("user/notifications", "DELETE", ApiUser.read_notifs, None, "Read notification", "Marks notifications as read", "User"),
@@ -56,8 +55,8 @@ routes: list[tuple[str, str, Callable, bool | None, str, str, str | list[str]]] 
     ("post/recent", "GET", ApiPost.post_list_recent, None, "Recent timeline", "Returns a list of the most recent posts for the recent timeline", ["Post", "Timeline"]),
     ("comments", "GET", ApiComment.comment_list, None, "Comment timeline", "Returns a list of comments for a post", ["Comment", "Timeline"]),
     ("hashtag/{str:hashtag}", "GET", ApiPost.hashtag_list, ENABLE_HASHTAGS, "Hashtag timeline", "Returns a list of posts with a hashtag", ["Post", "Timeline"]),
-    ("post", "DELETE", ApiPost.post_delete, ENABLE_POST_DELETION, "Delete post", "Deletes a post", "Post"),
-    ("comment", "DELETE", ApiComment.comment_delete, ENABLE_POST_DELETION, "Delete comment", "Deletes a comment", "Comment"),
+    ("post", "DELETE", ApiPost.post_delete, None, "Delete post", "Deletes a post", "Post"),
+    ("comment", "DELETE", ApiComment.comment_delete, None, "Delete comment", "Deletes a comment", "Comment"),
     ("post/like", "POST", ApiPost.post_like_add, None, "Like post", "Likes a post", "Post"),
     ("post/like", "DELETE", ApiPost.post_like_remove, None, "Unlike post", "Removes a like from a post", "Post"),
     ("comment/like", "POST", ApiComment.comment_like_add, None, "Like comment", "Likes a comment", "Comment"),
@@ -79,6 +78,9 @@ routes: list[tuple[str, str, Callable, bool | None, str, str, str | list[str]]] 
     ("admin/level", "GET", ApiAdmin.load_level, None, "Load permissions", "Loads the admin permissions for a user", "Admin"),
     ("admin/level", "PATCH", ApiAdmin.set_level, None, "Set permissions", "Sets the admin permissions for a user", "Admin"),
     ("admin/logs", "GET", ApiAdmin.logs, None, "Get logs", "Returns a list of admin logs", "Admin"),
+    ("admin/otp", "POST", ApiAdmin.otp_generate, ENABLE_NEW_ACCOUNTS == "otp", "Generate OTP", "Creates a one-time invite code", "Admin"),
+    ("admin/otp", "DELETE", ApiAdmin.otp_delete, ENABLE_NEW_ACCOUNTS == "otp", "Delete OTP", "Deletes a one-time invite code", "Admin"),
+    ("admin/otp", "GET", ApiAdmin.otp_load, ENABLE_NEW_ACCOUNTS == "otp", "List OTPs", "Returns a list of all valid one-time invite codes", "Admin"),
     ("email/password", "POST", ApiEmail.password_reset, ENABLE_EMAIL, "Reset password", "Sends an email that allows the user to reset their password if forgotten", ["Email", "User"]),
     ("email/save", "POST", ApiEmail.set_email, ENABLE_EMAIL, "Set email", "Sets the email for a user", ["Email", "User"]),
     ("info/notifications", "GET", ApiInfo.notifications, None, "Notifications", "Returns the status of any notifications", ["Misc", "User"]),

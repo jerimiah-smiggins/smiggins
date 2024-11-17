@@ -1,13 +1,14 @@
 # For API functions that are user-specific, like settings, following, etc.
 
-from posts.models import Comment, Post, PrivateMessageContainer, User
+from posts.models import (Comment, OneTimePassword, Post,
+                          PrivateMessageContainer, User)
 
 from ..helper import (DEFAULT_LANG, create_api_ratelimit, ensure_ratelimit,
                       generate_token, get_badges, get_lang, get_post_json,
                       trim_whitespace, validate_username)
 from ..variables import (API_TIMINGS, DEFAULT_BANNER_COLOR, DEFAULT_LANGUAGE,
-                         ENABLE_GRADIENT_BANNERS, ENABLE_PRONOUNS,
-                         ENABLE_USER_BIOS, MAX_BIO_LENGTH,
+                         ENABLE_GRADIENT_BANNERS, ENABLE_NEW_ACCOUNTS,
+                         ENABLE_PRONOUNS, ENABLE_USER_BIOS, MAX_BIO_LENGTH,
                          MAX_DISPL_NAME_LENGTH, MAX_USERNAME_LENGTH,
                          POSTS_PER_REQUEST, THEMES, VALID_LANGUAGES)
 from .schema import (Account, APIResponse, ChangePassword, Password, Settings,
@@ -25,6 +26,15 @@ def signup(request, data: Account) -> APIResponse:
 
     username = data.username.lower().replace(" ", "")
     password = data.password.lower()
+
+    if ENABLE_NEW_ACCOUNTS == "otp":
+        try:
+            otp = OneTimePassword.objects.get(code=data.otp)
+        except OneTimePassword.DoesNotExist:
+            return 400, {
+                "success": False,
+                "message": DEFAULT_LANG["account"]["invite_code_invalid"]
+            }
 
     # e3b0c44... is the sha256 hash for an empty string
     if len(password) != 64 or password == "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855":
@@ -54,6 +64,9 @@ def signup(request, data: Account) -> APIResponse:
             color_two=DEFAULT_BANNER_COLOR,
             language=DEFAULT_LANGUAGE
         )
+
+        if ENABLE_NEW_ACCOUNTS == "otp":
+            otp.delete()
 
         return {
             "success": True,

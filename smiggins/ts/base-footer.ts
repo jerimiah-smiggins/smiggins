@@ -110,9 +110,11 @@ forEach(document.querySelectorAll("[data-add-icon]"), (val: HTMLElement, index: 
   val.innerHTML = icons[val.dataset.addIcon];
 });
 
-forEach(document.querySelectorAll("[data-add-badge]"), (val: HTMLElement, index: number): void => {
-  val.innerHTML = badges[val.dataset.addBadge];
-});
+if (ENABLE_BADGES) {
+  forEach(document.querySelectorAll("[data-add-badge]"), (val: HTMLElement, index: number): void => {
+    val.innerHTML = badges[val.dataset.addBadge];
+  });
+}
 
 if (typeof onLoad === "function") {
   onLoad();

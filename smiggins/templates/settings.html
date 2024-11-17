@@ -178,7 +178,7 @@
     </div>
   </div>
 
-  <a href="/logout/">{{ lang.settings.logout }}</a><br><br>
+  <a href="/logout/">{% if ENABLE_ACCOUNT_SWITCHER == "true" %}{{ lang.settings.logout }}{% else %}{{ lang.settings.logout_singular }}{% endif %}</a><br><br>
 
   {% if ADMIN == "true" %}
     <a href='/admin'>{{ lang.settings.admin }}</a><br>

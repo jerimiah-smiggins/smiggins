@@ -123,7 +123,7 @@ function apiResponse(
   }
 
   for (const action of json.actions) {
-    console.log(action.name, action);
+    // console.log(action.name, action);
     if (action.name == "populate_timeline") {
       if (!extraData.forceOffset && !action.posts.length) {
         dom("posts").innerHTML = `<i>${escapeHTML(lang.post.no_posts)}</i>`
@@ -256,7 +256,7 @@ function apiResponse(
                 <div class="displ-name">
                   <div style="--color-one: ${user.color_one}; --color-two: ${user[ENABLE_GRADIENT_BANNERS && user.gradient_banner ? "color_two" : "color_one"]}" class="user-badge banner-pfp"></div>
                   ${escapeHTML(user.display_name)}
-                  ${user.badges.length ? `<span aria-hidden="true" class="user-badge">${user.badges.map((icon) => (badges[icon])).join("</span> <span aria-hidden=\"true\" class=\"user-badge\">")}</span>` : ""}<br>
+                  ${user.badges.length && ENABLE_BADGES ? `<span aria-hidden="true" class="user-badge">${user.badges.map((icon) => (badges[icon])).join("</span> <span aria-hidden=\"true\" class=\"user-badge\">")}</span>` : ""}<br>
                   <span class="upper-lower-opacity">
                     <div class="username">@${user.username}</div>
                     ${user.timestamp ? `- <div class="username">${timeSince(user.timestamp)}</div>` : ""}
@@ -689,7 +689,7 @@ function getPostHTML(
                 <span style="--color-one: ${postJSON.creator.color_one}; --color-two: ${postJSON.creator[ENABLE_GRADIENT_BANNERS && postJSON.creator.gradient_banner ? "color_two" : "color_one"]}" class="user-badge banner-pfp"></span>
                 ${postJSON.private ? `<span class="user-badge">${icons.lock}</span>` : ""}
                 ${escapeHTML(postJSON.creator.display_name)}
-                ${postJSON.creator.badges.length ? `<span aria-hidden="true" class="user-badge">${postJSON.creator.badges.map((icon) => (badges[icon])).join("</span> <span aria-hidden=\"true\" class=\"user-badge\">")}</span>` : ""}
+                ${postJSON.creator.badges.length && ENABLE_BADGES ? `<span aria-hidden="true" class="user-badge">${postJSON.creator.badges.map((icon) => (badges[icon])).join("</span> <span aria-hidden=\"true\" class=\"user-badge\">")}</span>` : ""}
               </span>
             </span>
             <span class="upper-lower-opacity">
@@ -789,7 +789,7 @@ function getPostHTML(
                             <span style="--color-one: ${postJSON.quote.creator.color_one}; --color-two: ${postJSON.quote.creator[ENABLE_GRADIENT_BANNERS && postJSON.quote.creator.gradient_banner ? "color_two" : "color_one"]}" class="user-badge banner-pfp"></span>
                             ${postJSON.quote.private ? `<span class="user-badge">${icons.lock}</span>` : ""}
                             ${escapeHTML(postJSON.quote.creator.display_name)}
-                            ${postJSON.quote.creator.badges.length ? `<span aria-hidden="true" class="user-badge">${postJSON.quote.creator.badges.map((icon) => (badges[icon])).join("</span> <span aria-hidden=\"true\" class=\"user-badge\">")}</span>` : ""}
+                            ${postJSON.quote.creator.badges.length && ENABLE_BADGES ? `<span aria-hidden="true" class="user-badge">${postJSON.quote.creator.badges.map((icon) => (badges[icon])).join("</span> <span aria-hidden=\"true\" class=\"user-badge\">")}</span>` : ""}
                           </span>
                         </span>
                         <span class="upper-lower-opacity">

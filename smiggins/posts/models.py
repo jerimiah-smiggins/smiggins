@@ -226,6 +226,12 @@ class AdminLog(models.Model):
     def __str__(self):
         return f"{self.type} - {self.u_by.username} -> {self.uname_for or (self.u_for.username if isinstance(self.u_for, User) else self.u_for)} - {self.info}"
 
+class OneTimePassword(models.Model):
+    code = models.CharField(max_length=32, primary_key=True)
+
+    def __str__(self):
+        return self.code
+
 class M2MLike(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE)
     post = models.ForeignKey(Post, on_delete=models.CASCADE)

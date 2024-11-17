@@ -10,9 +10,10 @@ from ..helper import (DEFAULT_LANG, can_view_post, create_api_ratelimit,
                       ensure_ratelimit, find_mentions, get_lang, get_post_json,
                       trim_whitespace)
 from ..variables import (API_TIMINGS, ENABLE_CONTENT_WARNINGS,
-                         ENABLE_LOGGED_OUT_CONTENT, MAX_CONTENT_WARNING_LENGTH,
-                         MAX_POST_LENGTH, OWNER_USER_ID, POSTS_PER_REQUEST)
-from .admin import log_admin_action
+                         ENABLE_LOGGED_OUT_CONTENT, ENABLE_POST_DELETION,
+                         MAX_CONTENT_WARNING_LENGTH, MAX_POST_LENGTH,
+                         OWNER_USER_ID, POSTS_PER_REQUEST)
+from .admin import BitMask, log_admin_action
 from .schema import APIResponse, CommentID, EditComment, NewComment
 
 
@@ -260,8 +261,8 @@ def comment_delete(request, data: CommentID) -> APIResponse:
             ...
         comment_parent.save()
 
-    admin = user.user_id == OWNER_USER_ID or user.admin_level >= 1
-    creator = comment.creator == user.user_id
+    admin = user.user_id == OWNER_USER_ID or BitMask.can_use(user, BitMask.DELETE_POST)
+    creator = comment.creator == user.user_id and ENABLE_POST_DELETION
 
     if admin and not creator:
         log_admin_action("Delete comment", user, comment.creator, f"Deleted comment {id}")

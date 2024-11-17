@@ -12,10 +12,12 @@ from .helper import (LANGS, can_view_post, find_mentions, get_badges,
                      get_post_json)
 from .variables import (BADGE_DATA, CACHE_LANGUAGES, CONTACT_INFO, CREDITS,
                         DEFAULT_BANNER_COLOR, DEFAULT_LANGUAGE,
+                        ENABLE_ACCOUNT_SWITCHER, ENABLE_BADGES,
                         ENABLE_DYNAMIC_FAVICON, ENABLE_GRADIENT_BANNERS,
-                        ENABLE_LOGGED_OUT_CONTENT, FAVICON_DATA,
-                        MAX_CONTENT_WARNING_LENGTH, OWNER_USER_ID, SITE_NAME,
-                        THEMES, VALID_LANGUAGES, error)
+                        ENABLE_LOGGED_OUT_CONTENT, ENABLE_NEW_ACCOUNTS,
+                        FAVICON_DATA, MAX_CONTENT_WARNING_LENGTH,
+                        OWNER_USER_ID, SITE_NAME, THEMES, VALID_LANGUAGES,
+                        error)
 
 
 def settings(request) -> HttpResponse:
@@ -336,7 +338,14 @@ def admin(request) -> HttpResponse | HttpResponseRedirect:
         BADGE_DATA=BADGE_DATA,
         mask=BitMask,
         LEVEL_RANGE=[str(i) for i in range(BitMask.MAX_LEVEL + 1)],
-        LEVEL_BINARY=f"{'0' * (BitMask.MAX_LEVEL - len(f'{lv:b}'))}{lv:b}"
+        LEVEL_BINARY=f"{'0' * (BitMask.MAX_LEVEL - len(f'{lv:b}'))}{lv:b}",
+        permissions_disabled={
+            str(BitMask.CREATE_BADGE): not ENABLE_BADGES,
+            str(BitMask.DELETE_BADGE): not ENABLE_BADGES,
+            str(BitMask.GIVE_BADGE_TO_USER): not ENABLE_BADGES,
+            str(BitMask.ACC_SWITCHER): not ENABLE_ACCOUNT_SWITCHER,
+            str(BitMask.GENERATE_OTP): ENABLE_NEW_ACCOUNTS != "otp"
+        }
     )
 
 def message(request, username: str) -> HttpResponse | HttpResponseRedirect:
@@ -369,6 +378,9 @@ def message(request, username: str) -> HttpResponse | HttpResponseRedirect:
     )
 
 def hashtag(request, hashtag: str) -> HttpResponse:
+    if not ENABLE_LOGGED_OUT_CONTENT:
+        return HttpResponseRedirect("/signup/")
+
     try:
         num_posts = Hashtag.objects.get(tag=hashtag.lower()).posts.count()
     except Hashtag.DoesNotExist:

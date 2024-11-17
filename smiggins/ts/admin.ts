@@ -12,7 +12,8 @@ enum Mask {
   ModifyAccount,
   AccSwitcher,
   AdminLevel,
-  ReadLogs
+  ReadLogs,
+  GenerateOTP
 };
 
 function testMask(identifier: number, level: number=adminLevel): boolean {
@@ -122,3 +123,28 @@ testMask(Mask.AdminLevel) && dom("level-load").addEventListener("click", functio
     disable: [this, dom("level-identifier")]
   });
 });
+
+testMask(Mask.GenerateOTP) && dom("otp-create").addEventListener("click", function(): void {
+  s_fetch("/api/admin/otp", {
+    method: "POST",
+    disable: [this]
+  });
+});
+
+testMask(Mask.GenerateOTP) && dom("otp-load").addEventListener("click", function(): void {
+  s_fetch("/api/admin/otp", {
+    disable: [this]
+  });
+});
+
+if (testMask(Mask.GenerateOTP)) {
+  function deleteOTP (code: string): void {
+    s_fetch("/api/admin/otp", {
+      method: "DELETE",
+      body: JSON.stringify({
+        otp: code
+      }),
+      disable: [this]
+    });
+  }
+}

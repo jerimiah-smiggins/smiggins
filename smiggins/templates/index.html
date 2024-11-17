@@ -5,10 +5,10 @@
   <h1>{{ SITE_NAME }}</h1>
   <h3>{{ VERSION }}</h3>
 
-  {% if ENABLE_NEW_ACCOUNTS == 'true' %}
-    <a href="/signup/">{{ lang.account.sign_up_title }}</a> -
-  {% else %}
+  {% if ENABLE_NEW_ACCOUNTS == 'false' %}
     {{ lang.account.no_new }}<br>
+  {% else %}
+    <a href="/signup/">{{ lang.account.sign_up_title }}</a> -
   {% endif %}
 
   <a href="/login/">{{ lang.account.log_in_title }}</a>

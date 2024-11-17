@@ -1,5 +1,6 @@
 from .admin import (account_info, account_save, badge_add, badge_create,
-                    badge_delete, badge_remove, load_level, logs, set_level)
+                    badge_delete, badge_remove, load_level, logs, otp_delete,
+                    otp_generate, otp_load, set_level)
 from .admin import user_delete as admin_user_delete
 from .comment import (comment_create, comment_delete, comment_edit,
                       comment_like_add, comment_like_remove, comment_list)
@@ -28,6 +29,9 @@ class ApiAdmin:
     set_level = set_level
     load_level = load_level
     user_delete = admin_user_delete
+    otp_generate = otp_generate
+    otp_delete = otp_delete
+    otp_load = otp_load
 
 class ApiComment:
     comment_create = comment_create

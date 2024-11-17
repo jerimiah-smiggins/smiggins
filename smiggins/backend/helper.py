@@ -33,13 +33,20 @@ from .variables import (BADGE_DATA, BASE_DIR, CACHE_LANGUAGES,
 
 
 def sha(string: str | bytes) -> str:
-    # Returns the sha256 hash of a string.
+    # Returns the sha256 hash of a string. (hex)
 
     if isinstance(string, str):
-        return hashlib.sha256(str.encode(string)).hexdigest()
-    elif isinstance(string, bytes):
-        return hashlib.sha256(string).hexdigest()
-    return ""
+        string = str.encode(string)
+
+    return hashlib.sha256(string).hexdigest()
+
+def sha_to_bytes(string: str | bytes) -> bytes:
+    # Returns the sha256 hash of a string. (bytes)
+
+    if isinstance(string, str):
+        string = str.encode(string)
+
+    return hashlib.sha256(string).digest()
 
 def set_timeout(callback: Callable, delay_ms: int | float) -> None:
     # Works like javascript's setTimeout function.
@@ -272,7 +279,7 @@ def get_post_json(post_id: int | Post | Comment, current_user_id: int=0, comment
     except User.DoesNotExist:
         user = None
 
-    can_delete_all = current_user_id != 0 and (current_user_id == OWNER_USER_ID or User.objects.get(pk=current_user_id).admin_level >= 1)
+    can_delete_all = user is not None and (current_user_id == OWNER_USER_ID or user.admin_level % 2 == 1)
 
     can_view = can_view_post(user, creator, post)
 

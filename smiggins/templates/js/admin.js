@@ -11,6 +11,7 @@ var Mask;
     Mask[Mask["AccSwitcher"] = 6] = "AccSwitcher";
     Mask[Mask["AdminLevel"] = 7] = "AdminLevel";
     Mask[Mask["ReadLogs"] = 8] = "ReadLogs";
+    Mask[Mask["GenerateOTP"] = 9] = "GenerateOTP";
 })(Mask || (Mask = {}));
 ;
 function testMask(identifier, level = adminLevel) {
@@ -107,3 +108,25 @@ testMask(Mask.AdminLevel) && dom("level-load").addEventListener("click", functio
         disable: [this, dom("level-identifier")]
     });
 });
+testMask(Mask.GenerateOTP) && dom("otp-create").addEventListener("click", function () {
+    s_fetch("/api/admin/otp", {
+        method: "POST",
+        disable: [this]
+    });
+});
+testMask(Mask.GenerateOTP) && dom("otp-load").addEventListener("click", function () {
+    s_fetch("/api/admin/otp", {
+        disable: [this]
+    });
+});
+if (testMask(Mask.GenerateOTP)) {
+    function deleteOTP(code) {
+        s_fetch("/api/admin/otp", {
+            method: "DELETE",
+            body: JSON.stringify({
+                otp: code
+            }),
+            disable: [this]
+        });
+    }
+}

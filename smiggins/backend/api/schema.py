@@ -26,6 +26,9 @@ class DeleteBadge(Schema):
 class NewBadge(DeleteBadge):
     badge_data: str
 
+class OTPName(Schema):
+    otp: str
+
 class UserBadge(AccountIdentifier):
     badge_name: str
 
@@ -104,6 +107,7 @@ class Password(Schema):
 
 class Account(Username):
     password: str
+    otp: str | None = None
 
 class ChangePassword(Schema):
     password: str

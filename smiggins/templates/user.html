@@ -7,19 +7,19 @@
 
 {% block meta %}
   <meta name="author" content="{{ DISPLAY_NAME }}">
-  <meta name="description" content="{{ BIO }}
+  <meta name="description" content="{% if ENABLE_USER_BIOS == "true" %}{{ BIO }}
 
-{{ FOLLOWER_COUNT }} // {{ FOLLOWING_COUNT }}">
+{% endif %}{{ FOLLOWER_COUNT }} // {{ FOLLOWING_COUNT }}">
 
   <meta property="og:title" content="{{ EMBED_TITLE }}">
-  <meta property="og:description" content="{{ BIO }}
+  <meta property="og:description" content="{% if ENABLE_USER_BIOS == "true" %}{{ BIO }}
 
-{{ FOLLOWER_COUNT }} // {{ FOLLOWING_COUNT }}">
+{% endif %}{{ FOLLOWER_COUNT }} // {{ FOLLOWING_COUNT }}">
 
   <meta name="twitter:title" content="{{ EMBED_TITLE }}">
-  <meta name="twitter:description" content="{{ BIO }}
+  <meta name="twitter:description" content="{% if ENABLE_USER_BIOS == "true" %}{{ BIO }}
 
-{{ FOLLOWER_COUNT }} // {{ FOLLOWING_COUNT }}">
+{% endif %}{{ FOLLOWER_COUNT }} // {{ FOLLOWING_COUNT }}">
 {% endblock %}
 
 {% block head %}
