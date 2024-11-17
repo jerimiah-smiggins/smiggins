@@ -134,7 +134,7 @@
 
     {% admin_level LEVEL mask.GENERATE_OTP as can %}
     {% if can %}
-      {% if ENABLE_ACCOUNT_CREATION == "otp" %}
+      {% if ENABLE_NEW_ACCOUNTS == "otp" %}
         <div>
           <h3>{{ lang.admin.otp.generate }}</h3>
           <button id="otp-create">{{ lang.admin.otp.generate_button }}</button>
