@@ -1,3 +1,8 @@
+## v0.13.6
+1. Added one-time invite codes that can be used to manage who can sign up
+2. Made languages with non-ASCII characters load properly on Windows without requiring the unicode characters to be escaped
+3. You can no longer view hashtag pages when logged out content is disabled in backend settings
+4. Added a warning on the admin page when setting permissions that shows which options are disabled due to backend configuration
 ## v0.13.5
 1. Added a custom modal when leaving the settings page with unsaved changes
 2. Added a way to delete your own account
