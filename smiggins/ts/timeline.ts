@@ -98,8 +98,8 @@ function toggleLike(postID: number, type: string): void {
   });
 }
 
-function vote(option: number, postID: number, gInc: number): void {
-  s_fetch("/api/post/vote", {
+function vote(option: number, postID: number): void {
+  s_fetch("/api/post/poll", {
     method: "POST",
     body: JSON.stringify({
       id: postID,
@@ -108,22 +108,61 @@ function vote(option: number, postID: number, gInc: number): void {
   });
 }
 
-function togglePollResults(gInc: number): void {
-  document.querySelector(`#gi-${gInc} .remove-when-the-poll-gets-shown`).remove();
+function showPollResults(gInc: number): void {
+  let poll: HTMLDivElement = dom(`gi-${gInc}`) as HTMLDivElement;
+  poll.innerHTML = getPollHTML(
+    JSON.parse(poll.dataset.pollJson),
+    +poll.dataset.pollId,
+    gInc,
+    true,
+    poll.dataset.pollLoggedIn == "true"
+  );
+}
 
-  forEach(dom(`gi-${gInc}`).querySelectorAll(".poll-bar-container"), function(val: Element, index: number): void {
-    let el: HTMLElement = val as HTMLElement;
+function hidePollResults(gInc: number): void {
+  let poll: HTMLDivElement = dom(`gi-${gInc}`) as HTMLDivElement;
+  poll.innerHTML = getPollHTML(
+    JSON.parse(poll.dataset.pollJson),
+    +poll.dataset.pollId,
+    gInc,
+    false,
+    poll.dataset.pollLoggedIn == "true"
+  );
+}
 
-    el.innerHTML = `<div class="poll-bar">
-      <div style="width: ${+el.dataset.votes / +el.dataset.totalVotes * 100 || 0}%"></div>
-    </div>
-    <div class="poll-text">
-      ${Math.round(+el.dataset.votes / +el.dataset.totalVotes * 1000) / 10 || 0}% - ` + el.innerHTML.replace('<div class="poll-text">', "");
+function refreshPoll(gInc: number): void {
+  let poll = dom(`gi-${gInc}`);
+  fetch(`/api/post/poll?id=${poll.dataset.pollId}`)
+    .then((response: Response) => (response.json()))
+    .then((json: {
+      success: boolean,
+      votes: number[]
+    }) => {
+      if (json.success) {
+        let pollJSON: _postJSON["poll"] = JSON.parse(poll.dataset.pollJson);
+        let sum = 0;
 
-    el.onclick = null;
-    el.onkeydown = null;
-    el.removeAttribute("tabindex");
-  });
+        for (let i = 0; i < json.votes.length; i++) {
+          pollJSON.content[i].votes = json.votes[i];
+          sum += json.votes[i];
+        }
+
+        pollJSON.votes = sum;
+        poll.dataset.pollJson = JSON.stringify(pollJSON);
+        poll.innerHTML = getPollHTML(
+          pollJSON,
+          +poll.dataset.pollId,
+          gInc,
+          true,
+          poll.dataset.pollLoggedIn == "true"
+        );
+      } else {
+        showlog(lang.generic.something_went_wrong);
+      }
+    })
+    .catch((err) => {
+      showlog(lang.generic.something_went_wrong);
+    });
 }
 
 function editPost(postID: number, isComment: boolean, private: boolean, originalText: string): void {

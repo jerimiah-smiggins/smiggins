@@ -271,7 +271,8 @@
       "poll_optional": "Option %s (optional)", // Ex: Option 3 (optional)
       "poll_total_plural": "%s total votes",
       "poll_total_singular": "%s total vote",
-      "poll_view_results": "View results"
+      "poll_view_results": "View results",
+      "poll_hide_results": "Return to voting"
     },
 
     "account": {

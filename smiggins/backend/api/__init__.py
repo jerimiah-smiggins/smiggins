@@ -8,10 +8,10 @@ from .email import password_reset, set_email
 from .info import notifications, version
 from .messages import (container_create, messages_list, recent_messages,
                        send_message)
-from .post import (hashtag_list, pin_post, poll_vote, post_create, post_delete,
-                   post_edit, post_like_add, post_like_remove,
-                   post_list_following, post_list_recent, post_list_user,
-                   quote_create, unpin_post)
+from .post import (hashtag_list, pin_post, poll_refresh, poll_vote,
+                   post_create, post_delete, post_edit, post_like_add,
+                   post_like_remove, post_list_following, post_list_recent,
+                   post_list_user, quote_create, unpin_post)
 from .user import (accept_pending, block_add, block_remove, change_password,
                    follower_add, follower_remove, list_pending, login,
                    notifications_list, read_notifs, remove_pending, settings,
@@ -68,6 +68,7 @@ class ApiPost:
     quote_create = quote_create
     unpin_post = unpin_post
     poll_vote = poll_vote
+    poll_refresh = poll_refresh
     edit = post_edit
 
 class ApiUser:

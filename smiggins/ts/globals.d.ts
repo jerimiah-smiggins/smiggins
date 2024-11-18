@@ -66,7 +66,7 @@ type _postJSON = {
   edited: boolean,
   edited_at?: number,
 
-  poll: {
+  poll?: {
     votes: number,
     voted: boolean,
     content: {
@@ -74,7 +74,7 @@ type _postJSON = {
       votes: number,
       voted: boolean
     }[],
-  } | boolean | null,
+  },
 
   // Quote-specific
   blocked?: boolean,

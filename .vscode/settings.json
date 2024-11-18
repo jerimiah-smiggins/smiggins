@@ -35,4 +35,11 @@
   "isort.severity": {
       "E": "Warning"
   },
+
+  "search.exclude": {
+    ".vscode/*": true,
+    "smiggins/templates/js/*": true,
+    "smiggins/templates/css/*": true,
+    "smiggins/posts/migrations/*": true
+  }
 }

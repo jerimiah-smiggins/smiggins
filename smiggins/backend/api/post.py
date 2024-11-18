@@ -666,6 +666,27 @@ def poll_vote(request, data: Poll) -> APIResponse:
         "success": False
     }
 
+def poll_refresh(request, id: int) -> dict | tuple[int, dict]:
+    post = Post.objects.get(post_id=id)
+
+    if post.poll:
+        user = User.objects.get(token=request.COOKIES.get('token'))
+
+        can_view = can_view_post(user, post.creator, post)
+        if can_view[0] is False and can_view[1] in ["private", "blocked"]:
+            return 400, {
+                "success": False
+            }
+
+        return {
+            "success": True,
+            "votes": [len(otp["votes"]) for otp in post.poll["content"]] # type: ignore
+        }
+
+    return 400, {
+        "success": False
+    }
+
 def post_edit(request, data: EditPost) -> APIResponse:
     token = request.COOKIES.get('token')
 

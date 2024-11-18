@@ -88,8 +88,8 @@ function toggleLike(postID, type) {
         disable: [likeButton]
     });
 }
-function vote(option, postID, gInc) {
-    s_fetch("/api/post/vote", {
+function vote(option, postID) {
+    s_fetch("/api/post/poll", {
         method: "POST",
         body: JSON.stringify({
             id: postID,
@@ -97,18 +97,36 @@ function vote(option, postID, gInc) {
         })
     });
 }
-function togglePollResults(gInc) {
-    document.querySelector(`#gi-${gInc} .remove-when-the-poll-gets-shown`).remove();
-    forEach(dom(`gi-${gInc}`).querySelectorAll(".poll-bar-container"), function (val, index) {
-        let el = val;
-        el.innerHTML = `<div class="poll-bar">
-      <div style="width: ${+el.dataset.votes / +el.dataset.totalVotes * 100 || 0}%"></div>
-    </div>
-    <div class="poll-text">
-      ${Math.round(+el.dataset.votes / +el.dataset.totalVotes * 1000) / 10 || 0}% - ` + el.innerHTML.replace('<div class="poll-text">', "");
-        el.onclick = null;
-        el.onkeydown = null;
-        el.removeAttribute("tabindex");
+function showPollResults(gInc) {
+    let poll = dom(`gi-${gInc}`);
+    poll.innerHTML = getPollHTML(JSON.parse(poll.dataset.pollJson), +poll.dataset.pollId, gInc, true, poll.dataset.pollLoggedIn == "true");
+}
+function hidePollResults(gInc) {
+    let poll = dom(`gi-${gInc}`);
+    poll.innerHTML = getPollHTML(JSON.parse(poll.dataset.pollJson), +poll.dataset.pollId, gInc, false, poll.dataset.pollLoggedIn == "true");
+}
+function refreshPoll(gInc) {
+    let poll = dom(`gi-${gInc}`);
+    fetch(`/api/post/poll?id=${poll.dataset.pollId}`)
+        .then((response) => (response.json()))
+        .then((json) => {
+        if (json.success) {
+            let pollJSON = JSON.parse(poll.dataset.pollJson);
+            let sum = 0;
+            for (let i = 0; i < json.votes.length; i++) {
+                pollJSON.content[i].votes = json.votes[i];
+                sum += json.votes[i];
+            }
+            pollJSON.votes = sum;
+            poll.dataset.pollJson = JSON.stringify(pollJSON);
+            poll.innerHTML = getPollHTML(pollJSON, +poll.dataset.pollId, gInc, true, poll.dataset.pollLoggedIn == "true");
+        }
+        else {
+            showlog(lang.generic.something_went_wrong);
+        }
+    })
+        .catch((err) => {
+        showlog(lang.generic.something_went_wrong);
     });
 }
 function editPost(postID, isComment, private, originalText) {
