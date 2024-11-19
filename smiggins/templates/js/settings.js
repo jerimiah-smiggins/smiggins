@@ -334,7 +334,8 @@ ENABLE_EMAIL && dom("email-submit").addEventListener("click", function () {
     s_fetch("/api/email/save", {
         method: "POST",
         body: JSON.stringify({
-            email: dom("email").value
+            email: dom("email").value,
+            password: sha256(dom("email-password").value)
         }),
         disable: [dom("email"), dom("email-submit")]
     });
