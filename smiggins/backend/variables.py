@@ -37,6 +37,7 @@ DEFAULT_DARK_THEME: str = "dark"
 DEFAULT_LIGHT_THEME: str = "dawn"
 CACHE_LANGUAGES: bool | None = None
 ALLOW_SCRAPING: bool = False
+ALLOW_INDEXING: bool = True
 MAX_USERNAME_LENGTH: int = 18
 MAX_DISPL_NAME_LENGTH: int = 32
 MAX_CONTENT_WARNING_LENGTH: int = 100
@@ -444,6 +445,7 @@ _VARIABLES: list[tuple[str | None, list[str], type | str | list | tuple | dict, 
     ("DEFAULT_LIGHT_THEME", ["default_light_theme"], "theme", False),
     ("CACHE_LANGUAGES", ["cache_langs", "cache_languages"], bool, True),
     ("ALLOW_SCRAPING", ["allow_scraping"], bool, False),
+    ("ALLOW_INDEXING", ["allow_indexing"], bool, False),
     ("MAX_USERNAME_LENGTH", ["max_username_length"], int, False),
     ("MAX_DISPL_NAME_LENGTH", ["max_display_name_length"], int, False),
     ("MAX_BIO_LENGTH", ["max_bio_length", "max_user_bio_length"], int, False),
@@ -798,7 +800,7 @@ User-agent: img2dataset
 User-agent: omgili
 User-agent: omgilibot
 Disallow: /
-"""
+""" if ALLOW_INDEXING else "User-agent: *\nDisallow: /\n"
 
 BADGE_DATA = {}
 

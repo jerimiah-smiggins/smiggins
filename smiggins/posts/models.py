@@ -313,6 +313,7 @@ try:
     django_admin.site.register(Hashtag)
     django_admin.site.register(URLPart)
     django_admin.site.register(AdminLog)
+    django_admin.site.register(OneTimePassword)
     django_admin.site.register(M2MLike)
     django_admin.site.register(M2MLikeC)
     django_admin.site.register(M2MFollow)

@@ -137,8 +137,14 @@
   ** TDM-Reservation header to 0 if allowed, 1 if disallowed. Read more here:
   ** https://www.w3.org/community/reports/tdmrep/CG-FINAL-tdmrep-20240202/
   ## Default: false
+  ** The allow_indexing option does a different function, that being setting
+  ** robots.txt to disallow scraping from all services. This includes stuff like
+  ** GoogleBot, which will make it so your website doesn't show up in Google
+  ** Search.
+  ## Default: true
   */
   "allow_scraping": false,
+  "allow_indexing": true,
 
   /*
   ** The maximum length of a username/display name. Must be between 1 and 200,
