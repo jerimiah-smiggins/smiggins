@@ -29,9 +29,9 @@
       <h2>{{ lang.settings.profile_title }}</h2>
 
       {{ lang.settings.profile_basic_title }}<br>
-      <label><input id="displ-name" autocomplete="off" placeholder="{{ lang.settings.profile_display_name_placeholder }}" value="{{ DISPLAY_NAME }}" maxlength="{{ MAX_DISPL_NAME_LENGTH }}"></label><br>
+      <input id="displ-name" autocomplete="off" placeholder="{{ lang.settings.profile_display_name_placeholder }}" value="{{ DISPLAY_NAME }}" maxlength="{{ MAX_DISPL_NAME_LENGTH }}"><br>
       {% if ENABLE_USER_BIOS == 'true' %}
-        <label><textarea id="bio" placeholder="{{ lang.settings.profile_bio_placeholder }}" maxlength="{{ MAX_BIO_LENGTH }}">{{ USER_BIO }}</textarea></label>
+        <textarea id="bio" placeholder="{{ lang.settings.profile_bio_placeholder }}" maxlength="{{ MAX_BIO_LENGTH }}">{{ USER_BIO }}</textarea>
       {% endif %}<br><br>
 
       {% if ENABLE_PRONOUNS == 'true' %}
@@ -149,15 +149,16 @@
     <div class="settings-side">
       <h2>{{ lang.settings.account_title }}</h2>
       {{ lang.settings.account_password }}<br>
-      <label><input type="password" autocomplete="off" placeholder="{{ lang.settings.account_password_current }}" id="current"></label><br>
-      <label><input type="password" autocomplete="off" placeholder="{{ lang.settings.account_password_new }}" id="password"></label><br>
-      <label><input type="password" autocomplete="off" placeholder="{{ lang.account.confirm_placeholder }}" id="confirm"></label><br>
+      <input type="password" autocomplete="off" placeholder="{{ lang.settings.account_password_current }}" id="current"><br>
+      <input type="password" autocomplete="off" placeholder="{{ lang.settings.account_password_new }}" id="password"><br>
+      <input type="password" autocomplete="off" placeholder="{{ lang.account.confirm_placeholder }}" id="confirm"><br>
       <button id="toggle-password">{{ lang.account.toggle_password }}</button>
       <button id="set-password">{{ lang.generic.save }}</button><br><br>
 
       {% if ENABLE_EMAIL == "true" %}
         <label for="email">{{ lang.settings.account_email }}</label><br>
         <input {% if has_email == "true" and email_valid == "true" %}disabled{% endif %} value="{{ email }}" id="email" type="email" placeholder="email@example.com"></br>
+        <input type="password" autocomplete="off" placeholder="{{ lang.account.password_placeholder }}" id="email-password"><br>
         <button id="email-submit">{% if has_email == "true" and email_valid == "true" %}{{ lang.settings.account_email_update }}{% else %}{{ lang.generic.save }}{% endif %}</button>
         <div id="email-output">{% if email_valid == "false" and has_email == "true" %}{{ lang.settings.account_email_verify }}{% endif %}</div><br><br>
       {% endif %}

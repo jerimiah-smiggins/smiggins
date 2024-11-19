@@ -22,13 +22,13 @@
   {% if ENABLE_NEW_ACCOUNTS == 'false' %}
     {{ lang.account.no_new }}<br><br>
   {% else %}
-    <label><input id="username" maxlength="{{ MAX_USERNAME_LENGTH }}" placeholder="{{ lang.account.username_placeholder }}"></label><br>
-    <label><input id="password" placeholder="{{ lang.account.password_placeholder }}" type="password"></label><br>
-    <label><input id="confirm" placeholder="{{ lang.account.confirm_placeholder }}" type="password"></label><br><br>
+    <input id="username" maxlength="{{ MAX_USERNAME_LENGTH }}" placeholder="{{ lang.account.username_placeholder }}"><br>
+    <input id="password" placeholder="{{ lang.account.password_placeholder }}" type="password"><br>
+    <input id="confirm" placeholder="{{ lang.account.confirm_placeholder }}" type="password"><br><br>
 
     {% if ENABLE_NEW_ACCOUNTS == "otp" %}
       <div>{{ lang.account.invite_code_info }}</div>
-      <label><input id="otp" placeholder="{{ lang.account.invite_code }}" maxlength="32"></label><br>
+      <input id="otp" placeholder="{{ lang.account.invite_code }}" maxlength="32"><br>
     {% endif %}
 
     <button id="submit">{{ lang.account.sign_up_title }}</button><br><br>

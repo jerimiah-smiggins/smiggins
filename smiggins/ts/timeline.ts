@@ -46,8 +46,8 @@ function addQuote(postID: number, isComment: boolean): void {
       <label for="default-private-${globalIncrement}">${ lang.post.type_followers_only }:</label>
       <input id="default-private-${globalIncrement}" type="checkbox" ${defaultPrivate ? "checked" : ""}><br>
     </div>
-    ${ENABLE_CONTENT_WARNINGS ? `<label><input class="c-warning" ${originalCW ? `value="re: ${escapeHTML(originalCW.slice(0, MAX_CONTENT_WARNING_LENGTH - 4))}"` : ""} maxlength="${MAX_CONTENT_WARNING_LENGTH}" placeholder="${lang.home.c_warning_placeholder}"></label><br>` : ""}
-    <label><textarea class="post-text" maxlength="${MAX_POST_LENGTH}" placeholder="${lang.home.quote_placeholders[Math.floor(Math.random() * lang.home.quote_placeholders.length)]}"></textarea></label><br>
+    ${ENABLE_CONTENT_WARNINGS ? `<input class="c-warning" ${originalCW ? `value="re: ${escapeHTML(originalCW.slice(0, MAX_CONTENT_WARNING_LENGTH - 4))}"` : ""} maxlength="${MAX_CONTENT_WARNING_LENGTH}" placeholder="${lang.home.c_warning_placeholder}"><br>` : ""}
+    <textarea class="post-text" maxlength="${MAX_POST_LENGTH}" placeholder="${lang.home.quote_placeholders[Math.floor(Math.random() * lang.home.quote_placeholders.length)]}"></textarea><br>
     <button class="post-button inverted">${lang.generic.post}</button>
     <button class="cancel-button inverted">${lang.generic.cancel}</button>
   `;
@@ -179,8 +179,8 @@ function editPost(postID: number, isComment: boolean, private: boolean, original
       <label for="default-private-${globalIncrement}">${lang.post.type_followers_only}:</label>
       <input id="default-private-${globalIncrement}" type="checkbox" ${private ? "checked" : ""}><br>
     </div>
-    ${ENABLE_CONTENT_WARNINGS ? `<label><input class="c-warning" ${originalCW ? `value="${originalCW}"` : ""} maxlength="${MAX_CONTENT_WARNING_LENGTH}" placeholder="${lang.home.c_warning_placeholder}"></label><br>` : ""}
-    <label><textarea class="post-text" maxlength="${MAX_POST_LENGTH}" placeholder="${lang.home.post_input_placeholder}">${escapeHTML(originalText)}</textarea></label><br>
+    ${ENABLE_CONTENT_WARNINGS ? `<input class="c-warning" ${originalCW ? `value="${originalCW}"` : ""} maxlength="${MAX_CONTENT_WARNING_LENGTH}" placeholder="${lang.home.c_warning_placeholder}"><br>` : ""}
+    <textarea class="post-text" maxlength="${MAX_POST_LENGTH}" placeholder="${lang.home.post_input_placeholder}">${escapeHTML(originalText)}</textarea><br>
     <button class="post-button inverted">${lang.generic.post}</button>
     <button class="cancel-button inverted">${lang.generic.cancel}</button>`;
 

@@ -62,6 +62,7 @@ class CommentID(Schema):
 
 class Email(Schema):
     email: str
+    password: str
 
 # messages.py
 
