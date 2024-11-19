@@ -17,7 +17,7 @@ class Username(Schema):
 # admin.py
 
 class AccountIdentifier(Schema):
-    identifier: str | int
+    identifier: str
     use_id: bool
 
 class DeleteBadge(Schema):

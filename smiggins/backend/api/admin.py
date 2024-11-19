@@ -75,7 +75,7 @@ def user_delete(request, data: AccountIdentifier) -> APIResponse:
             "success": False
         }
 
-    identifier = data.identifier
+    identifier = data.identifier.lower()
     use_id = data.use_id
     lang = get_lang(user)
 
@@ -283,7 +283,7 @@ def badge_add(request, data: UserBadge) -> APIResponse:
             if data.use_id:
                 user = User.objects.get(user_id=int(data.identifier))
             else:
-                user = User.objects.get(username=data.identifier)
+                user = User.objects.get(username=data.identifier.lower())
         except User.DoesNotExist:
             return 404, {
                 "success": False,
@@ -336,7 +336,7 @@ def badge_remove(request, data: UserBadge) -> APIResponse:
             if data.use_id:
                 user = User.objects.get(user_id=int(data.identifier))
             else:
-                user = User.objects.get(username=data.identifier)
+                user = User.objects.get(username=data.identifier.lower())
         except User.DoesNotExist:
             return 404, {
                 "success": False,
@@ -370,8 +370,10 @@ def badge_remove(request, data: UserBadge) -> APIResponse:
         "success": False
     }
 
-def account_info(request, identifier: int | str, use_id: bool) -> APIResponse:
+def account_info(request, identifier: str, use_id: bool) -> APIResponse:
     # Get account information
+
+    identifier = identifier.lower()
 
     token = request.COOKIES.get('token')
 
@@ -489,7 +491,7 @@ def set_level(request, data: UserLevel) -> APIResponse:
         }
 
     use_id = data.use_id
-    identifier = data.identifier
+    identifier = data.identifier.lower()
     level = data.level
 
     if BitMask.can_use(self_user, BitMask.ADMIN_LEVEL):
@@ -518,13 +520,15 @@ def set_level(request, data: UserLevel) -> APIResponse:
         "success": False
     }
 
-def load_level(request, identifier: int | str, use_id: bool) -> APIResponse:
+def load_level(request, identifier: str, use_id: bool) -> APIResponse:
     try:
         self_user = User.objects.get(token=request.COOKIES.get("token"))
     except User.DoesNotExist:
         return 400, {
             "success": False
         }
+
+    identifier = identifier.lower()
 
     if BitMask.can_use(self_user, BitMask.ADMIN_LEVEL):
         try:

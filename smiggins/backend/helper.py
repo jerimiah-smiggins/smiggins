@@ -155,19 +155,21 @@ def validate_username(username: str, existing: bool=True) -> int:
     # -2 - invalid characters
     # -3 - invalid length
 
+    username = username.lower()
+
     for i in username:
         if i not in "abcdefghijklmnopqrstuvwxyz0123456789_-":
             return -2
 
     if existing:
         try:
-            User.objects.get(username=username).username
+            User.objects.get(username=username)
             return 1
         except User.DoesNotExist:
             return 0
     else:
         try:
-            User.objects.get(username=username).username
+            User.objects.get(username=username)
             return -1
         except User.DoesNotExist:
             pass

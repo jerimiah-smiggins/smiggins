@@ -4,8 +4,8 @@ from posts.models import (Comment, OneTimePassword, Post,
                           PrivateMessageContainer, User)
 
 from ..helper import (DEFAULT_LANG, create_api_ratelimit, ensure_ratelimit,
-                      generate_token, get_badges, get_lang, get_post_json,
-                      trim_whitespace, validate_username, get_ip_addr)
+                      generate_token, get_badges, get_ip_addr, get_lang,
+                      get_post_json, trim_whitespace, validate_username)
 from ..variables import (API_TIMINGS, DEFAULT_BANNER_COLOR, DEFAULT_LANGUAGE,
                          ENABLE_GRADIENT_BANNERS, ENABLE_NEW_ACCOUNTS,
                          ENABLE_PRONOUNS, ENABLE_USER_BIOS, MAX_BIO_LENGTH,
@@ -582,7 +582,7 @@ def list_pending(request, offset: int=-1) -> APIResponse:
 
 def accept_pending(request, data: Username) -> APIResponse:
     self_user = User.objects.get(token=request.COOKIES.get("token"))
-    user = User.objects.get(username=data.username)
+    user = User.objects.get(username=data.username.lower())
 
     if not self_user.verify_followers:
         return 400, {
@@ -602,7 +602,7 @@ def accept_pending(request, data: Username) -> APIResponse:
 
 def remove_pending(request, data: Username) -> APIResponse:
     self_user = User.objects.get(token=request.COOKIES.get("token"))
-    user = User.objects.get(username=data.username)
+    user = User.objects.get(username=data.username.lower())
 
     if not self_user.verify_followers:
         return 400, {

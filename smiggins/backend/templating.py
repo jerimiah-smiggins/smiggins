@@ -349,6 +349,8 @@ def admin(request) -> HttpResponse | HttpResponseRedirect:
     )
 
 def message(request, username: str) -> HttpResponse | HttpResponseRedirect:
+    username = username.lower()
+
     try:
         self_user = User.objects.get(token=request.COOKIES.get("token"))
     except User.DoesNotExist:

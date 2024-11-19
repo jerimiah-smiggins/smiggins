@@ -409,6 +409,8 @@ def post_list_recent(request, offset: int=-1) -> APIResponse:
 def post_list_user(request, username: str, offset: int=-1) -> APIResponse:
     # Called when getting posts from a specific user.
 
+    username = username.lower()
+
     try:
         self_user = User.objects.get(token=request.COOKIES.get("token"))
         self_user_id = self_user.user_id
