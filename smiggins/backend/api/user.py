@@ -5,7 +5,7 @@ from posts.models import (Comment, OneTimePassword, Post,
 
 from ..helper import (DEFAULT_LANG, create_api_ratelimit, ensure_ratelimit,
                       generate_token, get_badges, get_lang, get_post_json,
-                      trim_whitespace, validate_username)
+                      trim_whitespace, validate_username, get_ip_addr)
 from ..variables import (API_TIMINGS, DEFAULT_BANNER_COLOR, DEFAULT_LANGUAGE,
                          ENABLE_GRADIENT_BANNERS, ENABLE_NEW_ACCOUNTS,
                          ENABLE_PRONOUNS, ENABLE_USER_BIOS, MAX_BIO_LENGTH,
@@ -18,7 +18,7 @@ from .schema import (Account, APIResponse, ChangePassword, Password, Settings,
 def signup(request, data: Account) -> APIResponse:
     # Called when someone requests to follow another account.
 
-    if not ensure_ratelimit("api_account_signup", request.META.get("REMOTE_ADDR")):
+    if not ensure_ratelimit("api_account_signup", get_ip_addr(request)):
         return 429, {
             "success": False,
             "message": DEFAULT_LANG["generic"]["ratelimit"]
@@ -52,7 +52,7 @@ def signup(request, data: Account) -> APIResponse:
 
     user_valid = validate_username(username, existing=False)
     if user_valid == 1:
-        create_api_ratelimit("api_account_signup", API_TIMINGS["signup successful"], request.META.get('REMOTE_ADDR'))
+        create_api_ratelimit("api_account_signup", API_TIMINGS["signup successful"], get_ip_addr(request))
 
         token = generate_token(username, password)
         User.objects.create(
@@ -76,7 +76,7 @@ def signup(request, data: Account) -> APIResponse:
             ]
         }
 
-    create_api_ratelimit("api_account_signup", API_TIMINGS["signup unsuccessful"], request.META.get('REMOTE_ADDR'))
+    create_api_ratelimit("api_account_signup", API_TIMINGS["signup unsuccessful"], get_ip_addr(request))
 
     if user_valid == -1:
         return {
@@ -98,7 +98,7 @@ def signup(request, data: Account) -> APIResponse:
 def login(request, data: Account) -> APIResponse:
     # Called when someone attempts to log in.
 
-    if not ensure_ratelimit("api_account_login", request.META.get("REMOTE_ADDR")):
+    if not ensure_ratelimit("api_account_login", get_ip_addr(request)):
         return 429, {
             "success": False,
             "message": DEFAULT_LANG["generic"]["ratelimit"]
@@ -109,7 +109,7 @@ def login(request, data: Account) -> APIResponse:
 
     if validate_username(username) == 1:
         if token == User.objects.get(username=username).token:
-            create_api_ratelimit("api_account_login", API_TIMINGS["login successful"], request.META.get('REMOTE_ADDR'))
+            create_api_ratelimit("api_account_login", API_TIMINGS["login successful"], get_ip_addr(request))
             return {
                 "success": True,
                 "actions": [
@@ -118,13 +118,13 @@ def login(request, data: Account) -> APIResponse:
                 ]
             }
 
-        create_api_ratelimit("api_account_login", API_TIMINGS["login unsuccessful"], request.META.get('REMOTE_ADDR'))
+        create_api_ratelimit("api_account_login", API_TIMINGS["login unsuccessful"], get_ip_addr(request))
         return 400, {
             "success": False,
             "message": DEFAULT_LANG["account"]["bad_password"]
         }
 
-    create_api_ratelimit("api_account_login", API_TIMINGS["login unsuccessful"], request.META.get('REMOTE_ADDR'))
+    create_api_ratelimit("api_account_login", API_TIMINGS["login unsuccessful"], get_ip_addr(request))
     return 400, {
         "success": False,
         "message": DEFAULT_LANG["account"]["username_does_not_exist"].replace("%s", data.username)

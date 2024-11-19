@@ -92,6 +92,7 @@ FAVICON_DATA: str = """<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 
   <path fill="@{accent}" d="M379.8 149v-1.9c1.3-34.2-27.4-54.5-45.1-53.1h-1.8c-9.8.4-17.6 4.7-22.7 10.8-1.3 1.7-2.6 3.4-3.6 5.3 4.8-3 10.3-4.5 16.3-3.9 24.8 2.1 31.3 25.5 30.6 37.4-.8 14.8-10 28.6-25.5 35.4-16.9 8.4-36 3.6-48.6-4.5-14.3-9.1-25.6-24.7-28.3-45.3-3.7-21.5 4.7-43.2 17.9-59.2 14-16.3 35.5-28.9 61.5-29.7 52.4-3.9 104.2 45.9 102.5 108.1"/>
 </svg>"""
 ENABLE_DYNAMIC_FAVICON: bool = True
+ALTERNATE_IPS: bool | str = False
 
 THEMES = {
   "warm": {
@@ -489,7 +490,8 @@ _VARIABLES: list[tuple[str | None, list[str], type | str | list | tuple | dict, 
     ("GENERIC_CACHE_TIMEOUT", ["generic_cache_timeout"], int, True),
     (None, ["custom_themes"], "theme-object", False),
     ("FAVICON_DATA", ["favicon", "favicon_data", "favicon_svg"], str, False),
-    ("ENABLE_DYNAMIC_FAVICON", ["dynamic_favicon", "enable_dynamic_favicon"], bool, False)
+    ("ENABLE_DYNAMIC_FAVICON", ["dynamic_favicon", "enable_dynamic_favicon"], bool, False),
+    ("ALTERNATE_IPS", ["alternate_ips"], (bool, str), False)
 ]
 
 f = {}

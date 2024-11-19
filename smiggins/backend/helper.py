@@ -13,7 +13,7 @@ from django.http import HttpResponse, HttpResponseRedirect
 from django.template import loader
 from posts.models import Comment, Notification, Post, User
 
-from .variables import (BADGE_DATA, BASE_DIR, CACHE_LANGUAGES,
+from .variables import (ALTERNATE_IPS, BADGE_DATA, BASE_DIR, CACHE_LANGUAGES,
                         DEFAULT_DARK_THEME, DEFAULT_LANGUAGE,
                         DEFAULT_LIGHT_THEME, DISCORD, ENABLE_ACCOUNT_SWITCHER,
                         ENABLE_BADGES, ENABLE_CONTACT_PAGE,
@@ -210,7 +210,7 @@ def generate_token(username: str, password: str) -> str:
 
 def create_api_ratelimit(api_id: str, time_ms: int | float, identifier: str | None) -> None:
     # Creates a ratelimit timeout for a specific user via the identifier.
-    # The identifier should be the request.META.REMOTE_ADDR ip address
+    # The identifier should be the ip address or user token.
     # api_id is the identifier for the api, for example "api_account_signup". You
     # can generally use the name of that api's function for this.
 
@@ -569,6 +569,15 @@ def get_lang(lang: User | str | None=None, override_cache=False) -> dict[str, di
     }
 
     return x
+
+def get_ip_addr(request):
+    if isinstance(ALTERNATE_IPS, str):
+        return request.headers.get(ALTERNATE_IPS)
+
+    if ALTERNATE_IPS:
+        return request.headers.get("X-Real-IP")
+
+    return request.META.get("REMOTE_ADDR")
 
 LANGS = {}
 if CACHE_LANGUAGES:

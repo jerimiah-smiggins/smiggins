@@ -37,6 +37,17 @@
   "enable_sitemaps": false,
 
   /*
+  ** If true, this changes how the site gets the user's ip address for
+  ** ratelimiting. When true, instead of using the ip from the request itself,
+  ** it uses the "X-Real-IP" header in the request. You can also set this to a
+  ** string to target a specific header instead. Only use this if your server is
+  ** behind a reverse proxy, like nginx, and you have configured ip addresses to
+  ** pass through a header.
+  ## Default: false
+  */
+  "alternate_ips": false,
+
+  /*
   ** Controls the amount of sites that are shown per sitemap. Max: 50k; Min: 50
   ## Default: 500
   */
