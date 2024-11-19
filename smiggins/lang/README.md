@@ -48,6 +48,30 @@ to the `maintainers` section
 Updates for each language version are listed below:
 
 <details>
+<summary>v1.10.0</summary>
+OTPs
+
+```diff
+# Remove HTML tag
+account.log_out_description
+# Remove capitalization from "all"
+settings.logout
++ admin.permissions.descriptions.9
++ admin.otp.generate
++ admin.otp.generate_button
++ admin.otp.all
++ admin.otp.all_button
++ admin.disabled.generic
++ admin.disabled.badge
++ admin.disabled.otp
++ account.invite_code
++ account.invite_code_info
++ account.invite_code_invalid
++ settings.logout_singular
+```
+</details>
+
+<details>
 <summary>v1.9.0</summary>
 modals
 

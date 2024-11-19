@@ -1,13 +1,17 @@
 # For admin-related apis
 
+import random
 import time
+from base64 import urlsafe_b64encode as b64encode
 
-from posts.models import AdminLog, Badge, PrivateMessageContainer, User
+from posts.models import (AdminLog, Badge, OneTimePassword,
+                          PrivateMessageContainer, User)
 
-from ..helper import get_lang, trim_whitespace
-from ..variables import BADGE_DATA, MAX_ADMIN_LOG_LINES, OWNER_USER_ID
+from ..helper import get_lang, sha_to_bytes, trim_whitespace
+from ..variables import (BADGE_DATA, MAX_ADMIN_LOG_LINES, OWNER_USER_ID,
+                         auth_key)
 from .schema import (AccountIdentifier, APIResponse, DeleteBadge, NewBadge,
-                     SaveUser, UserBadge, UserLevel)
+                     OTPName, SaveUser, UserBadge, UserLevel)
 
 
 class BitMask:
@@ -28,8 +32,9 @@ class BitMask:
     ACC_SWITCHER = 6 # requires MODIFY_ACCOUNT
     ADMIN_LEVEL = 7
     READ_LOGS = 8
+    GENERATE_OTP = 9
 
-    MAX_LEVEL = 8
+    MAX_LEVEL = 9
 
 def log_admin_action(
     action_name: str,
@@ -119,7 +124,6 @@ def user_delete(request, data: AccountIdentifier) -> APIResponse:
             "message": lang["generic"]["success"]
         }
 
-    log_admin_action("Delete user", user, account, "No permissions")
 
     return 400, {
         "success": False
@@ -192,7 +196,6 @@ def badge_create(request, data: NewBadge) -> APIResponse:
             "message": f"{lang['generic']['success']} {lang['admin']['badge']['create_success']}"
         }
 
-    log_admin_action("Create badge", self_user, None, "No permissions")
     return 400, {
         "success": False
     }
@@ -257,7 +260,6 @@ def badge_delete(request, data: DeleteBadge) -> APIResponse:
             "message": f"{lang['generic']['success']} {lang['admin']['badge']['create_success']}"
         }
 
-    log_admin_action("Delete badge", self_user, None, "No permissions")
     return 400, {
         "success": False
     }
@@ -311,7 +313,6 @@ def badge_add(request, data: UserBadge) -> APIResponse:
             "message": lang["admin"]["badge"]["not_found"].replace("%s", data.badge_name)
         }
 
-    log_admin_action("Add badge", self_user, None, "No permissions")
     return 400, {
         "success": False
     }
@@ -365,7 +366,6 @@ def badge_remove(request, data: UserBadge) -> APIResponse:
             "message": lang["admin"]["badge"]["not_found"].replace("%s", data.badge_name)
         }
 
-    log_admin_action("Remove badge", self_user, None, "No permissions")
     return 400, {
         "success": False
     }
@@ -412,7 +412,6 @@ def account_info(request, identifier: int | str, use_id: bool) -> APIResponse:
             ]
         }
 
-    log_admin_action("Get account info", self_user, None, "No permissions")
     return 400, {
         "success": False
     }
@@ -475,7 +474,6 @@ def account_save(request, data: SaveUser) -> APIResponse:
             "message": lang["generic"]["success"]
         }
 
-    log_admin_action("Save account info", self_user, None, "No permissions")
     return 400, {
         "success": False
     }
@@ -516,7 +514,6 @@ def set_level(request, data: UserLevel) -> APIResponse:
             "message": lang["generic"]["success"]
         }
 
-    log_admin_action("Set admin permissions", self_user, None, "No permissions")
     return 400, {
         "success": False
     }
@@ -577,6 +574,80 @@ def logs(request) -> APIResponse:
                         "timestamp": i.timestamp
                     } for i in AdminLog.objects.all()[::-1]]
                 }
+            ]
+        }
+
+    return 400, {
+        "success": False
+    }
+
+def otp_generate(request) -> APIResponse:
+    user = User.objects.get(token=request.COOKIES.get("token"))
+
+    if BitMask.can_use(user, BitMask.READ_LOGS):
+        code = bytes.decode(b64encode(sha_to_bytes(f"{time.time()}-{random.random()}-{auth_key}")))[:32]
+        OneTimePassword.objects.create(
+            code=code
+        )
+
+        log_admin_action("Create OTP", user, None, code)
+
+        return {
+            "success": True,
+            "actions": [
+                { "name": "update_element", "query": "#otp-generated", "html": f"<code>{code}</code>" }
+            ]
+        }
+
+    return 400, {
+        "success": False
+    }
+
+def otp_delete(request, data: OTPName) -> APIResponse:
+    user = User.objects.get(token=request.COOKIES.get("token"))
+
+    if BitMask.can_use(user, BitMask.READ_LOGS):
+        try:
+            OneTimePassword.objects.get(
+                code=data.otp
+            ).delete()
+            log_admin_action("Delete OTP", user, None, data.otp)
+
+        except OneTimePassword.DoesNotExist:
+            pass
+
+
+        return {
+            "success": True,
+            "actions": [
+                {
+                    "name": "update_element",
+                    "query": f".otp-list[data-code=\"{data.otp}\"]",
+                    "set_class": [{ "class_name": "hidden", "enable": True }]
+                }
+            ]
+        }
+
+    return 400, {
+        "success": False
+    }
+
+def otp_load(request) -> APIResponse:
+    user = User.objects.get(token=request.COOKIES.get("token"))
+
+    if BitMask.can_use(user, BitMask.READ_LOGS):
+        lang = get_lang(user)
+
+        return {
+            "success": True,
+            "actions": [
+                {
+                    "name": "update_element",
+                    "query": "#otp-all",
+                    "html": "".join([
+                        f"<div class=\"otp-list\" data-code=\"{i}\"><code>{i}</code> - <button onclick=\"deleteOTP(&quot;{i}&quot;)\">{lang['post']['delete']}</button></div>"
+                        for i in OneTimePassword.objects.all().order_by("code").values_list("code", flat=True)
+                    ]) or f"<i>{lang['generic']['none']}</i>" }
             ]
         }
 

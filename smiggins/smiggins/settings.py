@@ -9,7 +9,7 @@ email = False
 url = None
 
 try:
-    f: dict = json5.load(open(BASE_DIR / "settings.json", "r"))
+    f: dict = json5.load(open(BASE_DIR / "settings.json", "r", encoding="utf-8"))
 
     for key, val in f.items():
         if isinstance(val, bool) and key.lower() == "debug":

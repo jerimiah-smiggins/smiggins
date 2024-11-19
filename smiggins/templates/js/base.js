@@ -94,7 +94,6 @@ function apiResponse(json, extraData, customLog) {
         return;
     }
     for (const action of json.actions) {
-        console.log(action.name, action);
         if (action.name == "populate_timeline") {
             if (!extraData.forceOffset && !action.posts.length) {
                 dom("posts").innerHTML = `<i>${escapeHTML(lang.post.no_posts)}</i>`;
@@ -206,7 +205,7 @@ function apiResponse(json, extraData, customLog) {
                 <div class="displ-name">
                   <div style="--color-one: ${user.color_one}; --color-two: ${user[ENABLE_GRADIENT_BANNERS && user.gradient_banner ? "color_two" : "color_one"]}" class="user-badge banner-pfp"></div>
                   ${escapeHTML(user.display_name)}
-                  ${user.badges.length ? `<span aria-hidden="true" class="user-badge">${user.badges.map((icon) => (badges[icon])).join("</span> <span aria-hidden=\"true\" class=\"user-badge\">")}</span>` : ""}<br>
+                  ${user.badges.length && ENABLE_BADGES ? `<span aria-hidden="true" class="user-badge">${user.badges.map((icon) => (badges[icon])).join("</span> <span aria-hidden=\"true\" class=\"user-badge\">")}</span>` : ""}<br>
                   <span class="upper-lower-opacity">
                     <div class="username">@${user.username}</div>
                     ${user.timestamp ? `- <div class="username">${timeSince(user.timestamp)}</div>` : ""}
@@ -579,6 +578,59 @@ function timeSince(date, raw = false) {
 function escapeHTML(str) {
     return str.replaceAll("&", "&amp;").replaceAll("<", "&lt;").replaceAll("\"", "&quot;").replaceAll("`", "&#96;");
 }
+function getPollHTML(pollJSON, postID, gInc, showResults, loggedIn = true) {
+    if (showResults === undefined) {
+        showResults = loggedIn && pollJSON.voted;
+    }
+    let output = "";
+    let c = 0;
+    if (showResults || !loggedIn) {
+        for (const option of pollJSON.content) {
+            c++;
+            output += `<div class="poll-bar-container">
+        <div class="poll-bar ${option.voted ? "voted" : ""}">
+          <div style="width:${option.votes / pollJSON.votes * 100 || 0}%"></div>
+        </div>
+        <div class="poll-text">
+          ${Math.round(option.votes / pollJSON.votes * 1000) / 10 || 0}% - ${escapeHTML(option.value)}
+        </div>
+      </div>`;
+        }
+    }
+    else {
+        for (const option of pollJSON.content) {
+            c++;
+            output += `<div data-index="${c}"
+                 data-total-votes="${pollJSON.votes}"
+                 data-votes="${option.votes}"
+                 class="poll-bar-container"
+                 role="button"
+                 onclick="vote(${c}, ${postID})"
+                 onkeydown="genericKeyboardEvent(event, () => (vote(${c}, ${postID})))"
+                 tabindex="0">
+        <div class="poll-text">${escapeHTML(option.value)}</div>
+      </div>`;
+        }
+    }
+    return `${output}<small>
+    ${(pollJSON.votes == 1 ? lang.home.poll_total_singular : lang.home.poll_total_plural).replaceAll("%s", pollJSON.votes)}
+    ${!showResults ? `- <span class="toggle-poll"
+      role="button"
+      onclick="showPollResults(${gInc})"
+      onkeydown="genericKeyboardEvent(event, () => (showPollResults(${gInc})))"
+      tabindex="0">${lang.home.poll_view_results}</span>` : ""}
+    ${showResults ? `- <span class="refresh-poll"
+      role="button"
+      onclick="refreshPoll(${gInc})"
+      onkeydown="genericKeyboardEvent(event, () => (refreshPoll(${gInc})))"
+      tabindex="0">${lang.generic.refresh}</span>` : ""}
+    ${showResults && !pollJSON.voted ? `- <span class="toggle-poll"
+      role="button"
+      onclick="hidePollResults(${gInc})"
+      onkeydown="genericKeyboardEvent(event, () => (hidePollResults(${gInc})))"
+      tabindex="0">${lang.home.poll_hide_results}</span>` : ""}
+  </small>`;
+}
 function getPostHTML(postJSON, isComment = false, includeUserLink = true, includePostLink = true, fakeMentions = false, pageFocus = false, isPinned = false, includeContainer = true) {
     return `${includeContainer ? `<div class="post-container" data-${isComment ? "comment" : "post"}-id="${postJSON.post_id}">` : ""}
     <div class="post" data-settings="${escapeHTML(JSON.stringify({
@@ -598,7 +650,7 @@ function getPostHTML(postJSON, isComment = false, includeUserLink = true, includ
                 <span style="--color-one: ${postJSON.creator.color_one}; --color-two: ${postJSON.creator[ENABLE_GRADIENT_BANNERS && postJSON.creator.gradient_banner ? "color_two" : "color_one"]}" class="user-badge banner-pfp"></span>
                 ${postJSON.private ? `<span class="user-badge">${icons.lock}</span>` : ""}
                 ${escapeHTML(postJSON.creator.display_name)}
-                ${postJSON.creator.badges.length ? `<span aria-hidden="true" class="user-badge">${postJSON.creator.badges.map((icon) => (badges[icon])).join("</span> <span aria-hidden=\"true\" class=\"user-badge\">")}</span>` : ""}
+                ${postJSON.creator.badges.length && ENABLE_BADGES ? `<span aria-hidden="true" class="user-badge">${postJSON.creator.badges.map((icon) => (badges[icon])).join("</span> <span aria-hidden=\"true\" class=\"user-badge\">")}</span>` : ""}
               </span>
             </span>
             <span class="upper-lower-opacity">
@@ -635,45 +687,14 @@ function getPostHTML(postJSON, isComment = false, includeUserLink = true, includ
           ${includePostLink ? "</a>" : ""}
         </div>
 
-      ${postJSON.poll && typeof postJSON.poll == "object" ? (() => {
-        let output = `<div id="gi-${globalIncrement}">`;
-        let c = 0;
-        if (postJSON.poll.voted || !postJSON.logged_in) {
-            for (const option of postJSON.poll.content) {
-                c++;
-                output += `<div class="poll-bar-container">
-                <div class="poll-bar ${option.voted ? "voted" : ""}">
-                  <div style="width:${option.votes / postJSON.poll.votes * 100 || 0}%"></div>
-                </div>
-                <div class="poll-text">
-                  ${Math.round(option.votes / postJSON.poll.votes * 1000) / 10 || 0}% - ${escapeHTML(option.value)}
-                </div>
-              </div>`;
-            }
-        }
-        else {
-            for (const option of postJSON.poll.content) {
-                c++;
-                output += `<div data-index="${c}"
-                         data-total-votes="${postJSON.poll.votes}"
-                         data-votes="${option.votes}"
-                         class="poll-bar-container"
-                         role="button"
-                         onclick="vote(${c}, ${postJSON.post_id}, ${globalIncrement})"
-                         onkeydown="genericKeyboardEvent(event, () => (vote(${c}, ${postJSON.post_id}, ${globalIncrement})))"
-                         tabindex="0">
-                <div class="poll-text">${escapeHTML(option.value)}</div>
-              </div>`;
-            }
-        }
-        globalIncrement++;
-        return `${output}<small>
-            ${(postJSON.poll.votes == 1 ? lang.home.poll_total_singular : lang.home.poll_total_plural).replaceAll("%s", postJSON.poll.votes)}
-            ${postJSON.poll.voted || !postJSON.logged_in ? "" : `<span class="remove-when-the-poll-gets-shown"> -
-              <span class="toggle-poll" onclick="togglePollResults(${globalIncrement - 1})" role="button" onkeydown="genericKeyboardEvent(event, () => (togglePollResults(${globalIncrement - 1})))" tabindex="0">${lang.home.poll_view_results}</span>
-            </span>`}
-          </small></div>`;
-    })() : ""}
+      ${postJSON.poll && typeof postJSON.poll == "object" ? (`<div
+            id="gi-${globalIncrement}"
+            data-poll-json="${escapeHTML(JSON.stringify(postJSON.poll))}"
+            data-poll-id="${postJSON.post_id}"
+            data-poll-voted="${postJSON.poll.voted}"
+            data-poll-logged-in="${postJSON.logged_in}">
+          ${getPollHTML(postJSON.poll, postJSON.post_id, globalIncrement++, postJSON.poll.voted, postJSON.logged_in)}
+        </div>`) : ""}
 
       ${postJSON.quote ? `
           <div class="quote-area">
@@ -688,7 +709,7 @@ function getPostHTML(postJSON, isComment = false, includeUserLink = true, includ
                             <span style="--color-one: ${postJSON.quote.creator.color_one}; --color-two: ${postJSON.quote.creator[ENABLE_GRADIENT_BANNERS && postJSON.quote.creator.gradient_banner ? "color_two" : "color_one"]}" class="user-badge banner-pfp"></span>
                             ${postJSON.quote.private ? `<span class="user-badge">${icons.lock}</span>` : ""}
                             ${escapeHTML(postJSON.quote.creator.display_name)}
-                            ${postJSON.quote.creator.badges.length ? `<span aria-hidden="true" class="user-badge">${postJSON.quote.creator.badges.map((icon) => (badges[icon])).join("</span> <span aria-hidden=\"true\" class=\"user-badge\">")}</span>` : ""}
+                            ${postJSON.quote.creator.badges.length && ENABLE_BADGES ? `<span aria-hidden="true" class="user-badge">${postJSON.quote.creator.badges.map((icon) => (badges[icon])).join("</span> <span aria-hidden=\"true\" class=\"user-badge\">")}</span>` : ""}
                           </span>
                         </span>
                         <span class="upper-lower-opacity">

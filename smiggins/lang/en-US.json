@@ -2,7 +2,7 @@
   "meta": {
     "fallback": [],
     "name": "English (United States)",
-    "version": "1.9.0",
+    "version": "1.10.0",
     "maintainers": ["trinkey"],
     "past_maintainers": []
   },
@@ -201,7 +201,8 @@
           "5": "Modify account information",
           "6": "Add any account to account switcher",
           "7": "Change admin permissions",
-          "8": "Read admin logs"
+          "8": "Read admin logs",
+          "9": "Generate one-time invite codes"
         },
 
         "descriptions_extra": {
@@ -219,6 +220,19 @@
         "more_info": "More Info",
         "who_format": "Done by %1, at %2",
         "who_format_single": "Done by %1"
+      },
+
+      "otp": {
+        "generate": "Generate Invite Code",
+        "generate_button": "Generate",
+        "all": "View All Invite Codes",
+        "all_button": "Load Codes"
+      },
+
+      "disabled": {
+        "generic": "Disabled",
+        "badge": "Badges are disabled.",
+        "otp": "One-time invite codes are disabled."
       }
     },
 
@@ -257,7 +271,8 @@
       "poll_optional": "Option %s (optional)", // Ex: Option 3 (optional)
       "poll_total_plural": "%s total votes",
       "poll_total_singular": "%s total vote",
-      "poll_view_results": "View results"
+      "poll_view_results": "View results",
+      "poll_hide_results": "Return to voting"
     },
 
     "account": {
@@ -267,12 +282,16 @@
       "sign_up_title": "Sign Up",
       "sign_up_instead": "Sign up instead...",
 
+      "invite_code": "Invite code...",
+      "invite_code_info": "This instance is only accepting users that have an invitation code.",
+      "invite_code_invalid": "Invalid invite code!",
+
       "no_new": "This instance isn't accepting any new users.",
       "password_match_failure": "Passwords don't match!",
       "forgot_password": "Forgot password?",
 
       "log_out_title": "Redirecting you shortly...",
-      "log_out_description": "If you don't get redirected soon, click <a href=\"/\">here...</a>",
+      "log_out_description": "If you don't get redirected soon, click here",
 
       "username_placeholder": "Username...",
       "password_placeholder": "Password...",
@@ -421,7 +440,8 @@
       "account_deletion_password": "Enter your password to continue with account deletion.",
 
       "admin": "Admin page",
-      "logout": "Log out of ALL accounts",
+      "logout": "Log out of all accounts",
+      "logout_singular": "Log out",
       "changelogs": "Changelogs",
 
       "unload": {

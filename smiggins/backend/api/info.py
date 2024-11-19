@@ -3,7 +3,7 @@
 
 from posts.models import User
 
-from ..variables import REAL_VERSION
+from ..variables import ENABLE_PRIVATE_MESSAGES, REAL_VERSION
 
 
 def notifications(request) -> tuple[int, dict] | dict:
@@ -19,7 +19,7 @@ def notifications(request) -> tuple[int, dict] | dict:
     return {
         "success": True,
         "notifications": not user.read_notifs,
-        "messages": len(user.unread_messages) != 0,
+        "messages": ENABLE_PRIVATE_MESSAGES and len(user.unread_messages) != 0,
         "followers": user.verify_followers and user.pending_followers.count() > 0
     }
 

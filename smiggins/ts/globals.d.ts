@@ -17,13 +17,14 @@ declare const ENABLE_POLLS: boolean;
 declare const ENABLE_CONTENT_WARNINGS: boolean;
 declare const ENABLE_EMAIL: boolean;
 declare const ENABLE_DYNAMIC_FAVICON: boolean;
+declare const ENABLE_NEW_ACCOUNTS: boolean | "otp";
 
 declare const defaultPrivate: boolean;
 declare const linkify;
 
 // Global variables
 declare const lang: { [key: string]: any };
-declare const badges: { [key: string]: string };
+declare const badges: { [key: string]: string } | undefined;
 declare function linkifyHtml(text: string, settings: object): string;
 
 // Defined in base.html, used in settings.ts for themes
@@ -65,7 +66,7 @@ type _postJSON = {
   edited: boolean,
   edited_at?: number,
 
-  poll: {
+  poll?: {
     votes: number,
     voted: boolean,
     content: {
@@ -73,7 +74,7 @@ type _postJSON = {
       votes: number,
       voted: boolean
     }[],
-  } | boolean | null,
+  },
 
   // Quote-specific
   blocked?: boolean,

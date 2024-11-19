@@ -25,7 +25,7 @@ CREDITS: dict[str, list[str]] = {
 }
 
 # Set default variable states
-REAL_VERSION: tuple[int, int, int] = (0, 13, 5)
+REAL_VERSION: tuple[int, int, int] = (0, 13, 6)
 VERSION: str = ".".join([str(i) for i in REAL_VERSION])
 SITE_NAME: str = "Jerimiah Smiggins"
 WEBSITE_URL: str | None = None
@@ -37,6 +37,7 @@ DEFAULT_DARK_THEME: str = "dark"
 DEFAULT_LIGHT_THEME: str = "dawn"
 CACHE_LANGUAGES: bool | None = None
 ALLOW_SCRAPING: bool = False
+ALLOW_INDEXING: bool = True
 MAX_USERNAME_LENGTH: int = 18
 MAX_DISPL_NAME_LENGTH: int = 32
 MAX_CONTENT_WARNING_LENGTH: int = 100
@@ -73,7 +74,7 @@ ENABLE_QUOTES: bool = True
 ENABLE_CONTENT_WARNINGS: bool = True
 ENABLE_POLLS: bool = True
 ENABLE_LOGGED_OUT_CONTENT: bool = True
-ENABLE_NEW_ACCOUNTS: bool = True
+ENABLE_NEW_ACCOUNTS: bool | Literal["otp"] = True
 ENABLE_EMAIL: bool = False
 ENABLE_SITEMAPS: bool = False
 ITEMS_PER_SITEMAP: int = 500
@@ -444,6 +445,7 @@ _VARIABLES: list[tuple[str | None, list[str], type | str | list | tuple | dict, 
     ("DEFAULT_LIGHT_THEME", ["default_light_theme"], "theme", False),
     ("CACHE_LANGUAGES", ["cache_langs", "cache_languages"], bool, True),
     ("ALLOW_SCRAPING", ["allow_scraping"], bool, False),
+    ("ALLOW_INDEXING", ["allow_indexing"], bool, False),
     ("MAX_USERNAME_LENGTH", ["max_username_length"], int, False),
     ("MAX_DISPL_NAME_LENGTH", ["max_display_name_length"], int, False),
     ("MAX_BIO_LENGTH", ["max_bio_length", "max_user_bio_length"], int, False),
@@ -476,7 +478,7 @@ _VARIABLES: list[tuple[str | None, list[str], type | str | list | tuple | dict, 
     ("ENABLE_POLLS", ["enable_polls"], bool, False),
     ("ENABLE_CONTENT_WARNINGS", ["enable_cws", "enable_c_warnings", "enable_content_warnings"], bool, False),
     ("ENABLE_LOGGED_OUT_CONTENT", ["enable_logged_out", "enable_logged_out_content"], bool, False),
-    ("ENABLE_NEW_ACCOUNTS", ["enable_signup", "enable_new_users", "enable_new_accounts"], bool, False),
+    ("ENABLE_NEW_ACCOUNTS", ["enable_signup", "enable_new_users", "enable_new_accounts"], (bool, "Literal_otp"), False),
     ("ENABLE_EMAIL", ["email", "enable_email"], bool, False),
     ("ENABLE_SITEMAPS", ["sitemaps", "enable_sitemaps"], bool, False),
     ("ITEMS_PER_SITEMAP", ["items_per_sitemap"], int, False),
@@ -493,7 +495,7 @@ _VARIABLES: list[tuple[str | None, list[str], type | str | list | tuple | dict, 
 f = {}
 
 try:
-    f = json.load(open(BASE_DIR / "settings.json", "r"))
+    f = json.load(open(BASE_DIR / "settings.json", "r", encoding="utf-8"))
 except ValueError:
     error("Invalid settings.json")
 except FileNotFoundError:
@@ -504,7 +506,7 @@ def typecheck(obj: Any, expected_type: type | str | list | tuple | dict, allow_n
     # Lists should always have 0 or 1 indexes, and dicts should always have 0 or 1 keys.
     # If a list is empty, it allows any values. Same with dicts.
     # examples - python -> custom
-    # int | float -> (int, float)
+    # int | float | Literal["some string"] -> (int, float, "Literal_some string") (literal strings are case insensitive)
     # list[str | int] -> [(str, int)]
     # dict[str, list[str] | str] -> {str: ([str], str)}
 
@@ -518,6 +520,9 @@ def typecheck(obj: Any, expected_type: type | str | list | tuple | dict, allow_n
         return isinstance(obj, expected_type)
 
     if isinstance(expected_type, str):
+        if expected_type.startswith("Literal_"):
+            return isinstance(obj, str) and obj.lower() == expected_type[8::].lower()
+
         if expected_type == "color":
             return isinstance(obj, str) and bool(re.match(r"^#[0-9a-f]{6}$", obj))
 
@@ -619,10 +624,10 @@ def typecheck(obj: Any, expected_type: type | str | list | tuple | dict, allow_n
 
     if isinstance(expected_type, tuple):
         for i in expected_type:
-            if not typecheck(obj, i, allow_null):
-                return False
+            if typecheck(obj, i, allow_null):
+                return True
 
-        return True
+        return False
 
     if isinstance(expected_type, dict):
         if not isinstance(obj, dict):
@@ -703,12 +708,15 @@ ITEMS_PER_SITEMAP = clamp(ITEMS_PER_SITEMAP, minimum=50, maximum=50000)
 SITEMAP_CACHE_TIMEOUT = clamp(SITEMAP_CACHE_TIMEOUT, minimum=0)
 GENERIC_CACHE_TIMEOUT = clamp(SITEMAP_CACHE_TIMEOUT, minimum=0)
 
+if isinstance(ENABLE_NEW_ACCOUNTS, str):
+    ENABLE_NEW_ACCOUNTS = ENABLE_NEW_ACCOUNTS.lower()
+
 if CACHE_LANGUAGES is None:
     CACHE_LANGUAGES = not DEBUG
 
 VALID_LANGUAGES_TEMP = [i for i in os.listdir(BASE_DIR / "lang") if len(i) <= 10 and i[-5::] == ".json"]
 VALID_LANGUAGES: list[dict[str, str]] = [{
-    "name": json.load(open(BASE_DIR / f"lang/{i}"))["meta"]["name"],
+    "name": json.load(open(BASE_DIR / f"lang/{i}", "r", encoding="utf-8"))["meta"]["name"],
     "code": i[:-5:]
 } for i in sorted(VALID_LANGUAGES_TEMP)]
 
@@ -792,7 +800,7 @@ User-agent: img2dataset
 User-agent: omgili
 User-agent: omgilibot
 Disallow: /
-"""
+""" if ALLOW_INDEXING else "User-agent: *\nDisallow: /\n"
 
 BADGE_DATA = {}
 

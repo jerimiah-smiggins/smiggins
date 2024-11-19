@@ -23,13 +23,26 @@ dom("submit").addEventListener("click", function(): void {
     return;
   }
 
+  let body: {
+    [key: string]: string
+  } = {
+    username: username,
+    password: password
+  }
+
+  if (ENABLE_NEW_ACCOUNTS == "otp") {
+    body.otp = (dom("otp") as HTMLInputElement).value;
+
+    if (body.otp.length !== 32) {
+      showlog(lang.account.invite_code_invalid);
+      return;
+    }
+  }
+
   s_fetch("/api/user/signup", {
     method: "POST",
-    body: JSON.stringify({
-      username: username,
-      password: password
-    }),
-    disable: [this, dom("username"), dom("password"), dom("confirm")]
+    body: JSON.stringify(body),
+    disable: [this, dom("username"), dom("password"), dom("confirm"), dom("otp")]
   });
 });
 

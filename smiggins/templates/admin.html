@@ -50,39 +50,43 @@
     {% admin_level LEVEL mask.DELETE_BADGE as bd %}
     {% admin_level LEVEL mask.GIVE_BADGE_TO_USER as bg %}
     {% any bc bd bg as badge %}
-    {% if badge and ENABLE_BADGES == 'true' %}
-      <div>
-        {% if bg %}
-          <h3><label for="badge-identifier">{{ lang.admin.badge.manage_title }}</label></h3>
-          <input id="badge-identifier" placeholder="{{ lang.admin.user_id_placeholder }}"><br>
-          <label for="badge-use-id">{{ lang.admin.use_id_label }}</label>
-          <input id="badge-use-id" type="checkbox"><br>
-          <label for="badge-name">{{ lang.admin.badge.name_label }}</label>
-          <select id="badge-name">
-            {% for BADGE in BADGE_DATA %}
-              {% if BADGE != "administrator" %}
-                <option value="{{ BADGE }}">{{ BADGE }}</option>
-              {% endif %}
-            {% empty %}
-              <option value="">{{ lang.admin.badge.manage_empty }}</option>
-            {% endfor %}
-          </select><br>
-          <button id="badge-add">{{ lang.admin.badge.manage_add_button }}</button> <button id="badge-remove">{{ lang.admin.badge.manage_remove_button }}</button>
-        {% endif %}
+    {% if badge %}
+      {% if ENABLE_BADGES == 'true' %}
+        <div>
+          {% if bg %}
+            <h3><label for="badge-identifier">{{ lang.admin.badge.manage_title }}</label></h3>
+            <input id="badge-identifier" placeholder="{{ lang.admin.user_id_placeholder }}"><br>
+            <label for="badge-use-id">{{ lang.admin.use_id_label }}</label>
+            <input id="badge-use-id" type="checkbox"><br>
+            <label for="badge-name">{{ lang.admin.badge.name_label }}</label>
+            <select id="badge-name">
+              {% for BADGE in BADGE_DATA %}
+                {% if BADGE != "administrator" %}
+                  <option value="{{ BADGE }}">{{ BADGE }}</option>
+                {% endif %}
+              {% empty %}
+                <option value="">{{ lang.admin.badge.manage_empty }}</option>
+              {% endfor %}
+            </select><br>
+            <button id="badge-add">{{ lang.admin.badge.manage_add_button }}</button> <button id="badge-remove">{{ lang.admin.badge.manage_remove_button }}</button>
+          {% endif %}
 
-        {% if bc %}
-          <h3><label for="badge-create-name">{{ lang.admin.badge.create_title }}</label></h3>
-          <input id="badge-create-name" placeholder="{{ lang.admin.badge.name_placeholder }}" maxlength="64"><br>
-          <label><textarea id="badge-create-data" placeholder="{{ lang.admin.badge.data_placeholder }}" maxlength="65536"></textarea></label><br>
-          <button id="badge-create">{{ lang.admin.badge.create_button }}</button>
-        {% endif %}
+          {% if bc %}
+            <h3><label for="badge-create-name">{{ lang.admin.badge.create_title }}</label></h3>
+            <input id="badge-create-name" placeholder="{{ lang.admin.badge.name_placeholder }}" maxlength="64"><br>
+            <label><textarea id="badge-create-data" placeholder="{{ lang.admin.badge.data_placeholder }}" maxlength="65536"></textarea></label><br>
+            <button id="badge-create">{{ lang.admin.badge.create_button }}</button>
+          {% endif %}
 
-        {% if bd %}
-          <h3><label for="badge-delete-name">{{ lang.admin.badge.delete_title }}</label></h3>
-          <input id="badge-delete-name" placeholder="{{ lang.admin.badge.name_placeholder }}"><br>
-          <button id="badge-delete">{{ lang.admin.badge.delete_button }}</button>
-        {% endif %}
-      </div>
+          {% if bd %}
+            <h3><label for="badge-delete-name">{{ lang.admin.badge.delete_title }}</label></h3>
+            <input id="badge-delete-name" placeholder="{{ lang.admin.badge.name_placeholder }}"><br>
+            <button id="badge-delete">{{ lang.admin.badge.delete_button }}</button>
+          {% endif %}
+        </div>
+      {% else %}
+        <h3 class="red">{{ lang.admin.disabled.badge }}</h3>
+      {% endif %}
     {% endif %}
 
     {% admin_level LEVEL mask.MODIFY_ACCOUNT as can %}
@@ -112,6 +116,9 @@
             <p>
               <input type="checkbox" id="level-{{ lv }}"><label for="level-{{ lv }}">
                 {{ lang.admin.permissions.descriptions|get:lv }}
+                {% if permissions_disabled|get:lv %}
+                  <span class="red">({{ lang.admin.disabled.generic }})</span>
+                {% endif %}
                 {% if lang.admin.permissions.descriptions_extra|get:lv %}
                   <small>{{ lang.admin.permissions.descriptions_extra|get:lv }}</small>
                 {% endif %}
@@ -123,6 +130,22 @@
         <button id="level-set">{{ lang.admin.permissions.set }}</button>
         <button id="level-load">{{ lang.admin.permissions.load }}</button>
       </div>
+    {% endif %}
+
+    {% admin_level LEVEL mask.GENERATE_OTP as can %}
+    {% if can %}
+      {% if ENABLE_NEW_ACCOUNTS == "otp" %}
+        <div>
+          <h3>{{ lang.admin.otp.generate }}</h3>
+          <button id="otp-create">{{ lang.admin.otp.generate_button }}</button>
+          <div id="otp-generated"></div>
+          <h3>{{ lang.admin.otp.all }}</h3>
+          <button id="otp-load">{{ lang.admin.otp.all_button }}</button>
+          <div id="otp-all"></div>
+        </div>
+      {% else %}
+        <h3 class="red">{{ lang.admin.disabled.otp }}</h3>
+      {% endif %}
     {% endif %}
   </div>
 

@@ -14,11 +14,11 @@ from ..helper import (DEFAULT_LANG, can_view_post, create_api_ratelimit,
                       validate_username)
 from ..variables import (API_TIMINGS, ENABLE_CONTENT_WARNINGS,
                          ENABLE_LOGGED_OUT_CONTENT, ENABLE_PINNED_POSTS,
-                         ENABLE_POLLS, MAX_CONTENT_WARNING_LENGTH,
-                         MAX_POLL_OPTION_LENGTH, MAX_POLL_OPTIONS,
-                         MAX_POST_LENGTH, OWNER_USER_ID, POST_WEBHOOKS,
-                         POSTS_PER_REQUEST, SITE_NAME, VERSION)
-from .admin import log_admin_action
+                         ENABLE_POLLS, ENABLE_POST_DELETION,
+                         MAX_CONTENT_WARNING_LENGTH, MAX_POLL_OPTION_LENGTH,
+                         MAX_POLL_OPTIONS, MAX_POST_LENGTH, OWNER_USER_ID,
+                         POST_WEBHOOKS, POSTS_PER_REQUEST, SITE_NAME, VERSION)
+from .admin import BitMask, log_admin_action
 from .schema import APIResponse, EditPost, NewPost, NewQuote, Poll, PostID
 
 
@@ -543,8 +543,8 @@ def post_delete(request, data: PostID) -> APIResponse:
             "success": False
         }
 
-    admin = user.user_id == OWNER_USER_ID or user.admin_level >= 1
-    creator = post.creator.user_id == user.user_id
+    admin = user.user_id == OWNER_USER_ID or BitMask.can_use(user, BitMask.DELETE_POST)
+    creator = post.creator.user_id == user.user_id and ENABLE_POST_DELETION
 
     if admin and not creator:
         log_admin_action("Delete post", user, post.creator, f"Deleted post {id}")
@@ -660,6 +660,27 @@ def poll_vote(request, data: Poll) -> APIResponse:
             "actions": [
                 { "name": "reset_post_html", "post_id": data.id, "comment": False, "post": get_post_json(post, user.user_id, False) }
             ]
+        }
+
+    return 400, {
+        "success": False
+    }
+
+def poll_refresh(request, id: int) -> dict | tuple[int, dict]:
+    post = Post.objects.get(post_id=id)
+
+    if post.poll:
+        user = User.objects.get(token=request.COOKIES.get('token'))
+
+        can_view = can_view_post(user, post.creator, post)
+        if can_view[0] is False and can_view[1] in ["private", "blocked"]:
+            return 400, {
+                "success": False
+            }
+
+        return {
+            "success": True,
+            "votes": [len(otp["votes"]) for otp in post.poll["content"]] # type: ignore
         }
 
     return 400, {

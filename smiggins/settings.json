@@ -93,7 +93,7 @@
   "debug": true,
 
   // The maximum of lines of logs to store in the database at once. 1+
-  "max_admin_log_lines": 1000,
+  "max_admin_log_lines": 150,
 
   /*
   ** The default language for any new user. Choose from one of the files in the
@@ -137,8 +137,14 @@
   ** TDM-Reservation header to 0 if allowed, 1 if disallowed. Read more here:
   ** https://www.w3.org/community/reports/tdmrep/CG-FINAL-tdmrep-20240202/
   ## Default: false
+  ** The allow_indexing option does a different function, that being setting
+  ** robots.txt to disallow scraping from all services. This includes stuff like
+  ** GoogleBot, which will make it so your website doesn't show up in Google
+  ** Search.
+  ## Default: true
   */
   "allow_scraping": false,
+  "allow_indexing": true,
 
   /*
   ** The maximum length of a username/display name. Must be between 1 and 200,
@@ -267,34 +273,34 @@
   ## Default for all: true
   */
 
-  "enable_user_bios": true,
-  "enable_pronouns": true,
-  "enable_gradient_banners": true,
-  "enable_account_switcher": true,
+  "enable_user_bios": true, // Last tested: v0.13.6
+  "enable_pronouns": true, // Last tested: v0.13.6
+  "enable_gradient_banners": true, // Last tested: v0.13.6
+  "enable_account_switcher": true, // Last tested: v0.13.6
 
-  "enable_hashtags": true,
-  "enable_private_messages": true,
-  "enable_pinned_posts": true,
-  "enable_post_deletion": true,
-  "enable_editing_posts": true,
+  "enable_hashtags": true, // Last tested: v0.13.6
+  "enable_private_messages": true, // Last tested: v0.13.6
+  "enable_pinned_posts": true, // Last tested: v0.13.6
+  "enable_post_deletion": true, // Last tested: v0.13.6
+  "enable_editing_posts": true, // Last tested: v0.13.6
 
-  "enable_contact_page": true,
-  "enable_credits_page": true,
+  "enable_contact_page": true, // Last tested: v0.13.6
+  "enable_credits_page": true, // Last tested: v0.13.6
 
   // The private post icon is always shown.
-  "enable_badges": true,
+  "enable_badges": true, // Last tested: v0.13.6
 
   // Existing quotes will remain unchanged.
-  "enable_quotes": true,
+  "enable_quotes": true, // Last tested: v0.13.6
 
   // Existing polls will remain unchanged.
-  "enable_polls": true,
+  "enable_polls": true, // Last tested: v0.13.6
 
   /*
   ** Existing CW-ed posts will remain unchanged.
   && Aliases: enable_cws, enable_c_warnings, enable_content_warnings
   */
-  "enable_content_warnings": true,
+  "enable_content_warnings": true, // Last tested: v0.13.6
 
   /*
   ** If off, people who are logged out won't be able to see any user profiles,
@@ -302,14 +308,16 @@
   ** along with search engine scraping of posts to not work.
   && Aliases: enable_logged_out, enable_logged_out_content
   */
-  "enable_logged_out_content": true,
+  "enable_logged_out_content": true, // Last tested: v0.13.6
 
   /*
-  ** If off, there will be an indication on the signup and index pages that says
-  ** the instance isn't accepting any new members
+  ** If false, there will be an indication on the signup and index pages that
+  **  says the instance isn't accepting any new members. You can also set it to
+  ** "otp" (one-time password) to require users to input a one time invite code
+  ** when signing up. Those can be found in the admin page.
   && Aliases: enable_signup, enable_new_users, enable_new_accounts
   */
-  "enable_new_accounts": true,
+  "enable_new_accounts": true, // Last tested: v0.13.6
 
   /*
   ** Any custom themes added to your website. Format is as follows:

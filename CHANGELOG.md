@@ -1,3 +1,11 @@
+## v0.13.6
+1. Added one-time invite codes that can be used to manage who can sign up
+2. Made languages with non-ASCII characters load properly on Windows without requiring the unicode characters to be escaped
+3. You can no longer view hashtag pages when logged out content is disabled in backend settings
+4. Added a warning on the admin page when setting permissions that shows which options are disabled due to backend configuration
+5. Added a refresh button to polls that have been voted on
+6. Added a button to go back to voting when clicking the "View results" button on a poll
+7. Added a backend setting to disable search engine indexing
 ## v0.13.5
 1. Added a custom modal when leaving the settings page with unsaved changes
 2. Added a way to delete your own account
