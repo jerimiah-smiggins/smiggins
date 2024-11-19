@@ -1,8 +1,8 @@
 from backend.api.email import link_manager as email_manager
 from backend.api.email import test_link as test_email
 from backend.helper import create_simple_return
-from backend.sitemaps import (sitemap_base, sitemap_index, sitemap_post,
-                              sitemap_user)
+from backend.sitemaps import (sitemap_base, sitemap_comment, sitemap_hashtag,
+                              sitemap_index, sitemap_post, sitemap_user)
 from backend.templating import (admin, comment, contact, credit,
                                 generate_favicon, hashtag, message, pending,
                                 post, settings, user, user_lists)
@@ -64,7 +64,9 @@ urlpatterns = list(filter(bool, [
     path("sitemap.xml", (cache_page(SITEMAP_CACHE_TIMEOUT, key_prefix=cache_prefix)(sitemap_index) if SITEMAP_CACHE_TIMEOUT else sitemap_index)) if ENABLE_SITEMAPS else None,
     path("sitemaps/base.xml", (cache_page(SITEMAP_CACHE_TIMEOUT, key_prefix=cache_prefix)(sitemap_base) if SITEMAP_CACHE_TIMEOUT else sitemap_base)) if ENABLE_SITEMAPS else None,
     path("sitemaps/u/<int:index>.xml", (cache_page(SITEMAP_CACHE_TIMEOUT, key_prefix=cache_prefix)(sitemap_user) if SITEMAP_CACHE_TIMEOUT else sitemap_user)) if ENABLE_SITEMAPS else None,
-    path("sitemaps/p/<int:index>.xml", (cache_page(SITEMAP_CACHE_TIMEOUT, key_prefix=cache_prefix)(sitemap_post) if SITEMAP_CACHE_TIMEOUT else sitemap_post)) if ENABLE_SITEMAPS else None
+    path("sitemaps/p/<int:index>.xml", (cache_page(SITEMAP_CACHE_TIMEOUT, key_prefix=cache_prefix)(sitemap_post) if SITEMAP_CACHE_TIMEOUT else sitemap_post)) if ENABLE_SITEMAPS else None,
+    path("sitemaps/c/<int:index>.xml", (cache_page(SITEMAP_CACHE_TIMEOUT, key_prefix=cache_prefix)(sitemap_comment) if SITEMAP_CACHE_TIMEOUT else sitemap_post)) if ENABLE_SITEMAPS else None,
+    path("sitemaps/h/<int:index>.xml", (cache_page(SITEMAP_CACHE_TIMEOUT, key_prefix=cache_prefix)(sitemap_hashtag) if SITEMAP_CACHE_TIMEOUT else sitemap_post)) if ENABLE_SITEMAPS else None
 ]))
 
 del _favicon, _robots_txt, _security_txt
