@@ -85,6 +85,11 @@ command:
 echo "auth_key = b'some random text this can be anything'" > ./smiggins/backend/_api_keys.py
 ```
 
+> [!WARNING]
+>
+> Once you set the contents of this variable, **DO NOT CHANGE IT!** This will
+> cause all existing accounts to not be able to be logged in to.
+
 Next, you will need to set up the WSGI configuration file. To do so, you can
 either use a terminal-based text editor, like `nano`, or use PythonAnywhere's
 file editing webpage.
