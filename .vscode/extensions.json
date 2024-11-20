@@ -3,9 +3,6 @@
     "ms-python.isort",
     "charliermarsh.ruff",
     "batisteo.vscode-django",
-    "ms-python.vscode-pylance",
-
-    "streetsidesoftware.code-spell-checker",
-    "streetsidesoftware.code-spell-checker-esperanto"
+    "ms-python.vscode-pylance"
   ]
 }
