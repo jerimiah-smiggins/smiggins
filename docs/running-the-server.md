@@ -49,8 +49,8 @@ Next, you will need to create the database. To do so, run this command:
 python manage.py migrate
 ```
 
-If you need to, make sure that the `site_url` property in the
-[settings.json file](/smiggins/settings.json) is properly set.
+If you need to, make sure that the `website_url` property in the
+[`settings.json`](/smiggins/settings.json) file is properly set.
 
 Finally, in order to run the server itself, just run this command:
 ```bash
@@ -143,94 +143,94 @@ Feel free to adjust any of the other configuration however you like.
 From there, you can go to the webapps dashboard and restart your server. In a
 few seconds, it should be all up and running.
 
-<details>
-  <summary><h2 style="display: inline">
-    How to upgrade versions on PythonAnywhere (using a venv)
-  </h2></summary>
+## How to set up Gmail integration
+The first things you need to do are:
+- Make sure you have a Gmail account to use for this - emails are going to be
+sent from whichever email is used for this process
+- Ensure that [2FA is enabled](https://myaccount.google.com/signinoptions/twosv)
+for your Gmail account
 
-  To clone the newest version, do the following commands in the
-  `~/smiggins` folder:
-  ```bash
-  git stash
-  git pull
-  git stash pop
-  ```
+Once you do those, you are going to need to create an app password for your
+email. To do so, go to [this link](https://myaccount.google.com/u/3/apppasswords).
+The app name can be whatever you want, and the app password should be four
+strings of four letters. Save this for the next step.
 
-  Then, in the venv console, run these commands in the `~/smiggins/smiggins`
-  folder:
-  ```bash
-  python manage.py collectstatic
-  python manage.py migrate
-  ```
-
-  Then, just restart the server from the webapp dashboard!
-</details>
-
-<details>
-  <summary><h2 style="display: inline">
-    How to upgrade versions on PythonAnywhere (no venv)
-  </h2></summary>
-
-  To clone the newest version, do the following commands in the
-  `~/smiggins` folder:
-  ```bash
-  git stash
-  git pull
-  git stash pop
-  ```
-
-  Then, in the venv console, run these commands in the `~/smiggins/smiggins`
-  folder:
-  ```bash
-  python3.10 manage.py collectstatic
-  python3.10 manage.py migrate
-  ```
-
-  Then, just restart the server from the webapp dashboard!
-</details>
-
-<details>
-  <summary><h2 style="display: inline">
-    Where can I report issues or suggest stuff
-  </h2></summary>
-
-  go to the [issues tab](https://github.com/jerimiah-smiggins/smiggins/issues)
-  and make a new issue (make sure you're logged in with github)
-</details>
-
-<details>
-  <summary><h2 style="display: inline">
-    How to setup Gmail on PythonAnywhere
-  </h2></summary>
-
-  First, you need to make sure 2 step verification is enabled for the gmail
-  account you want to send the emails from. Do this by going to
-  <a href="https://myaccount.google.com/signinoptions/twosv">this link</a>.
-
-  Next, you'll need to create an app password, by going to
-  <a href="https://myaccount.google.com/u/3/apppasswords">this link</a>. The app
-  name can be anything you want, and it should show you four strings of four
-  letters. Save this for the next step.
-
-  Finally, in the `_api_keys.py` file in the backend folder, put the following
-  code, modifying it for your needs:
-  ```py
-  smtp_auth = {
-      "EMAIL_HOST": "smtp.gmail.com",
-      "EMAIL_HOST_USER": "[email]@gmail.com", # put the full email, like example@gmail.com
-      "EMAIL_HOST_PASSWORD": "xxxx xxxx xxxx xxxx", # put in the password obtained in the previous step
-      "EMAIL_PORT": 587,
-      "EMAIL_USE_TLS": True,
-      "DEFAULT_FROM_EMAIL": "[email]@gmail.com" # put the full email, like example@gmail.com
-  }
-  ```
-</details>
+In the [`_api_keys.py`](/smiggins/backend/_api_keys.py) file, add the following
+code, modifying it to your needs:
+```py
+smtp_auth = {
+    "EMAIL_HOST": "smtp.gmail.com",
+    "EMAIL_HOST_USER": "[email]@gmail.com", # put the full email, like example@gmail.com
+    "EMAIL_HOST_PASSWORD": "xxxx xxxx xxxx xxxx", # put in the password obtained in the previous step
+    "EMAIL_PORT": 587,
+    "EMAIL_USE_TLS": True,
+    "DEFAULT_FROM_EMAIL": "[email]@gmail.com" # put the full email, like example@gmail.com
+}
+```
 
 ## How to create an upgrade script
-TODO
+If you want to update your instance to newer versions easily, you can use an
+update script. These aren't at all difficult to make.
+
+The first thing you are going to want to do is make a new file, say `update-smiggins.sh`:
+```bash
+# Create the file:
+touch update-smiggins.sh
+
+# Make the file executable:
+chmod +x update-smiggins.sh
+```
+
+Then, open the file with your preferred text editor. In the file, put the
+following commands:
+```bash
+# Make sure to change this directory to the one that includes the smiggins folder.
+# The smiggins folder in question is the one that contains the manage.py and
+# settings.json files.
+cd /home/USERNAME/path/to/smiggins/
+
+# Discard any modified files in order to prevent conflicts
+git clean
+
+# Fetch any new changes
+git pull
+
+# Set settings
+echo '{
+  // Put your backend config here
+  "debug": false,
+  "website_url": "https://example.com",
+  "max_post_length": 999
+  // ...
+}' > settings.json
+
+# Create/migrate database changes
+python manage.py migrate
+
+# Update collected static files
+python manage.py collectstatic --noinput
+```
 
 ## How to configure CSRF trusted origins
-TODO
+When logging in to the `/django-admin/` panel, you may see a "CSRF Verification
+Failed" error. To fix this, you just need to add the following line to the
+[`settings.py`](/smiggins/smiggins/settings.py) file:
+```py
+CSRF_TRUSTED_ORIGINS = ["https://example.com"]
+```
+
+You can add as many domains to this array. You may need to specify both the http
+and https version of your url if they both point to the same server. If you need
+to allow all subdomains on a domain, you can do so by adding `https://*.example.com`
+to the array.
+
+Make sure to restart the server after configuring this.
+
+If you want to add this automatically with your upgrade script, you can append
+this to your script:
+```bash
+echo "CSRF_TRUSTED_ORIGINS = ['https://example.com']" >> smiggins/smiggins/smiggins/settings.py
+```
 
 ## How to configure nginx for your server
 TODO
