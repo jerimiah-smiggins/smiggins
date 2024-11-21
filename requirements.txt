@@ -3,3 +3,4 @@ requests
 django
 json5
 cairosvg
+pyyaml

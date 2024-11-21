@@ -204,6 +204,9 @@ echo '{
   // ...
 }' > settings.json
 
+# Optional: Update any packages
+python -m pip install --upgrade -r ../requirements.txt
+
 # Create/migrate database changes
 python manage.py migrate
 

@@ -5,6 +5,7 @@ import re
 from typing import Any, Literal
 
 import json5 as json
+import yaml
 from django.db.utils import OperationalError
 from posts.models import Badge
 
@@ -497,7 +498,7 @@ _VARIABLES: list[tuple[str | None, list[str], type | str | list | tuple | dict, 
 f = {}
 
 try:
-    f = json.load(open(BASE_DIR / "settings.json", "r", encoding="utf-8"))
+    f = yaml.safe_load(open(BASE_DIR / "settings.json", "r", encoding="utf-8"))
 except ValueError:
     error("Invalid settings.json")
 except FileNotFoundError:

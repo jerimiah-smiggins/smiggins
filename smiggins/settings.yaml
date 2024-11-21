@@ -1,0 +1,326 @@
+# This file contains all of the backend settings for the server. This is
+# likely the only file you will edit when running the server. It's possible
+# that the contents of this file will change between updates so don't rely on
+# this file not changing at all. You can however remove any items from this
+# file and the default value will persist. Along with that, the case (upper,
+# lower, or any combination) of the keys doesn't matter.
+
+# The version displayed on the website. Set to `null` for the real version.
+version: null
+
+# The name of the instance
+site_name: "Jerimiah Smiggins"
+
+# The url of the website that you are running. This is VERY IMPORTANT to set,
+# and is required for emails and sitemaps to work properly. Make sure to
+# include the "https://" part.
+website_url: "http://localhost:8000"
+
+# SET TO FALSE for production servers!!! This determines whether or not to
+# refresh the server when code changes Turning this off (and/or going into
+# production) means you should get a web server like Nginx or Apache to serve
+# static files securely among other things
+debug: true
+
+# Use this if you want to verify your ownership on the google search console
+google_verification_tag: null
+
+# The user id of the instance owner. Can be found on the /django-admin page.
+owner_user_id: 1
+
+# This toggles sitemaps, which are files that tell web scrapers where
+# everything on your instance is. It also exposes the links to all the users
+# and posts to the scraper to better index your instance.
+# Aliases: sitemaps, enable_sitemaps
+# Default: false
+enable_sitemaps: false
+
+# If true, this changes how the site gets the user's ip address for
+# ratelimiting. When true, instead of using the ip from the request itself,
+# it uses the "X-Real-IP" header in the request. You can also set this to a
+# string to target a specific header instead. Only use this if your server is
+# behind a reverse proxy, like nginx, and you have configured ip addresses to
+# pass through a header.
+# Default: false
+alternate_ips: false
+
+# Controls the amount of sites that are shown per sitemap. Max: 50k; Min: 50
+# Default: 500
+items_per_sitemap: 500
+
+# How long to cache anything that would make sense to be cached. Set to null
+# to disable caching. (Sitemaps are handled separately from this, so sitemaps
+# can be cached when everything else has cache disabled.) Cache gets
+# overwritten when the instance gets updated.
+# Default: 604800 (60(s) * 60(m) * 24(h) * 7(d))
+generic_cache_timeout: 604800
+
+# How long to cache the sitemaps, in seconds. Set to null to disable caching.
+# Default: 86400 (60(s) * 60(m) * 24(h))
+sitemap_cache_timeout: 86400
+
+# How long to cache the favicons, in seconds. Set to null to disable caching.
+# Default: 7200 (60(s) * 60(m) * 2(h))
+favicon_cache_timeout: 7200
+
+# Favicon SVG Data - This is what controls the favicon.
+# Templating rules:
+# - "@{accent}" is replaced with the accent color
+# - "@{background}" is replaced with the background color ([theme].background)
+# - "@{background_alt}" is replaced with an alternate background color ([theme].button_background])
+# You can also set enable_dynamic_favicon to false in order to always use the favicon at /static/img/old_favicon.ico
+# NOTE: Favicon data may be cached if you change this on a production server.
+# Aliases: favicon, favicon_data, favicon_svg
+favicon_data: null
+enable_dynamic_favicon: true
+
+# This toggles allowing emails. In order for this to work, you need to set up
+# the stmp_auth variable in backend/_api_keys.py. (Read README.md)
+# Aliases: email, enable_email
+# Default: false
+enable_email: false
+
+# The maximum of lines of logs to store in the database at once. 1+
+max_admin_log_lines: 150
+
+# The default language for any new user. Choose from one of the files in the
+# lang/ folder, omitting the .json file extension.
+# Aliases: default_lang, default_language
+# Default: "en-US"
+default_language: "en-US"
+
+# The invite part of the link to join a discord server
+# (https://discord.gg/<invite>). This is shown on the index and settings
+# pages. Set to null to disable the link.
+# Aliases: discord, discord_invite
+# Default: "tH7QnHApwu"
+discord_invite: "tH7QnHApwu"
+
+# The default themes for the website. Can be "noon", "dawn", "dusk", "dark",
+# "sunset", "midnight", "black", or the id of any custom theme.
+# Default: "dark" (dark), "dawn" (light)
+default_dark_theme: "dark"
+default_light_theme: "dawn"
+
+# Whether or not to cache languages. If this is on, then more ram will be
+# used to store them, however in the long run it will take a bit less CPU
+# usage and disk usage. If you are testing/creating a language, set this to
+# false to make the language refresh automatically. If set to `null`, then it
+# will be the opposite of debug (debug=true, cache=false).
+# Aliases: cache_langs, cache_languages
+# Default: null
+cache_languages: null
+
+# Whether or not to legally allow other services to scrape your website. This
+# does NOT affect indexing for search engines. This is done by setting the
+# TDM-Reservation header to 0 if allowed, 1 if disallowed. Read more here:
+# https://www.w3.org/community/reports/tdmrep/CG-FINAL-tdmrep-20240202/
+# Default: false
+# The allow_indexing option does a different function, that being setting
+# robots.txt to disallow scraping from all services. This includes stuff like
+# GoogleBot, which will make it so your website doesn't show up in Google
+# Search.
+# Default: true
+allow_scraping: false
+allow_indexing: true
+
+# The maximum length of a username/display name. Must be between 1 and 200,
+# but the display name length must be more than username length.
+# Username default: 18
+# Display name default: 32
+max_username_length: 18
+max_display_name_length: 32
+
+# The maximum length of a user bio. Must be between 1 and 65,536.
+# Aliases: max_bio_length, max_user_bio_length
+# Default: 280
+max_user_bio_length: 280
+
+# The maximum length for content warnings on posts. Must be between 1 and
+# 200.
+# Aliases: max_cw_length, max_warning_length, max_content_warning_length
+# Default: 100
+max_content_warning_length: 100
+
+# The maximum length for a post. Must be between 1 and 65,536.
+# Default: 280
+max_post_length: 280
+
+# The maximum amount of options for a single poll. Must be at least 2. Any
+# existing polls won't be modified by changing this.
+# Default: 8
+max_poll_options: 8
+
+# The maximum length for a single poll option. Must be at least 1.
+# Default: 64
+max_poll_option_length: 64
+
+# The default banner color for new users. Should be in the hex color format
+# (a hashtag ("#") followed by 6 characters 0-9, a-f)
+# Default: "#3a1e93"
+default_banner_color: "#3a1e93"
+
+# This controls how many posts can be sent at a time from the server to the
+# client. Increasing the number can increase bandwidth and cpu usage however
+# it will likely improve the user experience.
+# Default: 20
+posts_per_request: 20
+
+# Similar to posts_per_request, however it controls private messages instead.
+# Default: 40
+messages_per_request: 40
+
+# The maximum number of notifications to be stored per user. Whenever this
+# limit is exceeded, it will remove the oldest notifications for that user.
+# Aliases: max_notifs, max_notifications
+# Default: 25
+max_notifications: 25
+
+# The contact information displayed on the /contact page. The type (first
+# item) can be "email", "url", or "text"
+# Aliases: contact_info, contact_information
+contact_information:
+  - [email, trinkey@duck.com]
+  - [url,   https://github.com/jerimiah-smiggins/smiggins/issue"]
+  - [url,   https://discord.gg/tH7QnHApwu]
+  - [text,  DM me on discord (@trinkey_)]
+
+# Automatically sends a request to the specified webhook when a user posts a
+# post (comments aren't included). Format below. Type should be either "raw"
+# (sends the data with a POST request with the data in the "content" json
+# parameter) or "discord" (sends the data in a discord style embed). Webhooks
+# may be subject to ratelimits by external servers depending on frequency.
+# Aliases: webhooks, auto_webhooks, post_webhooks, auto_post_webhooks
+post_webhooks:
+#  foo: [https://example.com/webhook, raw]
+#  bar: [https://discord/webhook/gibberish, discord]
+
+# Whether or not to show links to the github page
+source_code: true
+
+# Whether or not to enforce the ratelimit
+ratelimit: true
+
+# This defines the times needed for ratelimits to expire. Timings are all in
+# milliseconds (1000ms = 1 second). If ratelimit is false, this gets ignored.
+# Default: 1000, 15000, 1000, 5000, 3000, 1000, 3000, 1000
+api_timings:
+  "signup unsuccessful": 1000,
+  "signup successful": 15000,
+  "login unsuccessful": 1000,
+  "login successful": 5000,
+  "create comment": 3000,
+  "create comment failure": 1000,
+  "create post": 3000,
+  "create post failure": 1000
+
+# NOTE:
+# Changing any of the following settings won't modify any existing values in
+# the database, instead ignoring them to meet the preferred setting. This
+# means if you enable one in the future, anything set before it was disabled
+# will persist.
+# Default for all: true
+
+enable_user_bios: true # Last tested: v0.13.6
+enable_pronouns: true # Last tested: v0.13.6
+enable_gradient_banners: true # Last tested: v0.13.6
+enable_account_switcher: true # Last tested: v0.13.6
+
+enable_hashtags: true # Last tested: v0.13.6
+enable_private_messages: true # Last tested: v0.13.6
+enable_pinned_posts: true # Last tested: v0.13.6
+enable_post_deletion: true # Last tested: v0.13.6
+enable_editing_posts: true # Last tested: v0.13.6
+
+enable_contact_page: true # Last tested: v0.13.6
+enable_credits_page: true # Last tested: v0.13.6
+
+# The private post icon is always shown.
+enable_badges: true # Last tested: v0.13.6
+
+# Existing quotes will remain unchanged.
+enable_quotes: true # Last tested: v0.13.6
+
+# Existing polls will remain unchanged.
+enable_polls: true # Last tested: v0.13.6
+
+# Existing CW-ed posts will remain unchanged.
+# Aliases: enable_cws, enable_c_warnings, enable_content_warnings
+enable_content_warnings: true # Last tested: v0.13.6
+
+# If off, people who are logged out won't be able to see any user profiles,
+# posts, or comments. This also affects causes embeds for sites like discord
+# along with search engine scraping of posts to not work.
+# Aliases: enable_logged_out, enable_logged_out_content
+enable_logged_out_content: true # Last tested: v0.13.6
+
+# If false, there will be an indication on the signup and index pages that
+#  says the instance isn't accepting any new members. You can also set it to
+# "otp" (one-time password) to require users to input a one time invite code
+# when signing up. Those can be found in the admin page.
+# Aliases: enable_signup, enable_new_users, enable_new_accounts
+enable_new_accounts: true # Last tested: v0.13.6
+
+# Any custom themes added to your website. Format is as follows:
+# {
+#   "name": {
+#     # Doesn't need to be unique.
+#     "default": "Theme Name",
+#     # Optional: add more language variants - these get overwritten if there is a version in the language file
+#     "en-GB": "Theme Name but British"
+#    },
+#   "id": "theme-id", # Max 30 chars. Unique, case insensitive. Can't be any of:
+#                     # "custom", "auto", "warm", "light", "gray", "dark", "black", "oled", "dawn", "dusk", "midnight"
+#                     # DO NOT CHANGE once your theme is registered! This is what's stored in the database for users.
+#   "light_theme": true/false, # Whether or not the theme is a light theme.
+#   "colors" {
+#     All of:
+#     - text
+#     - subtext
+#     - red (used for delete/unpin buttons in extended post menu)
+#     - background
+#     - post_background
+#     - content_warning_background
+#     - input_background
+#     - checkbox_background (applies to the custom checkboxes)
+#     - button_background
+#     - button_hover_background
+#     - button_inverted_background (Ex: buttons on top of post boxes, uses same hover color)
+#     - input_border (borders get set to accent when the element is focused/active/etc)
+#     - checkbox_border
+#     - button_border
+#     - modal_backdrop
+#     - modal_background
+#     - modal_border
+#     - gray (used for read notifications/messages)
+#
+#     "accent": {
+#       All of:
+#       - rosewater
+#       - flamingo
+#       - pink
+#       - mauve
+#       - red
+#       - maroon
+#       - peach
+#       - yellow
+#       - green
+#       - teal
+#       - sky
+#       - sapphire
+#       - blue
+#       - lavender
+#     }
+#
+#     For the colors, you can also use "@accent" to use the accent color, or "@accent-50" to use a half opacity accent color.
+#     Only full and half opacity accent colors are currently supported.
+#
+#     For these, the value should be a six digit hex code, case insensitive:
+#     "background": "#1e1e2e"
+#     You can also use an eight digit hex code if you want to specify opacity too.
+#     This can be done for anything except for "background" and all of the accent colors:
+#     "subtext": "#ffffff80"
+#   }
+# }
+
+custom_themes: []

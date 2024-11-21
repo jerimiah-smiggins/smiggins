@@ -8,6 +8,9 @@ the frontend except on the admin page, it is mainly used in the backend. These
 always start at 1, incrementing with every new user. To find these, you need to
 have access to the database, or have a [Django superuser account](#how-can-i-access-the-database)
 
+## Do you have X feature? / Can you add Y?
+[Make an issue](https://github.com/jerimiah-smiggins/smiggins/issues).
+
 ## How can I access the database?
 SQLite isn't a very human-friendly format, which you may have realized if you
 have tried to open the database file in a text editor. In order to view the
