@@ -551,6 +551,9 @@ def typecheck(obj: Any, expected_type: type | str | list | tuple | dict, allow_n
                     error(f"{i} should be object in theme definition, discarding")
                     continue
 
+                if "id" in i and i["id"] == "custom":
+                    continue
+
                 if not (keycheck(i, {
                     "name": dict,
                     "id": str,

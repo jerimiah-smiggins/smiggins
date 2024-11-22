@@ -9,12 +9,12 @@
 version: null
 
 # The name of the instance
-site_name: "Jerimiah Smiggins"
+site_name: Jerimiah Smiggins
 
 # The url of the website that you are running. This is VERY IMPORTANT to set,
 # and is required for emails and sitemaps to work properly. Make sure to
 # include the "https://" part.
-website_url: "http://localhost:8000"
+website_url: http://localhost:8000
 
 # SET TO FALSE for production servers!!! This determines whether or not to
 # refresh the server when code changes Turning this off (and/or going into
@@ -86,21 +86,21 @@ max_admin_log_lines: 150
 # The default language for any new user. Choose from one of the files in the
 # lang/ folder, omitting the .json file extension.
 # Aliases: default_lang, default_language
-# Default: "en-US"
-default_language: "en-US"
+# Default: en-US
+default_language: en-US
 
 # The invite part of the link to join a discord server
 # (https://discord.gg/<invite>). This is shown on the index and settings
 # pages. Set to null to disable the link.
 # Aliases: discord, discord_invite
-# Default: "tH7QnHApwu"
-discord_invite: "tH7QnHApwu"
+# Default: tH7QnHApwu
+discord_invite: tH7QnHApwu
 
-# The default themes for the website. Can be "noon", "dawn", "dusk", "dark",
-# "sunset", "midnight", "black", or the id of any custom theme.
-# Default: "dark" (dark), "dawn" (light)
-default_dark_theme: "dark"
-default_light_theme: "dawn"
+# The default themes for the website. Can be noon, dawn, dusk, dark,
+# sunset, midnight, black, or the id of any custom theme.
+# Default: dark (dark), dawn (light)
+default_dark_theme: dark
+default_light_theme: dawn
 
 # Whether or not to cache languages. If this is on, then more ram will be
 # used to store them, however in the long run it will take a bit less CPU
@@ -177,13 +177,12 @@ messages_per_request: 40
 max_notifications: 25
 
 # The contact information displayed on the /contact page. The type (first
-# item) can be "email", "url", or "text"
+# item) can be email, url, or text
 # Aliases: contact_info, contact_information
 contact_information:
   - [email, trinkey@duck.com]
-  - [url,   https://github.com/jerimiah-smiggins/smiggins/issue"]
+  - [url,   https://github.com/jerimiah-smiggins/smiggins/issue]
   - [url,   https://discord.gg/tH7QnHApwu]
-  - [text,  DM me on discord (@trinkey_)]
 
 # Automatically sends a request to the specified webhook when a user posts a
 # post (comments aren't included). Format below. Type should be either "raw"
@@ -323,4 +322,55 @@ enable_new_accounts: true # Last tested: v0.13.6
 #   }
 # }
 
-custom_themes: []
+custom_themes:
+- name:
+    # This doesn't need to be unique
+    default: Example Theme with Colors
+    # Optional: add language variants
+    en-GB: Example Theme with Colours
+  # Max 30 chars. Unique, case insensitive. Can't be any of:
+  # custom, auto, warm, light, gray, dark, black, oled, dawn, dusk, midnight
+  # DO NOT CHANGE once your theme is registered! This is what's stored in the database for a user's theme.
+  id: custom # This is an example theme and will be ignored. If you make this a real theme, make sure to change this id to something other than "custom"
+  # Whether or not your theme should be treated as a light mode theme
+  light_theme: true/false
+  colors:
+  # For the colors, you can also use "@accent" to use the accent color, or "@accent-50" to use a half opacity accent color.
+  # Only full and half opacity accent colors are currently supported.
+  # You can also put in any hex code (case insensitive):
+  # background: "#1e1e2e"
+  # subtext: "#ffffff80" # Optional: set opacity (not with background or any accent)
+  # Make sure you put quotes for the hex code so it doesn't get treated as a comment.
+    text: ...
+    subtext: ...
+    red: ... # (used for delete/unpin buttons in extended post menu)
+    background: ...
+    post_background: ...
+    content_warning_background: ...
+    input_background: ...
+    checkbox_background: ... # (applies to the custom checkboxes)
+    button_background: ...
+    button_hover_background: ...
+    button_inverted_background: ... # (Ex: buttons on top of post boxes, uses same hover color)
+    input_border: ... # (borders get set to accent when the element is focused/active/etc)
+    checkbox_border: ...
+    button_border: ...
+    modal_backdrop: ...
+    modal_background: ...
+    modal_border: ...
+    gray: ... # (used for read notifications/messages)
+    accent:
+      rosewater: ...
+      flamingo: ...
+      pink: ...
+      mauve: ...
+      red: ...
+      maroon: ...
+      peach: ...
+      yellow: ...
+      green: ...
+      teal: ...
+      sky: ...
+      sapphire: ...
+      blue: ...
+      lavender: ...
