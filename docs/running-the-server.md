@@ -9,8 +9,8 @@ These instructions assume you have **[git](https://git-scm.com/)** and
 **[Python 3.10+](https://python.org/)** installed.
 
 Tutorials for PythonAnywhere assume that you have cloned the smiggins repository
-in your home directory, resulting in a file path like `/home/USERNAME/smiggins/smiggins/settings.json`
-for the `settings.json` file.
+in your home directory, resulting in a file path like `/home/USERNAME/smiggins/smiggins/settings.yaml`
+for the `settings.yaml` file.
 
 ## How set up a local testing server
 First, you will need to run some commands in the command line in order to get
@@ -50,7 +50,7 @@ python manage.py migrate
 ```
 
 If you need to, make sure that the `website_url` property in the
-[`settings.json`](/smiggins/settings.json) file is properly set.
+[`settings.yaml`](/smiggins/settings.yaml) file is properly set.
 
 Finally, in order to run the server itself, just run this command:
 ```bash
@@ -133,7 +133,7 @@ From there, you are going to want to run `python manage.py collectstatic` (set
 up serving static files) and `python manage.py migrate` (create the database).
 
 After you do those two things, all you need to do before your server is ready
-for use is to change a couple of settings. Open the `settings.json` file in your
+for use is to change a couple of settings. Open the `settings.yaml` file in your
 preferred editor (either by navigating there in the PythonAnywhere files web ui
 or by using a terminal-based text editor like nano), and make sure that the
 `debug` setting is set to `false` and that the `website_url` setting is set to
@@ -186,7 +186,7 @@ following commands:
 ```bash
 # Make sure to change this directory to the one that includes the smiggins folder.
 # The smiggins folder in question is the one that contains the manage.py and
-# settings.json files.
+# settings.yaml files.
 cd /home/USERNAME/path/to/smiggins/
 
 # Discard any modified files in order to prevent conflicts
@@ -196,13 +196,13 @@ git clean
 git pull
 
 # Set settings
-echo '{
-  // Put your backend config here
-  "debug": false,
-  "website_url": "https://example.com",
-  "max_post_length": 999
-  // ...
-}' > settings.json
+echo '
+# Put your backend config here
+debug: false
+"website_url: https://example.com
+max_post_length: 999
+# ...
+' > settings.yaml
 
 # Optional: Update any packages
 python -m pip install --upgrade -r ../requirements.txt

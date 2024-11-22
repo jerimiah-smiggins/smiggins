@@ -203,15 +203,15 @@ ratelimit: true
 
 # This defines the times needed for ratelimits to expire. Timings are all in
 # milliseconds (1000ms = 1 second). If ratelimit is false, this gets ignored.
-# Default: 1000, 15000, 1000, 5000, 3000, 1000, 3000, 1000
+# Defaults: 1000, 15000, 1000, 5000, 3000, 1000, 3000, 1000
 api_timings:
-  "signup unsuccessful": 1000,
-  "signup successful": 15000,
-  "login unsuccessful": 1000,
-  "login successful": 5000,
-  "create comment": 3000,
-  "create comment failure": 1000,
-  "create post": 3000,
+  "signup unsuccessful": 1000
+  "signup successful": 15000
+  "login unsuccessful": 1000
+  "login successful": 5000
+  "create comment": 3000
+  "create comment failure": 1000
+  "create post": 3000
   "create post failure": 1000
 
 # NOTE:

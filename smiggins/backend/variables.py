@@ -498,11 +498,11 @@ _VARIABLES: list[tuple[str | None, list[str], type | str | list | tuple | dict, 
 f = {}
 
 try:
-    f = yaml.safe_load(open(BASE_DIR / "settings.json", "r", encoding="utf-8"))
+    f = yaml.safe_load(open(BASE_DIR / "settings.yaml", "r", encoding="utf-8"))
 except ValueError:
-    error("Invalid settings.json")
+    error("Invalid settings.yaml")
 except FileNotFoundError:
-    error("settings.json not found")
+    error("settings.yaml not found")
 
 def typecheck(obj: Any, expected_type: type | str | list | tuple | dict, allow_null: bool=False) -> bool | None:
     # Checks for a custom type format.

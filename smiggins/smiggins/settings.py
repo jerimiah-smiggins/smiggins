@@ -1,6 +1,6 @@
 from pathlib import Path
 
-import json5
+import yaml
 
 BASE_DIR = Path(__file__).resolve().parent.parent
 
@@ -9,7 +9,7 @@ email = False
 url = None
 
 try:
-    f: dict = json5.load(open(BASE_DIR / "settings.json", "r", encoding="utf-8"))
+    f: dict = yaml.safe_load(open(BASE_DIR / "settings.yaml", "r", encoding="utf-8"))
 
     for key, val in f.items():
         if isinstance(val, bool) and key.lower() == "debug":
