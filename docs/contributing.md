@@ -51,8 +51,11 @@ maintaining a language.
 4. Start translating. Go through the file and add any translations needed. Note
 that for the colors (like rosewater), you can just describe them (like "dull
 pink" or "yellowish orange"). If you have any questions, feel free to ask about
-it in [the discord server](https://discord.gg/tH7QnHApwu).
-5. When you're done, fork the git repository, add the file, and make a pull
+it in [the discord server](https://discord.gg/tH7QnHApwu). If the language you
+are translating into has some funky thing that isn't supported, for example a
+different word to describe 0 of something, **please [raise an issue](https://github.com/jerimiah-smiggins/smiggins/issues)
+in order to get it supported**.
+6. When you're done, fork the git repository, add the file, and make a pull
 request **to the `dev` branch**. Your changes will likely be added to production
 by the next update.
 
