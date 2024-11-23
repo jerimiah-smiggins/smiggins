@@ -3,6 +3,7 @@
 import sys
 import threading
 import time
+from itertools import chain
 
 import requests
 from django.db.utils import IntegrityError
@@ -315,38 +316,39 @@ def hashtag_list(request, hashtag: str) -> APIResponse:
     }
 
 def post_list_following(request, offset: int=-1) -> APIResponse:
-    # Called when the following tab is refreshed.
-
-    token = request.COOKIES.get('token')
     offset = sys.maxsize if offset == -1 else offset
 
     try:
-        user = User.objects.get(token=token)
+        user = User.objects.get(token=request.COOKIES.get("token"))
     except User.DoesNotExist:
         return 400, {
             "success": False
         }
 
-    potential = user.posts.all().filter(post_id__lt=offset)
-    for u in user.following.all():
-        potential = potential.union(u.posts.all().filter(post_id__lt=offset))
+    user_posts = user.posts.filter(post_id__lt=offset)
 
-    potential = potential.order_by("-post_id")
+    followed_users_posts = []
+    for followed_user in user.following.all():
+        followed_user_posts = followed_user.posts.filter(post_id__lt=offset)
+        followed_users_posts.append(followed_user_posts)
+
+    combined_posts = sorted(list(chain(user_posts, *followed_users_posts)), key=lambda p: p.post_id, reverse=True)
 
     offset = 0
     outputList = []
 
-    for i in potential:
+    for post in combined_posts:
         try:
-            post_json = get_post_json(i, user.user_id)
+            post_json = get_post_json(post, user.user_id)
+        except Post.DoesNotExist:
+            offset += 1
+            continue
+        else:
             if post_json["can_view"]:
                 outputList.append(post_json)
             else:
                 offset += 1
                 continue
-        except Post.DoesNotExist:
-            offset += 1
-            continue
 
         if len(outputList) >= POSTS_PER_REQUEST:
             break
@@ -354,7 +356,7 @@ def post_list_following(request, offset: int=-1) -> APIResponse:
     return {
         "success": True,
         "actions": [
-            { "name": "populate_timeline", "posts": outputList, "end": len(potential) - offset <= POSTS_PER_REQUEST }
+            { "name": "populate_timeline", "posts": outputList, "end": len(combined_posts) - offset <= POSTS_PER_REQUEST }
         ]
     }
 
