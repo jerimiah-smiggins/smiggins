@@ -199,7 +199,7 @@ git pull
 echo '
 # Put your backend config here
 debug: false
-"website_url: https://example.com
+website_url: https://example.com
 max_post_length: 999
 # ...
 ' > settings.yaml

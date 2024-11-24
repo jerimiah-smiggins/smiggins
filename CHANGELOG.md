@@ -1,3 +1,11 @@
+## v0.13.7
+1. Made usernames case-insensitive across the whole website
+2. Added a way to propertly get IPs behind a reverse proxy
+3. A password is now needed to set/change passwords
+4. Sitemaps for comments and hashtag pages have been added
+5. Made the followers feed not stack overflow if you follow too many people
+6. Improved documentation across the backend
+7. **\[!!!\]**  Moved the settings file from `settings.json` to `settings.yaml`
 ## v0.13.6
 1. Added one-time invite codes that can be used to manage who can sign up
 2. Made languages with non-ASCII characters load properly on Windows without requiring the unicode characters to be escaped
