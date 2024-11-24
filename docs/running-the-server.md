@@ -236,4 +236,52 @@ echo "CSRF_TRUSTED_ORIGINS = ['https://example.com']" >> smiggins/smiggins/smigg
 ```
 
 ## How to configure nginx for your server
-TODO
+After installing nginx if you haven't already, you are going to want to make a
+new nginx site configuration:
+```bash
+# Replace with your preferred text editor
+sudo nano /etc/nginx/sites-available/smiggins
+```
+
+In there, you are going to want to put the following:
+```conf
+server {
+    # Replace [port] with the port you want to have the server on
+    listen [port];
+    # Replace [url] with the link to your server. Might be your ip address if you don't have a domain
+    server_name [url];
+
+    location / {
+        proxy_pass http://0.0.0.0:[port];
+        proxy_set_header Host $host;
+        proxy_set_header X-Real-IP $remote_addr;
+    }
+
+    location /static/ {
+       alias /path/to/collected-static/;
+    }
+}
+```
+
+Then, restart nginx:
+```bash
+sudo systemctl restart nginx
+```
+
+## How to configure Gunicorn for your server
+First, you're going to want to make a gunicorn configuration file. For example,
+`gunicorn.py`:
+```py
+bind = "0.0.0.0:80" # Set the ip/port to bind to - 0.0.0.0 is probably what you want
+workers = 3 # The amount of web workers to run - higher = more users at once can thrive
+```
+
+Then, you need to make sure gunicorn is installed:
+```bash
+python -m pip install gunicorn
+```
+
+To run the server, just run:
+```bash
+gunicorn smiggins.wsgi:application --config gunicorn.py
+```
