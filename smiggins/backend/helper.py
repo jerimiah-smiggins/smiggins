@@ -11,6 +11,7 @@ import json5 as json
 from django.core.mail import send_mail
 from django.http import HttpResponse, HttpResponseRedirect
 from django.template import loader
+from posts.backups import backup_db
 from posts.models import Comment, Notification, Post, User
 
 from .variables import (ALTERNATE_IPS, BADGE_DATA, BASE_DIR, CACHE_LANGUAGES,
@@ -69,6 +70,8 @@ def get_HTTP_response(
     user: User | None | Literal[False]=False,
     **kwargs: Any
 ) -> HttpResponse:
+    backup_db()
+
     try:
         if user is False:
             user = User.objects.get(token=request.COOKIES.get("token"))

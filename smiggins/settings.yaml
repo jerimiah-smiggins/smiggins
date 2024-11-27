@@ -22,6 +22,30 @@ website_url: http://localhost:8000
 # static files securely among other things
 debug: true
 
+db_backup: # Information about database backups.
+  # Whether or not to enable db backups
+  enabled: false
+
+  # Time (hours) per backup. Note that the database backups won't happen at
+  # exactly this amount of time, instead whenever the next request comes into
+  # the server after this amount of time. This is because threads (the way you
+  # make code run at the same time) don't work very well with django's debug
+  # mode. 1+
+  frequency: 24
+
+  # Max number of backups to keep. If this gets lowered after backups exist, any
+  # existing backups past this threshold won't get automatically removed. 1+
+  keep: 5
+
+  # The path for database backups to be stored. Start this with a dollar sign ($)
+  # in order to make the path relative to the directory this file is in
+  path: $backups/
+
+  # The file name for the database backups. All instances of the dollar sign ($)
+  # will be replaced with the database backup number. There must be a dollar sign
+  # in the filename.
+  filename: db-$.sqlite3
+
 # Use this if you want to verify your ownership on the google search console
 google_verification_tag: null
 

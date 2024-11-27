@@ -2,6 +2,7 @@ import hashlib
 import os
 import pathlib
 import re
+import sys
 from typing import Any, Literal
 
 import json5 as json
@@ -10,6 +11,19 @@ from django.db.utils import OperationalError
 from posts.models import Badge
 
 from ._api_keys import auth_key
+
+if sys.version_info >= (3, 11):
+    from typing import TypedDict
+else:
+    from typing_extensions import TypedDict
+
+
+class DatabaseBackupsSchema(TypedDict):
+    enabled: bool
+    frequency: int | float
+    keep: int
+    path: str
+    filename: str
 
 BASE_DIR = pathlib.Path(__file__).resolve().parent.parent
 
@@ -31,6 +45,13 @@ VERSION: str = ".".join([str(i) for i in REAL_VERSION])
 SITE_NAME: str = "Jerimiah Smiggins"
 WEBSITE_URL: str | None = None
 DEBUG: bool = True
+DATABASE_BACKUPS: DatabaseBackupsSchema = {
+    "enabled": False,
+    "frequency":  24,
+    "keep": 5,
+    "path": "$/backups/",
+    "filename": "db-$.sqlite3"
+}
 OWNER_USER_ID: int = 1
 MAX_ADMIN_LOG_LINES: int = 1000
 DEFAULT_LANGUAGE: str = "en-US"
@@ -441,6 +462,7 @@ _VARIABLES: list[tuple[str | None, list[str], type | str | list | tuple | dict, 
     ("WEBSITE_URL", ["website_url"], str, False),
     ("OWNER_USER_ID", ["owner_user_id"], int, False),
     ("DEBUG", ["debug"], bool, False),
+    ("DATABASE_BACKUPS",  ["db_backups", "db_backup"], "db",  False),
     ("MAX_ADMIN_LOG_LINES", ["max_admin_log_lines"], int, False),
     ("DEFAULT_LANGUAGE", ["default_lang", "default_language"], str, False),
     ("DEFAULT_DARK_THEME", ["default_dark_theme"], "theme", False),
@@ -613,6 +635,27 @@ def typecheck(obj: Any, expected_type: type | str | list | tuple | dict, allow_n
 
             return None
 
+        if expected_type == "db":
+            if not isinstance(obj, dict):
+                return False
+
+            for key, val in {
+                "enabled": bool,
+                "frequency": (float, int),
+                "keep": int,
+                "path": str,
+                "filename": str
+            }.items():
+                if not typecheck(obj[key], val):
+                    error(f"db_backup, {key} should be {val}")
+                    return False
+
+            if "$" not in obj["filename"]:
+                error("db_backup, '$' should be in filename")
+                return False
+
+            return True
+
         # Add more special checks when needed
 
         return False
@@ -713,6 +756,8 @@ MAX_NOTIFICATIONS = clamp(MAX_NOTIFICATIONS, minimum=1)
 ITEMS_PER_SITEMAP = clamp(ITEMS_PER_SITEMAP, minimum=50, maximum=50000)
 SITEMAP_CACHE_TIMEOUT = clamp(SITEMAP_CACHE_TIMEOUT, minimum=0)
 GENERIC_CACHE_TIMEOUT = clamp(SITEMAP_CACHE_TIMEOUT, minimum=0)
+DATABASE_BACKUPS["frequency"] = clamp(DATABASE_BACKUPS["frequency"], minimum=1) # type: ignore
+DATABASE_BACKUPS["keep"] = clamp(DATABASE_BACKUPS["keep"], minimum=1)
 
 if isinstance(ENABLE_NEW_ACCOUNTS, str):
     ENABLE_NEW_ACCOUNTS = ENABLE_NEW_ACCOUNTS.lower()
