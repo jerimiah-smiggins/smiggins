@@ -21,10 +21,6 @@ const validColors = [
     "teal", "sky", "sapphire", "blue", "lavender"
 ];
 const months = lang.generic.time.months;
-const pronouns = lang.generic.pronouns;
-pronouns._a = pronouns.a;
-pronouns._o = pronouns.o;
-pronouns._v = pronouns.v;
 function s_fetch(url, data) {
     data.method = data.method || "GET";
     data.disable = data.disable || [];
@@ -655,7 +651,7 @@ function getPostHTML(postJSON, isComment = false, includeUserLink = true, includ
             </span>
             <span class="upper-lower-opacity">
               <span class="username">@${postJSON.creator.username}</span> -
-              ${pronouns[postJSON.creator.pronouns] ? `<span class="pronouns">${pronouns[postJSON.creator.pronouns]}</span> -` : ""}
+              ${postJSON.creator.pronouns === null ? "" : `<span class="pronouns">${postJSON.creator.pronouns}</span> -`}
               <span class="timestamp">${timeSince(postJSON.timestamp)}</span>
             </span>
           </div>
@@ -714,7 +710,7 @@ function getPostHTML(postJSON, isComment = false, includeUserLink = true, includ
                         </span>
                         <span class="upper-lower-opacity">
                           <span class="username">@${postJSON.quote.creator.username}</span> -
-                          ${pronouns[postJSON.quote.creator.pronouns] ? `<span class="pronouns">${pronouns[postJSON.quote.creator.pronouns]}</span> -` : ""}
+                          ${postJSON.quote.creator.pronouns === null ? "" : `<span class="pronouns">${postJSON.quote.creator.pronouns}</span> -`}
                           <span class="timestamp">${timeSince(postJSON.quote.timestamp)}</span>
                         </span>
                       </div>

@@ -9,7 +9,7 @@ from posts.models import Comment, Hashtag, Post, PrivateMessageContainer, User
 from .api.admin import BitMask
 from .helper import (LANGS, can_view_post, find_mentions, get_badges,
                      get_container_id, get_HTTP_response, get_lang,
-                     get_post_json)
+                     get_post_json, get_pronouns)
 from .variables import (BADGE_DATA, CACHE_LANGUAGES, CONTACT_INFO, CREDITS,
                         DEFAULT_BANNER_COLOR, DEFAULT_LANGUAGE,
                         ENABLE_ACCOUNT_SWITCHER, ENABLE_BADGES,
@@ -28,6 +28,15 @@ def settings(request) -> HttpResponse:
 
     lang = get_lang(user)
 
+    _p = user.pronouns.filter(language=user.language)
+    if _p.exists():
+        pronouns = {
+            "primary": _p[0].primary,
+            "secondary": _p[0].secondary
+        }
+    else:
+        pronouns = {}
+
     return get_HTTP_response(
         request, "settings.html", user=user, lang_override=lang,
 
@@ -36,7 +45,7 @@ def settings(request) -> HttpResponse:
         BANNER_COLOR_TWO    = user.color_two or DEFAULT_BANNER_COLOR,
         CHECKED_IF_GRADIENT = "checked" if user.gradient else "",
 
-        PRONOUNS = user.pronouns,
+        pronouns = pronouns,
 
         has_email = str(user.email is not None).lower(),
         email = user.email or "",
@@ -87,7 +96,7 @@ def user(request, username: str) -> HttpResponse | HttpResponseRedirect:
 
         USERNAME = user.username,
         DISPLAY_NAME = user.display_name,
-        PRONOUNS = user.pronouns,
+        PRONOUNS = get_pronouns(user, lang),
 
         BIO = user.bio,
 
@@ -178,7 +187,7 @@ def user_lists(request, username: str) -> HttpResponse:
 
         USERNAME = user.username,
         DISPLAY_NAME = user.display_name,
-        PRONOUNS = user.pronouns,
+        PRONOUNS = get_pronouns(user, lang),
         USER_BIO = user.bio or "",
 
         EMPTY = "\n\n\n",

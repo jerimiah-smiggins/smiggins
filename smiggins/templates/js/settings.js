@@ -6,14 +6,20 @@ for (const color of validColors) {
     output += `<option ${((localStorage.getItem("color") == color || (!localStorage.getItem("color") && color == "mauve")) ? "selected" : "")} value="${color}">${lang.generic.colors[color]}</option>`;
 }
 output += "</select><br><br>";
-if (ENABLE_PRONOUNS && user_pronouns.includes("_")) {
-    dom("pronouns-secondary-container").setAttribute("hidden", "");
-    document.querySelector(`#pronouns-primary option[value="${user_pronouns}"]`).setAttribute("selected", "");
-}
-else if (ENABLE_PRONOUNS) {
-    dom("pronouns-secondary-container").removeAttribute("hidden");
-    document.querySelector(`#pronouns-primary option[value="${user_pronouns[0]}"]`).setAttribute("selected", "");
-    document.querySelector(`#pronouns-secondary option[value="${user_pronouns[1]}"]`).setAttribute("selected", "");
+if (ENABLE_PRONOUNS && lang.generic.pronouns.enable_pronouns) {
+    try {
+        let primary = document.querySelector(`#pronouns-primary > option[value="${userPronouns.primary}"]`);
+        primary.setAttribute("selected", "");
+        if (lang.generic.pronouns.enable_secondary) {
+            if (primary.dataset.special == "no-secondary") {
+                dom("pronouns-secondary").setAttribute("hidden", "");
+            }
+            document.querySelector(`#pronouns-secondary > option[value="${userPronouns.secondary}"]`).setAttribute("selected", "");
+        }
+    }
+    catch (err) {
+        console.error("Error loading pronouns", err);
+    }
 }
 if (localStorage.getItem("checkboxes")) {
     dom("disable-checkboxes").setAttribute("checked", "");
@@ -100,17 +106,25 @@ function toggleGradient(setUnloadStatus) {
 function updatePronouns() {
     setUnload();
     if (this.id == "pronouns-primary") {
-        if (this.value.length != 1) {
-            user_pronouns = this.value;
-            dom("pronouns-secondary-container").setAttribute("hidden", "");
+        if (lang.generic.pronouns.enable_secondary) {
+            if (document.querySelector(`#pronouns-primary > option[value="${this.value}"]`).dataset.special == "no-secondary") {
+                dom("pronouns-secondary-container").setAttribute("hidden", "");
+                userPronouns.secondary = null;
+            }
+            else {
+                dom("pronouns-secondary-container").removeAttribute("hidden");
+                userPronouns.secondary = dom("pronouns-secondary").value;
+            }
         }
-        else {
-            user_pronouns = this.value + dom("pronouns-secondary").value;
-            dom("pronouns-secondary-container").removeAttribute("hidden");
-        }
+        userPronouns.primary = this.value;
     }
     else {
-        user_pronouns = user_pronouns[0] + this.value;
+        if (document.querySelector(`#pronouns-secondary > option[value="${this.value}"]`).dataset.special == "inherit") {
+            userPronouns.secondary = userPronouns.primary;
+        }
+        else {
+            userPronouns.secondary = this.value;
+        }
     }
 }
 function setUnload() {
@@ -196,7 +210,7 @@ function save(post, log) {
             bio: ENABLE_USER_BIOS ? dom("bio").value : "",
             lang: dom("lang").value,
             color: dom("banner-color").value,
-            pronouns: ENABLE_PRONOUNS ? user_pronouns : "__",
+            pronouns: userPronouns || { primary: "", secondary: null },
             color_two: ENABLE_GRADIENT_BANNERS ? dom("banner-color-two").value : "",
             displ_name: dom("displ-name").value,
             is_gradient: ENABLE_GRADIENT_BANNERS ? dom("banner-is-gradient").checked : false,
@@ -277,8 +291,8 @@ ENABLE_ACCOUNT_SWITCHER && dom("acc-remove").addEventListener("click", function 
         localStorage.setItem("acc-switcher", JSON.stringify(accounts));
     }
 });
-ENABLE_PRONOUNS && dom("pronouns-primary").addEventListener("input", updatePronouns);
-ENABLE_PRONOUNS && dom("pronouns-secondary").addEventListener("input", updatePronouns);
+ENABLE_PRONOUNS && lang.generic.pronouns.enable_pronouns && dom("pronouns-primary").addEventListener("input", updatePronouns);
+ENABLE_PRONOUNS && lang.generic.pronouns.enable_pronouns && lang.generic.pronouns.enable_secondary && dom("pronouns-secondary").addEventListener("input", updatePronouns);
 dom("toggle-password").addEventListener("click", function () {
     let newType = dom("password").getAttribute("type") === "password" ? "text" : "password";
     dom("current").setAttribute("type", newType);

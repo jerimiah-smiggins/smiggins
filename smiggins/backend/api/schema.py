@@ -117,11 +117,15 @@ class ChangePassword(Schema):
 class Theme(Schema):
     theme: str
 
+class _settings_pronouns(TypedDict):
+    primary: str
+    secondary: str | None
+
 class Settings(Schema):
     bio: str
     lang: str
     color: str
-    pronouns: str
+    pronouns: _settings_pronouns
     color_two: str
     displ_name: str
     is_gradient: bool

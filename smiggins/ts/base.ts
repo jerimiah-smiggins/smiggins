@@ -26,11 +26,6 @@ const validColors: string[] = [
 ]
 
 const months: string[] = lang.generic.time.months;
-const pronouns: { [key: string]: string } = lang.generic.pronouns;
-
-pronouns._a = pronouns.a;
-pronouns._o = pronouns.o;
-pronouns._v = pronouns.v;
 
 function s_fetch(
   url: string, data?: {
@@ -756,7 +751,7 @@ function getPostHTML(
             </span>
             <span class="upper-lower-opacity">
               <span class="username">@${postJSON.creator.username}</span> -
-              ${pronouns[postJSON.creator.pronouns] ? `<span class="pronouns">${pronouns[postJSON.creator.pronouns]}</span> -` : ""}
+              ${postJSON.creator.pronouns === null ? "" : `<span class="pronouns">${postJSON.creator.pronouns}</span> -`}
               <span class="timestamp">${timeSince(postJSON.timestamp)}</span>
             </span>
           </div>
@@ -829,7 +824,7 @@ function getPostHTML(
                         </span>
                         <span class="upper-lower-opacity">
                           <span class="username">@${postJSON.quote.creator.username}</span> -
-                          ${pronouns[postJSON.quote.creator.pronouns] ? `<span class="pronouns">${pronouns[postJSON.quote.creator.pronouns]}</span> -` : ""}
+                          ${postJSON.quote.creator.pronouns === null ? "" : `<span class="pronouns">${postJSON.quote.creator.pronouns}</span> -`}
                           <span class="timestamp">${timeSince(postJSON.quote.timestamp)}</span>
                         </span>
                       </div>

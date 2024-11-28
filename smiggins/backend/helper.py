@@ -245,6 +245,32 @@ def get_badges(user: User) -> list[str]:
 
     return list(user.badges.all().values_list("name", flat=True)) + (["administrator"] if user.admin_level != 0 or user.user_id == OWNER_USER_ID else []) if ENABLE_BADGES else []
 
+def get_pronouns(user: User, lang: dict | None=None) -> str | None:
+    _p = user.pronouns.filter(language=user.language)
+
+    if lang is None:
+        creator_lang = get_lang(user)
+    else:
+        creator_lang = lang
+
+    if ENABLE_PRONOUNS and creator_lang["generic"]["pronouns"]["enable_pronouns"]:
+        if _p.exists():
+            try:
+                if _p[0].secondary and creator_lang["generic"]["pronouns"]["enable_secondary"]:
+                    return creator_lang["generic"]["pronouns"]["visible"][f"{_p[0].primary}_{_p[0].secondary}"]
+                else:
+                    return creator_lang["generic"]["pronouns"]["visible"][f"{_p[0].primary}"]
+
+            except KeyError:
+                ...
+
+        try:
+            return creator_lang["generic"]["pronouns"]["visible"][creator_lang["generic"]["pronouns"]["default"]]
+        except KeyError:
+            ...
+
+    return None
+
 def can_view_post(self_user: User | None, creator: User | None, post: Post | Comment) -> tuple[Literal[True]] | tuple[Literal[False], Literal["blocked", "private", "blocking"]]:
     if self_user is None:
         return True,
@@ -324,7 +350,7 @@ def get_post_json(post_id: int | Post | Comment, current_user_id: int=0, comment
             "display_name": creator.display_name,
             "username": creator.username,
             "badges": get_badges(creator),
-            "pronouns": creator.pronouns if ENABLE_PRONOUNS else "__",
+            "pronouns": get_pronouns(creator),
             "color_one": creator.color,
             "color_two": creator.color_two,
             "gradient_banner": creator.gradient
@@ -389,7 +415,7 @@ def get_post_json(post_id: int | Post | Comment, current_user_id: int=0, comment
                         "display_name": quote_creator.display_name,
                         "username": quote_creator.username,
                         "badges": get_badges(quote_creator),
-                        "pronouns": quote_creator.pronouns if ENABLE_PRONOUNS else "__",
+                        "pronouns": get_pronouns(quote_creator),
                         "color_one": quote_creator.color,
                         "color_two": quote_creator.color_two,
                         "gradient_banner": quote_creator.gradient
@@ -542,7 +568,8 @@ def get_lang(lang: User | str | None=None, override_cache=False) -> dict[str, di
                         found[i] = context[i]
                     else:
                         found[i] = loop_through(found[i], context[i])
-        else:
+
+        elif isinstance(found, str):
             if len(found) == 0:
                 found = context
 

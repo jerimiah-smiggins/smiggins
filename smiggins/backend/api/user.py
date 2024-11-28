@@ -1,7 +1,7 @@
 # For API functions that are user-specific, like settings, following, etc.
 
 from posts.models import (Comment, OneTimePassword, Post,
-                          PrivateMessageContainer, User)
+                          PrivateMessageContainer, User, UserPronouns)
 
 from ..helper import (DEFAULT_LANG, create_api_ratelimit, ensure_ratelimit,
                       generate_token, get_badges, get_ip_addr, get_lang,
@@ -168,17 +168,11 @@ def settings(request, data: Settings) -> APIResponse:
     color_two = data.color_two.lower()
     displ_name = trim_whitespace(data.displ_name, True)
     bio = trim_whitespace(data.bio, True)
-    pronouns = data.pronouns.lower()
+    pronouns = data.pronouns
     language = data.lang
 
     if language != user.language:
         reload = True
-
-    if ENABLE_PRONOUNS and (len(pronouns) != 2 or pronouns not in ["__", "_a", "_o", "_v", "aa", "af", "ai", "am", "an", "ao", "ax", "fa", "ff", "fi", "fm", "fn", "fo", "fx", "ma", "mf", "mi", "mm", "mn", "mo", "mx", "na", "nf", "ni", "nm", "nn", "no", "nx", "oa", "of", "oi", "om", "on", "oo", "ox"]):
-        return 400, {
-            "success": False,
-            "message": lang["settings"]["profile_pronouns_invalid"].replace("%s", pronouns)
-        }
 
     if (len(displ_name) > MAX_DISPL_NAME_LENGTH or len(displ_name) < 1) or (ENABLE_USER_BIOS and len(bio) > MAX_BIO_LENGTH):
         return 400, {
@@ -234,7 +228,19 @@ def settings(request, data: Settings) -> APIResponse:
         user.bio = bio
 
     if ENABLE_PRONOUNS:
-        user.pronouns = pronouns
+        _p = user.pronouns.filter(language=user.language)
+        if _p.exists():
+            p = _p[0]
+            p.primary = pronouns["primary"]
+            p.secondary = pronouns["secondary"]
+
+        else:
+            UserPronouns.objects.create(
+                user=user,
+                language=user.language,
+                primary=pronouns["primary"],
+                secondary=pronouns["secondary"]
+            )
 
     user.language = language
 
