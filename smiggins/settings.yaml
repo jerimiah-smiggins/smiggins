@@ -245,7 +245,7 @@ api_timings:
 # Default for all: true
 
 enable_user_bios: true # Last tested: v0.13.6
-enable_pronouns: true # Last tested: v0.13.6
+enable_pronouns: true # Last tested: v0.13.7
 enable_gradient_banners: true # Last tested: v0.13.6
 enable_account_switcher: true # Last tested: v0.13.6
 
