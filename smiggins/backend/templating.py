@@ -96,7 +96,7 @@ def user(request, username: str) -> HttpResponse | HttpResponseRedirect:
 
         USERNAME = user.username,
         DISPLAY_NAME = user.display_name,
-        PRONOUNS = get_pronouns(user, lang),
+        PRONOUNS = get_pronouns(user),
 
         BIO = user.bio,
 
@@ -187,7 +187,7 @@ def user_lists(request, username: str) -> HttpResponse:
 
         USERNAME = user.username,
         DISPLAY_NAME = user.display_name,
-        PRONOUNS = get_pronouns(user, lang),
+        PRONOUNS = get_pronouns(user),
         USER_BIO = user.bio or "",
 
         EMPTY = "\n\n\n",
