@@ -105,13 +105,13 @@ let _autoMM = matchMedia("(prefers-color-scheme: light)");
 let themeObject;
 let _autoColors;
 if ("{{ THEME|escapejs }}" == "auto") {
-    document.getElementById("theme-css").innerHTML = getThemeAuto();
     themeObject = null;
+    document.getElementById("theme-css").innerHTML = getThemeAuto();
     autoInit();
 }
 else {
-    document.getElementById("theme-css").innerHTML = getThemeCSS(themeObject);
     themeObject = JSON.parse('{{ theme_str|escapejs }}');
+    document.getElementById("theme-css").innerHTML = getThemeCSS(themeObject);
 }
 favicon.rel = "icon";
 favicon.type = "image/png";
