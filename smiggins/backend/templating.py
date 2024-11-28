@@ -245,19 +245,19 @@ def post(request, post_id: int) -> HttpResponse:
 
     post_json = get_post_json(post_id, user.user_id if user is not None else 0)
     lang = get_lang(user)
-
     mentions = find_mentions(post.content + " @" + post.creator.username, exclude_users=[user.username if user else ""])
+    cw = post.content_warning or ""
 
     return get_HTTP_response(
         request, "post.html", lang, user=user,
 
         DISPLAY_NAME = creator.display_name,
         LOGGED_IN = str(user is not None).lower(),
-        POST_ID   = str(post_id),
-        COMMENT   = "false",
+        POST_ID = str(post_id),
+        COMMENT = "false",
         POST_JSON = json.dumps(post_json),
-        CONTENT   = (post.content_warning or post.content) + ("\n" + lang["home"]["quote_poll"] if post.poll else "\n" + lang["home"]["quote_recursive"] if post.quote else ""),
-        C_WARNING = (post.content_warning or "")[:MAX_CONTENT_WARNING_LENGTH - 4:],
+        CONTENT = (post.content_warning or post.content) + ("\n" + lang["home"]["quote_poll"] if post.poll else "\n" + lang["home"]["quote_recursive"] if post.quote else ""),
+        C_WARNING = cw[:MAX_CONTENT_WARNING_LENGTH] if cw.startswith("re: ") else f"re: {cw[:MAX_CONTENT_WARNING_LENGTH - 4]}",
         EMBED_TITLE = lang["user_page"]["user_on_smiggins"].replace("%t", SITE_NAME).replace("%s", creator.display_name),
 
         LIKES = lang["post_page"]["likes"].replace("%s", str(post_json["likes"])),
@@ -296,8 +296,8 @@ def comment(request, comment_id: int) -> HttpResponse:
 
     comment_json = get_post_json(comment_id, user.user_id if user is not None else 0, True)
     lang = get_lang(user if user is not None else None)
-
     mentions = find_mentions(comment.content + " @" + comment.creator.username, exclude_users=[user.username if user else ""])
+    cw = comment.content_warning or ""
 
     return get_HTTP_response(
         request, "post.html", lang, user=user,
@@ -308,7 +308,7 @@ def comment(request, comment_id: int) -> HttpResponse:
         COMMENT   = "true",
         POST_JSON = json.dumps(comment_json),
         CONTENT   = comment.content_warning or comment.content,
-        C_WARNING = (comment.content_warning or "")[:MAX_CONTENT_WARNING_LENGTH - 4:],
+        C_WARNING = cw[:MAX_CONTENT_WARNING_LENGTH] if cw.startswith("re: ") else f"re: {cw[:MAX_CONTENT_WARNING_LENGTH - 4]}",
         EMBED_TITLE = lang["user_page"]["user_on_smiggins"].replace("%t", SITE_NAME).replace("%s", creator.display_name),
 
         LIKES = lang["post_page"]["likes"].replace("%s", str(comment_json["likes"])),
