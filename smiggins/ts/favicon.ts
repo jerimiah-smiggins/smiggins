@@ -135,12 +135,12 @@ let _autoColors: {
 
 //  @ts-ignore
 if ("{{ THEME|escapejs }}" == "auto") {
-  document.getElementById("theme-css").innerHTML = getThemeAuto();
   themeObject = null;
+  document.getElementById("theme-css").innerHTML = getThemeAuto();
   autoInit();
 } else {
-  document.getElementById("theme-css").innerHTML = getThemeCSS(themeObject);
   themeObject = JSON.parse('{{ theme_str|escapejs }}');
+  document.getElementById("theme-css").innerHTML = getThemeCSS(themeObject);
 }
 
 // set proper favicon
