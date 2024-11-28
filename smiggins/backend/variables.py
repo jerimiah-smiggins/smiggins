@@ -589,8 +589,8 @@ def typecheck(obj: Any, expected_type: type | str | list | tuple | dict, allow_n
                     "red": "color",
                     "background": "color_noop",
                     "post_background": "color",
-                    "poll_no_vote_background": "color",
                     "poll_voted_background": "color",
+                    "poll_no_vote_background": "color",
                     "content_warning_background": "color",
                     "input_background": "color",
                     "checkbox_background": "color",
@@ -601,6 +601,9 @@ def typecheck(obj: Any, expected_type: type | str | list | tuple | dict, allow_n
                     "checkbox_border": "color",
                     "button_border": "color",
                     "table_border": "color",
+                    "modal_backdrop": "color",
+                    "modal_background": "color",
+                    "modal_border": "color",
                     "gray": "color",
                     "accent": dict
                 }, "colors.") and keycheck(i["colors"]["accent"], {

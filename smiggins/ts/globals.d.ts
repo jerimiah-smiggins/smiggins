@@ -27,12 +27,6 @@ declare const lang: { [key: string]: any };
 declare const badges: { [key: string]: string } | undefined;
 declare function linkifyHtml(text: string, settings: object): string;
 
-// Defined in base.html, used in settings.ts for themes
-declare function setGenericFavicon(): void;
-declare function getThemeCSS(theme: object): string;
-declare function getThemeAuto(defLight?: object, defDark?: object): string;
-declare let themeObject: _themeObject | null;
-
 // Types
 type _postJSON = {
   creator: {
@@ -97,6 +91,8 @@ type _themeObject = {
     red: string,
     background: string,
     post_background: string,
+    poll_voted_background: string,
+    poll_no_vote_background: string,
     content_warning_background: string,
     input_background: string,
     checkbox_background: string,
@@ -106,6 +102,10 @@ type _themeObject = {
     input_border: string,
     checkbox_border: string,
     button_border: string,
+    table_border: string,
+    modal_backdrop: string,
+    modal_background: string,
+    modal_border: string,
     gray: string,
     accent: {
       rosewater: string,

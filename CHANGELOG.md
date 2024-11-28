@@ -8,6 +8,7 @@
 7. **\[!!!\]**  Moved the settings file from `settings.json` to `settings.yaml`
 8. Added a backend option to create automatic database backups
 9. Made pronouns be specific to each language, adding more flexibility for translators
+10. Fixed the dynamic favicon when the system theme is set
 ## v0.13.6
 1. Added one-time invite codes that can be used to manage who can sign up
 2. Made languages with non-ASCII characters load properly on Windows without requiring the unicode characters to be escaped
