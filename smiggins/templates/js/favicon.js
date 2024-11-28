@@ -99,7 +99,6 @@ function setGenericFavicon() {
     bb = obj.background_alt.slice(1, 7);
     accent = obj.accent[validColors.indexOf(localStorage.getItem("color")) == -1 ? "mauve" : localStorage.getItem("color")].slice(1, 7);
     favicon.href = `/favicon-${bg == "accent" ? accent : bg}-${bb == "accent" ? accent : bb}-${accent}`;
-    console.log(obj, favicon.href);
 }
 let autoEnabled = false;
 let _autoMM = matchMedia("(prefers-color-scheme: light)");
