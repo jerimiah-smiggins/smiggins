@@ -16,6 +16,24 @@ Updates for each language version are listed below:
 settings.profile_pronouns_title -> generic.pronouns.title
 settings.profile_pronouns_primary -> generic.pronouns.primary_label
 settings.profile_pronouns_secondary -> generic.pronouns.secondary_label
++ generic.close
++ generic.keybinds.title
++ generic.keybinds.plus
++ generic.keybinds.dash
++ generic.keybinds.ctrl
++ generic.keybinds.enter
++ generic.keybinds.navigation.title
++ generic.keybinds.navigation.admin
++ generic.keybinds.navigation.home
++ generic.keybinds.navigation.messages
++ generic.keybinds.navigation.notifications
++ generic.keybinds.navigation.profile
++ generic.keybinds.navigation.settings
++ generic.keybinds.other.title
++ generic.keybinds.other.help
++ generic.keybinds.other.post
++ generic.keybinds.other.jump
++ generic.keybinds.other.refresh
 ```
 </details>
 

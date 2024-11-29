@@ -12,6 +12,7 @@ let disableTimeline: boolean;
 let c: number;
 let offset: number;
 let onLoad: () => void;
+let redirectConfirmation: (url: string) => boolean | null;
 
 let globalIncrement: number = 0;
 
@@ -493,9 +494,13 @@ function apiResponse(
 
         if (action.value !== undefined) {
           (element as HTMLInputElement).value = action.value;
-        } else if (action.checked !== undefined) {
+        }
+
+        if (action.checked !== undefined) {
           (element as HTMLInputElement).checked = action.checked;
-        } else if (action.value !== undefined) {
+        }
+
+        if (action.disabled !== undefined) {
           (element as HTMLInputElement).disabled = action.disabled;
         }
 
@@ -962,6 +967,19 @@ function postTextInputEvent(): void {
     this.value = trimWhitespace(this.value);
     this.setSelectionRange(newCursorPosition, newCursorPosition);
   }
+}
+
+function redirect(path: string): boolean {
+  if (location.href == path || location.pathname == path) {
+    return false;
+  }
+
+  if (redirectConfirmation && !redirectConfirmation(path)) {
+    return false;
+  }
+
+  location.href = path;
+  return true;
 }
 
 function _modalKeyEvent(event: KeyboardEvent): void {

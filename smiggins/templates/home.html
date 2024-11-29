@@ -14,10 +14,10 @@
   <input id="default-private" type="checkbox" {% if DEFAULT_PRIVATE == "true" %}checked{% endif %}><br>
 
   {% if ENABLE_CONTENT_WARNINGS == 'true' %}
-    <input id="c-warning" maxlength="{{ MAX_CONTENT_WARNING_LENGTH }}" placeholder="{{ lang.home.c_warning_placeholder }}"><br>
+    <input id="c-warning" data-create-post maxlength="{{ MAX_CONTENT_WARNING_LENGTH }}" placeholder="{{ lang.home.c_warning_placeholder }}"><br>
   {% endif %}
 
-  <textarea id="post-text" maxlength="{{ MAX_POST_LENGTH }}" placeholder="{{ lang.home.post_input_placeholder }}"></textarea><br>
+  <textarea id="post-text" data-create-post maxlength="{{ MAX_POST_LENGTH }}" placeholder="{{ lang.home.post_input_placeholder }}"></textarea><br>
   <button id="post" class="inverted">{{ lang.generic.post }}</button><br>
 
   {% if ENABLE_POLLS == 'true' %}
@@ -25,7 +25,7 @@
     <div hidden id="poll"></div>
   {% endif %}
 
-  <button onclick="refresh()">{{ lang.generic.refresh }}</button><br>
+  <button id="refresh" onclick="refresh()">{{ lang.generic.refresh }}</button><br>
   <a id="switch" href="#"></a><br><br>
   <div id="error"></div>
   <div id="posts"></div>

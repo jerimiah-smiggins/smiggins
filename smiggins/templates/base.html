@@ -35,6 +35,8 @@
       const ENABLE_DYNAMIC_FAVICON = {{ ENABLE_DYNAMIC_FAVICON }};
       const ENABLE_NEW_ACCOUNTS = {% if ENABLE_NEW_ACCOUNTS == "otp" %}"otp"{% else %}{{ ENABLE_NEW_ACCOUNTS }}{% endif %};
 
+      const isAdmin = "{{ is_admin }}" == "True";
+
       const defaultPrivate = {{ DEFAULT_PRIVATE }};
 
       {% if username %}
@@ -101,5 +103,6 @@
     </noscript>
 
     <script>{% include "js/base-footer.js" %}</script>
+    <script>{% include "js/keybinds.js" %}</script>
   </body>
 </html>

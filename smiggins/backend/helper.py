@@ -135,7 +135,8 @@ def get_HTTP_response(
         "theme_str": "{}" if theme == "auto" or theme not in THEMES else json_f.dumps(THEMES[theme]),
         "THEME": theme if theme in THEMES else "auto",
         "badges": BADGE_DATA,
-        "badges_str": json_f.dumps(BADGE_DATA)
+        "badges_str": json_f.dumps(BADGE_DATA),
+        "is_admin": bool(user and user.admin_level)
     }
 
     for key, value in kwargs.items():

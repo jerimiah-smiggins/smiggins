@@ -45,6 +45,7 @@
       "load_more": "Load More",
       "post": "Post",
       "cancel": "Cancel",
+      "close":  "Close",
       "source_code": "Source code",
       "save": "Save",
       "none": "None",
@@ -53,6 +54,33 @@
       "copied": "Copied to clipboard!",
       "see_more": "%s to see more!", // Ex: Sign up to see more!
       "discord": "Discord Server",
+
+      "keybinds": {
+        "title": "Keyboard Shortcuts",
+        "plus": "%a + %b", // Ex:  "Ctrl + /"
+        "dash": "%k - %d", // Ex: "Ctrl + / - Shows this menu"
+
+        "ctrl": "Ctrl",
+        "enter": "Enter",
+
+        "navigation": {
+          "title": "Navigation",
+          "admin": "Navigate to the admin page",
+          "home": "Navigate to the home page",
+          "messages": "Navigate to the messages page",
+          "notifications": "Navigate to the notifications page",
+          "profile": "Navigate to your profile page",
+          "settings": "Navigate to the settings page"
+        },
+
+        "other": {
+          "title": "Other",
+          "help": "Shows this menu",
+          "post": "Creates a post",
+          "jump": "Jump to the post box",
+          "refresh": "Refresh the timeline"
+        }
+      },
 
       "pronouns": {
         "title": "Pronouns",

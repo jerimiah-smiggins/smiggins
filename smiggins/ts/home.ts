@@ -63,7 +63,7 @@ if (ENABLE_POLLS) {
 
   output = "";
   for (let i: number = 1; i <= MAX_POLL_OPTIONS; i++) {
-    output += `<input placeholder="${(i > 2 ? lang.home.poll_optional : lang.home.poll_option).replaceAll("%s", i)}" maxlength="${MAX_POLL_OPTION_LENGTH}"></br>`;
+    output += `<input data-create-post placeholder="${(i > 2 ? lang.home.poll_optional : lang.home.poll_option).replaceAll("%s", i)}" maxlength="${MAX_POLL_OPTION_LENGTH}"></br>`;
   }
 
   dom("poll").innerHTML = output;

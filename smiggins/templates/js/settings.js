@@ -387,28 +387,35 @@ onLoad = function () {
             if (unload) {
                 let url = val.href;
                 event.preventDefault();
-                createModal(lang.settings.unload.title, lang.settings.unload.content, [
-                    {
-                        name: lang.settings.unload.leave,
-                        onclick: () => {
-                            removeUnload();
-                            location.href = url;
-                            closeModal();
-                        }
-                    }, {
-                        name: lang.settings.unload.save,
-                        class: "primary",
-                        onclick: () => {
-                            save((success) => {
-                                if (success) {
-                                    location.href = url;
-                                }
-                            }, dom("modal-log"));
-                        }
-                    },
-                    { name: lang.generic.cancel, onclick: closeModal }
-                ]);
+                redirect(url);
             }
         });
     });
+};
+redirectConfirmation = (url) => {
+    if (!unload) {
+        return true;
+    }
+    createModal(lang.settings.unload.title, lang.settings.unload.content, [
+        {
+            name: lang.settings.unload.leave,
+            onclick: () => {
+                removeUnload();
+                location.href = url;
+                closeModal();
+            }
+        }, {
+            name: lang.settings.unload.save,
+            class: "primary",
+            onclick: () => {
+                save((success) => {
+                    if (success) {
+                        location.href = url;
+                    }
+                }, dom("modal-log"));
+            }
+        },
+        { name: lang.generic.cancel, onclick: closeModal }
+    ]);
+    return false;
 };

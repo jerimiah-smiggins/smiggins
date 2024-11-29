@@ -11,6 +11,7 @@ let disableTimeline;
 let c;
 let offset;
 let onLoad;
+let redirectConfirmation;
 let globalIncrement = 0;
 function dom(id) {
     return document.getElementById(id);
@@ -428,10 +429,10 @@ function apiResponse(json, extraData, customLog) {
                 if (action.value !== undefined) {
                     element.value = action.value;
                 }
-                else if (action.checked !== undefined) {
+                if (action.checked !== undefined) {
                     element.checked = action.checked;
                 }
-                else if (action.value !== undefined) {
+                if (action.disabled !== undefined) {
                     element.disabled = action.disabled;
                 }
                 if (action.attribute) {
@@ -822,6 +823,16 @@ function postTextInputEvent() {
         this.value = trimWhitespace(this.value);
         this.setSelectionRange(newCursorPosition, newCursorPosition);
     }
+}
+function redirect(path) {
+    if (location.href == path || location.pathname == path) {
+        return false;
+    }
+    if (redirectConfirmation && !redirectConfirmation(path)) {
+        return false;
+    }
+    location.href = path;
+    return true;
 }
 function _modalKeyEvent(event) {
     if (event.key === "Escape" || event.keyCode === 27) {

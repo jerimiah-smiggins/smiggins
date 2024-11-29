@@ -72,7 +72,10 @@ def post_create(request, data: NewPost) -> APIResponse:
         lang = get_lang(user)
         return 429, {
             "success": False,
-            "message": lang["generic"]["ratelimit"]
+            "message": lang["generic"]["ratelimit"],
+            "actions": [
+                { "name": "update_element", "query": "#post-text", "disabled": False, "focus": True }
+            ]
         }
 
     if len(data.poll) > MAX_POLL_OPTIONS:
@@ -95,7 +98,10 @@ def post_create(request, data: NewPost) -> APIResponse:
         lang = get_lang(user)
         return 400, {
             "success": False,
-            "message": lang["post"]["invalid_poll"]
+            "message": lang["post"]["invalid_poll"],
+            "actions": [
+                { "name": "update_element", "query": "#poll input", "disabled": False, "focus": True }
+            ]
         }
 
     content = trim_whitespace(data.content)
@@ -106,7 +112,10 @@ def post_create(request, data: NewPost) -> APIResponse:
         lang = get_lang(user)
         return 400, {
             "success": False,
-            "message": lang["post"]["invalid_length"].replace("%s", str(MAX_POST_LENGTH))
+            "message": lang["post"]["invalid_length"].replace("%s", str(MAX_POST_LENGTH)),
+            "actions": [
+                { "name": "update_element", "query": "#post-text", "disabled": False, "focus": True }
+            ]
         }
 
     create_api_ratelimit("api_post_create", API_TIMINGS["create post"], token)
@@ -157,7 +166,7 @@ def post_create(request, data: NewPost) -> APIResponse:
         "success": True,
         "actions": [
             { "name": "prepend_timeline", "post": get_post_json(post, user.user_id), "comment": False },
-            { "name": "update_element", "query": "#post-text", "value": "", "focus": True },
+            { "name": "update_element", "query": "#post-text", "value": "", "disabled": False, "focus": True},
             { "name": "update_element", "query": "#c-warning", "value": "" },
             { "name": "update_element", "query": "#poll input", "value": "", "all": True }
         ]

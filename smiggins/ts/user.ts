@@ -1,4 +1,4 @@
-username = document.querySelector("body").getAttribute("data-username");
+username = document.body.getAttribute("data-username");
 share = location.href;
 home = true;
 

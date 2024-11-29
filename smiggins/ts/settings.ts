@@ -450,31 +450,39 @@ onLoad = function(): void {
       if (unload) {
         let url: string = val.href;
         event.preventDefault();
-        createModal(lang.settings.unload.title, lang.settings.unload.content, [
-          {
-            name: lang.settings.unload.leave,
-            onclick: (): void => {
-              removeUnload();
-              location.href = url;
-              closeModal();
-            }
-          }, {
-            name: lang.settings.unload.save,
-            class: "primary",
-            onclick: (): void => {
-              save(
-                (success: boolean) => {
-                  if (success) {
-                    location.href = url;
-                  }
-                },
-                dom("modal-log") as HTMLDivElement
-              );
-            }
-          },
-          { name: lang.generic.cancel, onclick: closeModal }
-        ]);
+        redirect(url);
       }
     });
   });
+}
+
+redirectConfirmation = (url: string): boolean => {
+  if (!unload) { return true; }
+
+  createModal(lang.settings.unload.title, lang.settings.unload.content, [
+    {
+      name: lang.settings.unload.leave,
+      onclick: (): void => {
+        removeUnload();
+        location.href = url;
+        closeModal();
+      }
+    }, {
+      name: lang.settings.unload.save,
+      class: "primary",
+      onclick: (): void => {
+        save(
+          (success: boolean) => {
+            if (success) {
+              location.href = url;
+            }
+          },
+          dom("modal-log") as HTMLDivElement
+        );
+      }
+    },
+    { name: lang.generic.cancel, onclick: closeModal }
+  ]);
+
+  return false;
 }

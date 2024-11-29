@@ -19,6 +19,8 @@ declare const ENABLE_EMAIL: boolean;
 declare const ENABLE_DYNAMIC_FAVICON: boolean;
 declare const ENABLE_NEW_ACCOUNTS: boolean | "otp";
 
+declare const isAdmin: boolean;
+
 declare const defaultPrivate: boolean;
 declare const linkify;
 
@@ -236,4 +238,11 @@ type _actions = {
     attribute?: { name: string, value: string | null }[],
     set_class?: { class_name: string, enable: boolean }[]
   })[]
+}
+
+type _keybind = {
+  action: (event: KeyboardEvent) => void,
+  requireNav?: boolean,
+  requireCtrl?: boolean,
+  allowInputs?: boolean
 }

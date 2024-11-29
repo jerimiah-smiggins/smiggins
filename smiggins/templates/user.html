@@ -60,7 +60,7 @@
   {% if ENABLE_USER_BIOS == 'true' %}<div id="user-bio" hidden>{{ BIO }}</div>{% endif %}
 
   {% if IS_BLOCKED == 'true' %}<div hidden>{% endif %}
-    <button onclick="refresh()">{{ lang.generic.refresh }}</button>
+    <button id="refresh" onclick="refresh()">{{ lang.generic.refresh }}</button>
     <button id="toggle" {{ IS_HIDDEN }} data-followed="{% if IS_FOLLOWING == "true" or IS_PENDING == "true" %}1{% else %}0{% endif %}" onclick="toggleFollow()">{% if IS_FOLLOWING == "true" %}{{ lang.user_page.unfollow }}{% elif IS_PENDING == "true" %}{{ lang.user_page.pending }}{% else %}{{ lang.user_page.follow }}{% endif %}</button>
   {% if IS_BLOCKED == 'true' %}</div>{% endif %}
     <button id="block" {{ IS_HIDDEN }} data-blocked="{% if IS_BLOCKING == "true" %}1{% else %}0{% endif %}" onclick="toggleBlock()">{% if IS_BLOCKING == "true" %}{{ lang.user_page.unblock }}{% else %}{{ lang.user_page.block }}{% endif %}</button>
