@@ -2,7 +2,7 @@
   "meta": {
     "fallback": ["en-US"],
     "name": "English (Great Britain)",
-    "version": "1.9.0",
+    "version": "1.10.1",
     "maintainers": ["trinkey"],
     "past_maintainers": []
   },

@@ -5,8 +5,22 @@ For contributing, read [this document](/docs/contributing.md#translating).
 Updates for each language version are listed below:
 
 <details>
+<summary>v1.10.1</summary>
+
+```diff
+# The entire pronoun system has been reworked
+- generic.pronouns.*
+- settings.profile_pronouns_invalid
+- settings.profile_pronouns_unset
+- settings.profile_pronouns_inherit
+settings.profile_pronouns_title -> generic.pronouns.title
+settings.profile_pronouns_primary -> generic.pronouns.primary_label
+settings.profile_pronouns_secondary -> generic.pronouns.secondary_label
+```
+</details>
+
+<details>
 <summary>v1.10.0</summary>
-OTPs
 
 ```diff
 # Remove HTML tag
@@ -30,7 +44,6 @@ settings.logout
 
 <details>
 <summary>v1.9.0</summary>
-modals
 
 ```diff
 home.c_warning_placeholder
@@ -50,7 +63,6 @@ changelog.title -> settings.changelogs
 
 <details>
 <summary>v1.8.4</summary>
-db rewrite
 
 ```diff
 admin.modify.invalid_bio_size
@@ -83,7 +95,6 @@ admin.modify.invalid_bio_size
 
 <details>
 <summary>v1.8.1</summary>
-custom themes
 
 ```diff
 + settings.cosmetic_themes.warm
@@ -97,7 +108,6 @@ settings.cosmetic_theme_invalid
 
 <details>
 <summary>v1.8.0</summary>
-admin rewrite
 
 ```diff
 - admin.level
@@ -169,8 +179,6 @@ settings.cometic_theme_oled -> settings.cosmetic_themes.oled
 <details>
 <summary>v1.7.0</summary>
 
-Caching, accessibility, custom static files
-
 ```diff
 + generic.version
 + admin.badge_name_label
@@ -185,8 +193,6 @@ Caching, accessibility, custom static files
 
 <details>
 <summary>v1.6.0</summary>
-
-Reworked private accounts
 
 ```diff
 - settings.profile_private
@@ -219,8 +225,6 @@ home.quote_private
 
 <details>
 <summary>v1.5.0</summary>
-
-Added emails
 
 ```diff
 - credits.credits
@@ -271,8 +275,6 @@ settings.profile_display_name_invalid_length
 <details>
 <summary>v1.4.0</summary>
 
-Added polls
-
 ```diff
 + noscript.title
 + noscript.subtitle
@@ -289,8 +291,6 @@ Added polls
 <details>
 <summary>v1.3.0</summary>
 
-Added polls
-
 ```diff
 + home.quote_private
 + home.quote_poll
@@ -306,8 +306,6 @@ Added polls
 
 <details>
 <summary>v1.0.0</summary>
-
-Initial commit
 
 ```diff
 + http.404.post_title
