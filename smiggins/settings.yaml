@@ -214,9 +214,15 @@ contact_information:
 # parameter) or "discord" (sends the data in a discord style embed). Webhooks
 # may be subject to ratelimits by external servers depending on frequency.
 # Aliases: webhooks, auto_webhooks, post_webhooks, auto_post_webhooks
-post_webhooks: {}
+post_webhooks:
 #  foo: [https://example.com/webhook, raw]
 #  bar: [https://discord/webhook/gibberish, discord]
+
+# Sets custom headers for ALL *NON-STATIC* responses. This will NOT override any
+# existing headers.
+custom_headers:
+  Test-Header: meow
+#  Example-Header: Value
 
 # Whether or not to show links to the github page
 source_code: true
@@ -346,7 +352,7 @@ enable_new_accounts: true # Last tested: v0.13.6
 #   }
 # }
 
-custom_themes: []
+custom_themes:
 # - name:
 #     # This doesn't need to be unique
 #     default: Example Theme with Colors

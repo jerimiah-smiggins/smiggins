@@ -78,6 +78,7 @@ CONTACT_INFO: list[list[str]] = [
     ["text",  "DM me on discord (@trinkey_)"]
 ]
 POST_WEBHOOKS: dict[str, list[str]] = {}
+CUSTOM_HEADERS: dict[str, Any] = {}
 SOURCE_CODE: bool = True
 RATELIMIT: bool = True
 ENABLE_USER_BIOS: bool = True
@@ -483,6 +484,7 @@ _VARIABLES: list[tuple[str | None, list[str], type | str | list | tuple | dict, 
     ("MAX_NOTIFICATIONS", ["max_notifs", "max_notifications"], int, False),
     ("CONTACT_INFO", ["contact_info", "contact_information"], [[str]], False),
     ("POST_WEBHOOKS", ["webhooks", "auto_webhooks", "post_webhooks", "auto_post_webhooks"], {str: [str]}, False),
+    ("CUSTOM_HEADERS", ["custom_headers", "headers"], {str: Any}, False),
     ("SOURCE_CODE", ["source_code"], bool, False),
     ("RATELIMIT", ["ratelimit"], bool, False),
     ("API_TIMINGS", ["api_timings"], {str: int}, False),
