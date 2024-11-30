@@ -37,7 +37,6 @@ function s_fetch(
     body?: string | null,
     disable?: (Element | string | false | null)[],
     extraData?: { [key: string]: any },
-    customLog?: HTMLDivElement,
     postFunction?: (success: boolean) => void
   }
 ): void {
@@ -69,11 +68,11 @@ function s_fetch(
     body: data.body
   }).then((response: Response) => (response.json()))
     .then((json: _actions) => {
-      apiResponse(json, data.extraData, data.customLog);
+      apiResponse(json, data.extraData);
       success = json.success;
     })
     .catch((err) => {
-      showlog(lang.generic.something_went_wrong);
+      toast(lang.generic.something_went_wrong, true);
       console.error(err);
       success = null;
     })
@@ -108,13 +107,12 @@ function s_fetch(
 
 function apiResponse(
   json: _actions,
-  extraData?: { [key: string]: any },
-  customLog?: HTMLDivElement
+  extraData?: { [key: string]: any }
 ): void {
   if (json.message) {
-    showlog(json.message, 3000, customLog);
+    toast(json.message, !json.success);
   } else if (!json.success) {
-    showlog(lang.generic.something_went_wrong, 5000, customLog);
+    toast(lang.generic.something_went_wrong, true);
   }
 
   if (!json.actions) {
@@ -358,7 +356,7 @@ function apiResponse(
           localStorage.setItem("acc-switcher", JSON.stringify(accounts));
         }
 
-        showlog(lang.generic.success);
+        toast(lang.generic.success);
       });
 
       dom("data-save").addEventListener("click", function(): void {
@@ -541,17 +539,6 @@ function apiResponse(
     }
   }
 }
-
-function showlog(str: string, time: number = 3000, customLog?: HTMLDivElement): void {
-  inc++;
-  (customLog || dom("error")).innerText = str;
-  setTimeout(() => {
-    --inc;
-    if (!inc) {
-      (customLog || dom("error")).innerText = "";
-    }
-  }, time);
-};
 
 function setCookie(name: string, value: string): void {
   let date = new Date();
@@ -1041,7 +1028,7 @@ function createModal(
     buttonHTML += `<button class="${button.class}">${button.name}</button>`;
   }
 
-  container.innerHTML = `<div id="modal"><h1>${title}</h1><p><div id="modal-log"></div>${text}</p><div id="modal-buttons">${buttonHTML}</div></div>`;
+  container.innerHTML = `<div id="modal"><h1>${title}</h1><p>${text}</p><div id="modal-buttons">${buttonHTML}</div></div>`;
 
   let buttonsQSA: NodeListOf<Element> = document.querySelectorAll("#modal-buttons > button");
   for (let i: number = 0; i < buttons.length; i++) {
@@ -1070,6 +1057,26 @@ function closeModal(): void {
 
   dom("modal-container").remove();
   document.removeEventListener("keydown", _modalKeyEvent);
+}
+
+function toast(message: string, warning: boolean=false, timeout: number=3000): void {
+  let x: HTMLDivElement = document.createElement("div");
+  let gInc: number = globalIncrement;
+  globalIncrement++;
+
+  x.classList.add("toast");
+  x.innerText = message;
+  x.id = `gi-${gInc}`;
+
+  if (warning) {
+    x.classList.add("warning");
+  }
+
+  dom("toast").append(x);
+
+  setTimeout((): void => {
+    dom(`gi-${gInc}`).remove();
+  }, timeout);
 }
 
 // Some icons are from Font Awesome

@@ -13,6 +13,7 @@
 12. Added a backend setting to set a custom header on responses
 13. Added a way to easily navigate the website using a keyboard. You can view all keyboard shortcuts with `Ctrl + /`
 14. Added sorting options to hashtag and comment feeds
+15. Made a custom toast thingie for logging errors/messages/etc. to replace the singular div at the top of the page.
 ## v0.13.6
 1. Added one-time invite codes that can be used to manage who can sign up
 2. Made languages with non-ASCII characters load properly on Windows without requiring the unicode characters to be escaped

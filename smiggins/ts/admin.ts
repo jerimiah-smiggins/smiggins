@@ -29,7 +29,7 @@ ENABLE_POST_DELETION && testMask(Mask.DeletePost) && dom("post-delete").addEvent
     disable: [this, dom("post-id")],
     postFunction: (success: boolean) => {
       if (success) {
-        showlog(lang.generic.success);
+        toast(lang.generic.success);
       }
     }
   });

@@ -15,7 +15,7 @@ dom("submit").addEventListener("click", function(): void {
   let password: string = sha256((dom("password") as HTMLInputElement).value)
 
   if (password !== sha256((dom("confirm") as HTMLInputElement).value)) {
-    showlog(lang.account.password_match_failure);
+    toast(lang.account.password_match_failure, false);
     return;
   }
 
@@ -34,7 +34,7 @@ dom("submit").addEventListener("click", function(): void {
     body.otp = (dom("otp") as HTMLInputElement).value;
 
     if (body.otp.length !== 32) {
-      showlog(lang.account.invite_code_invalid);
+      toast(lang.account.invite_code_invalid, false);
       return;
     }
   }

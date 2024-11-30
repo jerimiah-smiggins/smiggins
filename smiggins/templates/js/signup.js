@@ -13,7 +13,7 @@ dom("submit").addEventListener("click", function () {
     let username = dom("username").value;
     let password = sha256(dom("password").value);
     if (password !== sha256(dom("confirm").value)) {
-        showlog(lang.account.password_match_failure);
+        toast(lang.account.password_match_failure, false);
         return;
     }
     if (!username || password === "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855") {
@@ -26,7 +26,7 @@ dom("submit").addEventListener("click", function () {
     if (ENABLE_NEW_ACCOUNTS == "otp") {
         body.otp = dom("otp").value;
         if (body.otp.length !== 32) {
-            showlog(lang.account.invite_code_invalid);
+            toast(lang.account.invite_code_invalid, false);
             return;
         }
     }

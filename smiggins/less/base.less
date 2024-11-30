@@ -439,3 +439,32 @@ body[data-bar-dir="v"][data-bar-pos^="l"] {
     padding: 2px 5px;
   }
 }
+
+#toast {
+  position: fixed;
+  top: 10px;
+  left: 0;
+  width: 100vw;
+  display: flex;
+  flex-direction: column-reverse;
+  flex-wrap: nowrap;
+  align-items: center;
+  pointer-events: none;
+  gap: 10px;
+  z-index: 51;
+
+  & > .toast {
+    max-width: 400px;
+    width: calc(90vw - 80px);
+    background-color: var(--modal-background);
+    color: var(--text);
+    border: 1px solid var(--modal-border);
+    padding: 15px 20px;
+    border-radius: 10px;
+
+    &.warning {
+      color: var(--red);
+      border-color: var(--red);
+    }
+  }
+}

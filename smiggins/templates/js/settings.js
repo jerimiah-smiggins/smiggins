@@ -202,7 +202,7 @@ dom("theme").addEventListener("change", function () {
         disable: [this]
     });
 });
-function save(post, log) {
+function save(post) {
     removeUnload();
     s_fetch("/api/user/settings", {
         method: "PATCH",
@@ -217,7 +217,6 @@ function save(post, log) {
             approve_followers: dom("followers-approval").checked,
             default_post_visibility: dom("default-post").value
         }),
-        customLog: log,
         disable: [
             this,
             dom("displ-name"),
@@ -278,7 +277,7 @@ ENABLE_ACCOUNT_SWITCHER && dom("acc-switch").addEventListener("click", function 
 ENABLE_ACCOUNT_SWITCHER && dom("acc-remove").addEventListener("click", function () {
     let removed = dom("accs").value.split("-", 2);
     if (removed[0] == currentAccount) {
-        showlog(lang.settings.account_switcher_remove_error);
+        toast(lang.settings.account_switcher_remove_error, true);
     }
     else {
         for (let i = 0; i < accounts.length; i++) {
@@ -303,7 +302,7 @@ dom("set-password").addEventListener("click", function () {
     let old_password = sha256(dom("current").value);
     let password = sha256(dom("password").value);
     if (password !== sha256(dom("confirm").value)) {
-        showlog(lang.account.password_match_failure);
+        toast(lang.account.password_match_failure, true);
         return;
     }
     s_fetch("/api/user/password", {
@@ -366,7 +365,6 @@ dom("delete-account").addEventListener("click", function () {
                                 body: JSON.stringify({
                                     password: sha256(dom("account-deletion-password").value)
                                 }),
-                                customLog: dom("modal-log"),
                                 postFunction: (success) => {
                                     if (success) {
                                         closeModal();
@@ -412,7 +410,7 @@ redirectConfirmation = (url) => {
                     if (success) {
                         location.href = url;
                     }
-                }, dom("modal-log"));
+                });
             }
         },
         { name: lang.generic.cancel, onclick: closeModal }

@@ -37,7 +37,6 @@ function addQuote(postID, isComment) {
     let originalCWEl = originalPost.querySelector(".c-warning summary .c-warning-main");
     let originalCW = originalCWEl ? originalCWEl.innerHTML : null;
     post.innerHTML = `
-    <div class="log"></div>
     <div class="quote-visibility">
       <label for="default-private-${globalIncrement}">${lang.post.type_followers_only}:</label>
       <input id="default-private-${globalIncrement}" type="checkbox" ${defaultPrivate ? "checked" : ""}><br>
@@ -122,11 +121,11 @@ function refreshPoll(gInc) {
             poll.innerHTML = getPollHTML(pollJSON, +poll.dataset.pollId, gInc, true, poll.dataset.pollLoggedIn == "true");
         }
         else {
-            showlog(lang.generic.something_went_wrong);
+            toast(lang.generic.something_went_wrong, true);
         }
     })
         .catch((err) => {
-        showlog(lang.generic.something_went_wrong);
+        toast(lang.generic.something_went_wrong, true);
     });
 }
 function editPost(postID, isComment, private, originalText) {
@@ -135,7 +134,6 @@ function editPost(postID, isComment, private, originalText) {
     let oldContentField = contentField.innerHTML;
     let originalCW = contentField.querySelector("summary") ? contentField.querySelector("summary > .c-warning-main").innerText : "";
     contentField.innerHTML = `
-    <div class="log"></div>
     <div class="quote-visibility">
       <label for="default-private-${globalIncrement}">${lang.post.type_followers_only}:</label>
       <input id="default-private-${globalIncrement}" type="checkbox" ${private ? "checked" : ""}><br>

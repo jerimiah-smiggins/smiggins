@@ -238,7 +238,7 @@ dom("theme").addEventListener("change", function(): void {
   });
 });
 
-function save(post?: (success: boolean) => void, log?: null | HTMLDivElement): void {
+function save(post?: (success: boolean) => void): void {
   removeUnload();
 
   s_fetch("/api/user/settings", {
@@ -254,7 +254,6 @@ function save(post?: (success: boolean) => void, log?: null | HTMLDivElement): v
       approve_followers: (dom("followers-approval") as HTMLInputElement).checked,
       default_post_visibility: (dom("default-post") as HTMLInputElement).value
     }),
-    customLog: log,
     disable: [
       this,
       dom("displ-name"),
@@ -322,7 +321,7 @@ ENABLE_ACCOUNT_SWITCHER && dom("acc-switch").addEventListener("click", function(
 ENABLE_ACCOUNT_SWITCHER && dom("acc-remove").addEventListener("click", function(): void {
   let removed: string[] = (dom("accs") as HTMLInputElement).value.split("-", 2);
   if (removed[0] == currentAccount) {
-    showlog(lang.settings.account_switcher_remove_error);
+    toast(lang.settings.account_switcher_remove_error, true);
   } else {
     for (let i: number = 0; i < accounts.length; i++) {
       if (accounts[i][1] == removed[0]) {
@@ -352,7 +351,7 @@ dom("set-password").addEventListener("click", function(): void {
   let password: string = sha256((dom("password") as HTMLInputElement).value)
 
   if (password !== sha256((dom("confirm") as HTMLInputElement).value)) {
-    showlog(lang.account.password_match_failure);
+    toast(lang.account.password_match_failure, true);
     return;
   }
 
@@ -426,7 +425,6 @@ dom("delete-account").addEventListener("click", function(): void {
               body: JSON.stringify({
                 password: sha256((dom("account-deletion-password") as HTMLInputElement).value)
               }),
-              customLog: dom("modal-log") as HTMLDivElement,
               postFunction: (success: boolean): void => {
                 if (success) {
                   closeModal();
@@ -476,8 +474,7 @@ redirectConfirmation = (url: string): boolean => {
             if (success) {
               location.href = url;
             }
-          },
-          dom("modal-log") as HTMLDivElement
+          }
         );
       }
     },

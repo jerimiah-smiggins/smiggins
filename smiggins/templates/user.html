@@ -68,7 +68,6 @@
     {% if ENABLE_PRIVATE_MESSAGES == 'true' %}<button id="message" {{ IS_HIDDEN }} onclick="createMessage()">{{ lang.user_page.message }}</button>{% endif %}
   {% if IS_BLOCKED == 'true' %}</div>{% endif %}<br><br>
 
-  <div id="error"></div>
   <div id="pinned"></div>
   <div id="posts"></div>
   <div id="more-container"><button id="more" onclick="refresh(true)" hidden>{{ lang.generic.load_more }}</button></div>

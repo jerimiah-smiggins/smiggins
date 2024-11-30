@@ -41,7 +41,6 @@ function addQuote(postID: number, isComment: boolean): void {
   let originalCW: string | null = originalCWEl ? originalCWEl.innerHTML : null;
 
   post.innerHTML = `
-    <div class="log"></div>
     <div class="quote-visibility">
       <label for="default-private-${globalIncrement}">${ lang.post.type_followers_only }:</label>
       <input id="default-private-${globalIncrement}" type="checkbox" ${defaultPrivate ? "checked" : ""}><br>
@@ -157,11 +156,11 @@ function refreshPoll(gInc: number): void {
           poll.dataset.pollLoggedIn == "true"
         );
       } else {
-        showlog(lang.generic.something_went_wrong);
+        toast(lang.generic.something_went_wrong, true);
       }
     })
     .catch((err) => {
-      showlog(lang.generic.something_went_wrong);
+      toast(lang.generic.something_went_wrong, true);
     });
 }
 
@@ -174,7 +173,6 @@ function editPost(postID: number, isComment: boolean, private: boolean, original
   let originalCW: string = contentField.querySelector("summary") ? (contentField.querySelector("summary > .c-warning-main") as HTMLElement).innerText : "";
 
   contentField.innerHTML = `
-    <div class="log"></div>
     <div class="quote-visibility">
       <label for="default-private-${globalIncrement}">${lang.post.type_followers_only}:</label>
       <input id="default-private-${globalIncrement}" type="checkbox" ${private ? "checked" : ""}><br>

@@ -1,4 +1,4 @@
-dom("submit").addEventListener("click", function() {
+dom("submit").addEventListener("click", function(): void {
   s_fetch("/api/email/password", {
     method: "POST",
     body: JSON.stringify({
