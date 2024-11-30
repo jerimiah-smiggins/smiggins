@@ -198,6 +198,16 @@ dom("color").addEventListener("change", function(): void {
     }
 });
 
+
+(dom("expand-cws") as HTMLInputElement).checked = !!localStorage.getItem("expand-cws");
+dom("expand-cws").addEventListener("change", function(): void {
+  if ((this as HTMLInputElement).checked) {
+    localStorage.setItem("expand-cws", "1");
+  } else {
+    localStorage.removeItem("expand-cws");
+  }
+});
+
 (dom("bar-pos") as HTMLInputElement).value = localStorage.getItem("bar-pos") || "ul";
 dom("bar-pos").addEventListener("change", function(): void {
   localStorage.setItem("bar-pos", (dom("bar-pos") as HTMLInputElement).value);

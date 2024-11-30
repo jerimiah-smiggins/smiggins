@@ -470,6 +470,8 @@
         "oled": "Black"
       },
 
+      "cosmetic_expand": "Always expand content warnings?",
+
       "cosmetic_bar": "Icon bar position",
       "cosmetic_bar_position": "Position:",
       "cosmetic_bar_direction": "Direction:",

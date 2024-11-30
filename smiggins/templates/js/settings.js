@@ -166,6 +166,15 @@ dom("color").addEventListener("change", function () {
         setGenericFavicon();
     }
 });
+dom("expand-cws").checked = !!localStorage.getItem("expand-cws");
+dom("expand-cws").addEventListener("change", function () {
+    if (this.checked) {
+        localStorage.setItem("expand-cws", "1");
+    }
+    else {
+        localStorage.removeItem("expand-cws");
+    }
+});
 dom("bar-pos").value = localStorage.getItem("bar-pos") || "ul";
 dom("bar-pos").addEventListener("change", function () {
     localStorage.setItem("bar-pos", dom("bar-pos").value);

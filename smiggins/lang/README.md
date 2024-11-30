@@ -45,6 +45,7 @@ settings.profile_pronouns_secondary -> generic.pronouns.secondary_label
 + hashtag.post_page.oldest
 + hashtag.post_page.liked
 + hashtag.post_page.random
++ settings.cosmetic_expand
 ```
 </details>
 

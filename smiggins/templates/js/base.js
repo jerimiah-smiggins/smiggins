@@ -656,7 +656,7 @@ function getPostHTML(postJSON, isComment = false, includeUserLink = true, includ
       </div>
 
       <div class="main-area">
-        ${postJSON.c_warning ? `<details class="c-warning">` : ""}
+        ${postJSON.c_warning ? `<details ${localStorage.getItem("expand-cws") ? "open" : ""} class="c-warning">` : ""}
         ${postJSON.c_warning ? `<summary>
           <div class="c-warning-main">${escapeHTML(postJSON.c_warning)}</div>
           <div class="c-warning-stats">
@@ -714,7 +714,7 @@ function getPostHTML(postJSON, isComment = false, includeUserLink = true, includ
                     </a>
                   </div>
 
-                  ${postJSON.quote.c_warning ? `<details class="c-warning"><summary>
+                  ${postJSON.quote.c_warning ? `<details ${localStorage.getItem("expand-cws") ? "open" : ""} class="c-warning"><summary>
                     <div class="c-warning-main">${escapeHTML(postJSON.quote.c_warning)}</div>
                     <div class="c-warning-stats">
                       (${lang.post[postJSON.quote.content.length == 1 ? "chars_singular" : "chars_plural"].replaceAll("%c", postJSON.quote.content.length)}${postJSON.quote.quote ? `, ${lang.post.quote}` : ""}${postJSON.quote.poll ? `, ${lang.home.poll}` : ""})
