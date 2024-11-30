@@ -43,8 +43,15 @@
     {% endif %}
 
     <textarea id="post-text" data-create-post maxlength="{{ MAX_POST_LENGTH }}" placeholder="{{ lang.post_page.comment_input_placeholder }}">{{ mentions }}</textarea><br>
-    <button id="post">{{ lang.generic.post }}</button><br>
+    <button id="post" class="inverted">{{ lang.generic.post }}</button><br>
   {% endif %}
+
+  <p id="switch">
+    <a data-timeline="random" href="javascript:void(0);">{{ lang.post_page.timeline.random }}</a> -
+    <a data-timeline="newest">{{ lang.post_page.timeline.newest }}</a> -
+    <a data-timeline="oldest" href="javascript:void(0);">{{ lang.post_page.timeline.oldest }}</a> -
+    <a data-timeline="liked" href="javascript:void(0);">{{ lang.post_page.timeline.liked }}</a>
+  </p>
 
   <button id="refresh" onclick="refresh()">{{ lang.generic.refresh }}</button><br><br>
   <div id="error"></div>

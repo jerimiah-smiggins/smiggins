@@ -22,14 +22,18 @@
 
 {% block body %}
   <h1>#{{ HASHTAG }}</h1>
-  {{ NUM_POSTS }} {% if NUM_POSTS == 1 %}{{ lang.hashtag.post_singular }}{% else %}{{ lang.hashtag.post_plural }}{% endif %}<br><br>
+  {{ NUM_POSTS }} {% if NUM_POSTS == 1 %}{{ lang.hashtag.post_singular }}{% else %}{{ lang.hashtag.post_plural }}{% endif %}
 
-  <div id="error"></div>
+  <p id="switch">
+    <a data-timeline="random">{{ lang.hashtag.timeline.random }}</a> -
+    <a data-timeline="recent" href="javascript:void(0);">{{ lang.hashtag.timeline.recent }}</a> -
+    <a data-timeline="liked" href="javascript:void(0);">{{ lang.hashtag.timeline.liked }}</a>
+  </p>
 
   <button id="refresh" onclick="refresh();">{{ lang.generic.refresh }}</button><br><br>
-
+  <div id="error"></div>
   <div id="posts"></div>
-  <i id="more" hidden></i>
+  <button id="more" onclick="refresh(true)" hidden>{{ lang.generic.load_more }}</button>
 
   <script>
     const hashtag = "{{ HASHTAG }}";

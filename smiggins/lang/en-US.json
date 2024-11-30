@@ -300,7 +300,13 @@
 
     "hashtag": {
       "post_singular": "post",
-      "post_plural": "posts"
+      "post_plural": "posts",
+
+      "timeline": {
+        "random": "Random",
+        "recent": "Recent",
+        "liked": "Most Liked"
+      }
     },
 
     "home": {
@@ -308,8 +314,10 @@
       "post_input_placeholder": "What's on your mind?",
       "c_warning_placeholder": "Content warning (optional)",
 
-      "switch_recent": "Switch to recent...",
-      "switch_following": "Switch to following...",
+      "timeline": {
+        "global": "Global",
+        "following": "Following"
+      },
 
       "quote_blocked": "This post is from an account you've blocked",
       "quote_blocked_other": "This post is from an account that's blocking you",
@@ -399,7 +407,14 @@
       "comments": "Comments: %s",
       "quotes": "Quotes: %s",
       "comment_parent": "Go to original post...",
-      "comment_input_placeholder": "Got something to say about this?"
+      "comment_input_placeholder": "Got something to say about this?",
+
+      "timeline": {
+        "newest": "Newest",
+        "oldest": "Oldest",
+        "liked": "Most Liked",
+        "random": "Random"
+      }
     },
 
     "post": {

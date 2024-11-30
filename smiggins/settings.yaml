@@ -221,7 +221,6 @@ post_webhooks:
 # Sets custom headers for ALL *NON-STATIC* responses. This will NOT override any
 # existing headers.
 custom_headers:
-  Test-Header: meow
 #  Example-Header: Value
 
 # Whether or not to show links to the github page

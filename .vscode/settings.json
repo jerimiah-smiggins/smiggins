@@ -1,9 +1,10 @@
 {
   "python.analysis.typeCheckingMode": "basic",
 
+  "editor.insertSpaces": true,
   "editor.tabSize": 2,
   "[python]": {
-      "editor.tabSize": 4
+    "editor.tabSize": 4
   },
 
   "[markdown]": {
@@ -25,7 +26,7 @@
 
   "isort.check": true,
   "isort.severity": {
-      "E": "Warning"
+    "E": "Warning"
   },
 
   "search.exclude": {
@@ -33,5 +34,11 @@
     "smiggins/templates/js/*": true,
     "smiggins/templates/css/*": true,
     "smiggins/posts/migrations/*": true
+  },
+
+  "files.exclude": {
+    "smiggins/templates/js": true,
+    "smiggins/templates/css": true,
+    "**/__pycache__": true
   }
 }

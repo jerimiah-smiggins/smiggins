@@ -10,8 +10,11 @@ let inc;
 let disableTimeline;
 let c;
 let offset;
+let offsetC = 0;
+let useOffsetC = false;
 let onLoad;
 let redirectConfirmation;
+let timelines = {};
 let globalIncrement = 0;
 function dom(id) {
     return document.getElementById(id);
@@ -92,9 +95,13 @@ function apiResponse(json, extraData, customLog) {
     }
     for (const action of json.actions) {
         if (action.name == "populate_timeline") {
-            if (!extraData.forceOffset && !action.posts.length) {
-                dom("posts").innerHTML = `<i>${escapeHTML(lang.post.no_posts)}</i>`;
+            if (!extraData.forceOffset) {
+                offsetC = 0;
+                if (!action.posts.length) {
+                    dom("posts").innerHTML = `<i>${escapeHTML(lang.post.no_posts)}</i>`;
+                }
             }
+            offsetC++;
             let output = "";
             for (const post of action.posts) {
                 output += getPostHTML(post, type == "comment", includeUserLink, includePostLink, false, false, false);
@@ -858,7 +865,7 @@ function createModal(title, text, buttons = []) {
     }
     for (const el of document.querySelectorAll("a")) {
         el.setAttribute("data-modal-anchor", el.getAttribute("href"));
-        el.setAttribute("href", "javascript:void(0)");
+        el.setAttribute("href", "javascript:void(0);");
         if (!el.getAttribute("tabindex")) {
             el.setAttribute("tabindex", "-1");
         }

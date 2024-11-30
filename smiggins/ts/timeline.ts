@@ -205,6 +205,30 @@ function editPost(postID: number, isComment: boolean, private: boolean, original
   });
 }
 
+function switchTimeline(event: MouseEvent): void {
+  let storageID: string = this.dataset.storageId;
+  let tl: string = this.dataset.timeline;
+
+  if (storageID) {
+    localStorage.setItem(storageID, tl);
+  }
+
+  if (url == timelines[tl]) { return; }
+
+  document.querySelectorAll("#switch > a:not([href])").forEach((val: HTMLAnchorElement, index: number): void => {
+    val.href = "javascript:void(0);";
+  });
+
+  this.removeAttribute("href")
+
+  url = timelines[tl];
+  refresh();
+}
+
+document.querySelectorAll("#switch > a").forEach((val: HTMLAnchorElement, index: number): void => {
+  val.addEventListener("click", switchTimeline);
+});
+
 if (typeof disableTimeline === "undefined" || !disableTimeline) {
   function refresh(forceOffset=false): void {
     if (forceOffset !== true) {
@@ -212,7 +236,7 @@ if (typeof disableTimeline === "undefined" || !disableTimeline) {
     }
 
     s_fetch(
-      `${url}${forceOffset === true && !end ? `${url.includes("?") ? "&" : "?"}offset=${offset}` : ""}`, {
+      `${url}${forceOffset === true && !end ? `${url.includes("?") ? "&" : "?"}offset=${useOffsetC ? offsetC : offset}` : ""}`, {
         disable: [...document.querySelectorAll("button[onclick*='refresh(']")],
         extraData: {
           forceOffset: forceOffset

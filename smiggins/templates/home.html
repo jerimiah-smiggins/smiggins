@@ -25,8 +25,12 @@
     <div hidden id="poll"></div>
   {% endif %}
 
-  <button id="refresh" onclick="refresh()">{{ lang.generic.refresh }}</button><br>
-  <a id="switch" href="#"></a><br><br>
+  <p id="switch">
+    <a data-timeline="following" data-storage-id="home-page" href="javascript:void(0);">{{ lang.home.timeline.following }}</a> -
+    <a data-timeline="recent" data-storage-id="home-page" href="javascript:void(0);">{{ lang.home.timeline.global }}</a>
+  </p>
+
+  <button id="refresh" onclick="refresh()">{{ lang.generic.refresh }}</button>
   <div id="error"></div>
   <div id="posts"></div>
   <button id="more" onclick="refresh(true)" hidden>{{ lang.generic.load_more }}</button>

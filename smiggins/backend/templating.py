@@ -257,7 +257,7 @@ def post(request, post_id: int) -> HttpResponse:
         COMMENT = "false",
         POST_JSON = json.dumps(post_json),
         CONTENT = (post.content_warning or post.content) + ("\n" + lang["home"]["quote_poll"] if post.poll else "\n" + lang["home"]["quote_recursive"] if post.quote else ""),
-        C_WARNING = cw[:MAX_CONTENT_WARNING_LENGTH] if cw.startswith("re: ") else f"re: {cw[:MAX_CONTENT_WARNING_LENGTH - 4]}",
+        C_WARNING = cw[:MAX_CONTENT_WARNING_LENGTH] if not cw or cw.startswith("re: ") else f"re: {cw[:MAX_CONTENT_WARNING_LENGTH - 4]}",
         EMBED_TITLE = lang["user_page"]["user_on_smiggins"].replace("%t", SITE_NAME).replace("%s", creator.display_name),
 
         LIKES = lang["post_page"]["likes"].replace("%s", str(post_json["likes"])),
@@ -308,7 +308,7 @@ def comment(request, comment_id: int) -> HttpResponse:
         COMMENT   = "true",
         POST_JSON = json.dumps(comment_json),
         CONTENT   = comment.content_warning or comment.content,
-        C_WARNING = cw[:MAX_CONTENT_WARNING_LENGTH] if cw.startswith("re: ") else f"re: {cw[:MAX_CONTENT_WARNING_LENGTH - 4]}",
+        C_WARNING = cw[:MAX_CONTENT_WARNING_LENGTH] if not cw or cw.startswith("re: ") else f"re: {cw[:MAX_CONTENT_WARNING_LENGTH - 4]}",
         EMBED_TITLE = lang["user_page"]["user_on_smiggins"].replace("%t", SITE_NAME).replace("%s", creator.display_name),
 
         LIKES = lang["post_page"]["likes"].replace("%s", str(comment_json["likes"])),

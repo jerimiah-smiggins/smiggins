@@ -162,12 +162,31 @@ function editPost(postID, isComment, private, originalText) {
         });
     });
 }
+function switchTimeline(event) {
+    let storageID = this.dataset.storageId;
+    let tl = this.dataset.timeline;
+    if (storageID) {
+        localStorage.setItem(storageID, tl);
+    }
+    if (url == timelines[tl]) {
+        return;
+    }
+    document.querySelectorAll("#switch > a:not([href])").forEach((val, index) => {
+        val.href = "javascript:void(0);";
+    });
+    this.removeAttribute("href");
+    url = timelines[tl];
+    refresh();
+}
+document.querySelectorAll("#switch > a").forEach((val, index) => {
+    val.addEventListener("click", switchTimeline);
+});
 if (typeof disableTimeline === "undefined" || !disableTimeline) {
     function refresh(forceOffset = false) {
         if (forceOffset !== true) {
             dom("posts").innerHTML = "";
         }
-        s_fetch(`${url}${forceOffset === true && !end ? `${url.includes("?") ? "&" : "?"}offset=${offset}` : ""}`, {
+        s_fetch(`${url}${forceOffset === true && !end ? `${url.includes("?") ? "&" : "?"}offset=${useOffsetC ? offsetC : offset}` : ""}`, {
             disable: [...document.querySelectorAll("button[onclick*='refresh(']")],
             extraData: {
                 forceOffset: forceOffset

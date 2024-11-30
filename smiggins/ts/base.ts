@@ -11,8 +11,11 @@ let inc: number;
 let disableTimeline: boolean;
 let c: number;
 let offset: number;
+let offsetC: number = 0;
+let useOffsetC: boolean = false;
 let onLoad: () => void;
 let redirectConfirmation: (url: string) => boolean | null;
+let timelines: { [key: string]: string } = {};
 
 let globalIncrement: number = 0;
 
@@ -121,9 +124,14 @@ function apiResponse(
   for (const action of json.actions) {
     // console.log(action.name, action);
     if (action.name == "populate_timeline") {
-      if (!extraData.forceOffset && !action.posts.length) {
-        dom("posts").innerHTML = `<i>${escapeHTML(lang.post.no_posts)}</i>`
+      if (!extraData.forceOffset) {
+        offsetC = 0;
+        if (!action.posts.length) {
+          dom("posts").innerHTML = `<i>${escapeHTML(lang.post.no_posts)}</i>`
+        }
       }
+
+      offsetC++;
 
       let output: string = "";
       for (const post of action.posts) {
@@ -1020,7 +1028,7 @@ function createModal(
 
   for (const el of document.querySelectorAll("a")) {
     el.setAttribute("data-modal-anchor", el.getAttribute("href"));
-    el.setAttribute("href", "javascript:void(0)");
+    el.setAttribute("href", "javascript:void(0);");
     if (!el.getAttribute("tabindex")) {
       el.setAttribute("tabindex", "-1");
     }

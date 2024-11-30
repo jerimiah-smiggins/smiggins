@@ -34,6 +34,15 @@ settings.profile_pronouns_secondary -> generic.pronouns.secondary_label
 + generic.keybinds.other.post
 + generic.keybinds.other.jump
 + generic.keybinds.other.refresh
++ hashtag.timeline.random
++ hashtag.timeline.recent
++ hashtag.timeline.liked
++ hashtag.home.global
++ hashtag.home.following
++ hashtag.post_page.newest
++ hashtag.post_page.oldest
++ hashtag.post_page.liked
++ hashtag.post_page.random
 ```
 </details>
 

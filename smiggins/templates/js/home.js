@@ -18,7 +18,6 @@ function getPollText() {
     });
     return out;
 }
-dom("switch").innerText = page == "recent" ? lang.home.switch_following : lang.home.switch_recent;
 dom("post-text").addEventListener("input", postTextInputEvent);
 dom("post").addEventListener("click", function () {
     if (dom("post-text").value || getPollText().length) {
@@ -38,13 +37,11 @@ dom("post").addEventListener("click", function () {
         });
     }
 });
-dom("switch").addEventListener("click", function () {
-    page = page == "following" ? "recent" : "following";
-    localStorage.setItem("home-page", page);
-    dom("switch").innerHTML = page == "recent" ? lang.home.switch_following : lang.home.switch_recent;
-    url = `/api/post/${page}`;
-    refresh();
-});
+timelines = {
+    recent: "/api/post/recent",
+    following: "/api/post/following"
+};
+document.querySelector(`#switch > a[data-timeline='${page}']`).removeAttribute("href");
 if (ENABLE_POLLS) {
     dom("toggle-poll").addEventListener("click", function () {
         if (dom("poll").hasAttribute("hidden")) {

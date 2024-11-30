@@ -2,6 +2,7 @@
 
 import time
 
+from django.db.models import Count
 from django.db.utils import IntegrityError
 from posts.models import Comment, M2MLikeC, Notification, Post, User
 
@@ -106,11 +107,16 @@ def comment_create(request, data: NewComment) -> APIResponse:
         ]
     }
 
-def comment_list(request, id: int, comment: bool, offset: int=-1) -> APIResponse:
+def comment_list(request, id: int, comment: bool, sort: str, offset: int=0) -> APIResponse:
     # Called when the comments for a post are refreshed.
 
     token = request.COOKIES.get('token')
     offset = 0 if offset == -1 else offset
+
+    if sort not in ["liked", "random", "newest", "oldest"]:
+        return 400, {
+            "success": False
+        }
 
     try:
         user = User.objects.get(token=token)
@@ -126,7 +132,7 @@ def comment_list(request, id: int, comment: bool, offset: int=-1) -> APIResponse
         logged_in = False
 
     try:
-        if id < 0 or (Comment.objects.latest('comment_id').comment_id if comment else Post.objects.latest('post_id').post_id) < id:
+        if id < 0 or (Comment.objects.latest("comment_id").comment_id if comment else Post.objects.latest("post_id").post_id) < id:
             return 400, {
                 "success": False,
                 "message": lang["post"]["commend_id_does_not_exist"]
@@ -144,12 +150,16 @@ def comment_list(request, id: int, comment: bool, offset: int=-1) -> APIResponse
         parent = Post.objects.get(pk=id)
 
     user_id = user.user_id if logged_in else 0
-    comments = parent.comments
+    comments = Comment.objects.filter(comment_id__in=parent.comments)
 
-    while len(comments) and comments[0] < offset:
-        comments.pop(0)
+    if sort == "liked":
+        comments = comments.annotate(like_count=Count('likes')).order_by('-like_count')
+    else:
+        comments = comments.order_by("?" if sort == "random" else "comment_id" if sort == "oldest" else "-comment_id")
 
-    if comments == []:
+    comments = comments[POSTS_PER_REQUEST * offset:]
+
+    if comments.count() == 0:
         return {
             "success": True,
             "actions": [
@@ -165,28 +175,22 @@ def comment_list(request, id: int, comment: bool, offset: int=-1) -> APIResponse
     else:
         self_user = None
 
-    for i in comments:
-        try:
-            comment_object = Comment.objects.get(pk=i)
-        except Comment.DoesNotExist:
-            offset += 1
-            continue
-
+    for comment_object in comments:
         can_view = can_view_post(self_user, comment_object.creator, comment_object)
         if can_view[0] is False and (can_view[1] == "blocked" or can_view[1] == "private"):
             offset += 1
             continue
 
         else:
-            outputList.append(get_post_json(i, user_id, True))
+            outputList.append(get_post_json(comment_object, user_id, True))
 
-        if len(outputList) >= POSTS_PER_REQUEST:
+        if len(outputList) + offset >= POSTS_PER_REQUEST:
             break
 
     return {
         "success": True,
         "actions": [
-            { "name": "populate_timeline", "posts": outputList, "end": len(comments) - offset <= POSTS_PER_REQUEST }
+            { "name": "populate_timeline", "posts": outputList, "end": sort == "random" or comments.count() <= POSTS_PER_REQUEST }
         ]
     }
 

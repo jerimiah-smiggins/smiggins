@@ -6,6 +6,7 @@ import time
 from itertools import chain
 
 import requests
+from django.db.models import Count
 from django.db.utils import IntegrityError
 from posts.models import Comment, Hashtag, M2MLike, Post, User
 
@@ -285,13 +286,16 @@ def quote_create(request, data: NewQuote) -> APIResponse:
         ]
     }
 
-def hashtag_list(request, hashtag: str) -> APIResponse:
-    # Returns a list of hashtags. `offset` is a filler variable.
+def hashtag_list(request, hashtag: str, sort: str, offset: int=0) -> APIResponse:
+    # Returns a list of posts with a specific hashtag
 
-    token = request.COOKIES.get("token")
+    if sort not in ["random", "recent", "liked"]:
+        return 400, {
+            "success": False
+        }
 
     try:
-        user = User.objects.get(token=token)
+        user = User.objects.get(token=request.COOKIES.get("token"))
         user_id = user.user_id
     except User.DoesNotExist:
         user_id = 0
@@ -306,21 +310,30 @@ def hashtag_list(request, hashtag: str) -> APIResponse:
             ]
         }
 
-    posts = tag.posts.all().order_by("?")
+    if sort == "liked":
+        posts = tag.posts.all().annotate(like_count=Count('likes')).order_by('-like_count')
+    else:
+        posts = tag.posts.all().order_by("?" if sort == "random" else "-post_id")
+
+    posts = posts[POSTS_PER_REQUEST * offset:]
     post_list = []
+
+    offset = 0
     for post in posts:
         x = get_post_json(post, user_id)
 
         if "can_view" in x and x["can_view"]:
             post_list.append(x)
+        else:
+            offset += 1
 
-            if len(post_list) >= POSTS_PER_REQUEST:
-                break
+        if len(post_list) + offset >= POSTS_PER_REQUEST:
+            break
 
     return {
         "success": True,
         "actions": [
-            { "name": "populate_timeline", "end": True, "posts": post_list }
+            { "name": "populate_timeline", "end": sort == "random" or posts.count() <= POSTS_PER_REQUEST, "posts": post_list }
         ]
     }
 
