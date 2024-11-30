@@ -10,6 +10,8 @@ Updates for each language version are listed below:
 ```diff
 # The entire pronoun system has been reworked
 - generic.pronouns.*
+- home.switch_recent
+- home.switch_following
 - settings.profile_pronouns_invalid
 - settings.profile_pronouns_unset
 - settings.profile_pronouns_inherit
