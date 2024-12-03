@@ -1,11 +1,11 @@
 ## v0.13.7
-1. Made usernames case-insensitive across the whole website
-2. Added a way to propertly get IPs behind a reverse proxy
-3. A password is now needed to set/change passwords
-4. Sitemaps for comments and hashtag pages have been added
-5. Made the followers feed not stack overflow if you follow too many people
-6. Improved documentation across the backend
-7. **\[!!!\]**  Moved the settings file from `settings.json` to `settings.yaml`
+1. **\[!!!\]**  Moved the settings file from `settings.json` to `settings.yaml`
+2. Made usernames case-insensitive across the whole website
+3. Added a way to propertly get IPs behind a reverse proxy
+4. A password is now needed to set/change passwords
+5. Sitemaps for comments and hashtag pages have been added
+6. Made the followers feed not stack overflow if you follow too many people
+7. Improved documentation across the backend
 8. Added a backend option to create automatic database backups
 9. Made pronouns be specific to each language, adding more flexibility for translators
 10. Fixed the dynamic favicon when the system theme is set
