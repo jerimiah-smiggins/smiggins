@@ -16,7 +16,6 @@ const keybinds: { [key: string]: _keybind } = {
       keybindHelpMenu();
     } else if (dom("post-text")) {
       dom("post-text").focus();
-      event.preventDefault();
     }
   }},
 
@@ -64,6 +63,7 @@ function keyDown(event: KeyboardEvent): void {
    || (action.requireNav && !heldKeys[navKey])
    || (action.requireCtrl && !(heldKeys.Control || event.ctrlKey))
     )) {
+      event.preventDefault();
       action.action(event);
     }
   }
