@@ -2,7 +2,7 @@
   "meta": {
     "fallback": [],
     "name": "English (United States)",
-    "version": "1.10.0",
+    "version": "1.10.1",
     "maintainers": ["trinkey"],
     "past_maintainers": []
   },
@@ -45,6 +45,7 @@
       "load_more": "Load More",
       "post": "Post",
       "cancel": "Cancel",
+      "close":  "Close",
       "source_code": "Source code",
       "save": "Save",
       "none": "None",
@@ -54,45 +55,101 @@
       "see_more": "%s to see more!", // Ex: Sign up to see more!
       "discord": "Discord Server",
 
+      "keybinds": {
+        "title": "Keyboard Shortcuts",
+        "plus": "%a + %b", // Ex:  "Ctrl + /"
+        "dash": "%k - %d", // Ex: "Ctrl + / - Shows this menu"
+
+        "ctrl": "Ctrl",
+        "enter": "Enter",
+
+        "navigation": {
+          "title": "Navigation",
+          "admin": "Navigate to the admin page",
+          "home": "Navigate to the home page",
+          "messages": "Navigate to the messages page",
+          "notifications": "Navigate to the notifications page",
+          "profile": "Navigate to your profile page",
+          "settings": "Navigate to the settings page"
+        },
+
+        "other": {
+          "title": "Other",
+          "help": "Shows this menu",
+          "post": "Creates a post",
+          "jump": "Jump to the post box",
+          "refresh": "Refresh the timeline"
+        }
+      },
+
       "pronouns": {
-        "a": "ask pronouns",
-        "o": "other pronouns",
-        "v": "avoid pronouns",
-        "aa": "any/all",
-        "af": "any/she",
-        "ai": "any/all",
-        "am": "any/he",
-        "an": "any/they",
-        "ao": "any/its",
-        "ax": "any/other",
-        "fa": "she/any",
-        "ff": "she/her",
-        "fi": "she/her",
-        "fm": "she/he",
-        "fn": "she/they",
-        "fo": "she/it",
-        "fx": "she/other",
-        "ma": "he/all",
-        "mf": "he/she",
-        "mi": "he/him",
-        "mm": "he/him",
-        "mn": "he/they",
-        "mo": "he/it",
-        "mx": "he/other",
-        "na": "they/any",
-        "nf": "they/she",
-        "ni": "they/them",
-        "nm": "they/he",
-        "nn": "they/them",
-        "no": "they/it",
-        "nx": "they/other",
-        "oa": "it/any",
-        "of": "it/she",
-        "oi": "it/its",
-        "om": "it/he",
-        "on": "it/they",
-        "oo": "it/its",
-        "ox": "it/other"
+        "title": "Pronouns",
+        "primary_label": "Primary:",
+        "secondary_label": "Secondary:",
+
+        "default": "none", // Default pronouns for primary assuming the current one is invalid. Must have "special": "no-secondary"
+        "enable_pronouns": true, // Set to false if the language doesn't have a pronoun-like system or this wouldn't make sense in the language
+        "enable_secondary": true, // Set this to false if the langauge doesn't have a primary/secondary pronoun format, instead only a primary
+
+        "primary": [
+          { "key": "none", "name": "Unset", "special": "no-secondary" },
+          { "key": "m", "name": "he/him" },
+          { "key": "n", "name": "they/them" },
+          { "key": "f", "name": "she/her" },
+          { "key": "o", "name": "it/its" },
+          { "key": "a", "name": "any/all" },
+          { "key": "ask", "name": "Ask pronouns", "special": "no-secondary" },
+          { "key": "other", "name": "Other pronouns", "special": "no-secondary" },
+          { "key": "avoid", "name": "Avoid pronouns", "special": "no-secondary" }
+        ],
+
+        "secondary": [
+          { "key": "_", "name": "Same as primary", "special": "inherit" },
+          { "key": "m", "name": "he/him" },
+          { "key": "n", "name": "they/them" },
+          { "key": "f", "name": "she/her" },
+          { "key": "o", "name": "it/its" },
+          { "key": "a", "name": "any/all" },
+          { "key": "x", "name": "Other pronouns" }
+        ],
+
+        "visible": {
+          // primary key [+ "_" + secondary key]
+          // secondary key can be ignored if "special": "no-secondary" is set.
+          "ask": "Ask pronouns",
+          "other": "Other pronouns",
+          "avoid": "Avoid pronouns",
+          "a_a": "any/all",
+          "a_f": "any/she",
+          "a_m": "any/he",
+          "a_n": "any/they",
+          "a_o": "any/its",
+          "a_x": "any/other",
+          "f_a": "she/any",
+          "f_f": "she/her",
+          "f_m": "she/he",
+          "f_n": "she/they",
+          "f_o": "she/it",
+          "f_x": "she/other",
+          "m_a": "he/all",
+          "m_f": "he/she",
+          "m_m": "he/him",
+          "m_n": "he/they",
+          "m_o": "he/it",
+          "m_x": "he/other",
+          "n_a": "they/any",
+          "n_f": "they/she",
+          "n_m": "they/he",
+          "n_n": "they/them",
+          "n_o": "they/it",
+          "n_x": "they/other",
+          "o_a": "it/any",
+          "o_f": "it/she",
+          "o_m": "it/he",
+          "o_n": "it/they",
+          "o_o": "it/its",
+          "o_x": "it/other"
+        }
       },
 
       "colors": {
@@ -243,7 +300,13 @@
 
     "hashtag": {
       "post_singular": "post",
-      "post_plural": "posts"
+      "post_plural": "posts",
+
+      "timeline": {
+        "random": "Random",
+        "recent": "Recent",
+        "liked": "Most Liked"
+      }
     },
 
     "home": {
@@ -251,8 +314,10 @@
       "post_input_placeholder": "What's on your mind?",
       "c_warning_placeholder": "Content warning (optional)",
 
-      "switch_recent": "Switch to recent...",
-      "switch_following": "Switch to following...",
+      "timeline": {
+        "global": "Global",
+        "following": "Following"
+      },
 
       "quote_blocked": "This post is from an account you've blocked",
       "quote_blocked_other": "This post is from an account that's blocking you",
@@ -342,7 +407,14 @@
       "comments": "Comments: %s",
       "quotes": "Quotes: %s",
       "comment_parent": "Go to original post...",
-      "comment_input_placeholder": "Got something to say about this?"
+      "comment_input_placeholder": "Got something to say about this?",
+
+      "timeline": {
+        "newest": "Newest",
+        "oldest": "Oldest",
+        "liked": "Most Liked",
+        "random": "Random"
+      }
     },
 
     "post": {
@@ -378,12 +450,6 @@
       "profile_display_name_placeholder": "Display name...",
       "profile_display_name_invalid_length": "Invalid display name length. Must be between 1 and %s characters",
       "profile_bio_placeholder": "User bio...",
-      "profile_pronouns_title": "Pronouns",
-      "profile_pronouns_primary": "Primary:",
-      "profile_pronouns_secondary": "Secondary:",
-      "profile_pronouns_invalid": "Invalid pronoun string '%s'. If this is a bug, please report this",
-      "profile_pronouns_unset": "unset",
-      "profile_pronouns_inherit": "same as primary",
       "profile_banner_title": "Banner color",
       "profile_gradient": "Gradient banner?",
       "profile_default_post": "Default post visibility:",
@@ -403,6 +469,8 @@
         "black": "Midnight",
         "oled": "Black"
       },
+
+      "cosmetic_expand": "Always expand content warnings?",
 
       "cosmetic_bar": "Icon bar position",
       "cosmetic_bar_position": "Position:",

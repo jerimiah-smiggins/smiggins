@@ -11,7 +11,11 @@ let inc: number;
 let disableTimeline: boolean;
 let c: number;
 let offset: number;
+let offsetC: number = 0;
+let useOffsetC: boolean = false;
 let onLoad: () => void;
+let redirectConfirmation: (url: string) => boolean | null;
+let timelines: { [key: string]: string } = {};
 
 let globalIncrement: number = 0;
 
@@ -26,11 +30,6 @@ const validColors: string[] = [
 ]
 
 const months: string[] = lang.generic.time.months;
-const pronouns: { [key: string]: string } = lang.generic.pronouns;
-
-pronouns._a = pronouns.a;
-pronouns._o = pronouns.o;
-pronouns._v = pronouns.v;
 
 function s_fetch(
   url: string, data?: {
@@ -38,7 +37,6 @@ function s_fetch(
     body?: string | null,
     disable?: (Element | string | false | null)[],
     extraData?: { [key: string]: any },
-    customLog?: HTMLDivElement,
     postFunction?: (success: boolean) => void
   }
 ): void {
@@ -70,11 +68,11 @@ function s_fetch(
     body: data.body
   }).then((response: Response) => (response.json()))
     .then((json: _actions) => {
-      apiResponse(json, data.extraData, data.customLog);
+      apiResponse(json, data.extraData);
       success = json.success;
     })
     .catch((err) => {
-      showlog(lang.generic.something_went_wrong);
+      toast(lang.generic.something_went_wrong, true);
       console.error(err);
       success = null;
     })
@@ -109,13 +107,12 @@ function s_fetch(
 
 function apiResponse(
   json: _actions,
-  extraData?: { [key: string]: any },
-  customLog?: HTMLDivElement
+  extraData?: { [key: string]: any }
 ): void {
   if (json.message) {
-    showlog(json.message, 3000, customLog);
+    toast(json.message, !json.success);
   } else if (!json.success) {
-    showlog(lang.generic.something_went_wrong, 5000, customLog);
+    toast(lang.generic.something_went_wrong, true);
   }
 
   if (!json.actions) {
@@ -125,9 +122,14 @@ function apiResponse(
   for (const action of json.actions) {
     // console.log(action.name, action);
     if (action.name == "populate_timeline") {
-      if (!extraData.forceOffset && !action.posts.length) {
-        dom("posts").innerHTML = `<i>${escapeHTML(lang.post.no_posts)}</i>`
+      if (!extraData.forceOffset) {
+        offsetC = 0;
+        if (!action.posts.length) {
+          dom("posts").innerHTML = `<i>${escapeHTML(lang.post.no_posts)}</i>`
+        }
       }
+
+      offsetC++;
 
       let output: string = "";
       for (const post of action.posts) {
@@ -354,7 +356,7 @@ function apiResponse(
           localStorage.setItem("acc-switcher", JSON.stringify(accounts));
         }
 
-        showlog(lang.generic.success);
+        toast(lang.generic.success);
       });
 
       dom("data-save").addEventListener("click", function(): void {
@@ -498,9 +500,13 @@ function apiResponse(
 
         if (action.value !== undefined) {
           (element as HTMLInputElement).value = action.value;
-        } else if (action.checked !== undefined) {
+        }
+
+        if (action.checked !== undefined) {
           (element as HTMLInputElement).checked = action.checked;
-        } else if (action.value !== undefined) {
+        }
+
+        if (action.disabled !== undefined) {
           (element as HTMLInputElement).disabled = action.disabled;
         }
 
@@ -533,17 +539,6 @@ function apiResponse(
     }
   }
 }
-
-function showlog(str: string, time: number = 3000, customLog?: HTMLDivElement): void {
-  inc++;
-  (customLog || dom("error")).innerText = str;
-  setTimeout(() => {
-    --inc;
-    if (!inc) {
-      (customLog || dom("error")).innerText = "";
-    }
-  }, time);
-};
 
 function setCookie(name: string, value: string): void {
   let date = new Date();
@@ -756,7 +751,7 @@ function getPostHTML(
             </span>
             <span class="upper-lower-opacity">
               <span class="username">@${postJSON.creator.username}</span> -
-              ${pronouns[postJSON.creator.pronouns] ? `<span class="pronouns">${pronouns[postJSON.creator.pronouns]}</span> -` : ""}
+              ${postJSON.creator.pronouns === null ? "" : `<span class="pronouns">${postJSON.creator.pronouns}</span> -`}
               <span class="timestamp">${timeSince(postJSON.timestamp)}</span>
             </span>
           </div>
@@ -764,7 +759,7 @@ function getPostHTML(
       </div>
 
       <div class="main-area">
-        ${postJSON.c_warning ? `<details class="c-warning">` : ""}
+        ${postJSON.c_warning ? `<details ${localStorage.getItem("expand-cws") ? "open" : ""} class="c-warning">` : ""}
         ${postJSON.c_warning ? `<summary>
           <div class="c-warning-main">${escapeHTML(postJSON.c_warning)}</div>
           <div class="c-warning-stats">
@@ -829,14 +824,14 @@ function getPostHTML(
                         </span>
                         <span class="upper-lower-opacity">
                           <span class="username">@${postJSON.quote.creator.username}</span> -
-                          ${pronouns[postJSON.quote.creator.pronouns] ? `<span class="pronouns">${pronouns[postJSON.quote.creator.pronouns]}</span> -` : ""}
+                          ${postJSON.quote.creator.pronouns === null ? "" : `<span class="pronouns">${postJSON.quote.creator.pronouns}</span> -`}
                           <span class="timestamp">${timeSince(postJSON.quote.timestamp)}</span>
                         </span>
                       </div>
                     </a>
                   </div>
 
-                  ${postJSON.quote.c_warning ? `<details class="c-warning"><summary>
+                  ${postJSON.quote.c_warning ? `<details ${localStorage.getItem("expand-cws") ? "open" : ""} class="c-warning"><summary>
                     <div class="c-warning-main">${escapeHTML(postJSON.quote.c_warning)}</div>
                     <div class="c-warning-stats">
                       (${lang.post[postJSON.quote.content.length == 1 ? "chars_singular" : "chars_plural"].replaceAll("%c", postJSON.quote.content.length)
@@ -969,6 +964,19 @@ function postTextInputEvent(): void {
   }
 }
 
+function redirect(path: string): boolean {
+  if (location.href == path || location.pathname == path) {
+    return false;
+  }
+
+  if (redirectConfirmation && !redirectConfirmation(path)) {
+    return false;
+  }
+
+  location.href = path;
+  return true;
+}
+
 function _modalKeyEvent(event: KeyboardEvent): void {
   if (event.key === "Escape" || event.keyCode === 27) {
     event.preventDefault();
@@ -1007,7 +1015,7 @@ function createModal(
 
   for (const el of document.querySelectorAll("a")) {
     el.setAttribute("data-modal-anchor", el.getAttribute("href"));
-    el.setAttribute("href", "javascript:void(0)");
+    el.setAttribute("href", "javascript:void(0);");
     if (!el.getAttribute("tabindex")) {
       el.setAttribute("tabindex", "-1");
     }
@@ -1020,7 +1028,7 @@ function createModal(
     buttonHTML += `<button class="${button.class}">${button.name}</button>`;
   }
 
-  container.innerHTML = `<div id="modal"><h1>${title}</h1><p><div id="modal-log"></div>${text}</p><div id="modal-buttons">${buttonHTML}</div></div>`;
+  container.innerHTML = `<div id="modal"><h1>${title}</h1><p>${text}</p><div id="modal-buttons">${buttonHTML}</div></div>`;
 
   let buttonsQSA: NodeListOf<Element> = document.querySelectorAll("#modal-buttons > button");
   for (let i: number = 0; i < buttons.length; i++) {
@@ -1049,6 +1057,26 @@ function closeModal(): void {
 
   dom("modal-container").remove();
   document.removeEventListener("keydown", _modalKeyEvent);
+}
+
+function toast(message: string, warning: boolean=false, timeout: number=3000): void {
+  let x: HTMLDivElement = document.createElement("div");
+  let gInc: number = globalIncrement;
+  globalIncrement++;
+
+  x.classList.add("toast");
+  x.innerText = message;
+  x.id = `gi-${gInc}`;
+
+  if (warning) {
+    x.classList.add("warning");
+  }
+
+  dom("toast").append(x);
+
+  setTimeout((): void => {
+    dom(`gi-${gInc}`).remove();
+  }, timeout);
 }
 
 // Some icons are from Font Awesome

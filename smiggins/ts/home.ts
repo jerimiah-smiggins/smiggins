@@ -22,7 +22,6 @@ function getPollText(): string[] {
   return out;
 }
 
-dom("switch").innerText = page == "recent" ? lang.home.switch_following : lang.home.switch_recent
 dom("post-text").addEventListener("input", postTextInputEvent);
 
 dom("post").addEventListener("click", function(): void {
@@ -44,13 +43,12 @@ dom("post").addEventListener("click", function(): void {
   }
 });
 
-dom("switch").addEventListener("click", function(): void {
-  page = page == "following" ? "recent" : "following"
-  localStorage.setItem("home-page", page);
-  dom("switch").innerHTML = page == "recent" ? lang.home.switch_following : lang.home.switch_recent
-  url = `/api/post/${page}`;
-  refresh();
-});
+timelines = {
+  recent: "/api/post/recent",
+  following: "/api/post/following"
+};
+
+document.querySelector(`#switch > a[data-timeline='${page}']`).removeAttribute("href");
 
 if (ENABLE_POLLS) {
   dom("toggle-poll").addEventListener("click", function(): void {
@@ -63,7 +61,7 @@ if (ENABLE_POLLS) {
 
   output = "";
   for (let i: number = 1; i <= MAX_POLL_OPTIONS; i++) {
-    output += `<label><input placeholder="${(i > 2 ? lang.home.poll_optional : lang.home.poll_option).replaceAll("%s", i)}" maxlength="${MAX_POLL_OPTION_LENGTH}"></label></br>`;
+    output += `<input data-create-post placeholder="${(i > 2 ? lang.home.poll_optional : lang.home.poll_option).replaceAll("%s", i)}" maxlength="${MAX_POLL_OPTION_LENGTH}"></br>`;
   }
 
   dom("poll").innerHTML = output;

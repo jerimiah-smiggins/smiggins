@@ -1,11 +1,11 @@
 # For API functions that are user-specific, like settings, following, etc.
 
 from posts.models import (Comment, OneTimePassword, Post,
-                          PrivateMessageContainer, User)
+                          PrivateMessageContainer, User, UserPronouns)
 
 from ..helper import (DEFAULT_LANG, create_api_ratelimit, ensure_ratelimit,
-                      generate_token, get_badges, get_lang, get_post_json,
-                      trim_whitespace, validate_username)
+                      generate_token, get_badges, get_ip_addr, get_lang,
+                      get_post_json, trim_whitespace, validate_username)
 from ..variables import (API_TIMINGS, DEFAULT_BANNER_COLOR, DEFAULT_LANGUAGE,
                          ENABLE_GRADIENT_BANNERS, ENABLE_NEW_ACCOUNTS,
                          ENABLE_PRONOUNS, ENABLE_USER_BIOS, MAX_BIO_LENGTH,
@@ -18,7 +18,7 @@ from .schema import (Account, APIResponse, ChangePassword, Password, Settings,
 def signup(request, data: Account) -> APIResponse:
     # Called when someone requests to follow another account.
 
-    if not ensure_ratelimit("api_account_signup", request.META.get("REMOTE_ADDR")):
+    if not ensure_ratelimit("api_account_signup", get_ip_addr(request)):
         return 429, {
             "success": False,
             "message": DEFAULT_LANG["generic"]["ratelimit"]
@@ -52,7 +52,7 @@ def signup(request, data: Account) -> APIResponse:
 
     user_valid = validate_username(username, existing=False)
     if user_valid == 1:
-        create_api_ratelimit("api_account_signup", API_TIMINGS["signup successful"], request.META.get('REMOTE_ADDR'))
+        create_api_ratelimit("api_account_signup", API_TIMINGS["signup successful"], get_ip_addr(request))
 
         token = generate_token(username, password)
         User.objects.create(
@@ -76,7 +76,7 @@ def signup(request, data: Account) -> APIResponse:
             ]
         }
 
-    create_api_ratelimit("api_account_signup", API_TIMINGS["signup unsuccessful"], request.META.get('REMOTE_ADDR'))
+    create_api_ratelimit("api_account_signup", API_TIMINGS["signup unsuccessful"], get_ip_addr(request))
 
     if user_valid == -1:
         return {
@@ -98,7 +98,7 @@ def signup(request, data: Account) -> APIResponse:
 def login(request, data: Account) -> APIResponse:
     # Called when someone attempts to log in.
 
-    if not ensure_ratelimit("api_account_login", request.META.get("REMOTE_ADDR")):
+    if not ensure_ratelimit("api_account_login", get_ip_addr(request)):
         return 429, {
             "success": False,
             "message": DEFAULT_LANG["generic"]["ratelimit"]
@@ -109,7 +109,7 @@ def login(request, data: Account) -> APIResponse:
 
     if validate_username(username) == 1:
         if token == User.objects.get(username=username).token:
-            create_api_ratelimit("api_account_login", API_TIMINGS["login successful"], request.META.get('REMOTE_ADDR'))
+            create_api_ratelimit("api_account_login", API_TIMINGS["login successful"], get_ip_addr(request))
             return {
                 "success": True,
                 "actions": [
@@ -118,13 +118,13 @@ def login(request, data: Account) -> APIResponse:
                 ]
             }
 
-        create_api_ratelimit("api_account_login", API_TIMINGS["login unsuccessful"], request.META.get('REMOTE_ADDR'))
+        create_api_ratelimit("api_account_login", API_TIMINGS["login unsuccessful"], get_ip_addr(request))
         return 400, {
             "success": False,
             "message": DEFAULT_LANG["account"]["bad_password"]
         }
 
-    create_api_ratelimit("api_account_login", API_TIMINGS["login unsuccessful"], request.META.get('REMOTE_ADDR'))
+    create_api_ratelimit("api_account_login", API_TIMINGS["login unsuccessful"], get_ip_addr(request))
     return 400, {
         "success": False,
         "message": DEFAULT_LANG["account"]["username_does_not_exist"].replace("%s", data.username)
@@ -168,17 +168,11 @@ def settings(request, data: Settings) -> APIResponse:
     color_two = data.color_two.lower()
     displ_name = trim_whitespace(data.displ_name, True)
     bio = trim_whitespace(data.bio, True)
-    pronouns = data.pronouns.lower()
+    pronouns = data.pronouns
     language = data.lang
 
     if language != user.language:
         reload = True
-
-    if ENABLE_PRONOUNS and (len(pronouns) != 2 or pronouns not in ["__", "_a", "_o", "_v", "aa", "af", "ai", "am", "an", "ao", "ax", "fa", "ff", "fi", "fm", "fn", "fo", "fx", "ma", "mf", "mi", "mm", "mn", "mo", "mx", "na", "nf", "ni", "nm", "nn", "no", "nx", "oa", "of", "oi", "om", "on", "oo", "ox"]):
-        return 400, {
-            "success": False,
-            "message": lang["settings"]["profile_pronouns_invalid"].replace("%s", pronouns)
-        }
 
     if (len(displ_name) > MAX_DISPL_NAME_LENGTH or len(displ_name) < 1) or (ENABLE_USER_BIOS and len(bio) > MAX_BIO_LENGTH):
         return 400, {
@@ -234,7 +228,19 @@ def settings(request, data: Settings) -> APIResponse:
         user.bio = bio
 
     if ENABLE_PRONOUNS:
-        user.pronouns = pronouns
+        _p = user.pronouns.filter(language=user.language)
+        if _p.exists():
+            p = _p[0]
+            p.primary = pronouns["primary"]
+            p.secondary = pronouns["secondary"]
+
+        else:
+            UserPronouns.objects.create(
+                user=user,
+                language=user.language,
+                primary=pronouns["primary"],
+                secondary=pronouns["secondary"]
+            )
 
     user.language = language
 
@@ -582,7 +588,7 @@ def list_pending(request, offset: int=-1) -> APIResponse:
 
 def accept_pending(request, data: Username) -> APIResponse:
     self_user = User.objects.get(token=request.COOKIES.get("token"))
-    user = User.objects.get(username=data.username)
+    user = User.objects.get(username=data.username.lower())
 
     if not self_user.verify_followers:
         return 400, {
@@ -602,7 +608,7 @@ def accept_pending(request, data: Username) -> APIResponse:
 
 def remove_pending(request, data: Username) -> APIResponse:
     self_user = User.objects.get(token=request.COOKIES.get("token"))
-    user = User.objects.get(username=data.username)
+    user = User.objects.get(username=data.username.lower())
 
     if not self_user.verify_followers:
         return 400, {

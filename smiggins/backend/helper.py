@@ -11,9 +11,10 @@ import json5 as json
 from django.core.mail import send_mail
 from django.http import HttpResponse, HttpResponseRedirect
 from django.template import loader
+from posts.backups import backup_db
 from posts.models import Comment, Notification, Post, User
 
-from .variables import (BADGE_DATA, BASE_DIR, CACHE_LANGUAGES,
+from .variables import (ALTERNATE_IPS, BADGE_DATA, BASE_DIR, CACHE_LANGUAGES,
                         DEFAULT_DARK_THEME, DEFAULT_LANGUAGE,
                         DEFAULT_LIGHT_THEME, DISCORD, ENABLE_ACCOUNT_SWITCHER,
                         ENABLE_BADGES, ENABLE_CONTACT_PAGE,
@@ -69,6 +70,8 @@ def get_HTTP_response(
     user: User | None | Literal[False]=False,
     **kwargs: Any
 ) -> HttpResponse:
+    backup_db()
+
     try:
         if user is False:
             user = User.objects.get(token=request.COOKIES.get("token"))
@@ -132,7 +135,8 @@ def get_HTTP_response(
         "theme_str": "{}" if theme == "auto" or theme not in THEMES else json_f.dumps(THEMES[theme]),
         "THEME": theme if theme in THEMES else "auto",
         "badges": BADGE_DATA,
-        "badges_str": json_f.dumps(BADGE_DATA)
+        "badges_str": json_f.dumps(BADGE_DATA),
+        "is_admin": bool(user and user.admin_level)
     }
 
     for key, value in kwargs.items():
@@ -155,19 +159,21 @@ def validate_username(username: str, existing: bool=True) -> int:
     # -2 - invalid characters
     # -3 - invalid length
 
+    username = username.lower()
+
     for i in username:
         if i not in "abcdefghijklmnopqrstuvwxyz0123456789_-":
             return -2
 
     if existing:
         try:
-            User.objects.get(username=username).username
+            User.objects.get(username=username)
             return 1
         except User.DoesNotExist:
             return 0
     else:
         try:
-            User.objects.get(username=username).username
+            User.objects.get(username=username)
             return -1
         except User.DoesNotExist:
             pass
@@ -210,7 +216,7 @@ def generate_token(username: str, password: str) -> str:
 
 def create_api_ratelimit(api_id: str, time_ms: int | float, identifier: str | None) -> None:
     # Creates a ratelimit timeout for a specific user via the identifier.
-    # The identifier should be the request.META.REMOTE_ADDR ip address
+    # The identifier should be the ip address or user token.
     # api_id is the identifier for the api, for example "api_account_signup". You
     # can generally use the name of that api's function for this.
 
@@ -239,6 +245,32 @@ def get_badges(user: User) -> list[str]:
     # Returns the list of badges for the specified user
 
     return list(user.badges.all().values_list("name", flat=True)) + (["administrator"] if user.admin_level != 0 or user.user_id == OWNER_USER_ID else []) if ENABLE_BADGES else []
+
+def get_pronouns(user: User, lang: dict | None=None) -> str | None:
+    _p = user.pronouns.filter(language=user.language)
+
+    if lang is None:
+        creator_lang = get_lang(user)
+    else:
+        creator_lang = lang
+
+    if ENABLE_PRONOUNS and creator_lang["generic"]["pronouns"]["enable_pronouns"]:
+        if _p.exists():
+            try:
+                if _p[0].secondary and creator_lang["generic"]["pronouns"]["enable_secondary"]:
+                    return creator_lang["generic"]["pronouns"]["visible"][f"{_p[0].primary}_{_p[0].secondary}"]
+                else:
+                    return creator_lang["generic"]["pronouns"]["visible"][f"{_p[0].primary}"]
+
+            except KeyError:
+                ...
+
+        try:
+            return creator_lang["generic"]["pronouns"]["visible"][creator_lang["generic"]["pronouns"]["default"]]
+        except KeyError:
+            ...
+
+    return None
 
 def can_view_post(self_user: User | None, creator: User | None, post: Post | Comment) -> tuple[Literal[True]] | tuple[Literal[False], Literal["blocked", "private", "blocking"]]:
     if self_user is None:
@@ -319,7 +351,7 @@ def get_post_json(post_id: int | Post | Comment, current_user_id: int=0, comment
             "display_name": creator.display_name,
             "username": creator.username,
             "badges": get_badges(creator),
-            "pronouns": creator.pronouns if ENABLE_PRONOUNS else "__",
+            "pronouns": get_pronouns(creator),
             "color_one": creator.color,
             "color_two": creator.color_two,
             "gradient_banner": creator.gradient
@@ -384,7 +416,7 @@ def get_post_json(post_id: int | Post | Comment, current_user_id: int=0, comment
                         "display_name": quote_creator.display_name,
                         "username": quote_creator.username,
                         "badges": get_badges(quote_creator),
-                        "pronouns": quote_creator.pronouns if ENABLE_PRONOUNS else "__",
+                        "pronouns": get_pronouns(quote_creator),
                         "color_one": quote_creator.color,
                         "color_two": quote_creator.color_two,
                         "gradient_banner": quote_creator.gradient
@@ -537,7 +569,8 @@ def get_lang(lang: User | str | None=None, override_cache=False) -> dict[str, di
                         found[i] = context[i]
                     else:
                         found[i] = loop_through(found[i], context[i])
-        else:
+
+        elif isinstance(found, str):
             if len(found) == 0:
                 found = context
 
@@ -569,6 +602,15 @@ def get_lang(lang: User | str | None=None, override_cache=False) -> dict[str, di
     }
 
     return x
+
+def get_ip_addr(request):
+    if isinstance(ALTERNATE_IPS, str):
+        return request.headers.get(ALTERNATE_IPS)
+
+    if ALTERNATE_IPS:
+        return request.headers.get("X-Real-IP")
+
+    return request.META.get("REMOTE_ADDR")
 
 LANGS = {}
 if CACHE_LANGUAGES:

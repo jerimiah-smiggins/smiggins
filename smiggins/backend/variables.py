@@ -2,13 +2,28 @@ import hashlib
 import os
 import pathlib
 import re
+import sys
 from typing import Any, Literal
 
 import json5 as json
+import yaml
 from django.db.utils import OperationalError
 from posts.models import Badge
 
 from ._api_keys import auth_key
+
+if sys.version_info >= (3, 11):
+    from typing import TypedDict
+else:
+    from typing_extensions import TypedDict
+
+
+class DatabaseBackupsSchema(TypedDict):
+    enabled: bool
+    frequency: int | float
+    keep: int
+    path: str
+    filename: str
 
 BASE_DIR = pathlib.Path(__file__).resolve().parent.parent
 
@@ -25,17 +40,24 @@ CREDITS: dict[str, list[str]] = {
 }
 
 # Set default variable states
-REAL_VERSION: tuple[int, int, int] = (0, 13, 6)
+REAL_VERSION: tuple[int, int, int] = (0, 13, 7)
 VERSION: str = ".".join([str(i) for i in REAL_VERSION])
 SITE_NAME: str = "Jerimiah Smiggins"
 WEBSITE_URL: str | None = None
 DEBUG: bool = True
+DATABASE_BACKUPS: DatabaseBackupsSchema = {
+    "enabled": False,
+    "frequency":  24,
+    "keep": 5,
+    "path": "$/backups/",
+    "filename": "db-$.sqlite3"
+}
 OWNER_USER_ID: int = 1
 MAX_ADMIN_LOG_LINES: int = 1000
 DEFAULT_LANGUAGE: str = "en-US"
 DEFAULT_DARK_THEME: str = "dark"
 DEFAULT_LIGHT_THEME: str = "dawn"
-CACHE_LANGUAGES: bool | None = None
+CACHE_LANGUAGES: bool | None = True
 ALLOW_SCRAPING: bool = False
 ALLOW_INDEXING: bool = True
 MAX_USERNAME_LENGTH: int = 18
@@ -56,6 +78,7 @@ CONTACT_INFO: list[list[str]] = [
     ["text",  "DM me on discord (@trinkey_)"]
 ]
 POST_WEBHOOKS: dict[str, list[str]] = {}
+CUSTOM_HEADERS: dict[str, Any] = {}
 SOURCE_CODE: bool = True
 RATELIMIT: bool = True
 ENABLE_USER_BIOS: bool = True
@@ -92,6 +115,7 @@ FAVICON_DATA: str = """<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 
   <path fill="@{accent}" d="M379.8 149v-1.9c1.3-34.2-27.4-54.5-45.1-53.1h-1.8c-9.8.4-17.6 4.7-22.7 10.8-1.3 1.7-2.6 3.4-3.6 5.3 4.8-3 10.3-4.5 16.3-3.9 24.8 2.1 31.3 25.5 30.6 37.4-.8 14.8-10 28.6-25.5 35.4-16.9 8.4-36 3.6-48.6-4.5-14.3-9.1-25.6-24.7-28.3-45.3-3.7-21.5 4.7-43.2 17.9-59.2 14-16.3 35.5-28.9 61.5-29.7 52.4-3.9 104.2 45.9 102.5 108.1"/>
 </svg>"""
 ENABLE_DYNAMIC_FAVICON: bool = True
+ALTERNATE_IPS: bool | str = False
 
 THEMES = {
   "warm": {
@@ -439,6 +463,7 @@ _VARIABLES: list[tuple[str | None, list[str], type | str | list | tuple | dict, 
     ("WEBSITE_URL", ["website_url"], str, False),
     ("OWNER_USER_ID", ["owner_user_id"], int, False),
     ("DEBUG", ["debug"], bool, False),
+    ("DATABASE_BACKUPS",  ["db_backups", "db_backup"], "db",  False),
     ("MAX_ADMIN_LOG_LINES", ["max_admin_log_lines"], int, False),
     ("DEFAULT_LANGUAGE", ["default_lang", "default_language"], str, False),
     ("DEFAULT_DARK_THEME", ["default_dark_theme"], "theme", False),
@@ -459,6 +484,7 @@ _VARIABLES: list[tuple[str | None, list[str], type | str | list | tuple | dict, 
     ("MAX_NOTIFICATIONS", ["max_notifs", "max_notifications"], int, False),
     ("CONTACT_INFO", ["contact_info", "contact_information"], [[str]], False),
     ("POST_WEBHOOKS", ["webhooks", "auto_webhooks", "post_webhooks", "auto_post_webhooks"], {str: [str]}, False),
+    ("CUSTOM_HEADERS", ["custom_headers", "headers"], {str: Any}, False),
     ("SOURCE_CODE", ["source_code"], bool, False),
     ("RATELIMIT", ["ratelimit"], bool, False),
     ("API_TIMINGS", ["api_timings"], {str: int}, False),
@@ -489,17 +515,18 @@ _VARIABLES: list[tuple[str | None, list[str], type | str | list | tuple | dict, 
     ("GENERIC_CACHE_TIMEOUT", ["generic_cache_timeout"], int, True),
     (None, ["custom_themes"], "theme-object", False),
     ("FAVICON_DATA", ["favicon", "favicon_data", "favicon_svg"], str, False),
-    ("ENABLE_DYNAMIC_FAVICON", ["dynamic_favicon", "enable_dynamic_favicon"], bool, False)
+    ("ENABLE_DYNAMIC_FAVICON", ["dynamic_favicon", "enable_dynamic_favicon"], bool, False),
+    ("ALTERNATE_IPS", ["alternate_ips"], (bool, str), False)
 ]
 
 f = {}
 
 try:
-    f = json.load(open(BASE_DIR / "settings.json", "r", encoding="utf-8"))
+    f = yaml.safe_load(open(BASE_DIR / "settings.yaml", "r", encoding="utf-8"))
 except ValueError:
-    error("Invalid settings.json")
+    error("Invalid settings.yaml")
 except FileNotFoundError:
-    error("settings.json not found")
+    error("settings.yaml not found")
 
 def typecheck(obj: Any, expected_type: type | str | list | tuple | dict, allow_null: bool=False) -> bool | None:
     # Checks for a custom type format.
@@ -548,6 +575,9 @@ def typecheck(obj: Any, expected_type: type | str | list | tuple | dict, allow_n
                     error(f"{i} should be object in theme definition, discarding")
                     continue
 
+                if "id" in i and i["id"] == "custom":
+                    continue
+
                 if not (keycheck(i, {
                     "name": dict,
                     "id": str,
@@ -561,8 +591,8 @@ def typecheck(obj: Any, expected_type: type | str | list | tuple | dict, allow_n
                     "red": "color",
                     "background": "color_noop",
                     "post_background": "color",
-                    "poll_no_vote_background": "color",
                     "poll_voted_background": "color",
+                    "poll_no_vote_background": "color",
                     "content_warning_background": "color",
                     "input_background": "color",
                     "checkbox_background": "color",
@@ -573,6 +603,9 @@ def typecheck(obj: Any, expected_type: type | str | list | tuple | dict, allow_n
                     "checkbox_border": "color",
                     "button_border": "color",
                     "table_border": "color",
+                    "modal_backdrop": "color",
+                    "modal_background": "color",
+                    "modal_border": "color",
                     "gray": "color",
                     "accent": dict
                 }, "colors.") and keycheck(i["colors"]["accent"], {
@@ -606,6 +639,27 @@ def typecheck(obj: Any, expected_type: type | str | list | tuple | dict, allow_n
                 _THEMES_INTERNALS["taken"].append(i["id"])
 
             return None
+
+        if expected_type == "db":
+            if not isinstance(obj, dict):
+                return False
+
+            for key, val in {
+                "enabled": bool,
+                "frequency": (float, int),
+                "keep": int,
+                "path": str,
+                "filename": str
+            }.items():
+                if not typecheck(obj[key], val):
+                    error(f"db_backup, {key} should be {val}")
+                    return False
+
+            if "$" not in obj["filename"]:
+                error("db_backup, '$' should be in filename")
+                return False
+
+            return True
 
         # Add more special checks when needed
 
@@ -707,6 +761,8 @@ MAX_NOTIFICATIONS = clamp(MAX_NOTIFICATIONS, minimum=1)
 ITEMS_PER_SITEMAP = clamp(ITEMS_PER_SITEMAP, minimum=50, maximum=50000)
 SITEMAP_CACHE_TIMEOUT = clamp(SITEMAP_CACHE_TIMEOUT, minimum=0)
 GENERIC_CACHE_TIMEOUT = clamp(SITEMAP_CACHE_TIMEOUT, minimum=0)
+DATABASE_BACKUPS["frequency"] = clamp(DATABASE_BACKUPS["frequency"], minimum=1) # type: ignore
+DATABASE_BACKUPS["keep"] = clamp(DATABASE_BACKUPS["keep"], minimum=1)
 
 if isinstance(ENABLE_NEW_ACCOUNTS, str):
     ENABLE_NEW_ACCOUNTS = ENABLE_NEW_ACCOUNTS.lower()

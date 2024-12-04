@@ -9,7 +9,7 @@ from posts.models import Comment, Hashtag, Post, PrivateMessageContainer, User
 from .api.admin import BitMask
 from .helper import (LANGS, can_view_post, find_mentions, get_badges,
                      get_container_id, get_HTTP_response, get_lang,
-                     get_post_json)
+                     get_post_json, get_pronouns)
 from .variables import (BADGE_DATA, CACHE_LANGUAGES, CONTACT_INFO, CREDITS,
                         DEFAULT_BANNER_COLOR, DEFAULT_LANGUAGE,
                         ENABLE_ACCOUNT_SWITCHER, ENABLE_BADGES,
@@ -28,6 +28,15 @@ def settings(request) -> HttpResponse:
 
     lang = get_lang(user)
 
+    _p = user.pronouns.filter(language=user.language)
+    if _p.exists():
+        pronouns = {
+            "primary": _p[0].primary,
+            "secondary": _p[0].secondary
+        }
+    else:
+        pronouns = {}
+
     return get_HTTP_response(
         request, "settings.html", user=user, lang_override=lang,
 
@@ -36,7 +45,7 @@ def settings(request) -> HttpResponse:
         BANNER_COLOR_TWO    = user.color_two or DEFAULT_BANNER_COLOR,
         CHECKED_IF_GRADIENT = "checked" if user.gradient else "",
 
-        PRONOUNS = user.pronouns,
+        pronouns = pronouns,
 
         has_email = str(user.email is not None).lower(),
         email = user.email or "",
@@ -87,7 +96,7 @@ def user(request, username: str) -> HttpResponse | HttpResponseRedirect:
 
         USERNAME = user.username,
         DISPLAY_NAME = user.display_name,
-        PRONOUNS = user.pronouns,
+        PRONOUNS = get_pronouns(user),
 
         BIO = user.bio,
 
@@ -178,7 +187,7 @@ def user_lists(request, username: str) -> HttpResponse:
 
         USERNAME = user.username,
         DISPLAY_NAME = user.display_name,
-        PRONOUNS = user.pronouns,
+        PRONOUNS = get_pronouns(user),
         USER_BIO = user.bio or "",
 
         EMPTY = "\n\n\n",
@@ -236,19 +245,19 @@ def post(request, post_id: int) -> HttpResponse:
 
     post_json = get_post_json(post_id, user.user_id if user is not None else 0)
     lang = get_lang(user)
-
     mentions = find_mentions(post.content + " @" + post.creator.username, exclude_users=[user.username if user else ""])
+    cw = post.content_warning or ""
 
     return get_HTTP_response(
         request, "post.html", lang, user=user,
 
         DISPLAY_NAME = creator.display_name,
         LOGGED_IN = str(user is not None).lower(),
-        POST_ID   = str(post_id),
-        COMMENT   = "false",
+        POST_ID = str(post_id),
+        COMMENT = "false",
         POST_JSON = json.dumps(post_json),
-        CONTENT   = (post.content_warning or post.content) + ("\n" + lang["home"]["quote_poll"] if post.poll else "\n" + lang["home"]["quote_recursive"] if post.quote else ""),
-        C_WARNING = (post.content_warning or "")[:MAX_CONTENT_WARNING_LENGTH - 4:],
+        CONTENT = (post.content_warning or post.content) + ("\n" + lang["home"]["quote_poll"] if post.poll else "\n" + lang["home"]["quote_recursive"] if post.quote else ""),
+        C_WARNING = cw[:MAX_CONTENT_WARNING_LENGTH] if not cw or cw.startswith("re: ") else f"re: {cw[:MAX_CONTENT_WARNING_LENGTH - 4]}",
         EMBED_TITLE = lang["user_page"]["user_on_smiggins"].replace("%t", SITE_NAME).replace("%s", creator.display_name),
 
         LIKES = lang["post_page"]["likes"].replace("%s", str(post_json["likes"])),
@@ -287,8 +296,8 @@ def comment(request, comment_id: int) -> HttpResponse:
 
     comment_json = get_post_json(comment_id, user.user_id if user is not None else 0, True)
     lang = get_lang(user if user is not None else None)
-
     mentions = find_mentions(comment.content + " @" + comment.creator.username, exclude_users=[user.username if user else ""])
+    cw = comment.content_warning or ""
 
     return get_HTTP_response(
         request, "post.html", lang, user=user,
@@ -299,7 +308,7 @@ def comment(request, comment_id: int) -> HttpResponse:
         COMMENT   = "true",
         POST_JSON = json.dumps(comment_json),
         CONTENT   = comment.content_warning or comment.content,
-        C_WARNING = (comment.content_warning or "")[:MAX_CONTENT_WARNING_LENGTH - 4:],
+        C_WARNING = cw[:MAX_CONTENT_WARNING_LENGTH] if not cw or cw.startswith("re: ") else f"re: {cw[:MAX_CONTENT_WARNING_LENGTH - 4]}",
         EMBED_TITLE = lang["user_page"]["user_on_smiggins"].replace("%t", SITE_NAME).replace("%s", creator.display_name),
 
         LIKES = lang["post_page"]["likes"].replace("%s", str(comment_json["likes"])),
@@ -349,6 +358,8 @@ def admin(request) -> HttpResponse | HttpResponseRedirect:
     )
 
 def message(request, username: str) -> HttpResponse | HttpResponseRedirect:
+    username = username.lower()
+
     try:
         self_user = User.objects.get(token=request.COOKIES.get("token"))
     except User.DoesNotExist:

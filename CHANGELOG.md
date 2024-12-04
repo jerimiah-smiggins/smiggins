@@ -1,3 +1,19 @@
+## v0.13.7
+1. **\[!!!\]**  Moved the settings file from `settings.json` to `settings.yaml`
+2. Made usernames case-insensitive across the whole website
+3. Added a way to properly get IPs behind a reverse proxy
+4. A password is now needed to set/change passwords
+5. Sitemaps for comments and hashtag pages have been added
+6. Made the followers feed not stack overflow if you follow too many people
+7. Improved documentation across the backend
+8. Added a backend option to create automatic database backups
+9. Made pronouns be specific to each language, adding more flexibility for translators
+10. Fixed the dynamic favicon when the system theme is set
+11. Made it so that `re: `s in content warnings no longer compound and instead are limited to one automatically placed in
+12. Added a backend setting to set a custom header on responses
+13. Added a way to easily navigate the website using a keyboard. You can view all keyboard shortcuts with `Ctrl + /`
+14. Added sorting options to hashtag and comment feeds
+15. Made a custom toast thingie for logging errors/messages/etc. to replace the singular div at the top of the page.
 ## v0.13.6
 1. Added one-time invite codes that can be used to manage who can sign up
 2. Made languages with non-ASCII characters load properly on Windows without requiring the unicode characters to be escaped

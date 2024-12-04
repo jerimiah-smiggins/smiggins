@@ -10,12 +10,14 @@ from backend.variables import (ENABLE_BADGES, ENABLE_EDITING_POSTS,
 from django.urls import path
 from ninja import NinjaAPI
 from ninja.renderers import BaseRenderer
+from posts.backups import backup_db
 
 
 class JSONRenderer(BaseRenderer):
     media_type = "application/json"
 
     def render(self, request, data, *, response_status):
+        backup_db()
         try:
             return json.dumps(data)
 

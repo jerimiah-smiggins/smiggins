@@ -15,22 +15,22 @@ class User(models.Model):
 
     # Admin level
     # Functions as a binary mask. Definitions (32 bit compatible):
-    #                        +- Read admin logs
-    #                        |+- Change admin levels for self and others
-    #                        ||+- Add any account to account switcher - requires modify info
-    #                        |||+- Modify account info
-    #                        ||||+- Add/remove badges from profiles
-    #                        |||||+- Delete badges
-    #                        ||||||+- Create/modify badges
-    #                        |||||||+- Delete accounts
-    #          unused        ||||||||+- Delete posts
-    #            |           |||||||||
-    # 00000000000000000000000XXXXXXXX
+    #                       +- Generate OTPs
+    #                       |+- Read admin logs
+    #                       ||+- Change admin levels for self and others
+    #                       |||+- Add any account to account switcher - requires modify info
+    #                       ||||+- Modify account info
+    #                       |||||+- Add/remove badges from profiles
+    #                       ||||||+- Delete badges
+    #                       |||||||+- Create/modify badges
+    #                       ||||||||+- Delete accounts
+    #          unused       |||||||||+- Delete posts
+    #            |          ||||||||||
+    # 0000000000000000000000XXXXXXXXX
     admin_level = models.IntegerField(default=0)
 
     display_name = models.CharField(max_length=300)
     bio = models.CharField(max_length=65536, default="", blank=True)
-    pronouns = models.CharField(max_length=2, default="__")
     theme = models.CharField(max_length=30)
     color = models.CharField(max_length=7)
     color_two = models.CharField(max_length=7, default="#000000", blank=True)
@@ -66,6 +66,7 @@ class User(models.Model):
         blockers: models.Manager["User"]
         pending_following: models.Manager["User"]
         badges: models.Manager["Badge"]
+        pronouns: models.Manager["UserPronouns"]
 
     def __str__(self):
         return f"({self.user_id}) {self.username}"
@@ -232,6 +233,19 @@ class OneTimePassword(models.Model):
     def __str__(self):
         return self.code
 
+class UserPronouns(models.Model):
+    language = models.CharField(max_length=5)
+    user = models.ForeignKey(User, on_delete=models.CASCADE, related_name="pronouns")
+
+    primary = models.TextField()
+    secondary = models.TextField(null=True)
+
+    class Meta:
+        unique_together = ("user", "language")
+
+    def __str__(self):
+        return self.user.username
+
 class M2MLike(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE)
     post = models.ForeignKey(Post, on_delete=models.CASCADE)
@@ -314,6 +328,7 @@ try:
     django_admin.site.register(URLPart)
     django_admin.site.register(AdminLog)
     django_admin.site.register(OneTimePassword)
+    django_admin.site.register(UserPronouns)
     django_admin.site.register(M2MLike)
     django_admin.site.register(M2MLikeC)
     django_admin.site.register(M2MFollow)

@@ -17,7 +17,7 @@ class Username(Schema):
 # admin.py
 
 class AccountIdentifier(Schema):
-    identifier: str | int
+    identifier: str
     use_id: bool
 
 class DeleteBadge(Schema):
@@ -62,6 +62,7 @@ class CommentID(Schema):
 
 class Email(Schema):
     email: str
+    password: str
 
 # messages.py
 
@@ -116,11 +117,15 @@ class ChangePassword(Schema):
 class Theme(Schema):
     theme: str
 
+class _settings_pronouns(TypedDict):
+    primary: str
+    secondary: str | None
+
 class Settings(Schema):
     bio: str
     lang: str
     color: str
-    pronouns: str
+    pronouns: _settings_pronouns
     color_two: str
     displ_name: str
     is_gradient: bool

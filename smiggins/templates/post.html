@@ -1,3 +1,4 @@
+
 {% extends "base.html" %}
 {% load static %}
 
@@ -38,15 +39,21 @@
     <input id="default-private" type="checkbox" {% if DEFAULT_PRIVATE == "true" %}checked{% endif %}><br>
 
     {% if ENABLE_CONTENT_WARNINGS == 'true' %}
-      <label><input id="c-warning" {% if C_WARNING %}value="re: {{ C_WARNING }}"{% endif %} maxlength="{{ MAX_CONTENT_WARNING_LENGTH }}" placeholder="{{ lang.home.c_warning_placeholder }}"></label><br>
+      <input id="c-warning" data-create-post {% if C_WARNING %}value="{{ C_WARNING }}"{% endif %} maxlength="{{ MAX_CONTENT_WARNING_LENGTH }}" placeholder="{{ lang.home.c_warning_placeholder }}"><br>
     {% endif %}
 
-    <label><textarea id="post-text" maxlength="{{ MAX_POST_LENGTH }}" placeholder="{{ lang.post_page.comment_input_placeholder }}">{{ mentions }}</textarea></label><br>
-    <button id="post">{{ lang.generic.post }}</button><br>
+    <textarea id="post-text" data-create-post maxlength="{{ MAX_POST_LENGTH }}" placeholder="{{ lang.post_page.comment_input_placeholder }}">{{ mentions }}</textarea><br>
+    <button id="post" class="inverted">{{ lang.generic.post }}</button><br>
   {% endif %}
 
-  <button onclick="refresh()">{{ lang.generic.refresh }}</button><br><br>
-  <div id="error"></div>
+  <p id="switch">
+    <a data-timeline="random" href="javascript:void(0);">{{ lang.post_page.timeline.random }}</a> -
+    <a data-timeline="newest">{{ lang.post_page.timeline.newest }}</a> -
+    <a data-timeline="oldest" href="javascript:void(0);">{{ lang.post_page.timeline.oldest }}</a> -
+    <a data-timeline="liked" href="javascript:void(0);">{{ lang.post_page.timeline.liked }}</a>
+  </p>
+
+  <button id="refresh" onclick="refresh()">{{ lang.generic.refresh }}</button><br><br>
   <div id="posts"></div>
   <div id="more-container"><button id="more" onclick="refresh(true)" hidden>{{ lang.generic.load_more }}</button></div>
 

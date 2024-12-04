@@ -3,7 +3,7 @@ dom("save").addEventListener("click", function () {
         return;
     }
     if (dom("password").value !== dom("confirm").value) {
-        showlog(lang.account.password_match_failure);
+        toast(lang.account.password_match_failure, true);
         return;
     }
     s_fetch(formURL, {

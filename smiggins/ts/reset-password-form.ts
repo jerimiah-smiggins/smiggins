@@ -6,7 +6,7 @@ dom("save").addEventListener("click", function() {
   }
 
   if ((dom("password") as HTMLInputElement).value !== (dom("confirm") as HTMLInputElement).value) {
-    showlog(lang.account.password_match_failure);
+    toast(lang.account.password_match_failure, true);
     return;
   }
 

@@ -37,14 +37,13 @@ function addQuote(postID, isComment) {
     let originalCWEl = originalPost.querySelector(".c-warning summary .c-warning-main");
     let originalCW = originalCWEl ? originalCWEl.innerHTML : null;
     post.innerHTML = `
-    <div class="log"></div>
     <div class="quote-visibility">
       <label for="default-private-${globalIncrement}">${lang.post.type_followers_only}:</label>
       <input id="default-private-${globalIncrement}" type="checkbox" ${defaultPrivate ? "checked" : ""}><br>
     </div>
-    ${ENABLE_CONTENT_WARNINGS ? `<label><input class="c-warning" ${originalCW ? `value="re: ${escapeHTML(originalCW.slice(0, MAX_CONTENT_WARNING_LENGTH - 4))}"` : ""} maxlength="${MAX_CONTENT_WARNING_LENGTH}" placeholder="${lang.home.c_warning_placeholder}"></label><br>` : ""}
-    <label><textarea class="post-text" maxlength="${MAX_POST_LENGTH}" placeholder="${lang.home.quote_placeholders[Math.floor(Math.random() * lang.home.quote_placeholders.length)]}"></textarea></label><br>
-    <button class="post-button inverted">${lang.generic.post}</button>
+    ${ENABLE_CONTENT_WARNINGS ? `<input class="c-warning" ${originalCW ? `value="${escapeHTML(originalCW.startsWith("re: ") ? originalCW.slice(0, MAX_CONTENT_WARNING_LENGTH) : "re: " + originalCW.slice(0, MAX_CONTENT_WARNING_LENGTH - 4))}"` : ""} maxlength="${MAX_CONTENT_WARNING_LENGTH}" placeholder="${lang.home.c_warning_placeholder}"><br>` : ""}
+    <textarea class="post-text" data-create-post data-create-post-id="quote-post-${globalIncrement}" maxlength="${MAX_POST_LENGTH}" placeholder="${lang.home.quote_placeholders[Math.floor(Math.random() * lang.home.quote_placeholders.length)]}"></textarea><br>
+    <button id="quote-post-${globalIncrement}" class="post-button inverted">${lang.generic.post}</button>
     <button class="cancel-button inverted">${lang.generic.cancel}</button>
   `;
     let localGI = globalIncrement;
@@ -122,11 +121,11 @@ function refreshPoll(gInc) {
             poll.innerHTML = getPollHTML(pollJSON, +poll.dataset.pollId, gInc, true, poll.dataset.pollLoggedIn == "true");
         }
         else {
-            showlog(lang.generic.something_went_wrong);
+            toast(lang.generic.something_went_wrong, true);
         }
     })
         .catch((err) => {
-        showlog(lang.generic.something_went_wrong);
+        toast(lang.generic.something_went_wrong, true);
     });
 }
 function editPost(postID, isComment, private, originalText) {
@@ -135,13 +134,12 @@ function editPost(postID, isComment, private, originalText) {
     let oldContentField = contentField.innerHTML;
     let originalCW = contentField.querySelector("summary") ? contentField.querySelector("summary > .c-warning-main").innerText : "";
     contentField.innerHTML = `
-    <div class="log"></div>
     <div class="quote-visibility">
       <label for="default-private-${globalIncrement}">${lang.post.type_followers_only}:</label>
       <input id="default-private-${globalIncrement}" type="checkbox" ${private ? "checked" : ""}><br>
     </div>
-    ${ENABLE_CONTENT_WARNINGS ? `<label><input class="c-warning" ${originalCW ? `value="${originalCW}"` : ""} maxlength="${MAX_CONTENT_WARNING_LENGTH}" placeholder="${lang.home.c_warning_placeholder}"></label><br>` : ""}
-    <label><textarea class="post-text" maxlength="${MAX_POST_LENGTH}" placeholder="${lang.home.post_input_placeholder}">${escapeHTML(originalText)}</textarea></label><br>
+    ${ENABLE_CONTENT_WARNINGS ? `<input class="c-warning" ${originalCW ? `value="${originalCW}"` : ""} maxlength="${MAX_CONTENT_WARNING_LENGTH}" placeholder="${lang.home.c_warning_placeholder}"><br>` : ""}
+    <textarea class="post-text" maxlength="${MAX_POST_LENGTH}" placeholder="${lang.home.post_input_placeholder}">${escapeHTML(originalText)}</textarea><br>
     <button class="post-button inverted">${lang.generic.post}</button>
     <button class="cancel-button inverted">${lang.generic.cancel}</button>`;
     contentField.querySelector("textarea").focus();
@@ -162,12 +160,31 @@ function editPost(postID, isComment, private, originalText) {
         });
     });
 }
+function switchTimeline(event) {
+    let storageID = this.dataset.storageId;
+    let tl = this.dataset.timeline;
+    if (storageID) {
+        localStorage.setItem(storageID, tl);
+    }
+    if (url == timelines[tl]) {
+        return;
+    }
+    document.querySelectorAll("#switch > a:not([href])").forEach((val, index) => {
+        val.href = "javascript:void(0);";
+    });
+    this.removeAttribute("href");
+    url = timelines[tl];
+    refresh();
+}
+document.querySelectorAll("#switch > a").forEach((val, index) => {
+    val.addEventListener("click", switchTimeline);
+});
 if (typeof disableTimeline === "undefined" || !disableTimeline) {
     function refresh(forceOffset = false) {
         if (forceOffset !== true) {
             dom("posts").innerHTML = "";
         }
-        s_fetch(`${url}${forceOffset === true && !end ? `${url.includes("?") ? "&" : "?"}offset=${offset}` : ""}`, {
+        s_fetch(`${url}${forceOffset === true && !end ? `${url.includes("?") ? "&" : "?"}offset=${useOffsetC ? offsetC : offset}` : ""}`, {
             disable: [...document.querySelectorAll("button[onclick*='refresh(']")],
             extraData: {
                 forceOffset: forceOffset

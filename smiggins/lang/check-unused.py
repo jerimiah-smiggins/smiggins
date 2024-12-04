@@ -28,7 +28,7 @@ ignore: list[list[str]] = [
     ["admin", "logs", "who_format_single"],
     ["notifications", "event"],
     ["settings", "cosmetic_themes"],
-    ["generic", "pronouns"],
+    ["generic", "pronouns", "visible"],
     ["post", "chars_singular"],
     ["post", "chars_plural"]
 ]

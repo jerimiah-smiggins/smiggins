@@ -19,6 +19,8 @@ declare const ENABLE_EMAIL: boolean;
 declare const ENABLE_DYNAMIC_FAVICON: boolean;
 declare const ENABLE_NEW_ACCOUNTS: boolean | "otp";
 
+declare const isAdmin: boolean;
+
 declare const defaultPrivate: boolean;
 declare const linkify;
 
@@ -26,12 +28,6 @@ declare const linkify;
 declare const lang: { [key: string]: any };
 declare const badges: { [key: string]: string } | undefined;
 declare function linkifyHtml(text: string, settings: object): string;
-
-// Defined in base.html, used in settings.ts for themes
-declare function setGenericFavicon(): void;
-declare function getThemeCSS(theme: object): string;
-declare function getThemeAuto(defLight?: object, defDark?: object): string;
-declare let themeObject: _themeObject | null;
 
 // Types
 type _postJSON = {
@@ -97,6 +93,8 @@ type _themeObject = {
     red: string,
     background: string,
     post_background: string,
+    poll_voted_background: string,
+    poll_no_vote_background: string,
     content_warning_background: string,
     input_background: string,
     checkbox_background: string,
@@ -106,6 +104,10 @@ type _themeObject = {
     input_border: string,
     checkbox_border: string,
     button_border: string,
+    table_border: string,
+    modal_backdrop: string,
+    modal_background: string,
+    modal_border: string,
     gray: string,
     accent: {
       rosewater: string,
@@ -236,4 +238,11 @@ type _actions = {
     attribute?: { name: string, value: string | null }[],
     set_class?: { class_name: string, enable: boolean }[]
   })[]
+}
+
+type _keybind = {
+  action: (event: KeyboardEvent) => void,
+  requireNav?: boolean,
+  requireCtrl?: boolean,
+  allowInputs?: boolean
 }

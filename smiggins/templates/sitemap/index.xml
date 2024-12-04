@@ -16,4 +16,16 @@
       <lastmod>{{ lastmod }}</lastmod>
     </sitemap>
   {% endfor %}
+  {% for c in comments %}
+    <sitemap>
+      <loc>{{ URL }}/sitemaps/c/{{ c }}.xml</loc>
+      <lastmod>{{ lastmod }}</lastmod>
+    </sitemap>
+  {% endfor %}
+  {% for h in hashtags %}
+    <sitemap>
+      <loc>{{ URL }}/sitemaps/h/{{ h }}.xml</loc>
+      <lastmod>{{ lastmod }}</lastmod>
+    </sitemap>
+  {% endfor %}
 </sitemapindex>

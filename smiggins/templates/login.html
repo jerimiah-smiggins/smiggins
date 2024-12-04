@@ -18,8 +18,8 @@
 
 {% block body %}
   <h1>{{ lang.account.log_in_title }}</h1>
-  <label><input id="username" maxlength="{{ MAX_USERNAME_LENGTH }}" placeholder="{{ lang.account.username_placeholder }}"></label><br>
-  <label><input id="password" placeholder="{{ lang.account.password_placeholder }}" type="password"></label><br><br>
+  <input id="username" maxlength="{{ MAX_USERNAME_LENGTH }}" placeholder="{{ lang.account.username_placeholder }}"><br>
+  <input id="password" placeholder="{{ lang.account.password_placeholder }}" type="password"><br><br>
   <button id="submit">{{ lang.account.log_in_title }}</button><br><br>
   <button id="toggle-password">{{ lang.account.toggle_password }}</button><br><br>
   <a href="/signup/">{{ lang.account.sign_up_instead }}</a>
@@ -27,8 +27,6 @@
   {% if ENABLE_EMAIL == "true" %}
     <br><a href="/reset-password/">{{ lang.account.forgot_password }}</a>
   {% endif %}
-
-  <div id="error"></div>
 
   <script>{% include "js/login.js" %}</script>
 {% endblock %}

@@ -1,4 +1,7 @@
-declare let user_pronouns: string;
+declare let userPronouns: {
+  primary: string,
+  secondary: string | null
+};
 declare let hasEmail: boolean;
 
 let unload: boolean = false;
@@ -12,13 +15,21 @@ for (const color of validColors) {
 }
 output += "</select><br><br>";
 
-if (ENABLE_PRONOUNS && user_pronouns.includes("_")) {
-  dom("pronouns-secondary-container").setAttribute("hidden", "");
-  document.querySelector(`#pronouns-primary option[value="${user_pronouns}"]`).setAttribute("selected", "");
-} else if (ENABLE_PRONOUNS) {
-  dom("pronouns-secondary-container").removeAttribute("hidden");
-  document.querySelector(`#pronouns-primary option[value="${user_pronouns[0]}"]`).setAttribute("selected", "");
-  document.querySelector(`#pronouns-secondary option[value="${user_pronouns[1]}"]`).setAttribute("selected", "");
+if (ENABLE_PRONOUNS && lang.generic.pronouns.enable_pronouns) {
+  try {
+    let primary: HTMLOptionElement = document.querySelector(`#pronouns-primary > option[value="${userPronouns.primary}"]`);
+    primary.setAttribute("selected", "");
+
+    if (lang.generic.pronouns.enable_secondary) {
+      if (primary.dataset.special == "no-secondary") {
+        dom("pronouns-secondary").setAttribute("hidden", "");
+      }
+
+      document.querySelector(`#pronouns-secondary > option[value="${userPronouns.secondary}"]`).setAttribute("selected", "");
+    }
+  } catch (err) {
+    console.error("Error loading pronouns", err);
+  }
 }
 
 if (localStorage.getItem("checkboxes")) {
@@ -123,15 +134,23 @@ function toggleGradient(setUnloadStatus: boolean | any): void {
 function updatePronouns(): void {
   setUnload();
   if (this.id == "pronouns-primary") {
-    if (this.value.length != 1) {
-      user_pronouns = this.value;
-      dom("pronouns-secondary-container").setAttribute("hidden", "");
-    } else {
-      user_pronouns = this.value + (dom("pronouns-secondary") as HTMLInputElement).value;
-      dom("pronouns-secondary-container").removeAttribute("hidden");
+    if (lang.generic.pronouns.enable_secondary) {
+      if ((document.querySelector(`#pronouns-primary > option[value="${this.value}"]`) as HTMLObjectElement).dataset.special == "no-secondary") {
+        dom("pronouns-secondary-container").setAttribute("hidden", "");
+        userPronouns.secondary = null;
+      } else {
+        dom("pronouns-secondary-container").removeAttribute("hidden");
+        userPronouns.secondary = (dom("pronouns-secondary") as HTMLOptionElement).value
+      }
     }
+
+    userPronouns.primary = this.value;
   } else {
-    user_pronouns = user_pronouns[0] + this.value;
+    if ((document.querySelector(`#pronouns-secondary > option[value="${this.value}"]`) as HTMLObjectElement).dataset.special == "inherit") {
+      userPronouns.secondary = userPronouns.primary;
+    } else {
+      userPronouns.secondary = this.value;
+    }
   }
 }
 
@@ -179,6 +198,16 @@ dom("color").addEventListener("change", function(): void {
     }
 });
 
+
+(dom("expand-cws") as HTMLInputElement).checked = !!localStorage.getItem("expand-cws");
+dom("expand-cws").addEventListener("change", function(): void {
+  if ((this as HTMLInputElement).checked) {
+    localStorage.setItem("expand-cws", "1");
+  } else {
+    localStorage.removeItem("expand-cws");
+  }
+});
+
 (dom("bar-pos") as HTMLInputElement).value = localStorage.getItem("bar-pos") || "ul";
 dom("bar-pos").addEventListener("change", function(): void {
   localStorage.setItem("bar-pos", (dom("bar-pos") as HTMLInputElement).value);
@@ -219,7 +248,7 @@ dom("theme").addEventListener("change", function(): void {
   });
 });
 
-function save(post?: (success: boolean) => void, log?: null | HTMLDivElement): void {
+function save(post?: (success: boolean) => void): void {
   removeUnload();
 
   s_fetch("/api/user/settings", {
@@ -228,14 +257,13 @@ function save(post?: (success: boolean) => void, log?: null | HTMLDivElement): v
       bio: ENABLE_USER_BIOS ? (dom("bio") as HTMLInputElement).value : "",
       lang: (dom("lang") as HTMLInputElement).value,
       color: (dom("banner-color") as HTMLInputElement).value,
-      pronouns: ENABLE_PRONOUNS ? user_pronouns : "__",
+      pronouns: userPronouns || { primary: "", secondary: null },
       color_two: ENABLE_GRADIENT_BANNERS ? (dom("banner-color-two") as HTMLInputElement).value : "",
       displ_name: (dom("displ-name") as HTMLInputElement).value,
       is_gradient: ENABLE_GRADIENT_BANNERS ? (dom("banner-is-gradient") as HTMLInputElement).checked : false,
       approve_followers: (dom("followers-approval") as HTMLInputElement).checked,
       default_post_visibility: (dom("default-post") as HTMLInputElement).value
     }),
-    customLog: log,
     disable: [
       this,
       dom("displ-name"),
@@ -303,7 +331,7 @@ ENABLE_ACCOUNT_SWITCHER && dom("acc-switch").addEventListener("click", function(
 ENABLE_ACCOUNT_SWITCHER && dom("acc-remove").addEventListener("click", function(): void {
   let removed: string[] = (dom("accs") as HTMLInputElement).value.split("-", 2);
   if (removed[0] == currentAccount) {
-    showlog(lang.settings.account_switcher_remove_error);
+    toast(lang.settings.account_switcher_remove_error, true);
   } else {
     for (let i: number = 0; i < accounts.length; i++) {
       if (accounts[i][1] == removed[0]) {
@@ -317,8 +345,8 @@ ENABLE_ACCOUNT_SWITCHER && dom("acc-remove").addEventListener("click", function(
   }
 });
 
-ENABLE_PRONOUNS && dom("pronouns-primary").addEventListener("input", updatePronouns);
-ENABLE_PRONOUNS && dom("pronouns-secondary").addEventListener("input", updatePronouns);
+ENABLE_PRONOUNS && lang.generic.pronouns.enable_pronouns && dom("pronouns-primary").addEventListener("input", updatePronouns);
+ENABLE_PRONOUNS && lang.generic.pronouns.enable_pronouns && lang.generic.pronouns.enable_secondary && dom("pronouns-secondary").addEventListener("input", updatePronouns);
 
 dom("toggle-password").addEventListener("click", function(): void {
   let newType: string = dom("password").getAttribute("type") === "password" ? "text" : "password";
@@ -333,7 +361,7 @@ dom("set-password").addEventListener("click", function(): void {
   let password: string = sha256((dom("password") as HTMLInputElement).value)
 
   if (password !== sha256((dom("confirm") as HTMLInputElement).value)) {
-    showlog(lang.account.password_match_failure);
+    toast(lang.account.password_match_failure, true);
     return;
   }
 
@@ -385,7 +413,8 @@ ENABLE_EMAIL && dom("email-submit").addEventListener("click", function(): void {
   s_fetch("/api/email/save", {
     method: "POST",
     body: JSON.stringify({
-      email: (dom("email") as HTMLInputElement).value
+      email: (dom("email") as HTMLInputElement).value,
+      password: sha256((dom("email-password") as HTMLInputElement).value)
     }),
     disable: [dom("email"), dom("email-submit")]
   });
@@ -406,7 +435,6 @@ dom("delete-account").addEventListener("click", function(): void {
               body: JSON.stringify({
                 password: sha256((dom("account-deletion-password") as HTMLInputElement).value)
               }),
-              customLog: dom("modal-log") as HTMLDivElement,
               postFunction: (success: boolean): void => {
                 if (success) {
                   closeModal();
@@ -430,31 +458,38 @@ onLoad = function(): void {
       if (unload) {
         let url: string = val.href;
         event.preventDefault();
-        createModal(lang.settings.unload.title, lang.settings.unload.content, [
-          {
-            name: lang.settings.unload.leave,
-            onclick: (): void => {
-              removeUnload();
-              location.href = url;
-              closeModal();
-            }
-          }, {
-            name: lang.settings.unload.save,
-            class: "primary",
-            onclick: (): void => {
-              save(
-                (success: boolean) => {
-                  if (success) {
-                    location.href = url;
-                  }
-                },
-                dom("modal-log") as HTMLDivElement
-              );
-            }
-          },
-          { name: lang.generic.cancel, onclick: closeModal }
-        ]);
+        redirect(url);
       }
     });
   });
+}
+
+redirectConfirmation = (url: string): boolean => {
+  if (!unload) { return true; }
+
+  createModal(lang.settings.unload.title, lang.settings.unload.content, [
+    {
+      name: lang.settings.unload.leave,
+      onclick: (): void => {
+        removeUnload();
+        location.href = url;
+        closeModal();
+      }
+    }, {
+      name: lang.settings.unload.save,
+      class: "primary",
+      onclick: (): void => {
+        save(
+          (success: boolean) => {
+            if (success) {
+              location.href = url;
+            }
+          }
+        );
+      }
+    },
+    { name: lang.generic.cancel, onclick: closeModal }
+  ]);
+
+  return false;
 }

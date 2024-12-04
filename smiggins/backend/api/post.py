@@ -3,8 +3,10 @@
 import sys
 import threading
 import time
+from itertools import chain
 
 import requests
+from django.db.models import Count
 from django.db.utils import IntegrityError
 from posts.models import Comment, Hashtag, M2MLike, Post, User
 
@@ -71,7 +73,10 @@ def post_create(request, data: NewPost) -> APIResponse:
         lang = get_lang(user)
         return 429, {
             "success": False,
-            "message": lang["generic"]["ratelimit"]
+            "message": lang["generic"]["ratelimit"],
+            "actions": [
+                { "name": "update_element", "query": "#post-text", "disabled": False, "focus": True }
+            ]
         }
 
     if len(data.poll) > MAX_POLL_OPTIONS:
@@ -94,7 +99,10 @@ def post_create(request, data: NewPost) -> APIResponse:
         lang = get_lang(user)
         return 400, {
             "success": False,
-            "message": lang["post"]["invalid_poll"]
+            "message": lang["post"]["invalid_poll"],
+            "actions": [
+                { "name": "update_element", "query": "#poll input", "disabled": False, "focus": True }
+            ]
         }
 
     content = trim_whitespace(data.content)
@@ -105,7 +113,10 @@ def post_create(request, data: NewPost) -> APIResponse:
         lang = get_lang(user)
         return 400, {
             "success": False,
-            "message": lang["post"]["invalid_length"].replace("%s", str(MAX_POST_LENGTH))
+            "message": lang["post"]["invalid_length"].replace("%s", str(MAX_POST_LENGTH)),
+            "actions": [
+                { "name": "update_element", "query": "#post-text", "disabled": False, "focus": True }
+            ]
         }
 
     create_api_ratelimit("api_post_create", API_TIMINGS["create post"], token)
@@ -156,7 +167,7 @@ def post_create(request, data: NewPost) -> APIResponse:
         "success": True,
         "actions": [
             { "name": "prepend_timeline", "post": get_post_json(post, user.user_id), "comment": False },
-            { "name": "update_element", "query": "#post-text", "value": "", "focus": True },
+            { "name": "update_element", "query": "#post-text", "value": "", "disabled": False, "focus": True},
             { "name": "update_element", "query": "#c-warning", "value": "" },
             { "name": "update_element", "query": "#poll input", "value": "", "all": True }
         ]
@@ -275,13 +286,16 @@ def quote_create(request, data: NewQuote) -> APIResponse:
         ]
     }
 
-def hashtag_list(request, hashtag: str) -> APIResponse:
-    # Returns a list of hashtags. `offset` is a filler variable.
+def hashtag_list(request, hashtag: str, sort: str, offset: int=0) -> APIResponse:
+    # Returns a list of posts with a specific hashtag
 
-    token = request.COOKIES.get("token")
+    if sort not in ["random", "recent", "liked"]:
+        return 400, {
+            "success": False
+        }
 
     try:
-        user = User.objects.get(token=token)
+        user = User.objects.get(token=request.COOKIES.get("token"))
         user_id = user.user_id
     except User.DoesNotExist:
         user_id = 0
@@ -296,57 +310,67 @@ def hashtag_list(request, hashtag: str) -> APIResponse:
             ]
         }
 
-    posts = tag.posts.all().order_by("?")
+    if sort == "liked":
+        posts = tag.posts.all().annotate(like_count=Count('likes')).order_by('-like_count')
+    else:
+        posts = tag.posts.all().order_by("?" if sort == "random" else "-post_id")
+
+    posts = posts[POSTS_PER_REQUEST * offset:]
     post_list = []
+
+    offset = 0
     for post in posts:
         x = get_post_json(post, user_id)
 
         if "can_view" in x and x["can_view"]:
             post_list.append(x)
+        else:
+            offset += 1
 
-            if len(post_list) >= POSTS_PER_REQUEST:
-                break
+        if len(post_list) + offset >= POSTS_PER_REQUEST:
+            break
 
     return {
         "success": True,
         "actions": [
-            { "name": "populate_timeline", "end": True, "posts": post_list }
+            { "name": "populate_timeline", "end": sort == "random" or posts.count() <= POSTS_PER_REQUEST, "posts": post_list }
         ]
     }
 
 def post_list_following(request, offset: int=-1) -> APIResponse:
-    # Called when the following tab is refreshed.
-
-    token = request.COOKIES.get('token')
     offset = sys.maxsize if offset == -1 else offset
 
     try:
-        user = User.objects.get(token=token)
+        user = User.objects.get(token=request.COOKIES.get("token"))
     except User.DoesNotExist:
         return 400, {
             "success": False
         }
 
-    potential = user.posts.all().filter(post_id__lt=offset)
-    for u in user.following.all():
-        potential = potential.union(u.posts.all().filter(post_id__lt=offset))
+    user_posts = user.posts.filter(post_id__lt=offset)
 
-    potential = potential.order_by("-post_id")
+    followed_users_posts = []
+    for followed_user in user.following.all():
+        followed_user_posts = followed_user.posts.filter(post_id__lt=offset)
+        followed_users_posts.append(followed_user_posts)
+
+    combined_posts = sorted(list(chain(user_posts, *followed_users_posts)), key=lambda p: p.post_id, reverse=True)
 
     offset = 0
     outputList = []
 
-    for i in potential:
+    for post in combined_posts:
         try:
-            post_json = get_post_json(i, user.user_id)
+            post_json = get_post_json(post, user.user_id)
+        except Post.DoesNotExist:
+            offset += 1
+            continue
+        else:
             if post_json["can_view"]:
                 outputList.append(post_json)
             else:
                 offset += 1
                 continue
-        except Post.DoesNotExist:
-            offset += 1
-            continue
 
         if len(outputList) >= POSTS_PER_REQUEST:
             break
@@ -354,7 +378,7 @@ def post_list_following(request, offset: int=-1) -> APIResponse:
     return {
         "success": True,
         "actions": [
-            { "name": "populate_timeline", "posts": outputList, "end": len(potential) - offset <= POSTS_PER_REQUEST }
+            { "name": "populate_timeline", "posts": outputList, "end": len(combined_posts) - offset <= POSTS_PER_REQUEST }
         ]
     }
 
@@ -408,6 +432,8 @@ def post_list_recent(request, offset: int=-1) -> APIResponse:
 
 def post_list_user(request, username: str, offset: int=-1) -> APIResponse:
     # Called when getting posts from a specific user.
+
+    username = username.lower()
 
     try:
         self_user = User.objects.get(token=request.COOKIES.get("token"))

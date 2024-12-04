@@ -312,6 +312,13 @@ def test_link(request, intent=True) -> HttpResponse:
 def set_email(request, data: Email) -> APIResponse:
     user = User.objects.get(token=request.COOKIES.get("token"))
 
+    if generate_token(user.username, data.password) != user.token:
+        lang = get_lang(user)
+        return 400, {
+            "success": False,
+            "message": lang["account"]["bad_password"]
+        }
+
     if user.email and user.email_valid:
         return change_email(request, user)
     return verify_email(request, user, data)
