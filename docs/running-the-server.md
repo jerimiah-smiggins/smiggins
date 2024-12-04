@@ -61,7 +61,7 @@ python manage.py runserver
 First, you'll need to create a new webapp. When doing so, make sure you select
 the following settings:
 - Manual configuration
-- Python 3.10 (Python 3.10 is the minimum version for Django 3.X, which is
+- Python 3.10 (Python 3.10 is the minimum version for Django 5.X, which is
 needed for smiggins.)
 
 Then, in PythonAnywhere's console, you will need to run a couple commands:
