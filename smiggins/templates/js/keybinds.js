@@ -21,7 +21,6 @@ const keybinds = {
             }
             else if (dom("post-text")) {
                 dom("post-text").focus();
-                event.preventDefault();
             }
         } },
     Enter: { allowInputs: true, requireCtrl: true, action: (event) => {
@@ -61,6 +60,7 @@ function keyDown(event) {
         if (!((!action.allowInputs && (["textarea", "input"].includes(event.target.tagName.toLowerCase()) || event.target.isContentEditable))
             || (action.requireNav && !heldKeys[navKey])
             || (action.requireCtrl && !(heldKeys.Control || event.ctrlKey)))) {
+            event.preventDefault();
             action.action(event);
         }
     }
