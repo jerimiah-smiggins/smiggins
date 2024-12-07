@@ -470,6 +470,7 @@
         "oled": "Black"
       },
 
+      "cosmetic_compact": "Compact UI?",
       "cosmetic_expand": "Always expand content warnings?",
 
       "cosmetic_bar": "Icon bar position",
@@ -481,6 +482,7 @@
       "cosmetic_bar_ll": "Lower left",
       "cosmetic_bar_h": "Horizontal",
       "cosmetic_bar_v": "Vertical",
+
       "cosmetic_language": "Language",
       "cosmetic_color": "Color",
       "cosmetic_example_post_display_name": "Example",

@@ -505,7 +505,16 @@ def read_notifs(request) -> APIResponse:
     return {
         "success": True,
         "actions": [
-            { "name": "refresh_timeline", "special": "notifications" }
+            { "name": "update_element", "query": ".post[data-notif-unread]", "all": True, "attribute": [
+                { "name": "data-notif-unread", "value": None },
+                { "name": "data-color", "value": "gray" }
+            ]},
+            { "name": "update_element", "query": "hr[data-notif-hr]", "attribute": [
+                { "name": "hidden", "value": "" }
+            ]},
+            { "name": "update_element", "query": "[data-add-notification-dot]", "set_class": [
+                { "class_name": "dot", "enable": False }
+            ]}
         ]
     }
 
@@ -523,12 +532,12 @@ def notifications_list(request) -> APIResponse:
         }
 
     notifs_list = []
-    self_id = self_user.user_id
 
     all_notifs = self_user.notifications.all().order_by("-notif_id")
+
     for notification in all_notifs:
         try:
-            x = get_post_json(notification.event_id, self_id, notification.event_type in ["comment", "ping_c"])
+            x = get_post_json(notification.event_id, self_user, notification.event_type in ["comment", "ping_c"])
 
             if "content" in x:
                 notifs_list.append({

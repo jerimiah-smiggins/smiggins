@@ -169,9 +169,7 @@ function apiResponse(
         dom("follow").innerText = `${lang.user_page.followers.replaceAll("%s", action.extra.followers)} - ${lang.user_page.following.replaceAll("%s", action.extra.following)}`;
       }
 
-      let x: HTMLElement = document.createElement("div");
-      x.innerHTML = output;
-      dom("posts").append(x);
+      dom("posts").insertAdjacentHTML("beforeend", output);
 
       if (dom("more")) {
         if (extraData.forceOffset !== true) {
@@ -191,9 +189,7 @@ function apiResponse(
         (location.pathname.toLowerCase().includes("/c/") && action.comment) ||
         location.pathname.toLowerCase().includes(`/u/${localStorage.getItem("username") || "LOL IT BROKE SO FUNNY"}`)
       ) {
-        let x: HTMLDivElement = document.createElement("div");
-        x.innerHTML = getPostHTML(action.post, action.comment);
-        dom("posts").prepend(x);
+        dom("posts").insertAdjacentHTML("afterbegin", getPostHTML(action.post, action.comment));
       }
     } else if (action.name == "reset_post_html") {
       let post: HTMLDivElement = document.querySelector(`[data-${action.comment ? "comment" : "post"}-id="${action.post_id}"]`);
@@ -259,10 +255,10 @@ function apiResponse(
                   <div style="--color-one: ${user.color_one}; --color-two: ${user[ENABLE_GRADIENT_BANNERS && user.gradient_banner ? "color_two" : "color_one"]}" class="user-badge banner-pfp"></div>
                   ${escapeHTML(user.display_name)}
                   ${user.badges.length && ENABLE_BADGES ? `<span aria-hidden="true" class="user-badge">${user.badges.map((icon) => (badges[icon])).join("</span> <span aria-hidden=\"true\" class=\"user-badge\">")}</span>` : ""}<br>
-                  <span class="upper-lower-opacity">
+                  <div class="upper-lower-opacity">
                     <div class="username">@${user.username}</div>
                     ${user.timestamp ? `- <div class="username">${timeSince(user.timestamp)}</div>` : ""}
-                  </span>
+                  </div>
                 </div>
               </a>
             </div>
@@ -314,20 +310,19 @@ function apiResponse(
 
           if (!hasBeenRead && notif.read) {
             if (!first) {
-              y.innerHTML = "<hr>";
+              y.innerHTML = "<hr data-notif-hr>";
             }
 
             hasBeenRead = true;
           }
 
-          y.innerHTML += escapeHTML(lang.notifications.event[notif.event_type].replaceAll("%s", notif.data.creator.display_name)) + "<br>";
+          y.innerHTML += escapeHTML(lang.notifications.event[notif.event_type].replaceAll("%s", notif.data.creator.display_name));
           y.innerHTML += getPostHTML(
             notif.data, // postJSON
             ["comment", "ping_c"].includes(notif.event_type),
-          ).replace("\"post\"", hasBeenRead ? "\"post\" data-color='gray'" : "\"post\"");
+          ).replace("\"post\"", hasBeenRead ? "\"post\" data-color='gray'" : "\"post\" data-notif-unread");
 
           x.append(y);
-          x.append(document.createElement("br"));
 
           first = false;
         }
@@ -700,17 +695,17 @@ function getPollHTML(
 
   return `${output}<small>
     ${(pollJSON.votes == 1 ? lang.home.poll_total_singular : lang.home.poll_total_plural).replaceAll("%s", pollJSON.votes)}
-    ${!showResults ? `- <span class="toggle-poll"
+    ${!showResults ? `- <span class="poll-bottom"
       role="button"
       onclick="showPollResults(${gInc})"
       onkeydown="genericKeyboardEvent(event, () => (showPollResults(${gInc})))"
       tabindex="0">${lang.home.poll_view_results}</span>` : ""}
-    ${showResults ? `- <span class="refresh-poll"
+    ${showResults ? `- <span class="poll-bottom"
       role="button"
       onclick="refreshPoll(${gInc})"
       onkeydown="genericKeyboardEvent(event, () => (refreshPoll(${gInc})))"
       tabindex="0">${lang.generic.refresh}</span>` : ""}
-    ${showResults && !pollJSON.voted ? `- <span class="toggle-poll"
+    ${showResults && !pollJSON.voted ? `- <span class="poll-bottom"
       role="button"
       onclick="hidePollResults(${gInc})"
       onkeydown="genericKeyboardEvent(event, () => (hidePollResults(${gInc})))"
@@ -740,7 +735,7 @@ function getPostHTML(
       <div class="upper-content">
         ${includeUserLink ? `<a href="/u/${postJSON.creator.username}" class="no-underline text">` : "<span>"}
           <div class="main-area">
-            <span class="displ-name-container">
+            <div class="displ-name-container">
               ${postJSON.edited ? `<span class="user-badge" ${postJSON.edited_at ? `title="${escapeHTML(timeSince(postJSON.edited_at, true))}"` : ""}>${icons.edit}</span><span class="spacing"></span>` : ""}
               <span class="displ-name">
                 <span style="--color-one: ${postJSON.creator.color_one}; --color-two: ${postJSON.creator[ENABLE_GRADIENT_BANNERS && postJSON.creator.gradient_banner ? "color_two" : "color_one"]}" class="user-badge banner-pfp"></span>
@@ -748,12 +743,12 @@ function getPostHTML(
                 ${escapeHTML(postJSON.creator.display_name)}
                 ${postJSON.creator.badges.length && ENABLE_BADGES ? `<span aria-hidden="true" class="user-badge">${postJSON.creator.badges.map((icon) => (badges[icon])).join("</span> <span aria-hidden=\"true\" class=\"user-badge\">")}</span>` : ""}
               </span>
-            </span>
-            <span class="upper-lower-opacity">
+            </div>
+            <div class="upper-lower-opacity">
               <span class="username">@${postJSON.creator.username}</span> -
               ${postJSON.creator.pronouns === null ? "" : `<span class="pronouns">${postJSON.creator.pronouns}</span> -`}
               <span class="timestamp">${timeSince(postJSON.timestamp)}</span>
-            </span>
+            </div>
           </div>
         ${includeUserLink ? "</a>" : "</span>"}
       </div>
@@ -813,7 +808,7 @@ function getPostHTML(
                   <div class="upper-content">
                     <a href="/u/${postJSON.quote.creator.username}" class="no-underline text">
                       <div class="main-area">
-                        <span class="displ-name-container">
+                        <div class="displ-name-container">
                           ${postJSON.quote.edited ? `<span class="user-badge" ${postJSON.quote.edited_at ? `title="${escapeHTML(timeSince(postJSON.quote.edited_at, true))}"` : ""}>${icons.edit}</span><span class="spacing"></span>` : ""}
                           <span class="displ-name">
                             <span style="--color-one: ${postJSON.quote.creator.color_one}; --color-two: ${postJSON.quote.creator[ENABLE_GRADIENT_BANNERS && postJSON.quote.creator.gradient_banner ? "color_two" : "color_one"]}" class="user-badge banner-pfp"></span>
@@ -821,12 +816,12 @@ function getPostHTML(
                             ${escapeHTML(postJSON.quote.creator.display_name)}
                             ${postJSON.quote.creator.badges.length && ENABLE_BADGES ? `<span aria-hidden="true" class="user-badge">${postJSON.quote.creator.badges.map((icon) => (badges[icon])).join("</span> <span aria-hidden=\"true\" class=\"user-badge\">")}</span>` : ""}
                           </span>
-                        </span>
-                        <span class="upper-lower-opacity">
+                        </div>
+                        <div class="upper-lower-opacity">
                           <span class="username">@${postJSON.quote.creator.username}</span> -
                           ${postJSON.quote.creator.pronouns === null ? "" : `<span class="pronouns">${postJSON.quote.creator.pronouns}</span> -`}
                           <span class="timestamp">${timeSince(postJSON.quote.timestamp)}</span>
-                        </span>
+                        </div>
                       </div>
                     </a>
                   </div>
@@ -916,7 +911,7 @@ function getPostHTML(
           }</div>` : ""
         }
       </div>
-      <div class="post-after"></div>
+      <div class="quote-inputs"></div>
     </div>
   ${includeContainer ? "</div>" : ""}`;
 }

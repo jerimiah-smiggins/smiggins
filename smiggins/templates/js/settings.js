@@ -67,7 +67,7 @@ dom("post-example").innerHTML = getPostHTML({
         color_two: "#" + Math.floor(Math.random() * 16777216).toString(16).padStart(6, "0"),
         display_name: lang.settings.cosmetic_example_post_display_name,
         gradient_banner: true,
-        pronouns: "aa",
+        pronouns: null,
         username: lang.settings.cosmetic_example_post_username,
     },
     private: false,
@@ -173,6 +173,15 @@ dom("expand-cws").addEventListener("change", function () {
     }
     else {
         localStorage.removeItem("expand-cws");
+    }
+});
+dom("compact").checked = !!localStorage.getItem("compact");
+dom("compact").addEventListener("change", function () {
+    if (this.checked) {
+        localStorage.setItem("compact", "1");
+    }
+    else {
+        localStorage.removeItem("compact");
     }
 });
 dom("bar-pos").value = localStorage.getItem("bar-pos") || "ul";

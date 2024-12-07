@@ -292,7 +292,7 @@ def can_view_post(self_user: User | None, creator: User | None, post: Post | Com
 
     return True,
 
-def get_post_json(post_id: int | Post | Comment, current_user_id: int=0, comment: bool=False) -> dict[str, str | int | dict]:
+def get_post_json(post_id: int | Post | Comment, current_user_id: int | User | None=None, comment: bool=False) -> dict[str, str | int | dict]:
     # Returns a dict object that includes information about the specified post
     # When editing the json content response of this function, make sure you also
     # correct the schema in static/ts/globals.d.ts
@@ -306,10 +306,13 @@ def get_post_json(post_id: int | Post | Comment, current_user_id: int=0, comment
 
     creator = post.creator
 
-    try:
-        user = User.objects.get(user_id=current_user_id)
-    except User.DoesNotExist:
-        user = None
+    if isinstance(current_user_id, int):
+        try:
+            user = User.objects.get(user_id=current_user_id)
+        except User.DoesNotExist:
+            user = None
+    else:
+        user = current_user_id
 
     can_delete_all = user is not None and (current_user_id == OWNER_USER_ID or user.admin_level % 2 == 1)
 

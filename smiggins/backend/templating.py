@@ -243,7 +243,7 @@ def post(request, post_id: int) -> HttpResponse:
             request, "404-post.html", status=404
         )
 
-    post_json = get_post_json(post_id, user.user_id if user is not None else 0)
+    post_json = get_post_json(post_id, user)
     lang = get_lang(user)
     mentions = find_mentions(post.content + " @" + post.creator.username, exclude_users=[user.username if user else ""])
     cw = post.content_warning or ""
@@ -294,7 +294,7 @@ def comment(request, comment_id: int) -> HttpResponse:
             request, "404-post.html", status=404
         )
 
-    comment_json = get_post_json(comment_id, user.user_id if user is not None else 0, True)
+    comment_json = get_post_json(comment_id, user, True)
     lang = get_lang(user if user is not None else None)
     mentions = find_mentions(comment.content + " @" + comment.creator.username, exclude_users=[user.username if user else ""])
     cw = comment.content_warning or ""
