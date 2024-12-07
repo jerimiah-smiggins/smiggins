@@ -2,7 +2,7 @@
 1. **\[!!!\]**  Moved the settings file from `settings.json` to `settings.yaml`
 2. Made usernames case-insensitive across the whole website
 3. Added a way to properly get IPs behind a reverse proxy
-4. A password is now needed to set/change passwords
+    4. A password is now needed to set/change emails
 5. Sitemaps for comments and hashtag pages have been added
 6. Made the followers feed not stack overflow if you follow too many people
 7. Improved documentation across the backend
