@@ -265,6 +265,11 @@ function apiResponse(json, extraData) {
                     first = false;
                 }
             }
+            if (action.notifications.length === 0) {
+                let el = document.createElement("i");
+                el.innerHTML = lang.generic.none;
+                x.append(el);
+            }
             dom("notif-container").append(x);
         }
         else if (action.name == "admin_info") {

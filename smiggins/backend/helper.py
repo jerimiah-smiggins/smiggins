@@ -313,9 +313,9 @@ def get_post_json(post_id: int | Post | Comment, current_user_id: int | User | N
             user = None
     else:
         user = current_user_id
+        current_user_id = user.user_id if user else 0
 
     can_delete_all = user is not None and (current_user_id == OWNER_USER_ID or user.admin_level % 2 == 1)
-
     can_view = can_view_post(user, creator, post)
 
     if can_view[0] is False:
@@ -617,7 +617,21 @@ def get_ip_addr(request):
 
 LANGS = {}
 if CACHE_LANGUAGES:
+    import sys
+
+    print("Generating language cache for ", end="")
+    first = True
+
     for i in VALID_LANGUAGES:
+        print(f"{'' if first else ', '}{i['code']}", end="")
         LANGS[i["code"]] = get_lang(i["code"], True)
+
+        sys.stdout.flush()
+
+        if first:
+            first = False
+
+    print("")
+    del sys
 
 DEFAULT_LANG = get_lang()

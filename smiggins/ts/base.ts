@@ -328,6 +328,12 @@ function apiResponse(
         }
       }
 
+      if (action.notifications.length === 0) {
+        let el: HTMLElement = document.createElement("i");
+        el.innerHTML = lang.generic.none;
+        x.append(el);
+      }
+
       dom("notif-container").append(x);
     } else if (action.name == "admin_info") {
       dom("data-section").innerHTML = `

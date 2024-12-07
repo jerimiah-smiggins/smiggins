@@ -484,12 +484,7 @@ def change_password(request, data: ChangePassword) -> APIResponse:
 
 def read_notifs(request) -> APIResponse:
     try:
-        token = request.COOKIES.get('token')
-        self_user = User.objects.get(token=token)
-    except KeyError:
-        return 400, {
-            "success": False
-        }
+        self_user = User.objects.get(token=request.COOKIES.get("token"))
     except User.DoesNotExist:
         return 400, {
             "success": False
@@ -518,14 +513,26 @@ def read_notifs(request) -> APIResponse:
         ]
     }
 
-def notifications_list(request) -> APIResponse:
+def clear_read_notifs(request) -> APIResponse:
     try:
-        token = request.COOKIES.get('token')
-        self_user = User.objects.get(token=token)
-    except KeyError:
+        self_user = User.objects.get(token=request.COOKIES.get("token"))
+    except User.DoesNotExist:
         return 400, {
             "success": False
         }
+
+    self_user.notifications.filter(read=True).delete()
+
+    return {
+        "success": True,
+        "actions": [
+            { "name": "refresh_timeline", "special": "notifications" }
+        ]
+    }
+
+def notifications_list(request) -> APIResponse:
+    try:
+        self_user = User.objects.get(token=request.COOKIES.get("token"))
     except User.DoesNotExist:
         return 400, {
             "success": False

@@ -393,6 +393,7 @@
     "notifications": {
       "title": "Notifications",
       "read": "Mark as read",
+      "delete": "Clear read notifications",
 
       "event": {
         "comment": "%s commented on your post:",

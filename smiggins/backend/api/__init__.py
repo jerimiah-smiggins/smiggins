@@ -15,7 +15,7 @@ from .post import (hashtag_list, pin_post, poll_refresh, poll_vote,
 from .user import (accept_pending, block_add, block_remove, change_password,
                    follower_add, follower_remove, list_pending, login,
                    notifications_list, read_notifs, remove_pending, settings,
-                   settings_theme, signup, user_delete)
+                   settings_theme, signup, user_delete, clear_read_notifs)
 
 
 class ApiAdmin:
@@ -80,6 +80,7 @@ class ApiUser:
     login = login
     notifications_list = notifications_list
     read_notifs = read_notifs
+    clear_read_notifs = clear_read_notifs
     settings = settings
     settings_theme = settings_theme
     signup = signup
