@@ -166,7 +166,7 @@ def post_create(request, data: NewPost) -> APIResponse:
     return {
         "success": True,
         "actions": [
-            { "name": "prepend_timeline", "post": get_post_json(post, user.user_id), "comment": False },
+            { "name": "prepend_timeline", "post": get_post_json(post, user), "comment": False },
             { "name": "update_element", "query": "#post-text", "value": "", "disabled": False, "focus": True},
             { "name": "update_element", "query": "#c-warning", "value": "" },
             { "name": "update_element", "query": "#poll input", "value": "", "all": True }
@@ -280,8 +280,8 @@ def quote_create(request, data: NewQuote) -> APIResponse:
     return {
         "success": True,
         "actions": [
-            { "name": "prepend_timeline", "post": get_post_json(post, user.user_id), "comment": False },
-            { "name": "update_element", "query": f".post-container[data-{'comment' if data.quote_is_comment else 'post'}-id='{data.quote_id}'] .post-after", "html": "" },
+            { "name": "prepend_timeline", "post": get_post_json(post, user), "comment": False },
+            { "name": "update_element", "query": f".post-container[data-{'comment' if data.quote_is_comment else 'post'}-id='{data.quote_id}'] .quote-inputs", "html": "" },
             { "name": "update_element", "query": f".post-container[data-{'comment' if data.quote_is_comment else 'post'}-id='{data.quote_id}'] .quote-number", "inc": 1 }
         ]
     }
@@ -296,9 +296,8 @@ def hashtag_list(request, hashtag: str, sort: str, offset: int=0) -> APIResponse
 
     try:
         user = User.objects.get(token=request.COOKIES.get("token"))
-        user_id = user.user_id
     except User.DoesNotExist:
-        user_id = 0
+        ...
 
     try:
         tag = Hashtag.objects.get(tag=hashtag)
@@ -320,7 +319,7 @@ def hashtag_list(request, hashtag: str, sort: str, offset: int=0) -> APIResponse
 
     offset = 0
     for post in posts:
-        x = get_post_json(post, user_id)
+        x = get_post_json(post, user)
 
         if "can_view" in x and x["can_view"]:
             post_list.append(x)
@@ -361,7 +360,7 @@ def post_list_following(request, offset: int=-1) -> APIResponse:
 
     for post in combined_posts:
         try:
-            post_json = get_post_json(post, user.user_id)
+            post_json = get_post_json(post, user)
         except Post.DoesNotExist:
             offset += 1
             continue
@@ -419,7 +418,7 @@ def post_list_recent(request, offset: int=-1) -> APIResponse:
             offset += 1
 
         else:
-            outputList.append(get_post_json(i, user.user_id))
+            outputList.append(get_post_json(current_post, user))
 
         i -= 1
 
@@ -437,7 +436,6 @@ def post_list_user(request, username: str, offset: int=-1) -> APIResponse:
 
     try:
         self_user = User.objects.get(token=request.COOKIES.get("token"))
-        self_user_id = self_user.user_id
         lang = get_lang(self_user)
         logged_in = True
     except User.DoesNotExist:
@@ -446,7 +444,6 @@ def post_list_user(request, username: str, offset: int=-1) -> APIResponse:
                 "success": False
             }
 
-        self_user_id = 0
         lang = DEFAULT_LANG
         logged_in = False
 
@@ -471,7 +468,7 @@ def post_list_user(request, username: str, offset: int=-1) -> APIResponse:
     c = 0
     for i in potential:
         c += 1
-        x = get_post_json(i, self_user_id if logged_in else 0)
+        x = get_post_json(i, self_user if logged_in else 0)
 
         if "private_acc" not in x or not x["private_acc"]:
             outputList.append(x)
@@ -482,7 +479,7 @@ def post_list_user(request, username: str, offset: int=-1) -> APIResponse:
     pinned_post = None
     if ENABLE_PINNED_POSTS:
         if user.pinned:
-            pinned_post = get_post_json(user.pinned, self_user_id if logged_in else 0, False)
+            pinned_post = get_post_json(user.pinned, self_user if logged_in else 0, False)
 
     return {
         "success": True,
@@ -684,7 +681,7 @@ def poll_vote(request, data: Poll) -> APIResponse:
         return {
             "success": True,
             "actions": [
-                { "name": "reset_post_html", "post_id": data.id, "comment": False, "post": get_post_json(post, user.user_id, False) }
+                { "name": "reset_post_html", "post_id": data.id, "comment": False, "post": get_post_json(post, user, False) }
             ]
         }
 
@@ -766,7 +763,7 @@ def post_edit(request, data: EditPost) -> APIResponse:
         return {
             "success": True,
             "actions": [
-                { "name": "reset_post_html", "post_id": data.id, "comment": False, "post": get_post_json(post, user.user_id, False) }
+                { "name": "reset_post_html", "post_id": data.id, "comment": False, "post": get_post_json(post, user, False) }
             ]
         }
 

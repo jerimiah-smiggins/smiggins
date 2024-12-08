@@ -8,14 +8,21 @@ const keybinds = {
     m: { requireNav: true, action: (event) => { if (ENABLE_PRIVATE_MESSAGES) {
             redirect("/messages/");
         } } },
-    n: { requireNav: true, action: (event) => { redirect("/notifications/"); } },
     p: { requireNav: true, action: (event) => { redirect(`/u/${localStorage.getItem("username")}/`); } },
-    r: { action: (event) => { if (dom("refresh")) {
+    r: { allowLoggedOut: true, action: (event) => { if (!(event.ctrlKey || heldKeys.Control) && dom("refresh")) {
             dom("refresh").click();
         } } },
     s: { requireNav: true, action: (event) => { redirect("/settings/"); } },
-    "?": { action: keybindHelpMenu },
-    "/": { action: (event) => {
+    "?": { allowLoggedOut: true, action: keybindHelpMenu },
+    n: { action: (event) => {
+            if (heldKeys[navKey]) {
+                redirect("/notifications/");
+            }
+            else if (!(event.ctrlKey || heldKeys.Control)) {
+                showPostModal();
+            }
+        } },
+    "/": { allowLoggedOut: true, action: (event) => {
             if (event.ctrlKey || heldKeys.Control) {
                 keybindHelpMenu();
             }
@@ -59,7 +66,7 @@ function keyDown(event) {
     if (action) {
         if (!((!action.allowInputs && (["textarea", "input"].includes(event.target.tagName.toLowerCase()) || event.target.isContentEditable))
             || (action.requireNav && !heldKeys[navKey])
-            || (action.requireCtrl && !(heldKeys.Control || event.ctrlKey)))) {
+            || (action.requireCtrl && !(heldKeys.Control || event.ctrlKey))) && (logged_in || action.allowLoggedOut)) {
             event.preventDefault();
             action.action(event);
         }

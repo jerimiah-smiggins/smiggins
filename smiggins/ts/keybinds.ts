@@ -5,13 +5,20 @@ const keybinds: { [key: string]: _keybind } = {
   a: { requireNav: true, action: (event: KeyboardEvent): void => { if (isAdmin) { redirect("/admin/"); }}},
   h: { requireNav: true, action: (event: KeyboardEvent): void => { redirect("/home/"); }},
   m: { requireNav: true, action: (event: KeyboardEvent): void => { if (ENABLE_PRIVATE_MESSAGES) { redirect("/messages/"); }}},
-  n: { requireNav: true, action: (event: KeyboardEvent): void => { redirect("/notifications/"); }},
   p: { requireNav: true, action: (event: KeyboardEvent): void => { redirect(`/u/${localStorage.getItem("username")}/`); }},
-  r: { action: (event: KeyboardEvent): void => { if (dom("refresh")) { dom("refresh").click(); }}},
+  r: { allowLoggedOut: true, action: (event: KeyboardEvent): void => { if (!(event.ctrlKey || heldKeys.Control) && dom("refresh")) { dom("refresh").click(); }}},
   s: { requireNav: true, action: (event: KeyboardEvent): void => { redirect("/settings/"); }},
-  "?": { action: keybindHelpMenu },
+  "?": { allowLoggedOut: true, action: keybindHelpMenu },
 
-  "/": { action: (event: KeyboardEvent): void => {
+  n: { action: (event: KeyboardEvent): void => {
+    if (heldKeys[navKey]) {
+      redirect("/notifications/");
+    } else if (!(event.ctrlKey || heldKeys.Control)) {
+      showPostModal();
+    }
+  }},
+
+  "/": { allowLoggedOut: true, action: (event: KeyboardEvent): void => {
     if (event.ctrlKey || heldKeys.Control) {
       keybindHelpMenu();
     } else if (dom("post-text")) {
@@ -24,7 +31,7 @@ const keybinds: { [key: string]: _keybind } = {
       dom((event.target as HTMLElement).dataset.createPostId || "post").click();
     }
   }}
-}
+};
 
 function _getKeybindInfo(key1: string, key2: string | null, description: string): string {
   return `<p class="keybind-help">${lang.generic.keybinds.dash.replaceAll("%k", `<code>${key2 ? lang.generic.keybinds.plus.replaceAll("%a", key1).replaceAll("%b", key2) : key1}</code>`).replaceAll("%d", description)}</p>`
@@ -62,7 +69,7 @@ function keyDown(event: KeyboardEvent): void {
       (!action.allowInputs && (["textarea", "input"].includes((event.target as HTMLElement).tagName.toLowerCase()) || (event.target as HTMLElement).isContentEditable))
    || (action.requireNav && !heldKeys[navKey])
    || (action.requireCtrl && !(heldKeys.Control || event.ctrlKey))
-    )) {
+    ) && (logged_in || action.allowLoggedOut)) {
       event.preventDefault();
       action.action(event);
     }

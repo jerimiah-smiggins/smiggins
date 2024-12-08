@@ -25,6 +25,8 @@ class DatabaseBackupsSchema(TypedDict):
     path: str
     filename: str
 
+print("Loading config...")
+
 BASE_DIR = pathlib.Path(__file__).resolve().parent.parent
 
 def error(string):
@@ -893,3 +895,5 @@ except Badge.DoesNotExist:
 
 except OperationalError:
     print("\x1b[91mYou need to migrate your database! Do this by running 'manage.py migrate'. If you are already doing that, ignore this message.\x1b[0m")
+
+print("Finished loading config")

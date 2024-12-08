@@ -101,7 +101,7 @@ def comment_create(request, data: NewComment) -> APIResponse:
     return {
         "success": True,
         "actions": [
-            { "name": "prepend_timeline", "post": get_post_json(comment, user.user_id, True), "comment": True },
+            { "name": "prepend_timeline", "post": get_post_json(comment, user, True), "comment": True },
             { "name": "update_element", "query": "#post-text", "value": "" },
             { "name": "update_element", "query": "#c-warning", "value": "", "focus": True }
         ]
@@ -121,7 +121,6 @@ def comment_list(request, id: int, comment: bool, sort: str, offset: int=0) -> A
     try:
         user = User.objects.get(token=token)
         lang = get_lang(user)
-        logged_in = True
     except User.DoesNotExist:
         if not ENABLE_LOGGED_OUT_CONTENT:
             return 400, {
@@ -129,7 +128,6 @@ def comment_list(request, id: int, comment: bool, sort: str, offset: int=0) -> A
             }
 
         lang = DEFAULT_LANG
-        logged_in = False
 
     try:
         if id < 0 or (Comment.objects.latest("comment_id").comment_id if comment else Post.objects.latest("post_id").post_id) < id:
@@ -149,7 +147,6 @@ def comment_list(request, id: int, comment: bool, sort: str, offset: int=0) -> A
     else:
         parent = Post.objects.get(pk=id)
 
-    user_id = user.user_id if logged_in else 0
     comments = Comment.objects.filter(comment_id__in=parent.comments)
 
     if sort == "liked":
@@ -170,19 +167,14 @@ def comment_list(request, id: int, comment: bool, sort: str, offset: int=0) -> A
     outputList = []
     offset = 0
 
-    if logged_in:
-        self_user = User.objects.get(token=token)
-    else:
-        self_user = None
-
     for comment_object in comments:
-        can_view = can_view_post(self_user, comment_object.creator, comment_object)
+        can_view = can_view_post(user, comment_object.creator, comment_object)
         if can_view[0] is False and (can_view[1] == "blocked" or can_view[1] == "private"):
             offset += 1
             continue
 
         else:
-            outputList.append(get_post_json(comment_object, user_id, True))
+            outputList.append(get_post_json(comment_object, user, True))
 
         if len(outputList) + offset >= POSTS_PER_REQUEST:
             break
@@ -343,7 +335,7 @@ def comment_edit(request, data: EditComment) -> APIResponse:
         return {
             "success": True,
             "actions": [
-                { "name": "reset_post_html", "post_id": data.id, "comment": True, "post": get_post_json(data.id, user.user_id, True) }
+                { "name": "reset_post_html", "post_id": data.id, "comment": True, "post": get_post_json(data.id, user, True) }
             ]
         }
 

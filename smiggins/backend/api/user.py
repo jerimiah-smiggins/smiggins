@@ -484,12 +484,7 @@ def change_password(request, data: ChangePassword) -> APIResponse:
 
 def read_notifs(request) -> APIResponse:
     try:
-        token = request.COOKIES.get('token')
-        self_user = User.objects.get(token=token)
-    except KeyError:
-        return 400, {
-            "success": False
-        }
+        self_user = User.objects.get(token=request.COOKIES.get("token"))
     except User.DoesNotExist:
         return 400, {
             "success": False
@@ -505,30 +500,51 @@ def read_notifs(request) -> APIResponse:
     return {
         "success": True,
         "actions": [
+            { "name": "update_element", "query": ".post[data-notif-unread]", "all": True, "attribute": [
+                { "name": "data-notif-unread", "value": None },
+                { "name": "data-color", "value": "gray" }
+            ]},
+            { "name": "update_element", "query": "hr[data-notif-hr]", "attribute": [
+                { "name": "hidden", "value": "" }
+            ]},
+            { "name": "update_element", "query": "[data-add-notification-dot]", "set_class": [
+                { "class_name": "dot", "enable": False }
+            ]}
+        ]
+    }
+
+def clear_read_notifs(request) -> APIResponse:
+    try:
+        self_user = User.objects.get(token=request.COOKIES.get("token"))
+    except User.DoesNotExist:
+        return 400, {
+            "success": False
+        }
+
+    self_user.notifications.filter(read=True).delete()
+
+    return {
+        "success": True,
+        "actions": [
             { "name": "refresh_timeline", "special": "notifications" }
         ]
     }
 
 def notifications_list(request) -> APIResponse:
     try:
-        token = request.COOKIES.get('token')
-        self_user = User.objects.get(token=token)
-    except KeyError:
-        return 400, {
-            "success": False
-        }
+        self_user = User.objects.get(token=request.COOKIES.get("token"))
     except User.DoesNotExist:
         return 400, {
             "success": False
         }
 
     notifs_list = []
-    self_id = self_user.user_id
 
     all_notifs = self_user.notifications.all().order_by("-notif_id")
+
     for notification in all_notifs:
         try:
-            x = get_post_json(notification.event_id, self_id, notification.event_type in ["comment", "ping_c"])
+            x = get_post_json(notification.event_id, self_user, notification.event_type in ["comment", "ping_c"])
 
             if "content" in x:
                 notifs_list.append({

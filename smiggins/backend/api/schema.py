@@ -23,6 +23,9 @@ class AccountIdentifier(Schema):
 class DeleteBadge(Schema):
     badge_name: str
 
+class MutedWords(Schema):
+    muted: str
+
 class NewBadge(DeleteBadge):
     badge_data: str
 
