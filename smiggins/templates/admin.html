@@ -145,6 +145,16 @@
         <h3 class="red">{{ lang.admin.disabled.otp }}</h3>
       {% endif %}
     {% endif %}
+
+    {% admin_level LEVEL mask.CHANGE_MUTED_WORDS as can %}
+    {% if can %}
+      <div>
+        <h3>{{ lang.admin.mute.title }}</h3>
+        <textarea id="muted" placeholder="{{ lang.admin.mute.placeholder }}">{{ muted_words }}</textarea><br>
+        <button id="save-muted">{{ lang.generic.save }}</button><br>
+        <small>{{ lang.admin.mute.description }}</small>
+      </div>
+    {% endif %}
   </div>
 
   {% admin_level LEVEL mask.READ_LOGS as can %}

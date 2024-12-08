@@ -85,6 +85,7 @@ routes: list[tuple[str, str, Callable, bool | None, str, str, str | list[str]]] 
     ("admin/otp", "POST", ApiAdmin.otp_generate, ENABLE_NEW_ACCOUNTS == "otp", "Generate OTP", "Creates a one-time invite code", "Admin"),
     ("admin/otp", "DELETE", ApiAdmin.otp_delete, ENABLE_NEW_ACCOUNTS == "otp", "Delete OTP", "Deletes a one-time invite code", "Admin"),
     ("admin/otp", "GET", ApiAdmin.otp_load, ENABLE_NEW_ACCOUNTS == "otp", "List OTPs", "Returns a list of all valid one-time invite codes", "Admin"),
+    ("admin/muted", "POST", ApiAdmin.muted, None, "Update muted words", "Updates the list of globally muted words", "Admin"),
     ("email/password", "POST", ApiEmail.password_reset, ENABLE_EMAIL, "Reset password", "Sends an email that allows the user to reset their password if forgotten", ["Email", "User"]),
     ("email/save", "POST", ApiEmail.set_email, ENABLE_EMAIL, "Set email", "Sets the email for a user", ["Email", "User"]),
     ("info/notifications", "GET", ApiInfo.notifications, None, "Notifications", "Returns the status of any notifications", ["Misc", "User"]),

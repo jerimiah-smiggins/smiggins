@@ -246,6 +246,15 @@ class UserPronouns(models.Model):
     def __str__(self):
         return self.user.username
 
+class MutedWord(models.Model):
+    # if user is null then the muted word is global
+    user = models.ForeignKey(User, on_delete=models.CASCADE, null=True, blank=True, related_name="muted_words")
+    is_regex = models.BooleanField(default=False)
+    string = models.TextField()
+
+    def __str__(self):
+        return f"{self.user.username if self.user else 'Global'}: {self.string}"
+
 class M2MLike(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE)
     post = models.ForeignKey(Post, on_delete=models.CASCADE)
@@ -329,6 +338,7 @@ try:
     django_admin.site.register(AdminLog)
     django_admin.site.register(OneTimePassword)
     django_admin.site.register(UserPronouns)
+    django_admin.site.register(MutedWord)
     django_admin.site.register(M2MLike)
     django_admin.site.register(M2MLikeC)
     django_admin.site.register(M2MFollow)

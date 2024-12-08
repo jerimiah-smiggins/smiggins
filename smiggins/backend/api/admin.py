@@ -1,17 +1,18 @@
 # For admin-related apis
 
 import random
+import re
 import time
 from base64 import urlsafe_b64encode as b64encode
 
-from posts.models import (AdminLog, Badge, OneTimePassword,
+from posts.models import (AdminLog, Badge, MutedWord, OneTimePassword,
                           PrivateMessageContainer, User)
 
 from ..helper import get_lang, sha_to_bytes, trim_whitespace
 from ..variables import (BADGE_DATA, MAX_ADMIN_LOG_LINES, OWNER_USER_ID,
                          auth_key)
-from .schema import (AccountIdentifier, APIResponse, DeleteBadge, NewBadge,
-                     OTPName, SaveUser, UserBadge, UserLevel)
+from .schema import (AccountIdentifier, APIResponse, DeleteBadge, MutedWords,
+                     NewBadge, OTPName, SaveUser, UserBadge, UserLevel)
 
 
 class BitMask:
@@ -33,8 +34,9 @@ class BitMask:
     ADMIN_LEVEL = 7
     READ_LOGS = 8
     GENERATE_OTP = 9
+    CHANGE_MUTED_WORDS = 10
 
-    MAX_LEVEL = 9
+    MAX_LEVEL = 10
 
 def log_admin_action(
     action_name: str,
@@ -653,6 +655,43 @@ def otp_load(request) -> APIResponse:
                         for i in OneTimePassword.objects.all().order_by("code").values_list("code", flat=True)
                     ]) or f"<i>{lang['generic']['none']}</i>" }
             ]
+        }
+
+    return 400, {
+        "success": False
+    }
+
+def muted(request, data: MutedWords) -> APIResponse:
+    user = User.objects.get(token=request.COOKIES.get("token"))
+
+    if BitMask.can_use(user, BitMask.READ_LOGS):
+        lang = get_lang(user)
+
+        objs = []
+
+        for word in data.muted.split("\n"):
+            word = trim_whitespace(word)
+
+            if not word:
+                continue
+
+            regex = word[0] == "/" and re.match(r"^/.*/[aiLmsx]+$", word)
+
+            if regex:
+                word = f"(?{''.join(list(set([i for i in word.split('/')[-1]])))}){'/'.join(word[1::].split('/')[:-1])}"
+
+            objs.append(MutedWord(
+                user=None,
+                is_regex=bool(regex),
+                string=word
+            ))
+
+        MutedWord.objects.filter(user=None).delete()
+        MutedWord.objects.bulk_create(objs)
+
+        return {
+            "success": True,
+            "message": lang["generic"]["success"]
         }
 
     return 400, {

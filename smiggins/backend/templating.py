@@ -4,7 +4,8 @@ import json
 
 from django.http import (HttpResponse, HttpResponseRedirect,
                          HttpResponseServerError)
-from posts.models import Comment, Hashtag, Post, PrivateMessageContainer, User
+from posts.models import (Comment, Hashtag, MutedWord, Post,
+                          PrivateMessageContainer, User)
 
 from .api.admin import BitMask
 from .helper import (LANGS, can_view_post, find_mentions, get_badges,
@@ -340,12 +341,20 @@ def admin(request) -> HttpResponse | HttpResponseRedirect:
             request, "404.html", status=404
         )
 
+    muted = ""
+    for i in MutedWord.objects.all().values_list("string", "is_regex"):
+        if i[1]:
+            muted += f"/{i[0].split(')', 1)[-1]}/{i[0].split(')')[0].split('(?')[-1]}\n"
+        else:
+            muted += f"{i[0]}\n"
+
     return get_HTTP_response(
         request, "admin.html", user=user,
 
         LEVEL=lv,
         BADGE_DATA=BADGE_DATA,
         mask=BitMask,
+        muted_words=muted[:-1],
         LEVEL_RANGE=[str(i) for i in range(BitMask.MAX_LEVEL + 1)],
         LEVEL_BINARY=f"{'0' * (BitMask.MAX_LEVEL - len(f'{lv:b}'))}{lv:b}",
         permissions_disabled={

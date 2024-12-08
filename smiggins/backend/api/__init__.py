@@ -1,6 +1,6 @@
 from .admin import (account_info, account_save, badge_add, badge_create,
-                    badge_delete, badge_remove, load_level, logs, otp_delete,
-                    otp_generate, otp_load, set_level)
+                    badge_delete, badge_remove, load_level, logs, muted,
+                    otp_delete, otp_generate, otp_load, set_level)
 from .admin import user_delete as admin_user_delete
 from .comment import (comment_create, comment_delete, comment_edit,
                       comment_like_add, comment_like_remove, comment_list)
@@ -13,9 +13,10 @@ from .post import (hashtag_list, pin_post, poll_refresh, poll_vote,
                    post_like_remove, post_list_following, post_list_recent,
                    post_list_user, quote_create, unpin_post)
 from .user import (accept_pending, block_add, block_remove, change_password,
-                   follower_add, follower_remove, list_pending, login,
-                   notifications_list, read_notifs, remove_pending, settings,
-                   settings_theme, signup, user_delete, clear_read_notifs)
+                   clear_read_notifs, follower_add, follower_remove,
+                   list_pending, login, notifications_list, read_notifs,
+                   remove_pending, settings, settings_theme, signup,
+                   user_delete)
 
 
 class ApiAdmin:
@@ -32,6 +33,7 @@ class ApiAdmin:
     otp_generate = otp_generate
     otp_delete = otp_delete
     otp_load = otp_load
+    muted = muted
 
 class ApiComment:
     comment_create = comment_create

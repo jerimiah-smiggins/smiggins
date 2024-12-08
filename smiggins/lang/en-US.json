@@ -286,6 +286,13 @@
         "all_button": "Load Codes"
       },
 
+      "mute": {
+        "title": "Muted Words",
+        "placeholder": "bad word\n/badwords?/i",
+        // \u00a0 is the non breaking space character that prevents unwanted line wrapping
+        "description": "Use spaces to separate words condition (ex: \"some\u00a0word\" would match \"[...]\u00a0some\u00a0[...]\u00a0word\u00a0[...]\" but not \"[...]\u00a0word\u00a0[...]\u00a0some\u00a0[...]\"), and use newlines to separate different definitions. Surround with forward slashes (/) for regex. Put flags after the last slash (ex: \"/text/i\")."
+      },
+
       "disabled": {
         "generic": "Disabled",
         "badge": "Badges are disabled.",
@@ -425,6 +432,7 @@
       "invalid_quote_comment": "The comment you're quoting doesn't exist!",
       "invalid_username": "Username is invalid",
       "invalid_poll": "The poll needs to have at least two options!",
+      "muted": "This post contains a word blocked by the instance administration",
       "type_public": "Public",
       "type_followers_only": "Followers only",
       "no_posts": "No posts",
