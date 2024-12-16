@@ -12,7 +12,7 @@ from django.core.mail import send_mail
 from django.http import HttpResponse, HttpResponseRedirect
 from django.template import loader
 from posts.backups import backup_db
-from posts.models import Comment, Notification, Post, User
+from posts.models import Comment, MutedWord, Notification, Post, User
 
 from .variables import (ALTERNATE_IPS, BADGE_DATA, BASE_DIR, CACHE_LANGUAGES,
                         DEFAULT_DARK_THEME, DEFAULT_LANGUAGE,
@@ -459,7 +459,7 @@ def get_post_json(post_id: int | Post | Comment, current_user_id: int | User | N
 def trim_whitespace(string: str, purge_newlines: bool=False) -> str:
     # Trims whitespace from strings
 
-    string = string.replace("\x0d", "")
+    string = string.replace("\x0d", "").strip()
 
     if purge_newlines:
         string = string.replace("\x0a", " ").replace("\x85", "")
@@ -475,12 +475,6 @@ def trim_whitespace(string: str, purge_newlines: bool=False) -> str:
 
     while "\n\n\n" in string:
         string = string.replace("\n\n\n", "\n\n")
-
-    while len(string) and string[0] in " \n":
-        string = string[1::]
-
-    while len(string) and string[-1] in " \n":
-        string = string[:-1:]
 
     return string
 
@@ -614,6 +608,22 @@ def get_ip_addr(request):
         return request.headers.get("X-Real-IP")
 
     return request.META.get("REMOTE_ADDR")
+
+def check_muted_words(*content: str) -> bool:
+    # True - IS muted
+    # False - is NOT muted
+
+    for mw in MutedWord.objects.filter(user=None):
+        if mw.is_regex:
+            word = re.compile(mw.string)
+        else:
+            word = re.compile("\\b" + mw.string.replace(" ", "\b.+\b") + "\\b", re.DOTALL | re.IGNORECASE)
+
+        for val in content:
+            if word.match(val):
+                return True
+
+    return False
 
 LANGS = {}
 if CACHE_LANGUAGES:

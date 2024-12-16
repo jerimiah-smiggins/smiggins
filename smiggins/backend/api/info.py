@@ -10,7 +10,7 @@ def notifications(request) -> tuple[int, dict] | dict:
     # Returns whether or not you have unread notifications
 
     try:
-        user = User.objects.get(token=request.COOKIES.get('token'))
+        user = User.objects.get(token=request.COOKIES.get("token"))
     except User.DoesNotExist:
         return 400, {
             "success": False

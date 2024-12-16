@@ -68,26 +68,22 @@ def log_admin_action(
 def user_delete(request, data: AccountIdentifier) -> APIResponse:
     # Deleting an account
 
-    token = request.COOKIES.get('token')
-
     try:
-        user = User.objects.get(token=token)
+        user = User.objects.get(token=request.COOKIES.get("token"))
     except User.DoesNotExist:
         return 400, {
             "success": False
         }
 
-    identifier = data.identifier.lower()
-    use_id = data.use_id
     lang = get_lang(user)
 
     try:
-        if use_id:
-            account = User.objects.get(user_id=int(identifier))
+        if data.use_id:
+            account = User.objects.get(user_id=int(data.identifier))
         else:
-            account = User.objects.get(username=identifier)
+            account = User.objects.get(username=data.identifier.lower())
     except User.DoesNotExist:
-        log_admin_action("Delete user", user, None, f"User {identifier} (use_id: {use_id}) not found")
+        log_admin_action("Delete user", user, None, f"User {data.identifier} (use_id: {data.use_id}) not found")
 
         return 404, {
             "success": False,
@@ -134,10 +130,8 @@ def user_delete(request, data: AccountIdentifier) -> APIResponse:
 def badge_create(request, data: NewBadge) -> APIResponse:
     # Creating a badge
 
-    token = request.COOKIES.get('token')
-
     try:
-        self_user = User.objects.get(token=token)
+        self_user = User.objects.get(token=request.COOKIES.get("token"))
 
     except User.DoesNotExist:
         return 400, {
@@ -205,10 +199,8 @@ def badge_create(request, data: NewBadge) -> APIResponse:
 def badge_delete(request, data: DeleteBadge) -> APIResponse:
     # Deleting a badge
 
-    token = request.COOKIES.get('token')
-
     try:
-        self_user = User.objects.get(token=token)
+        self_user = User.objects.get(token=request.COOKIES.get("token"))
 
     except User.DoesNotExist:
         return 400, {
@@ -269,10 +261,8 @@ def badge_delete(request, data: DeleteBadge) -> APIResponse:
 def badge_add(request, data: UserBadge) -> APIResponse:
     # Adding a badge to a user
 
-    token = request.COOKIES.get('token')
-
     try:
-        self_user = User.objects.get(token=token)
+        self_user = User.objects.get(token=request.COOKIES.get("token"))
 
     except User.DoesNotExist:
         return 400, {
@@ -322,10 +312,8 @@ def badge_add(request, data: UserBadge) -> APIResponse:
 def badge_remove(request, data: UserBadge) -> APIResponse:
     # Removing a badge from a user
 
-    token = request.COOKIES.get('token')
-
     try:
-        self_user = User.objects.get(token=token)
+        self_user = User.objects.get(token=request.COOKIES.get("token"))
 
     except User.DoesNotExist:
         return 400, {
@@ -377,10 +365,8 @@ def account_info(request, identifier: str, use_id: bool) -> APIResponse:
 
     identifier = identifier.lower()
 
-    token = request.COOKIES.get('token')
-
     try:
-        self_user = User.objects.get(token=token)
+        self_user = User.objects.get(token=request.COOKIES.get("token"))
 
     except User.DoesNotExist:
         return 400, {
@@ -492,24 +478,21 @@ def set_level(request, data: UserLevel) -> APIResponse:
             "success": False
         }
 
-    use_id = data.use_id
-    identifier = data.identifier.lower()
-    level = data.level
 
     if BitMask.can_use(self_user, BitMask.ADMIN_LEVEL):
         lang = get_lang(self_user)
         try:
-            if use_id:
-                user = User.objects.get(user_id=int(identifier))
+            if data.use_id:
+                user = User.objects.get(user_id=int(data.identifier))
             else:
-                user = User.objects.get(username=identifier)
+                user = User.objects.get(username=data.identifier.lower())
         except User.DoesNotExist:
             return 404, {
                 "success": False,
                 "message": lang["generic"]["user_not_found"]
             }
 
-        user.admin_level = level
+        user.admin_level = data.level
         user.save()
 
         log_admin_action("Set admin permissions", self_user, user, f"Gave perms {data.level}")

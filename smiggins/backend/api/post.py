@@ -10,10 +10,10 @@ from django.db.models import Count
 from django.db.utils import IntegrityError
 from posts.models import Comment, Hashtag, M2MLike, Post, User
 
-from ..helper import (DEFAULT_LANG, can_view_post, create_api_ratelimit,
-                      create_notification, ensure_ratelimit, find_hashtags,
-                      find_mentions, get_lang, get_post_json, trim_whitespace,
-                      validate_username)
+from ..helper import (DEFAULT_LANG, can_view_post, check_muted_words,
+                      create_api_ratelimit, create_notification,
+                      ensure_ratelimit, find_hashtags, find_mentions, get_lang,
+                      get_post_json, trim_whitespace, validate_username)
 from ..variables import (API_TIMINGS, ENABLE_CONTENT_WARNINGS,
                          ENABLE_LOGGED_OUT_CONTENT, ENABLE_PINNED_POSTS,
                          ENABLE_POLLS, ENABLE_POST_DELETION,
@@ -63,7 +63,7 @@ def post_hook(request, user: User, post: Post) -> None:
 def post_create(request, data: NewPost) -> APIResponse:
     # Called when a new post is created.
 
-    token = request.COOKIES.get('token')
+    token = request.COOKIES.get("token")
     user = User.objects.get(token=token)
 
     if not ENABLE_POLLS:
@@ -89,6 +89,7 @@ def post_create(request, data: NewPost) -> APIResponse:
         i = trim_whitespace(i, True)
         if i:
             if len(i) > MAX_POLL_OPTION_LENGTH:
+                create_api_ratelimit("api_post_create", API_TIMINGS["create post failure"], token)
                 return 400, {
                     "success": False
                 }
@@ -96,6 +97,7 @@ def post_create(request, data: NewPost) -> APIResponse:
             poll.append(i)
 
     if len(poll) == 1:
+        create_api_ratelimit("api_post_create", API_TIMINGS["create post failure"], token)
         lang = get_lang(user)
         return 400, {
             "success": False,
@@ -114,6 +116,21 @@ def post_create(request, data: NewPost) -> APIResponse:
         return 400, {
             "success": False,
             "message": lang["post"]["invalid_length"].replace("%s", str(MAX_POST_LENGTH)),
+            "actions": [
+                { "name": "update_element", "query": "#post-text", "disabled": False, "focus": True }
+            ]
+        }
+
+    if check_muted_words(
+        content,
+        c_warning,
+        *poll
+    ):
+        create_api_ratelimit("api_post_create", API_TIMINGS["create post failure"], token)
+        lang = get_lang(user)
+        return 400, {
+            "success": False,
+            "message": lang["post"]["muted"],
             "actions": [
                 { "name": "update_element", "query": "#post-text", "disabled": False, "focus": True }
             ]
@@ -176,9 +193,10 @@ def post_create(request, data: NewPost) -> APIResponse:
 def quote_create(request, data: NewQuote) -> APIResponse:
     # Called when a post is quoted.
 
-    user = User.objects.get(token=request.COOKIES.get('token'))
+    token = request.COOKIES.get("token")
+    user = User.objects.get(token=token)
 
-    if not ensure_ratelimit("api_post_create", request.COOKIES.get('token')):
+    if not ensure_ratelimit("api_post_create", token):
         lang = get_lang(user)
         return 429, {
             "success": False,
@@ -189,12 +207,14 @@ def quote_create(request, data: NewQuote) -> APIResponse:
         quoted_post = (Comment if data.quote_is_comment else Post).objects.get(pk=data.quote_id)
 
     except Post.DoesNotExist:
+        create_api_ratelimit("api_post_create", API_TIMINGS["create post failure"], token)
         lang = get_lang(user)
         return 400, {
             "success": False,
             "message": lang["post"]["invalid_quote_post"]
         }
     except Comment.DoesNotExist:
+        create_api_ratelimit("api_post_create", API_TIMINGS["create post failure"], token)
         lang = get_lang(user)
         return 400, {
             "success": False,
@@ -217,6 +237,17 @@ def quote_create(request, data: NewQuote) -> APIResponse:
         return 400, {
             "success": False,
             "message": lang["post"]["invalid_length"].replace("%s", str(MAX_POST_LENGTH))
+        }
+
+    if check_muted_words(
+        content,
+        c_warning
+    ):
+        create_api_ratelimit("api_post_create", API_TIMINGS["create post failure"], request.COOKIES.get("token"))
+        lang = get_lang(user)
+        return 400, {
+            "success": False,
+            "message": lang["post"]["muted"]
         }
 
     create_api_ratelimit("api_post_create", API_TIMINGS["create post"], request.COOKIES.get("token"))
@@ -384,8 +415,6 @@ def post_list_following(request, offset: int=-1) -> APIResponse:
 def post_list_recent(request, offset: int=-1) -> APIResponse:
     # Called when the recent posts tab is refreshed.
 
-    token = request.COOKIES.get('token')
-
     if offset == -1:
         try:
             next_id = Post.objects.latest('post_id').post_id
@@ -400,7 +429,7 @@ def post_list_recent(request, offset: int=-1) -> APIResponse:
         next_id = offset - 1
 
     end = next_id <= POSTS_PER_REQUEST
-    user = User.objects.get(token=token)
+    user = User.objects.get(token=request.COOKIES.get("token"))
 
     outputList = []
     offset = 0
@@ -502,11 +531,8 @@ def post_list_user(request, username: str, offset: int=-1) -> APIResponse:
 def post_like_add(request, data: PostID) -> APIResponse:
     # Called when someone likes a post.
 
-    token = request.COOKIES.get('token')
-    id = data.id
-
-    user = User.objects.get(token=token)
-    post = Post.objects.get(post_id=id)
+    user = User.objects.get(token=request.COOKIES.get("token"))
+    post = Post.objects.get(post_id=data.id)
 
     can_view = can_view_post(user, post.creator, post)
     if can_view[0] is False and can_view[1] in ["private", "blocked"]:
@@ -530,11 +556,9 @@ def post_like_add(request, data: PostID) -> APIResponse:
 def post_like_remove(request, data: PostID) -> APIResponse:
     # Called when someone unlikes a post.
 
-    token = request.COOKIES.get('token')
-
     try:
         M2MLike.objects.get(
-            user=User.objects.get(token=token),
+            user=User.objects.get(token=request.COOKIES.get("token")),
             post=Post.objects.get(post_id=data.id)
         ).delete()
     except M2MLike.DoesNotExist:
@@ -551,12 +575,9 @@ def post_like_remove(request, data: PostID) -> APIResponse:
 def post_delete(request, data: PostID) -> APIResponse:
     # Called when someone deletes a post.
 
-    token = request.COOKIES.get('token')
-    id = data.id
-
     try:
-        post = Post.objects.get(post_id=id)
-        user = User.objects.get(token=token)
+        post = Post.objects.get(post_id=data.id)
+        user = User.objects.get(token=request.COOKIES.get("token"))
     except Post.DoesNotExist:
         return 404, {
             "success": False
@@ -570,7 +591,7 @@ def post_delete(request, data: PostID) -> APIResponse:
     creator = post.creator.user_id == user.user_id and ENABLE_POST_DELETION
 
     if admin and not creator:
-        log_admin_action("Delete post", user, post.creator, f"Deleted post {id}")
+        log_admin_action("Delete post", user, post.creator, f"Deleted post {data.id}")
 
     if creator or admin:
         if post.quote:
@@ -634,10 +655,8 @@ def pin_post(request, data: PostID) -> APIResponse:
 def unpin_post(request) -> APIResponse:
     # Called when someone unpins a post.
 
-    token = request.COOKIES.get('token')
-
     try:
-        user = User.objects.get(token=token)
+        user = User.objects.get(token=request.COOKIES.get("token"))
     except User.DoesNotExist:
         return 400, {
             "success": False
@@ -663,7 +682,7 @@ def poll_vote(request, data: Poll) -> APIResponse:
                 "success": False
             }
 
-        user = User.objects.get(token=request.COOKIES.get('token'))
+        user = User.objects.get(token=request.COOKIES.get("token"))
 
         can_view = can_view_post(user, post.creator, post)
         if can_view[0] is False and can_view[1] in ["private", "blocked"]:
@@ -693,7 +712,7 @@ def poll_refresh(request, id: int) -> dict | tuple[int, dict]:
     post = Post.objects.get(post_id=id)
 
     if post.poll:
-        user = User.objects.get(token=request.COOKIES.get('token'))
+        user = User.objects.get(token=request.COOKIES.get("token"))
 
         can_view = can_view_post(user, post.creator, post)
         if can_view[0] is False and can_view[1] in ["private", "blocked"]:
@@ -711,11 +730,9 @@ def poll_refresh(request, id: int) -> dict | tuple[int, dict]:
     }
 
 def post_edit(request, data: EditPost) -> APIResponse:
-    token = request.COOKIES.get('token')
-
     try:
         post = Post.objects.get(post_id=data.id)
-        user = User.objects.get(token=token)
+        user = User.objects.get(token=request.COOKIES.get("token"))
     except Post.DoesNotExist:
         return 404, {
             "success": False
@@ -734,6 +751,16 @@ def post_edit(request, data: EditPost) -> APIResponse:
             return 400, {
                 "success": False,
                 "message": lang["post"]["invalid_length"].replace("%s", str(MAX_POST_LENGTH))
+            }
+
+        if check_muted_words(
+            content,
+            c_warning
+        ):
+            lang = get_lang(user)
+            return 400, {
+                "success": False,
+                "message": lang["post"]["muted"]
             }
 
         post.edited = True

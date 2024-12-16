@@ -14,8 +14,7 @@ def container_create(request, data: NewContainer) -> APIResponse:
     # Called when a new comment is created.
 
 
-    token = request.COOKIES.get('token')
-    self_user = User.objects.get(token=token)
+    self_user = User.objects.get(token=request.COOKIES.get("token"))
     username = data.username.strip().lower()
 
     if self_user.username == username:
