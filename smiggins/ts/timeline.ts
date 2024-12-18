@@ -31,7 +31,7 @@ function unpinPost(): void {
 function addQuote(postID: number, isComment: boolean): void {
   if (typeof logged_in !== "undefined" && !logged_in) { return; }
 
-  const post: Element = document.querySelector(`[data-${isComment ? "comment" : "post"}-id="${postID}"] .post-after`);
+  const post: Element = document.querySelector(`[data-${isComment ? "comment" : "post"}-id="${postID}"] .quote-inputs`);
   if (post.querySelector("button")) { return; }
 
   let c: number = 0;
@@ -47,8 +47,8 @@ function addQuote(postID: number, isComment: boolean): void {
     </div>
     ${ENABLE_CONTENT_WARNINGS ? `<input class="c-warning" ${originalCW ? `value="${escapeHTML(originalCW.startsWith("re: ") ? originalCW.slice(0, MAX_CONTENT_WARNING_LENGTH) : "re: " + originalCW.slice(0, MAX_CONTENT_WARNING_LENGTH - 4))}"` : ""} maxlength="${MAX_CONTENT_WARNING_LENGTH}" placeholder="${lang.home.c_warning_placeholder}"><br>` : ""}
     <textarea class="post-text" data-create-post data-create-post-id="quote-post-${globalIncrement}" maxlength="${MAX_POST_LENGTH}" placeholder="${lang.home.quote_placeholders[Math.floor(Math.random() * lang.home.quote_placeholders.length)]}"></textarea><br>
-    <button id="quote-post-${globalIncrement}" class="post-button inverted">${lang.generic.post}</button>
-    <button class="cancel-button inverted">${lang.generic.cancel}</button>
+    <button id="quote-post-${globalIncrement}" class="post-button">${lang.generic.post}</button>
+    <button class="cancel-button">${lang.generic.cancel}</button>
   `;
 
   let localGI: number = globalIncrement;
@@ -168,34 +168,39 @@ function editPost(postID: number, isComment: boolean, private: boolean, original
   let post: HTMLDivElement = document.querySelector(`[data-${isComment ? "comment" : "post"}-id="${postID}"]`);
   let contentField: HTMLDivElement = post.querySelectorAll(".main-area")[1] as HTMLDivElement;
 
+  if (contentField.hasAttribute("data-editing")) {
+    return;
+  }
+
+  contentField.setAttribute("data-editing", "");
+
   let oldContentField: string = contentField.innerHTML;
 
   let originalCW: string = contentField.querySelector("summary") ? (contentField.querySelector("summary > .c-warning-main") as HTMLElement).innerText : "";
 
   contentField.innerHTML = `
-    <div class="quote-visibility">
-      <label for="default-private-${globalIncrement}">${lang.post.type_followers_only}:</label>
-      <input id="default-private-${globalIncrement}" type="checkbox" ${private ? "checked" : ""}><br>
-    </div>
+    <label for="default-private-${globalIncrement}">${lang.post.type_followers_only}:</label>
+    <input id="default-private-${globalIncrement}" type="checkbox" ${private ? "checked" : ""}><br>
     ${ENABLE_CONTENT_WARNINGS ? `<input class="c-warning" ${originalCW ? `value="${originalCW}"` : ""} maxlength="${MAX_CONTENT_WARNING_LENGTH}" placeholder="${lang.home.c_warning_placeholder}"><br>` : ""}
     <textarea class="post-text" maxlength="${MAX_POST_LENGTH}" placeholder="${lang.home.post_input_placeholder}">${escapeHTML(originalText)}</textarea><br>
-    <button class="post-button inverted">${lang.generic.post}</button>
-    <button class="cancel-button inverted">${lang.generic.cancel}</button>`;
+    <button class="post-button">${lang.generic.post}</button>
+    <button class="cancel-button">${lang.generic.cancel}</button>`;
 
   contentField.querySelector("textarea").focus();
   globalIncrement++;
 
-  contentField.querySelector(".cancel-button").addEventListener("click", function() {
+  contentField.querySelector(".cancel-button").addEventListener("click", function(): void {
     contentField.innerHTML = oldContentField;
+    contentField.removeAttribute("data-editing");
   });
 
-  contentField.querySelector(".post-button").addEventListener("click", function() {
+  contentField.querySelector(".post-button").addEventListener("click", function(): void {
     s_fetch(`/api/${isComment ? "comment" : "post"}/edit`, {
       method: "PATCH",
       body: JSON.stringify({
         c_warning: (contentField.querySelector(".c-warning") as HTMLInputElement).value,
         content: contentField.querySelector("textarea").value,
-        private: (contentField.querySelector(".quote-visibility input") as HTMLInputElement).checked,
+        private: (contentField.querySelector("input[id^='default-private-'") as HTMLInputElement).checked,
         id: postID
       }),
       disable: [this]
@@ -221,6 +226,10 @@ function switchTimeline(event: MouseEvent): void {
 
   url = timelines[tl];
   refresh();
+}
+
+function showPostModal(quoting?: string): void {
+  // TODO
 }
 
 document.querySelectorAll("#switch > a").forEach((val: HTMLAnchorElement, index: number): void => {

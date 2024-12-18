@@ -12,7 +12,7 @@ from django.core.mail import send_mail
 from django.http import HttpResponse, HttpResponseRedirect
 from django.template import loader
 from posts.backups import backup_db
-from posts.models import Comment, Notification, Post, User
+from posts.models import Comment, MutedWord, Notification, Post, User
 
 from .variables import (ALTERNATE_IPS, BADGE_DATA, BASE_DIR, CACHE_LANGUAGES,
                         DEFAULT_DARK_THEME, DEFAULT_LANGUAGE,
@@ -292,7 +292,7 @@ def can_view_post(self_user: User | None, creator: User | None, post: Post | Com
 
     return True,
 
-def get_post_json(post_id: int | Post | Comment, current_user_id: int=0, comment: bool=False) -> dict[str, str | int | dict]:
+def get_post_json(post_id: int | Post | Comment, current_user_id: int | User | None=None, comment: bool=False) -> dict[str, str | int | dict]:
     # Returns a dict object that includes information about the specified post
     # When editing the json content response of this function, make sure you also
     # correct the schema in static/ts/globals.d.ts
@@ -306,13 +306,16 @@ def get_post_json(post_id: int | Post | Comment, current_user_id: int=0, comment
 
     creator = post.creator
 
-    try:
-        user = User.objects.get(user_id=current_user_id)
-    except User.DoesNotExist:
-        user = None
+    if isinstance(current_user_id, int):
+        try:
+            user = User.objects.get(user_id=current_user_id)
+        except User.DoesNotExist:
+            user = None
+    else:
+        user = current_user_id
+        current_user_id = user.user_id if user else 0
 
     can_delete_all = user is not None and (current_user_id == OWNER_USER_ID or user.admin_level % 2 == 1)
-
     can_view = can_view_post(user, creator, post)
 
     if can_view[0] is False:
@@ -456,7 +459,7 @@ def get_post_json(post_id: int | Post | Comment, current_user_id: int=0, comment
 def trim_whitespace(string: str, purge_newlines: bool=False) -> str:
     # Trims whitespace from strings
 
-    string = string.replace("\x0d", "")
+    string = string.replace("\x0d", "").strip()
 
     if purge_newlines:
         string = string.replace("\x0a", " ").replace("\x85", "")
@@ -472,12 +475,6 @@ def trim_whitespace(string: str, purge_newlines: bool=False) -> str:
 
     while "\n\n\n" in string:
         string = string.replace("\n\n\n", "\n\n")
-
-    while len(string) and string[0] in " \n":
-        string = string[1::]
-
-    while len(string) and string[-1] in " \n":
-        string = string[:-1:]
 
     return string
 
@@ -612,9 +609,39 @@ def get_ip_addr(request):
 
     return request.META.get("REMOTE_ADDR")
 
+def check_muted_words(*content: str) -> bool:
+    # True - IS muted
+    # False - is NOT muted
+
+    for mw in MutedWord.objects.filter(user=None):
+        if mw.is_regex:
+            word = re.compile(mw.string)
+        else:
+            word = re.compile("\\b" + mw.string.replace(" ", "\\b.+\\b") + "\\b", re.DOTALL | re.IGNORECASE)
+
+        for val in content:
+            if word.match(val):
+                return True
+
+    return False
+
 LANGS = {}
 if CACHE_LANGUAGES:
+    import sys
+
+    print("Generating language cache for ", end="")
+    first = True
+
     for i in VALID_LANGUAGES:
+        print(f"{'' if first else ', '}{i['code']}", end="")
         LANGS[i["code"]] = get_lang(i["code"], True)
+
+        sys.stdout.flush()
+
+        if first:
+            first = False
+
+    print("")
+    del sys
 
 DEFAULT_LANG = get_lang()

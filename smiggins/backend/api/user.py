@@ -133,10 +133,9 @@ def login(request, data: Account) -> APIResponse:
 def settings_theme(request, data: Theme) -> APIResponse:
     # Called when the user changes their theme.
 
-    token = request.COOKIES.get('token')
     theme = data.theme.lower()
 
-    user = User.objects.get(token=token)
+    user = User.objects.get(token=request.COOKIES.get("token"))
 
     lang = get_lang(user)
 
@@ -159,7 +158,7 @@ def settings_theme(request, data: Theme) -> APIResponse:
 def settings(request, data: Settings) -> APIResponse:
     # Called when someone saves their settings
 
-    user = User.objects.get(token=request.COOKIES.get('token'))
+    user = User.objects.get(token=request.COOKIES.get("token"))
     lang = get_lang(user)
 
     reload = False
@@ -168,10 +167,8 @@ def settings(request, data: Settings) -> APIResponse:
     color_two = data.color_two.lower()
     displ_name = trim_whitespace(data.displ_name, True)
     bio = trim_whitespace(data.bio, True)
-    pronouns = data.pronouns
-    language = data.lang
 
-    if language != user.language:
+    if data.lang != user.language:
         reload = True
 
     if (len(displ_name) > MAX_DISPL_NAME_LENGTH or len(displ_name) < 1) or (ENABLE_USER_BIOS and len(bio) > MAX_BIO_LENGTH):
@@ -201,10 +198,10 @@ def settings(request, data: Settings) -> APIResponse:
                     "message": lang["settings"]["profile_color_invalid"]
                 }
 
-    if language not in [i["code"] for i in VALID_LANGUAGES]:
+    if data.lang not in [i["code"] for i in VALID_LANGUAGES]:
         return 400, {
             "success": False,
-            "message": lang["settings"]["invalid_language"].replace("%s", language)
+            "message": lang["settings"]["invalid_language"].replace("%s", data.lang)
         }
 
     user.color = color
@@ -231,18 +228,19 @@ def settings(request, data: Settings) -> APIResponse:
         _p = user.pronouns.filter(language=user.language)
         if _p.exists():
             p = _p[0]
-            p.primary = pronouns["primary"]
-            p.secondary = pronouns["secondary"]
+            p.primary = data.pronouns["primary"]
+            p.secondary = data.pronouns["secondary"]
+            p.save()
 
         else:
             UserPronouns.objects.create(
                 user=user,
                 language=user.language,
-                primary=pronouns["primary"],
-                secondary=pronouns["secondary"]
+                primary=data.pronouns["primary"],
+                secondary=data.pronouns["secondary"]
             )
 
-    user.language = language
+    user.language = data.lang
 
     user.save()
 
@@ -257,9 +255,8 @@ def settings(request, data: Settings) -> APIResponse:
 def follower_add(request, data: Username) -> APIResponse:
     # Called when someone requests to follow another account.
 
-    token = request.COOKIES.get('token')
     username = data.username.lower()
-    user = User.objects.get(token=token)
+    user = User.objects.get(token=request.COOKIES.get("token"))
     lang = get_lang(user)
 
     try:
@@ -343,9 +340,8 @@ def follower_remove(request, data: Username) -> APIResponse:
 def block_add(request, data: Username) -> APIResponse:
     # Called when someone requests to block another account.
 
-    token = request.COOKIES.get('token')
     username = data.username.lower()
-    user = User.objects.get(token=token)
+    user = User.objects.get(token=request.COOKIES.get("token"))
 
     if not validate_username(username):
         lang = get_lang(user)
@@ -395,9 +391,8 @@ def block_add(request, data: Username) -> APIResponse:
 def block_remove(request, data: Username) -> APIResponse:
     # Called when someone requests to unblock another account.
 
-    token = request.COOKIES.get('token')
     username = data.username.lower()
-    user = User.objects.get(token=token)
+    user = User.objects.get(token=request.COOKIES.get("token"))
 
     if not validate_username(username):
         lang = get_lang(user)
@@ -484,12 +479,7 @@ def change_password(request, data: ChangePassword) -> APIResponse:
 
 def read_notifs(request) -> APIResponse:
     try:
-        token = request.COOKIES.get('token')
-        self_user = User.objects.get(token=token)
-    except KeyError:
-        return 400, {
-            "success": False
-        }
+        self_user = User.objects.get(token=request.COOKIES.get("token"))
     except User.DoesNotExist:
         return 400, {
             "success": False
@@ -505,30 +495,51 @@ def read_notifs(request) -> APIResponse:
     return {
         "success": True,
         "actions": [
+            { "name": "update_element", "query": ".post[data-notif-unread]", "all": True, "attribute": [
+                { "name": "data-notif-unread", "value": None },
+                { "name": "data-color", "value": "gray" }
+            ]},
+            { "name": "update_element", "query": "hr[data-notif-hr]", "attribute": [
+                { "name": "hidden", "value": "" }
+            ]},
+            { "name": "update_element", "query": "[data-add-notification-dot]", "set_class": [
+                { "class_name": "dot", "enable": False }
+            ]}
+        ]
+    }
+
+def clear_read_notifs(request) -> APIResponse:
+    try:
+        self_user = User.objects.get(token=request.COOKIES.get("token"))
+    except User.DoesNotExist:
+        return 400, {
+            "success": False
+        }
+
+    self_user.notifications.filter(read=True).delete()
+
+    return {
+        "success": True,
+        "actions": [
             { "name": "refresh_timeline", "special": "notifications" }
         ]
     }
 
 def notifications_list(request) -> APIResponse:
     try:
-        token = request.COOKIES.get('token')
-        self_user = User.objects.get(token=token)
-    except KeyError:
-        return 400, {
-            "success": False
-        }
+        self_user = User.objects.get(token=request.COOKIES.get("token"))
     except User.DoesNotExist:
         return 400, {
             "success": False
         }
 
     notifs_list = []
-    self_id = self_user.user_id
 
     all_notifs = self_user.notifications.all().order_by("-notif_id")
+
     for notification in all_notifs:
         try:
-            x = get_post_json(notification.event_id, self_id, notification.event_type in ["comment", "ping_c"])
+            x = get_post_json(notification.event_id, self_user, notification.event_type in ["comment", "ping_c"])
 
             if "content" in x:
                 notifs_list.append({

@@ -5,7 +5,8 @@ from sys import maxsize
 
 from posts.models import PrivateMessage, PrivateMessageContainer, User
 
-from ..helper import get_badges, get_container_id, get_lang, trim_whitespace
+from ..helper import (check_muted_words, get_badges, get_container_id,
+                      get_lang, trim_whitespace)
 from ..variables import MAX_POST_LENGTH, MESSAGES_PER_REQUEST
 from .schema import APIResponse, NewContainer, NewMessage
 
@@ -13,9 +14,7 @@ from .schema import APIResponse, NewContainer, NewMessage
 def container_create(request, data: NewContainer) -> APIResponse:
     # Called when a new comment is created.
 
-
-    token = request.COOKIES.get('token')
-    self_user = User.objects.get(token=token)
+    self_user = User.objects.get(token=request.COOKIES.get("token"))
     username = data.username.strip().lower()
 
     if self_user.username == username:
@@ -93,6 +92,13 @@ def send_message(request, data: NewMessage) -> APIResponse:
         return 400, {
             "success": False,
             "message": lang["messages"]["invalid_size"]
+        }
+
+    if check_muted_words(content):
+        lang = get_lang(user)
+        return 400, {
+            "success": False,
+            "message": lang["message"]["muted"]
         }
 
     timestamp = round(time.time())

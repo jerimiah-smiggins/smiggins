@@ -244,5 +244,7 @@ type _keybind = {
   action: (event: KeyboardEvent) => void,
   requireNav?: boolean,
   requireCtrl?: boolean,
-  allowInputs?: boolean
+  allowInputs?: boolean,
+  allowLoggedOut?: boolean,
+  noPreventDefault?: boolean
 }

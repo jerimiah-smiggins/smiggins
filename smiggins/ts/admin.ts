@@ -13,7 +13,8 @@ enum Mask {
   AccSwitcher,
   AdminLevel,
   ReadLogs,
-  GenerateOTP
+  GenerateOTP,
+  ChangeMutedWords
 };
 
 function testMask(identifier: number, level: number=adminLevel): boolean {
@@ -124,21 +125,21 @@ testMask(Mask.AdminLevel) && dom("level-load").addEventListener("click", functio
   });
 });
 
-testMask(Mask.GenerateOTP) && dom("otp-create").addEventListener("click", function(): void {
+ENABLE_NEW_ACCOUNTS == "otp" && testMask(Mask.GenerateOTP) && dom("otp-create").addEventListener("click", function(): void {
   s_fetch("/api/admin/otp", {
     method: "POST",
     disable: [this]
   });
 });
 
-testMask(Mask.GenerateOTP) && dom("otp-load").addEventListener("click", function(): void {
+ENABLE_NEW_ACCOUNTS == "otp" && testMask(Mask.GenerateOTP) && dom("otp-load").addEventListener("click", function(): void {
   s_fetch("/api/admin/otp", {
     disable: [this]
   });
 });
 
-if (testMask(Mask.GenerateOTP)) {
-  function deleteOTP (code: string): void {
+if (ENABLE_NEW_ACCOUNTS == "otp" && testMask(Mask.GenerateOTP)) {
+  function deleteOTP(code: string): void {
     s_fetch("/api/admin/otp", {
       method: "DELETE",
       body: JSON.stringify({
@@ -148,3 +149,13 @@ if (testMask(Mask.GenerateOTP)) {
     });
   }
 }
+
+testMask(Mask.ChangeMutedWords) && dom("save-muted").addEventListener("click", function(): void {
+  s_fetch("/api/admin/muted", {
+    method: "POST",
+    body: JSON.stringify({
+      muted: (dom("muted") as HTMLTextAreaElement).value
+    }),
+    disable: [this, dom("muted")]
+  });
+});
