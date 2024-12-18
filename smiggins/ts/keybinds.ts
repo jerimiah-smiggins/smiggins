@@ -6,20 +6,20 @@ const keybinds: { [key: string]: _keybind } = {
   h: { requireNav: true, action: (event: KeyboardEvent): void => { redirect("/home/"); }},
   m: { requireNav: true, action: (event: KeyboardEvent): void => { if (ENABLE_PRIVATE_MESSAGES) { redirect("/messages/"); }}},
   p: { requireNav: true, action: (event: KeyboardEvent): void => { redirect(`/u/${localStorage.getItem("username")}/`); }},
-  r: { allowLoggedOut: true, action: (event: KeyboardEvent): void => { if (!(event.ctrlKey || heldKeys.Control) && dom("refresh")) { dom("refresh").click(); }}},
+  r: { noPreventDefault: true, allowLoggedOut: true, action: (event: KeyboardEvent): void => { if (!(event.ctrlKey) && dom("refresh")) { event.preventDefault(); dom("refresh").click(); }}},
   s: { requireNav: true, action: (event: KeyboardEvent): void => { redirect("/settings/"); }},
   "?": { allowLoggedOut: true, action: keybindHelpMenu },
 
   n: { action: (event: KeyboardEvent): void => {
     if (heldKeys[navKey]) {
       redirect("/notifications/");
-    } else if (!(event.ctrlKey || heldKeys.Control)) {
+    } else if (!(event.ctrlKey)) {
       showPostModal();
     }
   }},
 
   "/": { allowLoggedOut: true, action: (event: KeyboardEvent): void => {
-    if (event.ctrlKey || heldKeys.Control) {
+    if (event.ctrlKey) {
       keybindHelpMenu();
     } else if (dom("post-text")) {
       dom("post-text").focus();
@@ -68,9 +68,12 @@ function keyDown(event: KeyboardEvent): void {
     if (!(
       (!action.allowInputs && (["textarea", "input"].includes((event.target as HTMLElement).tagName.toLowerCase()) || (event.target as HTMLElement).isContentEditable))
    || (action.requireNav && !heldKeys[navKey])
-   || (action.requireCtrl && !(heldKeys.Control || event.ctrlKey))
+   || (action.requireCtrl && !event.ctrlKey)
     ) && (logged_in || action.allowLoggedOut)) {
-      event.preventDefault();
+      if (!action.noPreventDefault) {
+        event.preventDefault();
+      }
+
       action.action(event);
     }
   }

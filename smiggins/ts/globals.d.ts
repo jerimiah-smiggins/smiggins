@@ -245,5 +245,6 @@ type _keybind = {
   requireNav?: boolean,
   requireCtrl?: boolean,
   allowInputs?: boolean,
-  allowLoggedOut?: boolean
+  allowLoggedOut?: boolean,
+  noPreventDefault?: boolean
 }
