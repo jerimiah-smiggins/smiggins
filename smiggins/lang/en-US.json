@@ -386,6 +386,7 @@
       "input_placeholder": "What would you like to tell %s?", // Ex: What would you like to tell gerard?
 
       "no_messages": "No messages sent",
+      "muted": "This message contains a word blocked by the instance administration",
 
       "list_title": "Messages",
       "list_subtitle": "Recent Messages",

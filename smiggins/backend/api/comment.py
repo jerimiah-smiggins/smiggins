@@ -6,10 +6,10 @@ from django.db.models import Count
 from django.db.utils import IntegrityError
 from posts.models import Comment, M2MLikeC, Notification, Post, User
 
-from ..helper import (DEFAULT_LANG, can_view_post, create_api_ratelimit,
-                      create_notification, delete_notification,
-                      ensure_ratelimit, find_mentions, get_lang, get_post_json,
-                      trim_whitespace)
+from ..helper import (DEFAULT_LANG, can_view_post, check_muted_words,
+                      create_api_ratelimit, create_notification,
+                      delete_notification, ensure_ratelimit, find_mentions,
+                      get_lang, get_post_json, trim_whitespace)
 from ..variables import (API_TIMINGS, ENABLE_CONTENT_WARNINGS,
                          ENABLE_LOGGED_OUT_CONTENT, ENABLE_POST_DELETION,
                          MAX_CONTENT_WARNING_LENGTH, MAX_POST_LENGTH,
@@ -31,8 +31,6 @@ def comment_create(request, data: NewComment) -> APIResponse:
             "message": lang["generic"]["ratelimit"]
         }
 
-    content = data.content.replace("\r", "")
-
     content = trim_whitespace(data.content)
     c_warning = trim_whitespace(data.c_warning, True) if ENABLE_CONTENT_WARNINGS else ""
 
@@ -48,6 +46,17 @@ def comment_create(request, data: NewComment) -> APIResponse:
         return 400, {
             "success": False,
             "message": lang["post"]["invalid_length"].replace("%s", str(MAX_POST_LENGTH))
+        }
+
+    if check_muted_words(
+        content,
+        c_warning
+    ):
+        create_api_ratelimit("api_post_create", API_TIMINGS["create post failure"], token)
+        lang = get_lang(user)
+        return 400, {
+            "success": False,
+            "message": lang["post"]["muted"]
         }
 
     create_api_ratelimit("api_comment_create", API_TIMINGS["create comment"], token)

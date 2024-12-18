@@ -617,7 +617,7 @@ def check_muted_words(*content: str) -> bool:
         if mw.is_regex:
             word = re.compile(mw.string)
         else:
-            word = re.compile("\\b" + mw.string.replace(" ", "\b.+\b") + "\\b", re.DOTALL | re.IGNORECASE)
+            word = re.compile("\\b" + mw.string.replace(" ", "\\b.+\\b") + "\\b", re.DOTALL | re.IGNORECASE)
 
         for val in content:
             if word.match(val):
