@@ -230,6 +230,7 @@ def settings(request, data: Settings) -> APIResponse:
             p = _p[0]
             p.primary = data.pronouns["primary"]
             p.secondary = data.pronouns["secondary"]
+            p.save()
 
         else:
             UserPronouns.objects.create(

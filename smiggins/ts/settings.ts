@@ -22,7 +22,7 @@ if (ENABLE_PRONOUNS && lang.generic.pronouns.enable_pronouns) {
 
     if (lang.generic.pronouns.enable_secondary) {
       if (primary.dataset.special == "no-secondary") {
-        dom("pronouns-secondary").setAttribute("hidden", "");
+        dom("pronouns-secondary-container").setAttribute("hidden", "");
       }
 
       document.querySelector(`#pronouns-secondary > option[value="${userPronouns.secondary}"]`).setAttribute("selected", "");
