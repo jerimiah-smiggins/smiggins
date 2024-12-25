@@ -158,7 +158,6 @@ strings of four letters. Save this for the next step.
 In the [`.env`](/smiggins/.env) file, add the following
 code, modifying it to your needs:
 ```bash
-
 EMAIL_HOST=smtp.gmail.com
 EMAIL_HOST_USER=[email]@gmail.com # put the full email, like example@gmail.com
 EMAIL_HOST_PASSWORD=xxxx xxxx xxxx xxxx # put in the password obtained in the previous step

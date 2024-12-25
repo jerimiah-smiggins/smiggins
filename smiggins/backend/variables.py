@@ -9,10 +9,15 @@ import json5 as json
 import yaml
 from django.db.utils import OperationalError
 from dotenv import dotenv_values
-
 from posts.models import Badge
 
-auth_key = str(dotenv_values(".env")["AUTH_KEY"]).encode('ascii')
+try:
+    from _api_keys import auth_key
+except ImportError:
+    from dotenv import dotenv_values
+    dotenv_dict = dotenv_values(".env")
+    auth_key = str.encode(str(dotenv_dict["AUTH_KEY"]))
+
 
 if sys.version_info >= (3, 11):
     from typing import TypedDict
@@ -865,16 +870,19 @@ Disallow: /
 BADGE_DATA = {}
 
 try:
-    smtp_auth = {
-        "EMAIL_HOST" :          dotenv_values()["EMAIL_HOST"],
-        "EMAIL_HOST_USER" :     dotenv_values()["EMAIL_HOST_USER"],
-        "EMAIL_HOST_PASSWORD" : dotenv_values()["EMAIL_HOST_PASSWORD"],
-        "EMAIL_PORT" :          dotenv_values()["EMAIL_PORT"],
-        "EMAIL_USE_TLS" :       dotenv_values()["EMAIL_USE_TLS"],
-        "DEFAULT_FROM_EMAIL" :  dotenv_values()["DEFAULT_FROM_EMAIL"],
-    }
-except KeyError:
-    ENABLE_EMAIL = False
+    from backend._api_keys import smtp_auth  # type: ignore # noqa: F401
+except ImportError:
+    try:
+        smtp_auth = {
+            "EMAIL_HOST":dotenv_dict["EMAIL_HOST"],
+            "EMAIL_HOST_USER":dotenv_dict["EMAIL_HOST_USER"],
+            "EMAIL_HOST_PASSWORD":dotenv_dict["EMAIL_HOST_PASSWORD"],
+            "EMAIL_PORT":dotenv_dict["EMAIL_PORT"],
+            "EMAIL_USE_TLS":dotenv_dict["EMAIL_USE_TLS"],
+            "DEFAULT_FROM_EMAIL":dotenv_dict["DEFAULT_FROM_EMAIL"],
+        }
+    except KeyError:
+        ENABLE_EMAIL = False
 
 try:
     Badge.objects.get(name="administrator")
