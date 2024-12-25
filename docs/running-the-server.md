@@ -29,14 +29,14 @@ cd smiggins
 python -m pip install --upgrade -r requirements.txt
 ```
 
-Then, you need to create the `_api_keys.py` file. To do so, you can run one of
+Then, you need to create the `.env` file. To do so, you can run one of
 the following commands based on your operating system:
 ```bash
 # Linux/Mac:
-echo "auth_key = b'some random text this can be anything'" > ./smiggins/backend/_api_keys.py
+echo "AUTH_KEY=some random text this can be anything > ./smiggins/.env
 
 # Windows:
-echo auth_key = b'some random text this can be anything' > ./smiggins/backend/_api_keys.py
+echo AUTH_KEY=some random text this can be anything > ./smiggins/.env
 ```
 
 > [!WARNING]
@@ -79,10 +79,10 @@ cd smiggins
 python -m pip install --upgrade -r requirements.txt
 ```
 
-Then, you need to create the `_api_keys.py` file. To do so, you can run this
+Then, you need to create the `.env` file. To do so, you can run this
 command:
 ```bash
-echo "auth_key = b'some random text this can be anything'" > ./smiggins/backend/_api_keys.py
+echo "AUTH_KEY=some random text this can be anything > ./smiggins/.env
 ```
 
 > [!WARNING]
@@ -155,17 +155,17 @@ email. To do so, go to [this link](https://myaccount.google.com/u/3/apppasswords
 The app name can be whatever you want, and the app password should be four
 strings of four letters. Save this for the next step.
 
-In the [`_api_keys.py`](/smiggins/backend/_api_keys.py) file, add the following
+In the [`.env`](/smiggins/.env) file, add the following
 code, modifying it to your needs:
-```py
-smtp_auth = {
-    "EMAIL_HOST": "smtp.gmail.com",
-    "EMAIL_HOST_USER": "[email]@gmail.com", # put the full email, like example@gmail.com
-    "EMAIL_HOST_PASSWORD": "xxxx xxxx xxxx xxxx", # put in the password obtained in the previous step
-    "EMAIL_PORT": 587,
-    "EMAIL_USE_TLS": True,
-    "DEFAULT_FROM_EMAIL": "[email]@gmail.com" # put the full email, like example@gmail.com
-}
+```bash
+
+EMAIL_HOST=smtp.gmail.com
+EMAIL_HOST_USER=[email]@gmail.com # put the full email, like example@gmail.com
+EMAIL_HOST_PASSWORD=xxxx xxxx xxxx xxxx # put in the password obtained in the previous step
+EMAIL_PORT=587
+EMAIL_USE_TLS=True
+DEFAULT_FROM_EMAIL=[email]@gmail.com # put the full email, like example@gmail.com
+
 ```
 
 ## How to create an upgrade script

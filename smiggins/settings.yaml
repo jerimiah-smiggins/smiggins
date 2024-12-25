@@ -99,7 +99,7 @@ favicon_data: null
 enable_dynamic_favicon: true
 
 # This toggles allowing emails. In order for this to work, you need to set up
-# the stmp_auth variable in backend/_api_keys.py. (Read README.md)
+# the email variables in .env. (Read README.md)
 # Aliases: email, enable_email
 # Default: false
 enable_email: false

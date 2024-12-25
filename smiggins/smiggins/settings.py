@@ -1,6 +1,7 @@
 from pathlib import Path
 
 import yaml
+from dotenv import dotenv_values
 
 BASE_DIR = Path(__file__).resolve().parent.parent
 
@@ -31,19 +32,18 @@ if email and url is None:
 
 if email:
     try:
-        from backend._api_keys import smtp_auth  # type: ignore
+        EMAIL_HOST = dotenv_values()["EMAIL_HOST"]
+        EMAIL_HOST_USER = dotenv_values()["EMAIL_HOST_USER"]
+        EMAIL_HOST_PASSWORD = dotenv_values()["EMAIL_HOST_PASSWORD"]
+        EMAIL_PORT = int(dotenv_values()["EMAIL_PORT"]) # type: ignore
+        if dotenv_values()["EMAIL_USE_TLS"] == "false".lower():
+            EMAIL_USE_TLS = True
+        else:
+            EMAIL_USE_TLS = False
+        DEFAULT_FROM_EMAIL = dotenv_values()["DEFAULT_FROM_EMAIL"]
 
-        EMAIL_HOST = smtp_auth["EMAIL_HOST"]
-        EMAIL_HOST_USER = smtp_auth["EMAIL_HOST_USER"]
-        EMAIL_HOST_PASSWORD = smtp_auth["EMAIL_HOST_PASSWORD"]
-        EMAIL_PORT = smtp_auth["EMAIL_PORT"]
-        EMAIL_USE_TLS = smtp_auth["EMAIL_USE_TLS"]
-        DEFAULT_FROM_EMAIL = smtp_auth["DEFAULT_FROM_EMAIL"]
-
-        del smtp_auth
-
-    except ImportError:
-        print("\x1b[91mIn order to allow emails, you need to have smtp_auth set in backend/_api_keys.py!\x1b[0m")
+    except KeyError:
+        print("\x1b[91mIn order to allow emails, you need to have the various email values set in .env!\x1b[0m")
 
 del email, url, key, val
 

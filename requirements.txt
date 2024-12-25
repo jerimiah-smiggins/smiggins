@@ -4,3 +4,4 @@ requests # For auto post webhooks
 json5 # For loading language files
 pyyaml # For loading the settings.yaml file
 cairosvg # For generating dynamic favicons
+python-dotenv # For API keys
