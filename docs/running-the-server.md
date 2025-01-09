@@ -33,10 +33,10 @@ Then, you need to create the `.env` file. To do so, you can run one of
 the following commands based on your operating system:
 ```bash
 # Linux/Mac:
-echo "AUTH_KEY=some random text this can be anything > ./smiggins/.env
+echo "auth_key=some random text this can be anything" > ./smiggins/.env
 
 # Windows:
-echo AUTH_KEY=some random text this can be anything > ./smiggins/.env
+echo auth_key=some random text this can be anything > ./smiggins/.env
 ```
 
 > [!WARNING]
@@ -82,7 +82,7 @@ python -m pip install --upgrade -r requirements.txt
 Then, you need to create the `.env` file. To do so, you can run this
 command:
 ```bash
-echo "AUTH_KEY=some random text this can be anything > ./smiggins/.env
+echo "auth_key=some random text this can be anything" > ./smiggins/.env
 ```
 
 > [!WARNING]
@@ -158,13 +158,12 @@ strings of four letters. Save this for the next step.
 In the [`.env`](/smiggins/.env) file, add the following
 code, modifying it to your needs:
 ```bash
-EMAIL_HOST=smtp.gmail.com
-EMAIL_HOST_USER=[email]@gmail.com # put the full email, like example@gmail.com
-EMAIL_HOST_PASSWORD=xxxx xxxx xxxx xxxx # put in the password obtained in the previous step
-EMAIL_PORT=587
-EMAIL_USE_TLS=True
-DEFAULT_FROM_EMAIL=[email]@gmail.com # put the full email, like example@gmail.com
-
+email_host=smtp.gmail.com
+email_host_user=[email]@gmail.com # put the full email, like example@gmail.com
+email_host_password=xxxx xxxx xxxx xxxx # put in the password obtained in the previous step
+email_port=587
+email_use_tls=True
+default_from_email=[email]@gmail.com # put the full email, like example@gmail.com
 ```
 
 ## How to create an upgrade script
@@ -214,6 +213,12 @@ python manage.py collectstatic --noinput
 ```
 
 ## How to configure CSRF trusted origins
+### UPDATE:
+For versions **0.13.8 and above**, this variable is **automatically set** based
+on the `website_url` setting.
+
+---
+
 When logging in to the `/django-admin/` panel, you may see a "CSRF Verification
 Failed" error. To fix this, you just need to add the following line to the
 [`settings.py`](/smiggins/smiggins/settings.py) file:

@@ -1,58 +1,28 @@
 from pathlib import Path
 
-import yaml
-from dotenv import dotenv_values
-dotenv_dict = dotenv_values(".env")
+from backend.variables import DEBUG, ENABLE_EMAIL, WEBSITE_URL, dotenv_or_
 
 BASE_DIR = Path(__file__).resolve().parent.parent
 
-DEBUG = False
-email = False
-url = None
-
-try:
-    f: dict = yaml.safe_load(open(BASE_DIR / "settings.yaml", "r", encoding="utf-8"))
-
-    for key, val in f.items():
-        if isinstance(val, bool) and key.lower() == "debug":
-            DEBUG = val
-
-        elif isinstance(val, bool) and key.lower() in ["enable_email", "email"]:
-            email = val
-
-        elif isinstance(val, str) and key.lower() == "website_url":
-            url = val
-
-except ValueError:
-    ...
-except FileNotFoundError:
-    ...
-
-if email and url is None:
-    email = False
-
-if email:
+if ENABLE_EMAIL:
     try:
         from backend._api_keys import smtp_auth  # type: ignore
-        EMAIL_HOST = smtp_auth["EMAIL_HOST"]
-        EMAIL_HOST_USER = smtp_auth["EMAIL_HOST_USER"]
-        EMAIL_HOST_PASSWORD = smtp_auth["EMAIL_HOST_PASSWORD"]
-        EMAIL_PORT = smtp_auth["EMAIL_PORT"]
-        EMAIL_USE_TLS = smtp_auth["EMAIL_USE_TLS"]
-        DEFAULT_FROM_EMAIL = smtp_auth["DEFAULT_FROM_EMAIL"]
-        del smtp_auth
     except ImportError:
-        try:
-            EMAIL_HOST = dotenv_dict["EMAIL_HOST"]
-            EMAIL_HOST_USER = dotenv_dict["EMAIL_HOST_USER"]
-            EMAIL_HOST_PASSWORD = dotenv_dict["EMAIL_HOST_PASSWORD"]
-            EMAIL_PORT = int(dotenv_dict["EMAIL_PORT"]) # type: ignore
-            EMAIL_USE_TLS = str.lower(str(dotenv_dict["EMAIL_USE_TLS"])) == "true"
-            DEFAULT_FROM_EMAIL = dotenv_dict["DEFAULT_FROM_EMAIL"]
-        except KeyError:
-            print("\x1b[91mIn order to allow emails, you need to have the various email values set in .env or backend/_api_keys.py!\x1b[0m")
+        smtp_auth = {}
 
-del email, url, key, val
+    EMAIL_HOST =          dotenv_or_("email_host",          smtp_auth["email_host"]          if "email_host"          in smtp_auth else None)
+    EMAIL_HOST_USER =     dotenv_or_("email_host_user",     smtp_auth["email_host_user"]     if "email_host_user"     in smtp_auth else None)
+    EMAIL_HOST_PASSWORD = dotenv_or_("email_host_password", smtp_auth["email_host_password"] if "email_host_password" in smtp_auth else None)
+    EMAIL_PORT =          dotenv_or_("email_port",          smtp_auth["email_port"]          if "email_port"          in smtp_auth else None, int)
+    EMAIL_USE_TLS =       dotenv_or_("email_use_tls",       smtp_auth["email_use_tls"]       if "email_use_tls"       in smtp_auth else None)
+    DEFAULT_FROM_EMAIL =  dotenv_or_("default_from_email",  smtp_auth["default_from_email"]  if "default_from_email"  in smtp_auth else None, lambda x: x.lower() == "true")
+
+    del smtp_auth
+
+if WEBSITE_URL:
+    CSRF_TRUSTED_ORIGINS = [WEBSITE_URL]
+
+del ENABLE_EMAIL, WEBSITE_URL, dotenv_or_
 
 # SECURITY WARNING: keep the secret key used in production secret!
 SECRET_KEY = 'django-insecure-y$sfjl+rlc(gbdjm4h@-!zxn8$z@nkcdd_9g^^yq&-=!b(8d43'
