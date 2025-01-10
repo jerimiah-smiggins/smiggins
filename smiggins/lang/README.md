@@ -5,6 +5,23 @@ For contributing, read [this document](/docs/contributing.md#translating).
 Updates for each language version are listed below:
 
 <details>
+<summary>v1.10.2</summary>
+
+```diff
++ messages.muted
++ notifications.delete
++ post.muted
++ settings.cosmetic_compact
++ settings.mute.title
++ settings.mute.placeholder
++ settings.mute.post_blocked
++ settings.mute.long
++ settings.mute.too_many
++ settings.mute.description
+```
+</details>
+
+<details>
 <summary>v1.10.1</summary>
 
 ```diff
