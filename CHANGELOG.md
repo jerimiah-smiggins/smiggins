@@ -1,8 +1,21 @@
+## v0.13.8
+1. Rewrote the CSS for the post box (#285)
+2. Added a compact UI option (#278)
+3. Added a button to clear read notifications (#280)
+4. Started using `.env` for certain configuration options in favor of `backend/_api_keys.py` (#292)
+5. Added a way to mute words, both per-user and global (#192)
+6. Added meta and link tags to tell mobile devices to treat smiggins as a webapp (#291)
+7. You can now reload the page with ctrl+r (#300)
+8. Quoting a post with a hashtag no longer results in a server error (#301)
+9. You can now properly delete comments without admin permissions (#303)
+10. Notifications are properly deleted when a post gets deleted (#289)
+11. The "No posts" indicator no longer stays visible when a post is prepended (#296)
+12. The notification indicator in the title now clears immediately when it makes sense to do so (#297)
 ## v0.13.7
 1. **\[!!!\]**  Moved the settings file from `settings.json` to `settings.yaml`
 2. Made usernames case-insensitive across the whole website
 3. Added a way to properly get IPs behind a reverse proxy
-    4. A password is now needed to set/change emails
+4. A password is now needed to set/change emails
 5. Sitemaps for comments and hashtag pages have been added
 6. Made the followers feed not stack overflow if you follow too many people
 7. Improved documentation across the backend
