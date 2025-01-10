@@ -504,8 +504,7 @@ def delete_notification(
     user = notif.is_for
 
     try:
-        last = user.notifications.last()
-        if last and last.read:
+        if user.notifications.filter(read=False).count():
             user.read_notifs = True
             user.save()
 

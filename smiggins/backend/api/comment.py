@@ -254,7 +254,7 @@ def comment_delete(request, data: CommentID) -> APIResponse:
         comment_parent.save()
 
     admin = user.user_id == OWNER_USER_ID or BitMask.can_use(user, BitMask.DELETE_POST)
-    creator = comment.creator == user.user_id and ENABLE_POST_DELETION
+    creator = comment.creator.user_id == user.user_id and ENABLE_POST_DELETION
 
     if admin and not creator:
         log_admin_action("Delete comment", user, comment.creator, f"Deleted comment {id}")
@@ -263,21 +263,9 @@ def comment_delete(request, data: CommentID) -> APIResponse:
         try:
             for notif in Notification.objects.filter(
                 event_id=comment.comment_id,
-                event_type="ping_c"
+                event_type__in=["ping_c", "comment"]
             ):
                 delete_notification(notif)
-
-        except Notification.DoesNotExist:
-            ...
-
-        try:
-            delete_notification(
-                Notification.objects.get(
-                    event_id=comment.comment_id,
-                    event_type="comment"
-                )
-            )
-
         except Notification.DoesNotExist:
             ...
 

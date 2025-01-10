@@ -8,12 +8,13 @@ from itertools import chain
 import requests
 from django.db.models import Count
 from django.db.utils import IntegrityError
-from posts.models import Comment, Hashtag, M2MLike, Post, User
+from posts.models import Comment, Hashtag, M2MLike, Notification, Post, User
 
 from ..helper import (DEFAULT_LANG, can_view_post, check_muted_words,
                       create_api_ratelimit, create_notification,
-                      ensure_ratelimit, find_hashtags, find_mentions, get_lang,
-                      get_post_json, trim_whitespace, validate_username)
+                      delete_notification, ensure_ratelimit, find_hashtags,
+                      find_mentions, get_lang, get_post_json, trim_whitespace,
+                      validate_username)
 from ..variables import (API_TIMINGS, ENABLE_CONTENT_WARNINGS,
                          ENABLE_LOGGED_OUT_CONTENT, ENABLE_PINNED_POSTS,
                          ENABLE_POLLS, ENABLE_POST_DELETION,
@@ -606,6 +607,15 @@ def post_delete(request, data: PostID) -> APIResponse:
                 ...
             except Comment.DoesNotExist:
                 ...
+
+        try:
+            for notif in Notification.objects.filter(
+                event_id=post.post_id,
+                event_type__in=["quote", "ping_p"]
+            ):
+                delete_notification(notif)
+        except Notification.DoesNotExist:
+            ...
 
         for tag in post.hashtags.all():
             if tag.posts.count() == 1:
