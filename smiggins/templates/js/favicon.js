@@ -115,7 +115,7 @@ else {
     themeObject = JSON.parse('{{ theme_str|escapejs }}');
     document.getElementById("theme-css").innerHTML = getThemeCSS(themeObject);
 }
-favicon.rel = "icon";
+favicon.rel = "shortcut icon";
 favicon.type = "image/png";
 favicon.dataset.setFaviHref = "";
 if (oldFavicon) {
