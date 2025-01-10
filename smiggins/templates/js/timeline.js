@@ -1,5 +1,4 @@
 let end = false;
-offset = null;
 function deletePost(postID, isComment, pageFocus) {
     s_fetch(`/api/${isComment ? "comment" : "post"}`, {
         method: "DELETE",
@@ -32,7 +31,6 @@ function addQuote(postID, isComment) {
     if (post.querySelector("button")) {
         return;
     }
-    let c = 0;
     let originalPost = document.querySelector(`[data-${isComment ? "comment" : "post"}-id="${postID}"]`);
     let originalCWEl = originalPost.querySelector(".c-warning summary .c-warning-main");
     let originalCW = originalCWEl ? originalCWEl.innerHTML : null;
@@ -169,27 +167,25 @@ function switchTimeline(event) {
     if (storageID) {
         localStorage.setItem(storageID, tl);
     }
-    if (url == timelines[tl]) {
+    if (timelineConfig.url == timelineConfig.timelines[tl]) {
         return;
     }
     document.querySelectorAll("#switch > a:not([href])").forEach((val, index) => {
         val.href = "javascript:void(0);";
     });
     this.removeAttribute("href");
-    url = timelines[tl];
+    timelineConfig.url = timelineConfig.timelines[tl];
     refresh();
-}
-function showPostModal(quoting) {
 }
 document.querySelectorAll("#switch > a").forEach((val, index) => {
     val.addEventListener("click", switchTimeline);
 });
-if (typeof disableTimeline === "undefined" || !disableTimeline) {
+if (typeof timelineConfig.disableTimeline === "undefined" || !timelineConfig.disableTimeline) {
     function refresh(forceOffset = false) {
         if (forceOffset !== true) {
             dom("posts").innerHTML = "";
         }
-        s_fetch(`${url}${forceOffset === true && !end ? `${url.includes("?") ? "&" : "?"}offset=${useOffsetC ? offsetC : offset}` : ""}`, {
+        s_fetch(`${timelineConfig.url}${forceOffset === true && !end ? `${timelineConfig.url.includes("?") ? "&" : "?"}offset=${timelineConfig.useOffsetC ? timelineConfig.vars.offsetC : timelineConfig.vars.offset}` : ""}`, {
             disable: [...document.querySelectorAll("button[onclick*='refresh(']")],
             extraData: {
                 forceOffset: forceOffset

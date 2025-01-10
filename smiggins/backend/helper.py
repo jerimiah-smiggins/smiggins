@@ -88,6 +88,14 @@ def get_HTTP_response(
 
     lang = lang_override or get_lang(user)
 
+    muted = []
+    if user:
+        for i in MutedWord.objects.filter(user__user_id=user.user_id).values_list("string", "is_regex"):
+            if i[1]:
+                muted.append([f"/{i[0].split(')', 1)[-1]}/{i[0].split(')')[0].split('(?')[-1]}", 1])
+            else:
+                muted.append([f"{i[0]}", 0])
+
     context = {
         "SITE_NAME": SITE_NAME,
         "VERSION": lang["generic"]["version"].replace("%v", VERSION),
@@ -136,7 +144,9 @@ def get_HTTP_response(
         "THEME": theme if theme in THEMES else "auto",
         "badges": BADGE_DATA,
         "badges_str": json_f.dumps(BADGE_DATA),
-        "is_admin": bool(user and user.admin_level)
+        "is_admin": bool(user and user.admin_level),
+        "muted": json.dumps(muted) if muted else "null",
+        "muted_str": "\n".join([i[0] for i in muted])
     }
 
     for key, value in kwargs.items():

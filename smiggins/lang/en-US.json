@@ -286,13 +286,6 @@
         "all_button": "Load Codes"
       },
 
-      "mute": {
-        "title": "Muted Words",
-        "placeholder": "bad word\n/badwords?/i",
-        // \u00a0 is the non breaking space character that prevents unwanted line wrapping
-        "description": "Use spaces to separate words condition (ex: \"some\u00a0word\" would match \"[...]\u00a0some\u00a0[...]\u00a0word\u00a0[...]\" but not \"[...]\u00a0word\u00a0[...]\u00a0some\u00a0[...]\"), and use newlines to separate different definitions. Surround with forward slashes (/) for regex. Put flags after the last slash (ex: \"/text/i\")."
-      },
-
       "disabled": {
         "generic": "Disabled",
         "badge": "Badges are disabled.",
@@ -518,6 +511,18 @@
       "account_deletion_warning": "Are you COMPLETELY SURE you want to delete your account? This is an IRREVERSIBLE ACTION that CAN NOT BE UNDONE. All posts, comments, likes, messages, etc. that you have created will be deleted and unable to be recovered.",
       "account_deletion_confirm": "Yes, Delete My Account",
       "account_deletion_password": "Enter your password to continue with account deletion.",
+
+      "mute": {
+        "title": "Muted Words",
+        "placeholder": "bad word\n/badwords?/i",
+        "post_blocked": "%u - %m", // Ex: trinkey - bad word
+
+        "long": "Too long (max %m chars, %s currently - '%v')", // Ex: Too long (max 10 chars, 16 currently - 'this is 16 chars')
+        "too_many": "Too many muted words (max %m, %s set)",
+
+        // \u00a0 is the non breaking space character that prevents unwanted line wrapping
+        "description": "Use spaces to separate words condition (ex: \"some\u00a0word\" would match \"[...]\u00a0some\u00a0[...]\u00a0word\u00a0[...]\" but not \"[...]\u00a0word\u00a0[...]\u00a0some\u00a0[...]\"), and use newlines to separate different definitions. Surround with forward slashes (/) for regex. Put flags after the last slash (ex: \"/text/i\"). You can have up to %m different definitions, maximum %c characters each."
+      },
 
       "admin": "Admin page",
       "logout": "Log out of all accounts",

@@ -1,6 +1,8 @@
 # For API functions that are user-specific, like settings, following, etc.
 
-from posts.models import (Comment, OneTimePassword, Post,
+import re
+
+from posts.models import (Comment, MutedWord, OneTimePassword, Post,
                           PrivateMessageContainer, User, UserPronouns)
 
 from ..helper import (DEFAULT_LANG, create_api_ratelimit, ensure_ratelimit,
@@ -9,10 +11,11 @@ from ..helper import (DEFAULT_LANG, create_api_ratelimit, ensure_ratelimit,
 from ..variables import (API_TIMINGS, DEFAULT_BANNER_COLOR, DEFAULT_LANGUAGE,
                          ENABLE_GRADIENT_BANNERS, ENABLE_NEW_ACCOUNTS,
                          ENABLE_PRONOUNS, ENABLE_USER_BIOS, MAX_BIO_LENGTH,
-                         MAX_DISPL_NAME_LENGTH, MAX_USERNAME_LENGTH,
+                         MAX_DISPL_NAME_LENGTH, MAX_MUTED_WORD_LENGTH,
+                         MAX_MUTED_WORDS, MAX_USERNAME_LENGTH,
                          POSTS_PER_REQUEST, THEMES, VALID_LANGUAGES)
-from .schema import (Account, APIResponse, ChangePassword, Password, Settings,
-                     Theme, Username)
+from .schema import (Account, APIResponse, ChangePassword, MutedWords,
+                     Password, Settings, Theme, Username)
 
 
 def signup(request, data: Account) -> APIResponse:
@@ -676,4 +679,49 @@ def user_delete(request, data: Password) -> APIResponse:
     return 400, {
         "success": False,
         "message": lang["account"]["bad_password"]
+    }
+
+def muted(request, data: MutedWords) -> APIResponse:
+    # You may need to also edit the muted function in backend.api.admin to match functionality
+    print("hi")
+
+    user = User.objects.get(token=request.COOKIES.get("token"))
+    lang = get_lang(user)
+    objs = []
+
+    for word in data.muted.split("\n"):
+        word = word.strip().replace("\n", "")
+
+        if not word:
+            continue
+
+        if len(word) > MAX_MUTED_WORD_LENGTH:
+            return 400, {
+                "success": False,
+                "message": lang["settings"]["mute"]["long"].replace("%m", str(MAX_MUTED_WORD_LENGTH)).replace("%s", str(len(word))).replace("%v", word)
+            }
+
+        regex = word[0] == "/" and re.match(r"^/.*/[ims]+$", word)
+
+        if regex:
+            word = f"(?{''.join(list(set([i for i in word.split('/')[-1]])))}){'/'.join(word[1::].split('/')[:-1])}"
+
+        objs.append(MutedWord(
+            user=user,
+            is_regex=bool(regex),
+            string=word.replace("\n", "")
+        ))
+
+    if len(objs) > MAX_MUTED_WORDS:
+        return 400, {
+            "success": False,
+            "message": lang["settings"]["mute"]["too_many"].replace("%m", str(MAX_MUTED_WORDS)).replace("%s", str(len(objs)))
+        }
+
+    MutedWord.objects.filter(user__user_id=user.user_id).delete()
+    MutedWord.objects.bulk_create(objs)
+
+    return {
+        "success": True,
+        "message": lang["generic"]["success"]
     }

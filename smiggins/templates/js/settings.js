@@ -361,6 +361,15 @@ dom("confirm").addEventListener("keydown", function (event) {
         dom("set-password").click();
     }
 });
+dom("save-muted").addEventListener("click", function () {
+    s_fetch("/api/user/muted", {
+        method: "POST",
+        body: JSON.stringify({
+            muted: dom("muted").value
+        }),
+        disable: [this, dom("muted")]
+    });
+});
 ENABLE_EMAIL && dom("email-submit").addEventListener("click", function () {
     s_fetch("/api/email/save", {
         method: "POST",

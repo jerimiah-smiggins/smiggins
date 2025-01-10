@@ -14,9 +14,10 @@ from .post import (hashtag_list, pin_post, poll_refresh, poll_vote,
                    post_list_user, quote_create, unpin_post)
 from .user import (accept_pending, block_add, block_remove, change_password,
                    clear_read_notifs, follower_add, follower_remove,
-                   list_pending, login, notifications_list, read_notifs,
-                   remove_pending, settings, settings_theme, signup,
-                   user_delete)
+                   list_pending, login)
+from .user import muted as user_muted
+from .user import (notifications_list, read_notifs, remove_pending, settings,
+                   settings_theme, signup, user_delete)
 
 
 class ApiAdmin:
@@ -90,3 +91,4 @@ class ApiUser:
     accept_pending = accept_pending
     remove_pending = remove_pending
     user_delete = user_delete
+    muted = user_muted

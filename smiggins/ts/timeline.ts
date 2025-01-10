@@ -1,5 +1,4 @@
 let end: boolean = false;
-offset = null;
 
 function deletePost(postID: number, isComment: boolean, pageFocus: boolean): void {
   s_fetch(`/api/${isComment ? "comment" : "post"}`, {
@@ -34,15 +33,13 @@ function addQuote(postID: number, isComment: boolean): void {
   const post: Element = document.querySelector(`[data-${isComment ? "comment" : "post"}-id="${postID}"] .quote-inputs`);
   if (post.querySelector("button")) { return; }
 
-  let c: number = 0;
-
   let originalPost: HTMLElement = document.querySelector(`[data-${isComment ? "comment" : "post"}-id="${postID}"]`);
   let originalCWEl: HTMLElement = originalPost.querySelector(".c-warning summary .c-warning-main");
   let originalCW: string | null = originalCWEl ? originalCWEl.innerHTML : null;
 
   post.innerHTML = `
     <div class="quote-visibility">
-      <label for="default-private-${globalIncrement}">${ lang.post.type_followers_only }:</label>
+      <label for="default-private-${globalIncrement}">${lang.post.type_followers_only}:</label>
       <input id="default-private-${globalIncrement}" type="checkbox" ${defaultPrivate ? "checked" : ""}><br>
     </div>
     ${ENABLE_CONTENT_WARNINGS ? `<input class="c-warning" ${originalCW ? `value="${escapeHTML(originalCW.startsWith("re: ") ? originalCW.slice(0, MAX_CONTENT_WARNING_LENGTH) : "re: " + originalCW.slice(0, MAX_CONTENT_WARNING_LENGTH - 4))}"` : ""} maxlength="${MAX_CONTENT_WARNING_LENGTH}" placeholder="${lang.home.c_warning_placeholder}"><br>` : ""}
@@ -130,18 +127,18 @@ function hidePollResults(gInc: number): void {
 }
 
 function refreshPoll(gInc: number): void {
-  let poll = dom(`gi-${gInc}`);
+  let poll: HTMLElement = dom(`gi-${gInc}`);
   fetch(`/api/post/poll?id=${poll.dataset.pollId}`)
     .then((response: Response) => (response.json()))
     .then((json: {
       success: boolean,
       votes: number[]
-    }) => {
+    }): void => {
       if (json.success) {
         let pollJSON: _postJSON["poll"] = JSON.parse(poll.dataset.pollJson);
-        let sum = 0;
+        let sum: number = 0;
 
-        for (let i = 0; i < json.votes.length; i++) {
+        for (let i: number = 0; i < json.votes.length; i++) {
           pollJSON.content[i].votes = json.votes[i];
           sum += json.votes[i];
         }
@@ -159,7 +156,7 @@ function refreshPoll(gInc: number): void {
         toast(lang.generic.something_went_wrong, true);
       }
     })
-    .catch((err) => {
+    .catch((err: Error): void => {
       toast(lang.generic.something_went_wrong, true);
     });
 }
@@ -216,7 +213,7 @@ function switchTimeline(event: MouseEvent): void {
     localStorage.setItem(storageID, tl);
   }
 
-  if (url == timelines[tl]) { return; }
+  if (timelineConfig.url == timelineConfig.timelines[tl]) { return; }
 
   document.querySelectorAll("#switch > a:not([href])").forEach((val: HTMLAnchorElement, index: number): void => {
     val.href = "javascript:void(0);";
@@ -224,26 +221,26 @@ function switchTimeline(event: MouseEvent): void {
 
   this.removeAttribute("href")
 
-  url = timelines[tl];
+  timelineConfig.url = timelineConfig.timelines[tl];
   refresh();
 }
 
-function showPostModal(quoting?: string): void {
-  // TODO
-}
+// function showPostModal(quoting?: string): void {
+//   // TODO
+// }
 
 document.querySelectorAll("#switch > a").forEach((val: HTMLAnchorElement, index: number): void => {
   val.addEventListener("click", switchTimeline);
 });
 
-if (typeof disableTimeline === "undefined" || !disableTimeline) {
+if (typeof timelineConfig.disableTimeline === "undefined" || !timelineConfig.disableTimeline) {
   function refresh(forceOffset=false): void {
     if (forceOffset !== true) {
       dom("posts").innerHTML = "";
     }
 
     s_fetch(
-      `${url}${forceOffset === true && !end ? `${url.includes("?") ? "&" : "?"}offset=${useOffsetC ? offsetC : offset}` : ""}`, {
+      `${timelineConfig.url}${forceOffset === true && !end ? `${timelineConfig.url.includes("?") ? "&" : "?"}offset=${timelineConfig.useOffsetC ? timelineConfig.vars.offsetC : timelineConfig.vars.offset}` : ""}`, {
         disable: [...document.querySelectorAll("button[onclick*='refresh(']")],
         extraData: {
           forceOffset: forceOffset

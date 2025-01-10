@@ -3,20 +3,24 @@ let home: boolean | void;
 let logged_in: boolean | void;
 let profile: boolean | void;
 let share: string | void;
-let url: string;
 let type: string;
 let includeUserLink: boolean;
 let includePostLink: boolean;
 let inc: number;
-let disableTimeline: boolean;
 let c: number;
-let offset: number;
-let offsetC: number = 0;
-let useOffsetC: boolean = false;
 let onLoad: () => void;
 let redirectConfirmation: (url: string) => boolean | null;
-let timelines: { [key: string]: string } = {};
-
+let timelineConfig: {
+  vars: { offset: number | null, offsetC: number },
+  timelines: { [key: string]: string },
+  url: string, disableTimeline: boolean, useOffsetC: boolean
+} = {
+  vars: { offset: null, offsetC: 0 },
+  timelines: {},
+  url: null,
+  disableTimeline: false,
+  useOffsetC: false
+};
 let globalIncrement: number = 0;
 
 function dom(id: string): HTMLElement {
@@ -123,13 +127,13 @@ function apiResponse(
     // console.log(action.name, action);
     if (action.name == "populate_timeline") {
       if (!extraData.forceOffset) {
-        offsetC = 0;
+        timelineConfig.vars.offsetC = 0;
         if (!action.posts.length) {
           dom("posts").innerHTML = `<i>${escapeHTML(lang.post.no_posts)}</i>`
         }
       }
 
-      offsetC++;
+      timelineConfig.vars.offsetC++;
 
       let output: string = "";
       for (const post of action.posts) {
@@ -140,7 +144,7 @@ function apiResponse(
           includePostLink,
           false, false, false
         );
-        offset = post.post_id;
+        timelineConfig.vars.offset = post.post_id;
       }
 
       if (action.extra && action.extra.type == "user") {
@@ -729,6 +733,7 @@ function getPostHTML(
   isPinned: boolean=false,
   includeContainer: boolean=true
 ): string {
+  let muted: string | null = checkMuted(postJSON.content) || (postJSON.c_warning && checkMuted(postJSON.c_warning)) || (postJSON.poll && postJSON.poll.content.map((val: { value: string, votes: number, voted: boolean }): string => checkMuted(val.value)).reduce((real: string, val: string): string | null => real || val));
   return `${includeContainer ? `<div class="post-container" data-${isComment ? "comment" : "post"}-id="${postJSON.post_id}">` : ""}
     <div class="post" data-settings="${escapeHTML(JSON.stringify({
       isComment: isComment,
@@ -738,6 +743,7 @@ function getPostHTML(
       pageFocus: pageFocus,
       isPinned: isPinned
     }))}">
+      ${muted ? `<details><summary class="small">${escapeHTML(lang.settings.mute.post_blocked.replaceAll("%u", postJSON.creator.username).replaceAll("%m", muted))}</summary>` : ""}
       <div class="upper-content">
         ${includeUserLink ? `<a href="/u/${postJSON.creator.username}" class="no-underline text">` : "<span>"}
           <div class="main-area">
@@ -760,8 +766,7 @@ function getPostHTML(
       </div>
 
       <div class="main-area">
-        ${postJSON.c_warning ? `<details ${localStorage.getItem("expand-cws") ? "open" : ""} class="c-warning">` : ""}
-        ${postJSON.c_warning ? `<summary>
+        ${postJSON.c_warning ? `<details ${localStorage.getItem("expand-cws") ? "open" : ""} class="c-warning"><summary>
           <div class="c-warning-main">${escapeHTML(postJSON.c_warning)}</div>
           <div class="c-warning-stats">
             (${lang.post[postJSON.content.length == 1 ? "chars_singular" : "chars_plural"].replaceAll("%c", postJSON.content.length)
@@ -918,6 +923,7 @@ function getPostHTML(
         }
       </div>
       <div class="quote-inputs"></div>
+      ${muted ? `</details>` : ""}
     </div>
   ${includeContainer ? "</div>" : ""}`;
 }
@@ -1078,6 +1084,35 @@ function toast(message: string, warning: boolean=false, timeout: number=3000): v
   setTimeout((): void => {
     dom(`gi-${gInc}`).remove();
   }, timeout);
+}
+
+function checkMuted(text: string): string | null {
+  // true: muted - false: not muted
+
+  if (!muted) {
+    return;
+  }
+
+  for (const word of muted) {
+    let wordSegments: string[] = word[0].slice(1).split("/");
+    try {
+      let regex: RegExp;
+      if (word[1]) {
+        regex = new RegExp(`${wordSegments.slice(0, wordSegments.length - 1).join("/")}`, wordSegments[wordSegments.length - 1]);
+      } else {
+        regex = new RegExp(`\\b${word[0].replaceAll(" ", "\\b.+\\b")}\\b`, "uis");
+      }
+
+      console.log(regex, text, regex.test(text));
+      if (regex.test(text)) {
+        return word[0];
+      }
+    } catch (err) {
+      console.warn("Unable to parse muted word", word[0], word[1], wordSegments[wordSegments.length - 1]);
+    }
+  }
+
+  return;
 }
 
 // Some icons are from Font Awesome

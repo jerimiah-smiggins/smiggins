@@ -39,6 +39,7 @@ routes: list[tuple[str, str, Callable, bool | None, str, str, str | list[str]]] 
     ("user/notifications", "DELETE", ApiUser.clear_read_notifs, None, "Clear notifications", "Clears all read notifications", "User"),
     ("user/settings/theme", "PATCH", ApiUser.settings_theme, None, "Set theme", "Sets the user's theme", "User"),
     ("user/settings", "PATCH", ApiUser.settings, None, "Set settings", "Sets all global settings for a user besides theme", "User"),
+    ("user/muted", "POST", ApiUser.muted, None, "Update muted words", "Updates the list of muted words for the current user", "User"),
     ("user/password", "PATCH", ApiUser.change_password, None, "Set password", "Handles changing a user's password", "User"),
     ("user/follow", "POST", ApiUser.follower_add, None, "Follow", "Handles following someone", "User"),
     ("user/follow", "DELETE", ApiUser.follower_remove, None, "Unfollow", "Handles unfollowing someone", "User"),

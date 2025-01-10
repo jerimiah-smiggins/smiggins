@@ -1,5 +1,5 @@
 home = true;
-disableTimeline = true;
+timelineConfig.disableTimeline = true;
 
 function refreshNotifications(): void {
   dom("notif-container").innerHTML = "";

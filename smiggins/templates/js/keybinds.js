@@ -19,9 +19,6 @@ const keybinds = {
             if (heldKeys[navKey]) {
                 redirect("/notifications/");
             }
-            else if (!(event.ctrlKey)) {
-                showPostModal();
-            }
         } },
     "/": { allowLoggedOut: true, action: (event) => {
             if (event.ctrlKey) {

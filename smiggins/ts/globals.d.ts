@@ -22,6 +22,7 @@ declare const ENABLE_NEW_ACCOUNTS: boolean | "otp";
 declare const isAdmin: boolean;
 
 declare const defaultPrivate: boolean;
+declare const muted: [string, number][] | null;
 declare const linkify;
 
 // Global variables

@@ -154,6 +154,11 @@
       <button id="toggle-password">{{ lang.account.toggle_password }}</button>
       <button id="set-password">{{ lang.generic.save }}</button><br><br>
 
+      <h3>{{ lang.settings.mute.title }}</h3>
+      <textarea id="muted" placeholder="{{ lang.settings.mute.placeholder }}">{{ muted_str }}</textarea><br>
+      <button id="save-muted">{{ lang.generic.save }}</button><br>
+      <small>{{ mute_description }}</small>
+
       {% if ENABLE_EMAIL == "true" %}
         <label for="email">{{ lang.settings.account_email }}</label><br>
         <input {% if has_email == "true" and email_valid == "true" %}disabled{% endif %} value="{{ email }}" id="email" type="email" placeholder="email@example.com"></br>

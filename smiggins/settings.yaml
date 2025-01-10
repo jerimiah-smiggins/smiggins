@@ -200,6 +200,12 @@ messages_per_request: 40
 # Default: 25
 max_notifications: 25
 
+# Limits for muted words. Applies to per-user and global. Doesn't affect
+# existing limits.
+# Defaults: 50 / 500
+max_muted_words: 50
+max_muted_word_length: 500
+
 # The contact information displayed on the /contact page. The type (first
 # item) can be email, url, or text
 # Aliases: contact_info, contact_information

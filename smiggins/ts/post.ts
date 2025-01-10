@@ -4,15 +4,15 @@ declare const comment: boolean;
 type = "comment";
 includeUserLink = true;
 includePostLink = true;
-useOffsetC = true;
-timelines = {
+timelineConfig.useOffsetC = true;
+timelineConfig.timelines = {
   random: `/api/comments?id=${post_id}&comment=${comment}&sort=random`,
   newest: `/api/comments?id=${post_id}&comment=${comment}&sort=newest`,
   oldest: `/api/comments?id=${post_id}&comment=${comment}&sort=oldest`,
   liked: `/api/comments?id=${post_id}&comment=${comment}&sort=liked`,
 }
 
-url = timelines.newest;
+timelineConfig.url = timelineConfig.timelines.newest;
 
 dom("post-text") && dom("post-text").addEventListener("input", postTextInputEvent);
 

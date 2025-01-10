@@ -14,6 +14,7 @@
         const badges = JSON.parse('{{ badges_str|escapejs }}');
       {% endif %}
       const lang = JSON.parse('{{ lang_str|escapejs }}');
+      const muted = JSON.parse('{{ muted|escapejs }}');
 
       const MAX_POST_LENGTH = {{ MAX_POST_LENGTH }};
       const MAX_POLL_OPTION_LENGTH = {{ MAX_POLL_OPTION_LENGTH }};

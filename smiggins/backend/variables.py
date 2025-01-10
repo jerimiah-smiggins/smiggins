@@ -91,6 +91,8 @@ DEFAULT_BANNER_COLOR: str = "#3a1e93"
 POSTS_PER_REQUEST: int = 20
 MESSAGES_PER_REQUEST: int = 40
 MAX_NOTIFICATIONS: int = 25
+MAX_MUTED_WORDS: int = 50
+MAX_MUTED_WORD_LENGTH: int = 500
 CONTACT_INFO: list[list[str]] = [
     ["email", "trinkey@duck.com"],
     ["url",   "https://github.com/jerimiah-smiggins/smiggins/issues"],
@@ -502,6 +504,8 @@ _VARIABLES: list[tuple[str | None, list[str], type | str | list | tuple | dict, 
     ("POSTS_PER_REQUEST", ["posts_per_request"], int, False),
     ("MESSAGES_PER_REQUEST", ["messages_per_request"], int, False),
     ("MAX_NOTIFICATIONS", ["max_notifs", "max_notifications"], int, False),
+    ("MAX_MUTED_WORDS", ["max_muted_words"], int, False),
+    ("MAX_MUTED_WORD_LENGTH", ["max_muted_word_length"], int, False),
     ("CONTACT_INFO", ["contact_info", "contact_information"], [[str]], False),
     ("POST_WEBHOOKS", ["webhooks", "auto_webhooks", "post_webhooks", "auto_post_webhooks"], {str: [str]}, False),
     ("CUSTOM_HEADERS", ["custom_headers", "headers"], {str: Any}, False),
@@ -778,6 +782,8 @@ MAX_POLL_OPTION_LENGTH = clamp(MAX_POLL_OPTION_LENGTH, minimum=1)
 POSTS_PER_REQUEST = clamp(POSTS_PER_REQUEST, minimum=1)
 MESSAGES_PER_REQUEST = clamp(MESSAGES_PER_REQUEST, minimum=1)
 MAX_NOTIFICATIONS = clamp(MAX_NOTIFICATIONS, minimum=1)
+MAX_MUTED_WORDS = clamp(MAX_MUTED_WORDS, minimum=1)
+MAX_MUTED_WORD_LENGTH = clamp(MAX_MUTED_WORD_LENGTH, minimum=1)
 ITEMS_PER_SITEMAP = clamp(ITEMS_PER_SITEMAP, minimum=50, maximum=50000)
 SITEMAP_CACHE_TIMEOUT = clamp(SITEMAP_CACHE_TIMEOUT, minimum=0)
 GENERIC_CACHE_TIMEOUT = clamp(SITEMAP_CACHE_TIMEOUT, minimum=0)

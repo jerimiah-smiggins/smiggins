@@ -13,8 +13,8 @@ const keybinds: { [key: string]: _keybind } = {
   n: { action: (event: KeyboardEvent): void => {
     if (heldKeys[navKey]) {
       redirect("/notifications/");
-    } else if (!(event.ctrlKey)) {
-      showPostModal();
+    // } else if (!(event.ctrlKey)) {
+    //   showPostModal();
     }
   }},
 

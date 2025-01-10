@@ -10,7 +10,8 @@ from posts.models import (AdminLog, Badge, MutedWord, OneTimePassword,
                           PrivateMessageContainer, User)
 
 from ..helper import get_lang, sha_to_bytes, trim_whitespace
-from ..variables import (BADGE_DATA, MAX_ADMIN_LOG_LINES, OWNER_USER_ID,
+from ..variables import (BADGE_DATA, MAX_ADMIN_LOG_LINES,
+                         MAX_MUTED_WORD_LENGTH, MAX_MUTED_WORDS, OWNER_USER_ID,
                          PRIVATE_AUTHENTICATOR_KEY)
 from .schema import (AccountIdentifier, APIResponse, DeleteBadge, MutedWords,
                      NewBadge, OTPName, SaveUser, UserBadge, UserLevel)
@@ -646,11 +647,12 @@ def otp_load(request) -> APIResponse:
     }
 
 def muted(request, data: MutedWords) -> APIResponse:
+    # You may need to also edit the muted function in backend.api.user to match functionality
+
     user = User.objects.get(token=request.COOKIES.get("token"))
 
     if BitMask.can_use(user, BitMask.READ_LOGS):
         lang = get_lang(user)
-
         objs = []
 
         for word in data.muted.split("\n"):
@@ -659,7 +661,13 @@ def muted(request, data: MutedWords) -> APIResponse:
             if not word:
                 continue
 
-            regex = word[0] == "/" and re.match(r"^/.*/[aiLmsx]+$", word)
+            if len(word) > MAX_MUTED_WORD_LENGTH:
+                return 400, {
+                    "success": False,
+                    "message": lang["settings"]["mute"]["long"].replace("%m", str(MAX_MUTED_WORD_LENGTH)).replace("%s", str(len(word))).replace("%v", word)
+                }
+
+            regex = word[0] == "/" and re.match(r"^/.*/[ims]+$", word)
 
             if regex:
                 word = f"(?{''.join(list(set([i for i in word.split('/')[-1]])))}){'/'.join(word[1::].split('/')[:-1])}"
@@ -669,6 +677,12 @@ def muted(request, data: MutedWords) -> APIResponse:
                 is_regex=bool(regex),
                 string=word
             ))
+
+        if len(objs) > MAX_MUTED_WORDS:
+            return 400, {
+                "success": False,
+                "message": lang["settings"]["mute"]["too_many"].replace("%m", str(MAX_MUTED_WORDS)).replace("%s", str(len(objs)))
+            }
 
         MutedWord.objects.filter(user=None).delete()
         MutedWord.objects.bulk_create(objs)

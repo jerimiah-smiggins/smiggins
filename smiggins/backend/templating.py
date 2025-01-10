@@ -17,8 +17,8 @@ from .variables import (BADGE_DATA, CACHE_LANGUAGES, CONTACT_INFO, CREDITS,
                         ENABLE_DYNAMIC_FAVICON, ENABLE_GRADIENT_BANNERS,
                         ENABLE_LOGGED_OUT_CONTENT, ENABLE_NEW_ACCOUNTS,
                         FAVICON_DATA, MAX_CONTENT_WARNING_LENGTH,
-                        OWNER_USER_ID, SITE_NAME, THEMES, VALID_LANGUAGES,
-                        error)
+                        MAX_MUTED_WORD_LENGTH, MAX_MUTED_WORDS, OWNER_USER_ID,
+                        SITE_NAME, THEMES, VALID_LANGUAGES, error)
 
 
 def settings(request) -> HttpResponse:
@@ -51,6 +51,7 @@ def settings(request) -> HttpResponse:
         has_email = str(user.email is not None).lower(),
         email = user.email or "",
         email_valid = str(user.email_valid).lower(),
+        mute_description=lang["settings"]["mute"]["description"].replace("%m", str(MAX_MUTED_WORDS)).replace("%c", str(MAX_MUTED_WORD_LENGTH)),
 
         USER_BIO = user.bio or "",
 
@@ -342,18 +343,21 @@ def admin(request) -> HttpResponse | HttpResponseRedirect:
         )
 
     muted = ""
-    for i in MutedWord.objects.all().values_list("string", "is_regex"):
+    for i in MutedWord.objects.filter(user=None).values_list("string", "is_regex"):
         if i[1]:
             muted += f"/{i[0].split(')', 1)[-1]}/{i[0].split(')')[0].split('(?')[-1]}\n"
         else:
             muted += f"{i[0]}\n"
 
+    lang = get_lang(user)
+
     return get_HTTP_response(
-        request, "admin.html", user=user,
+        request, "admin.html", lang, user=user,
 
         LEVEL=lv,
         BADGE_DATA=BADGE_DATA,
         mask=BitMask,
+        mute_description=lang["settings"]["mute"]["description"].replace("%m", str(MAX_MUTED_WORDS)).replace("%c", str(MAX_MUTED_WORD_LENGTH)),
         muted_words=muted[:-1],
         LEVEL_RANGE=[str(i) for i in range(BitMask.MAX_LEVEL + 1)],
         LEVEL_BINARY=f"{'0' * (BitMask.MAX_LEVEL - len(f'{lv:b}'))}{lv:b}",

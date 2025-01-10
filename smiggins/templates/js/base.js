@@ -2,19 +2,20 @@ let home;
 let logged_in;
 let profile;
 let share;
-let url;
 let type;
 let includeUserLink;
 let includePostLink;
 let inc;
-let disableTimeline;
 let c;
-let offset;
-let offsetC = 0;
-let useOffsetC = false;
 let onLoad;
 let redirectConfirmation;
-let timelines = {};
+let timelineConfig = {
+    vars: { offset: null, offsetC: 0 },
+    timelines: {},
+    url: null,
+    disableTimeline: false,
+    useOffsetC: false
+};
 let globalIncrement = 0;
 function dom(id) {
     return document.getElementById(id);
@@ -96,16 +97,16 @@ function apiResponse(json, extraData) {
     for (const action of json.actions) {
         if (action.name == "populate_timeline") {
             if (!extraData.forceOffset) {
-                offsetC = 0;
+                timelineConfig.vars.offsetC = 0;
                 if (!action.posts.length) {
                     dom("posts").innerHTML = `<i>${escapeHTML(lang.post.no_posts)}</i>`;
                 }
             }
-            offsetC++;
+            timelineConfig.vars.offsetC++;
             let output = "";
             for (const post of action.posts) {
                 output += getPostHTML(post, type == "comment", includeUserLink, includePostLink, false, false, false);
-                offset = post.post_id;
+                timelineConfig.vars.offset = post.post_id;
             }
             if (action.extra && action.extra.type == "user") {
                 ENABLE_USER_BIOS && dom("user-bio").removeAttribute("hidden");
@@ -625,6 +626,7 @@ function getPollHTML(pollJSON, postID, gInc, showResults, loggedIn = true) {
   </small>`;
 }
 function getPostHTML(postJSON, isComment = false, includeUserLink = true, includePostLink = true, fakeMentions = false, pageFocus = false, isPinned = false, includeContainer = true) {
+    let muted = checkMuted(postJSON.content) || (postJSON.c_warning && checkMuted(postJSON.c_warning)) || (postJSON.poll && postJSON.poll.content.map((val) => checkMuted(val.value)).reduce((real, val) => real || val));
     return `${includeContainer ? `<div class="post-container" data-${isComment ? "comment" : "post"}-id="${postJSON.post_id}">` : ""}
     <div class="post" data-settings="${escapeHTML(JSON.stringify({
         isComment: isComment,
@@ -634,6 +636,7 @@ function getPostHTML(postJSON, isComment = false, includeUserLink = true, includ
         pageFocus: pageFocus,
         isPinned: isPinned
     }))}">
+      ${muted ? `<details><summary class="small">${escapeHTML(lang.settings.mute.post_blocked.replaceAll("%u", postJSON.creator.username).replaceAll("%m", muted))}</summary>` : ""}
       <div class="upper-content">
         ${includeUserLink ? `<a href="/u/${postJSON.creator.username}" class="no-underline text">` : "<span>"}
           <div class="main-area">
@@ -656,8 +659,7 @@ function getPostHTML(postJSON, isComment = false, includeUserLink = true, includ
       </div>
 
       <div class="main-area">
-        ${postJSON.c_warning ? `<details ${localStorage.getItem("expand-cws") ? "open" : ""} class="c-warning">` : ""}
-        ${postJSON.c_warning ? `<summary>
+        ${postJSON.c_warning ? `<details ${localStorage.getItem("expand-cws") ? "open" : ""} class="c-warning"><summary>
           <div class="c-warning-main">${escapeHTML(postJSON.c_warning)}</div>
           <div class="c-warning-stats">
             (${lang.post[postJSON.content.length == 1 ? "chars_singular" : "chars_plural"].replaceAll("%c", postJSON.content.length)}${postJSON.quote ? `, ${lang.post.quote}` : ""}${postJSON.poll ? `, ${lang.home.poll}` : ""})
@@ -784,6 +786,7 @@ function getPostHTML(postJSON, isComment = false, includeUserLink = true, includ
             </button>` : ""}</div>` : ""}
       </div>
       <div class="quote-inputs"></div>
+      ${muted ? `</details>` : ""}
     </div>
   ${includeContainer ? "</div>" : ""}`;
 }
@@ -903,6 +906,31 @@ function toast(message, warning = false, timeout = 3000) {
     setTimeout(() => {
         dom(`gi-${gInc}`).remove();
     }, timeout);
+}
+function checkMuted(text) {
+    if (!muted) {
+        return;
+    }
+    for (const word of muted) {
+        let wordSegments = word[0].slice(1).split("/");
+        try {
+            let regex;
+            if (word[1]) {
+                regex = new RegExp(`${wordSegments.slice(0, wordSegments.length - 1).join("/")}`, wordSegments[wordSegments.length - 1]);
+            }
+            else {
+                regex = new RegExp(`\\b${word[0].replaceAll(" ", "\\b.+\\b")}\\b`, "uis");
+            }
+            console.log(regex, text, regex.test(text));
+            if (regex.test(text)) {
+                return word[0];
+            }
+        }
+        catch (err) {
+            console.warn("Unable to parse muted word", word[0], word[1], wordSegments[wordSegments.length - 1]);
+        }
+    }
+    return;
 }
 const icons = {
     settings: `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" aria-label="${escapeHTML(lang.settings.title)}"><path d="M495.9 166.6c3.2 8.7.5 18.4-6.4 24.6l-43.3 39.4c1.1 8.3 1.7 16.8 1.7 25.4s-.6 17.1-1.7 25.4l43.3 39.4c6.9 6.2 9.6 15.9 6.4 24.6-4.4 11.9-9.7 23.3-15.8 34.3l-4.7 8.1c-6.6 11-14 21.4-22.1 31.2-5.9 7.2-15.7 9.6-24.5 6.8l-55.7-17.7c-13.4 10.3-28.2 18.9-44 25.4l-12.5 57.1c-2 9.1-9 16.3-18.2 17.8-13.8 2.3-28 3.5-42.5 3.5s-28.7-1.2-42.5-3.5c-9.2-1.5-16.2-8.7-18.2-17.8l-12.5-57.1c-15.8-6.5-30.6-15.1-44-25.4l-55.6 17.8c-8.8 2.8-18.6.3-24.5-6.8-8.1-9.8-15.5-20.2-22.1-31.2l-4.7-8.1c-6.1-11-11.4-22.4-15.8-34.3-3.2-8.7-.5-18.4 6.4-24.6l43.3-39.4c-1.1-8.4-1.7-16.9-1.7-25.5s.6-17.1 1.7-25.4l-43.3-39.4c-6.9-6.2-9.6-15.9-6.4-24.6 4.4-11.9 9.7-23.3 15.8-34.3l4.7-8.1c6.6-11 14-21.4 22.1-31.2 5.9-7.2 15.7-9.6 24.5-6.8l55.7 17.7c13.4-10.3 28.2-18.9 44-25.4l12.5-57.1c2-9.1 9-16.3 18.2-17.8C227.3 1.2 241.5 0 256 0s28.7 1.2 42.5 3.5c9.2 1.5 16.2 8.7 18.2 17.8l12.5 57.1c15.8 6.5 30.6 15.1 44 25.4l55.7-17.7c8.8-2.8 18.6-.3 24.5 6.8 8.1 9.8 15.5 20.2 22.1 31.2l4.7 8.1c6.1 11 11.4 22.4 15.8 34.3zM256 336a80 80 0 1 0 0-160 80 80 0 1 0 0 160z"/></svg>`,

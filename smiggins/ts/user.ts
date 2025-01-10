@@ -2,7 +2,7 @@ username = document.body.getAttribute("data-username");
 share = location.href;
 home = true;
 
-url = `/api/post/user/${username}`;
+timelineConfig.url = `/api/post/user/${username}`;
 type = "post";
 includeUserLink = false;
 includePostLink = true;

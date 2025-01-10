@@ -198,7 +198,6 @@ dom("color").addEventListener("change", function(): void {
     }
 });
 
-
 (dom("expand-cws") as HTMLInputElement).checked = !!localStorage.getItem("expand-cws");
 dom("expand-cws").addEventListener("change", function(): void {
   if ((this as HTMLInputElement).checked) {
@@ -416,6 +415,16 @@ dom("confirm").addEventListener("keydown", function(event: KeyboardEvent): void 
     dom("set-password").focus();
     dom("set-password").click();
   }
+});
+
+dom("save-muted").addEventListener("click", function(): void {
+  s_fetch("/api/user/muted", {
+    method: "POST",
+    body: JSON.stringify({
+      muted: (dom("muted") as HTMLTextAreaElement).value
+    }),
+    disable: [this, dom("muted")]
+  });
 });
 
 ENABLE_EMAIL && dom("email-submit").addEventListener("click", function(): void {

@@ -1,5 +1,5 @@
 home = true;
-disableTimeline = true;
+timelineConfig.disableTimeline = true;
 function refreshNotifications() {
     dom("notif-container").innerHTML = "";
     s_fetch("/api/user/notifications", {

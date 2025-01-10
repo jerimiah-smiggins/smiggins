@@ -1,18 +1,18 @@
 home = true;
-offset = -1;
+timelineConfig.vars.offset = -1;
 
 function refreshPendingList(fromStart=false): void {
   if (fromStart) {
-    offset = -1;
+    timelineConfig.vars.offset = -1;
     dom("user-list").innerHTML = "";
   } else {
-    offset++;
-    if (!offset) {
-      offset++;
+    timelineConfig.vars.offset++;
+    if (!timelineConfig.vars.offset) {
+      timelineConfig.vars.offset++;
     }
   }
 
-  s_fetch(`/api/user/pending?offset=${offset}`, {
+  s_fetch(`/api/user/pending?offset=${timelineConfig.vars.offset}`, {
     disable: [dom("refresh"), dom("more")]
   });
 }

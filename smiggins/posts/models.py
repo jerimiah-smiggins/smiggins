@@ -10,7 +10,7 @@ class User(models.Model):
     user_id = models.IntegerField(primary_key=True, unique=True)
     username = models.CharField(max_length=300, unique=True)
     token = models.CharField(max_length=64, unique=True)
-    email = models.TextField(null=True)
+    email = models.TextField(null=True, blank=True)
     email_valid = models.BooleanField(default=False)
 
     # Admin level
@@ -52,7 +52,7 @@ class User(models.Model):
     if TYPE_CHECKING:
         pinned: "Post | None"
     else:
-        pinned = models.ForeignKey("Post", on_delete=models.SET_NULL, null=True)
+        pinned = models.ForeignKey("Post", on_delete=models.SET_NULL, null=True, blank=True)
 
     if TYPE_CHECKING:
         posts: models.Manager["Post"]
@@ -82,7 +82,7 @@ class Post(models.Model):
     quote_is_comment = models.BooleanField(default=False)
 
     edited = models.BooleanField(default=False)
-    edited_at = models.IntegerField(null=True)
+    edited_at = models.IntegerField(null=True, blank=True)
 
     likes = models.ManyToManyField(User, through="M2MLike", related_name="liked_posts", blank=True)
     comments = models.JSONField(default=list, blank=True) #!# reverse foreignkey
@@ -116,7 +116,7 @@ class Post(models.Model):
 
 class Comment(models.Model):
     comment_id = models.IntegerField(primary_key=True, unique=True)
-    content = models.TextField(max_length=65536, blank=True)
+    content = models.TextField(max_length=65536)
     content_warning = models.TextField(max_length=200, null=True, blank=True)
     creator = models.ForeignKey(User, on_delete=models.CASCADE, related_name="comments")
     timestamp = models.IntegerField()
@@ -125,7 +125,7 @@ class Comment(models.Model):
     parent_is_comment = models.BooleanField(default=False)
 
     edited = models.BooleanField(default=False)
-    edited_at = models.IntegerField(null=True)
+    edited_at = models.IntegerField(null=True, blank=True)
 
     private = models.BooleanField(null=True)
 

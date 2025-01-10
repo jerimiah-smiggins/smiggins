@@ -149,10 +149,10 @@
     {% admin_level LEVEL mask.CHANGE_MUTED_WORDS as can %}
     {% if can %}
       <div>
-        <h3>{{ lang.admin.mute.title }}</h3>
-        <textarea id="muted" placeholder="{{ lang.admin.mute.placeholder }}">{{ muted_words }}</textarea><br>
+        <h3>{{ lang.settings.mute.title }}</h3>
+        <textarea id="muted" placeholder="{{ lang.settings.mute.placeholder }}">{{ muted_words }}</textarea><br>
         <button id="save-muted">{{ lang.generic.save }}</button><br>
-        <small>{{ lang.admin.mute.description }}</small>
+        <small>{{ mute_description }}</small>
       </div>
     {% endif %}
   </div>
