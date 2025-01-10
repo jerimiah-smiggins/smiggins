@@ -11,6 +11,7 @@
 10. Notifications are properly deleted when a post gets deleted (#289)
 11. The "No posts" indicator no longer stays visible when a post is prepended (#296)
 12. The notification indicator in the title now clears immediately when it makes sense to do so (#297)
+13. Content warnings on polls no longer collapse when voting (#290)
 ## v0.13.7
 1. **\[!!!\]**  Moved the settings file from `settings.json` to `settings.yaml`
 2. Made usernames case-insensitive across the whole website
