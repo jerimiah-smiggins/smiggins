@@ -49,6 +49,13 @@
       <meta name="google-site-verification" content="{{ GOOGLE_VERIFICATION_TAG }}">
     {% endif %}
 
+    <meta name="mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <link data-set-favi-href data-favi-large rel="apple-touch-startup-image" href="{% static "img/old_favicon.png" %}?v={{ VERSION }}">
+    <link data-set-favi-href data-favi-large rel="apple-touch-icon" href="{% static "img/old_favicon.png" %}?v={{ VERSION }}">
+    <link data-set-favi-href data-favi-large rel="apple-touch-icon" href="{% static "img/old_favicon.png" %}?v={{ VERSION }}">
+
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width,initial-scale=1">
     <meta name="pronouns" content="she/her">

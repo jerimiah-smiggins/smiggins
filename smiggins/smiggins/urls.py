@@ -20,7 +20,7 @@ from django.views.decorators.cache import cache_page
 cache_prefix = ".".join([str(i) for i in REAL_VERSION])
 
 # variables to reduce code duplication
-_favicon = lambda request, a=0: HttpResponseRedirect("/static/img/old_favicon.ico", status=308) # noqa: E731
+_favicon = lambda request, a=0: HttpResponseRedirect("/static/img/old_favicon.png", status=308) # noqa: E731
 _robots_txt = create_simple_return("", content_type="text/plain", content_override=ROBOTS)
 _security_txt = create_simple_return("", content_type="text/plain", content_override="\n".join([{"email": "Email", "text": "Other", "url": "Link"}[i[0]] + f": {i[1]}" for i in CONTACT_INFO]) + "\n")
 

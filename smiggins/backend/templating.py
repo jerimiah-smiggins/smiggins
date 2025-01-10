@@ -452,7 +452,7 @@ def pending(request) -> HttpResponse | HttpResponseRedirect:
 
     return get_HTTP_response(request, "pending.html", user=user)
 
-generate_favicon = lambda request, a: HttpResponseRedirect("/static/img/old_favicon.ico", status=308) # noqa: E731
+generate_favicon = lambda request, a: HttpResponseRedirect("/static/img/old_favicon.png", status=308) # noqa: E731
 
 if ENABLE_DYNAMIC_FAVICON:
     try:
@@ -465,10 +465,14 @@ if ENABLE_DYNAMIC_FAVICON:
         def generate_favicon(request, a) -> HttpResponse | HttpResponseServerError:
             colors: tuple[str, str, str] = a.split("-")
 
+            size = 32
+            if "large" in request.GET:
+                size = 128
+
             png_data: bytes | None = svg2png(
                 FAVICON_DATA.replace("@{background}", f"#{colors[0]}").replace("@{background_alt}", f"#{colors[1]}").replace("@{accent}", f"#{colors[2]}"),
-                output_width=32,
-                output_height=32
+                output_width=size,
+                output_height=size
             )
 
             if not isinstance(png_data, bytes):

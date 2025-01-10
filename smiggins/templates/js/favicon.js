@@ -84,21 +84,23 @@ function autoCancel() {
     _autoMM.removeEventListener("change", autoSetFavicon);
 }
 function setOldFavicon() {
-    favicon.href = "{% static '/img/old_favicon.ico' %}?v={{ VERSION }}";
+    for (const el of document.querySelectorAll("[data-set-favi-href]")) {
+        el.href = "{% static '/img/old_favicon.png' %}?v={{ VERSION }}";
+    }
 }
 function setGenericFavicon() {
-    let bg;
-    let bb;
-    let accent;
     let obj = autoThemeObject || {
         background: themeObject.colors.background,
         background_alt: themeObject.colors.button_background,
         accent: themeObject.colors.accent,
     };
-    bg = obj.background.slice(1, 7);
-    bb = obj.background_alt.slice(1, 7);
-    accent = obj.accent[validColors.indexOf(localStorage.getItem("color")) == -1 ? "mauve" : localStorage.getItem("color")].slice(1, 7);
-    favicon.href = `/favicon-${bg == "accent" ? accent : bg}-${bb == "accent" ? accent : bb}-${accent}`;
+    let bg = obj.background.slice(1, 7);
+    let bb = obj.background_alt.slice(1, 7);
+    let accent = obj.accent[validColors.indexOf(localStorage.getItem("color")) == -1 ? "mauve" : localStorage.getItem("color")].slice(1, 7);
+    let href = `/favicon-${bg == "accent" ? accent : bg}-${bb == "accent" ? accent : bb}-${accent}`;
+    for (const el of document.querySelectorAll("[data-set-favi-href]")) {
+        el.href = href + (el.dataset.faviLarge !== undefined ? "?large" : "");
+    }
 }
 let autoEnabled = false;
 let _autoMM = matchMedia("(prefers-color-scheme: light)");
@@ -115,6 +117,7 @@ else {
 }
 favicon.rel = "icon";
 favicon.type = "image/png";
+favicon.dataset.setFaviHref = "";
 if (oldFavicon) {
     setOldFavicon();
 }
