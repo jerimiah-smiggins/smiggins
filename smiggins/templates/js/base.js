@@ -99,7 +99,7 @@ function apiResponse(json, extraData) {
             if (!extraData.forceOffset) {
                 timelineConfig.vars.offsetC = 0;
                 if (!action.posts.length) {
-                    dom("posts").innerHTML = `<i>${escapeHTML(lang.post.no_posts)}</i>`;
+                    dom("posts").innerHTML = `<i data-no-posts>${escapeHTML(lang.post.no_posts)}</i>`;
                 }
             }
             timelineConfig.vars.offsetC++;

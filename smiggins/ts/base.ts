@@ -71,16 +71,16 @@ function s_fetch(
     method: data.method,
     body: data.body
   }).then((response: Response) => (response.json()))
-    .then((json: _actions) => {
+    .then((json: _actions): void => {
       apiResponse(json, data.extraData);
       success = json.success;
     })
-    .catch((err) => {
+    .catch((err: Error): void => {
       toast(lang.generic.something_went_wrong, true);
       console.error(err);
       success = null;
     })
-    .finally(() => {
+    .finally((): void => {
       for (const el of data.disable) {
         if (el === false || el === null) {
           continue;
@@ -129,7 +129,7 @@ function apiResponse(
       if (!extraData.forceOffset) {
         timelineConfig.vars.offsetC = 0;
         if (!action.posts.length) {
-          dom("posts").innerHTML = `<i>${escapeHTML(lang.post.no_posts)}</i>`
+          dom("posts").innerHTML = `<i data-no-posts>${escapeHTML(lang.post.no_posts)}</i>`
         }
       }
 
