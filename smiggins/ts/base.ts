@@ -734,6 +734,8 @@ function getPostHTML(
   includeContainer: boolean=true
 ): string {
   let muted: string | null = checkMuted(postJSON.content) || (postJSON.c_warning && checkMuted(postJSON.c_warning)) || (postJSON.poll && postJSON.poll.content.map((val: { value: string, votes: number, voted: boolean }): string => checkMuted(val.value)).reduce((real: string, val: string): string | null => real || val));
+  let quoteMuted: string | null = postJSON.quote && (checkMuted(postJSON.quote.content) || (postJSON.quote.c_warning && checkMuted(postJSON.quote.c_warning)));
+
   return `${includeContainer ? `<div class="post-container" data-${isComment ? "comment" : "post"}-id="${postJSON.post_id}">` : ""}
     <div class="post" data-settings="${escapeHTML(JSON.stringify({
       isComment: isComment,
@@ -814,6 +816,7 @@ function getPostHTML(
         postJSON.quote ? `
           <div class="quote-area">
             <div class="post">
+              ${quoteMuted ? `<details><summary class="small">${escapeHTML(lang.settings.mute.post_blocked.replaceAll("%u", postJSON.creator.username).replaceAll("%m", quoteMuted))}</summary>` : ""}
               ${
                 postJSON.quote.blocked ? (postJSON.quote.blocked_by_self ? lang.home.quote_blocked : lang.home.quote_blocked_other) : postJSON.quote.deleted ? lang.home.quote_deleted : postJSON.quote.can_view ? `
                   <div class="upper-content">
@@ -869,6 +872,7 @@ function getPostHTML(
                   ${postJSON.quote.c_warning ? `</details>` : ""}
                 ` : lang.home.quote_private
               }
+              ${quoteMuted ? `</details>` : ""}
             </div>
           </div>
         ` : ""

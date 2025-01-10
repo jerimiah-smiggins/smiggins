@@ -299,7 +299,7 @@ def quote_create(request, data: NewQuote) -> APIResponse:
             tag = Hashtag.objects.get(tag=i.lower())
 
         except Hashtag.DoesNotExist:
-            tag = Hashtag(
+            tag = Hashtag.objects.create(
                 tag=i
             )
 

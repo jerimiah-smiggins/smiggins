@@ -151,6 +151,8 @@ favicon.rel = "shortcut icon";
 favicon.type = "image/png";
 favicon.dataset.setFaviHref = "";
 
+document.head.append(favicon);
+
 if (oldFavicon) {
   setOldFavicon();
 } else if (autoEnabled) {
@@ -158,5 +160,3 @@ if (oldFavicon) {
 } else {
   setGenericFavicon();
 }
-
-document.head.append(favicon);
