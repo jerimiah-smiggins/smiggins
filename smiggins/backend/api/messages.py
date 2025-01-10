@@ -184,11 +184,17 @@ def messages_list(request, username: str, forward: bool=True, offset: int=-1) ->
             "id": message.message_id
         })
 
+    actions = []
+
+    if len(messages):
+        actions.append({ "name": "message_list", "messages": messages, "more": more, "forward": forward })
+
+    if offset == -1:
+        actions.append({ "name": "refresh_notifications" })
+
     return {
         "success": True,
-        "actions": [
-            { "name": "message_list", "messages": messages, "more": more, "forward": forward }
-        ] if len(messages) else []
+        "actions": actions
     }
 
 def recent_messages(request, offset: int=-1) -> APIResponse:

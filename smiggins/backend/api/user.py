@@ -507,7 +507,8 @@ def read_notifs(request) -> APIResponse:
             ]},
             { "name": "update_element", "query": "[data-add-notification-dot]", "set_class": [
                 { "class_name": "dot", "enable": False }
-            ]}
+            ]},
+            { "name": "refresh_notifications" }
         ]
     }
 
@@ -616,7 +617,8 @@ def accept_pending(request, data: Username) -> APIResponse:
     return {
         "success": True,
         "actions": [
-            { "name": "refresh_timeline", "special": "pending" }
+            { "name": "refresh_timeline", "special": "pending" },
+            { "name": "refresh_notifications" }
         ]
     }
 
@@ -635,7 +637,8 @@ def remove_pending(request, data: Username) -> APIResponse:
     return {
         "success": True,
         "actions": [
-            { "name": "refresh_timeline", "special": "pending" }
+            { "name": "refresh_timeline", "special": "pending" },
+            { "name": "refresh_notifications" }
         ]
     }
 

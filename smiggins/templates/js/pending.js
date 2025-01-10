@@ -31,6 +31,7 @@ function block(username) {
         }),
         postFunction: (success) => {
             refreshPendingList(true);
+            getNotifications();
         }
     });
 }

@@ -167,6 +167,9 @@ class _actions_remove(TypedDict):
     post_id: int
     comment: bool
 
+class _actions_notifications(TypedDict):
+    name: Literal["refresh_notifications"]
+
 class _actions_refresh(TypedDict):
     name: Literal["refresh_timeline"]
     url_includes: NotRequired[list[str]]
@@ -281,6 +284,7 @@ class _actions(TypedDict):
       | _actions_prepend
       | _actions_reset
       | _actions_remove
+      | _actions_notifications
       | _actions_refresh
       | _actions_user_tl
       | _actions_notification

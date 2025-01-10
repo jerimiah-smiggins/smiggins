@@ -14,7 +14,7 @@ function refreshMessageList(fromStart=false): void {
 
   s_fetch(`/api/messages/list?offset=${timelineConfig.vars.offset}`, {
     disable: [dom("refresh"), dom("more")]
-  })
+  });
 }
 
 refreshMessageList(true);

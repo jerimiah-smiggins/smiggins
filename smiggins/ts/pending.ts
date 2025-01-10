@@ -23,7 +23,7 @@ function _followAction(username: string, method: "POST" | "DELETE"): void {
     body: JSON.stringify({
       username: username
     })
-  })
+  });
 }
 
 function block(username: string): void {
@@ -34,6 +34,7 @@ function block(username: string): void {
     }),
     postFunction: (success: boolean): void => {
       refreshPendingList(true);
+      getNotifications();
     }
   });
 }

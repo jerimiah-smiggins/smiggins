@@ -214,6 +214,8 @@ function apiResponse(
       } else {
         document.querySelector(`.post-container[data-${action.comment ? "comment" : "post"}-id="${action.post_id}"]`).remove();
       }
+    } else if (action.name == "refresh_notifications") {
+      getNotifications();
     } else if (action.name == "refresh_timeline") {
       let rfFunc = action.special == "notifications" ? refreshNotifications : action.special == "pending" ? refreshPendingList : action.special == "message" ? refreshMessages : refresh;
       if (action.url_includes) {

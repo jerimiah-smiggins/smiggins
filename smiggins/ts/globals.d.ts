@@ -157,6 +157,8 @@ type _actions = {
     comment: boolean,
     post: _postJSON
   } | {
+    name: "refresh_notifications"
+  } | {
     name: "refresh_timeline",
     url_includes?: string[],
     special?: "notifications" | "pending" | "message" | null
