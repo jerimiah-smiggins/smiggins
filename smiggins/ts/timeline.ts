@@ -95,7 +95,7 @@ function toggleLike(postID: number, type: string): void {
 }
 
 function vote(option: number, postID: number): void {
-  s_fetch("/api/post/poll", {
+  s_fetch(`/api/post/poll`, {
     method: "POST",
     body: JSON.stringify({
       id: postID,
@@ -128,37 +128,7 @@ function hidePollResults(gInc: number): void {
 
 function refreshPoll(gInc: number): void {
   let poll: HTMLElement = dom(`gi-${gInc}`);
-  fetch(`/api/post/poll?id=${poll.dataset.pollId}`)
-    .then((response: Response) => (response.json()))
-    .then((json: {
-      success: boolean,
-      votes: number[]
-    }): void => {
-      if (json.success) {
-        let pollJSON: _postJSON["poll"] = JSON.parse(poll.dataset.pollJson);
-        let sum: number = 0;
-
-        for (let i: number = 0; i < json.votes.length; i++) {
-          pollJSON.content[i].votes = json.votes[i];
-          sum += json.votes[i];
-        }
-
-        pollJSON.votes = sum;
-        poll.dataset.pollJson = JSON.stringify(pollJSON);
-        poll.innerHTML = getPollHTML(
-          pollJSON,
-          +poll.dataset.pollId,
-          gInc,
-          true,
-          poll.dataset.pollLoggedIn == "true"
-        );
-      } else {
-        toast(lang.generic.something_went_wrong, true);
-      }
-    })
-    .catch((err: Error): void => {
-      toast(lang.generic.something_went_wrong, true);
-    });
+  s_fetch(`/api/post/poll?id=${poll.dataset.pollId}`);
 }
 
 function editPost(postID: number, isComment: boolean, private: boolean, originalText: string): void {

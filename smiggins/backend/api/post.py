@@ -14,7 +14,7 @@ from ..helper import (DEFAULT_LANG, can_view_post, check_muted_words,
                       create_api_ratelimit, create_notification,
                       delete_notification, ensure_ratelimit, find_hashtags,
                       find_mentions, get_lang, get_post_json, trim_whitespace,
-                      validate_username)
+                      validate_username, get_poll)
 from ..variables import (API_TIMINGS, ENABLE_CONTENT_WARNINGS,
                          ENABLE_LOGGED_OUT_CONTENT, ENABLE_PINNED_POSTS,
                          ENABLE_POLLS, ENABLE_POST_DELETION,
@@ -710,7 +710,7 @@ def poll_vote(request, data: Poll) -> APIResponse:
         return {
             "success": True,
             "actions": [
-                { "name": "reset_post_html", "post_id": data.id, "comment": False, "post": get_post_json(post, user, False) }
+                { "name": "refresh_poll", "poll": get_poll(post, user.user_id), "post_id": post.post_id }
             ]
         }
 
@@ -718,7 +718,7 @@ def poll_vote(request, data: Poll) -> APIResponse:
         "success": False
     }
 
-def poll_refresh(request, id: int) -> dict | tuple[int, dict]:
+def poll_refresh(request, id: int) -> APIResponse:
     post = Post.objects.get(post_id=id)
 
     if post.poll:
@@ -732,7 +732,9 @@ def poll_refresh(request, id: int) -> dict | tuple[int, dict]:
 
         return {
             "success": True,
-            "votes": [len(otp["votes"]) for otp in post.poll["content"]] # type: ignore
+            "actions": [
+                { "name": "refresh_poll", "poll": get_poll(post, user.user_id), "post_id": post.post_id }
+            ]
         }
 
     return 400, {

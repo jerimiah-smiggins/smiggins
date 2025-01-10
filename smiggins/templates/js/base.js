@@ -27,6 +27,7 @@ const validColors = [
 ];
 const months = lang.generic.time.months;
 function s_fetch(url, data) {
+    data = data || {};
     data.method = data.method || "GET";
     data.disable = data.disable || [];
     for (const el of data.disable) {
@@ -471,6 +472,10 @@ function apiResponse(json, extraData) {
                 }
             }
         }
+        else if (action.name == "refresh_poll") {
+            let poll = document.querySelector(`[data-post-id="${action.post_id}"] [data-poll-json]`);
+            poll.innerHTML = getPollHTML(action.poll, +poll.dataset.pollId, +poll.id.split("-")[1], true, poll.dataset.pollLoggedIn == "true");
+        }
         else {
             console.log(`Unknown API action`, action);
         }
@@ -752,8 +757,8 @@ function getPostHTML(postJSON, isComment = false, includeUserLink = true, includ
             </div>
           </div>
         ` : ""}
-      </div>
       ${postJSON.c_warning ? `</details>` : ""}
+      </div>
 
       <div class="bottom-content">
         ${includePostLink ? `<a href="/${isComment ? "c" : "p"}/${postJSON.post_id}" class="text no-underline">` : ""}
@@ -927,7 +932,6 @@ function checkMuted(text) {
             else {
                 regex = new RegExp(`\\b${word[0].replaceAll(" ", "\\b.+\\b")}\\b`, "uis");
             }
-            console.log(regex, text, regex.test(text));
             if (regex.test(text)) {
                 return word[0];
             }

@@ -44,6 +44,8 @@ function s_fetch(
     postFunction?: (success: boolean) => void
   }
 ): void {
+  data = data || {};
+
   data.method = data.method || "GET";
   data.disable = data.disable || [];
 
@@ -541,6 +543,16 @@ function apiResponse(
           element.focus();
         }
       }
+    } else if (action.name == "refresh_poll") {
+      let poll: HTMLElement = document.querySelector(`[data-post-id="${action.post_id}"] [data-poll-json]`)
+
+      poll.innerHTML = getPollHTML(
+        action.poll,
+        +poll.dataset.pollId,
+        +poll.id.split("-")[1],
+        true,
+        poll.dataset.pollLoggedIn == "true"
+      );
     } else {
       console.log(`Unknown API action`, action);
     }
@@ -879,8 +891,8 @@ function getPostHTML(
           </div>
         ` : ""
       }
-      </div>
       ${postJSON.c_warning ? `</details>` : ""}
+      </div>
 
       <div class="bottom-content">
         ${includePostLink ? `<a href="/${isComment ? "c" : "p"}/${postJSON.post_id}" class="text no-underline">` : ""}
@@ -1109,7 +1121,6 @@ function checkMuted(text: string): string | null {
         regex = new RegExp(`\\b${word[0].replaceAll(" ", "\\b.+\\b")}\\b`, "uis");
       }
 
-      console.log(regex, text, regex.test(text));
       if (regex.test(text)) {
         return word[0];
       }

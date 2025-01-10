@@ -302,7 +302,25 @@ def can_view_post(self_user: User | None, creator: User | None, post: Post | Com
 
     return True,
 
-def get_post_json(post_id: int | Post | Comment, current_user_id: int | User | None=None, comment: bool=False) -> dict[str, str | int | dict]:
+def get_poll(post: Post | Comment, user_id: int) -> dict | None:
+    if not isinstance(post, Post) or not isinstance(post.poll, dict):
+        return None
+
+    return {
+        "votes": len(post.poll["votes"]),
+        "voted": user_id in post.poll["votes"],
+        "content": [{
+            "value": i["value"],
+            "votes": len(i["votes"]),
+            "voted": user_id in i["votes"]
+        } for i in post.poll["content"]], # type: ignore
+    }
+
+def get_post_json(
+    post_id: int | Post | Comment,
+    current_user_id: int | User | None=None,
+    comment: bool=False
+) -> dict[str, str | int | dict]:
     # Returns a dict object that includes information about the specified post
     # When editing the json content response of this function, make sure you also
     # correct the schema in static/ts/globals.d.ts
@@ -343,22 +361,6 @@ def get_post_json(post_id: int | Post | Comment, current_user_id: int | User | N
                 "blocked_by_self": False
             }
 
-    if isinstance(post, Post) and isinstance(post.poll, dict):
-        tmp_poll: dict[str, Any] = post.poll
-
-        poll = {
-            "votes": len(tmp_poll["votes"]),
-            "voted": current_user_id in tmp_poll["votes"],
-            "content": [{
-                "value": i["value"],
-                "votes": len(i["votes"]),
-                "voted": current_user_id in i["votes"]
-            } for i in tmp_poll["content"]], # type: ignore
-        }
-
-    else:
-        poll = None
-
     post_json = {
         "creator": {
             "display_name": creator.display_name,
@@ -384,7 +386,7 @@ def get_post_json(post_id: int | Post | Comment, current_user_id: int | User | N
         "can_view": True,
         "parent": post.parent if isinstance(post, Comment) else -1,
         "parent_is_comment": post.parent_is_comment if isinstance(post, Comment) else False,
-        "poll": poll,
+        "poll": get_poll(post, current_user_id),
         "logged_in": user is not None,
         "edited": post.edited,
         "edited_at": post.edited_at

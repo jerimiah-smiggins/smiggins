@@ -86,7 +86,7 @@ function toggleLike(postID, type) {
     });
 }
 function vote(option, postID) {
-    s_fetch("/api/post/poll", {
+    s_fetch(`/api/post/poll`, {
         method: "POST",
         body: JSON.stringify({
             id: postID,
@@ -104,27 +104,7 @@ function hidePollResults(gInc) {
 }
 function refreshPoll(gInc) {
     let poll = dom(`gi-${gInc}`);
-    fetch(`/api/post/poll?id=${poll.dataset.pollId}`)
-        .then((response) => (response.json()))
-        .then((json) => {
-        if (json.success) {
-            let pollJSON = JSON.parse(poll.dataset.pollJson);
-            let sum = 0;
-            for (let i = 0; i < json.votes.length; i++) {
-                pollJSON.content[i].votes = json.votes[i];
-                sum += json.votes[i];
-            }
-            pollJSON.votes = sum;
-            poll.dataset.pollJson = JSON.stringify(pollJSON);
-            poll.innerHTML = getPollHTML(pollJSON, +poll.dataset.pollId, gInc, true, poll.dataset.pollLoggedIn == "true");
-        }
-        else {
-            toast(lang.generic.something_went_wrong, true);
-        }
-    })
-        .catch((err) => {
-        toast(lang.generic.something_went_wrong, true);
-    });
+    s_fetch(`/api/post/poll?id=${poll.dataset.pollId}`);
 }
 function editPost(postID, isComment, private, originalText) {
     let post = document.querySelector(`[data-${isComment ? "comment" : "post"}-id="${postID}"]`);
