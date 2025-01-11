@@ -71,14 +71,7 @@ button:not(.bottom-content-icon) {
     }
   }
 
-  .main-content {
-    word-break: break-word;
-    display: -webkit-box;
-    line-clamp: 7;
-    -webkit-line-clamp: 7;
-    -webkit-box-orient: vertical;
-    overflow-y: hidden;
-
+  .main-area {
     .c-warning summary {
       background-color: var(--content-warning-background);
       text-align: center;
@@ -100,6 +93,15 @@ button:not(.bottom-content-icon) {
         color: var(--subtext);
       }
     }
+  }
+
+  .main-content {
+    word-break: break-word;
+    display: -webkit-box;
+    line-clamp: 7;
+    -webkit-line-clamp: 7;
+    -webkit-box-orient: vertical;
+    overflow-y: hidden;
   }
 
   .quote-area {
