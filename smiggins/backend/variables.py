@@ -6,7 +6,7 @@ import sys
 from typing import Any, Callable, Literal
 
 import json5 as json
-import yaml  # type: ignore
+import yaml
 from dotenv import dotenv_values
 
 
