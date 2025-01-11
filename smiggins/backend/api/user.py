@@ -686,40 +686,38 @@ def user_delete(request, data: Password) -> APIResponse:
 
 def muted(request, data: MutedWords) -> APIResponse:
     # You may need to also edit the muted function in backend.api.admin to match functionality
-    print("hi")
 
     user = User.objects.get(token=request.COOKIES.get("token"))
     lang = get_lang(user)
     objs = []
 
-    for word in data.muted.split("\n"):
-        word = word.strip().replace("\n", "")
+    words: list[tuple[str, bool]] = [(word.strip().replace("\n", ""), False) for word in data.soft.split("\n") if word.strip()] + [(word.strip().replace("\n", ""), True) for word in data.hard.split("\n") if word.strip()]
 
-        if not word:
-            continue
-
-        if len(word) > MAX_MUTED_WORD_LENGTH:
-            return 400, {
-                "success": False,
-                "message": lang["settings"]["mute"]["long"].replace("%m", str(MAX_MUTED_WORD_LENGTH)).replace("%s", str(len(word))).replace("%v", word)
-            }
-
-        regex = word[0] == "/" and re.match(r"^/.*/[ims]+$", word)
-
-        if regex:
-            word = f"(?{''.join(list(set([i for i in word.split('/')[-1]])))}){'/'.join(word[1::].split('/')[:-1])}"
-
-        objs.append(MutedWord(
-            user=user,
-            is_regex=bool(regex),
-            string=word.replace("\n", "")
-        ))
-
-    if len(objs) > MAX_MUTED_WORDS:
+    if len(words) > MAX_MUTED_WORDS:
         return 400, {
             "success": False,
             "message": lang["settings"]["mute"]["too_many"].replace("%m", str(MAX_MUTED_WORDS)).replace("%s", str(len(objs)))
         }
+
+    too_long = [word[0] for word in words if len(word[0]) > MAX_MUTED_WORD_LENGTH]
+    if len(too_long):
+        return 400, {
+            "success": False,
+            "message": lang["settings"]["mute"]["long"].replace("%m", str(MAX_MUTED_WORD_LENGTH)).replace("%s", str(len(too_long[0]))).replace("%v", too_long[0])
+        }
+
+    for word in words:
+        regex = word[0] == "/" and re.match(r"^/.*/[ims]+$", word[0])
+
+        if regex:
+            word = f"(?{''.join(list(set([i for i in word[0].split('/')[-1]])))}){'/'.join(word[0][1::].split('/')[:-1])}"
+
+        objs.append(MutedWord(
+            user=user,
+            is_regex=bool(regex),
+            string=word[0].replace("\n", ""),
+            hard_mute=word[1]
+        ))
 
     MutedWord.objects.filter(user__user_id=user.user_id).delete()
     MutedWord.objects.bulk_create(objs)

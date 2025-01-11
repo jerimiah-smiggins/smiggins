@@ -365,7 +365,8 @@ dom("save-muted").addEventListener("click", function () {
     s_fetch("/api/user/muted", {
         method: "POST",
         body: JSON.stringify({
-            muted: dom("muted").value
+            soft: dom("soft-mute").value,
+            hard: dom("hard-mute").value
         }),
         disable: [this, dom("muted")]
     });

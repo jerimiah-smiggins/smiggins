@@ -1,5 +1,6 @@
 // Common variables used throughout the site
 let home: boolean | void;
+let u_for: string;
 let logged_in: boolean | void;
 let profile: boolean | void;
 let share: string | void;
@@ -747,8 +748,12 @@ function getPostHTML(
   isPinned: boolean=false,
   includeContainer: boolean=true
 ): string {
-  let muted: string | null = checkMuted(postJSON.content) || (postJSON.c_warning && checkMuted(postJSON.c_warning)) || (postJSON.poll && postJSON.poll.content.map((val: { value: string, votes: number, voted: boolean }): string => checkMuted(val.value)).reduce((real: string, val: string): string | null => real || val));
-  let quoteMuted: string | null = postJSON.quote && (checkMuted(postJSON.quote.content) || (postJSON.quote.c_warning && checkMuted(postJSON.quote.c_warning)));
+  let muted: string | boolean | null = username !== postJSON.creator.username && checkMuted(postJSON.content) || (postJSON.c_warning && checkMuted(postJSON.c_warning)) || (postJSON.poll && postJSON.poll.content.map((val: { value: string, votes: number, voted: boolean }): string | true => checkMuted(val.value)).reduce((real: string | true, val: string | true): string | true | null => real || val));
+  let quoteMuted: string | boolean | null = postJSON.quote && username !== postJSON.quote.creator.username && (checkMuted(postJSON.quote.content) || (postJSON.quote.c_warning ? checkMuted(postJSON.quote.c_warning) : null));
+
+  if (muted === true) {
+    return "";
+  }
 
   return `${includeContainer ? `<div class="post-container" data-${isComment ? "comment" : "post"}-id="${postJSON.post_id}">` : ""}
     <div class="post" data-settings="${escapeHTML(JSON.stringify({
@@ -830,6 +835,7 @@ function getPostHTML(
         postJSON.quote ? `
           <div class="quote-area">
             <div class="post">
+              ${quoteMuted === true ? `<i>${lang.settings.mute.quote_hard}</i>` : `
               ${quoteMuted ? `<details><summary class="small">${escapeHTML(lang.settings.mute.post_blocked.replaceAll("%u", postJSON.creator.username).replaceAll("%m", quoteMuted))}</summary>` : ""}
               ${
                 postJSON.quote.blocked ? (postJSON.quote.blocked_by_self ? lang.home.quote_blocked : lang.home.quote_blocked_other) : postJSON.quote.deleted ? lang.home.quote_deleted : postJSON.quote.can_view ? `
@@ -887,6 +893,7 @@ function getPostHTML(
                 ` : lang.home.quote_private
               }
               ${quoteMuted ? `</details>` : ""}
+              `}
             </div>
           </div>
         ` : ""
@@ -1104,11 +1111,11 @@ function toast(message: string, warning: boolean=false, timeout: number=3000): v
   }, timeout);
 }
 
-function checkMuted(text: string): string | null {
+function checkMuted(text: string): string | true | null {
   // true: muted - false: not muted
 
   if (!muted) {
-    return;
+    return null;
   }
 
   for (const word of muted) {
@@ -1122,14 +1129,14 @@ function checkMuted(text: string): string | null {
       }
 
       if (regex.test(text)) {
-        return word[0];
+        return word[2] || word[0];
       }
     } catch (err) {
       console.warn("Unable to parse muted word", word[0], word[1], wordSegments[wordSegments.length - 1]);
     }
   }
 
-  return;
+  return null;
 }
 
 // Some icons are from Font Awesome

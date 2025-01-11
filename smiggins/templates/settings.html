@@ -155,7 +155,11 @@
       <button id="set-password">{{ lang.generic.save }}</button><br><br>
 
       <h3>{{ lang.settings.mute.title }}</h3>
-      <textarea id="muted" placeholder="{{ lang.settings.mute.placeholder }}">{{ muted_str }}</textarea><br>
+      <div>{{ lang.settings.mute.soft }}</div>
+      <textarea id="soft-mute" placeholder="{{ lang.settings.mute.placeholder }}">{{ muted_str_soft }}</textarea>
+      <div>{{ lang.settings.mute.hard }}</div>
+      <textarea id="hard-mute" placeholder="{{ lang.settings.mute.placeholder }}">{{ muted_str_hard }}</textarea><br>
+      <small>{{ lang.settings.mute.hard_description }}</small><br>
       <button id="save-muted">{{ lang.generic.save }}</button><br>
       <small>{{ mute_description }}</small>
 

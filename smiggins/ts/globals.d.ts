@@ -20,9 +20,10 @@ declare const ENABLE_DYNAMIC_FAVICON: boolean;
 declare const ENABLE_NEW_ACCOUNTS: boolean | "otp";
 
 declare const isAdmin: boolean;
+declare const username: string;
 
 declare const defaultPrivate: boolean;
-declare const muted: [string, number][] | null;
+declare const muted: [string, number, boolean][] | null;
 declare const linkify;
 
 // Global variables

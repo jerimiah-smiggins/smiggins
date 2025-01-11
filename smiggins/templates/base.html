@@ -39,6 +39,7 @@
       const isAdmin = "{{ is_admin }}" == "True";
 
       const defaultPrivate = {{ DEFAULT_PRIVATE }};
+      const username = "{{ self_username }}";
 
       {% if username %}
         localStorage.setItem("username", "{{ username }}");

@@ -251,6 +251,7 @@ class MutedWord(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE, null=True, blank=True, related_name="muted_words")
     is_regex = models.BooleanField(default=False)
     string = models.TextField()
+    hard_mute = models.BooleanField(default=False)
 
     def __str__(self):
         return f"{self.user.username if self.user else 'Global'}: {self.string}"

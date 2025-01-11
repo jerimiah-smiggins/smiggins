@@ -18,6 +18,10 @@ Updates for each language version are listed below:
 + settings.mute.long
 + settings.mute.too_many
 + settings.mute.description
++ settings.mute.soft
++ settings.mute.hard
++ settings.mute.hard_description
++ settings.mute.quote_hard
 ```
 </details>
 

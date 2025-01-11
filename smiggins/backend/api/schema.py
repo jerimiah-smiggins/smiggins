@@ -24,7 +24,8 @@ class DeleteBadge(Schema):
     badge_name: str
 
 class MutedWords(Schema):
-    muted: str
+    soft: str
+    hard: str
 
 class NewBadge(DeleteBadge):
     badge_data: str

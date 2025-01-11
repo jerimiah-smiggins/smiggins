@@ -88,13 +88,13 @@ def get_HTTP_response(
 
     lang = lang_override or get_lang(user)
 
-    muted = []
+    muted: list[tuple[str, int, bool]] = []
     if user:
-        for i in MutedWord.objects.filter(user__user_id=user.user_id).values_list("string", "is_regex"):
+        for i in MutedWord.objects.filter(user__user_id=user.user_id).values_list("string", "is_regex", "hard_mute"):
             if i[1]:
-                muted.append([f"/{i[0].split(')', 1)[-1]}/{i[0].split(')')[0].split('(?')[-1]}", 1])
+                muted.append((f"/{i[0].split(')', 1)[-1]}/{i[0].split(')')[0].split('(?')[-1]}", 1, i[2]))
             else:
-                muted.append([f"{i[0]}", 0])
+                muted.append((f"{i[0]}", 0, i[2]))
 
     context = {
         "SITE_NAME": SITE_NAME,
@@ -146,7 +146,9 @@ def get_HTTP_response(
         "badges_str": json_f.dumps(BADGE_DATA),
         "is_admin": bool(user and user.admin_level),
         "muted": json.dumps(muted) if muted else "null",
-        "muted_str": "\n".join([i[0] for i in muted])
+        "muted_str_soft": "\n".join([i[0] for i in muted if not i[2]]),
+        "muted_str_hard": "\n".join([i[0] for i in muted if i[2]]),
+        "self_username": user.username if user else ""
     }
 
     for key, value in kwargs.items():
