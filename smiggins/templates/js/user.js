@@ -1,7 +1,7 @@
-username = document.body.getAttribute("data-username");
+u_for = document.body.getAttribute("data-username");
 share = location.href;
 home = true;
-url = `/api/post/user/${username}`;
+timelineConfig.url = `/api/post/user/${u_for}`;
 type = "post";
 includeUserLink = false;
 includePostLink = true;
@@ -30,7 +30,7 @@ function createMessage() {
     s_fetch("/api/messages/new", {
         method: "POST",
         body: JSON.stringify({
-            username: username
+            username: u_for
         }),
         disable: [dom("message")]
     });

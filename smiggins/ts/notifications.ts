@@ -1,5 +1,5 @@
 home = true;
-disableTimeline = true;
+timelineConfig.disableTimeline = true;
 
 function refreshNotifications(): void {
   dom("notif-container").innerHTML = "";
@@ -10,8 +10,15 @@ function refreshNotifications(): void {
 
 dom("read").addEventListener("click", function(): void {
   s_fetch("/api/user/notifications", {
-    method: "DELETE",
+    method: "PATCH",
     disable: [dom("read")]
+  });
+});
+
+dom("delete-unread").addEventListener("click", function(): void {
+  s_fetch("/api/user/notifications", {
+    method: "DELETE",
+    disable: [dom("delete-unread")]
   });
 });
 

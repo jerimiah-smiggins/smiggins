@@ -20,8 +20,10 @@ declare const ENABLE_DYNAMIC_FAVICON: boolean;
 declare const ENABLE_NEW_ACCOUNTS: boolean | "otp";
 
 declare const isAdmin: boolean;
+declare const username: string;
 
 declare const defaultPrivate: boolean;
+declare const muted: [string, number, boolean][] | null;
 declare const linkify;
 
 // Global variables
@@ -62,15 +64,7 @@ type _postJSON = {
   edited: boolean,
   edited_at?: number,
 
-  poll?: {
-    votes: number,
-    voted: boolean,
-    content: {
-      value: string,
-      votes: number,
-      voted: boolean
-    }[],
-  },
+  poll?: _pollJSON,
 
   // Quote-specific
   blocked?: boolean,
@@ -78,6 +72,16 @@ type _postJSON = {
   comment?: boolean,
   has_quote?: boolean,
   blocked_by_self?: boolean
+};
+
+type _pollJSON = {
+  votes: number,
+  voted: boolean,
+  content: {
+    value: string,
+    votes: number,
+    voted: boolean
+  }[],
 };
 
 type _themeObject = {
@@ -126,7 +130,7 @@ type _themeObject = {
       lavender: string
     }
   }
-}
+};
 
 type _actions = {
   success: boolean,
@@ -155,6 +159,8 @@ type _actions = {
     post_id: number,
     comment: boolean,
     post: _postJSON
+  } | {
+    name: "refresh_notifications"
   } | {
     name: "refresh_timeline",
     url_includes?: string[],
@@ -237,12 +243,18 @@ type _actions = {
     disabled?: boolean,
     attribute?: { name: string, value: string | null }[],
     set_class?: { class_name: string, enable: boolean }[]
+  } | {
+    name: "refresh_poll",
+    poll: _pollJSON | null,
+    post_id: number
   })[]
-}
+};
 
 type _keybind = {
   action: (event: KeyboardEvent) => void,
   requireNav?: boolean,
   requireCtrl?: boolean,
-  allowInputs?: boolean
-}
+  allowInputs?: boolean,
+  allowLoggedOut?: boolean,
+  noPreventDefault?: boolean
+};

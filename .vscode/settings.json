@@ -40,5 +40,9 @@
     "smiggins/templates/js": true,
     "smiggins/templates/css": true,
     "**/__pycache__": true
-  }
+  },
+  "cSpell.words": [
+    "displ",
+    "dotenv"
+  ]
 }

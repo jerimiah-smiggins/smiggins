@@ -2,7 +2,7 @@
   "meta": {
     "fallback": [],
     "name": "English (United States)",
-    "version": "1.10.1",
+    "version": "1.10.2",
     "maintainers": ["trinkey"],
     "past_maintainers": []
   },
@@ -379,6 +379,7 @@
       "input_placeholder": "What would you like to tell %s?", // Ex: What would you like to tell gerard?
 
       "no_messages": "No messages sent",
+      "muted": "This message contains a word blocked by the instance administration",
 
       "list_title": "Messages",
       "list_subtitle": "Recent Messages",
@@ -393,6 +394,7 @@
     "notifications": {
       "title": "Notifications",
       "read": "Mark as read",
+      "delete": "Clear read notifications",
 
       "event": {
         "comment": "%s commented on your post:",
@@ -424,6 +426,7 @@
       "invalid_quote_comment": "The comment you're quoting doesn't exist!",
       "invalid_username": "Username is invalid",
       "invalid_poll": "The poll needs to have at least two options!",
+      "muted": "This post contains a word blocked by the instance administration",
       "type_public": "Public",
       "type_followers_only": "Followers only",
       "no_posts": "No posts",
@@ -470,6 +473,7 @@
         "oled": "Black"
       },
 
+      "cosmetic_compact": "Compact UI?",
       "cosmetic_expand": "Always expand content warnings?",
 
       "cosmetic_bar": "Icon bar position",
@@ -481,6 +485,7 @@
       "cosmetic_bar_ll": "Lower left",
       "cosmetic_bar_h": "Horizontal",
       "cosmetic_bar_v": "Vertical",
+
       "cosmetic_language": "Language",
       "cosmetic_color": "Color",
       "cosmetic_example_post_display_name": "Example",
@@ -506,6 +511,23 @@
       "account_deletion_warning": "Are you COMPLETELY SURE you want to delete your account? This is an IRREVERSIBLE ACTION that CAN NOT BE UNDONE. All posts, comments, likes, messages, etc. that you have created will be deleted and unable to be recovered.",
       "account_deletion_confirm": "Yes, Delete My Account",
       "account_deletion_password": "Enter your password to continue with account deletion.",
+
+      "mute": {
+        "title": "Muted Words",
+        "placeholder": "bad word\n/badwords?/i",
+        "post_blocked": "%u - %m", // Ex: trinkey - bad word
+
+        "long": "Too long (max %m chars, %s currently - '%v')", // Ex: Too long (max 10 chars, 16 currently - 'this is 16 chars')
+        "too_many": "Too many muted words (max %m, %s set)",
+
+        "soft": "Soft mute",
+        "hard": "Hard mute",
+        "hard_description": "Hard muting completely hides posts",
+        "quote_hard": "This post has a hard-muted word, and has been hidden.", // Only used on quotes
+
+        // \u00a0 is the non breaking space character that prevents unwanted line wrapping
+        "description": "Use spaces to separate words condition (ex: \"some\u00a0word\" would match \"[...]\u00a0some\u00a0[...]\u00a0word\u00a0[...]\" but not \"[...]\u00a0word\u00a0[...]\u00a0some\u00a0[...]\"), and use newlines to separate different definitions. Surround with forward slashes (/) for regex. Put flags after the last slash (ex: \"/text/i\"). You can have up to %m different definitions, maximum %c characters each."
+      },
 
       "admin": "Admin page",
       "logout": "Log out of all accounts",

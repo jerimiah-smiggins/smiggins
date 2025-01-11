@@ -12,7 +12,7 @@ if (ENABLE_PRONOUNS && lang.generic.pronouns.enable_pronouns) {
         primary.setAttribute("selected", "");
         if (lang.generic.pronouns.enable_secondary) {
             if (primary.dataset.special == "no-secondary") {
-                dom("pronouns-secondary").setAttribute("hidden", "");
+                dom("pronouns-secondary-container").setAttribute("hidden", "");
             }
             document.querySelector(`#pronouns-secondary > option[value="${userPronouns.secondary}"]`).setAttribute("selected", "");
         }
@@ -67,7 +67,7 @@ dom("post-example").innerHTML = getPostHTML({
         color_two: "#" + Math.floor(Math.random() * 16777216).toString(16).padStart(6, "0"),
         display_name: lang.settings.cosmetic_example_post_display_name,
         gradient_banner: true,
-        pronouns: "aa",
+        pronouns: null,
         username: lang.settings.cosmetic_example_post_username,
     },
     private: false,
@@ -173,6 +173,15 @@ dom("expand-cws").addEventListener("change", function () {
     }
     else {
         localStorage.removeItem("expand-cws");
+    }
+});
+dom("compact").checked = !!localStorage.getItem("compact");
+dom("compact").addEventListener("change", function () {
+    if (this.checked) {
+        localStorage.setItem("compact", "1");
+    }
+    else {
+        localStorage.removeItem("compact");
     }
 });
 dom("bar-pos").value = localStorage.getItem("bar-pos") || "ul";
@@ -351,6 +360,16 @@ dom("confirm").addEventListener("keydown", function (event) {
         dom("set-password").focus();
         dom("set-password").click();
     }
+});
+dom("save-muted").addEventListener("click", function () {
+    s_fetch("/api/user/muted", {
+        method: "POST",
+        body: JSON.stringify({
+            soft: dom("soft-mute").value,
+            hard: dom("hard-mute").value
+        }),
+        disable: [this, dom("muted")]
+    });
 });
 ENABLE_EMAIL && dom("email-submit").addEventListener("click", function () {
     s_fetch("/api/email/save", {

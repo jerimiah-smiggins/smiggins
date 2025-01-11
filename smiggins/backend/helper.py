@@ -12,7 +12,7 @@ from django.core.mail import send_mail
 from django.http import HttpResponse, HttpResponseRedirect
 from django.template import loader
 from posts.backups import backup_db
-from posts.models import Comment, Notification, Post, User
+from posts.models import Comment, MutedWord, Notification, Post, User
 
 from .variables import (ALTERNATE_IPS, BADGE_DATA, BASE_DIR, CACHE_LANGUAGES,
                         DEFAULT_DARK_THEME, DEFAULT_LANGUAGE,
@@ -88,6 +88,14 @@ def get_HTTP_response(
 
     lang = lang_override or get_lang(user)
 
+    muted: list[tuple[str, int, bool]] = []
+    if user:
+        for i in MutedWord.objects.filter(user__user_id=user.user_id).values_list("string", "is_regex", "hard_mute"):
+            if i[1]:
+                muted.append((f"/{i[0].split(')', 1)[-1]}/{i[0].split(')')[0].split('(?')[-1]}", 1, i[2]))
+            else:
+                muted.append((f"{i[0]}", 0, i[2]))
+
     context = {
         "SITE_NAME": SITE_NAME,
         "VERSION": lang["generic"]["version"].replace("%v", VERSION),
@@ -136,7 +144,11 @@ def get_HTTP_response(
         "THEME": theme if theme in THEMES else "auto",
         "badges": BADGE_DATA,
         "badges_str": json_f.dumps(BADGE_DATA),
-        "is_admin": bool(user and user.admin_level)
+        "is_admin": bool(user and user.admin_level),
+        "muted": json.dumps(muted) if muted else "null",
+        "muted_str_soft": "\n".join([i[0] for i in muted if not i[2]]),
+        "muted_str_hard": "\n".join([i[0] for i in muted if i[2]]),
+        "self_username": user.username if user else ""
     }
 
     for key, value in kwargs.items():
@@ -292,7 +304,25 @@ def can_view_post(self_user: User | None, creator: User | None, post: Post | Com
 
     return True,
 
-def get_post_json(post_id: int | Post | Comment, current_user_id: int=0, comment: bool=False) -> dict[str, str | int | dict]:
+def get_poll(post: Post | Comment, user_id: int) -> dict | None:
+    if not isinstance(post, Post) or not isinstance(post.poll, dict):
+        return None
+
+    return {
+        "votes": len(post.poll["votes"]),
+        "voted": user_id in post.poll["votes"],
+        "content": [{
+            "value": i["value"],
+            "votes": len(i["votes"]),
+            "voted": user_id in i["votes"]
+        } for i in post.poll["content"]], # type: ignore
+    }
+
+def get_post_json(
+    post_id: int | Post | Comment,
+    current_user_id: int | User | None=None,
+    comment: bool=False
+) -> dict[str, str | int | dict]:
     # Returns a dict object that includes information about the specified post
     # When editing the json content response of this function, make sure you also
     # correct the schema in static/ts/globals.d.ts
@@ -306,13 +336,16 @@ def get_post_json(post_id: int | Post | Comment, current_user_id: int=0, comment
 
     creator = post.creator
 
-    try:
-        user = User.objects.get(user_id=current_user_id)
-    except User.DoesNotExist:
-        user = None
+    if isinstance(current_user_id, int):
+        try:
+            user = User.objects.get(user_id=current_user_id)
+        except User.DoesNotExist:
+            user = None
+    else:
+        user = current_user_id
+        current_user_id = user.user_id if user else 0
 
     can_delete_all = user is not None and (current_user_id == OWNER_USER_ID or user.admin_level % 2 == 1)
-
     can_view = can_view_post(user, creator, post)
 
     if can_view[0] is False:
@@ -329,22 +362,6 @@ def get_post_json(post_id: int | Post | Comment, current_user_id: int=0, comment
                 "blocked": True,
                 "blocked_by_self": False
             }
-
-    if isinstance(post, Post) and isinstance(post.poll, dict):
-        tmp_poll: dict[str, Any] = post.poll
-
-        poll = {
-            "votes": len(tmp_poll["votes"]),
-            "voted": current_user_id in tmp_poll["votes"],
-            "content": [{
-                "value": i["value"],
-                "votes": len(i["votes"]),
-                "voted": current_user_id in i["votes"]
-            } for i in tmp_poll["content"]], # type: ignore
-        }
-
-    else:
-        poll = None
 
     post_json = {
         "creator": {
@@ -371,7 +388,7 @@ def get_post_json(post_id: int | Post | Comment, current_user_id: int=0, comment
         "can_view": True,
         "parent": post.parent if isinstance(post, Comment) else -1,
         "parent_is_comment": post.parent_is_comment if isinstance(post, Comment) else False,
-        "poll": poll,
+        "poll": get_poll(post, current_user_id),
         "logged_in": user is not None,
         "edited": post.edited,
         "edited_at": post.edited_at
@@ -456,7 +473,7 @@ def get_post_json(post_id: int | Post | Comment, current_user_id: int=0, comment
 def trim_whitespace(string: str, purge_newlines: bool=False) -> str:
     # Trims whitespace from strings
 
-    string = string.replace("\x0d", "")
+    string = string.replace("\x0d", "").strip()
 
     if purge_newlines:
         string = string.replace("\x0a", " ").replace("\x85", "")
@@ -472,12 +489,6 @@ def trim_whitespace(string: str, purge_newlines: bool=False) -> str:
 
     while "\n\n\n" in string:
         string = string.replace("\n\n\n", "\n\n")
-
-    while len(string) and string[0] in " \n":
-        string = string[1::]
-
-    while len(string) and string[-1] in " \n":
-        string = string[:-1:]
 
     return string
 
@@ -497,8 +508,7 @@ def delete_notification(
     user = notif.is_for
 
     try:
-        last = user.notifications.last()
-        if last and last.read:
+        if user.notifications.filter(read=False).count():
             user.read_notifs = True
             user.save()
 
@@ -612,9 +622,39 @@ def get_ip_addr(request):
 
     return request.META.get("REMOTE_ADDR")
 
+def check_muted_words(*content: str) -> bool:
+    # True - IS muted
+    # False - is NOT muted
+
+    for mw in MutedWord.objects.filter(user=None):
+        if mw.is_regex:
+            word = re.compile(mw.string)
+        else:
+            word = re.compile("\\b" + mw.string.replace(" ", "\\b.+\\b") + "\\b", re.DOTALL | re.IGNORECASE)
+
+        for val in content:
+            if word.match(val):
+                return True
+
+    return False
+
 LANGS = {}
 if CACHE_LANGUAGES:
+    import sys
+
+    print("Generating language cache for ", end="")
+    first = True
+
     for i in VALID_LANGUAGES:
+        print(f"{'' if first else ', '}{i['code']}", end="")
         LANGS[i["code"]] = get_lang(i["code"], True)
+
+        sys.stdout.flush()
+
+        if first:
+            first = False
+
+    print("")
+    del sys
 
 DEFAULT_LANG = get_lang()

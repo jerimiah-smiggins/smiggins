@@ -4,7 +4,8 @@ import json
 
 from django.http import (HttpResponse, HttpResponseRedirect,
                          HttpResponseServerError)
-from posts.models import Comment, Hashtag, Post, PrivateMessageContainer, User
+from posts.models import (Comment, Hashtag, MutedWord, Post,
+                          PrivateMessageContainer, User)
 
 from .api.admin import BitMask
 from .helper import (LANGS, can_view_post, find_mentions, get_badges,
@@ -16,8 +17,8 @@ from .variables import (BADGE_DATA, CACHE_LANGUAGES, CONTACT_INFO, CREDITS,
                         ENABLE_DYNAMIC_FAVICON, ENABLE_GRADIENT_BANNERS,
                         ENABLE_LOGGED_OUT_CONTENT, ENABLE_NEW_ACCOUNTS,
                         FAVICON_DATA, MAX_CONTENT_WARNING_LENGTH,
-                        OWNER_USER_ID, SITE_NAME, THEMES, VALID_LANGUAGES,
-                        error)
+                        MAX_MUTED_WORD_LENGTH, MAX_MUTED_WORDS, OWNER_USER_ID,
+                        SITE_NAME, THEMES, VALID_LANGUAGES, error)
 
 
 def settings(request) -> HttpResponse:
@@ -50,6 +51,7 @@ def settings(request) -> HttpResponse:
         has_email = str(user.email is not None).lower(),
         email = user.email or "",
         email_valid = str(user.email_valid).lower(),
+        mute_description=lang["settings"]["mute"]["description"].replace("%m", str(MAX_MUTED_WORDS)).replace("%c", str(MAX_MUTED_WORD_LENGTH)),
 
         USER_BIO = user.bio or "",
 
@@ -243,7 +245,7 @@ def post(request, post_id: int) -> HttpResponse:
             request, "404-post.html", status=404
         )
 
-    post_json = get_post_json(post_id, user.user_id if user is not None else 0)
+    post_json = get_post_json(post_id, user)
     lang = get_lang(user)
     mentions = find_mentions(post.content + " @" + post.creator.username, exclude_users=[user.username if user else ""])
     cw = post.content_warning or ""
@@ -294,7 +296,7 @@ def comment(request, comment_id: int) -> HttpResponse:
             request, "404-post.html", status=404
         )
 
-    comment_json = get_post_json(comment_id, user.user_id if user is not None else 0, True)
+    comment_json = get_post_json(comment_id, user, True)
     lang = get_lang(user if user is not None else None)
     mentions = find_mentions(comment.content + " @" + comment.creator.username, exclude_users=[user.username if user else ""])
     cw = comment.content_warning or ""
@@ -340,12 +342,23 @@ def admin(request) -> HttpResponse | HttpResponseRedirect:
             request, "404.html", status=404
         )
 
+    muted = ""
+    for i in MutedWord.objects.filter(user=None).values_list("string", "is_regex"):
+        if i[1]:
+            muted += f"/{i[0].split(')', 1)[-1]}/{i[0].split(')')[0].split('(?')[-1]}\n"
+        else:
+            muted += f"{i[0]}\n"
+
+    lang = get_lang(user)
+
     return get_HTTP_response(
-        request, "admin.html", user=user,
+        request, "admin.html", lang, user=user,
 
         LEVEL=lv,
         BADGE_DATA=BADGE_DATA,
         mask=BitMask,
+        mute_description=lang["settings"]["mute"]["description"].replace("%m", str(MAX_MUTED_WORDS)).replace("%c", str(MAX_MUTED_WORD_LENGTH)),
+        muted_words=muted[:-1],
         LEVEL_RANGE=[str(i) for i in range(BitMask.MAX_LEVEL + 1)],
         LEVEL_BINARY=f"{'0' * (BitMask.MAX_LEVEL - len(f'{lv:b}'))}{lv:b}",
         permissions_disabled={
@@ -439,7 +452,7 @@ def pending(request) -> HttpResponse | HttpResponseRedirect:
 
     return get_HTTP_response(request, "pending.html", user=user)
 
-generate_favicon = lambda request, a: HttpResponseRedirect("/static/img/old_favicon.ico", status=308) # noqa: E731
+generate_favicon = lambda request, a: HttpResponseRedirect("/static/img/old_favicon.png", status=308) # noqa: E731
 
 if ENABLE_DYNAMIC_FAVICON:
     try:
@@ -452,10 +465,14 @@ if ENABLE_DYNAMIC_FAVICON:
         def generate_favicon(request, a) -> HttpResponse | HttpResponseServerError:
             colors: tuple[str, str, str] = a.split("-")
 
+            size = 32
+            if "large" in request.GET:
+                size = 128
+
             png_data: bytes | None = svg2png(
                 FAVICON_DATA.replace("@{background}", f"#{colors[0]}").replace("@{background_alt}", f"#{colors[1]}").replace("@{accent}", f"#{colors[2]}"),
-                output_width=32,
-                output_height=32
+                output_width=size,
+                output_height=size
             )
 
             if not isinstance(png_data, bytes):

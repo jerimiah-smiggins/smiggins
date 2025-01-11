@@ -1,11 +1,11 @@
 let forwardOffset = 0;
 let reverseOffset = 0;
-let username = document.body.dataset.username;
+u_for = document.body.dataset.username;
 c = 0;
 home = true;
 function refreshMessages(start = false, forward = true) {
     let params = {
-        username: username,
+        username: u_for,
         forward: start || forward,
         offset: start ? -1 : forward ? forwardOffset : reverseOffset
     };
@@ -36,7 +36,7 @@ dom("your-mom").onkeydown = (event) => {
                 method: "POST",
                 body: JSON.stringify({
                     content: self.value,
-                    username: username
+                    username: u_for
                 }),
                 disable: [dom("your-mom")],
             });

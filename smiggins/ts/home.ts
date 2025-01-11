@@ -1,7 +1,7 @@
 let page: string = localStorage.getItem("home-page");
 if (page !== "following" && page !== "recent") { page = "recent"; }
 
-url = `/api/post/${page}`;
+timelineConfig.url = `/api/post/${page}`;
 type = "post";
 includeUserLink = true;
 includePostLink = true;
@@ -43,7 +43,7 @@ dom("post").addEventListener("click", function(): void {
   }
 });
 
-timelines = {
+timelineConfig.timelines = {
   recent: "/api/post/recent",
   following: "/api/post/following"
 };

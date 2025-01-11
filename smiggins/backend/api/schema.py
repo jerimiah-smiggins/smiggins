@@ -23,6 +23,10 @@ class AccountIdentifier(Schema):
 class DeleteBadge(Schema):
     badge_name: str
 
+class MutedWords(Schema):
+    soft: str
+    hard: str
+
 class NewBadge(DeleteBadge):
     badge_data: str
 
@@ -164,6 +168,9 @@ class _actions_remove(TypedDict):
     post_id: int
     comment: bool
 
+class _actions_notifications(TypedDict):
+    name: Literal["refresh_notifications"]
+
 class _actions_refresh(TypedDict):
     name: Literal["refresh_timeline"]
     url_includes: NotRequired[list[str]]
@@ -256,6 +263,11 @@ class _actions_element_attribute(TypedDict):
     name: str
     value: str | None
 
+class _actions_poll(TypedDict):
+    name: Literal["refresh_poll"]
+    poll: dict | None
+    post_id: int
+
 class _actions_element(TypedDict):
     name: Literal["update_element"]
     query: str
@@ -278,6 +290,7 @@ class _actions(TypedDict):
       | _actions_prepend
       | _actions_reset
       | _actions_remove
+      | _actions_notifications
       | _actions_refresh
       | _actions_user_tl
       | _actions_notification
@@ -290,6 +303,7 @@ class _actions(TypedDict):
       | _actions_redirect
       | _actions_theme
       | _actions_element
+      | _actions_poll
     ]]
 
 APIResponse = tuple[int, _actions] | _actions

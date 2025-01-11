@@ -1,6 +1,8 @@
 # For API functions that are user-specific, like settings, following, etc.
 
-from posts.models import (Comment, OneTimePassword, Post,
+import re
+
+from posts.models import (Comment, MutedWord, OneTimePassword, Post,
                           PrivateMessageContainer, User, UserPronouns)
 
 from ..helper import (DEFAULT_LANG, create_api_ratelimit, ensure_ratelimit,
@@ -9,10 +11,11 @@ from ..helper import (DEFAULT_LANG, create_api_ratelimit, ensure_ratelimit,
 from ..variables import (API_TIMINGS, DEFAULT_BANNER_COLOR, DEFAULT_LANGUAGE,
                          ENABLE_GRADIENT_BANNERS, ENABLE_NEW_ACCOUNTS,
                          ENABLE_PRONOUNS, ENABLE_USER_BIOS, MAX_BIO_LENGTH,
-                         MAX_DISPL_NAME_LENGTH, MAX_USERNAME_LENGTH,
+                         MAX_DISPL_NAME_LENGTH, MAX_MUTED_WORD_LENGTH,
+                         MAX_MUTED_WORDS, MAX_USERNAME_LENGTH,
                          POSTS_PER_REQUEST, THEMES, VALID_LANGUAGES)
-from .schema import (Account, APIResponse, ChangePassword, Password, Settings,
-                     Theme, Username)
+from .schema import (Account, APIResponse, ChangePassword, MutedWords,
+                     Password, Settings, Theme, Username)
 
 
 def signup(request, data: Account) -> APIResponse:
@@ -133,10 +136,9 @@ def login(request, data: Account) -> APIResponse:
 def settings_theme(request, data: Theme) -> APIResponse:
     # Called when the user changes their theme.
 
-    token = request.COOKIES.get('token')
     theme = data.theme.lower()
 
-    user = User.objects.get(token=token)
+    user = User.objects.get(token=request.COOKIES.get("token"))
 
     lang = get_lang(user)
 
@@ -159,7 +161,7 @@ def settings_theme(request, data: Theme) -> APIResponse:
 def settings(request, data: Settings) -> APIResponse:
     # Called when someone saves their settings
 
-    user = User.objects.get(token=request.COOKIES.get('token'))
+    user = User.objects.get(token=request.COOKIES.get("token"))
     lang = get_lang(user)
 
     reload = False
@@ -168,10 +170,8 @@ def settings(request, data: Settings) -> APIResponse:
     color_two = data.color_two.lower()
     displ_name = trim_whitespace(data.displ_name, True)
     bio = trim_whitespace(data.bio, True)
-    pronouns = data.pronouns
-    language = data.lang
 
-    if language != user.language:
+    if data.lang != user.language:
         reload = True
 
     if (len(displ_name) > MAX_DISPL_NAME_LENGTH or len(displ_name) < 1) or (ENABLE_USER_BIOS and len(bio) > MAX_BIO_LENGTH):
@@ -201,10 +201,10 @@ def settings(request, data: Settings) -> APIResponse:
                     "message": lang["settings"]["profile_color_invalid"]
                 }
 
-    if language not in [i["code"] for i in VALID_LANGUAGES]:
+    if data.lang not in [i["code"] for i in VALID_LANGUAGES]:
         return 400, {
             "success": False,
-            "message": lang["settings"]["invalid_language"].replace("%s", language)
+            "message": lang["settings"]["invalid_language"].replace("%s", data.lang)
         }
 
     user.color = color
@@ -231,18 +231,19 @@ def settings(request, data: Settings) -> APIResponse:
         _p = user.pronouns.filter(language=user.language)
         if _p.exists():
             p = _p[0]
-            p.primary = pronouns["primary"]
-            p.secondary = pronouns["secondary"]
+            p.primary = data.pronouns["primary"]
+            p.secondary = data.pronouns["secondary"]
+            p.save()
 
         else:
             UserPronouns.objects.create(
                 user=user,
                 language=user.language,
-                primary=pronouns["primary"],
-                secondary=pronouns["secondary"]
+                primary=data.pronouns["primary"],
+                secondary=data.pronouns["secondary"]
             )
 
-    user.language = language
+    user.language = data.lang
 
     user.save()
 
@@ -257,9 +258,8 @@ def settings(request, data: Settings) -> APIResponse:
 def follower_add(request, data: Username) -> APIResponse:
     # Called when someone requests to follow another account.
 
-    token = request.COOKIES.get('token')
     username = data.username.lower()
-    user = User.objects.get(token=token)
+    user = User.objects.get(token=request.COOKIES.get("token"))
     lang = get_lang(user)
 
     try:
@@ -343,9 +343,8 @@ def follower_remove(request, data: Username) -> APIResponse:
 def block_add(request, data: Username) -> APIResponse:
     # Called when someone requests to block another account.
 
-    token = request.COOKIES.get('token')
     username = data.username.lower()
-    user = User.objects.get(token=token)
+    user = User.objects.get(token=request.COOKIES.get("token"))
 
     if not validate_username(username):
         lang = get_lang(user)
@@ -395,9 +394,8 @@ def block_add(request, data: Username) -> APIResponse:
 def block_remove(request, data: Username) -> APIResponse:
     # Called when someone requests to unblock another account.
 
-    token = request.COOKIES.get('token')
     username = data.username.lower()
-    user = User.objects.get(token=token)
+    user = User.objects.get(token=request.COOKIES.get("token"))
 
     if not validate_username(username):
         lang = get_lang(user)
@@ -484,12 +482,7 @@ def change_password(request, data: ChangePassword) -> APIResponse:
 
 def read_notifs(request) -> APIResponse:
     try:
-        token = request.COOKIES.get('token')
-        self_user = User.objects.get(token=token)
-    except KeyError:
-        return 400, {
-            "success": False
-        }
+        self_user = User.objects.get(token=request.COOKIES.get("token"))
     except User.DoesNotExist:
         return 400, {
             "success": False
@@ -505,30 +498,52 @@ def read_notifs(request) -> APIResponse:
     return {
         "success": True,
         "actions": [
+            { "name": "update_element", "query": ".post[data-notif-unread]", "all": True, "attribute": [
+                { "name": "data-notif-unread", "value": None },
+                { "name": "data-color", "value": "gray" }
+            ]},
+            { "name": "update_element", "query": "hr[data-notif-hr]", "attribute": [
+                { "name": "hidden", "value": "" }
+            ]},
+            { "name": "update_element", "query": "[data-add-notification-dot]", "set_class": [
+                { "class_name": "dot", "enable": False }
+            ]},
+            { "name": "refresh_notifications" }
+        ]
+    }
+
+def clear_read_notifs(request) -> APIResponse:
+    try:
+        self_user = User.objects.get(token=request.COOKIES.get("token"))
+    except User.DoesNotExist:
+        return 400, {
+            "success": False
+        }
+
+    self_user.notifications.filter(read=True).delete()
+
+    return {
+        "success": True,
+        "actions": [
             { "name": "refresh_timeline", "special": "notifications" }
         ]
     }
 
 def notifications_list(request) -> APIResponse:
     try:
-        token = request.COOKIES.get('token')
-        self_user = User.objects.get(token=token)
-    except KeyError:
-        return 400, {
-            "success": False
-        }
+        self_user = User.objects.get(token=request.COOKIES.get("token"))
     except User.DoesNotExist:
         return 400, {
             "success": False
         }
 
     notifs_list = []
-    self_id = self_user.user_id
 
     all_notifs = self_user.notifications.all().order_by("-notif_id")
+
     for notification in all_notifs:
         try:
-            x = get_post_json(notification.event_id, self_id, notification.event_type in ["comment", "ping_c"])
+            x = get_post_json(notification.event_id, self_user, notification.event_type in ["comment", "ping_c"])
 
             if "content" in x:
                 notifs_list.append({
@@ -602,7 +617,8 @@ def accept_pending(request, data: Username) -> APIResponse:
     return {
         "success": True,
         "actions": [
-            { "name": "refresh_timeline", "special": "pending" }
+            { "name": "refresh_timeline", "special": "pending" },
+            { "name": "refresh_notifications" }
         ]
     }
 
@@ -621,7 +637,8 @@ def remove_pending(request, data: Username) -> APIResponse:
     return {
         "success": True,
         "actions": [
-            { "name": "refresh_timeline", "special": "pending" }
+            { "name": "refresh_timeline", "special": "pending" },
+            { "name": "refresh_notifications" }
         ]
     }
 
@@ -665,4 +682,47 @@ def user_delete(request, data: Password) -> APIResponse:
     return 400, {
         "success": False,
         "message": lang["account"]["bad_password"]
+    }
+
+def muted(request, data: MutedWords) -> APIResponse:
+    # You may need to also edit the muted function in backend.api.admin to match functionality
+
+    user = User.objects.get(token=request.COOKIES.get("token"))
+    lang = get_lang(user)
+    objs = []
+
+    words: list[tuple[str, bool]] = [(word.strip().replace("\n", ""), False) for word in data.soft.split("\n") if word.strip()] + [(word.strip().replace("\n", ""), True) for word in data.hard.split("\n") if word.strip()]
+
+    if len(words) > MAX_MUTED_WORDS:
+        return 400, {
+            "success": False,
+            "message": lang["settings"]["mute"]["too_many"].replace("%m", str(MAX_MUTED_WORDS)).replace("%s", str(len(objs)))
+        }
+
+    too_long = [word[0] for word in words if len(word[0]) > MAX_MUTED_WORD_LENGTH]
+    if len(too_long):
+        return 400, {
+            "success": False,
+            "message": lang["settings"]["mute"]["long"].replace("%m", str(MAX_MUTED_WORD_LENGTH)).replace("%s", str(len(too_long[0]))).replace("%v", too_long[0])
+        }
+
+    for word in words:
+        regex = word[0] == "/" and re.match(r"^/.*/[ims]+$", word[0])
+
+        if regex:
+            word = f"(?{''.join(list(set([i for i in word[0].split('/')[-1]])))}){'/'.join(word[0][1::].split('/')[:-1])}"
+
+        objs.append(MutedWord(
+            user=user,
+            is_regex=bool(regex),
+            string=word[0].replace("\n", ""),
+            hard_mute=word[1]
+        ))
+
+    MutedWord.objects.filter(user__user_id=user.user_id).delete()
+    MutedWord.objects.bulk_create(objs)
+
+    return {
+        "success": True,
+        "message": lang["generic"]["success"]
     }

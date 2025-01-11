@@ -14,6 +14,7 @@
         const badges = JSON.parse('{{ badges_str|escapejs }}');
       {% endif %}
       const lang = JSON.parse('{{ lang_str|escapejs }}');
+      const muted = JSON.parse('{{ muted|escapejs }}');
 
       const MAX_POST_LENGTH = {{ MAX_POST_LENGTH }};
       const MAX_POLL_OPTION_LENGTH = {{ MAX_POLL_OPTION_LENGTH }};
@@ -38,6 +39,7 @@
       const isAdmin = "{{ is_admin }}" == "True";
 
       const defaultPrivate = {{ DEFAULT_PRIVATE }};
+      const username = "{{ self_username }}";
 
       {% if username %}
         localStorage.setItem("username", "{{ username }}");
@@ -47,6 +49,13 @@
     {% if GOOGLE_VERIFICATION_TAG %}
       <meta name="google-site-verification" content="{{ GOOGLE_VERIFICATION_TAG }}">
     {% endif %}
+
+    <meta name="mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <link data-set-favi-href data-favi-large rel="apple-touch-startup-image" href="{% static "img/old_favicon.png" %}?v={{ VERSION }}">
+    <link data-set-favi-href data-favi-large rel="apple-touch-icon" href="{% static "img/old_favicon.png" %}?v={{ VERSION }}">
+    <link data-set-favi-href data-favi-large rel="apple-touch-icon" href="{% static "img/old_favicon.png" %}?v={{ VERSION }}">
 
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width,initial-scale=1">

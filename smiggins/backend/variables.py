@@ -3,20 +3,42 @@ import os
 import pathlib
 import re
 import sys
-from typing import Any, Literal
+from typing import Any, Callable, Literal
 
 import json5 as json
 import yaml
-from django.db.utils import OperationalError
-from posts.models import Badge
+from dotenv import dotenv_values
 
-from ._api_keys import auth_key
+
+def dotenv_or_(key: str, val: Any, process: Callable[[str], Any]=lambda x: x) -> Any:
+    try:
+        return process(str(dotenv[key]))
+    except KeyError:
+        return val
+
+def error(string):
+    print(f"\x1b[91m{string}\x1b[0m")
+
+print("Loading config...")
+
+dotenv = dotenv_values(".env")
+
+auth_key = None
+try:
+    from ._api_keys import auth_key  # type: ignore
+except ImportError:
+    ...
+
+auth_key = dotenv_or_("auth_key", auth_key, str.encode)
+
+if "auth_key" not in globals() or not auth_key:
+    error("auth_key not set in .env")
+    exit()
 
 if sys.version_info >= (3, 11):
     from typing import TypedDict
 else:
     from typing_extensions import TypedDict
-
 
 class DatabaseBackupsSchema(TypedDict):
     enabled: bool
@@ -25,10 +47,8 @@ class DatabaseBackupsSchema(TypedDict):
     path: str
     filename: str
 
-BASE_DIR = pathlib.Path(__file__).resolve().parent.parent
 
-def error(string):
-    print(f"\x1b[91m{string}\x1b[0m")
+BASE_DIR = pathlib.Path(__file__).resolve().parent.parent
 
 CREDITS: dict[str, list[str]] = {
     "lead": ["trinkey"],
@@ -40,7 +60,7 @@ CREDITS: dict[str, list[str]] = {
 }
 
 # Set default variable states
-REAL_VERSION: tuple[int, int, int] = (0, 13, 7)
+REAL_VERSION: tuple[int, int, int] = (0, 13, 8)
 VERSION: str = ".".join([str(i) for i in REAL_VERSION])
 SITE_NAME: str = "Jerimiah Smiggins"
 WEBSITE_URL: str | None = None
@@ -71,6 +91,8 @@ DEFAULT_BANNER_COLOR: str = "#3a1e93"
 POSTS_PER_REQUEST: int = 20
 MESSAGES_PER_REQUEST: int = 40
 MAX_NOTIFICATIONS: int = 25
+MAX_MUTED_WORDS: int = 50
+MAX_MUTED_WORD_LENGTH: int = 500
 CONTACT_INFO: list[list[str]] = [
     ["email", "trinkey@duck.com"],
     ["url",   "https://github.com/jerimiah-smiggins/smiggins/issues"],
@@ -482,6 +504,8 @@ _VARIABLES: list[tuple[str | None, list[str], type | str | list | tuple | dict, 
     ("POSTS_PER_REQUEST", ["posts_per_request"], int, False),
     ("MESSAGES_PER_REQUEST", ["messages_per_request"], int, False),
     ("MAX_NOTIFICATIONS", ["max_notifs", "max_notifications"], int, False),
+    ("MAX_MUTED_WORDS", ["max_muted_words"], int, False),
+    ("MAX_MUTED_WORD_LENGTH", ["max_muted_word_length"], int, False),
     ("CONTACT_INFO", ["contact_info", "contact_information"], [[str]], False),
     ("POST_WEBHOOKS", ["webhooks", "auto_webhooks", "post_webhooks", "auto_post_webhooks"], {str: [str]}, False),
     ("CUSTOM_HEADERS", ["custom_headers", "headers"], {str: Any}, False),
@@ -758,6 +782,8 @@ MAX_POLL_OPTION_LENGTH = clamp(MAX_POLL_OPTION_LENGTH, minimum=1)
 POSTS_PER_REQUEST = clamp(POSTS_PER_REQUEST, minimum=1)
 MESSAGES_PER_REQUEST = clamp(MESSAGES_PER_REQUEST, minimum=1)
 MAX_NOTIFICATIONS = clamp(MAX_NOTIFICATIONS, minimum=1)
+MAX_MUTED_WORDS = clamp(MAX_MUTED_WORDS, minimum=1)
+MAX_MUTED_WORD_LENGTH = clamp(MAX_MUTED_WORD_LENGTH, minimum=1)
 ITEMS_PER_SITEMAP = clamp(ITEMS_PER_SITEMAP, minimum=50, maximum=50000)
 SITEMAP_CACHE_TIMEOUT = clamp(SITEMAP_CACHE_TIMEOUT, minimum=0)
 GENERIC_CACHE_TIMEOUT = clamp(SITEMAP_CACHE_TIMEOUT, minimum=0)
@@ -809,15 +835,23 @@ timeout_handler: dict[str, dict[str, None]] = {}
 
 ROBOTS: str = """\
 User-agent: *
-Disallow: /settings/
 Disallow: /home/
+Disallow: /logout/
+Disallow: /settings/
+Disallow: /notifications/
+Disallow: /messages/
+Disallow: /pending/
+Disallow: /m/
+Disallow: /email/
+Disallow: /admin/
+Disallow: /django-admin/
 Disallow: /api/
-Disallow: /static/
 
 # https://github.com/ai-robots-txt/ai.robots.txt/blob/main/robots.txt
 User-agent: AI2Bot
 User-agent: Ai2Bot-Dolma
 User-agent: Amazonbot
+User-agent: anthropic-ai
 User-agent: Applebot
 User-agent: Applebot-Extended
 User-agent: Bytespider
@@ -825,71 +859,41 @@ User-agent: CCBot
 User-agent: ChatGPT-User
 User-agent: Claude-Web
 User-agent: ClaudeBot
+User-agent: cohere-ai
+User-agent: cohere-training-data-crawler
 User-agent: Diffbot
+User-agent: DuckAssistBot
 User-agent: FacebookBot
 User-agent: FriendlyCrawler
-User-agent: GPTBot
 User-agent: Google-Extended
 User-agent: GoogleOther
 User-agent: GoogleOther-Image
 User-agent: GoogleOther-Video
+User-agent: GPTBot
+User-agent: iaskspider/2.0
 User-agent: ICC-Crawler
-User-agent: ISSCyberRiskCrawler
 User-agent: ImagesiftBot
+User-agent: img2dataset
+User-agent: ISSCyberRiskCrawler
 User-agent: Kangaroo Bot
 User-agent: Meta-ExternalAgent
 User-agent: Meta-ExternalFetcher
 User-agent: OAI-SearchBot
+User-agent: omgili
+User-agent: omgilibot
+User-agent: PanguBot
 User-agent: PerplexityBot
 User-agent: PetalBot
 User-agent: Scrapy
+User-agent: SemrushBot
 User-agent: Sidetrade indexer bot
 User-agent: Timpibot
 User-agent: VelenPublicWebCrawler
 User-agent: Webzio-Extended
 User-agent: YouBot
-User-agent: anthropic-ai
-User-agent: cohere-ai
-User-agent: facebookexternalhit
-User-agent: iaskspider/2.0
-User-agent: img2dataset
-User-agent: omgili
-User-agent: omgilibot
 Disallow: /
 """ if ALLOW_INDEXING else "User-agent: *\nDisallow: /\n"
 
 BADGE_DATA = {}
 
-try:
-    from backend._api_keys import smtp_auth  # type: ignore # noqa: F401
-except ImportError:
-    ENABLE_EMAIL = False
-
-try:
-    Badge.objects.get(name="administrator")
-
-    for i in Badge.objects.all():
-        BADGE_DATA[i.name] = i.svg_data
-
-except Badge.DoesNotExist:
-    icons = {
-        "verified": '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><title>Verified</title><path d="M200.3 81.5C210.9 61.5 231.9 48 256 48s45.1 13.5 55.7 33.5c5.4 10.2 17.3 15.1 28.3 11.7 21.6-6.6 46.1-1.4 63.1 15.7s22.3 41.5 15.7 63.1c-3.4 11 1.5 22.9 11.7 28.2 20 10.6 33.5 31.6 33.5 55.7s-13.5 45.1-33.5 55.7c-10.2 5.4-15.1 17.2-11.7 28.2 6.6 21.6 1.4 46.1-15.7 63.1s-41.5 22.3-63.1 15.7c-11-3.4-22.9 1.5-28.2 11.7-10.6 20-31.6 33.5-55.7 33.5s-45.1-13.5-55.7-33.5c-5.4-10.2-17.2-15.1-28.2-11.7-21.6 6.6-46.1 1.4-63.1-15.7S86.6 361.6 93.2 340c3.4-11-1.5-22.9-11.7-28.2C61.5 301.1 48 280.1 48 256s13.5-45.1 33.5-55.7c10.2-5.4 15.1-17.3 11.7-28.3-6.6-21.6-1.4-46.1 15.7-63.1s41.5-22.3 63.1-15.7c11 3.4 22.9-1.5 28.2-11.7zM256 0c-35.9 0-67.8 17-88.1 43.4-33-4.3-67.6 6.2-93 31.6S39 135 43.3 168C17 188.2 0 220.1 0 256s17 67.8 43.4 88.1c-4.3 33 6.2 67.6 31.6 93s60 35.9 93 31.6c20.2 26.3 52.1 43.3 88 43.3s67.8-17 88.1-43.4c33 4.3 67.6-6.2 93-31.6s35.9-60 31.6-93c26.3-20.2 43.3-52.1 43.3-88s-17-67.8-43.4-88.1c4.3-33-6.2-67.6-31.6-93S377 39 344 43.3C323.8 17 291.9 0 256 0m113 209c9.4-9.4 9.4-24.6 0-33.9s-24.6-9.4-33.9 0l-111 111-47-47c-9.4-9.4-24.6-9.4-33.9 0s-9.4 24.6 0 33.9l64 64c9.4 9.4 24.6 9.4 33.9 0z"/></svg>',
-        "developer": '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><title>Developer</title><path d="M80 112a32 32 0 1 0 0-64 32 32 0 1 0 0 64m80-32c0 35.8-23.5 66.1-56 76.3V192c0 22.1 17.9 40 40 40h160c22.1 0 40-17.9 40-40v-35.7c-32.5-10.2-56-40.5-56-76.3 0-44.2 35.8-80 80-80s80 35.8 80 80c0 35.8-23.5 66.1-56 76.3V192c0 48.6-39.4 88-88 88h-56v75.7c32.5 10.2 56 40.5 56 76.3 0 44.2-35.8 80-80 80s-80-35.8-80-80c0-35.8 23.5-66.1 56-76.3V280h-56c-48.6 0-88-39.4-88-88v-35.7C23.5 146.1 0 115.8 0 80 0 35.8 35.8 0 80 0s80 35.8 80 80m208 32a32 32 0 1 0 0-64 32 32 0 1 0 0 64M256 432a32 32 0 1 0-64 0 32 32 0 1 0 64 0"/></svg>',
-        "administrator": '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><title>Administrator</title><path d="M232 59.6v390.7C99.2 375.7 64.4 227.3 64 139.7c0-5 3.1-10.2 9-12.8zm48 390.8V59.6L439 127c5.9 2.5 9.1 7.8 9 12.8-.4 87.5-35.2 236-168 310.6M457.7 82.8 269.4 2.9C265.2 1 260.7 0 256 0s-9.2 1-13.4 2.9L54.3 82.8c-22 9.3-38.4 31-38.3 57.2.5 99.2 41.3 280.7 213.6 363.2 16.7 8 36.1 8 52.8 0C454.8 420.7 495.5 239.2 496 140c.1-26.2-16.3-47.9-38.3-57.2"/></svg>'
-    }
-
-    for i in icons:
-        x = Badge.objects.create(
-            name=i,
-            svg_data=icons[i]
-        )
-        x.save()
-        del x
-
-    del icons
-
-    for i in Badge.objects.all():
-        BADGE_DATA[i.name] = i.svg_data
-
-except OperationalError:
-    print("\x1b[91mYou need to migrate your database! Do this by running 'manage.py migrate'. If you are already doing that, ignore this message.\x1b[0m")
+print("Finished loading config")

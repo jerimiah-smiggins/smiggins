@@ -1,20 +1,22 @@
 let home;
+let u_for;
 let logged_in;
 let profile;
 let share;
-let url;
 let type;
 let includeUserLink;
 let includePostLink;
 let inc;
-let disableTimeline;
 let c;
-let offset;
-let offsetC = 0;
-let useOffsetC = false;
 let onLoad;
 let redirectConfirmation;
-let timelines = {};
+let timelineConfig = {
+    vars: { offset: null, offsetC: 0 },
+    timelines: {},
+    url: null,
+    disableTimeline: false,
+    useOffsetC: false
+};
 let globalIncrement = 0;
 function dom(id) {
     return document.getElementById(id);
@@ -26,6 +28,7 @@ const validColors = [
 ];
 const months = lang.generic.time.months;
 function s_fetch(url, data) {
+    data = data || {};
     data.method = data.method || "GET";
     data.disable = data.disable || [];
     for (const el of data.disable) {
@@ -96,16 +99,16 @@ function apiResponse(json, extraData) {
     for (const action of json.actions) {
         if (action.name == "populate_timeline") {
             if (!extraData.forceOffset) {
-                offsetC = 0;
+                timelineConfig.vars.offsetC = 0;
                 if (!action.posts.length) {
-                    dom("posts").innerHTML = `<i>${escapeHTML(lang.post.no_posts)}</i>`;
+                    dom("posts").innerHTML = `<i data-no-posts>${escapeHTML(lang.post.no_posts)}</i>`;
                 }
             }
-            offsetC++;
+            timelineConfig.vars.offsetC++;
             let output = "";
             for (const post of action.posts) {
                 output += getPostHTML(post, type == "comment", includeUserLink, includePostLink, false, false, false);
-                offset = post.post_id;
+                timelineConfig.vars.offset = post.post_id;
             }
             if (action.extra && action.extra.type == "user") {
                 ENABLE_USER_BIOS && dom("user-bio").removeAttribute("hidden");
@@ -123,9 +126,7 @@ function apiResponse(json, extraData) {
                 }
                 dom("follow").innerText = `${lang.user_page.followers.replaceAll("%s", action.extra.followers)} - ${lang.user_page.following.replaceAll("%s", action.extra.following)}`;
             }
-            let x = document.createElement("div");
-            x.innerHTML = output;
-            dom("posts").append(x);
+            dom("posts").insertAdjacentHTML("beforeend", output);
             if (dom("more")) {
                 if (extraData.forceOffset !== true) {
                     dom("more").removeAttribute("hidden");
@@ -143,9 +144,7 @@ function apiResponse(json, extraData) {
                 (location.pathname.toLowerCase().includes("/p/") && action.comment) ||
                 (location.pathname.toLowerCase().includes("/c/") && action.comment) ||
                 location.pathname.toLowerCase().includes(`/u/${localStorage.getItem("username") || "LOL IT BROKE SO FUNNY"}`)) {
-                let x = document.createElement("div");
-                x.innerHTML = getPostHTML(action.post, action.comment);
-                dom("posts").prepend(x);
+                dom("posts").insertAdjacentHTML("afterbegin", getPostHTML(action.post, action.comment));
             }
         }
         else if (action.name == "reset_post_html") {
@@ -160,6 +159,9 @@ function apiResponse(json, extraData) {
             else {
                 document.querySelector(`.post-container[data-${action.comment ? "comment" : "post"}-id="${action.post_id}"]`).remove();
             }
+        }
+        else if (action.name == "refresh_notifications") {
+            getNotifications();
         }
         else if (action.name == "refresh_timeline") {
             let rfFunc = action.special == "notifications" ? refreshNotifications : action.special == "pending" ? refreshPendingList : action.special == "message" ? refreshMessages : refresh;
@@ -210,10 +212,10 @@ function apiResponse(json, extraData) {
                   <div style="--color-one: ${user.color_one}; --color-two: ${user[ENABLE_GRADIENT_BANNERS && user.gradient_banner ? "color_two" : "color_one"]}" class="user-badge banner-pfp"></div>
                   ${escapeHTML(user.display_name)}
                   ${user.badges.length && ENABLE_BADGES ? `<span aria-hidden="true" class="user-badge">${user.badges.map((icon) => (badges[icon])).join("</span> <span aria-hidden=\"true\" class=\"user-badge\">")}</span>` : ""}<br>
-                  <span class="upper-lower-opacity">
+                  <div class="upper-lower-opacity">
                     <div class="username">@${user.username}</div>
                     ${user.timestamp ? `- <div class="username">${timeSince(user.timestamp)}</div>` : ""}
-                  </span>
+                  </div>
                 </div>
               </a>
             </div>
@@ -259,16 +261,20 @@ function apiResponse(json, extraData) {
                     let y = document.createElement("div");
                     if (!hasBeenRead && notif.read) {
                         if (!first) {
-                            y.innerHTML = "<hr>";
+                            y.innerHTML = "<hr data-notif-hr>";
                         }
                         hasBeenRead = true;
                     }
-                    y.innerHTML += escapeHTML(lang.notifications.event[notif.event_type].replaceAll("%s", notif.data.creator.display_name)) + "<br>";
-                    y.innerHTML += getPostHTML(notif.data, ["comment", "ping_c"].includes(notif.event_type)).replace("\"post\"", hasBeenRead ? "\"post\" data-color='gray'" : "\"post\"");
+                    y.innerHTML += escapeHTML(lang.notifications.event[notif.event_type].replaceAll("%s", notif.data.creator.display_name));
+                    y.innerHTML += getPostHTML(notif.data, ["comment", "ping_c"].includes(notif.event_type)).replace("\"post\"", hasBeenRead ? "\"post\" data-color='gray'" : "\"post\" data-notif-unread");
                     x.append(y);
-                    x.append(document.createElement("br"));
                     first = false;
                 }
+            }
+            if (action.notifications.length === 0) {
+                let el = document.createElement("i");
+                el.innerHTML = lang.generic.none;
+                x.append(el);
             }
             dom("notif-container").append(x);
         }
@@ -467,6 +473,10 @@ function apiResponse(json, extraData) {
                 }
             }
         }
+        else if (action.name == "refresh_poll") {
+            let poll = document.querySelector(`[data-post-id="${action.post_id}"] [data-poll-json]`);
+            poll.innerHTML = getPollHTML(action.poll, +poll.dataset.pollId, +poll.id.split("-")[1], true, poll.dataset.pollLoggedIn == "true");
+        }
         else {
             console.log(`Unknown API action`, action);
         }
@@ -607,17 +617,17 @@ function getPollHTML(pollJSON, postID, gInc, showResults, loggedIn = true) {
     }
     return `${output}<small>
     ${(pollJSON.votes == 1 ? lang.home.poll_total_singular : lang.home.poll_total_plural).replaceAll("%s", pollJSON.votes)}
-    ${!showResults ? `- <span class="toggle-poll"
+    ${!showResults ? `- <span class="poll-bottom"
       role="button"
       onclick="showPollResults(${gInc})"
       onkeydown="genericKeyboardEvent(event, () => (showPollResults(${gInc})))"
       tabindex="0">${lang.home.poll_view_results}</span>` : ""}
-    ${showResults ? `- <span class="refresh-poll"
+    ${showResults ? `- <span class="poll-bottom"
       role="button"
       onclick="refreshPoll(${gInc})"
       onkeydown="genericKeyboardEvent(event, () => (refreshPoll(${gInc})))"
       tabindex="0">${lang.generic.refresh}</span>` : ""}
-    ${showResults && !pollJSON.voted ? `- <span class="toggle-poll"
+    ${showResults && !pollJSON.voted ? `- <span class="poll-bottom"
       role="button"
       onclick="hidePollResults(${gInc})"
       onkeydown="genericKeyboardEvent(event, () => (hidePollResults(${gInc})))"
@@ -625,6 +635,11 @@ function getPollHTML(pollJSON, postID, gInc, showResults, loggedIn = true) {
   </small>`;
 }
 function getPostHTML(postJSON, isComment = false, includeUserLink = true, includePostLink = true, fakeMentions = false, pageFocus = false, isPinned = false, includeContainer = true) {
+    let muted = username !== postJSON.creator.username && checkMuted(postJSON.content) || (postJSON.c_warning && checkMuted(postJSON.c_warning)) || (postJSON.poll && postJSON.poll.content.map((val) => checkMuted(val.value)).reduce((real, val) => real || val));
+    let quoteMuted = postJSON.quote && username !== postJSON.quote.creator.username && (checkMuted(postJSON.quote.content) || (postJSON.quote.c_warning ? checkMuted(postJSON.quote.c_warning) : null));
+    if (muted === true) {
+        return "";
+    }
     return `${includeContainer ? `<div class="post-container" data-${isComment ? "comment" : "post"}-id="${postJSON.post_id}">` : ""}
     <div class="post" data-settings="${escapeHTML(JSON.stringify({
         isComment: isComment,
@@ -634,10 +649,11 @@ function getPostHTML(postJSON, isComment = false, includeUserLink = true, includ
         pageFocus: pageFocus,
         isPinned: isPinned
     }))}">
+      ${muted ? `<details><summary class="small">${escapeHTML(lang.settings.mute.post_blocked.replaceAll("%u", postJSON.creator.username).replaceAll("%m", muted))}</summary>` : ""}
       <div class="upper-content">
         ${includeUserLink ? `<a href="/u/${postJSON.creator.username}" class="no-underline text">` : "<span>"}
           <div class="main-area">
-            <span class="displ-name-container">
+            <div class="displ-name-container">
               ${postJSON.edited ? `<span class="user-badge" ${postJSON.edited_at ? `title="${escapeHTML(timeSince(postJSON.edited_at, true))}"` : ""}>${icons.edit}</span><span class="spacing"></span>` : ""}
               <span class="displ-name">
                 <span style="--color-one: ${postJSON.creator.color_one}; --color-two: ${postJSON.creator[ENABLE_GRADIENT_BANNERS && postJSON.creator.gradient_banner ? "color_two" : "color_one"]}" class="user-badge banner-pfp"></span>
@@ -645,19 +661,18 @@ function getPostHTML(postJSON, isComment = false, includeUserLink = true, includ
                 ${escapeHTML(postJSON.creator.display_name)}
                 ${postJSON.creator.badges.length && ENABLE_BADGES ? `<span aria-hidden="true" class="user-badge">${postJSON.creator.badges.map((icon) => (badges[icon])).join("</span> <span aria-hidden=\"true\" class=\"user-badge\">")}</span>` : ""}
               </span>
-            </span>
-            <span class="upper-lower-opacity">
+            </div>
+            <div class="upper-lower-opacity">
               <span class="username">@${postJSON.creator.username}</span> -
               ${postJSON.creator.pronouns === null ? "" : `<span class="pronouns">${postJSON.creator.pronouns}</span> -`}
               <span class="timestamp">${timeSince(postJSON.timestamp)}</span>
-            </span>
+            </div>
           </div>
         ${includeUserLink ? "</a>" : "</span>"}
       </div>
 
       <div class="main-area">
-        ${postJSON.c_warning ? `<details ${localStorage.getItem("expand-cws") ? "open" : ""} class="c-warning">` : ""}
-        ${postJSON.c_warning ? `<summary>
+        ${postJSON.c_warning ? `<details ${localStorage.getItem("expand-cws") ? "open" : ""} class="c-warning"><summary>
           <div class="c-warning-main">${escapeHTML(postJSON.c_warning)}</div>
           <div class="c-warning-stats">
             (${lang.post[postJSON.content.length == 1 ? "chars_singular" : "chars_plural"].replaceAll("%c", postJSON.content.length)}${postJSON.quote ? `, ${lang.post.quote}` : ""}${postJSON.poll ? `, ${lang.home.poll}` : ""})
@@ -692,11 +707,13 @@ function getPostHTML(postJSON, isComment = false, includeUserLink = true, includ
       ${postJSON.quote ? `
           <div class="quote-area">
             <div class="post">
+              ${quoteMuted === true ? `<i>${lang.settings.mute.quote_hard}</i>` : `
+              ${quoteMuted ? `<details><summary class="small">${escapeHTML(lang.settings.mute.post_blocked.replaceAll("%u", postJSON.creator.username).replaceAll("%m", quoteMuted))}</summary>` : ""}
               ${postJSON.quote.blocked ? (postJSON.quote.blocked_by_self ? lang.home.quote_blocked : lang.home.quote_blocked_other) : postJSON.quote.deleted ? lang.home.quote_deleted : postJSON.quote.can_view ? `
                   <div class="upper-content">
                     <a href="/u/${postJSON.quote.creator.username}" class="no-underline text">
                       <div class="main-area">
-                        <span class="displ-name-container">
+                        <div class="displ-name-container">
                           ${postJSON.quote.edited ? `<span class="user-badge" ${postJSON.quote.edited_at ? `title="${escapeHTML(timeSince(postJSON.quote.edited_at, true))}"` : ""}>${icons.edit}</span><span class="spacing"></span>` : ""}
                           <span class="displ-name">
                             <span style="--color-one: ${postJSON.quote.creator.color_one}; --color-two: ${postJSON.quote.creator[ENABLE_GRADIENT_BANNERS && postJSON.quote.creator.gradient_banner ? "color_two" : "color_one"]}" class="user-badge banner-pfp"></span>
@@ -704,12 +721,12 @@ function getPostHTML(postJSON, isComment = false, includeUserLink = true, includ
                             ${escapeHTML(postJSON.quote.creator.display_name)}
                             ${postJSON.quote.creator.badges.length && ENABLE_BADGES ? `<span aria-hidden="true" class="user-badge">${postJSON.quote.creator.badges.map((icon) => (badges[icon])).join("</span> <span aria-hidden=\"true\" class=\"user-badge\">")}</span>` : ""}
                           </span>
-                        </span>
-                        <span class="upper-lower-opacity">
+                        </div>
+                        <div class="upper-lower-opacity">
                           <span class="username">@${postJSON.quote.creator.username}</span> -
                           ${postJSON.quote.creator.pronouns === null ? "" : `<span class="pronouns">${postJSON.quote.creator.pronouns}</span> -`}
                           <span class="timestamp">${timeSince(postJSON.quote.timestamp)}</span>
-                        </span>
+                        </div>
                       </div>
                     </a>
                   </div>
@@ -741,11 +758,13 @@ function getPostHTML(postJSON, isComment = false, includeUserLink = true, includ
                   </div>
                   ${postJSON.quote.c_warning ? `</details>` : ""}
                 ` : lang.home.quote_private}
+              ${quoteMuted ? `</details>` : ""}
+              `}
             </div>
           </div>
         ` : ""}
-      </div>
       ${postJSON.c_warning ? `</details>` : ""}
+      </div>
 
       <div class="bottom-content">
         ${includePostLink ? `<a href="/${isComment ? "c" : "p"}/${postJSON.post_id}" class="text no-underline">` : ""}
@@ -783,7 +802,8 @@ function getPostHTML(postJSON, isComment = false, includeUserLink = true, includ
               ${lang.post.edit}
             </button>` : ""}</div>` : ""}
       </div>
-      <div class="post-after"></div>
+      <div class="quote-inputs"></div>
+      ${muted ? `</details>` : ""}
     </div>
   ${includeContainer ? "</div>" : ""}`;
 }
@@ -903,6 +923,30 @@ function toast(message, warning = false, timeout = 3000) {
     setTimeout(() => {
         dom(`gi-${gInc}`).remove();
     }, timeout);
+}
+function checkMuted(text) {
+    if (!muted) {
+        return null;
+    }
+    for (const word of muted) {
+        let wordSegments = word[0].slice(1).split("/");
+        try {
+            let regex;
+            if (word[1]) {
+                regex = new RegExp(`${wordSegments.slice(0, wordSegments.length - 1).join("/")}`, wordSegments[wordSegments.length - 1]);
+            }
+            else {
+                regex = new RegExp(`\\b${word[0].replaceAll(" ", "\\b.+\\b")}\\b`, "uis");
+            }
+            if (regex.test(text)) {
+                return word[2] || word[0];
+            }
+        }
+        catch (err) {
+            console.warn("Unable to parse muted word", word[0], word[1], wordSegments[wordSegments.length - 1]);
+        }
+    }
+    return null;
 }
 const icons = {
     settings: `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" aria-label="${escapeHTML(lang.settings.title)}"><path d="M495.9 166.6c3.2 8.7.5 18.4-6.4 24.6l-43.3 39.4c1.1 8.3 1.7 16.8 1.7 25.4s-.6 17.1-1.7 25.4l43.3 39.4c6.9 6.2 9.6 15.9 6.4 24.6-4.4 11.9-9.7 23.3-15.8 34.3l-4.7 8.1c-6.6 11-14 21.4-22.1 31.2-5.9 7.2-15.7 9.6-24.5 6.8l-55.7-17.7c-13.4 10.3-28.2 18.9-44 25.4l-12.5 57.1c-2 9.1-9 16.3-18.2 17.8-13.8 2.3-28 3.5-42.5 3.5s-28.7-1.2-42.5-3.5c-9.2-1.5-16.2-8.7-18.2-17.8l-12.5-57.1c-15.8-6.5-30.6-15.1-44-25.4l-55.6 17.8c-8.8 2.8-18.6.3-24.5-6.8-8.1-9.8-15.5-20.2-22.1-31.2l-4.7-8.1c-6.1-11-11.4-22.4-15.8-34.3-3.2-8.7-.5-18.4 6.4-24.6l43.3-39.4c-1.1-8.4-1.7-16.9-1.7-25.5s.6-17.1 1.7-25.4l-43.3-39.4c-6.9-6.2-9.6-15.9-6.4-24.6 4.4-11.9 9.7-23.3 15.8-34.3l4.7-8.1c6.6-11 14-21.4 22.1-31.2 5.9-7.2 15.7-9.6 24.5-6.8l55.7 17.7c13.4-10.3 28.2-18.9 44-25.4l12.5-57.1c2-9.1 9-16.3 18.2-17.8C227.3 1.2 241.5 0 256 0s28.7 1.2 42.5 3.5c9.2 1.5 16.2 8.7 18.2 17.8l12.5 57.1c15.8 6.5 30.6 15.1 44 25.4l55.7-17.7c8.8-2.8 18.6-.3 24.5 6.8 8.1 9.8 15.5 20.2 22.1 31.2l4.7 8.1c6.1 11 11.4 22.4 15.8 34.3zM256 336a80 80 0 1 0 0-160 80 80 0 1 0 0 160z"/></svg>`,

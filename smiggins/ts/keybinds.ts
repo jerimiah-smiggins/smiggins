@@ -5,14 +5,21 @@ const keybinds: { [key: string]: _keybind } = {
   a: { requireNav: true, action: (event: KeyboardEvent): void => { if (isAdmin) { redirect("/admin/"); }}},
   h: { requireNav: true, action: (event: KeyboardEvent): void => { redirect("/home/"); }},
   m: { requireNav: true, action: (event: KeyboardEvent): void => { if (ENABLE_PRIVATE_MESSAGES) { redirect("/messages/"); }}},
-  n: { requireNav: true, action: (event: KeyboardEvent): void => { redirect("/notifications/"); }},
   p: { requireNav: true, action: (event: KeyboardEvent): void => { redirect(`/u/${localStorage.getItem("username")}/`); }},
-  r: { action: (event: KeyboardEvent): void => { if (dom("refresh")) { dom("refresh").click(); }}},
+  r: { noPreventDefault: true, allowLoggedOut: true, action: (event: KeyboardEvent): void => { if (!(event.ctrlKey) && dom("refresh")) { event.preventDefault(); dom("refresh").click(); }}},
   s: { requireNav: true, action: (event: KeyboardEvent): void => { redirect("/settings/"); }},
-  "?": { action: keybindHelpMenu },
+  "?": { allowLoggedOut: true, action: keybindHelpMenu },
 
-  "/": { action: (event: KeyboardEvent): void => {
-    if (event.ctrlKey || heldKeys.Control) {
+  n: { action: (event: KeyboardEvent): void => {
+    if (heldKeys[navKey]) {
+      redirect("/notifications/");
+    // } else if (!(event.ctrlKey)) {
+    //   showPostModal();
+    }
+  }},
+
+  "/": { allowLoggedOut: true, action: (event: KeyboardEvent): void => {
+    if (event.ctrlKey) {
       keybindHelpMenu();
     } else if (dom("post-text")) {
       dom("post-text").focus();
@@ -24,7 +31,7 @@ const keybinds: { [key: string]: _keybind } = {
       dom((event.target as HTMLElement).dataset.createPostId || "post").click();
     }
   }}
-}
+};
 
 function _getKeybindInfo(key1: string, key2: string | null, description: string): string {
   return `<p class="keybind-help">${lang.generic.keybinds.dash.replaceAll("%k", `<code>${key2 ? lang.generic.keybinds.plus.replaceAll("%a", key1).replaceAll("%b", key2) : key1}</code>`).replaceAll("%d", description)}</p>`
@@ -61,9 +68,12 @@ function keyDown(event: KeyboardEvent): void {
     if (!(
       (!action.allowInputs && (["textarea", "input"].includes((event.target as HTMLElement).tagName.toLowerCase()) || (event.target as HTMLElement).isContentEditable))
    || (action.requireNav && !heldKeys[navKey])
-   || (action.requireCtrl && !(heldKeys.Control || event.ctrlKey))
-    )) {
-      event.preventDefault();
+   || (action.requireCtrl && !event.ctrlKey)
+    ) && (logged_in || action.allowLoggedOut)) {
+      if (!action.noPreventDefault) {
+        event.preventDefault();
+      }
+
       action.action(event);
     }
   }

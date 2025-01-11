@@ -1,6 +1,6 @@
 let forwardOffset: number = 0;
 let reverseOffset: number = 0;
-let username: string = document.body.dataset.username;
+u_for = document.body.dataset.username;
 c = 0;
 
 home = true;
@@ -11,7 +11,7 @@ function refreshMessages(start=false, forward=true): void {
     forward: boolean,
     offset: number
   } = {
-    username: username,
+    username: u_for,
     forward: start || forward,
     offset: start ? -1 : forward ? forwardOffset : reverseOffset
   };
@@ -49,7 +49,7 @@ dom("your-mom").onkeydown = (event: KeyboardEvent): void => {
         method: "POST",
         body: JSON.stringify({
           content: self.value,
-          username: username
+          username: u_for
         }),
         disable: [dom("your-mom")],
       });

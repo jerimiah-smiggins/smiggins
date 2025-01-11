@@ -6,10 +6,10 @@ from django.db.models import Count
 from django.db.utils import IntegrityError
 from posts.models import Comment, M2MLikeC, Notification, Post, User
 
-from ..helper import (DEFAULT_LANG, can_view_post, create_api_ratelimit,
-                      create_notification, delete_notification,
-                      ensure_ratelimit, find_mentions, get_lang, get_post_json,
-                      trim_whitespace)
+from ..helper import (DEFAULT_LANG, can_view_post, check_muted_words,
+                      create_api_ratelimit, create_notification,
+                      delete_notification, ensure_ratelimit, find_mentions,
+                      get_lang, get_post_json, trim_whitespace)
 from ..variables import (API_TIMINGS, ENABLE_CONTENT_WARNINGS,
                          ENABLE_LOGGED_OUT_CONTENT, ENABLE_POST_DELETION,
                          MAX_CONTENT_WARNING_LENGTH, MAX_POST_LENGTH,
@@ -21,11 +21,9 @@ from .schema import APIResponse, CommentID, EditComment, NewComment
 def comment_create(request, data: NewComment) -> APIResponse:
     # Called when a new comment is created.
 
-    token = request.COOKIES.get('token')
+    token = request.COOKIES.get("token")
     user = User.objects.get(token=token)
-
     lang = get_lang(user)
-    lang = DEFAULT_LANG
 
     if not ensure_ratelimit("api_comment_create", token):
         return 429, {
@@ -33,14 +31,10 @@ def comment_create(request, data: NewComment) -> APIResponse:
             "message": lang["generic"]["ratelimit"]
         }
 
-    id = data.id
-    is_comment = data.comment
-    content = data.content.replace("\r", "")
-
     content = trim_whitespace(data.content)
     c_warning = trim_whitespace(data.c_warning, True) if ENABLE_CONTENT_WARNINGS else ""
 
-    parent = (Comment if is_comment else Post).objects.get(pk=id)
+    parent = (Comment if data.comment else Post).objects.get(pk=data.id)
     can_view = can_view_post(user, parent.creator, parent)
     if can_view[0] is False and (can_view[1] == "blocked" or can_view[1] == "private"):
         return 400, {
@@ -54,6 +48,17 @@ def comment_create(request, data: NewComment) -> APIResponse:
             "message": lang["post"]["invalid_length"].replace("%s", str(MAX_POST_LENGTH))
         }
 
+    if check_muted_words(
+        content,
+        c_warning
+    ):
+        create_api_ratelimit("api_post_create", API_TIMINGS["create post failure"], token)
+        lang = get_lang(user)
+        return 400, {
+            "success": False,
+            "message": lang["post"]["muted"]
+        }
+
     create_api_ratelimit("api_comment_create", API_TIMINGS["create comment"], token)
 
     timestamp = round(time.time())
@@ -65,16 +70,16 @@ def comment_create(request, data: NewComment) -> APIResponse:
         content_warning=c_warning or None,
         comments=[],
         quotes=[],
-        parent=id,
+        parent=data.id,
         private=data.private,
-        parent_is_comment=is_comment
+        parent_is_comment=data.comment
     )
 
     comment = Comment.objects.get(
         content=content,
         creator=user,
         timestamp=timestamp,
-        parent=id
+        parent=data.id
     )
 
     if comment.comment_id not in parent.comments:
@@ -101,7 +106,7 @@ def comment_create(request, data: NewComment) -> APIResponse:
     return {
         "success": True,
         "actions": [
-            { "name": "prepend_timeline", "post": get_post_json(comment, user.user_id, True), "comment": True },
+            { "name": "prepend_timeline", "post": get_post_json(comment, user, True), "comment": True },
             { "name": "update_element", "query": "#post-text", "value": "" },
             { "name": "update_element", "query": "#c-warning", "value": "", "focus": True }
         ]
@@ -110,7 +115,6 @@ def comment_create(request, data: NewComment) -> APIResponse:
 def comment_list(request, id: int, comment: bool, sort: str, offset: int=0) -> APIResponse:
     # Called when the comments for a post are refreshed.
 
-    token = request.COOKIES.get('token')
     offset = 0 if offset == -1 else offset
 
     if sort not in ["liked", "random", "newest", "oldest"]:
@@ -119,9 +123,8 @@ def comment_list(request, id: int, comment: bool, sort: str, offset: int=0) -> A
         }
 
     try:
-        user = User.objects.get(token=token)
+        user = User.objects.get(token=request.COOKIES.get("token"))
         lang = get_lang(user)
-        logged_in = True
     except User.DoesNotExist:
         if not ENABLE_LOGGED_OUT_CONTENT:
             return 400, {
@@ -129,7 +132,6 @@ def comment_list(request, id: int, comment: bool, sort: str, offset: int=0) -> A
             }
 
         lang = DEFAULT_LANG
-        logged_in = False
 
     try:
         if id < 0 or (Comment.objects.latest("comment_id").comment_id if comment else Post.objects.latest("post_id").post_id) < id:
@@ -149,7 +151,6 @@ def comment_list(request, id: int, comment: bool, sort: str, offset: int=0) -> A
     else:
         parent = Post.objects.get(pk=id)
 
-    user_id = user.user_id if logged_in else 0
     comments = Comment.objects.filter(comment_id__in=parent.comments)
 
     if sort == "liked":
@@ -170,19 +171,14 @@ def comment_list(request, id: int, comment: bool, sort: str, offset: int=0) -> A
     outputList = []
     offset = 0
 
-    if logged_in:
-        self_user = User.objects.get(token=token)
-    else:
-        self_user = None
-
     for comment_object in comments:
-        can_view = can_view_post(self_user, comment_object.creator, comment_object)
+        can_view = can_view_post(user, comment_object.creator, comment_object)
         if can_view[0] is False and (can_view[1] == "blocked" or can_view[1] == "private"):
             offset += 1
             continue
 
         else:
-            outputList.append(get_post_json(comment_object, user_id, True))
+            outputList.append(get_post_json(comment_object, user, True))
 
         if len(outputList) + offset >= POSTS_PER_REQUEST:
             break
@@ -197,11 +193,8 @@ def comment_list(request, id: int, comment: bool, sort: str, offset: int=0) -> A
 def comment_like_add(request, data: CommentID) -> APIResponse:
     # Called when someone likes a comment.
 
-    token = request.COOKIES.get('token')
-    id = data.id
-
-    user = User.objects.get(token=token)
-    comment = Comment.objects.get(comment_id=id)
+    user = User.objects.get(token=request.COOKIES.get("token"))
+    comment = Comment.objects.get(comment_id=data.id)
 
     can_view = can_view_post(user, comment.creator, comment)
     if can_view[0] is False and (can_view[1] == "blocked" or can_view[1] == "private"):
@@ -225,11 +218,9 @@ def comment_like_add(request, data: CommentID) -> APIResponse:
 def comment_like_remove(request, data: CommentID) -> APIResponse:
     # Called when someone removes a like from a comment.
 
-    token = request.COOKIES.get('token')
-
     try:
         M2MLikeC.objects.get(
-            user=User.objects.get(token=token),
+            user=User.objects.get(token=request.COOKIES.get("token")),
             post=Comment.objects.get(comment_id=data.id)
         ).delete()
     except M2MLikeC.DoesNotExist:
@@ -246,12 +237,9 @@ def comment_like_remove(request, data: CommentID) -> APIResponse:
 def comment_delete(request, data: CommentID) -> APIResponse:
     # Called when someone deletes a post.
 
-    token = request.COOKIES.get('token')
-    id = data.id
-
     try:
-        comment = Comment.objects.get(comment_id=id)
-        user = User.objects.get(token=token)
+        comment = Comment.objects.get(comment_id=data.id)
+        user = User.objects.get(token=request.COOKIES.get("token"))
     except Comment.DoesNotExist or User.DoesNotExist:
         return 404, {
             "success": False
@@ -266,7 +254,7 @@ def comment_delete(request, data: CommentID) -> APIResponse:
         comment_parent.save()
 
     admin = user.user_id == OWNER_USER_ID or BitMask.can_use(user, BitMask.DELETE_POST)
-    creator = comment.creator == user.user_id and ENABLE_POST_DELETION
+    creator = comment.creator.user_id == user.user_id and ENABLE_POST_DELETION
 
     if admin and not creator:
         log_admin_action("Delete comment", user, comment.creator, f"Deleted comment {id}")
@@ -275,21 +263,9 @@ def comment_delete(request, data: CommentID) -> APIResponse:
         try:
             for notif in Notification.objects.filter(
                 event_id=comment.comment_id,
-                event_type="ping_c"
+                event_type__in=["ping_c", "comment"]
             ):
                 delete_notification(notif)
-
-        except Notification.DoesNotExist:
-            ...
-
-        try:
-            delete_notification(
-                Notification.objects.get(
-                    event_id=comment.comment_id,
-                    event_type="comment"
-                )
-            )
-
         except Notification.DoesNotExist:
             ...
 
@@ -307,11 +283,9 @@ def comment_delete(request, data: CommentID) -> APIResponse:
     }
 
 def comment_edit(request, data: EditComment) -> APIResponse:
-    token = request.COOKIES.get('token')
-
     try:
         post = Comment.objects.get(comment_id=data.id)
-        user = User.objects.get(token=token)
+        user = User.objects.get(token=request.COOKIES.get("token"))
     except Comment.DoesNotExist:
         return 404, {
             "success": False
@@ -343,7 +317,7 @@ def comment_edit(request, data: EditComment) -> APIResponse:
         return {
             "success": True,
             "actions": [
-                { "name": "reset_post_html", "post_id": data.id, "comment": True, "post": get_post_json(data.id, user.user_id, True) }
+                { "name": "reset_post_html", "post_id": data.id, "comment": True, "post": get_post_json(data.id, user, True) }
             ]
         }
 

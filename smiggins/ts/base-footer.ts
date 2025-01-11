@@ -1,5 +1,9 @@
 const usernameRegexFull: RegExp = /^[a-z0-9_\-]+$/g;
 
+if (localStorage.getItem("compact")) {
+  document.body.setAttribute("data-compact", "");
+}
+
 if (typeof(logged_in) != "boolean") {
   logged_in = document.cookie.split(/\btoken=/).length != 1;
 }
