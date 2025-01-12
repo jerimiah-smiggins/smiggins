@@ -89,7 +89,7 @@
 
         "default": "none", // Default pronouns for primary assuming the current one is invalid. Must have "special": "no-secondary"
         "enable_pronouns": true, // Set to false if the language doesn't have a pronoun-like system or this wouldn't make sense in the language
-        "enable_secondary": true, // Set this to false if the langauge doesn't have a primary/secondary pronoun format, instead only a primary
+        "enable_secondary": true, // Set this to false if the language doesn't have a primary/secondary pronoun format, instead only a primary
 
         "primary": [
           { "key": "none", "name": "Unset", "special": "no-secondary" },
@@ -508,7 +508,7 @@
       "account_email_update": "Change/Update",
       "account_email_verify": "Check your email to verify it",
       "account_email_check": "Check your email",
-      "account_deletion_warning": "Are you COMPLETELY SURE you want to delete your account? This is an IRREVERSIBLE ACTION that CAN NOT BE UNDONE. All posts, comments, likes, messages, etc. that you have created will be deleted and unable to be recovered.",
+      "account_deletion_warning": "Are you COMPLETELY SURE you want to delete your account? This is an IRREVERSIBLE ACTION that CANNOT BE UNDONE. All posts, comments, likes, messages, etc. that you have created will be deleted and unable to be recovered.",
       "account_deletion_confirm": "Yes, Delete My Account",
       "account_deletion_password": "Enter your password to continue with account deletion.",
 
