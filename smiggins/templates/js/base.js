@@ -190,7 +190,7 @@ function apiResponse(json, extraData) {
                         rfFunc(false, false);
                     }
                 }
-                {
+                else {
                     rfFunc();
                 }
             }
