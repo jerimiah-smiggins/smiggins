@@ -5,10 +5,10 @@ import re
 from posts.models import (Comment, MutedWord, OneTimePassword, Post,
                           PrivateMessageContainer, User, UserPronouns)
 
-from ..helper import (DEFAULT_LANG, create_api_ratelimit, ensure_ratelimit,
-                      generate_token, get_badges, get_ip_addr, get_lang,
-                      get_post_json, trim_whitespace, validate_username)
-from ..variables import (API_TIMINGS, DEFAULT_BANNER_COLOR, DEFAULT_LANGUAGE,
+from ..helper import (DEFAULT_LANG, check_ratelimit, generate_token,
+                      get_badges, get_lang, get_post_json, trim_whitespace,
+                      validate_username)
+from ..variables import (DEFAULT_BANNER_COLOR, DEFAULT_LANGUAGE,
                          ENABLE_GRADIENT_BANNERS, ENABLE_NEW_ACCOUNTS,
                          ENABLE_PRONOUNS, ENABLE_USER_BIOS, MAX_BIO_LENGTH,
                          MAX_DISPL_NAME_LENGTH, MAX_MUTED_WORD_LENGTH,
@@ -19,13 +19,8 @@ from .schema import (Account, APIResponse, ChangePassword, MutedWords,
 
 
 def signup(request, data: Account) -> APIResponse:
-    # Called when someone requests to follow another account.
-
-    if not ensure_ratelimit("api_account_signup", get_ip_addr(request)):
-        return 429, {
-            "success": False,
-            "message": DEFAULT_LANG["generic"]["ratelimit"]
-        }
+    if rl := check_ratelimit(request, "POST /api/user/signup"):
+        return rl
 
     username = data.username.lower().replace(" ", "")
     password = data.password.lower()
@@ -55,8 +50,6 @@ def signup(request, data: Account) -> APIResponse:
 
     user_valid = validate_username(username, existing=False)
     if user_valid == 1:
-        create_api_ratelimit("api_account_signup", API_TIMINGS["signup successful"], get_ip_addr(request))
-
         token = generate_token(username, password)
         User.objects.create(
             username=username,
@@ -79,8 +72,6 @@ def signup(request, data: Account) -> APIResponse:
             ]
         }
 
-    create_api_ratelimit("api_account_signup", API_TIMINGS["signup unsuccessful"], get_ip_addr(request))
-
     if user_valid == -1:
         return {
             "success": False,
@@ -99,20 +90,14 @@ def signup(request, data: Account) -> APIResponse:
     }
 
 def login(request, data: Account) -> APIResponse:
-    # Called when someone attempts to log in.
-
-    if not ensure_ratelimit("api_account_login", get_ip_addr(request)):
-        return 429, {
-            "success": False,
-            "message": DEFAULT_LANG["generic"]["ratelimit"]
-        }
+    if rl := check_ratelimit(request, "POST /api/user/login"):
+        return rl
 
     username = data.username.lower()
     token = generate_token(username, data.password)
 
     if validate_username(username) == 1:
         if token == User.objects.get(username=username).token:
-            create_api_ratelimit("api_account_login", API_TIMINGS["login successful"], get_ip_addr(request))
             return {
                 "success": True,
                 "actions": [
@@ -121,20 +106,19 @@ def login(request, data: Account) -> APIResponse:
                 ]
             }
 
-        create_api_ratelimit("api_account_login", API_TIMINGS["login unsuccessful"], get_ip_addr(request))
         return 400, {
             "success": False,
             "message": DEFAULT_LANG["account"]["bad_password"]
         }
 
-    create_api_ratelimit("api_account_login", API_TIMINGS["login unsuccessful"], get_ip_addr(request))
     return 400, {
         "success": False,
         "message": DEFAULT_LANG["account"]["username_does_not_exist"].replace("%s", data.username)
     }
 
 def settings_theme(request, data: Theme) -> APIResponse:
-    # Called when the user changes their theme.
+    if rl := check_ratelimit(request, "PATCH /api/user/settings/theme"):
+        return rl
 
     theme = data.theme.lower()
 
@@ -159,7 +143,8 @@ def settings_theme(request, data: Theme) -> APIResponse:
     }
 
 def settings(request, data: Settings) -> APIResponse:
-    # Called when someone saves their settings
+    if rl := check_ratelimit(request, "PATCH /api/user/settings"):
+        return rl
 
     user = User.objects.get(token=request.COOKIES.get("token"))
     lang = get_lang(user)
@@ -256,7 +241,8 @@ def settings(request, data: Settings) -> APIResponse:
     }
 
 def follower_add(request, data: Username) -> APIResponse:
-    # Called when someone requests to follow another account.
+    if rl := check_ratelimit(request, "POST /api/user/follow"):
+        return rl
 
     username = data.username.lower()
     user = User.objects.get(token=request.COOKIES.get("token"))
@@ -301,7 +287,8 @@ def follower_add(request, data: Username) -> APIResponse:
     }
 
 def follower_remove(request, data: Username) -> APIResponse:
-    # Called when someone requests to unfollow another account.
+    if rl := check_ratelimit(request, "DELETE /api/user/follow"):
+        return rl
 
     username = data.username.lower()
     user = User.objects.get(token=request.COOKIES.get("token"))
@@ -341,7 +328,8 @@ def follower_remove(request, data: Username) -> APIResponse:
     }
 
 def block_add(request, data: Username) -> APIResponse:
-    # Called when someone requests to block another account.
+    if rl := check_ratelimit(request, "POST /api/user/block"):
+        return rl
 
     username = data.username.lower()
     user = User.objects.get(token=request.COOKIES.get("token"))
@@ -392,7 +380,8 @@ def block_add(request, data: Username) -> APIResponse:
     }
 
 def block_remove(request, data: Username) -> APIResponse:
-    # Called when someone requests to unblock another account.
+    if rl := check_ratelimit(request, "DELETE /api/user/block"):
+        return rl
 
     username = data.username.lower()
     user = User.objects.get(token=request.COOKIES.get("token"))
@@ -435,6 +424,9 @@ def block_remove(request, data: Username) -> APIResponse:
     }
 
 def change_password(request, data: ChangePassword) -> APIResponse:
+    if rl := check_ratelimit(request, "PATCH /api/user/password"):
+        return rl
+
     try:
         user = User.objects.get(token=request.COOKIES.get("token"))
     except User.DoesNotExist:
@@ -481,6 +473,9 @@ def change_password(request, data: ChangePassword) -> APIResponse:
     }
 
 def read_notifs(request) -> APIResponse:
+    if rl := check_ratelimit(request, "PATCH /api/user/notifications"):
+        return rl
+
     try:
         self_user = User.objects.get(token=request.COOKIES.get("token"))
     except User.DoesNotExist:
@@ -513,6 +508,9 @@ def read_notifs(request) -> APIResponse:
     }
 
 def clear_read_notifs(request) -> APIResponse:
+    if rl := check_ratelimit(request, "DELETE /api/user/notifications"):
+        return rl
+
     try:
         self_user = User.objects.get(token=request.COOKIES.get("token"))
     except User.DoesNotExist:
@@ -530,6 +528,9 @@ def clear_read_notifs(request) -> APIResponse:
     }
 
 def notifications_list(request) -> APIResponse:
+    if rl := check_ratelimit(request, "GET /api/user/notifications"):
+        return rl
+
     try:
         self_user = User.objects.get(token=request.COOKIES.get("token"))
     except User.DoesNotExist:
@@ -565,6 +566,9 @@ def notifications_list(request) -> APIResponse:
     }
 
 def list_pending(request, offset: int=-1) -> APIResponse:
+    if rl := check_ratelimit(request, "GET /api/user/pending"):
+        return rl
+
     user = User.objects.get(token=request.COOKIES.get("token"))
 
     if offset == -1:
@@ -602,6 +606,9 @@ def list_pending(request, offset: int=-1) -> APIResponse:
     }
 
 def accept_pending(request, data: Username) -> APIResponse:
+    if rl := check_ratelimit(request, "POST /api/user/pending"):
+        return rl
+
     self_user = User.objects.get(token=request.COOKIES.get("token"))
     user = User.objects.get(username=data.username.lower())
 
@@ -623,6 +630,9 @@ def accept_pending(request, data: Username) -> APIResponse:
     }
 
 def remove_pending(request, data: Username) -> APIResponse:
+    if rl := check_ratelimit(request, "DELETE /api/user/pending"):
+        return rl
+
     self_user = User.objects.get(token=request.COOKIES.get("token"))
     user = User.objects.get(username=data.username.lower())
 
@@ -643,6 +653,9 @@ def remove_pending(request, data: Username) -> APIResponse:
     }
 
 def user_delete(request, data: Password) -> APIResponse:
+    if rl := check_ratelimit(request, "DELETE /api/user"):
+        return rl
+
     user = User.objects.get(token=request.COOKIES.get("token"))
 
     if user.token == generate_token(user.username, data.password):
@@ -686,6 +699,8 @@ def user_delete(request, data: Password) -> APIResponse:
 
 def muted(request, data: MutedWords) -> APIResponse:
     # You may need to also edit the muted function in backend.api.admin to match functionality
+    if rl := check_ratelimit(request, "POST /api/user/muted"):
+        return rl
 
     user = User.objects.get(token=request.COOKIES.get("token"))
     lang = get_lang(user)

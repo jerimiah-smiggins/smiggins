@@ -79,7 +79,7 @@ routes: list[tuple[str, str, Callable, bool | None, str, str, str | list[str]]] 
     ("admin/badge", "PUT", ApiAdmin.badge_create, ENABLE_BADGES, "New badge", "Creates a new badge", "Admin"),
     ("admin/badge", "DELETE", ApiAdmin.badge_delete, ENABLE_BADGES, "Delete badge", "Deletes an existing badge", "Admin"),
     ("admin/info", "GET", ApiAdmin.account_info, None, "Get account info", "Returns basic public information about a user", "Admin"),
-    ("admin/save-acc", "PATCH", ApiAdmin.account_save, None, "Save account info", "Saves basic information about a user's account", "Admin"),
+    ("admin/info", "PATCH", ApiAdmin.account_save, None, "Save account info", "Saves basic information about a user's account", "Admin"),
     ("admin/level", "GET", ApiAdmin.load_level, None, "Load permissions", "Loads the admin permissions for a user", "Admin"),
     ("admin/level", "PATCH", ApiAdmin.set_level, None, "Set permissions", "Sets the admin permissions for a user", "Admin"),
     ("admin/logs", "GET", ApiAdmin.logs, None, "Get logs", "Returns a list of admin logs", "Admin"),

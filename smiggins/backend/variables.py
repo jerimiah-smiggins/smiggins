@@ -9,6 +9,7 @@ import json5 as json
 import yaml
 from dotenv import dotenv_values
 
+print("Loading config...")
 
 def dotenv_or_(key: str, val: Any, process: Callable[[str], Any]=lambda x: x) -> Any:
     try:
@@ -18,8 +19,6 @@ def dotenv_or_(key: str, val: Any, process: Callable[[str], Any]=lambda x: x) ->
 
 def error(string):
     print(f"\x1b[91m{string}\x1b[0m")
-
-print("Loading config...")
 
 dotenv = dotenv_values(".env")
 
@@ -102,7 +101,6 @@ CONTACT_INFO: list[list[str]] = [
 POST_WEBHOOKS: dict[str, list[str]] = {}
 CUSTOM_HEADERS: dict[str, Any] = {}
 SOURCE_CODE: bool = True
-RATELIMIT: bool = True
 ENABLE_USER_BIOS: bool = True
 ENABLE_PRONOUNS: bool = True
 ENABLE_GRADIENT_BANNERS: bool = True
@@ -128,7 +126,6 @@ DISCORD: str | None = "tH7QnHApwu"
 FAVICON_CACHE_TIMEOUT: int | None = 7200
 SITEMAP_CACHE_TIMEOUT: int | None = 86400
 GENERIC_CACHE_TIMEOUT: int | None = 604800
-API_TIMINGS: dict[str, int] = {}
 FAVICON_DATA: str = """<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512">
   <path fill="@{background}" d="M0 73.1C0 32.8 32.8 0 73.1 0h365.7c40.3 0 73.1 32.8 73.1 73.1v365.7c0 40.3-32.8 73.1-73.1 73.1H73.1C32.8 511.9 0 479.1 0 438.8z"/>
   <path fill="@{background_alt}" d="m388.9 159.2 53.2-.6v235.6c0 42.9-34.8 77.8-77.8 77.8H247.6c-14.3 0-25.9-11.6-25.9-25.9s11.6-25.9 25.9-25.9H293L182.8 332v114.1c0 14.3-11.6 25.9-25.9 25.9S131 460.4 131 446.1V261.4c8.5 2.2 17.2 3.2 25.9 3.2 38.4 0 72-20.8 89.9-51.9h13.9c54.1 0 101.8 27.6 129.6 69.5v-69.1l-1.3-53.9zm-258 75c-17.7-6.2-32.5-18.7-41.6-34.8-6.5-11.3-10.2-24.6-10.2-38.6v-95c0-4.8 3.8-8.6 8.6-8.7h.2c2.7 0 5.2 1.3 6.8 3.4l10.4 13.9 22 29.4 3.9 5.2h51.9l3.9-5.2 22-29.4 10.4-13.8c1.6-2.2 4.1-3.5 6.8-3.5h.2c4.8 0 8.6 3.9 8.6 8.7v95c0 14.6-4.1 28.8-11.7 41.2-2.3 3.8-5 7.4-8 10.7-14.3 15.9-35 27.1-58 25.9s-18.1-1.5-26.2-4.4m51.9-60.4c7.2 0 13-5.8 13-13s-5.8-13-13-13-13 5.8-13 13 5.8 13 13 13m-38.9-13c0-7.2-5.8-13-13-13s-13 5.8-13 13 5.8 13 13 13 13-5.8 13-13"/>
@@ -138,6 +135,8 @@ FAVICON_DATA: str = """<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 
 </svg>"""
 ENABLE_DYNAMIC_FAVICON: bool = True
 ALTERNATE_IPS: bool | str = False
+ENABLE_RATELIMIT: bool = True
+RATELIMITS: dict[str, tuple[int, int] | None] = {}
 
 THEMES = {
   "warm": {
@@ -510,8 +509,6 @@ _VARIABLES: list[tuple[str | None, list[str], type | str | list | tuple | dict, 
     ("POST_WEBHOOKS", ["webhooks", "auto_webhooks", "post_webhooks", "auto_post_webhooks"], {str: [str]}, False),
     ("CUSTOM_HEADERS", ["custom_headers", "headers"], {str: Any}, False),
     ("SOURCE_CODE", ["source_code"], bool, False),
-    ("RATELIMIT", ["ratelimit"], bool, False),
-    ("API_TIMINGS", ["api_timings"], {str: int}, False),
     ("ENABLE_USER_BIOS", ["enable_user_bios"], bool, False),
     ("ENABLE_PRONOUNS", ["enable_pronouns"], bool, False),
     ("ENABLE_GRADIENT_BANNERS", ["enable_gradient_banners"], bool, False),
@@ -540,7 +537,9 @@ _VARIABLES: list[tuple[str | None, list[str], type | str | list | tuple | dict, 
     (None, ["custom_themes"], "theme-object", False),
     ("FAVICON_DATA", ["favicon", "favicon_data", "favicon_svg"], str, False),
     ("ENABLE_DYNAMIC_FAVICON", ["dynamic_favicon", "enable_dynamic_favicon"], bool, False),
-    ("ALTERNATE_IPS", ["alternate_ips"], (bool, str), False)
+    ("ALTERNATE_IPS", ["alternate_ips"], (bool, str), False),
+    ("ENABLE_RATELIMIT", ["enable_ratelimit"], bool, False),
+    ("RATELIMITS", ["ratelimits"], {str: "ratelimit-value"}, False)
 ]
 
 f = {}
@@ -549,8 +548,10 @@ try:
     f = yaml.safe_load(open(BASE_DIR / "settings.yaml", "r", encoding="utf-8"))
 except ValueError:
     error("Invalid settings.yaml")
+    exit()
 except FileNotFoundError:
     error("settings.yaml not found")
+    exit()
 
 def typecheck(obj: Any, expected_type: type | str | list | tuple | dict, allow_null: bool=False) -> bool | None:
     # Checks for a custom type format.
@@ -564,7 +565,7 @@ def typecheck(obj: Any, expected_type: type | str | list | tuple | dict, allow_n
     if expected_type is Any: # typing.Any throws a TypeError when used with isinstance()
         return True
 
-    if obj is None:
+    if obj is None and not isinstance(expected_type, str):
         return allow_null
 
     if isinstance(expected_type, type):
@@ -681,6 +682,21 @@ def typecheck(obj: Any, expected_type: type | str | list | tuple | dict, allow_n
 
             if "$" not in obj["filename"]:
                 error("db_backup, '$' should be in filename")
+                return False
+
+            return True
+
+        if expected_type == "ratelimit-value":
+            if obj is None:
+                return True
+
+            if not isinstance(obj, list):
+                return False
+
+            if len(obj) != 2:
+                return False
+
+            if not all([isinstance(i, int) for i in obj]):
                 return False
 
             return True
@@ -814,24 +830,71 @@ DEFAULT_DARK_THEME = _THEMES_INTERNALS["map"][DEFAULT_DARK_THEME.lower()]
 DEFAULT_LIGHT_THEME = _THEMES_INTERNALS["map"][DEFAULT_LIGHT_THEME.lower()]
 
 for key, val in {
-    "signup unsuccessful": 1000,
-    "signup successful": 15000,
-    "login unsuccessful": 1000,
-    "login successful": 5000,
-    "create comment": 3000,
-    "create comment failure": 1000,
-    "create post": 3000,
-    "create post failure": 1000
+  "POST /api/user/signup": (2, 10),
+  "POST /api/user/login": (5, 10),
+  "GET /api/user/notifications": (5, 10),
+  "PATCH /api/user/notifications": (2, 10),
+  "DELETE /api/user/notifications": (2, 10),
+  "PATCH /api/user/settings/theme": (10, 5),
+  "PATCH /api/user/settings": (5, 10),
+  "POST /api/user/muted": (4, 20),
+  "PATCH /api/user/password": (4, 60),
+  "POST /api/user/follow": (10, 5),
+  "DELETE /api/user/follow": (10, 5),
+  "GET /api/user/pending": (5, 10),
+  "POST /api/user/pending": (10, 5),
+  "DELETE /api/user/pending": (10, 5),
+  "POST /api/user/block": (10, 5),
+  "DELETE /api/user/block": (10, 5),
+  "PATCH /api/user/pin": (2, 10),
+  "DELETE /api/user/pin": (2, 10),
+  "DELETE /api/user": (4, 120),
+  "PUT /api/comment/create": (5, 30),
+  "PUT /api/quote/create": (5, 30),
+  "PUT /api/post/create": (5, 60),
+  "GET /api/post/user/{str:username}": (20, 60),
+  "GET /api/post/following": (20, 60),
+  "GET /api/post/recent": (20, 60),
+  "GET /api/comments": (5, 10),
+  "GET /api/hashtag/{str:hashtag}": (10, 5),
+  "DELETE /api/post": (10, 10),
+  "DELETE /api/comment": (10, 10),
+  "POST /api/post/like": (10, 5),
+  "DELETE /api/post/like": (10, 5),
+  "POST /api/comment/like": (10, 5),
+  "DELETE /api/comment/like": (10, 5),
+  "PATCH /api/post/edit": (2, 10),
+  "PATCH /api/comment/edit": (2, 10),
+  "POST /api/post/poll": (10, 5),
+  "GET /api/post/poll": (5, 10),
+  "GET /api/messages/list": (10, 5),
+  "POST /api/messages/new": (3, 10),
+  "GET /api/messages": (10, 5),
+  "POST /api/messages": (10, 10),
+  "DELETE /api/admin/user": (4, 60),
+  "POST /api/admin/badge": (10, 5),
+  "PATCH /api/admin/badge": (10, 5),
+  "PUT /api/admin/badge": (2, 5),
+  "DELETE /api/admin/badge": (5, 5),
+  "GET /api/admin/info": (10, 30),
+  "PATCH /api/admin/info": (5, 10),
+  "GET /api/admin/level": (10, 5),
+  "PATCH /api/admin/level": (5, 5),
+  "GET /api/admin/logs": (5, 10),
+  "POST /api/admin/otp": (5, 5),
+  "DELETE /api/admin/otp": (10, 5),
+  "GET /api/admin/otp": (10, 5),
+  "POST /api/admin/muted": (2, 10),
+  "POST /api/email/password": (3, 60),
+  "POST /api/email/save": (4, 20),
+  "GET /api/info/notifications": (5, 10),
+  "GET /api/info/version": None
 }.items():
-    if key not in API_TIMINGS:
-        API_TIMINGS[key] = val
+    if key not in RATELIMITS:
+        RATELIMITS[key] = val
 
 # Used when hashing user tokens
 PRIVATE_AUTHENTICATOR_KEY: str = hashlib.sha256(auth_key).hexdigest()
-
-# Using nested dicts because indexing a dict is generally faster than
-# for a list.
-timeout_handler: dict[str, dict[str, None]] = {}
 
 ROBOTS: str = """\
 User-agent: *

@@ -11,16 +11,16 @@ from django.db.utils import IntegrityError
 from posts.models import Comment, Hashtag, M2MLike, Notification, Post, User
 
 from ..helper import (DEFAULT_LANG, can_view_post, check_muted_words,
-                      create_api_ratelimit, create_notification,
-                      delete_notification, ensure_ratelimit, find_hashtags,
-                      find_mentions, get_lang, get_poll, get_post_json,
-                      trim_whitespace, validate_username)
-from ..variables import (API_TIMINGS, ENABLE_CONTENT_WARNINGS,
-                         ENABLE_LOGGED_OUT_CONTENT, ENABLE_PINNED_POSTS,
-                         ENABLE_POLLS, ENABLE_POST_DELETION,
-                         MAX_CONTENT_WARNING_LENGTH, MAX_POLL_OPTION_LENGTH,
-                         MAX_POLL_OPTIONS, MAX_POST_LENGTH, OWNER_USER_ID,
-                         POST_WEBHOOKS, POSTS_PER_REQUEST, SITE_NAME, VERSION)
+                      check_ratelimit, create_notification,
+                      delete_notification, find_hashtags, find_mentions,
+                      get_lang, get_poll, get_post_json, trim_whitespace,
+                      validate_username)
+from ..variables import (ENABLE_CONTENT_WARNINGS, ENABLE_LOGGED_OUT_CONTENT,
+                         ENABLE_PINNED_POSTS, ENABLE_POLLS,
+                         ENABLE_POST_DELETION, MAX_CONTENT_WARNING_LENGTH,
+                         MAX_POLL_OPTION_LENGTH, MAX_POLL_OPTIONS,
+                         MAX_POST_LENGTH, OWNER_USER_ID, POST_WEBHOOKS,
+                         POSTS_PER_REQUEST, SITE_NAME, VERSION)
 from .admin import BitMask, log_admin_action
 from .schema import APIResponse, EditPost, NewPost, NewQuote, Poll, PostID
 
@@ -62,23 +62,14 @@ def post_hook(request, user: User, post: Post) -> None:
     }).start()
 
 def post_create(request, data: NewPost) -> APIResponse:
-    # Called when a new post is created.
+    if rl := check_ratelimit(request, "PUT /api/post/create"):
+        return rl
 
     token = request.COOKIES.get("token")
     user = User.objects.get(token=token)
 
     if not ENABLE_POLLS:
         data.poll = []
-
-    if not ensure_ratelimit("api_post_create", token):
-        lang = get_lang(user)
-        return 429, {
-            "success": False,
-            "message": lang["generic"]["ratelimit"],
-            "actions": [
-                { "name": "update_element", "query": "#post-text", "disabled": False, "focus": True }
-            ]
-        }
 
     if len(data.poll) > MAX_POLL_OPTIONS:
         return 400, {
@@ -90,7 +81,6 @@ def post_create(request, data: NewPost) -> APIResponse:
         i = trim_whitespace(i, True)
         if i:
             if len(i) > MAX_POLL_OPTION_LENGTH:
-                create_api_ratelimit("api_post_create", API_TIMINGS["create post failure"], token)
                 return 400, {
                     "success": False
                 }
@@ -98,7 +88,6 @@ def post_create(request, data: NewPost) -> APIResponse:
             poll.append(i)
 
     if len(poll) == 1:
-        create_api_ratelimit("api_post_create", API_TIMINGS["create post failure"], token)
         lang = get_lang(user)
         return 400, {
             "success": False,
@@ -112,7 +101,6 @@ def post_create(request, data: NewPost) -> APIResponse:
     c_warning = trim_whitespace(data.c_warning, True) if ENABLE_CONTENT_WARNINGS else ""
 
     if len(c_warning) > MAX_CONTENT_WARNING_LENGTH or len(content) > MAX_POST_LENGTH or len(content) < (0 if len(poll) else 1):
-        create_api_ratelimit("api_post_create", API_TIMINGS["create post failure"], token)
         lang = get_lang(user)
         return 400, {
             "success": False,
@@ -127,7 +115,6 @@ def post_create(request, data: NewPost) -> APIResponse:
         c_warning,
         *poll
     ):
-        create_api_ratelimit("api_post_create", API_TIMINGS["create post failure"], token)
         lang = get_lang(user)
         return 400, {
             "success": False,
@@ -136,8 +123,6 @@ def post_create(request, data: NewPost) -> APIResponse:
                 { "name": "update_element", "query": "#post-text", "disabled": False, "focus": True }
             ]
         }
-
-    create_api_ratelimit("api_post_create", API_TIMINGS["create post"], token)
 
     timestamp = round(time.time())
     post = Post.objects.create(
@@ -192,30 +177,22 @@ def post_create(request, data: NewPost) -> APIResponse:
     }
 
 def quote_create(request, data: NewQuote) -> APIResponse:
-    # Called when a post is quoted.
+    if rl := check_ratelimit(request, "PUT /api/quote/create"):
+        return rl
 
     token = request.COOKIES.get("token")
     user = User.objects.get(token=token)
-
-    if not ensure_ratelimit("api_post_create", token):
-        lang = get_lang(user)
-        return 429, {
-            "success": False,
-            "message": lang["generic"]["ratelimit"]
-        }
 
     try:
         quoted_post = (Comment if data.quote_is_comment else Post).objects.get(pk=data.quote_id)
 
     except Post.DoesNotExist:
-        create_api_ratelimit("api_post_create", API_TIMINGS["create post failure"], token)
         lang = get_lang(user)
         return 400, {
             "success": False,
             "message": lang["post"]["invalid_quote_post"]
         }
     except Comment.DoesNotExist:
-        create_api_ratelimit("api_post_create", API_TIMINGS["create post failure"], token)
         lang = get_lang(user)
         return 400, {
             "success": False,
@@ -233,7 +210,6 @@ def quote_create(request, data: NewQuote) -> APIResponse:
     c_warning = trim_whitespace(data.c_warning, True) if ENABLE_CONTENT_WARNINGS else ""
 
     if len(c_warning) > MAX_CONTENT_WARNING_LENGTH or len(content) > MAX_POST_LENGTH or len(content) < 1:
-        create_api_ratelimit("api_post_create", API_TIMINGS["create post failure"], request.COOKIES.get("token"))
         lang = get_lang(user)
         return 400, {
             "success": False,
@@ -244,14 +220,11 @@ def quote_create(request, data: NewQuote) -> APIResponse:
         content,
         c_warning
     ):
-        create_api_ratelimit("api_post_create", API_TIMINGS["create post failure"], request.COOKIES.get("token"))
         lang = get_lang(user)
         return 400, {
             "success": False,
             "message": lang["post"]["muted"]
         }
-
-    create_api_ratelimit("api_post_create", API_TIMINGS["create post"], request.COOKIES.get("token"))
 
     timestamp = round(time.time())
     post = Post.objects.create(
@@ -319,7 +292,8 @@ def quote_create(request, data: NewQuote) -> APIResponse:
     }
 
 def hashtag_list(request, hashtag: str, sort: str, offset: int=0) -> APIResponse:
-    # Returns a list of posts with a specific hashtag
+    if rl := check_ratelimit(request, "GET /api/hashtag/{str:hashtag}"):
+        return rl
 
     if sort not in ["random", "recent", "liked"]:
         return 400, {
@@ -369,6 +343,9 @@ def hashtag_list(request, hashtag: str, sort: str, offset: int=0) -> APIResponse
     }
 
 def post_list_following(request, offset: int=-1) -> APIResponse:
+    if rl := check_ratelimit(request, "GET /api/post/following"):
+        return rl
+
     offset = sys.maxsize if offset == -1 else offset
 
     try:
@@ -414,7 +391,8 @@ def post_list_following(request, offset: int=-1) -> APIResponse:
     }
 
 def post_list_recent(request, offset: int=-1) -> APIResponse:
-    # Called when the recent posts tab is refreshed.
+    if rl := check_ratelimit(request, "GET /api/post/recent"):
+        return rl
 
     if offset == -1:
         try:
@@ -460,7 +438,8 @@ def post_list_recent(request, offset: int=-1) -> APIResponse:
     }
 
 def post_list_user(request, username: str, offset: int=-1) -> APIResponse:
-    # Called when getting posts from a specific user.
+    if rl := check_ratelimit(request, "GET /api/post/user/{str:username}"):
+        return rl
 
     username = username.lower()
 
@@ -530,7 +509,8 @@ def post_list_user(request, username: str, offset: int=-1) -> APIResponse:
     }
 
 def post_like_add(request, data: PostID) -> APIResponse:
-    # Called when someone likes a post.
+    if rl := check_ratelimit(request, "POST /api/post/like"):
+        return rl
 
     user = User.objects.get(token=request.COOKIES.get("token"))
     post = Post.objects.get(post_id=data.id)
@@ -555,7 +535,8 @@ def post_like_add(request, data: PostID) -> APIResponse:
     }
 
 def post_like_remove(request, data: PostID) -> APIResponse:
-    # Called when someone unlikes a post.
+    if rl := check_ratelimit(request, "DELETE /api/post/like"):
+        return rl
 
     try:
         M2MLike.objects.get(
@@ -574,7 +555,8 @@ def post_like_remove(request, data: PostID) -> APIResponse:
     }
 
 def post_delete(request, data: PostID) -> APIResponse:
-    # Called when someone deletes a post.
+    if rl := check_ratelimit(request, "DELETE /api/post"):
+        return rl
 
     try:
         post = Post.objects.get(post_id=data.id)
@@ -635,7 +617,8 @@ def post_delete(request, data: PostID) -> APIResponse:
     }
 
 def pin_post(request, data: PostID) -> APIResponse:
-    # Called when someone pins a post.
+    if rl := check_ratelimit(request, "PATCH /api/user/pin"):
+        return rl
 
     try:
         post = Post.objects.get(post_id=data.id)
@@ -663,7 +646,8 @@ def pin_post(request, data: PostID) -> APIResponse:
     }
 
 def unpin_post(request) -> APIResponse:
-    # Called when someone unpins a post.
+    if rl := check_ratelimit(request, "DELETE /api/user/pin"):
+        return rl
 
     try:
         user = User.objects.get(token=request.COOKIES.get("token"))
@@ -683,6 +667,9 @@ def unpin_post(request) -> APIResponse:
     }
 
 def poll_vote(request, data: Poll) -> APIResponse:
+    if rl := check_ratelimit(request, "POST /api/post/poll"):
+        return rl
+
     post = Post.objects.get(post_id=data.id)
     poll = post.poll
 
@@ -719,6 +706,9 @@ def poll_vote(request, data: Poll) -> APIResponse:
     }
 
 def poll_refresh(request, id: int) -> APIResponse:
+    if rl := check_ratelimit(request, "GET /api/post/poll"):
+        return rl
+
     post = Post.objects.get(post_id=id)
 
     if post.poll:
@@ -742,6 +732,9 @@ def poll_refresh(request, id: int) -> APIResponse:
     }
 
 def post_edit(request, data: EditPost) -> APIResponse:
+    if rl := check_ratelimit(request, "PATCH /api/post/edit"):
+        return rl
+
     try:
         post = Post.objects.get(post_id=data.id)
         user = User.objects.get(token=request.COOKIES.get("token"))

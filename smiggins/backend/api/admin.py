@@ -9,12 +9,13 @@ from django.db.utils import OperationalError
 from posts.models import (AdminLog, Badge, MutedWord, OneTimePassword,
                           PrivateMessageContainer, User)
 
-from ..helper import get_lang, sha_to_bytes, trim_whitespace
+from ..helper import check_ratelimit, get_lang, sha_to_bytes, trim_whitespace
 from ..variables import (BADGE_DATA, MAX_ADMIN_LOG_LINES,
                          MAX_MUTED_WORD_LENGTH, MAX_MUTED_WORDS, OWNER_USER_ID,
                          PRIVATE_AUTHENTICATOR_KEY)
-from .schema import (AccountIdentifier, APIResponse, DeleteBadge, MutedWords,
-                     NewBadge, OTPName, SaveUser, UserBadge, UserLevel)
+from .schema import (AccountIdentifier, APIResponse, DeleteBadge,
+                     MutedWordsAdmin, NewBadge, OTPName, SaveUser, UserBadge,
+                     UserLevel)
 
 
 class BitMask:
@@ -47,7 +48,6 @@ def log_admin_action(
     log_info: str
 ) -> None:
     # Logs an administrative action
-
     if isinstance(for_user_object, str):
         AdminLog.objects.create(
             type=action_name,
@@ -68,7 +68,8 @@ def log_admin_action(
     AdminLog.objects.filter(pk__in=AdminLog.objects.order_by("timestamp").reverse().values_list("pk", flat=True)[MAX_ADMIN_LOG_LINES:]).delete()
 
 def user_delete(request, data: AccountIdentifier) -> APIResponse:
-    # Deleting an account
+    if rl := check_ratelimit(request, "DELETE /api/admin/user"):
+        return rl
 
     try:
         user = User.objects.get(token=request.COOKIES.get("token"))
@@ -130,7 +131,8 @@ def user_delete(request, data: AccountIdentifier) -> APIResponse:
     }
 
 def badge_create(request, data: NewBadge) -> APIResponse:
-    # Creating a badge
+    if rl := check_ratelimit(request, "PUT /api/admin/badge"):
+        return rl
 
     try:
         self_user = User.objects.get(token=request.COOKIES.get("token"))
@@ -199,7 +201,8 @@ def badge_create(request, data: NewBadge) -> APIResponse:
     }
 
 def badge_delete(request, data: DeleteBadge) -> APIResponse:
-    # Deleting a badge
+    if rl := check_ratelimit(request, "DELETE /api/admin/badge"):
+        return rl
 
     try:
         self_user = User.objects.get(token=request.COOKIES.get("token"))
@@ -261,7 +264,8 @@ def badge_delete(request, data: DeleteBadge) -> APIResponse:
     }
 
 def badge_add(request, data: UserBadge) -> APIResponse:
-    # Adding a badge to a user
+    if rl := check_ratelimit(request, "POST /api/admin/badge"):
+        return rl
 
     try:
         self_user = User.objects.get(token=request.COOKIES.get("token"))
@@ -312,7 +316,8 @@ def badge_add(request, data: UserBadge) -> APIResponse:
     }
 
 def badge_remove(request, data: UserBadge) -> APIResponse:
-    # Removing a badge from a user
+    if rl := check_ratelimit(request, "PATCH /api/admin/badge"):
+        return rl
 
     try:
         self_user = User.objects.get(token=request.COOKIES.get("token"))
@@ -363,7 +368,8 @@ def badge_remove(request, data: UserBadge) -> APIResponse:
     }
 
 def account_info(request, identifier: str, use_id: bool) -> APIResponse:
-    # Get account information
+    if rl := check_ratelimit(request, "GET /api/admin/info"):
+        return rl
 
     identifier = identifier.lower()
 
@@ -409,7 +415,8 @@ def account_info(request, identifier: str, use_id: bool) -> APIResponse:
     }
 
 def account_save(request, data: SaveUser) -> APIResponse:
-    # Save account information
+    if rl := check_ratelimit(request, "PATCH /api/admin/info"):
+        return rl
 
     try:
         self_user = User.objects.get(token=request.COOKIES.get("token"))
@@ -471,7 +478,8 @@ def account_save(request, data: SaveUser) -> APIResponse:
     }
 
 def set_level(request, data: UserLevel) -> APIResponse:
-    # Set the admin level for a different person
+    if rl := check_ratelimit(request, "PATCH /api/admin/level"):
+        return rl
 
     try:
         self_user = User.objects.get(token=request.COOKIES.get("token"))
@@ -508,6 +516,9 @@ def set_level(request, data: UserLevel) -> APIResponse:
     }
 
 def load_level(request, identifier: str, use_id: bool) -> APIResponse:
+    if rl := check_ratelimit(request, "GET /api/admin/level"):
+        return rl
+
     try:
         self_user = User.objects.get(token=request.COOKIES.get("token"))
     except User.DoesNotExist:
@@ -544,6 +555,9 @@ def load_level(request, identifier: str, use_id: bool) -> APIResponse:
     }
 
 def logs(request) -> APIResponse:
+    if rl := check_ratelimit(request, "GET /api/admin/logs"):
+        return rl
+
     try:
         self_user = User.objects.get(token=request.COOKIES.get("token"))
     except User.DoesNotExist:
@@ -573,6 +587,9 @@ def logs(request) -> APIResponse:
     }
 
 def otp_generate(request) -> APIResponse:
+    if rl := check_ratelimit(request, "POST /api/admin/otp"):
+        return rl
+
     user = User.objects.get(token=request.COOKIES.get("token"))
 
     if BitMask.can_use(user, BitMask.READ_LOGS):
@@ -595,6 +612,9 @@ def otp_generate(request) -> APIResponse:
     }
 
 def otp_delete(request, data: OTPName) -> APIResponse:
+    if rl := check_ratelimit(request, "DELETE /api/admin/otp"):
+        return rl
+
     user = User.objects.get(token=request.COOKIES.get("token"))
 
     if BitMask.can_use(user, BitMask.READ_LOGS):
@@ -624,6 +644,9 @@ def otp_delete(request, data: OTPName) -> APIResponse:
     }
 
 def otp_load(request) -> APIResponse:
+    if rl := check_ratelimit(request, "GET /api/admin/otp"):
+        return rl
+
     user = User.objects.get(token=request.COOKIES.get("token"))
 
     if BitMask.can_use(user, BitMask.READ_LOGS):
@@ -646,8 +669,10 @@ def otp_load(request) -> APIResponse:
         "success": False
     }
 
-def muted(request, data: MutedWords) -> APIResponse:
+def muted(request, data: MutedWordsAdmin) -> APIResponse:
     # You may need to also edit the muted function in backend.api.user to match functionality
+    if rl := check_ratelimit(request, "POST /api/admin/muted"):
+        return rl
 
     user = User.objects.get(token=request.COOKIES.get("token"))
 

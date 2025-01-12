@@ -5,14 +5,15 @@ from sys import maxsize
 
 from posts.models import PrivateMessage, PrivateMessageContainer, User
 
-from ..helper import (check_muted_words, get_badges, get_container_id,
-                      get_lang, trim_whitespace)
+from ..helper import (check_muted_words, check_ratelimit, get_badges,
+                      get_container_id, get_lang, trim_whitespace)
 from ..variables import MAX_POST_LENGTH, MESSAGES_PER_REQUEST
 from .schema import APIResponse, NewContainer, NewMessage
 
 
 def container_create(request, data: NewContainer) -> APIResponse:
-    # Called when a new comment is created.
+    if rl := check_ratelimit(request, "POST /api/messages/new"):
+        return rl
 
     self_user = User.objects.get(token=request.COOKIES.get("token"))
     username = data.username.strip().lower()
@@ -63,6 +64,9 @@ def container_create(request, data: NewContainer) -> APIResponse:
     }
 
 def send_message(request, data: NewMessage) -> APIResponse:
+    if rl := check_ratelimit(request, "POST /api/messages"):
+        return rl
+
     user = User.objects.get(token=request.COOKIES.get("token"))
 
     if user.username == data.username:
@@ -148,6 +152,9 @@ def send_message(request, data: NewMessage) -> APIResponse:
     }
 
 def messages_list(request, username: str, forward: bool=True, offset: int=-1) -> APIResponse:
+    if rl := check_ratelimit(request, "GET /api/messages"):
+        return rl
+
     user = User.objects.get(token=request.COOKIES.get("token"))
 
     if user.username == username:
@@ -198,6 +205,9 @@ def messages_list(request, username: str, forward: bool=True, offset: int=-1) ->
     }
 
 def recent_messages(request, offset: int=-1) -> APIResponse:
+    if rl := check_ratelimit(request, "GET /api/messages/list"):
+        return rl
+
     user = User.objects.get(token=request.COOKIES.get("token"))
 
     if offset == -1:

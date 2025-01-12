@@ -12,8 +12,10 @@ from django.core.mail import send_mail
 from django.http import HttpResponse, HttpResponseRedirect
 from django.template import loader
 from posts.backups import backup_db
-from posts.models import Comment, MutedWord, Notification, Post, User
+from posts.models import (Comment, MutedWord, Notification, Post, Ratelimit,
+                          User)
 
+from .api.schema import APIResponse
 from .variables import (ALTERNATE_IPS, BADGE_DATA, BASE_DIR, CACHE_LANGUAGES,
                         DEFAULT_DARK_THEME, DEFAULT_LANGUAGE,
                         DEFAULT_LIGHT_THEME, DISCORD, ENABLE_ACCOUNT_SWITCHER,
@@ -23,14 +25,14 @@ from .variables import (ALTERNATE_IPS, BADGE_DATA, BASE_DIR, CACHE_LANGUAGES,
                         ENABLE_EMAIL, ENABLE_GRADIENT_BANNERS, ENABLE_HASHTAGS,
                         ENABLE_NEW_ACCOUNTS, ENABLE_PINNED_POSTS, ENABLE_POLLS,
                         ENABLE_POST_DELETION, ENABLE_PRIVATE_MESSAGES,
-                        ENABLE_PRONOUNS, ENABLE_QUOTES, ENABLE_USER_BIOS,
-                        GOOGLE_VERIFICATION_TAG, MAX_BIO_LENGTH,
-                        MAX_CONTENT_WARNING_LENGTH, MAX_DISPL_NAME_LENGTH,
-                        MAX_NOTIFICATIONS, MAX_POLL_OPTION_LENGTH,
-                        MAX_POLL_OPTIONS, MAX_POST_LENGTH, MAX_USERNAME_LENGTH,
-                        OWNER_USER_ID, PRIVATE_AUTHENTICATOR_KEY, RATELIMIT,
-                        SITE_NAME, SOURCE_CODE, THEMES, VALID_LANGUAGES,
-                        VERSION, timeout_handler)
+                        ENABLE_PRONOUNS, ENABLE_QUOTES, ENABLE_RATELIMIT,
+                        ENABLE_USER_BIOS, GOOGLE_VERIFICATION_TAG,
+                        MAX_BIO_LENGTH, MAX_CONTENT_WARNING_LENGTH,
+                        MAX_DISPL_NAME_LENGTH, MAX_NOTIFICATIONS,
+                        MAX_POLL_OPTION_LENGTH, MAX_POLL_OPTIONS,
+                        MAX_POST_LENGTH, MAX_USERNAME_LENGTH, OWNER_USER_ID,
+                        PRIVATE_AUTHENTICATOR_KEY, RATELIMITS, SITE_NAME,
+                        SOURCE_CODE, THEMES, VALID_LANGUAGES, VERSION)
 
 
 def sha(string: str | bytes) -> str:
@@ -226,32 +228,46 @@ def generate_token(username: str, password: str) -> str:
 
     return sha(sha(f"{username}:{password}") + PRIVATE_AUTHENTICATOR_KEY)
 
-def create_api_ratelimit(api_id: str, time_ms: int | float, identifier: str | None) -> None:
-    # Creates a ratelimit timeout for a specific user via the identifier.
-    # The identifier should be the ip address or user token.
-    # api_id is the identifier for the api, for example "api_account_signup". You
-    # can generally use the name of that api's function for this.
+def check_ratelimit(request, route_id: str) -> None | APIResponse:
+    if not ENABLE_RATELIMIT:
+        return None
 
-    if not RATELIMIT:
-        return
+    if route_id not in RATELIMITS:
+        print("Uh oh. How'd this happen???", route_id)
+        return None
 
-    identifier = str(identifier)
+    rl_info = RATELIMITS[route_id]
+    route_id = route_id[:100]
 
-    if api_id not in timeout_handler:
-        timeout_handler[api_id] = {}
-    timeout_handler[api_id][identifier] = None
+    if not rl_info:
+        try:
+            user = User.objects.get(token=request.COOKIES.get("token"))
+        except User.DoesNotExist:
+            user = None
 
-    def x():
-        timeout_handler[api_id].pop(identifier)
+        return 429, {
+            "success": False,
+            "message": get_lang(user)["generic"]["ratelimit"]
+        }
 
-    x.__name__ = f"{api_id}:{identifier}"
-    set_timeout(x, time_ms)
+    now: int = int(time.time())
+    user_id: str = (request.COOKIES.get("token") or get_ip_addr(request))[:64] # cap max length to not fuck up databsae calls if something goes wrong
+    Ratelimit.objects.filter(route_id=route_id, expires__lt=now).delete()
 
-def ensure_ratelimit(api_id: str, identifier: str | None) -> bool:
-    # Returns whether or not a certain api is ratelimited for the specified
-    # identifier. True = not ratelimited, False = ratelimited
+    if Ratelimit.objects.filter(route_id=route_id, user_id=user_id).count() >= rl_info[0]:
+        try:
+            user = User.objects.get(token=request.COOKIES.get("token"))
+        except User.DoesNotExist:
+            user = None
 
-    return (not RATELIMIT) or not (api_id in timeout_handler and str(identifier) in timeout_handler[api_id])
+        return 429, {
+            "success": False,
+            "message": get_lang(user)["generic"]["ratelimit"]
+        }
+
+    Ratelimit.objects.create(route_id=route_id, user_id=user_id, expires=now + rl_info[1])
+
+    return None
 
 def get_badges(user: User) -> list[str]:
     # Returns the list of badges for the specified user
@@ -613,7 +629,7 @@ def get_lang(lang: User | str | None=None, override_cache=False) -> dict[str, di
 
     return x
 
-def get_ip_addr(request):
+def get_ip_addr(request) -> str:
     if isinstance(ALTERNATE_IPS, str):
         return request.headers.get(ALTERNATE_IPS)
 

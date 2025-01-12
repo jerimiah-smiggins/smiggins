@@ -3,11 +3,14 @@
 
 from posts.models import User
 
+from ..helper import check_ratelimit
 from ..variables import ENABLE_PRIVATE_MESSAGES, REAL_VERSION
+from .schema import APIResponse
 
 
-def notifications(request) -> tuple[int, dict] | dict:
-    # Returns whether or not you have unread notifications
+def notifications(request) -> tuple[int, dict] | dict | APIResponse:
+    if rl := check_ratelimit(request, "GET /api/info/notifications"):
+        return rl
 
     try:
         user = User.objects.get(token=request.COOKIES.get("token"))
@@ -23,8 +26,9 @@ def notifications(request) -> tuple[int, dict] | dict:
         "followers": user.verify_followers and user.pending_followers.count() > 0
     }
 
-def version(request) -> dict:
-    # Returns the site version
+def version(request) -> dict | APIResponse:
+    if rl := check_ratelimit(request, "GET /api/info/version"):
+        return rl
 
     return {
         "success": True,

@@ -256,6 +256,11 @@ class MutedWord(models.Model):
     def __str__(self):
         return f"{self.user.username if self.user else 'Global'}: {self.string}"
 
+class Ratelimit(models.Model):
+    expires = models.IntegerField()
+    route_id = models.CharField(max_length=100)
+    user_id = models.CharField(max_length=64) # user token or ip address
+
 class M2MLike(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE)
     post = models.ForeignKey(Post, on_delete=models.CASCADE)
