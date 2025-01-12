@@ -102,7 +102,7 @@ def send_message(request, data: NewMessage) -> APIResponse:
         lang = get_lang(user)
         return 400, {
             "success": False,
-            "message": lang["message"]["muted"]
+            "message": lang["messages"]["muted"]
         }
 
     timestamp = round(time.time())

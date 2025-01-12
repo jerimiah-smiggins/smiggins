@@ -252,9 +252,11 @@ def check_ratelimit(request, route_id: str) -> None | APIResponse:
         except User.DoesNotExist:
             user = None
 
+        lang = get_lang(user)
+
         return 429, {
             "success": False,
-            "message": get_lang(user)["generic"]["ratelimit"]
+            "message": lang["generic"]["ratelimit"]
         }
 
     Ratelimit.objects.create(route_id=route_id, user_id=user_id, expires=now + rl_info[1])
