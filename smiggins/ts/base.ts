@@ -241,7 +241,7 @@ function apiResponse(
           } else {
             rfFunc(false, false);
           }
-        } {
+        } else {
           rfFunc();
         }
       }

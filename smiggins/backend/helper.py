@@ -32,7 +32,7 @@ from .variables import (ALTERNATE_IPS, BADGE_DATA, BASE_DIR, CACHE_LANGUAGES,
                         MAX_POLL_OPTION_LENGTH, MAX_POLL_OPTIONS,
                         MAX_POST_LENGTH, MAX_USERNAME_LENGTH, OWNER_USER_ID,
                         PRIVATE_AUTHENTICATOR_KEY, RATELIMITS, SITE_NAME,
-                        SOURCE_CODE, THEMES, VALID_LANGUAGES, VERSION)
+                        SOURCE_CODE, THEMES, VALID_LANGUAGES, VERSION, error)
 
 
 def sha(string: str | bytes) -> str:
@@ -233,22 +233,14 @@ def check_ratelimit(request, route_id: str) -> None | APIResponse:
         return None
 
     if route_id not in RATELIMITS:
-        print("Uh oh. How'd this happen???", route_id)
+        error(f"[RATELIMIT] Unknown route id {route_id}")
         return None
 
     rl_info = RATELIMITS[route_id]
     route_id = route_id[:100]
 
     if not rl_info:
-        try:
-            user = User.objects.get(token=request.COOKIES.get("token"))
-        except User.DoesNotExist:
-            user = None
-
-        return 429, {
-            "success": False,
-            "message": get_lang(user)["generic"]["ratelimit"]
-        }
+        return None
 
     now: int = int(time.time())
     user_id: str = (request.COOKIES.get("token") or get_ip_addr(request))[:64] # cap max length to not fuck up databsae calls if something goes wrong
