@@ -299,7 +299,7 @@ function apiResponse(json, extraData) {
                 toast(lang.generic.success);
             });
             dom("data-save").addEventListener("click", function () {
-                s_fetch("/api/admin/save-acc", {
+                s_fetch("/api/admin/info", {
                     method: "PATCH",
                     body: JSON.stringify({
                         id: this.dataset.userId,
