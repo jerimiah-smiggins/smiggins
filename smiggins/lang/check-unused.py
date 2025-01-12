@@ -65,6 +65,6 @@ for path in search_dirs:
 langs = [i for i in os.listdir() if len(i) <= 10 and i[-5::] == ".json"]
 
 for lang in langs:
-    print(lang)
+    print(f"-= \x1b[1m{lang}\x1b[0m =-")
     loop_through(json.load(open(lang, "r", encoding="utf-8"))["texts"])
-    print("-" * 20)
+    print()

@@ -9,8 +9,8 @@ from django.http import HttpResponse, HttpResponseRedirect
 from django.views.decorators.csrf import csrf_exempt
 from posts.models import URLPart, User
 
-from ..helper import (generate_token, get_HTTP_response, get_lang, send_email,
-                      sha)
+from ..helper import (check_ratelimit, generate_token, get_HTTP_response,
+                      get_lang, send_email, sha)
 from ..variables import DEFAULT_DARK_THEME, THEMES, WEBSITE_URL
 from .schema import APIResponse, Email, Username
 
@@ -149,6 +149,9 @@ def verify_email(request, user: User, data: Email) -> APIResponse:
     }
 
 def password_reset(request, data: Username) -> APIResponse:
+    if rl := check_ratelimit(request, "POST /api/email/password"):
+        return rl
+
     user = User.objects.get(username=data.username.lower())
     lang = get_lang(user)
 
@@ -310,6 +313,9 @@ def test_link(request, intent=True) -> HttpResponse:
     return HttpResponse(f"/email/test-key/?i={intent}")
 
 def set_email(request, data: Email) -> APIResponse:
+    if rl := check_ratelimit(request, "POST /api/email/save"):
+        return rl
+
     user = User.objects.get(token=request.COOKIES.get("token"))
 
     if generate_token(user.username, data.password) != user.token:

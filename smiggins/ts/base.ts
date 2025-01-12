@@ -241,7 +241,7 @@ function apiResponse(
           } else {
             rfFunc(false, false);
           }
-        } {
+        } else {
           rfFunc();
         }
       }
@@ -370,7 +370,7 @@ function apiResponse(
       });
 
       dom("data-save").addEventListener("click", function(): void {
-        s_fetch("/api/admin/save-acc", {
+        s_fetch("/api/admin/info", {
           method: "PATCH",
           body: JSON.stringify({
             id: this.dataset.userId,
