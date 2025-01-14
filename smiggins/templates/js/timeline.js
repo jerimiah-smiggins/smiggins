@@ -47,7 +47,7 @@ function addQuote(postID, isComment) {
     let localGI = globalIncrement;
     globalIncrement++;
     post.querySelector("button.post-button").addEventListener("click", function () {
-        if (!post.querySelector("textarea").value.length) {
+        if (!hasContent(post.querySelector("textarea").value)) {
             return;
         }
         s_fetch("/api/quote/create", {
@@ -67,7 +67,6 @@ function addQuote(postID, isComment) {
             ]
         });
     });
-    post.querySelector("textarea").addEventListener("input", postTextInputEvent);
     post.querySelector("button.cancel-button").addEventListener("click", function () {
         post.innerHTML = "";
     });

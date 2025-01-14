@@ -204,7 +204,6 @@ dom("disable-checkboxes").addEventListener("input", function () {
         document.body.setAttribute("data-disable-checkboxes", "");
     }
 });
-ENABLE_USER_BIOS && dom("bio").addEventListener("input", postTextInputEvent);
 dom("displ-name").addEventListener("input", setUnload);
 dom("default-post").addEventListener("input", setUnload);
 dom("followers-approval").addEventListener("input", setUnload);

@@ -144,7 +144,7 @@ def badge_create(request, data: NewBadge) -> APIResponse:
 
     if BitMask.can_use(self_user, BitMask.CREATE_BADGE):
         badge_name = data.badge_name.lower().replace(" ", "")
-        badge_data = trim_whitespace(data.badge_data, True)
+        badge_data = trim_whitespace(data.badge_data, True)[0]
 
         if len(badge_name) > 64 or len(badge_name) <= 0:
             log_admin_action("Create badge", self_user, None, f"Invalid badge name {badge_name}")
@@ -436,14 +436,16 @@ def account_save(request, data: SaveUser) -> APIResponse:
                 "message": lang["generic"]["user_not_found"]
             }
 
-        if len(data.bio) > 65536:
+        new_bio = trim_whitespace(data.bio, True)
+        if len(new_bio[0]) > 65536:
             log_admin_action("Save account info", self_user, user, f"Tried to save info, but bio (length {len(data.bio)}) is invalid")
             return 400, {
                 "success": False,
                 "message": lang["admin"]["modify"]["invalid_bio_size"]
             }
 
-        if len(data.displ_name) == 0 or len(data.displ_name) > 300:
+        new_display_name = trim_whitespace(data.displ_name, True)
+        if not new_display_name[1] or len(new_display_name[0]) > 300:
             log_admin_action("Save account info", self_user, user, f"Tried to save info, but display name {data.displ_name} is invalid")
             return 400, {
                 "success": False,
@@ -452,18 +454,16 @@ def account_save(request, data: SaveUser) -> APIResponse:
 
         old_bio = user.bio
         old_display_name = user.display_name
-        new_bio = trim_whitespace(data.bio, True)
-        new_display_name = trim_whitespace(data.displ_name, True)
 
-        user.bio = new_bio
-        user.display_name = new_display_name
+        user.bio = new_bio[0]
+        user.display_name = new_display_name[0]
         user.save()
 
-        if old_bio == new_bio and old_display_name == new_display_name:
+        if old_bio == new_bio[0] and old_display_name == new_display_name[0]:
             log_admin_action("Save account info", self_user, user, "Nothing changed")
-        elif old_display_name == new_display_name:
+        elif old_display_name == new_display_name[0]:
             log_admin_action("Save account info", self_user, user, "Saved bio")
-        elif old_bio == new_bio:
+        elif old_bio == new_bio[0]:
             log_admin_action("Save account info", self_user, user, "Saved display name")
         else:
             log_admin_action("Save account info", self_user, user, "Save bio and display name")
@@ -681,9 +681,9 @@ def muted(request, data: MutedWordsAdmin) -> APIResponse:
         objs = []
 
         for word in data.muted.split("\n"):
-            word = trim_whitespace(word)
+            word, valid = trim_whitespace(word, True)
 
-            if not word:
+            if not valid:
                 continue
 
             if len(word) > MAX_MUTED_WORD_LENGTH:

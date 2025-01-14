@@ -220,18 +220,16 @@ function apiResponse(json, extraData) {
               </a>
             </div>
 
-            <div class="main-content">
-              ${action.special == "messages" ? `
-                  <a class="no-underline text" href="/m/${user.username}">
-                    ${escapeHTML(user.bio) || `<i>${lang.messages.no_messages}</i>`}
-                  </a>
-                ` : (user.bio ? linkifyHtml(escapeHTML(user.bio), {
+            <div class="main-content class="pre-wrap">${action.special == "messages" ? `
+                <a class="no-underline text" href="/m/${user.username}">
+                  ${escapeHTML(user.bio) || `<i>${lang.messages.no_messages}</i>`}
+                </a>
+              ` : (user.bio ? linkifyHtml(escapeHTML(user.bio), {
                     formatHref: {
                         mention: (href) => "/u/" + href.slice(1),
                         hashtag: (href) => "/hashtag/" + href.slice(1)
                     }
-                }) : `<i>${lang.user_page.lists_no_bio}</i>`)}
-            </div>
+                }) : `<i>${lang.user_page.lists_no_bio}</i>`)}</div>
 
             ${action.special == "pending" ? `<div class="bottom-content">
                 <button onclick="_followAction('${user.username}', 'POST');">${lang.user_page.pending_accept}</button>
@@ -286,8 +284,6 @@ function apiResponse(json, extraData) {
         <button id="data-save" data-user-id="${action.user_id}">${lang.admin.modify.save}</button><br>
         ${ENABLE_ACCOUNT_SWITCHER && action.token ? `<button id="data-switcher" data-token="${action.token}" data-username="${action.username}">${lang.admin.modify.switcher}</button>` : ""}
       `;
-            dom("data-display-name").addEventListener("input", postTextInputEvent);
-            dom("data-bio").addEventListener("input", postTextInputEvent);
             ENABLE_ACCOUNT_SWITCHER && dom("data-switcher").addEventListener("click", function () {
                 let username = this.dataset.username;
                 let token = this.dataset.token;
@@ -339,7 +335,7 @@ function apiResponse(json, extraData) {
             for (const message of action.messages) {
                 let y = document.createElement("div");
                 y.setAttribute("class", `message ${message.from_self ? "send" : "receive"}`);
-                y.innerHTML = `<div>${linkifyHtml(escapeHTML(message.content), {
+                y.innerHTML = `<div class="pre-wrap">${linkifyHtml(escapeHTML(message.content), {
                     formatHref: {
                         mention: (href) => "/u/" + href.slice(1),
                         hashtag: (href) => "/hashtag/" + href.slice(1)
@@ -653,14 +649,10 @@ function getPostHTML(postJSON, isComment = false, includeUserLink = true, includ
       <div class="upper-content">
         ${includeUserLink ? `<a href="/u/${postJSON.creator.username}" class="no-underline text">` : "<span>"}
           <div class="main-area">
-            <div class="displ-name-container">
-              ${postJSON.edited ? `<span class="user-badge" ${postJSON.edited_at ? `title="${escapeHTML(timeSince(postJSON.edited_at, true))}"` : ""}>${icons.edit}</span><span class="spacing"></span>` : ""}
-              <span class="displ-name">
-                <span style="--color-one: ${postJSON.creator.color_one}; --color-two: ${postJSON.creator[ENABLE_GRADIENT_BANNERS && postJSON.creator.gradient_banner ? "color_two" : "color_one"]}" class="user-badge banner-pfp"></span>
-                ${postJSON.private ? `<span class="user-badge">${icons.lock}</span>` : ""}
-                ${escapeHTML(postJSON.creator.display_name)}
-                ${postJSON.creator.badges.length && ENABLE_BADGES ? `<span aria-hidden="true" class="user-badge">${postJSON.creator.badges.map((icon) => (badges[icon])).join("</span> <span aria-hidden=\"true\" class=\"user-badge\">")}</span>` : ""}
-              </span>
+            <div class="pre-wrap displ-name-container"
+              >${postJSON.edited ? `<span class="user-badge" ${postJSON.edited_at ? `title="${escapeHTML(timeSince(postJSON.edited_at, true))}"` : ""}>${icons.edit}</span><span class="spacing"></span>` : ""}<span class="displ-name"
+              ><span style="--color-one: ${postJSON.creator.color_one}; --color-two: ${postJSON.creator[ENABLE_GRADIENT_BANNERS && postJSON.creator.gradient_banner ? "color_two" : "color_one"]}" class="user-badge banner-pfp"></span
+              >${postJSON.private ? `<span class="user-badge">${icons.lock}</span>` : ""} ${escapeHTML(postJSON.creator.display_name)} ${postJSON.creator.badges.length && ENABLE_BADGES ? `<span aria-hidden="true" class="user-badge">${postJSON.creator.badges.map((icon) => (badges[icon])).join("</span> <span aria-hidden=\"true\" class=\"user-badge\">")}</span>` : ""}</span>
             </div>
             <div class="upper-lower-opacity">
               <span class="username">@${postJSON.creator.username}</span> -
@@ -673,25 +665,24 @@ function getPostHTML(postJSON, isComment = false, includeUserLink = true, includ
 
       <div class="main-area">
         ${postJSON.c_warning ? `<details ${localStorage.getItem("expand-cws") ? "open" : ""} class="c-warning"><summary>
-          <div class="c-warning-main">${escapeHTML(postJSON.c_warning)}</div>
+          <div class="pre-wrap c-warning-main">${escapeHTML(postJSON.c_warning)}</div>
           <div class="c-warning-stats">
             (${lang.post[postJSON.content.length == 1 ? "chars_singular" : "chars_plural"].replaceAll("%c", postJSON.content.length)}${postJSON.quote ? `, ${lang.post.quote}` : ""}${postJSON.poll ? `, ${lang.home.poll}` : ""})
           </div>
         </summary>` : ""}
         <div class="main-content">
           ${includePostLink ? `<a aria-hidden="true" href="/${isComment ? "c" : "p"}/${postJSON.post_id}" tabindex="-1" class="text no-underline">` : ""}
-            ${linkifyHtml(escapeHTML(postJSON.content), {
+            <div class="pre-wrap">${linkifyHtml(escapeHTML(postJSON.content), {
         formatHref: {
             mention: (href) => fakeMentions ? "javascript:void(0);" : "/u/" + href.slice(1),
             hashtag: (href) => "/hashtag/" + href.slice(1)
         }
-    }).replaceAll("\n", "<br>\n")
-        .replaceAll("<a", includePostLink ? "  \n" : "<a target=\"_blank\"")
+    }).replaceAll("<a", includePostLink ? "\u2000" : "<a target=\"_blank\"")
         .replaceAll("</a>", includePostLink ? `</a><a aria-hidden="true" href="/${isComment ? "c" : "p"}/${postJSON.post_id}" tabindex="-1" class="text no-underline">` : "</a>")
-        .replaceAll("  \n", "</a><a target=\"_blank\"")
+        .replaceAll("\u2000", "</a><a target=\"_blank\"")
         .replaceAll(`<a aria-hidden="true" href="/${isComment ? "c" : "p"}/${postJSON.post_id}" tabindex="-1" class="text no-underline"></a>`, "")
         .replaceAll("<a target=\"_blank\" href=\"/", "<a href=\"/")
-        .replaceAll("<a target=\"_blank\" href=\"javascript:", "<a href=\"javascript:")}
+        .replaceAll("<a target=\"_blank\" href=\"javascript:", "<a href=\"javascript:")}</div>
           ${includePostLink ? "</a>" : ""}
         </div>
 
@@ -713,15 +704,11 @@ function getPostHTML(postJSON, isComment = false, includeUserLink = true, includ
                   <div class="upper-content">
                     <a href="/u/${postJSON.quote.creator.username}" class="no-underline text">
                       <div class="main-area">
-                        <div class="displ-name-container">
-                          ${postJSON.quote.edited ? `<span class="user-badge" ${postJSON.quote.edited_at ? `title="${escapeHTML(timeSince(postJSON.quote.edited_at, true))}"` : ""}>${icons.edit}</span><span class="spacing"></span>` : ""}
-                          <span class="displ-name">
-                            <span style="--color-one: ${postJSON.quote.creator.color_one}; --color-two: ${postJSON.quote.creator[ENABLE_GRADIENT_BANNERS && postJSON.quote.creator.gradient_banner ? "color_two" : "color_one"]}" class="user-badge banner-pfp"></span>
-                            ${postJSON.quote.private ? `<span class="user-badge">${icons.lock}</span>` : ""}
-                            ${escapeHTML(postJSON.quote.creator.display_name)}
-                            ${postJSON.quote.creator.badges.length && ENABLE_BADGES ? `<span aria-hidden="true" class="user-badge">${postJSON.quote.creator.badges.map((icon) => (badges[icon])).join("</span> <span aria-hidden=\"true\" class=\"user-badge\">")}</span>` : ""}
-                          </span>
-                        </div>
+                      <div class="pre-wrap displ-name-container"
+                        >${postJSON.quote.edited ? `<span class="user-badge" ${postJSON.quote.edited_at ? `title="${escapeHTML(timeSince(postJSON.quote.edited_at, true))}"` : ""}>${icons.edit}</span><span class="spacing"></span>` : ""}<span class="displ-name"
+                        ><span style="--color-one: ${postJSON.quote.creator.color_one}; --color-two: ${postJSON.quote.creator[ENABLE_GRADIENT_BANNERS && postJSON.quote.creator.gradient_banner ? "color_two" : "color_one"]}" class="user-badge banner-pfp"></span
+                        >${postJSON.quote.private ? `<span class="user-badge">${icons.lock}</span>` : ""} ${escapeHTML(postJSON.quote.creator.display_name)} ${postJSON.quote.creator.badges.length && ENABLE_BADGES ? `<span aria-hidden="true" class="user-badge">${postJSON.quote.creator.badges.map((icon) => (badges[icon])).join("</span> <span aria-hidden=\"true\" class=\"user-badge\">")}</span>` : ""}</span>
+                      </div>
                         <div class="upper-lower-opacity">
                           <span class="username">@${postJSON.quote.creator.username}</span> -
                           ${postJSON.quote.creator.pronouns === null ? "" : `<span class="pronouns">${postJSON.quote.creator.pronouns}</span> -`}
@@ -739,18 +726,17 @@ function getPostHTML(postJSON, isComment = false, includeUserLink = true, includ
                   </summary>` : ""}
                   <div class="main-content">
                     <a aria-hidden="true" href="/${postJSON.quote.comment ? "c" : "p"}/${postJSON.quote.post_id}" class="text no-underline">
-                      ${linkifyHtml(escapeHTML(postJSON.quote.content), {
+                      <div class="pre-wrap">${linkifyHtml(escapeHTML(postJSON.quote.content), {
         formatHref: {
             mention: (href) => fakeMentions ? "javascript:void(0);" : "/u/" + href.slice(1),
             hashtag: (href) => "/hashtag/" + href.slice(1)
         }
-    }).replaceAll("\n", "<br>")
-        .replaceAll("<a", "  \n")
-        .replaceAll("</a>", `</a><a aria-hidden="true" href="/${postJSON.quote.comment ? "c" : "p"}/${postJSON.quote.post_id}" class="text no-underline">`)
-        .replaceAll("  \n", "</a><a target=\"_blank\"")
-        .replaceAll(`<a aria-hidden="true" href="/${postJSON.quote.comment ? "c" : "p"}/${postJSON.quote.post_id}" class="text no-underline"></a>`, "")
+    }).replaceAll("<a", includePostLink ? "\u2000" : "<a target=\"_blank\"")
+        .replaceAll("</a>", includePostLink ? `</a><a aria-hidden="true" href="/${isComment ? "c" : "p"}/${postJSON.quote.post_id}" tabindex="-1" class="text no-underline">` : "</a>")
+        .replaceAll("\u2000", "</a><a target=\"_blank\"")
+        .replaceAll(`<a aria-hidden="true" href="/${isComment ? "c" : "p"}/${postJSON.quote.post_id}" tabindex="-1" class="text no-underline"></a>`, "")
         .replaceAll("<a target=\"_blank\" href=\"/", "<a href=\"/")
-        .replaceAll("<a target=\"_blank\" href=\"javascript:", "<a href=\"javascript:")}
+        .replaceAll("<a target=\"_blank\" href=\"javascript:", "<a href=\"javascript:")}</div>
 
                       ${postJSON.quote.has_quote ? `<br><i>${lang.home.quote_recursive}</i>` : ""}
                       ${postJSON.quote.poll ? `<br><i>${lang.home.quote_poll}</i>` : ""}
@@ -807,38 +793,20 @@ function getPostHTML(postJSON, isComment = false, includeUserLink = true, includ
     </div>
   ${includeContainer ? "</div>" : ""}`;
 }
-function trimWhitespace(string, purgeNewlines = false, trimEnd = false) {
+function hasContent(string) {
     const whitespace = [
-        "\x09", "\x0b", "\x0c", "\xa0",
-        "\u1680", "\u2000", "\u2001", "\u2002",
-        "\u2003", "\u2004", "\u2005", "\u2006",
-        "\u2007", "\u2008", "\u2009", "\u200a",
-        "\u200b", "\u2028", "\u2029", "\u202f",
-        "\u205f", "\u2800", "\u3000", "\ufeff"
+        "\x09", "\x0a", "\x0b", "\x0c",
+        "\x20", "\x85", "\xa0", "\u1680",
+        "\u2000", "\u2001", "\u2002", "\u2003",
+        "\u2004", "\u2005", "\u2006", "\u2007",
+        "\u2008", "\u2009", "\u200a", "\u200b",
+        "\u2028", "\u2029", "\u202f", "\u205f",
+        "\u2800", "\u3000"
     ];
-    string = string.replaceAll("\x0d", "");
-    if (purgeNewlines) {
-        string = string.replaceAll("\x0a", " ").replaceAll("\x85", " ");
-    }
     for (const char of whitespace) {
-        string = string.replaceAll(char, " ");
+        string = string.replaceAll(char, "");
     }
-    while (string.includes("\n ") || string.includes("   ") || string.includes("\n\n\n")) {
-        string = string.replaceAll("\n ", "\n").replaceAll("   ", "  ").replaceAll("\n\n\n", "\n\n");
-    }
-    return trimEnd ? string.trim() : string;
-}
-function postTextInputEvent() {
-    if (typeof setUnload === "function") {
-        setUnload();
-    }
-    let newCursorPosition = trimWhitespace(this.value.slice(0, this.selectionStart + 1)).length - (this.value.length > this.selectionStart ? 1 : 0);
-    let newVal = trimWhitespace(this.value);
-    newCursorPosition = newCursorPosition < 0 ? 0 : newCursorPosition;
-    if (newVal != this.value) {
-        this.value = trimWhitespace(this.value);
-        this.setSelectionRange(newCursorPosition, newCursorPosition);
-    }
+    return string.length !== 0;
 }
 function redirect(path) {
     if (location.href == path || location.pathname == path) {

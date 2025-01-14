@@ -20,12 +20,7 @@
 {% block body %}
   <div id="banner" class="{{ GRADIENT }}"></div>
   <div>
-    <div id="username-main">
-      {{ DISPLAY_NAME }}
-      {% autoescape off %}
-      {{ BADGES }}
-      {% endautoescape %}
-    </div>
+    <div class="pre-wrap" id="username-main">{{ DISPLAY_NAME }} {% autoescape off %}{{ BADGES }}{% endautoescape %}</div>
   </div>
 
   <div id="secondary-username-container">
@@ -42,7 +37,7 @@
   </div>
 
   {% if ENABLE_USER_BIOS == 'true' and IS_BLOCKED == "false" %}
-    <div id="user-bio" data-linkify>{{ USER_BIO }}</div>
+    <div id="user-bio" class="pre-wrap" data-linkify>{{ USER_BIO }}</div>
   {% endif %}
 
   <div class="lists-container">
@@ -53,20 +48,12 @@
           <div class="post">
             <div class="upper-content">
               <a href="/u/{{ USER.username }}/" class="no-underline text">
-                <div class="displ-name">
-                  <span style="--color-one: {{ USER.color_one }}; --color-two: {% if USER.is_gradient == 'true' %}{{ USER.color_two }}{% else %}{{ USER.color_one }}{% endif %}" class="user-badge banner-pfp"></span>
-
-                  {{ USER.display_name }}
-                  {% if USER.private == 'true' %}
-                    <span class="user-badge" data-add-icon="lock"></span>
-                  {% endif %}
-                  {% for BADGE in USER.badges %}
-                    <span aria-hidden="true" class="user-badge" data-add-badge="{{ BADGE }}"></span>
-                  {% endfor %}
-                  <span class="upper-lower-opacity">
-                    <span class="username">@{{ USER.username }}</span>
-                  </span>
-                </div>
+                <div class="pre-wrap displ-name"
+                  ><span style="--color-one: {{ USER.color_one }}; --color-two: {% if USER.is_gradient == 'true' %}{{ USER.color_two }}{% else %}{{ USER.color_one }}{% endif %}" class="user-badge banner-pfp"></span
+                  > {{ USER.display_name }}{% if USER.private == 'true' %} <span class="user-badge" data-add-icon="lock"></span
+                  > {% endif %}{% for BADGE in USER.badges %} <span aria-hidden="true" class="user-badge" data-add-badge="{{ BADGE }}"></span
+                  > {% endfor %}<span class="upper-lower-opacity"><span class="username">@{{ USER.username }}</span></span
+               ></div>
               </a>
             </div>
 
@@ -75,9 +62,7 @@
                 {% if USER.bio == EMPTY %}
                   <i>{{ lang.user_page.lists_no_bio }}</i>
                 {% else %}
-                  <div data-linkify>
-                    {{ USER.bio }}
-                  </div>
+                  <div class="pre-wrap" data-linkify>{{ USER.bio }}</div>
                 {% endif %}
               </div>
             {% endif %}
@@ -94,20 +79,12 @@
         <div class="post">
           <div class="upper-content">
             <a href="/u/{{ USER.username }}/" class="no-underline text">
-              <div class="displ-name">
-                <span style="--color-one: {{ USER.color_one }}; --color-two: {% if USER.is_gradient == 'true' %}{{ USER.color_two }}{% else %}{{ USER.color_one }}{% endif %}" class="user-badge banner-pfp"></span>
-
-                {{ USER.display_name }}
-                {% if USER.private == 'true' %}
-                  <span class="user-badge" data-add-icon="lock"></span>
-                {% endif %}
-                {% for BADGE in USER.badges %}
-                  <span aria-hidden="true" class="user-badge" data-add-badge="{{ BADGE }}"></span>
-                {% endfor %}
-                <span class="upper-lower-opacity">
-                  <span class="username">@{{ USER.username }}</span>
-                </span>
-              </div>
+              <div class="pre-wrap displ-name"
+                ><span style="--color-one: {{ USER.color_one }}; --color-two: {% if USER.is_gradient == 'true' %}{{ USER.color_two }}{% else %}{{ USER.color_one }}{% endif %}" class="user-badge banner-pfp"></span
+                > {{ USER.display_name }}{% if USER.private == 'true' %} <span class="user-badge" data-add-icon="lock"></span
+                > {% endif %}{% for BADGE in USER.badges %} <span aria-hidden="true" class="user-badge" data-add-badge="{{ BADGE }}"></span
+                > {% endfor %}<span class="upper-lower-opacity"><span class="username">@{{ USER.username }}</span></span
+             ></div>
             </a>
           </div>
 
@@ -116,9 +93,7 @@
               {% if USER.bio == EMPTY %}
                 <i>{{ lang.user_page.lists_no_bio }}</i>
               {% else %}
-                <div data-linkify>
-                  {{ USER.bio }}
-                </div>
+                <div class="pre-wrap" data-linkify>{{ USER.bio }}</div>
               {% endif %}
             </div>
           {% endif %}
@@ -134,20 +109,12 @@
           <div class="post">
             <div class="upper-content">
               <a href="/u/{{ USER.username }}/" class="no-underline text">
-                <div class="displ-name">
-                  <span style="--color-one: {{ USER.color_one }}; --color-two: {% if USER.is_gradient == 'true' %}{{ USER.color_two }}{% else %}{{ USER.color_one }}{% endif %}" class="user-badge banner-pfp"></span>
-
-                  {{ USER.display_name }}
-                  {% if USER.private == 'true' %}
-                    <span class="user-badge" data-add-icon="lock"></span>
-                  {% endif %}
-                  {% for BADGE in USER.badges %}
-                    <span aria-hidden="true" class="user-badge" data-add-badge="{{ BADGE }}"></span>
-                  {% endfor %}
-                  <span class="upper-lower-opacity">
-                    <span class="username">@{{ USER.username }}</span>
-                  </span>
-                </div>
+                <div class="pre-wrap displ-name"
+                  ><span style="--color-one: {{ USER.color_one }}; --color-two: {% if USER.is_gradient == 'true' %}{{ USER.color_two }}{% else %}{{ USER.color_one }}{% endif %}" class="user-badge banner-pfp"></span
+                  > {{ USER.display_name }}{% if USER.private == 'true' %} <span class="user-badge" data-add-icon="lock"></span
+                  > {% endif %}{% for BADGE in USER.badges %} <span aria-hidden="true" class="user-badge" data-add-badge="{{ BADGE }}"></span
+                  > {% endfor %}<span class="upper-lower-opacity"><span class="username">@{{ USER.username }}</span></span
+               ></div>
               </a>
             </div>
 
@@ -156,9 +123,7 @@
                 {% if USER.bio == EMPTY %}
                   <i>{{ lang.user_page.lists_no_bio }}</i>
                 {% else %}
-                  <div data-linkify>
-                    {{ USER.bio }}
-                  </div>
+                  <div class="pre-wrap" data-linkify>{{ USER.bio }}</div>
                 {% endif %}
               </div>
             {% endif %}

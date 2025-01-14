@@ -30,7 +30,7 @@ def post_hook(request, user: User, post: Post) -> None:
         meta = POST_WEBHOOKS[user.username]
         lang = get_lang()
 
-        content = post.content + (f"\n\n{lang['home']['quote_recursive']}" if post.quote else f"\n\n{lang['home']['quote_poll']}" if post.poll else "")
+        content = (post.content_warning or post.content) + (f"\n\n{lang['home']['quote_recursive']}" if post.quote else f"\n\n{lang['home']['quote_poll']}" if post.poll else "")
 
         if meta[1] == "discord":
             body = {
@@ -79,8 +79,8 @@ def post_create(request, data: NewPost) -> APIResponse:
     poll = []
     for i in data.poll:
         i = trim_whitespace(i, True)
-        if i:
-            if len(i) > MAX_POLL_OPTION_LENGTH:
+        if i[1]:
+            if len(i[0]) > MAX_POLL_OPTION_LENGTH:
                 return 400, {
                     "success": False
                 }
@@ -100,7 +100,7 @@ def post_create(request, data: NewPost) -> APIResponse:
     content = trim_whitespace(data.content)
     c_warning = trim_whitespace(data.c_warning, True) if ENABLE_CONTENT_WARNINGS else ""
 
-    if len(c_warning) > MAX_CONTENT_WARNING_LENGTH or len(content) > MAX_POST_LENGTH or len(content) < (0 if len(poll) else 1):
+    if len(c_warning[0]) > MAX_CONTENT_WARNING_LENGTH or len(content[0]) > MAX_POST_LENGTH or not (content[1] or len(poll)):
         lang = get_lang(user)
         return 400, {
             "success": False,
@@ -111,8 +111,8 @@ def post_create(request, data: NewPost) -> APIResponse:
         }
 
     if check_muted_words(
-        content,
-        c_warning,
+        content[0],
+        c_warning[0],
         *poll
     ):
         lang = get_lang(user)
@@ -126,8 +126,8 @@ def post_create(request, data: NewPost) -> APIResponse:
 
     timestamp = round(time.time())
     post = Post.objects.create(
-        content=content,
-        content_warning=c_warning or None,
+        content=content[0],
+        content_warning=c_warning[0] or None,
         creator=user,
         timestamp=timestamp,
         comments=[],
@@ -143,10 +143,10 @@ def post_create(request, data: NewPost) -> APIResponse:
     post = Post.objects.get(
         timestamp=timestamp,
         creator=user.user_id,
-        content=content
+        content=content[0]
     )
 
-    for i in find_mentions(content, [user.username]):
+    for i in find_mentions(content[0], [user.username]):
         try:
             notif_for = User.objects.get(username=i.lower())
             if not notif_for.blocking.contains(user) and not user.blocking.contains(notif_for):
@@ -155,7 +155,7 @@ def post_create(request, data: NewPost) -> APIResponse:
         except User.DoesNotExist:
             pass
 
-    for i in find_hashtags(content):
+    for i in find_hashtags(content[0]):
         try:
             tag = Hashtag.objects.get(tag=i.lower())
         except Hashtag.DoesNotExist:
@@ -209,7 +209,7 @@ def quote_create(request, data: NewQuote) -> APIResponse:
     content = trim_whitespace(data.content)
     c_warning = trim_whitespace(data.c_warning, True) if ENABLE_CONTENT_WARNINGS else ""
 
-    if len(c_warning) > MAX_CONTENT_WARNING_LENGTH or len(content) > MAX_POST_LENGTH or len(content) < 1:
+    if len(c_warning[0]) > MAX_CONTENT_WARNING_LENGTH or len(content[0]) > MAX_POST_LENGTH or not content[1]:
         lang = get_lang(user)
         return 400, {
             "success": False,
@@ -217,8 +217,8 @@ def quote_create(request, data: NewQuote) -> APIResponse:
         }
 
     if check_muted_words(
-        content,
-        c_warning
+        content[0],
+        c_warning[0]
     ):
         lang = get_lang(user)
         return 400, {
@@ -228,10 +228,10 @@ def quote_create(request, data: NewQuote) -> APIResponse:
 
     timestamp = round(time.time())
     post = Post.objects.create(
-        content=content,
+        content=content[0],
         creator=user,
         timestamp=timestamp,
-        content_warning=c_warning or None,
+        content_warning=c_warning[0] or None,
         comments=[],
         quotes=[],
         private=data.private,
@@ -242,7 +242,7 @@ def quote_create(request, data: NewQuote) -> APIResponse:
     post = Post.objects.get(
         timestamp=timestamp,
         creator=user.user_id,
-        content=content
+        content=content[0]
     )
 
     quoted_post.quotes.append(post.post_id)
@@ -257,7 +257,7 @@ def quote_create(request, data: NewQuote) -> APIResponse:
                 post.post_id
             )
 
-        for i in find_mentions(content, [user.username, quote_creator.username]):
+        for i in find_mentions(content[0], [user.username, quote_creator.username]):
             try:
                 notif_for = User.objects.get(username=i.lower())
                 if not notif_for.blocking.contains(user) and not user.blocking.contains(notif_for):
@@ -268,7 +268,7 @@ def quote_create(request, data: NewQuote) -> APIResponse:
     except User.DoesNotExist:
         ...
 
-    for i in find_hashtags(content):
+    for i in find_hashtags(content[0]):
         try:
             tag = Hashtag.objects.get(tag=i.lower())
 
@@ -751,7 +751,7 @@ def post_edit(request, data: EditPost) -> APIResponse:
         content = trim_whitespace(data.content)
         c_warning = trim_whitespace(data.c_warning, True) if ENABLE_CONTENT_WARNINGS else ""
 
-        if len(c_warning) > MAX_CONTENT_WARNING_LENGTH or len(content) > MAX_POST_LENGTH or len(content) < (0 if post.poll else 1):
+        if len(c_warning[0]) > MAX_CONTENT_WARNING_LENGTH or len(content[0]) > MAX_POST_LENGTH or not (content[1] or post.poll):
             lang = get_lang(user)
             return 400, {
                 "success": False,
@@ -759,8 +759,8 @@ def post_edit(request, data: EditPost) -> APIResponse:
             }
 
         if check_muted_words(
-            content,
-            c_warning
+            content[0],
+            c_warning[0]
         ):
             lang = get_lang(user)
             return 400, {
@@ -770,8 +770,8 @@ def post_edit(request, data: EditPost) -> APIResponse:
 
         post.edited = True
         post.edited_at = round(time.time())
-        post.content = content
-        post.content_warning = c_warning
+        post.content = content[0]
+        post.content_warning = c_warning[0]
         post.private = data.private
 
         post.save()
@@ -782,7 +782,7 @@ def post_edit(request, data: EditPost) -> APIResponse:
             else:
                 tag.posts.remove(post)
 
-        hashtags = find_hashtags(content)
+        hashtags = find_hashtags(content[0])
 
         for tag in hashtags:
             try:

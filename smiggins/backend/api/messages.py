@@ -91,14 +91,14 @@ def send_message(request, data: NewMessage) -> APIResponse:
         }
 
     content = trim_whitespace(data.content, True)
-    if len(content) == 0 or len(content) > MAX_POST_LENGTH:
+    if not content[1] or len(content) > MAX_POST_LENGTH:
         lang = get_lang(user)
         return 400, {
             "success": False,
             "message": lang["messages"]["invalid_size"]
         }
 
-    if check_muted_words(content):
+    if check_muted_words(content[0]):
         lang = get_lang(user)
         return 400, {
             "success": False,

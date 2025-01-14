@@ -54,7 +54,7 @@ def signup(request, data: Account) -> APIResponse:
         User.objects.create(
             username=username,
             token=token,
-            display_name=trim_whitespace(data.username, purge_newlines=True),
+            display_name=trim_whitespace(data.username, purge_newlines=True)[0][:MAX_DISPL_NAME_LENGTH],
             theme="auto",
             color=DEFAULT_BANNER_COLOR,
             color_two=DEFAULT_BANNER_COLOR,
@@ -154,12 +154,12 @@ def settings(request, data: Settings) -> APIResponse:
     color = data.color.lower()
     color_two = data.color_two.lower()
     displ_name = trim_whitespace(data.displ_name, True)
-    bio = trim_whitespace(data.bio, True)
+    bio = trim_whitespace(data.bio)
 
     if data.lang != user.language:
         reload = True
 
-    if (len(displ_name) > MAX_DISPL_NAME_LENGTH or len(displ_name) < 1) or (ENABLE_USER_BIOS and len(bio) > MAX_BIO_LENGTH):
+    if len(displ_name[0]) > MAX_DISPL_NAME_LENGTH or not displ_name[1] or (ENABLE_USER_BIOS and len(bio[0]) > MAX_BIO_LENGTH):
         return 400, {
             "success": False,
             "message": lang["settings"]["profile_display_name_invalid_length"].replace("%s", str(MAX_DISPL_NAME_LENGTH))
@@ -198,7 +198,7 @@ def settings(request, data: Settings) -> APIResponse:
         user.color_two = color_two
         user.gradient = data.is_gradient
 
-    user.display_name = displ_name
+    user.display_name = displ_name[0]
 
     user.verify_followers = data.approve_followers
     if not data.approve_followers:
@@ -210,7 +210,7 @@ def settings(request, data: Settings) -> APIResponse:
     user.default_post_private = data.default_post_visibility == "followers"
 
     if ENABLE_USER_BIOS:
-        user.bio = bio
+        user.bio = bio[0]
 
     if ENABLE_PRONOUNS:
         _p = user.pronouns.filter(language=user.language)

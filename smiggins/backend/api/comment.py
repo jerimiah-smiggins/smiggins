@@ -26,7 +26,7 @@ def comment_create(request, data: NewComment) -> APIResponse:
     lang = get_lang(user)
 
     content = trim_whitespace(data.content)
-    c_warning = trim_whitespace(data.c_warning, True) if ENABLE_CONTENT_WARNINGS else ""
+    c_warning = trim_whitespace(data.c_warning, True) if ENABLE_CONTENT_WARNINGS else ("", False)
 
     parent = (Comment if data.comment else Post).objects.get(pk=data.id)
     can_view = can_view_post(user, parent.creator, parent)
@@ -35,16 +35,13 @@ def comment_create(request, data: NewComment) -> APIResponse:
             "success": False
         }
 
-    if len(c_warning) > MAX_CONTENT_WARNING_LENGTH or len(content) > MAX_POST_LENGTH or len(content) < 1:
+    if not content[1] or len(c_warning[0]) > MAX_CONTENT_WARNING_LENGTH or len(content[0]) > MAX_POST_LENGTH:
         return 400, {
             "success": False,
             "message": lang["post"]["invalid_length"].replace("%s", str(MAX_POST_LENGTH))
         }
 
-    if check_muted_words(
-        content,
-        c_warning
-    ):
+    if check_muted_words(content[0], c_warning[0]):
         lang = get_lang(user)
         return 400, {
             "success": False,
@@ -54,10 +51,10 @@ def comment_create(request, data: NewComment) -> APIResponse:
     timestamp = round(time.time())
 
     Comment.objects.create(
-        content=content,
+        content=content[0],
         creator=user,
         timestamp=timestamp,
-        content_warning=c_warning or None,
+        content_warning=c_warning[0] or None,
         comments=[],
         quotes=[],
         parent=data.id,
@@ -66,7 +63,7 @@ def comment_create(request, data: NewComment) -> APIResponse:
     )
 
     comment = Comment.objects.get(
-        content=content,
+        content=content[0],
         creator=user,
         timestamp=timestamp,
         parent=data.id
@@ -84,7 +81,7 @@ def comment_create(request, data: NewComment) -> APIResponse:
             comment.comment_id
         )
 
-    for i in find_mentions(content, [user.username, creator.username]):
+    for i in find_mentions(content[0], [user.username, creator.username]):
         try:
             notif_for = User.objects.get(username=i.lower())
             if not notif_for.blocking.contains(user) and not user.blocking.contains(notif_for):
@@ -294,9 +291,9 @@ def comment_edit(request, data: EditComment) -> APIResponse:
 
     if post.creator.user_id == user.user_id:
         content = trim_whitespace(data.content)
-        c_warning = trim_whitespace(data.c_warning, True) if ENABLE_CONTENT_WARNINGS else ""
+        c_warning = trim_whitespace(data.c_warning, True) if ENABLE_CONTENT_WARNINGS else ("", False)
 
-        if len(c_warning) > MAX_CONTENT_WARNING_LENGTH or len(content) > MAX_POST_LENGTH:
+        if not content[1] or len(c_warning[0]) > MAX_CONTENT_WARNING_LENGTH or len(content[0]) > MAX_POST_LENGTH:
             lang = get_lang(user)
             return 400, {
                 "success": False,
@@ -305,8 +302,8 @@ def comment_edit(request, data: EditComment) -> APIResponse:
 
         post.edited = True
         post.edited_at = round(time.time())
-        post.content = content
-        post.content_warning = c_warning
+        post.content = content[0]
+        post.content_warning = c_warning[0]
         post.private = data.private
 
         post.save()
