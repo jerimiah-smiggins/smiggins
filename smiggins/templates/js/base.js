@@ -261,7 +261,7 @@ function apiResponse(json, extraData) {
                         }
                         hasBeenRead = true;
                     }
-                    y.innerHTML += escapeHTML(lang.notifications.event[notif.event_type].replaceAll("%s", notif.data.creator.display_name));
+                    y.innerHTML += `<div class='pre-wrap'>${escapeHTML(lang.notifications.event[notif.event_type].replaceAll("%s", notif.data.creator.display_name))}</div>`;
                     y.innerHTML += getPostHTML(notif.data, ["comment", "ping_c"].includes(notif.event_type)).replace("\"post\"", hasBeenRead ? "\"post\" data-color='gray'" : "\"post\" data-notif-unread");
                     x.append(y);
                     first = false;
