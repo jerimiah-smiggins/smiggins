@@ -34,7 +34,7 @@ if "auth_key" not in globals() or not auth_key:
     error("auth_key not set in .env")
     exit()
 
-if sys.version_info >= (3, 11):
+if sys.version_info >= (3, 12):
     from typing import TypedDict
 else:
     from typing_extensions import TypedDict

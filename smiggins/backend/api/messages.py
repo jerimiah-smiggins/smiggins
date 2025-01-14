@@ -90,8 +90,8 @@ def send_message(request, data: NewMessage) -> APIResponse:
             "message": lang["messages"]["blocking_blocked"]
         }
 
-    content = trim_whitespace(data.content, True)
-    if not content[1] or len(content) > MAX_POST_LENGTH:
+    content = trim_whitespace(data.content)
+    if not content[1] or len(content[0]) > MAX_POST_LENGTH:
         lang = get_lang(user)
         return 400, {
             "success": False,
@@ -138,7 +138,7 @@ def send_message(request, data: NewMessage) -> APIResponse:
 
     PrivateMessage.objects.create(
         timestamp=timestamp,
-        content=content,
+        content=content[0],
         from_user_one=data.username == container_id.split(":")[1],
         message_container=container
     )

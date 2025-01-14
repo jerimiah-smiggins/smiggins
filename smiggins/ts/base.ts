@@ -260,14 +260,14 @@ function apiResponse(
           <div class="post" ${user.unread === undefined || user.unread ? "" : "data-color=\"gray\""}">
             <div class="upper-content">
               <a href="/u/${user.username}" class="no-underline text">
-                <div class="displ-name">
-                  <div style="--color-one: ${user.color_one}; --color-two: ${user[ENABLE_GRADIENT_BANNERS && user.gradient_banner ? "color_two" : "color_one"]}" class="user-badge banner-pfp"></div>
-                  ${escapeHTML(user.display_name)}
-                  ${user.badges.length && ENABLE_BADGES ? `<span aria-hidden="true" class="user-badge">${user.badges.map((icon) => (badges[icon])).join("</span> <span aria-hidden=\"true\" class=\"user-badge\">")}</span>` : ""}<br>
-                  <div class="upper-lower-opacity">
-                    <div class="username">@${user.username}</div>
-                    ${user.timestamp ? `- <div class="username">${timeSince(user.timestamp)}</div>` : ""}
-                  </div>
+                <div class="displ-name pre-wrap"
+                  ><div style="--color-one: ${user.color_one}; --color-two: ${user[ENABLE_GRADIENT_BANNERS && user.gradient_banner ? "color_two" : "color_one"]}" class="user-badge banner-pfp"></div
+                  > ${escapeHTML(user.display_name)
+                  } ${user.badges.length && ENABLE_BADGES ? `<span aria-hidden="true" class="user-badge">${user.badges.map((icon) => (badges[icon])).join("</span> <span aria-hidden=\"true\" class=\"user-badge\">")}</span>` : ""
+                }</div>
+                <div class="upper-lower-opacity">
+                  <div class="username">@${user.username}</div>
+                  ${user.timestamp ? `- <div class="username">${timeSince(user.timestamp)}</div>` : ""}
                 </div>
               </a>
             </div>

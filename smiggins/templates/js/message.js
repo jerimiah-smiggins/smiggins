@@ -29,7 +29,7 @@ function refreshMessages(start = false, forward = true) {
 }
 dom("your-mom").onkeydown = (event) => {
     let self = dom("your-mom");
-    if ((event.key === "Enter" || event.keyCode === 18)) {
+    if ((event.key === "Enter" || event.keyCode === 18) && !event.shiftKey) {
         event.preventDefault();
         if (self.value) {
             s_fetch("/api/messages", {
