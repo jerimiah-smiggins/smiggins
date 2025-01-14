@@ -1,3 +1,9 @@
+# changelog
+tracks changes across versions
+## v0.13.9
+1. Rewrote the ratelimiting system (#302)
+2. Made it so comments and posts can no longer be set to have no text content when editing (#306)
+3. Posts, user bios, usernames, and messages now all support multiple spaces in a row (#299)
 ## v0.13.8
 1. Rewrote the CSS for the post box (#285)
 2. Added a compact UI option (#278)
