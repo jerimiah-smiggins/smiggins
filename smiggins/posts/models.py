@@ -45,7 +45,6 @@ class User(models.Model):
     blocking = models.ManyToManyField("self", symmetrical=False, through_fields=("user", "blocking"), through="M2MBlock", related_name="blockers", blank=True)
     pending_followers = models.ManyToManyField("self", symmetrical=False, through_fields=("user", "following"), through="M2MPending", related_name="pending_following", blank=True)
 
-    read_notifs = models.BooleanField(default=True)
     messages = models.JSONField(default=list, blank=True)
     unread_messages = models.JSONField(default=list, blank=True)
 
@@ -176,6 +175,9 @@ class PrivateMessageContainer(models.Model):
 
     user_one = models.ForeignKey(User, on_delete=models.CASCADE, related_name="container_reference_one")
     user_two = models.ForeignKey(User, on_delete=models.CASCADE, related_name="container_reference_two")
+
+    unread_one = models.BooleanField(default=False)
+    unread_two = models.BooleanField(default=False)
 
     if TYPE_CHECKING:
         messages: models.QuerySet["PrivateMessage"]

@@ -512,14 +512,6 @@ def delete_notification(
 ) -> None:
     user = notif.is_for
 
-    try:
-        if user.notifications.filter(read=False).count():
-            user.read_notifs = True
-            user.save()
-
-    except IndexError:
-        ...
-
     notif.delete()
 
 def create_notification(
@@ -538,15 +530,16 @@ def create_notification(
         timestamp=timestamp
     )
 
-    is_for.read_notifs = False
-
     c = is_for.notifications.count() - MAX_NOTIFICATIONS
+    modified = False
     for i in range(max(c, 0)):
+        modified = True
         f = is_for.notifications.first()
         if f:
             f.delete()
 
-    is_for.save()
+    if modified:
+        is_for.save()
 
 def get_container_id(user_one: str, user_two: str) -> str:
     return f"{user_one}:{user_two}" if user_two > user_one else f"{user_two}:{user_one}"

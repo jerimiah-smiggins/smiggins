@@ -387,12 +387,17 @@ body[data-bar-dir="v"][data-bar-pos^="l"] {
   .dot::after {
     position: absolute;
     display: inline-block;
-    width: 0.5em;
-    height: 0.5em;
-    border-radius: 0.25em;
-    transform: translate(-0.3em, 0);
+    height: 1rem;
+    min-width: calc(1rem - 4px);
+    padding: 1px 3px;
+    border-radius: calc(1rem + 2px);
+    transform: translate(-.6rem, -0.3rem);
     background-color: var(--accent);
-    content: "";
+    color: var(--background);
+    content: attr(data-value);
+    font-weight: 700;
+    font-size: 0.8em;
+    text-align: center;
   }
 }
 

@@ -1,7 +1,5 @@
-# This is to get information about the client, like ip, username, etc.
-# Do NOT add telemetry here.
-
-from posts.models import User
+from django.db.models import Q
+from posts.models import User, PrivateMessageContainer
 
 from ..helper import check_ratelimit
 from ..variables import ENABLE_PRIVATE_MESSAGES, REAL_VERSION
@@ -21,9 +19,9 @@ def notifications(request) -> tuple[int, dict] | dict | APIResponse:
 
     return {
         "success": True,
-        "notifications": not user.read_notifs,
-        "messages": ENABLE_PRIVATE_MESSAGES and len(user.unread_messages) != 0,
-        "followers": user.verify_followers and user.pending_followers.count() > 0
+        "notifications": user.notifications.filter(read=False).count(),
+        "messages": PrivateMessageContainer.objects.filter(Q(user_one=user, unread_one=True) | Q(user_two=user, unread_two=True)).count(),
+        "followers": (user.verify_followers or 0) and user.pending_followers.count()
     }
 
 def version(request) -> dict | APIResponse:

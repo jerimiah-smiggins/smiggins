@@ -483,9 +483,6 @@ def read_notifs(request) -> APIResponse:
             "success": False
         }
 
-    self_user.read_notifs = True
-    self_user.save()
-
     for notif in self_user.notifications.filter(read=False):
         notif.read = True
         notif.save()

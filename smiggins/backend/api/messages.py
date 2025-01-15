@@ -127,14 +127,13 @@ def send_message(request, data: NewMessage) -> APIResponse:
     container.user_two.messages = y
 
     if data.username == container_id.split(":")[0]:
-        if container_id not in container.user_one.unread_messages:
-            container.user_one.unread_messages.append(container_id)
+        container.unread_one = True
     else:
-        if container_id not in container.user_two.unread_messages:
-            container.user_two.unread_messages.append(container_id)
+        container.unread_two = True
 
     container.user_one.save()
     container.user_two.save()
+    container.save()
 
     PrivateMessage.objects.create(
         timestamp=timestamp,
@@ -166,13 +165,13 @@ def messages_list(request, username: str, forward: bool=True, offset: int=-1) ->
     container = PrivateMessageContainer.objects.get(container_id=container_id)
     is_user_one = username == container_id.split(":")[1]
 
-    if is_user_one and container_id in container.user_one.unread_messages:
-        container.user_one.unread_messages.remove(container_id)
-        container.user_one.save()
+    if is_user_one and container.unread_one:
+        container.unread_one = False
+        container.save()
 
-    if not is_user_one and container_id in container.user_two.unread_messages:
-        container.user_two.unread_messages.remove(container_id)
-        container.user_two.save()
+    if not is_user_one and container.unread_two:
+        container.unread_two = False
+        container.save()
 
     if forward:
         list_of_messages = container.messages.filter(message_id__lt=maxsize if offset == -1 else offset).order_by("-message_id")
@@ -223,7 +222,8 @@ def recent_messages(request, offset: int=-1) -> APIResponse:
                 container_id=i
             )
 
-            other_user = container.user_one if i.split(":")[1] == self_username else container.user_two
+            isnt_user_one = self_username == container.container_id.split(":")[1]
+            other_user = container.user_one if isnt_user_one else container.user_two
             recent_message = container.messages.last()
             message = PrivateMessage.objects.get(message_id=recent_message.message_id) if recent_message else ""
 
@@ -236,7 +236,7 @@ def recent_messages(request, offset: int=-1) -> APIResponse:
                 "gradient_banner": other_user.gradient,
                 "bio": message.content if isinstance(message, PrivateMessage) else "",
                 "timestamp": message.timestamp if isinstance(message, PrivateMessage) else 0,
-                "unread": i in user.unread_messages
+                "unread": container.unread_two if isnt_user_one else container.unread_one
             })
 
         except PrivateMessageContainer.DoesNotExist:
