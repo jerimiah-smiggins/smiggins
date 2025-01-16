@@ -2,7 +2,7 @@
   "meta": {
     "fallback": [],
     "name": "English (United States)",
-    "version": "1.10.2",
+    "version": "1.10.3",
     "maintainers": ["trinkey"],
     "past_maintainers": []
   },
@@ -259,7 +259,8 @@
           "6": "Add any account to account switcher",
           "7": "Change admin permissions",
           "8": "Read admin logs",
-          "9": "Generate one-time invite codes"
+          "9": "Generate one-time invite codes",
+          "10": "Modify globally muted words"
         },
 
         "descriptions_extra": {
