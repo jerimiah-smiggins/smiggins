@@ -20,7 +20,7 @@ else:
 def backup_db():
     global update_at
 
-    if DATABASE_BACKUPS["enabled"] or update_at > datetime.now():
+    if not DATABASE_BACKUPS["enabled"] or update_at > datetime.now():
         return
 
     update_at = datetime.now() + td
