@@ -53,7 +53,7 @@ function addQuote(postID: number, isComment: boolean): void {
   globalIncrement++;
 
   post.querySelector("button.post-button").addEventListener("click", function(): void {
-    if (!post.querySelector("textarea").value.length) { return; }
+    if (!hasContent(post.querySelector("textarea").value)) { return; }
 
     s_fetch("/api/quote/create", {
       method: "PUT",
@@ -72,8 +72,6 @@ function addQuote(postID: number, isComment: boolean): void {
       ]
     });
   });
-
-  post.querySelector("textarea").addEventListener("input", postTextInputEvent);
 
   post.querySelector("button.cancel-button").addEventListener("click", function(): void {
     post.innerHTML = "";

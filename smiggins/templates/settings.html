@@ -96,7 +96,7 @@
       <label for="lang">{{ lang.settings.cosmetic_language }}:</label><br>
       <select id="lang">
         {% for LANG in LANGUAGES %}
-          <option value="{{ LANG.code }}" {% if LANG.code == LANGUAGE %}selected{% endif %}>{{ LANG.name }}</option>
+          <option value="{{ LANG }}" {% if LANG == LANGUAGE %}selected{% endif %} data-add-lang-name="{{ LANG }}">{{ LANG }}</option>
         {% endfor %}
       </select><br><br>
 
@@ -227,8 +227,10 @@
         secondary: "{{ pronouns.secondary }}"
       }
     {% endif %}
-    let hasEmail = {{ has_email }};
+    let hasEmail = {{ has_email }}; 
+    for (const el of document.querySelectorAll("[data-add-lang-name]")) {
+      el.innerHTML = (new Intl.DisplayNames([el.dataset.addLangName, "{{ LANGUAGE }}"], { type: "language" })).of(el.dataset.addLangName);
+    }
+    {% include "js/settings.js" %}
   </script>
-
-  <script>{% include "js/settings.js" %}</script>
 {% endblock %}

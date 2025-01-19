@@ -11,7 +11,7 @@ from .api.admin import BitMask
 from .helper import (LANGS, can_view_post, find_mentions, get_badges,
                      get_container_id, get_HTTP_response, get_lang,
                      get_post_json, get_pronouns)
-from .variables import (BADGE_DATA, CACHE_LANGUAGES, CONTACT_INFO, CREDITS,
+from .variables import (CACHE_LANGUAGES, CONTACT_INFO, CREDITS,
                         DEFAULT_BANNER_COLOR, DEFAULT_LANGUAGE,
                         ENABLE_ACCOUNT_SWITCHER, ENABLE_BADGES,
                         ENABLE_DYNAMIC_FAVICON, ENABLE_GRADIENT_BANNERS,
@@ -355,7 +355,6 @@ def admin(request) -> HttpResponse | HttpResponseRedirect:
         request, "admin.html", lang, user=user,
 
         LEVEL=lv,
-        BADGE_DATA=BADGE_DATA,
         mask=BitMask,
         mute_description=lang["settings"]["mute"]["description"].replace("%m", str(MAX_MUTED_WORDS)).replace("%c", str(MAX_MUTED_WORD_LENGTH)),
         muted_words=muted[:-1],

@@ -9,9 +9,8 @@ timelineConfig.timelines = {
     liked: `/api/comments?id=${post_id}&comment=${comment}&sort=liked`,
 };
 timelineConfig.url = timelineConfig.timelines.newest;
-dom("post-text") && dom("post-text").addEventListener("input", postTextInputEvent);
 dom("post") && dom("post").addEventListener("click", function () {
-    if (dom("post-text").value) {
+    if (hasContent(dom("post-text").value)) {
         s_fetch("/api/comment/create", {
             method: "PUT",
             body: JSON.stringify({

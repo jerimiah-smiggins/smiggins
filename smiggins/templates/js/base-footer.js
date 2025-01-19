@@ -40,6 +40,7 @@ function getNotifications() {
         forEach(document.querySelectorAll("[data-add-notification-dot]"), (val, index) => {
             if (json.success && json.notifications) {
                 val.classList.add("dot");
+                val.dataset.value = String(json.notifications);
             }
             else {
                 val.classList.remove("dot");
@@ -48,6 +49,7 @@ function getNotifications() {
         ENABLE_PRIVATE_MESSAGES && forEach(document.querySelectorAll("[data-add-message-dot]"), (val, index) => {
             if (json.success && json.messages) {
                 val.classList.add("dot");
+                val.dataset.value = String(json.messages);
             }
             else {
                 val.classList.remove("dot");
@@ -55,7 +57,7 @@ function getNotifications() {
         });
         if (!pendingFollowersIconEnabled && json.followers) {
             pendingFollowersIconEnabled = true;
-            dom("icons").innerHTML += `<div class="dot" id="pending-followers-icon" title="${lang.user_page.pending_title}"><a href="/pending/">${icons.follower}</a></div>`;
+            dom("icons").innerHTML += `<div class="dot" data-value="${json.followers}" id="pending-followers-icon" title="${lang.user_page.pending_title}"><a href="/pending/">${icons.follower}</a></div>`;
         }
         else if (pendingFollowersIconEnabled && !json.followers) {
             pendingFollowersIconEnabled = false;

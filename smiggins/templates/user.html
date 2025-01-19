@@ -36,12 +36,7 @@
 {% block body %}
   <div id="banner" class="{{ GRADIENT }}"></div>
   <div>
-    <div id="username-main">
-      {{ DISPLAY_NAME }}
-      {% autoescape off %}
-      {{ BADGES }}
-      {% endautoescape %}
-    </div>
+    <div class="pre-wrap" id="username-main">{{ DISPLAY_NAME }} {% autoescape off %}{{ BADGES }}{% endautoescape %}</div>
   </div>
 
   <div id="secondary-username-container">
@@ -57,7 +52,7 @@
     <div>{% if IS_BLOCKED == "true" %}{{ lang.account.follow_blocked }}{% elif IS_FOLLOWED == "true" %}{{ lang.user_page.follows }}{% endif %}</div>
   </div>
 
-  {% if ENABLE_USER_BIOS == 'true' %}<div id="user-bio" hidden>{{ BIO }}</div>{% endif %}
+  {% if ENABLE_USER_BIOS == 'true' %}<div class="pre-wrap" id="user-bio" hidden>{{ BIO }}</div>{% endif %}
 
   {% if IS_BLOCKED == 'true' %}<div hidden>{% endif %}
     <button id="refresh" onclick="refresh()">{{ lang.generic.refresh }}</button>

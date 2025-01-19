@@ -14,10 +14,8 @@ timelineConfig.timelines = {
 
 timelineConfig.url = timelineConfig.timelines.newest;
 
-dom("post-text") && dom("post-text").addEventListener("input", postTextInputEvent);
-
 dom("post") && dom("post").addEventListener("click", function() {
-  if ((dom("post-text") as HTMLButtonElement).value) {
+  if (hasContent((dom("post-text") as HTMLButtonElement).value)) {
     s_fetch("/api/comment/create", {
       method: "PUT",
       body: JSON.stringify({

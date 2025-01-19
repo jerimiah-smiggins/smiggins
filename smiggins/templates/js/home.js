@@ -18,9 +18,8 @@ function getPollText() {
     });
     return out;
 }
-dom("post-text").addEventListener("input", postTextInputEvent);
 dom("post").addEventListener("click", function () {
-    if (dom("post-text").value || getPollText().length) {
+    if (hasContent(dom("post-text").value) || getPollText().length) {
         s_fetch("/api/post/create", {
             method: "PUT",
             body: JSON.stringify({

@@ -22,10 +22,8 @@ function getPollText(): string[] {
   return out;
 }
 
-dom("post-text").addEventListener("input", postTextInputEvent);
-
 dom("post").addEventListener("click", function(): void {
-  if ((dom("post-text") as HTMLInputElement).value || getPollText().length) {
+  if (hasContent((dom("post-text") as HTMLInputElement).value) || getPollText().length) {
     s_fetch("/api/post/create", {
       method: "PUT",
       body: JSON.stringify({

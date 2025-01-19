@@ -14,12 +14,7 @@
 {% endblock %}
 
 {% block body %}
-  <label for="your-mom" class="header-container"><h1 style="margin-bottom: 0;">
-    {{ TITLE }}
-    {% autoescape off %}
-    {{ BADGES }}
-    {% endautoescape %}
-  </h1></label>
+  <label for="your-mom" class="pre-wrap header-container"><h1 style="margin-bottom: 0;">{{ TITLE }} {% autoescape off %} {{ BADGES }} {% endautoescape %}</h1></label>
 
   <div class="messages-container">
     <div id="messages-go-here-btw" class="messages"></div>
@@ -27,4 +22,4 @@
   </div>
 
   <script>{% include "js/message.js" %}</script>
-{% endblock %}\
+{% endblock %}

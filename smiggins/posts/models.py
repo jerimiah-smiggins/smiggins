@@ -45,7 +45,6 @@ class User(models.Model):
     blocking = models.ManyToManyField("self", symmetrical=False, through_fields=("user", "blocking"), through="M2MBlock", related_name="blockers", blank=True)
     pending_followers = models.ManyToManyField("self", symmetrical=False, through_fields=("user", "following"), through="M2MPending", related_name="pending_following", blank=True)
 
-    read_notifs = models.BooleanField(default=True)
     messages = models.JSONField(default=list, blank=True)
     unread_messages = models.JSONField(default=list, blank=True)
 
@@ -177,6 +176,9 @@ class PrivateMessageContainer(models.Model):
     user_one = models.ForeignKey(User, on_delete=models.CASCADE, related_name="container_reference_one")
     user_two = models.ForeignKey(User, on_delete=models.CASCADE, related_name="container_reference_two")
 
+    unread_one = models.BooleanField(default=False)
+    unread_two = models.BooleanField(default=False)
+
     if TYPE_CHECKING:
         messages: models.QuerySet["PrivateMessage"]
 
@@ -256,6 +258,11 @@ class MutedWord(models.Model):
     def __str__(self):
         return f"{self.user.username if self.user else 'Global'}: {self.string}"
 
+class Ratelimit(models.Model):
+    expires = models.IntegerField()
+    route_id = models.CharField(max_length=100)
+    user_id = models.CharField(max_length=64) # user token or ip address
+
 class M2MLike(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE)
     post = models.ForeignKey(Post, on_delete=models.CASCADE)
@@ -326,6 +333,10 @@ class M2MBadgeUser(models.Model):
     def __str__(self):
         return f"{self.user.username} has the badge {self.badge.name}"
 
+class GenericData(models.Model):
+    id = models.CharField(max_length=50, unique=True, primary_key=True)
+    value = models.TextField(blank=True)
+
 try:
     django_admin.site.register(User)
     django_admin.site.register(Post)
@@ -347,6 +358,7 @@ try:
     django_admin.site.register(M2MPending)
     django_admin.site.register(M2MHashtagPost)
     django_admin.site.register(M2MBadgeUser)
+    django_admin.site.register(GenericData)
 
 except AlreadyRegistered:
     ...

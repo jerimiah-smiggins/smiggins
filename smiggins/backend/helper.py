@@ -12,9 +12,11 @@ from django.core.mail import send_mail
 from django.http import HttpResponse, HttpResponseRedirect
 from django.template import loader
 from posts.backups import backup_db
-from posts.models import Comment, MutedWord, Notification, Post, User
+from posts.models import (Comment, MutedWord, Notification, Post, Ratelimit,
+                          User, Badge)
 
-from .variables import (ALTERNATE_IPS, BADGE_DATA, BASE_DIR, CACHE_LANGUAGES,
+from .api.schema import APIResponse
+from .variables import (ALTERNATE_IPS, BASE_DIR, CACHE_LANGUAGES,
                         DEFAULT_DARK_THEME, DEFAULT_LANGUAGE,
                         DEFAULT_LIGHT_THEME, DISCORD, ENABLE_ACCOUNT_SWITCHER,
                         ENABLE_BADGES, ENABLE_CONTACT_PAGE,
@@ -23,14 +25,14 @@ from .variables import (ALTERNATE_IPS, BADGE_DATA, BASE_DIR, CACHE_LANGUAGES,
                         ENABLE_EMAIL, ENABLE_GRADIENT_BANNERS, ENABLE_HASHTAGS,
                         ENABLE_NEW_ACCOUNTS, ENABLE_PINNED_POSTS, ENABLE_POLLS,
                         ENABLE_POST_DELETION, ENABLE_PRIVATE_MESSAGES,
-                        ENABLE_PRONOUNS, ENABLE_QUOTES, ENABLE_USER_BIOS,
-                        GOOGLE_VERIFICATION_TAG, MAX_BIO_LENGTH,
-                        MAX_CONTENT_WARNING_LENGTH, MAX_DISPL_NAME_LENGTH,
-                        MAX_NOTIFICATIONS, MAX_POLL_OPTION_LENGTH,
-                        MAX_POLL_OPTIONS, MAX_POST_LENGTH, MAX_USERNAME_LENGTH,
-                        OWNER_USER_ID, PRIVATE_AUTHENTICATOR_KEY, RATELIMIT,
-                        SITE_NAME, SOURCE_CODE, THEMES, VALID_LANGUAGES,
-                        VERSION, timeout_handler)
+                        ENABLE_PRONOUNS, ENABLE_QUOTES, ENABLE_RATELIMIT,
+                        ENABLE_USER_BIOS, GOOGLE_VERIFICATION_TAG,
+                        MAX_BIO_LENGTH, MAX_CONTENT_WARNING_LENGTH,
+                        MAX_DISPL_NAME_LENGTH, MAX_NOTIFICATIONS,
+                        MAX_POLL_OPTION_LENGTH, MAX_POLL_OPTIONS,
+                        MAX_POST_LENGTH, MAX_USERNAME_LENGTH, OWNER_USER_ID,
+                        PRIVATE_AUTHENTICATOR_KEY, RATELIMITS, SITE_NAME,
+                        SOURCE_CODE, THEMES, VALID_LANGUAGES, VERSION, error)
 
 
 def sha(string: str | bytes) -> str:
@@ -60,6 +62,15 @@ def set_timeout(callback: Callable, delay_ms: int | float) -> None:
 
     thread = threading.Thread(target=wrapper)
     thread.start()
+
+def get_badge_data() -> dict[str, str]:
+    badges = {}
+    data = Badge.objects.all().values_list("name", "svg_data")
+
+    for badge in data:
+        badges[badge[0]] = badge[1]
+
+    return badges
 
 def get_HTTP_response(
     request,
@@ -95,6 +106,8 @@ def get_HTTP_response(
                 muted.append((f"/{i[0].split(')', 1)[-1]}/{i[0].split(')')[0].split('(?')[-1]}", 1, i[2]))
             else:
                 muted.append((f"{i[0]}", 0, i[2]))
+
+    badges = get_badge_data()
 
     context = {
         "SITE_NAME": SITE_NAME,
@@ -142,10 +155,10 @@ def get_HTTP_response(
         "lang_str": json_f.dumps(lang),
         "theme_str": "{}" if theme == "auto" or theme not in THEMES else json_f.dumps(THEMES[theme]),
         "THEME": theme if theme in THEMES else "auto",
-        "badges": BADGE_DATA,
-        "badges_str": json_f.dumps(BADGE_DATA),
+        "badges": badges,
+        "badges_str": json_f.dumps(badges),
         "is_admin": bool(user and user.admin_level),
-        "muted": json.dumps(muted) if muted else "null",
+        "muted": json_f.dumps(muted) if muted else "null",
         "muted_str_soft": "\n".join([i[0] for i in muted if not i[2]]),
         "muted_str_hard": "\n".join([i[0] for i in muted if i[2]]),
         "self_username": user.username if user else ""
@@ -226,32 +239,40 @@ def generate_token(username: str, password: str) -> str:
 
     return sha(sha(f"{username}:{password}") + PRIVATE_AUTHENTICATOR_KEY)
 
-def create_api_ratelimit(api_id: str, time_ms: int | float, identifier: str | None) -> None:
-    # Creates a ratelimit timeout for a specific user via the identifier.
-    # The identifier should be the ip address or user token.
-    # api_id is the identifier for the api, for example "api_account_signup". You
-    # can generally use the name of that api's function for this.
+def check_ratelimit(request, route_id: str) -> None | APIResponse:
+    if not ENABLE_RATELIMIT:
+        return None
 
-    if not RATELIMIT:
-        return
+    if route_id not in RATELIMITS:
+        error(f"[RATELIMIT] Unknown route id {route_id}")
+        return None
 
-    identifier = str(identifier)
+    rl_info = RATELIMITS[route_id]
+    route_id = route_id[:100]
 
-    if api_id not in timeout_handler:
-        timeout_handler[api_id] = {}
-    timeout_handler[api_id][identifier] = None
+    if not rl_info:
+        return None
 
-    def x():
-        timeout_handler[api_id].pop(identifier)
+    now: int = int(time.time())
+    user_id: str = (request.COOKIES.get("token") or get_ip_addr(request))[:64] # cap max length to not fuck up databsae calls if something goes wrong
+    Ratelimit.objects.filter(route_id=route_id, expires__lt=now).delete()
 
-    x.__name__ = f"{api_id}:{identifier}"
-    set_timeout(x, time_ms)
+    if Ratelimit.objects.filter(route_id=route_id, user_id=user_id).count() >= rl_info[0]:
+        try:
+            user = User.objects.get(token=request.COOKIES.get("token"))
+        except User.DoesNotExist:
+            user = None
 
-def ensure_ratelimit(api_id: str, identifier: str | None) -> bool:
-    # Returns whether or not a certain api is ratelimited for the specified
-    # identifier. True = not ratelimited, False = ratelimited
+        lang = get_lang(user)
 
-    return (not RATELIMIT) or not (api_id in timeout_handler and str(identifier) in timeout_handler[api_id])
+        return 429, {
+            "success": False,
+            "message": lang["generic"]["ratelimit"]
+        }
+
+    Ratelimit.objects.create(route_id=route_id, user_id=user_id, expires=now + rl_info[1])
+
+    return None
 
 def get_badges(user: User) -> list[str]:
     # Returns the list of badges for the specified user
@@ -470,27 +491,22 @@ def get_post_json(
 
     return post_json
 
-def trim_whitespace(string: str, purge_newlines: bool=False) -> str:
+def trim_whitespace(string: str, purge_newlines: bool=False) -> tuple[str, bool]:
     # Trims whitespace from strings
+    # reutrn: new_string, has_content
 
     string = string.replace("\x0d", "").strip()
 
     if purge_newlines:
         string = string.replace("\x0a", " ").replace("\x85", "")
 
-    for i in ["\x09", "\x0b", "\x0c", "\xa0", "\u1680", "\u2000", "\u2001", "\u2002", "\u2003", "\u2004", "\u2005", "\u2006", "\u2007", "\u2008", "\u2009", "\u200a", "\u200b", "\u2028", "\u2029", "\u202f", "\u205f", "\u2800", "\u3000", "\ufeff"]:
+    for i in ["\x09", "\x0b", "\x0c", "\xa0", "\u1680", "\u2000", "\u2001", "\u2002", "\u2003", "\u2004", "\u2005", "\u2006", "\u2007", "\u2008", "\u2009", "\u200a", "\u200b", "\u2028", "\u2029", "\u202f", "\u205f", "\u3000", "\ufeff"]:
         string = string.replace(i, " ")
-
-    while "\n " in string:
-        string = string.replace("\n ", "\n")
-
-    while "  " in string:
-        string = string.replace("  ", " ")
 
     while "\n\n\n" in string:
         string = string.replace("\n\n\n", "\n\n")
 
-    return string
+    return string, len(string.replace("\u2800", "").strip()) != 0
 
 def find_mentions(message: str, exclude_users: list[str]=[]) -> list[str]:
     # Returns a list of all mentioned users in a string. Used for notifications
@@ -506,14 +522,6 @@ def delete_notification(
     notif: Notification
 ) -> None:
     user = notif.is_for
-
-    try:
-        if user.notifications.filter(read=False).count():
-            user.read_notifs = True
-            user.save()
-
-    except IndexError:
-        ...
 
     notif.delete()
 
@@ -533,15 +541,16 @@ def create_notification(
         timestamp=timestamp
     )
 
-    is_for.read_notifs = False
-
     c = is_for.notifications.count() - MAX_NOTIFICATIONS
+    modified = False
     for i in range(max(c, 0)):
+        modified = True
         f = is_for.notifications.first()
         if f:
             f.delete()
 
-    is_for.save()
+    if modified:
+        is_for.save()
 
 def get_container_id(user_one: str, user_two: str) -> str:
     return f"{user_one}:{user_two}" if user_two > user_one else f"{user_two}:{user_one}"
@@ -608,12 +617,11 @@ def get_lang(lang: User | str | None=None, override_cache=False) -> dict[str, di
         "version": full["meta"]["version"],
         "maintainers": full["meta"]["maintainers"],
         "past_maintainers": full["meta"]["past_maintainers"],
-        "name": full["meta"]["name"]
     }
 
     return x
 
-def get_ip_addr(request):
+def get_ip_addr(request) -> str:
     if isinstance(ALTERNATE_IPS, str):
         return request.headers.get(ALTERNATE_IPS)
 
@@ -646,15 +654,15 @@ if CACHE_LANGUAGES:
     first = True
 
     for i in VALID_LANGUAGES:
-        print(f"{'' if first else ', '}{i['code']}", end="")
-        LANGS[i["code"]] = get_lang(i["code"], True)
+        print(f"{'' if first else ', '}{i}", end="")
+        LANGS[i] = get_lang(i, True)
 
         sys.stdout.flush()
 
         if first:
             first = False
 
-    print("")
+    print()
     del sys
 
 DEFAULT_LANG = get_lang()

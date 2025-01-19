@@ -41,7 +41,7 @@ function refreshMessages(start=false, forward=true): void {
 dom("your-mom").onkeydown = (event: KeyboardEvent): void => {
   let self: HTMLInputElement = dom("your-mom") as HTMLInputElement;
 
-  if ((event.key === "Enter" || event.keyCode === 18)) {
+  if ((event.key === "Enter" || event.keyCode === 18) && !event.shiftKey) {
     event.preventDefault();
 
     if (self.value) {

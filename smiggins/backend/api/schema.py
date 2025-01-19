@@ -6,9 +6,14 @@ from typing import Any, Literal
 from ninja import Schema
 
 if sys.version_info >= (3, 11):
-    from typing import NotRequired, TypedDict
+    from typing import NotRequired
 else:
-    from typing_extensions import NotRequired, TypedDict
+    from typing_extensions import NotRequired
+
+if sys.version_info >= (3, 12):
+    from typing import TypedDict
+else:
+    from typing_extensions import TypedDict
 
 
 class Username(Schema):
@@ -22,6 +27,9 @@ class AccountIdentifier(Schema):
 
 class DeleteBadge(Schema):
     badge_name: str
+
+class MutedWordsAdmin(Schema):
+    muted: str
 
 class MutedWords(Schema):
     soft: str

@@ -62,13 +62,14 @@ function getNotifications(): void {
     .then((response: Response) => (response.json()))
     .then((json: {
       success: boolean,
-      notifications: boolean,
-      messages: boolean,
-      followers: boolean
+      notifications: number,
+      messages: number,
+      followers: number
     }) => {
       forEach(document.querySelectorAll("[data-add-notification-dot]"), (val: HTMLElement, index: number): void => {
         if (json.success && json.notifications) {
           val.classList.add("dot");
+          val.dataset.value = String(json.notifications);
         } else {
           val.classList.remove("dot");
         }
@@ -77,6 +78,7 @@ function getNotifications(): void {
       ENABLE_PRIVATE_MESSAGES && forEach(document.querySelectorAll("[data-add-message-dot]"), (val: HTMLElement, index: number): void => {
         if (json.success && json.messages) {
           val.classList.add("dot");
+          val.dataset.value = String(json.messages);
         } else {
           val.classList.remove("dot");
         }
@@ -84,7 +86,7 @@ function getNotifications(): void {
 
       if (!pendingFollowersIconEnabled && json.followers) {
         pendingFollowersIconEnabled = true;
-        dom("icons").innerHTML += `<div class="dot" id="pending-followers-icon" title="${lang.user_page.pending_title}"><a href="/pending/">${icons.follower}</a></div>`;
+        dom("icons").innerHTML += `<div class="dot" data-value="${json.followers}" id="pending-followers-icon" title="${lang.user_page.pending_title}"><a href="/pending/">${icons.follower}</a></div>`;
       } else if (pendingFollowersIconEnabled && !json.followers) {
         pendingFollowersIconEnabled = false;
         dom("pending-followers-icon").remove();

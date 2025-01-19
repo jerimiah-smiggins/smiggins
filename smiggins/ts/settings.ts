@@ -238,7 +238,6 @@ dom("disable-checkboxes").addEventListener("input", function(): void {
   }
 });
 
-ENABLE_USER_BIOS && dom("bio").addEventListener("input", postTextInputEvent);
 dom("displ-name").addEventListener("input", setUnload);
 dom("default-post").addEventListener("input", setUnload);
 dom("followers-approval").addEventListener("input", setUnload);
