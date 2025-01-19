@@ -10,7 +10,7 @@ from posts.models import (AdminLog, Badge, MutedWord, OneTimePassword,
                           PrivateMessageContainer, User)
 
 from ..helper import check_ratelimit, get_lang, sha_to_bytes, trim_whitespace
-from ..variables import (BADGE_DATA, MAX_ADMIN_LOG_LINES,
+from ..variables import (MAX_ADMIN_LOG_LINES,
                          MAX_MUTED_WORD_LENGTH, MAX_MUTED_WORDS, OWNER_USER_ID,
                          PRIVATE_AUTHENTICATOR_KEY)
 from .schema import (AccountIdentifier, APIResponse, DeleteBadge,
@@ -186,8 +186,6 @@ def badge_create(request, data: NewBadge) -> APIResponse:
 
         badge.save()
 
-        BADGE_DATA[badge_name] = badge_data
-
         lang = get_lang(self_user)
 
         log_admin_action("Create badge", self_user, None, f"Created badge {badge_name}")
@@ -251,8 +249,6 @@ def badge_delete(request, data: DeleteBadge) -> APIResponse:
 
         badge.delete()
 
-        del BADGE_DATA[badge_name]
-
         log_admin_action("Delete badge", self_user, None, f"Badge {badge_name} successfully deleted")
         return {
             "success": True,
@@ -295,20 +291,22 @@ def badge_add(request, data: UserBadge) -> APIResponse:
                 "message": lang["admin"]["badge"]["manage_add_protected"]
             }
 
-        if data.badge_name.lower() in BADGE_DATA:
-            if not user.badges.contains(badge := Badge.objects.get(name=data.badge_name.lower())):
-                badge.users.add(user)
-
-            log_admin_action("Add badge", self_user, user, f"Added badge {data.badge_name}")
-            return {
-                "success": True,
-                "message": lang["generic"]["success"]
+        try:
+            badge = Badge.objects.get(name=data.badge_name.lower())
+        except Badge.DoesNotExist:
+            log_admin_action("Add badge", self_user, user, f"Tried to add badge {data.badge_name}, but badge doesn't exist")
+            return 404, {
+                "success": False,
+                "message": lang["admin"]["badge"]["not_found"].replace("%s", data.badge_name)
             }
 
-        log_admin_action("Add badge", self_user, user, f"Tried to add badge {data.badge_name}, but badge doesn't exist")
-        return 404, {
-            "success": False,
-            "message": lang["admin"]["badge"]["not_found"].replace("%s", data.badge_name)
+        if not user.badges.contains(badge):
+            badge.users.add(user)
+
+        log_admin_action("Add badge", self_user, user, f"Added badge {data.badge_name}")
+        return {
+            "success": True,
+            "message": lang["generic"]["success"]
         }
 
     return 400, {
@@ -347,20 +345,21 @@ def badge_remove(request, data: UserBadge) -> APIResponse:
                 "message": lang["admin"]["badge"]["manage_remove_protected"]
             }
 
-        if data.badge_name.lower() in BADGE_DATA:
+        try:
             badge = Badge.objects.get(name=data.badge_name.lower())
-            badge.users.remove(user)
-
-            log_admin_action("Remove badge", self_user, user, f"Removed badge {data.badge_name}")
-            return {
-                "success": True,
-                "message": lang["generic"]["success"]
+        except Badge.DoesNotExist:
+            log_admin_action("Remove badge", self_user, user, f"Tried to remove badge {data.badge_name}, but badge doesn't exist")
+            return 404, {
+                "success": False,
+                "message": lang["admin"]["badge"]["not_found"].replace("%s", data.badge_name)
             }
 
-        log_admin_action("Remove badge", self_user, user, f"Tried to remove badge {data.badge_name}, but badge doesn't exist")
-        return 404, {
-            "success": False,
-            "message": lang["admin"]["badge"]["not_found"].replace("%s", data.badge_name)
+        badge.users.remove(user)
+
+        log_admin_action("Remove badge", self_user, user, f"Removed badge {data.badge_name}")
+        return {
+            "success": True,
+            "message": lang["generic"]["success"]
         }
 
     return 400, {
@@ -724,10 +723,6 @@ def muted(request, data: MutedWordsAdmin) -> APIResponse:
 # Set default badges
 try:
     Badge.objects.get(name="administrator")
-
-    for i in Badge.objects.all():
-        BADGE_DATA[i.name] = i.svg_data
-
 except Badge.DoesNotExist:
     icons = {
         "verified": '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><title>Verified</title><path d="M200.3 81.5C210.9 61.5 231.9 48 256 48s45.1 13.5 55.7 33.5c5.4 10.2 17.3 15.1 28.3 11.7 21.6-6.6 46.1-1.4 63.1 15.7s22.3 41.5 15.7 63.1c-3.4 11 1.5 22.9 11.7 28.2 20 10.6 33.5 31.6 33.5 55.7s-13.5 45.1-33.5 55.7c-10.2 5.4-15.1 17.2-11.7 28.2 6.6 21.6 1.4 46.1-15.7 63.1s-41.5 22.3-63.1 15.7c-11-3.4-22.9 1.5-28.2 11.7-10.6 20-31.6 33.5-55.7 33.5s-45.1-13.5-55.7-33.5c-5.4-10.2-17.2-15.1-28.2-11.7-21.6 6.6-46.1 1.4-63.1-15.7S86.6 361.6 93.2 340c3.4-11-1.5-22.9-11.7-28.2C61.5 301.1 48 280.1 48 256s13.5-45.1 33.5-55.7c10.2-5.4 15.1-17.3 11.7-28.3-6.6-21.6-1.4-46.1 15.7-63.1s41.5-22.3 63.1-15.7c11 3.4 22.9-1.5 28.2-11.7zM256 0c-35.9 0-67.8 17-88.1 43.4-33-4.3-67.6 6.2-93 31.6S39 135 43.3 168C17 188.2 0 220.1 0 256s17 67.8 43.4 88.1c-4.3 33 6.2 67.6 31.6 93s60 35.9 93 31.6c20.2 26.3 52.1 43.3 88 43.3s67.8-17 88.1-43.4c33 4.3 67.6-6.2 93-31.6s35.9-60 31.6-93c26.3-20.2 43.3-52.1 43.3-88s-17-67.8-43.4-88.1c4.3-33-6.2-67.6-31.6-93S377 39 344 43.3C323.8 17 291.9 0 256 0m113 209c9.4-9.4 9.4-24.6 0-33.9s-24.6-9.4-33.9 0l-111 111-47-47c-9.4-9.4-24.6-9.4-33.9 0s-9.4 24.6 0 33.9l64 64c9.4 9.4 24.6 9.4 33.9 0z"/></svg>',
@@ -744,9 +739,6 @@ except Badge.DoesNotExist:
         del x
 
     del icons
-
-    for i in Badge.objects.all():
-        BADGE_DATA[i.name] = i.svg_data
 
 except OperationalError:
     ...

@@ -13,10 +13,10 @@ from django.http import HttpResponse, HttpResponseRedirect
 from django.template import loader
 from posts.backups import backup_db
 from posts.models import (Comment, MutedWord, Notification, Post, Ratelimit,
-                          User)
+                          User, Badge)
 
 from .api.schema import APIResponse
-from .variables import (ALTERNATE_IPS, BADGE_DATA, BASE_DIR, CACHE_LANGUAGES,
+from .variables import (ALTERNATE_IPS, BASE_DIR, CACHE_LANGUAGES,
                         DEFAULT_DARK_THEME, DEFAULT_LANGUAGE,
                         DEFAULT_LIGHT_THEME, DISCORD, ENABLE_ACCOUNT_SWITCHER,
                         ENABLE_BADGES, ENABLE_CONTACT_PAGE,
@@ -63,6 +63,15 @@ def set_timeout(callback: Callable, delay_ms: int | float) -> None:
     thread = threading.Thread(target=wrapper)
     thread.start()
 
+def get_badge_data() -> dict[str, str]:
+    badges = {}
+    data = Badge.objects.all().values_list("name", "svg_data")
+
+    for badge in data:
+        badges[badge[0]] = badge[1]
+
+    return badges
+
 def get_HTTP_response(
     request,
     file: str,
@@ -97,6 +106,8 @@ def get_HTTP_response(
                 muted.append((f"/{i[0].split(')', 1)[-1]}/{i[0].split(')')[0].split('(?')[-1]}", 1, i[2]))
             else:
                 muted.append((f"{i[0]}", 0, i[2]))
+
+    badges = get_badge_data()
 
     context = {
         "SITE_NAME": SITE_NAME,
@@ -144,10 +155,10 @@ def get_HTTP_response(
         "lang_str": json_f.dumps(lang),
         "theme_str": "{}" if theme == "auto" or theme not in THEMES else json_f.dumps(THEMES[theme]),
         "THEME": theme if theme in THEMES else "auto",
-        "badges": BADGE_DATA,
-        "badges_str": json_f.dumps(BADGE_DATA),
+        "badges": badges,
+        "badges_str": json_f.dumps(badges),
         "is_admin": bool(user and user.admin_level),
-        "muted": json.dumps(muted) if muted else "null",
+        "muted": json_f.dumps(muted) if muted else "null",
         "muted_str_soft": "\n".join([i[0] for i in muted if not i[2]]),
         "muted_str_hard": "\n".join([i[0] for i in muted if i[2]]),
         "self_username": user.username if user else ""
@@ -606,7 +617,6 @@ def get_lang(lang: User | str | None=None, override_cache=False) -> dict[str, di
         "version": full["meta"]["version"],
         "maintainers": full["meta"]["maintainers"],
         "past_maintainers": full["meta"]["past_maintainers"],
-        "name": full["meta"]["name"]
     }
 
     return x
@@ -644,15 +654,15 @@ if CACHE_LANGUAGES:
     first = True
 
     for i in VALID_LANGUAGES:
-        print(f"{'' if first else ', '}{i['code']}", end="")
-        LANGS[i["code"]] = get_lang(i["code"], True)
+        print(f"{'' if first else ', '}{i}", end="")
+        LANGS[i] = get_lang(i, True)
 
         sys.stdout.flush()
 
         if first:
             first = False
 
-    print("")
+    print()
     del sys
 
 DEFAULT_LANG = get_lang()

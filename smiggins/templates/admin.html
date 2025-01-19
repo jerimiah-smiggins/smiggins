@@ -58,9 +58,9 @@
             <input id="badge-use-id" type="checkbox"><br>
             <label for="badge-name">{{ lang.admin.badge.name_label }}</label>
             <select id="badge-name">
-              {% for BADGE in BADGE_DATA %}
-                {% if BADGE != "administrator" %}
-                  <option value="{{ BADGE }}">{{ BADGE }}</option>
+              {% for badge in badges %}
+                {% if badge != "administrator" %}
+                  <option value="{{ badge }}">{{ badge }}</option>
                 {% endif %}
               {% empty %}
                 <option value="">{{ lang.admin.badge.manage_empty }}</option>

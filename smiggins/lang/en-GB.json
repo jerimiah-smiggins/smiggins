@@ -1,7 +1,6 @@
 {
   "meta": {
     "fallback": ["en-US"],
-    "name": "English (Great Britain)",
     "version": "1.10.2",
     "maintainers": ["trinkey"],
     "past_maintainers": []

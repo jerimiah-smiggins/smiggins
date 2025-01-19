@@ -21,7 +21,7 @@ this project.
 ## Translating
 If you want to help translate into languages that don't yet exist:
 1. Find out the language code that you want to translate it into. Use
-[this table](http://www.lingoes.net/en/translator/langcode.htm) to help find it.
+[this table](http://www.lingoes.net/en/translator/langcode.htm) to help find it. <!--- todo - find a better source for this -->
 2. Make a new file with the name in the format `{{ LANG_CODE }}.json`. If the
 translation needs to remake the entire website, then you can use the `en-US`
 file as a template. If you are only making a dialect or something of another
@@ -34,9 +34,6 @@ there's some text that hasn't been translated yet. If you are making a new one
 that doesn't have any existing fallbacks that would make sense, set it to
 `en-US` because that is the one that will be always updated. Multiple fallbacks
 may be specified. (Make sure each one is in quotes)
-   - `name`: The name of the language. This should use the name of the language
-in the language itself, with a region in parenthesis. For example, canadian
-french would be Français (Canadien)
    - `version`: The latest version of the language spec that the specified
 language was created for. This should be used to indicate which translations,
 if any, need to be updated. The updates for each version are listed at the

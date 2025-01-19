@@ -80,12 +80,12 @@ def post_create(request, data: NewPost) -> APIResponse:
     for i in data.poll:
         i = trim_whitespace(i, True)
         if i[1]:
-            if len(i[0]) > MAX_POLL_OPTION_LENGTH:
+            if not isinstance(i[0], str) or len(i[0]) > MAX_POLL_OPTION_LENGTH:
                 return 400, {
                     "success": False
                 }
 
-            poll.append(i)
+            poll.append(i[0])
 
     if len(poll) == 1:
         lang = get_lang(user)

@@ -333,6 +333,10 @@ class M2MBadgeUser(models.Model):
     def __str__(self):
         return f"{self.user.username} has the badge {self.badge.name}"
 
+class GenericData(models.Model):
+    id = models.CharField(max_length=50, unique=True, primary_key=True)
+    value = models.TextField(blank=True)
+
 try:
     django_admin.site.register(User)
     django_admin.site.register(Post)
@@ -354,6 +358,7 @@ try:
     django_admin.site.register(M2MPending)
     django_admin.site.register(M2MHashtagPost)
     django_admin.site.register(M2MBadgeUser)
+    django_admin.site.register(GenericData)
 
 except AlreadyRegistered:
     ...

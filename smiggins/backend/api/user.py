@@ -186,7 +186,7 @@ def settings(request, data: Settings) -> APIResponse:
                     "message": lang["settings"]["profile_color_invalid"]
                 }
 
-    if data.lang not in [i["code"] for i in VALID_LANGUAGES]:
+    if data.lang not in VALID_LANGUAGES:
         return 400, {
             "success": False,
             "message": lang["settings"]["invalid_language"].replace("%s", data.lang)

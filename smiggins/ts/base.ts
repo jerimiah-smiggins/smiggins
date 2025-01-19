@@ -690,11 +690,9 @@ function getPollHTML(
       c++;
       output += `<div class="poll-bar-container">
         <div class="poll-bar ${option.voted ? "voted" : ""}">
-          <div style="width:${option.votes / pollJSON.votes * 100 || 0}%"></div>
+          <div style="width: ${option.votes / pollJSON.votes * 100 || 0}%"></div>
         </div>
-        <div class="poll-text">
-          ${Math.round(option.votes / pollJSON.votes * 1000) / 10 || 0}% - ${escapeHTML(option.value)}
-        </div>
+        <div class="poll-text">${Math.round(option.votes / pollJSON.votes * 1000) / 10 || 0}% - ${escapeHTML(option.value)}</div>
       </div>`;
     }
   } else {

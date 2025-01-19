@@ -7,14 +7,13 @@ from typing import Any
 from django.core.handlers.wsgi import WSGIRequest
 from django.http import HttpResponse, HttpResponseRedirect
 from django.views.decorators.csrf import csrf_exempt
-from posts.models import URLPart, User
+from posts.models import URLPart, User, GenericData
 
 from ..helper import (check_ratelimit, generate_token, get_HTTP_response,
                       get_lang, send_email, sha)
 from ..variables import DEFAULT_DARK_THEME, THEMES, WEBSITE_URL
 from .schema import APIResponse, Email, Username
 
-LAST_TRIM: int = 0
 
 def _get_url(user: User, intent: str, extra_data: dict | None=None) -> str:
     if extra_data is None:
@@ -330,12 +329,29 @@ def set_email(request, data: Email) -> APIResponse:
     return verify_email(request, user, data)
 
 def remove_extra_urlparts():
-    current_time = round(time.time())
+    lUObj = None
+    try:
+        lUObj = GenericData.objects.get(id="email_url_trim")
+        lastUpdate = int(lUObj.value)
+    except GenericData.DoesNotExist:
+        lastUpdate = 0
+    except TypeError:
+        lastUpdate = 0
 
-    # Only rerun if it's been over two hours
-    if LAST_TRIM >= current_time + 60 * 60 * 2:
+    if lastUpdate + 60 * 60 * 2 > time.time():
         return
 
     for i in URLPart.objects.all():
         if i.expire <= current_time:
             i.delete()
+
+    now = str(int(time.time()))
+
+    if lUObj:
+        lUObj.value = now
+        lUObj.save()    
+    else:
+        GenericData.objects.create(
+            id="email_url_trim",
+            value=now
+        )
