@@ -5,6 +5,9 @@ declare const conf: {
   max_content_warning_length: number,
   max_bio_length: number,
   max_username_length: number,
+  max_muted_words: number,
+  max_muted_word_length: number,
+  max_display_name_length: number,
   user_bios: boolean,
   pronouns: boolean,
   gradient_banners: boolean,
@@ -24,11 +27,11 @@ declare const conf: {
   version: string
 };
 
+declare const username: string | null;
 declare const isAdmin: boolean;
-declare const username: string;
-declare let loggedIn: boolean;
+declare const loggedIn: boolean;
+declare let defaultPrivate: boolean;
 
-declare const defaultPrivate: boolean;
 declare const linkify;
 
 // Global variables
@@ -267,5 +270,6 @@ type _keybind = {
 type _context = {
   page: string,
   strings: [string | null, string | null, string | null, number],
+  share?: string,
   [key: string]: any
 };

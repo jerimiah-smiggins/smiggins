@@ -4,11 +4,11 @@ const keybinds = {
     a: { requireNav: true, action: (event) => { if (isAdmin) {
             redirect("/admin/");
         } } },
-    h: { requireNav: true, action: (event) => { redirect("/home/"); } },
+    h: { requireNav: true, action: (event) => { redirect("/"); } },
     m: { requireNav: true, action: (event) => { if (conf.private_messages) {
             redirect("/messages/");
         } } },
-    p: { requireNav: true, action: (event) => { redirect(`/u/${localStorage.getItem("username")}/`); } },
+    p: { requireNav: true, action: (event) => { redirect(`/u/${username}/`); } },
     r: { noPreventDefault: true, allowLoggedOut: true, action: (event) => { if (!(event.ctrlKey) && dom("refresh")) {
             event.preventDefault();
             dom("refresh").click();
@@ -64,7 +64,7 @@ function keyDown(event) {
     if (action) {
         if (!((!action.allowInputs && (["textarea", "input"].includes(event.target.tagName.toLowerCase()) || event.target.isContentEditable))
             || (action.requireNav && !heldKeys[navKey])
-            || (action.requireCtrl && !event.ctrlKey)) && (logged_in || action.allowLoggedOut)) {
+            || (action.requireCtrl && !event.ctrlKey)) && (loggedIn || action.allowLoggedOut)) {
             if (!action.noPreventDefault) {
                 event.preventDefault();
             }
@@ -75,5 +75,5 @@ function keyDown(event) {
 function keyUp(event) {
     delete heldKeys[event.key];
 }
-window.onkeydown = keyDown;
-window.onkeyup = keyUp;
+onkeydown = keyDown;
+onkeyup = keyUp;

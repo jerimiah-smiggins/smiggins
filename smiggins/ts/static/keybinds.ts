@@ -3,9 +3,9 @@ let heldKeys: { [key: string]: true } = {};
 
 const keybinds: { [key: string]: _keybind } = {
   a: { requireNav: true, action: (event: KeyboardEvent): void => { if (isAdmin) { redirect("/admin/"); }}},
-  h: { requireNav: true, action: (event: KeyboardEvent): void => { redirect("/home/"); }},
+  h: { requireNav: true, action: (event: KeyboardEvent): void => { redirect("/"); }},
   m: { requireNav: true, action: (event: KeyboardEvent): void => { if (conf.private_messages) { redirect("/messages/"); }}},
-  p: { requireNav: true, action: (event: KeyboardEvent): void => { redirect(`/u/${localStorage.getItem("username")}/`); }},
+  p: { requireNav: true, action: (event: KeyboardEvent): void => { redirect(`/u/${username}/`); }},
   r: { noPreventDefault: true, allowLoggedOut: true, action: (event: KeyboardEvent): void => { if (!(event.ctrlKey) && dom("refresh")) { event.preventDefault(); dom("refresh").click(); }}},
   s: { requireNav: true, action: (event: KeyboardEvent): void => { redirect("/settings/"); }},
   "?": { allowLoggedOut: true, action: keybindHelpMenu },
@@ -63,13 +63,12 @@ function keyDown(event: KeyboardEvent): void {
   heldKeys[event.key] = true;
 
   let action: _keybind | undefined = keybinds[event.key];
-
   if (action) {
     if (!(
       (!action.allowInputs && (["textarea", "input"].includes((event.target as HTMLElement).tagName.toLowerCase()) || (event.target as HTMLElement).isContentEditable))
    || (action.requireNav && !heldKeys[navKey])
    || (action.requireCtrl && !event.ctrlKey)
-    ) && (logged_in || action.allowLoggedOut)) {
+    ) && (loggedIn || action.allowLoggedOut)) {
       if (!action.noPreventDefault) {
         event.preventDefault();
       }
@@ -83,5 +82,5 @@ function keyUp(event: KeyboardEvent): void {
   delete heldKeys[event.key];
 }
 
-window.onkeydown = keyDown;
-window.onkeyup = keyUp;
+onkeydown = keyDown;
+onkeyup = keyUp;

@@ -1,7 +1,9 @@
 from posts.models import MutedWord, User
 
 from ..helper import check_ratelimit, get_badge_data, get_lang, get_strings
-from ..variables import DISCORD, SOURCE_CODE
+from ..variables import (DEFAULT_BANNER_COLOR, DEFAULT_LANGUAGE, DISCORD,
+                         ENABLE_CONTACT_PAGE, ENABLE_CREDITS_PAGE, SOURCE_CODE,
+                         THEMES, VALID_LANGUAGES)
 from .schema import APIResponse
 
 
@@ -59,8 +61,54 @@ def context(request) -> tuple[int, dict] | dict | APIResponse:
     if url == "/login" or url == "/login/":
         return gc("login") if user is None else home
 
+    if url == "/logout" or url == "/logout/":
+        return gc("logout")
+
     if url == "/signup" or url == "/signup/":
         return gc("signup") if user is None else home
+
+    if url == "/settings" or url == "/settings/":
+        if user is None:
+            return index
+
+        _p = user.pronouns.filter(language=user.language)
+        if _p.exists():
+            pronouns = {
+                "primary": _p[0].primary,
+                "secondary": _p[0].secondary
+            }
+        else:
+            pronouns = {}
+
+        lang = get_lang(user)
+
+        return gc(
+            "settings",
+            display_name=user.display_name,
+            bio=user.bio,
+            pronouns=pronouns,
+            verify_followers=user.verify_followers,
+
+            themes=[{"id": i, "name": lang["settings"]["cosmetic_themes"][i] if i in lang["settings"]["cosmetic_themes"] else THEMES[i]["name"][user.language if user.language in THEMES[i]["name"] else "default"]} for i in THEMES],
+            theme=user.theme if user.theme in THEMES else "auto",
+
+            language=user.language or DEFAULT_LANGUAGE,
+            languages=VALID_LANGUAGES,
+
+            banner_color_one=user.color or DEFAULT_BANNER_COLOR,
+            banner_color_two=user.color_two or DEFAULT_BANNER_COLOR,
+            gradient=user.gradient,
+
+            has_email=user.email is not None,
+            email=user.email or "",
+            email_valid=user.email_valid,
+
+            discord=DISCORD,
+            source=SOURCE_CODE,
+
+            contact=ENABLE_CONTACT_PAGE,
+            credits=ENABLE_CREDITS_PAGE
+        )
 
     return gc("404")
 

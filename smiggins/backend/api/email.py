@@ -297,7 +297,7 @@ def test_link(request, intent=True) -> HttpResponse:
         return HttpResponseRedirect("/", status=307)
 
     if intent not in ["reset", "remove", "verify", "pwd_fm"]:
-        return HttpResponseRedirect("/home/", status=307)
+        return HttpResponseRedirect("/", status=307)
 
     key = "test-key"
 

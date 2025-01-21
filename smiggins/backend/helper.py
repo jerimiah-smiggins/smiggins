@@ -308,7 +308,7 @@ def create_simple_return(
 
     def x(request) -> HttpResponse | HttpResponseRedirect:
         if (redirect_logged_in and logged_in(request)) or (redirect_logged_out and not logged_in(request)):
-            return HttpResponseRedirect("/home/" if redirect_logged_in else "/", status=307)
+            return HttpResponseRedirect("/" if redirect_logged_in else "/", status=307)
         else:
             return HttpResponse(content_override, content_type=content_type) if content_override else get_HTTP_response(request, template_path)
 

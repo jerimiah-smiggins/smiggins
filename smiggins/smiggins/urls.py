@@ -43,11 +43,6 @@ urlpatterns = list(filter(bool, [
 
     re_path("^.*$", webapp)
 
-    # path("", create_simple_return("index.html", redirect_logged_in=True)),
-    # path("home/", create_simple_return("home.html", redirect_logged_out=True)),
-    # path("login/", create_simple_return("login.html", redirect_logged_in=True)),
-    # path("signup/", create_simple_return("signup.html", redirect_logged_in=True)),
-    # path("logout/", create_simple_return("logout.html")),
     # path("reset-password/", create_simple_return("reset-password.html", redirect_logged_in=True)) if ENABLE_EMAIL else None,
 
     # path("settings/", settings),
@@ -69,5 +64,4 @@ urlpatterns = list(filter(bool, [
 
 del _favicon, _robots_txt, _security_txt
 
-handler404 = "backend.templating._404"
 handler500 = "backend.templating._500"

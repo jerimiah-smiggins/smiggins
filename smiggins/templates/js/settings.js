@@ -29,8 +29,8 @@ let accounts;
 let hasCurrent;
 if (conf.account_switcher) {
     currentAccount = document.cookie.match(/token=([a-f0-9]{64})/)[0].split("=")[1];
-    accounts = JSON.parse(localStorage.getItem("acc-switcher") || JSON.stringify([[localStorage.getItem("username"), currentAccount]]));
-    if (!localStorage.getItem("username")) {
+    accounts = JSON.parse(localStorage.getItem("acc-switcher") || JSON.stringify([[username, currentAccount]]));
+    if (!username) {
         dom("switcher").setAttribute("hidden", "");
     }
     hasCurrent = false;
@@ -41,7 +41,7 @@ if (conf.account_switcher) {
     }
     if (!hasCurrent) {
         accounts.push([
-            localStorage.getItem("username"),
+            username,
             document.cookie.match(/token=([a-f0-9]{64})/)[0].split("=")[1]
         ]);
     }
@@ -90,6 +90,7 @@ dom("post-example").innerHTML = getPostHTML({
     logged_in: true,
     edited: false
 }, false, false, false, true);
+registerLinks(dom("post-example"));
 function toggleGradient(setUnloadStatus) {
     if (typeof setUnloadStatus !== "boolean" || setUnloadStatus) {
         setUnload();
@@ -275,7 +276,6 @@ conf.account_switcher && dom("acc-switch").addEventListener("click", function ()
                 onclick: () => {
                     let val = dom("accs").value.split("-", 2);
                     setCookie("token", val[0]);
-                    localStorage.setItem("username", val[1]);
                     removeUnload();
                     location.href = location.href;
                     closeModal();
@@ -287,7 +287,6 @@ conf.account_switcher && dom("acc-switch").addEventListener("click", function ()
     else {
         let val = dom("accs").value.split("-", 2);
         setCookie("token", val[0]);
-        localStorage.setItem("username", val[1]);
         location.href = location.href;
     }
 });

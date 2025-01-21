@@ -1,7 +1,3 @@
-hr {
-  max-width: 12em;
-}
-
 .thin {
   max-width: 24em;
   margin: 0 auto;
@@ -16,20 +12,22 @@ hr {
   margin-bottom: 4em;
 }
 
-#banner {
-  width: 200px;
-  background-color: var(--banner);
-  height: 50px;
-  display: inline-block;
-  border-radius: 0.2em;
-
-  &.gradient {
-    background: linear-gradient(90deg, var(--banner), var(--banner-two));
+#content[data-page="settings"] {
+  .post {
+    margin: 0px;
   }
-}
 
-.post {
-  margin: 0px;
+  #banner {
+    width: 200px;
+    background-color: var(--banner);
+    height: 50px;
+    display: inline-block;
+    border-radius: 0.2em;
+
+    &.gradient {
+      background: linear-gradient(90deg, var(--banner), var(--banner-two));
+    }
+  }
 }
 
 .settings-side {
@@ -45,7 +43,7 @@ hr {
 }
 
 @media screen and (max-width: 565px) {
-  .post {
+  #content[data-page="settings"] .post {
     width: calc(94vw - 3.5em - (3em / 7));
   }
 }

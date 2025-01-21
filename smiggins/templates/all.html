@@ -38,12 +38,17 @@
     <style>
       {% include "css/fonts.css" %}
       {% include "css/base.css" %}
+      {% include "css/home.css" %}
+      {% include "css/settings.css" %}
     </style>
 
     <script>
       const conf = JSON.parse('{{ conf_str|escapejs }}');
       const somethingWentWrong = "{{ something_went_wrong }}";
-      let loggedIn = "{{ logged_in }}" == "True";
+      const username = "{{ username }}";
+      const isAdmin = "{{ is_admin }}" == "True";
+      const loggedIn = "{{ logged_in }}" == "True";
+      let defaultPrivate = "{{ default_post_private }}" == "True";
       {% include "js/favicon.js" %}
     </script>
   </head>
@@ -65,5 +70,21 @@
     <script>
       {% include "js/init.js" %}
     </script>
+
+    <script src="{% static 'linkify/linkify.min.js' %}?v={{ conf.version }}"></script>
+    <script src="{% static 'linkify/html.min.js' %}?v={{ conf.version }}"></script>
+    <script src="{% static 'linkify/mentions.js' %}?v={{ conf.version }}"></script>
+    <script src="{% static 'linkify/hashtags.js' %}?v={{ conf.version }}"></script>
+    <script src="{% static 'base.js' %}?v={{ conf.version }}"></script>
+    <script src="{% static 'keybinds.js' %}?v={{ conf.version }}"></script>
+    <script src="{% static 'scripts/logout.js' %}?v={{ conf.version }}"></script>
+    {% if logged_in %}
+      <script src="{% static 'scripts/home.js' %}?v={{ conf.version }}"></script>
+      <script src="{% static 'scripts/timeline.js' %}?v={{ conf.version }}"></script>
+      <script src="{% static 'scripts/settings.js' %}?v={{ conf.version }}"></script>
+    {% else %}
+      <script src="{% static 'scripts/login.js' %}?v={{ conf.version }}"></script>
+      <script src="{% static 'scripts/signup.js' %}?v={{ conf.version }}"></script>
+    {% endif %}
   </body>
 </html>

@@ -1,7 +1,6 @@
 # TODO -
+# SETTINGS UNSAVED CHANGES MODAL !!!!
 # add all existing pages
-# ratelimit definitions for new functions
-# make keybinds work
 
 # This file contains all of the backend settings for the server. This is
 # likely the only file you will edit when running the server. It's possible
@@ -419,6 +418,10 @@ enable_ratelimit: true
 # setting is set properly for logged out ratelimiting to properly function. Does
 # NOT SUPPORT fractional timings.
 ratelimits:
+  GET /api/init/context: [10, 5]
+  GET /api/init/lang: [10, 60]
+  GET /api/init/muted: [10, 60]
+  GET /api/init/badges: [10, 60]
   POST /api/user/signup: [2, 10]
   POST /api/user/login: [5, 10]
   GET /api/user/notifications: [5, 10]

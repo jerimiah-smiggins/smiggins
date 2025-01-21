@@ -23,11 +23,12 @@ from .variables import (CACHE_LANGUAGES, CONTACT_INFO, CREDITS,
                         ENABLE_POST_DELETION, ENABLE_PRIVATE_MESSAGES,
                         ENABLE_PRONOUNS, ENABLE_QUOTES, ENABLE_USER_BIOS,
                         FAVICON_DATA, GOOGLE_VERIFICATION_TAG, MAX_BIO_LENGTH,
-                        MAX_CONTENT_WARNING_LENGTH, MAX_MUTED_WORD_LENGTH,
-                        MAX_MUTED_WORDS, MAX_POLL_OPTION_LENGTH,
-                        MAX_POLL_OPTIONS, MAX_POST_LENGTH, MAX_USERNAME_LENGTH,
-                        OWNER_USER_ID, SITE_NAME, THEMES, VALID_LANGUAGES,
-                        VERSION, MOTDs, error)
+                        MAX_CONTENT_WARNING_LENGTH, MAX_DISPL_NAME_LENGTH,
+                        MAX_MUTED_WORD_LENGTH, MAX_MUTED_WORDS,
+                        MAX_POLL_OPTION_LENGTH, MAX_POLL_OPTIONS,
+                        MAX_POST_LENGTH, MAX_USERNAME_LENGTH, OWNER_USER_ID,
+                        SITE_NAME, THEMES, VALID_LANGUAGES, VERSION, MOTDs,
+                        error)
 
 
 def webapp(request) -> HttpResponse:
@@ -55,6 +56,9 @@ def webapp(request) -> HttpResponse:
         "max_content_warning_length": MAX_CONTENT_WARNING_LENGTH,
         "max_bio_length": MAX_BIO_LENGTH,
         "max_username_length": MAX_USERNAME_LENGTH,
+        "max_muted_words": MAX_MUTED_WORDS,
+        "max_muted_word_length": MAX_MUTED_WORD_LENGTH,
+        "max_display_name_length": MAX_DISPL_NAME_LENGTH,
         "user_bios": ENABLE_USER_BIOS,
         "pronouns": ENABLE_PRONOUNS,
         "gradient_banners": ENABLE_GRADIENT_BANNERS,
@@ -79,6 +83,9 @@ def webapp(request) -> HttpResponse:
         "loading": random.choice(MOTDs) if MOTDs else lang["generic"]["loading"],
         "something_went_wrong": lang["generic"]["something_went_wrong"],
         "logged_in": user is not None,
+        "username": user and user.username,
+        "is_admin": user is not None and user.admin_level != 0,
+        "default_post_private": user.default_post_private if user else False,
         "theme": theme if theme in THEMES else "auto",
         "theme_str": "{}" if theme == "auto" or theme not in THEMES else json.dumps(THEMES[theme]),
         "theme_default_light": json.dumps(THEMES[DEFAULT_LIGHT_THEME]),
@@ -101,7 +108,7 @@ def settings(request) -> HttpResponse:
     try:
         user = User.objects.get(token=request.COOKIES.get("token"))
     except User.DoesNotExist:
-        return HttpResponseRedirect("/logout/?from=token", status=307)
+        return HttpResponseRedirect("/logout/", status=307)
 
     lang = get_lang(user)
 
@@ -451,7 +458,7 @@ def message(request, username: str) -> HttpResponse | HttpResponseRedirect:
     try:
         self_user = User.objects.get(token=request.COOKIES.get("token"))
     except User.DoesNotExist:
-        return HttpResponseRedirect("/logout/?from=token", status=307)
+        return HttpResponseRedirect("/logout/", status=307)
 
     try:
         PrivateMessageContainer.objects.get(
@@ -523,7 +530,7 @@ def pending(request) -> HttpResponse | HttpResponseRedirect:
         )
 
     if not user.verify_followers:
-        return HttpResponseRedirect("/home/", status=307)
+        return HttpResponseRedirect("/", status=307)
 
     return get_HTTP_response(request, "pending.html", user=user)
 

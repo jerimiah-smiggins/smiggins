@@ -7,8 +7,9 @@ type = "post";
 includeUserLink = false;
 includePostLink = true;
 
-if (!logged_in) {
-  dom("more-container").innerHTML = lang.generic.see_more.replaceAll("%s", `<a href="/signup">${lang.account.sign_up_title}</a>`);
+if (!loggedIn) {
+  dom("more-container").innerHTML = lang.generic.see_more.replaceAll("%s", `<a data-link href="/signup">${lang.account.sign_up_title}</a>`);
+  registerLinks(dom("more-container"));
 }
 
 function toggleFollow(): void {

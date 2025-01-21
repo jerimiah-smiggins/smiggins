@@ -2,10 +2,7 @@ const usernameRegexFull = /^[a-z0-9_\-]+$/g;
 if (localStorage.getItem("compact")) {
     document.body.setAttribute("data-compact", "");
 }
-if (typeof (logged_in) != "boolean") {
-    logged_in = document.cookie.split(/\btoken=/).length != 1;
-}
-if (logged_in) {
+if (loggedIn) {
     setCookie("token", document.cookie.split(/\btoken=/)[1].split(";")[0]);
 }
 let titleNotificationIndicator = false;
@@ -19,7 +16,7 @@ document.body.setAttribute("data-bar-dir", (["h", "r"]).indexOf(localStorage.get
 if (localStorage.getItem("checkboxes")) {
     document.body.setAttribute("data-disable-checkboxes", "");
 }
-if (logged_in) {
+if (loggedIn) {
     iconsElement.innerHTML = `<div><a title="${lang.settings.title}" href="/settings/">${icons.settings}</a></div>`;
     if (typeof (home) !== 'undefined') {
         iconsElement.innerHTML += `<div><a title="${lang.home.title}" href="/home/">${icons.home}</a></div>`;
@@ -77,10 +74,10 @@ function getNotifications() {
         }
     });
 }
-if (logged_in) {
+if (loggedIn) {
     getNotifications();
     setInterval(getNotifications, 2 * 60 * 1000);
-    dom("icons").innerHTML += `<a title="${lang.settings.profile_title}" href="/u/${localStorage.getItem("username")}/">${icons.user}</a>`;
+    dom("icons").innerHTML += `<a title="${lang.settings.profile_title}" href="/u/${username}/">${icons.user}</a>`;
 }
 forEach(document.querySelectorAll("[data-add-icon]"), (val, index) => {
     val.innerHTML = icons[val.dataset.addIcon];

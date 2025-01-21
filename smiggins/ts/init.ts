@@ -69,14 +69,8 @@ let loadURLs: ([string, (response: any) => void, boolean])[] = [
   conf.badges ? ["/api/init/badges", (json: _anyDict): void => { badges = json.badges; }, false] : null,
   ["/api/init/lang", (json: _anyDict): void => { lang = json.lang; }, false],
   loggedIn ? ["/api/init/muted", (json: _anyDict): void => { muted = json.muted; }, false] : null,
-  ["{% static 'linkify/linkify.min.js' %}?v={{ conf.version }}", loadJS, true],
-  ["{% static 'linkify/html.min.js' %}?v={{ conf.version }}", loadJS, true],
-  ["{% static 'linkify/mentions.js' %}?v={{ conf.version }}", loadJS, true],
-  conf.hashtags ? ["{% static 'linkify/hashtags.js' %}?v={{ conf.version }}", loadJS, true] : null,
-  ["{% static 'base.js' %}?v={{ conf.version }}", loadJS, true],
-  ["{% static 'keybinds.js' %}?v={{ conf.version }}", loadJS, true],
   ["{% static 'pages.js' %}?v={{ conf.version }}", loadJS, true],
-  ["{% static 'page-scripts.js' %}?v={{ conf.version }}", loadJS, true],
+  ["{% static 'base-footer.js' %}?v={{ conf.version }}", loadJS, true],
 ].filter(Boolean);
 
 let script: HTMLScriptElement = document.createElement("script");

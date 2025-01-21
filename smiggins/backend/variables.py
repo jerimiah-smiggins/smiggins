@@ -827,6 +827,10 @@ DEFAULT_DARK_THEME = _THEMES_INTERNALS["map"][DEFAULT_DARK_THEME.lower()]
 DEFAULT_LIGHT_THEME = _THEMES_INTERNALS["map"][DEFAULT_LIGHT_THEME.lower()]
 
 for key, val in {
+  "GET /api/init/context": (10, 5),
+  "GET /api/init/lang": (10, 60),
+  "GET /api/init/muted": (10, 60),
+  "GET /api/init/badges": (10, 60),
   "POST /api/user/signup": (2, 10),
   "POST /api/user/login": (5, 10),
   "GET /api/user/notifications": (5, 10),
@@ -895,7 +899,6 @@ PRIVATE_AUTHENTICATOR_KEY: str = hashlib.sha256(auth_key).hexdigest()
 
 ROBOTS: str = """\
 User-agent: *
-Disallow: /home/
 Disallow: /logout/
 Disallow: /settings/
 Disallow: /notifications/

@@ -1,4 +1,4 @@
-let end: boolean = false;
+let end: boolean;
 
 function deletePost(postID: number, isComment: boolean, pageFocus: boolean): void {
   s_fetch(`/api/${isComment ? "comment" : "post"}`, {
@@ -28,7 +28,7 @@ function unpinPost(): void {
 }
 
 function addQuote(postID: number, isComment: boolean): void {
-  if (typeof logged_in !== "undefined" && !logged_in) { return; }
+  if (typeof loggedIn !== "undefined" && !loggedIn) { return; }
 
   const post: Element = document.querySelector(`[data-${isComment ? "comment" : "post"}-id="${postID}"] .quote-inputs`);
   if (post.querySelector("button")) { return; }
@@ -79,7 +79,7 @@ function addQuote(postID: number, isComment: boolean): void {
 }
 
 function toggleLike(postID: number, type: string): void {
-  if (typeof logged_in !== "undefined" && !logged_in) { return; }
+  if (typeof loggedIn !== "undefined" && !loggedIn) { return; }
 
   let likeButton: HTMLButtonElement = (document.querySelector(`div[data-${type}-id="${postID}"] button.like`) as HTMLButtonElement)
 
@@ -197,25 +197,29 @@ function switchTimeline(event: MouseEvent): void {
 //   // TODO
 // }
 
-document.querySelectorAll("#switch > a").forEach((val: HTMLAnchorElement, index: number): void => {
-  val.addEventListener("click", switchTimeline);
-});
-
-if (typeof timelineConfig.disableTimeline === "undefined" || !timelineConfig.disableTimeline) {
-  function refresh(forceOffset=false): void {
-    if (forceOffset !== true) {
-      dom("posts").innerHTML = "";
-    }
-
-    s_fetch(
-      `${timelineConfig.url}${forceOffset === true && !end ? `${timelineConfig.url.includes("?") ? "&" : "?"}offset=${timelineConfig.useOffsetC ? timelineConfig.vars.offsetC : timelineConfig.vars.offset}` : ""}`, {
-        disable: [...document.querySelectorAll("button[onclick*='refresh(']")],
-        extraData: {
-          forceOffset: forceOffset
-        }
-      }
-    );
+function refresh(forceOffset=false): void {
+  if (forceOffset !== true) {
+    dom("posts").innerHTML = "";
   }
 
-  refresh();
+  s_fetch(
+    `${timelineConfig.url}${forceOffset === true && !end ? `${timelineConfig.url.includes("?") ? "&" : "?"}offset=${timelineConfig.useOffsetC ? timelineConfig.vars.offsetC : timelineConfig.vars.offset}` : ""}`, {
+      disable: [...document.querySelectorAll("button[onclick*='refresh(']")],
+      extraData: {
+        forceOffset: forceOffset
+      }
+    }
+  );
+}
+
+function timelineInit() {
+  end = false;
+
+  document.querySelectorAll("#switch > a").forEach((val: HTMLAnchorElement, index: number): void => {
+    val.addEventListener("click", switchTimeline);
+  });
+
+  if (typeof timelineConfig.disableTimeline === "undefined" || !timelineConfig.disableTimeline) {
+    refresh();
+  }
 }
