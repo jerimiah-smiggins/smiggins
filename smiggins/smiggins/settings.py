@@ -112,5 +112,6 @@ STATIC_ROOT = BASE_DIR / "collected-static"
 STATIC_URL = '/static/'
 STATICFILES_DIRS = [
     BASE_DIR / "static-custom",
-    BASE_DIR / "static"
+    BASE_DIR / "static",
+    BASE_DIR / "templates/js/static"
 ]

@@ -46,7 +46,7 @@ if (logged_in) {
   }
 
   iconsElement.innerHTML += `<div data-add-notification-dot><a title="${lang.notifications.title}" href="/notifications/">${icons.bell}</a></div>`;
-  if (ENABLE_PRIVATE_MESSAGES) {
+  if (conf.private_messages) {
     iconsElement.innerHTML += `<div data-add-message-dot><a title="${lang.messages.list_title}" href="/messages/">${icons.message}</a></div>`;
   }
 }
@@ -75,7 +75,7 @@ function getNotifications(): void {
         }
       });
 
-      ENABLE_PRIVATE_MESSAGES && forEach(document.querySelectorAll("[data-add-message-dot]"), (val: HTMLElement, index: number): void => {
+      conf.private_messages && forEach(document.querySelectorAll("[data-add-message-dot]"), (val: HTMLElement, index: number): void => {
         if (json.success && json.messages) {
           val.classList.add("dot");
           val.dataset.value = String(json.messages);
@@ -92,7 +92,7 @@ function getNotifications(): void {
         dom("pending-followers-icon").remove();
       }
 
-      if ((json.messages && ENABLE_PRIVATE_MESSAGES) || json.notifications || json.followers || json.followers) {
+      if ((json.messages && conf.private_messages) || json.notifications || json.followers || json.followers) {
         if (!titleNotificationIndicator) {
           titleNotificationIndicator = true;
           document.title = "[ ! ] " + document.title;
@@ -116,7 +116,7 @@ forEach(document.querySelectorAll("[data-add-icon]"), (val: HTMLElement, index: 
   val.innerHTML = icons[val.dataset.addIcon];
 });
 
-if (ENABLE_BADGES) {
+if (conf.badges) {
   forEach(document.querySelectorAll("[data-add-badge]"), (val: HTMLElement, index: number): void => {
     val.innerHTML = badges[val.dataset.addBadge];
   });

@@ -1,3 +1,8 @@
+# TODO -
+# add all existing pages
+# ratelimit definitions for new functions
+# make keybinds work
+
 # This file contains all of the backend settings for the server. This is
 # likely the only file you will edit when running the server. It's possible
 # that the contents of this file will change between updates so don't rely on
@@ -10,6 +15,11 @@ version: null
 
 # The name of the instance
 site_name: Jerimiah Smiggins
+
+# A list of words/phrases to show up when loading. If none are set, it uses the
+# word for "loading" in the user's set language
+MOTDs:
+# - "Loading..."
 
 # The url of the website that you are running. This is VERY IMPORTANT to set,
 # and is required for emails and sitemaps to work properly. Make sure to

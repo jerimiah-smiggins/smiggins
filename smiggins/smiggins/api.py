@@ -1,8 +1,8 @@
 import json
 from typing import Callable
 
-from backend.api import (ApiAdmin, ApiComment, ApiEmail, ApiInfo, ApiMessages,
-                         ApiPost, ApiUser)
+from backend.api import (ApiAdmin, ApiComment, ApiEmail, ApiInfo, ApiInit,
+                         ApiMessages, ApiPost, ApiUser)
 from backend.variables import (ENABLE_BADGES, ENABLE_EDITING_POSTS,
                                ENABLE_EMAIL, ENABLE_HASHTAGS,
                                ENABLE_NEW_ACCOUNTS, ENABLE_PRIVATE_MESSAGES,
@@ -32,6 +32,10 @@ api = NinjaAPI(
 
 routes: list[tuple[str, str, Callable, bool | None, str, str, str | list[str]]] = [
 #   ["path/to/endpoint", "METHOD", function,, requirements, "summary", "description", "group"]
+    ("init/context", "GET", ApiInit.context, None, "Load Context", "Handles loading context for pages and whatnot", "Init"),
+    ("init/badges", "GET", ApiInit.badges, None, "Load Badges", "Loads badges", "Init"),
+    ("init/lang", "GET", ApiInit.lang, None, "Load Language", "Gives the client the language for the current user", "Init"),
+    ("init/muted", "GET", ApiInit.muted, None, "Load Muted Words", "Loads the user's muted words", "Init"),
     ("user/signup", "POST", ApiUser.signup, bool(ENABLE_NEW_ACCOUNTS), "Sign up", "Handles signing up for a new account", "User"),
     ("user/login", "POST", ApiUser.login, None, "Log in", "Handles logging in to an account", "User"),
     ("user/notifications", "GET", ApiUser.notifications_list, None, "Get notification list", "Returns a list of notifications for a user", "User"),

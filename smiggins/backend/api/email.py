@@ -7,7 +7,7 @@ from typing import Any
 from django.core.handlers.wsgi import WSGIRequest
 from django.http import HttpResponse, HttpResponseRedirect
 from django.views.decorators.csrf import csrf_exempt
-from posts.models import URLPart, User, GenericData
+from posts.models import GenericData, URLPart, User
 
 from ..helper import (check_ratelimit, generate_token, get_HTTP_response,
                       get_lang, send_email, sha)
@@ -342,14 +342,14 @@ def remove_extra_urlparts():
         return
 
     for i in URLPart.objects.all():
-        if i.expire <= current_time:
+        if i.expire <= time.time():
             i.delete()
 
     now = str(int(time.time()))
 
     if lUObj:
         lUObj.value = now
-        lUObj.save()    
+        lUObj.save()
     else:
         GenericData.objects.create(
             id="email_url_trim",

@@ -42,8 +42,8 @@ function addQuote(postID: number, isComment: boolean): void {
       <label for="default-private-${globalIncrement}">${lang.post.type_followers_only}:</label>
       <input id="default-private-${globalIncrement}" type="checkbox" ${defaultPrivate ? "checked" : ""}><br>
     </div>
-    ${ENABLE_CONTENT_WARNINGS ? `<input class="c-warning" ${originalCW ? `value="${escapeHTML(originalCW.startsWith("re: ") ? originalCW.slice(0, MAX_CONTENT_WARNING_LENGTH) : "re: " + originalCW.slice(0, MAX_CONTENT_WARNING_LENGTH - 4))}"` : ""} maxlength="${MAX_CONTENT_WARNING_LENGTH}" placeholder="${lang.home.c_warning_placeholder}"><br>` : ""}
-    <textarea class="post-text" data-create-post data-create-post-id="quote-post-${globalIncrement}" maxlength="${MAX_POST_LENGTH}" placeholder="${lang.home.quote_placeholders[Math.floor(Math.random() * lang.home.quote_placeholders.length)]}"></textarea><br>
+    ${conf.content_warnings ? `<input class="c-warning" ${originalCW ? `value="${escapeHTML(originalCW.startsWith("re: ") ? originalCW.slice(0, conf.max_content_warning_length) : "re: " + originalCW.slice(0, conf.max_content_warning_length - 4))}"` : ""} maxlength="${conf.max_content_warning_length}" placeholder="${lang.home.c_warning_placeholder}"><br>` : ""}
+    <textarea class="post-text" data-create-post data-create-post-id="quote-post-${globalIncrement}" maxlength="${conf.max_post_length}" placeholder="${lang.home.quote_placeholders[Math.floor(Math.random() * lang.home.quote_placeholders.length)]}"></textarea><br>
     <button id="quote-post-${globalIncrement}" class="post-button">${lang.generic.post}</button>
     <button class="cancel-button">${lang.generic.cancel}</button>
   `;
@@ -58,7 +58,7 @@ function addQuote(postID: number, isComment: boolean): void {
     s_fetch("/api/quote/create", {
       method: "PUT",
       body: JSON.stringify({
-        c_warning: ENABLE_CONTENT_WARNINGS ? (post.querySelector("input.c-warning") as HTMLInputElement).value : "",
+        c_warning: conf.content_warnings ? (post.querySelector("input.c-warning") as HTMLInputElement).value : "",
         content: post.querySelector("textarea").value,
         quote_id: postID,
         quote_is_comment: isComment,
@@ -68,7 +68,7 @@ function addQuote(postID: number, isComment: boolean): void {
         post.querySelector("textarea"),
         post.querySelector("button.post-button"),
         post.querySelector("button.cancel-button"),
-        ENABLE_CONTENT_WARNINGS && post.querySelector("input.c-warning")
+        conf.content_warnings && post.querySelector("input.c-warning")
       ]
     });
   });
@@ -146,8 +146,8 @@ function editPost(postID: number, isComment: boolean, private: boolean, original
   contentField.innerHTML = `
     <label for="default-private-${globalIncrement}">${lang.post.type_followers_only}:</label>
     <input id="default-private-${globalIncrement}" type="checkbox" ${private ? "checked" : ""}><br>
-    ${ENABLE_CONTENT_WARNINGS ? `<input class="c-warning" ${originalCW ? `value="${originalCW}"` : ""} maxlength="${MAX_CONTENT_WARNING_LENGTH}" placeholder="${lang.home.c_warning_placeholder}"><br>` : ""}
-    <textarea class="post-text" maxlength="${MAX_POST_LENGTH}" placeholder="${lang.home.post_input_placeholder}">${escapeHTML(originalText)}</textarea><br>
+    ${conf.content_warnings ? `<input class="c-warning" ${originalCW ? `value="${originalCW}"` : ""} maxlength="${conf.max_content_warning_length}" placeholder="${lang.home.c_warning_placeholder}"><br>` : ""}
+    <textarea class="post-text" maxlength="${conf.max_post_length}" placeholder="${lang.home.post_input_placeholder}">${escapeHTML(originalText)}</textarea><br>
     <button class="post-button">${lang.generic.post}</button>
     <button class="cancel-button">${lang.generic.cancel}</button>`;
 

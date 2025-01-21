@@ -10,8 +10,8 @@ from posts.models import (AdminLog, Badge, MutedWord, OneTimePassword,
                           PrivateMessageContainer, User)
 
 from ..helper import check_ratelimit, get_lang, sha_to_bytes, trim_whitespace
-from ..variables import (MAX_ADMIN_LOG_LINES,
-                         MAX_MUTED_WORD_LENGTH, MAX_MUTED_WORDS, OWNER_USER_ID,
+from ..variables import (MAX_ADMIN_LOG_LINES, MAX_MUTED_WORD_LENGTH,
+                         MAX_MUTED_WORDS, OWNER_USER_ID,
                          PRIVATE_AUTHENTICATOR_KEY)
 from .schema import (AccountIdentifier, APIResponse, DeleteBadge,
                      MutedWordsAdmin, NewBadge, OTPName, SaveUser, UserBadge,

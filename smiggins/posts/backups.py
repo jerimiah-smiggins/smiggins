@@ -4,8 +4,8 @@ from datetime import datetime, timedelta
 from pathlib import Path
 
 from backend.variables import DATABASE_BACKUPS
-
 from posts.models import GenericData
+
 from smiggins.settings import BASE_DIR, DATABASES
 
 db_path = DATABASES["default"]["NAME"]

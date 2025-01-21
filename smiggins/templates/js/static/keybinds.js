@@ -5,7 +5,7 @@ const keybinds = {
             redirect("/admin/");
         } } },
     h: { requireNav: true, action: (event) => { redirect("/home/"); } },
-    m: { requireNav: true, action: (event) => { if (ENABLE_PRIVATE_MESSAGES) {
+    m: { requireNav: true, action: (event) => { if (conf.private_messages) {
             redirect("/messages/");
         } } },
     p: { requireNav: true, action: (event) => { redirect(`/u/${localStorage.getItem("username")}/`); } },
@@ -43,7 +43,7 @@ function keybindHelpMenu() {
       <h3>${lang.generic.keybinds.navigation.title}</h3>
       ${isAdmin ? _getKeybindInfo("g", "a", lang.generic.keybinds.navigation.admin) : ""}
       ${_getKeybindInfo("g", "h", lang.generic.keybinds.navigation.home)}
-      ${ENABLE_PRIVATE_MESSAGES ? _getKeybindInfo("g", "m", lang.generic.keybinds.navigation.messages) : ""}
+      ${conf.private_messages ? _getKeybindInfo("g", "m", lang.generic.keybinds.navigation.messages) : ""}
       ${_getKeybindInfo("g", "n", lang.generic.keybinds.navigation.notifications)}
       ${_getKeybindInfo("g", "p", lang.generic.keybinds.navigation.profile)}
       ${_getKeybindInfo("g", "s", lang.generic.keybinds.navigation.settings)}

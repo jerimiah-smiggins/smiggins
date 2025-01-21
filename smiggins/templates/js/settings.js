@@ -6,7 +6,7 @@ for (const color of validColors) {
     output += `<option ${((localStorage.getItem("color") == color || (!localStorage.getItem("color") && color == "mauve")) ? "selected" : "")} value="${color}">${lang.generic.colors[color]}</option>`;
 }
 output += "</select><br><br>";
-if (ENABLE_PRONOUNS && lang.generic.pronouns.enable_pronouns) {
+if (conf.pronouns && lang.generic.pronouns.enable_pronouns) {
     try {
         let primary = document.querySelector(`#pronouns-primary > option[value="${userPronouns.primary}"]`);
         primary.setAttribute("selected", "");
@@ -27,7 +27,7 @@ if (localStorage.getItem("checkboxes")) {
 let currentAccount;
 let accounts;
 let hasCurrent;
-if (ENABLE_ACCOUNT_SWITCHER) {
+if (conf.account_switcher) {
     currentAccount = document.cookie.match(/token=([a-f0-9]{64})/)[0].split("=")[1];
     accounts = JSON.parse(localStorage.getItem("acc-switcher") || JSON.stringify([[localStorage.getItem("username"), currentAccount]]));
     if (!localStorage.getItem("username")) {
@@ -94,12 +94,12 @@ function toggleGradient(setUnloadStatus) {
     if (typeof setUnloadStatus !== "boolean" || setUnloadStatus) {
         setUnload();
     }
-    if (ENABLE_GRADIENT_BANNERS && dom("banner-is-gradient").checked) {
+    if (conf.gradient_banners && dom("banner-is-gradient").checked) {
         dom("banner-color-two").removeAttribute("hidden");
         dom("banner").classList.add("gradient");
     }
     else {
-        ENABLE_GRADIENT_BANNERS && dom("banner-color-two").setAttribute("hidden", "");
+        conf.gradient_banners && dom("banner-color-two").setAttribute("hidden", "");
         dom("banner").classList.remove("gradient");
     }
 }
@@ -142,7 +142,7 @@ function removeUnload() {
 if (oldFavicon) {
     dom("old-favi").setAttribute("checked", "");
 }
-ENABLE_DYNAMIC_FAVICON && dom("old-favi").addEventListener("input", function () {
+conf.dynamic_favicon && dom("old-favi").addEventListener("input", function () {
     oldFavicon = this.checked;
     if (oldFavicon) {
         localStorage.setItem("old-favicon", "1");
@@ -224,25 +224,25 @@ function save(post) {
     s_fetch("/api/user/settings", {
         method: "PATCH",
         body: JSON.stringify({
-            bio: ENABLE_USER_BIOS ? dom("bio").value : "",
+            bio: conf.user_bios ? dom("bio").value : "",
             lang: dom("lang").value,
             color: dom("banner-color").value,
             pronouns: userPronouns || { primary: "", secondary: null },
-            color_two: ENABLE_GRADIENT_BANNERS ? dom("banner-color-two").value : "",
+            color_two: conf.gradient_banners ? dom("banner-color-two").value : "",
             displ_name: dom("displ-name").value,
-            is_gradient: ENABLE_GRADIENT_BANNERS ? dom("banner-is-gradient").checked : false,
+            is_gradient: conf.gradient_banners ? dom("banner-is-gradient").checked : false,
             approve_followers: dom("followers-approval").checked,
             default_post_visibility: dom("default-post").value
         }),
         disable: [
             this,
             dom("displ-name"),
-            ENABLE_USER_BIOS && dom("bio"),
-            ENABLE_PRONOUNS && dom("pronouns-primary"),
-            ENABLE_PRONOUNS && dom("pronouns-secondary"),
+            conf.user_bios && dom("bio"),
+            conf.pronouns && dom("pronouns-primary"),
+            conf.pronouns && dom("pronouns-secondary"),
             dom("banner-color"),
-            ENABLE_GRADIENT_BANNERS && dom("banner-color-two"),
-            ENABLE_GRADIENT_BANNERS && dom("banner-is-gradient"),
+            conf.gradient_banners && dom("banner-color-two"),
+            conf.gradient_banners && dom("banner-is-gradient"),
             dom("default-post"),
             dom("followers-approval"),
             dom("lang"),
@@ -262,12 +262,12 @@ dom("banner-color").addEventListener("input", function () {
     setUnload();
     document.body.style.setProperty("--banner", this.value);
 });
-ENABLE_GRADIENT_BANNERS && dom("banner-color-two").addEventListener("input", function () {
+conf.gradient_banners && dom("banner-color-two").addEventListener("input", function () {
     setUnload();
     document.body.style.setProperty("--banner-two", this.value);
 });
-ENABLE_GRADIENT_BANNERS && dom("banner-is-gradient").addEventListener("input", toggleGradient);
-ENABLE_ACCOUNT_SWITCHER && dom("acc-switch").addEventListener("click", function () {
+conf.gradient_banners && dom("banner-is-gradient").addEventListener("input", toggleGradient);
+conf.account_switcher && dom("acc-switch").addEventListener("click", function () {
     if (unload) {
         createModal(lang.settings.unload.title, lang.settings.unload.content, [
             {
@@ -291,7 +291,7 @@ ENABLE_ACCOUNT_SWITCHER && dom("acc-switch").addEventListener("click", function 
         location.href = location.href;
     }
 });
-ENABLE_ACCOUNT_SWITCHER && dom("acc-remove").addEventListener("click", function () {
+conf.account_switcher && dom("acc-remove").addEventListener("click", function () {
     let removed = dom("accs").value.split("-", 2);
     if (removed[0] == currentAccount) {
         toast(lang.settings.account_switcher_remove_error, true);
@@ -307,8 +307,8 @@ ENABLE_ACCOUNT_SWITCHER && dom("acc-remove").addEventListener("click", function 
         localStorage.setItem("acc-switcher", JSON.stringify(accounts));
     }
 });
-ENABLE_PRONOUNS && lang.generic.pronouns.enable_pronouns && dom("pronouns-primary").addEventListener("input", updatePronouns);
-ENABLE_PRONOUNS && lang.generic.pronouns.enable_pronouns && lang.generic.pronouns.enable_secondary && dom("pronouns-secondary").addEventListener("input", updatePronouns);
+conf.pronouns && lang.generic.pronouns.enable_pronouns && dom("pronouns-primary").addEventListener("input", updatePronouns);
+conf.pronouns && lang.generic.pronouns.enable_pronouns && lang.generic.pronouns.enable_secondary && dom("pronouns-secondary").addEventListener("input", updatePronouns);
 dom("toggle-password").addEventListener("click", function () {
     let newType = dom("password").getAttribute("type") === "password" ? "text" : "password";
     dom("current").setAttribute("type", newType);
@@ -330,7 +330,7 @@ dom("set-password").addEventListener("click", function () {
         }),
         disable: [this],
         postFunction: (success) => {
-            if (success && ENABLE_ACCOUNT_SWITCHER) {
+            if (success && conf.account_switcher) {
                 let switcher = JSON.parse(localStorage.getItem("acc-switcher"));
                 let newToken = document.cookie.match(/token=([a-f0-9]{64})/)[0].split("=")[1];
                 for (let i = 0; i < switcher.length; i++) {
@@ -345,17 +345,17 @@ dom("set-password").addEventListener("click", function () {
     });
 });
 dom("current").addEventListener("keydown", function (event) {
-    if (event.key == "Enter" || event.keyCode == 18) {
+    if (event.key == "Enter") {
         dom("password").focus();
     }
 });
 dom("password").addEventListener("keydown", function (event) {
-    if (event.key == "Enter" || event.keyCode == 18) {
+    if (event.key == "Enter") {
         dom("confirm").focus();
     }
 });
 dom("confirm").addEventListener("keydown", function (event) {
-    if (event.key == "Enter" || event.keyCode == 18) {
+    if (event.key == "Enter") {
         dom("set-password").focus();
         dom("set-password").click();
     }
@@ -370,7 +370,7 @@ dom("save-muted").addEventListener("click", function () {
         disable: [this, dom("muted")]
     });
 });
-ENABLE_EMAIL && dom("email-submit").addEventListener("click", function () {
+conf.email && dom("email-submit").addEventListener("click", function () {
     s_fetch("/api/email/save", {
         method: "POST",
         body: JSON.stringify({

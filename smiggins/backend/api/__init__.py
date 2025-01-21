@@ -6,6 +6,8 @@ from .comment import (comment_create, comment_delete, comment_edit,
                       comment_like_add, comment_like_remove, comment_list)
 from .email import password_reset, set_email
 from .info import notifications, version
+from .init import badges, context, lang
+from .init import muted as load_muted
 from .messages import (container_create, messages_list, recent_messages,
                        send_message)
 from .post import (hashtag_list, pin_post, poll_refresh, poll_vote,
@@ -51,6 +53,12 @@ class ApiEmail:
 class ApiInfo:
     notifications = notifications
     version = version
+
+class ApiInit:
+    badges = badges
+    context = context
+    lang = lang
+    muted = load_muted
 
 class ApiMessages:
     container_create = container_create

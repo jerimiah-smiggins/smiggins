@@ -18,7 +18,7 @@ var Mask;
 function testMask(identifier, level = adminLevel) {
     return !!(level >> identifier & 1);
 }
-ENABLE_POST_DELETION && testMask(Mask.DeletePost) && dom("post-delete").addEventListener("click", function () {
+conf.post_deletion && testMask(Mask.DeletePost) && dom("post-delete").addEventListener("click", function () {
     s_fetch(`/api/${dom("comment-toggle").checked ? "comment" : "post"}`, {
         method: "DELETE",
         body: JSON.stringify({
@@ -42,7 +42,7 @@ testMask(Mask.DeleteUser) && dom("account-delete").addEventListener("click", fun
         disable: [this, dom("account-del-identifier")]
     });
 });
-ENABLE_BADGES && testMask(Mask.GiveBadges) && adminLevel >= 3 && dom("badge-add").addEventListener("click", function () {
+conf.badges && testMask(Mask.GiveBadges) && adminLevel >= 3 && dom("badge-add").addEventListener("click", function () {
     s_fetch("/api/admin/badge", {
         method: "POST",
         body: JSON.stringify({
@@ -53,7 +53,7 @@ ENABLE_BADGES && testMask(Mask.GiveBadges) && adminLevel >= 3 && dom("badge-add"
         disable: [this, dom("badge-identifier"), dom("badge-use-id"), dom("badge-name")]
     });
 });
-ENABLE_BADGES && testMask(Mask.GiveBadges) && adminLevel >= 3 && dom("badge-remove").addEventListener("click", function () {
+conf.badges && testMask(Mask.GiveBadges) && adminLevel >= 3 && dom("badge-remove").addEventListener("click", function () {
     s_fetch("/api/admin/badge", {
         method: "PATCH",
         body: JSON.stringify({
@@ -64,7 +64,7 @@ ENABLE_BADGES && testMask(Mask.GiveBadges) && adminLevel >= 3 && dom("badge-remo
         disable: [this, dom("badge-identifier"), dom("badge-use-id"), dom("badge-name")]
     });
 });
-ENABLE_BADGES && testMask(Mask.CreateBadge) && dom("badge-create").addEventListener("click", function () {
+conf.badges && testMask(Mask.CreateBadge) && dom("badge-create").addEventListener("click", function () {
     s_fetch("/api/admin/badge", {
         method: "PUT",
         body: JSON.stringify({
@@ -74,7 +74,7 @@ ENABLE_BADGES && testMask(Mask.CreateBadge) && dom("badge-create").addEventListe
         disable: [this, dom("badge-create-name"), dom("badge-create-data")]
     });
 });
-ENABLE_BADGES && testMask(Mask.DeleteBadge) && dom("badge-delete").addEventListener("click", function () {
+conf.badges && testMask(Mask.DeleteBadge) && dom("badge-delete").addEventListener("click", function () {
     s_fetch("/api/admin/badge", {
         method: "DELETE",
         body: JSON.stringify({
@@ -109,18 +109,18 @@ testMask(Mask.AdminLevel) && dom("level-load").addEventListener("click", functio
         disable: [this, dom("level-identifier")]
     });
 });
-ENABLE_NEW_ACCOUNTS == "otp" && testMask(Mask.GenerateOTP) && dom("otp-create").addEventListener("click", function () {
+conf.new_accounts == "otp" && testMask(Mask.GenerateOTP) && dom("otp-create").addEventListener("click", function () {
     s_fetch("/api/admin/otp", {
         method: "POST",
         disable: [this]
     });
 });
-ENABLE_NEW_ACCOUNTS == "otp" && testMask(Mask.GenerateOTP) && dom("otp-load").addEventListener("click", function () {
+conf.new_accounts == "otp" && testMask(Mask.GenerateOTP) && dom("otp-load").addEventListener("click", function () {
     s_fetch("/api/admin/otp", {
         disable: [this]
     });
 });
-if (ENABLE_NEW_ACCOUNTS == "otp" && testMask(Mask.GenerateOTP)) {
+if (conf.new_accounts == "otp" && testMask(Mask.GenerateOTP)) {
     function deleteOTP(code) {
         s_fetch("/api/admin/otp", {
             method: "DELETE",

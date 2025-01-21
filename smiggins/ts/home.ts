@@ -27,7 +27,7 @@ dom("post").addEventListener("click", function(): void {
     s_fetch("/api/post/create", {
       method: "PUT",
       body: JSON.stringify({
-        c_warning: ENABLE_CONTENT_WARNINGS ? (dom("c-warning") as HTMLInputElement).value : "",
+        c_warning: conf.content_warnings ? (dom("c-warning") as HTMLInputElement).value : "",
         content: (dom("post-text") as HTMLInputElement).value,
         poll: getPollText(),
         private: (dom("default-private") as HTMLInputElement).checked
@@ -35,7 +35,7 @@ dom("post").addEventListener("click", function(): void {
       disable: [
         this,
         dom("post-text"),
-        ENABLE_CONTENT_WARNINGS && dom("c-warning")
+        conf.content_warnings && dom("c-warning")
       ]
     });
   }
@@ -48,7 +48,7 @@ timelineConfig.timelines = {
 
 document.querySelector(`#switch > a[data-timeline='${page}']`).removeAttribute("href");
 
-if (ENABLE_POLLS) {
+if (conf.polls) {
   dom("toggle-poll").addEventListener("click", function(): void {
     if (dom("poll").hasAttribute("hidden")) {
       dom("poll").removeAttribute("hidden");
@@ -58,8 +58,8 @@ if (ENABLE_POLLS) {
   })
 
   output = "";
-  for (let i: number = 1; i <= MAX_POLL_OPTIONS; i++) {
-    output += `<input data-create-post placeholder="${(i > 2 ? lang.home.poll_optional : lang.home.poll_option).replaceAll("%s", i)}" maxlength="${MAX_POLL_OPTION_LENGTH}"></br>`;
+  for (let i: number = 1; i <= conf.max_poll_options; i++) {
+    output += `<input data-create-post placeholder="${(i > 2 ? lang.home.poll_optional : lang.home.poll_option).replaceAll("%s", i)}" maxlength="${conf.max_poll_option_length}"></br>`;
   }
 
   dom("poll").innerHTML = output;

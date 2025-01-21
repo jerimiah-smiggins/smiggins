@@ -1,5 +1,5 @@
 from django.db.models import Q
-from posts.models import User, PrivateMessageContainer
+from posts.models import PrivateMessageContainer, User
 
 from ..helper import check_ratelimit
 from ..variables import ENABLE_PRIVATE_MESSAGES, REAL_VERSION
@@ -20,7 +20,7 @@ def notifications(request) -> tuple[int, dict] | dict | APIResponse:
     return {
         "success": True,
         "notifications": user.notifications.filter(read=False).count(),
-        "messages": PrivateMessageContainer.objects.filter(Q(user_one=user, unread_one=True) | Q(user_two=user, unread_two=True)).count(),
+        "messages": PrivateMessageContainer.objects.filter(Q(user_one=user, unread_one=True) | Q(user_two=user, unread_two=True)).count() if ENABLE_PRIVATE_MESSAGES else 0,
         "followers": (user.verify_followers or 0) and user.pending_followers.count()
     }
 

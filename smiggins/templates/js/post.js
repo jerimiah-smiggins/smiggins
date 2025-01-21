@@ -14,7 +14,7 @@ dom("post") && dom("post").addEventListener("click", function () {
         s_fetch("/api/comment/create", {
             method: "PUT",
             body: JSON.stringify({
-                c_warning: ENABLE_CONTENT_WARNINGS ? dom("c-warning").value : "",
+                c_warning: conf.content_warnings ? dom("c-warning").value : "",
                 comment: comment,
                 content: dom("post-text").value,
                 id: post_id,
@@ -23,7 +23,7 @@ dom("post") && dom("post").addEventListener("click", function () {
             disable: [
                 dom("post"),
                 dom("post-text"),
-                ENABLE_CONTENT_WARNINGS && dom("c-warning")
+                conf.content_warnings && dom("c-warning")
             ]
         });
     }

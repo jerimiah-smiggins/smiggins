@@ -5,7 +5,6 @@ import re
 import sys
 from typing import Any, Callable, Literal
 
-import json5 as json
 import yaml
 from dotenv import dotenv_values
 
@@ -62,6 +61,7 @@ CREDITS: dict[str, list[str]] = {
 REAL_VERSION: tuple[int, int, int] = (0, 13, 9)
 VERSION: str = ".".join([str(i) for i in REAL_VERSION])
 SITE_NAME: str = "Jerimiah Smiggins"
+MOTDs: list[str] | None = None
 WEBSITE_URL: str | None = None
 DEBUG: bool = True
 DATABASE_BACKUPS: DatabaseBackupsSchema = {
@@ -482,6 +482,7 @@ _VARIABLES: list[tuple[str | None, list[str], type | str | list | tuple | dict, 
     ("VERSION", ["version"], str, False),
     ("SITE_NAME", ["site_name"], str, False),
     ("WEBSITE_URL", ["website_url"], str, False),
+    ("MOTDs", ["motd", "motds"], [str], True),
     ("OWNER_USER_ID", ["owner_user_id"], int, False),
     ("DEBUG", ["debug"], bool, False),
     ("DATABASE_BACKUPS",  ["db_backups", "db_backup"], "db",  False),

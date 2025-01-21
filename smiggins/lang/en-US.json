@@ -38,6 +38,7 @@
     "generic": {
       "version": "v%v", // Replaces all instances of "%v" with the version. If the version format for the locale is something like "1.0.0v", then it would be represented as "%vv"
       "success": "Success!",
+      "loading": "Loading...",
       "something_went_wrong": "Something went wrong!",
       "ratelimit": "Ratelimited",
       "refresh": "Refresh",

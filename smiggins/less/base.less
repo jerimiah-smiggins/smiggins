@@ -396,7 +396,7 @@ body[data-bar-dir="v"][data-bar-pos^="l"] {
     color: var(--background);
     content: attr(data-value);
     font-weight: 700;
-    font-size: 0.8em;
+    font-size: 11.2px;
     text-align: center;
   }
 }
@@ -479,6 +479,49 @@ body[data-bar-dir="v"][data-bar-pos^="l"] {
     &.warning {
       color: var(--red);
       border-color: var(--red);
+    }
+  }
+}
+
+.loading-container {
+  height: 90vh;
+  position: relative;
+  display: inline-block;
+  margin: 0 auto;
+  width: 250px;
+  max-width: 90vw;
+  min-width: 200px;
+
+  .loading {
+    position: absolute;
+    bottom: 50%;
+    width: 250px;
+    max-width: 90vw;
+    min-width: 200px;
+  }
+
+  #loading-image {
+    max-width: 100px;
+    height: 100px;
+    width: 90vw;
+    object-fit: contain;
+  }
+
+  #loading-progress {
+    width: 200px;
+    height: 10px;
+    border-radius: 5px;
+    background-color: var(--input-background);
+    margin: 0 auto;
+
+    &::before {
+      content: "";
+      position: absolute;
+      background-color: var(--accent);
+      width: calc(var(--progress) * 2px);
+      transform: translatex(-100px);
+      height: 10px;
+      border-radius: 5px;
     }
   }
 }

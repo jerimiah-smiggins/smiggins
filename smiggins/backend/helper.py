@@ -3,7 +3,6 @@
 import hashlib
 import json as json_f
 import re
-import threading
 import time
 from typing import Any, Callable, Literal
 
@@ -12,8 +11,8 @@ from django.core.mail import send_mail
 from django.http import HttpResponse, HttpResponseRedirect
 from django.template import loader
 from posts.backups import backup_db
-from posts.models import (Comment, MutedWord, Notification, Post, Ratelimit,
-                          User, Badge)
+from posts.models import (Badge, Comment, MutedWord, Notification, Post,
+                          Ratelimit, User)
 
 from .api.schema import APIResponse
 from .variables import (ALTERNATE_IPS, BASE_DIR, CACHE_LANGUAGES,
@@ -34,6 +33,7 @@ from .variables import (ALTERNATE_IPS, BASE_DIR, CACHE_LANGUAGES,
                         PRIVATE_AUTHENTICATOR_KEY, RATELIMITS, SITE_NAME,
                         SOURCE_CODE, THEMES, VALID_LANGUAGES, VERSION, error)
 
+StringReturn = tuple[str | None, str | None, str | None, int]
 
 def sha(string: str | bytes) -> str:
     # Returns the sha256 hash of a string. (hex)
@@ -51,18 +51,99 @@ def sha_to_bytes(string: str | bytes) -> bytes:
 
     return hashlib.sha256(string).digest()
 
-def set_timeout(callback: Callable, delay_ms: int | float) -> None:
-    # Works like javascript's setTimeout function.
-    # Callback is a callable which will be called after
-    # delay_ms has passed.
+def get_strings(request, lang: dict, user: User | None, url_override: str | None=None) -> StringReturn:
+    # returns (title, scraper text, meta description, status)
+    path = url_override or request.path
 
-    def wrapper():
-        threading.Event().wait(delay_ms / 1000)
-        callback()
+    simple_titles = [
+        { "path": "", "return": None, "condition": True },
+        { "path": "/login", "return": lang["account"]["log_in_title"], "condition": user is None },
+        { "path": "/signup", "return": lang["account"]["sign_up_title"], "condition": user is None },
+        { "path": "/logout", "return": lang["account"]["log_out_title"], "condition": user is None },
+        { "path": "/reset-password", "return": lang["email"]["reset"]["html_title"], "condition": user is None and ENABLE_EMAIL },
+        { "path": "/settings", "return": lang["settings"]["title"], "condition": user is not None },
+        { "path": "/contact", "return": lang["contact"]["title"], "condition": ENABLE_CONTACT_PAGE },
+        { "path": "/notifications", "return": lang["notifications"]["title"], "condition": user is not None },
+        { "path": "/credits", "return": lang["credits"]["title"], "condition": ENABLE_CREDITS_PAGE },
+        { "path": "/messages", "return": lang["messages"]["list_title"], "condition": user is not None and ENABLE_PRIVATE_MESSAGES },
+        { "path": "/pending", "return": lang["user_page"]["pending_title"], "condition": user is not None and user.verify_followers },
+        { "path": "/admin", "return": lang["admin"]["title"], "condition": user is not None and user.admin_level },
+    ]
 
-    thread = threading.Thread(target=wrapper)
-    thread.start()
+    for title in simple_titles:
+        if title["condition"] and (path == title["path"] or path == (title["path"] + "/")):
+            return title["return"], None, None, 200
 
+    def _get_user_title(x: str) -> StringReturn:
+        try:
+            u = User.objects.get(username=x)
+        except User.DoesNotExist:
+            return lang["http"]["404"]["user_title"], f"{lang['http']['404']['user_title']}\n{lang['http']['404']['user_description']}", None, 404
+
+        followers = lang["user_page"]["followers"].replace("%s", str(u.followers.count()))
+        following = lang["user_page"]["following"].replace("%s", str(u.following.count()))
+
+        bio = (f"{u.bio}\n\n" if ENABLE_USER_BIOS else "") + f"{followers} - {following}"
+
+        return u.display_name, f"{u.display_name}\n{bio}", bio, 200
+
+    def _get_post_title(x: str) -> StringReturn:
+        try:
+            p = Post.objects.get(post_id=int(x))
+        except Post.DoesNotExist:
+            return lang["http"]["404"]["post_title"], f"{lang['http']['404']['post_title']}\n{lang['http']['404']['post_description']}", None, 404
+
+        likes = lang["post_page"]["likes"].replace("%s", str(p.likes.count()))
+        comments = lang["post_page"]["comments"].replace("%s", str(len(p.comments)))
+        quotes = lang["post_page"]["quotes"].replace("%s", str(len(p.quotes)))
+        display_name = p.creator.display_name
+
+        content = f"{p.content}\n\n{likes}{f' - {quotes}' if ENABLE_QUOTES else ''} - {comments}"
+
+        return display_name, f"{display_name}\n{content}", content, 200
+
+    def _get_comment_title(x: str) -> StringReturn:
+        try:
+            c = Comment.objects.get(comment_id=int(x))
+        except Comment.DoesNotExist:
+            return lang["http"]["404"]["post_title"], f"{lang['http']['404']['post_title']}\n{lang['http']['404']['post_description']}", None, 404
+
+        likes = lang["post_page"]["likes"].replace("%s", str(c.likes.count()))
+        comments = lang["post_page"]["comments"].replace("%s", str(len(c.comments)))
+        quotes = lang["post_page"]["quotes"].replace("%s", str(len(c.quotes)))
+        display_name = c.creator.display_name
+
+        content = f"{c.content}\n\n{likes}{f' - {quotes}' if ENABLE_QUOTES else ''} - {comments}"
+
+        return display_name, f"{display_name}\n{content}", content, 200
+
+    def _get_message_title(x: str) -> StringReturn:
+        try:
+            u = User.objects.get(username=x)
+        except User.DoesNotExist:
+            return None, None, None, 200
+
+        return lang["messages"]["title"].replace("%s", u.display_name), None, None, 200
+
+    complex_titles = [
+        { "path": r"^/hashtags/([a-z0-9_]+)/?$", "return": lambda x: (f"#{x}", None, f"#{x}", None), "condition": ENABLE_HASHTAGS },
+        { "path": r"^/u/([a-z0-9_\-]+)(?:/lists)?/?$", "return": _get_user_title, "condition": True },
+        { "path": r"^/p/([0-9]+)/?$", "return": _get_post_title, "condition": True },
+        { "path": r"^/c/([0-9]+)/?$", "return": _get_comment_title, "condition": True },
+        { "path": r"^/m/([a-z0-9_\-]+)/?$", "return": _get_message_title, "condition": user is not None and ENABLE_PRIVATE_MESSAGES },
+    ]
+
+    for title in complex_titles:
+        if not title["condition"]:
+            continue
+
+        match = re.match(re.compile(title["path"]), request.path)
+        if match:
+            return title["return"](match.group(1))
+
+    return lang["http"]["404"]["standard_title"], f"{lang['http']['404']['standard_title']}\n{lang['http']['404']['standard_description']}", None, 404
+
+# Used only once
 def get_badge_data() -> dict[str, str]:
     badges = {}
     data = Badge.objects.all().values_list("name", "svg_data")
@@ -521,8 +602,6 @@ def find_hashtags(message: str) -> list[str]:
 def delete_notification(
     notif: Notification
 ) -> None:
-    user = notif.is_for
-
     notif.delete()
 
 def create_notification(
@@ -621,6 +700,7 @@ def get_lang(lang: User | str | None=None, override_cache=False) -> dict[str, di
 
     return x
 
+# Used only once
 def get_ip_addr(request) -> str:
     if isinstance(ALTERNATE_IPS, str):
         return request.headers.get(ALTERNATE_IPS)

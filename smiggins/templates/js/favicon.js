@@ -1,8 +1,8 @@
 '{% load static %}';
 let favicon = document.createElement("link");
-let oldFavicon = !!localStorage.getItem("old-favicon") && ENABLE_DYNAMIC_FAVICON;
+let oldFavicon = !!localStorage.getItem("old-favicon") && conf.dynamic_favicon;
 let autoThemeObject = null;
-function getThemeAuto(defLight = JSON.parse('{{ DEFAULT_LIGHT_THEME|escapejs }}'), defDark = JSON.parse('{{ DEFAULT_DARK_THEME|escapejs }}')) {
+function getThemeAuto(defLight = JSON.parse('{{ theme_default_light|escapejs }}'), defDark = JSON.parse('{{ theme_default_dark|escapejs }}')) {
     _autoColors = {
         dark: {
             background: defDark.colors.background,
@@ -84,8 +84,8 @@ function autoCancel() {
     _autoMM.removeEventListener("change", autoSetFavicon);
 }
 function setOldFavicon() {
-    for (const el of document.querySelectorAll("[data-set-favi-href]")) {
-        el.href = "{% static '/img/old_favicon.png' %}?v={{ VERSION }}";
+    for (const el of document.querySelectorAll("[data-set-favi]")) {
+        el.setAttribute(el.dataset.setFavi, "{% static '/img/old_favicon.png' %}?v={{ version }}");
     }
 }
 function setGenericFavicon() {
@@ -96,17 +96,17 @@ function setGenericFavicon() {
     };
     let bg = obj.background.slice(1, 7);
     let bb = obj.background_alt.slice(1, 7);
-    let accent = obj.accent[validColors.indexOf(localStorage.getItem("color")) == -1 ? "mauve" : localStorage.getItem("color")].slice(1, 7);
+    let accent = (obj.accent[localStorage.getItem("color")] || obj.accent.mauve).slice(1, 7);
     let href = `/favicon-${bg == "accent" ? accent : bg}-${bb == "accent" ? accent : bb}-${accent}`;
-    for (const el of document.querySelectorAll("[data-set-favi-href]")) {
-        el.href = href + (el.dataset.faviLarge !== undefined ? "?large" : "");
+    for (const el of document.querySelectorAll("[data-set-favi]")) {
+        el.setAttribute(el.dataset.setFavi, href + (el.dataset.faviLarge !== undefined ? "?large" : ""));
     }
 }
 let autoEnabled = false;
 let _autoMM = matchMedia("(prefers-color-scheme: light)");
 let themeObject;
 let _autoColors;
-if ("{{ THEME|escapejs }}" == "auto") {
+if ("{{ theme|escapejs }}" == "auto") {
     themeObject = null;
     document.getElementById("theme-css").innerHTML = getThemeAuto();
     autoInit();
@@ -117,7 +117,7 @@ else {
 }
 favicon.rel = "shortcut icon";
 favicon.type = "image/png";
-favicon.dataset.setFaviHref = "";
+favicon.dataset.setFavi = "href";
 document.head.append(favicon);
 if (oldFavicon) {
     setOldFavicon();

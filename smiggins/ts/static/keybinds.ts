@@ -4,7 +4,7 @@ let heldKeys: { [key: string]: true } = {};
 const keybinds: { [key: string]: _keybind } = {
   a: { requireNav: true, action: (event: KeyboardEvent): void => { if (isAdmin) { redirect("/admin/"); }}},
   h: { requireNav: true, action: (event: KeyboardEvent): void => { redirect("/home/"); }},
-  m: { requireNav: true, action: (event: KeyboardEvent): void => { if (ENABLE_PRIVATE_MESSAGES) { redirect("/messages/"); }}},
+  m: { requireNav: true, action: (event: KeyboardEvent): void => { if (conf.private_messages) { redirect("/messages/"); }}},
   p: { requireNav: true, action: (event: KeyboardEvent): void => { redirect(`/u/${localStorage.getItem("username")}/`); }},
   r: { noPreventDefault: true, allowLoggedOut: true, action: (event: KeyboardEvent): void => { if (!(event.ctrlKey) && dom("refresh")) { event.preventDefault(); dom("refresh").click(); }}},
   s: { requireNav: true, action: (event: KeyboardEvent): void => { redirect("/settings/"); }},
@@ -43,7 +43,7 @@ function keybindHelpMenu(): void {
       <h3>${lang.generic.keybinds.navigation.title}</h3>
       ${isAdmin ? _getKeybindInfo("g", "a", lang.generic.keybinds.navigation.admin) : ""}
       ${_getKeybindInfo("g", "h", lang.generic.keybinds.navigation.home)}
-      ${ENABLE_PRIVATE_MESSAGES ? _getKeybindInfo("g", "m", lang.generic.keybinds.navigation.messages) : ""}
+      ${conf.private_messages ? _getKeybindInfo("g", "m", lang.generic.keybinds.navigation.messages) : ""}
       ${_getKeybindInfo("g", "n", lang.generic.keybinds.navigation.notifications)}
       ${_getKeybindInfo("g", "p", lang.generic.keybinds.navigation.profile)}
       ${_getKeybindInfo("g", "s", lang.generic.keybinds.navigation.settings)}

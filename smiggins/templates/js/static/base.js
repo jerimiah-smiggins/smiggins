@@ -21,12 +21,6 @@ let globalIncrement = 0;
 function dom(id) {
     return document.getElementById(id);
 }
-const validColors = [
-    "rosewater", "flamingo", "pink", "mauve",
-    "red", "maroon", "peach", "yellow", "green",
-    "teal", "sky", "sapphire", "blue", "lavender"
-];
-const months = lang.generic.time.months;
 function s_fetch(url, data) {
     data = data || {};
     data.method = data.method || "GET";
@@ -111,8 +105,8 @@ function apiResponse(json, extraData) {
                 timelineConfig.vars.offset = post.post_id;
             }
             if (action.extra && action.extra.type == "user") {
-                ENABLE_USER_BIOS && dom("user-bio").removeAttribute("hidden");
-                ENABLE_USER_BIOS && (dom("user-bio").innerHTML = linkifyHtml(escapeHTML(action.extra.bio), {
+                conf.user_bios && dom("user-bio").removeAttribute("hidden");
+                conf.user_bios && (dom("user-bio").innerHTML = linkifyHtml(escapeHTML(action.extra.bio), {
                     formatHref: {
                         mention: (href) => "/u/" + href.slice(1),
                         hashtag: (href) => "/hashtag/" + href.slice(1)
@@ -209,8 +203,8 @@ function apiResponse(json, extraData) {
             <div class="upper-content">
               <a href="/u/${user.username}" class="no-underline text">
                 <div class="displ-name pre-wrap"
-                  ><div style="--color-one: ${user.color_one}; --color-two: ${user[ENABLE_GRADIENT_BANNERS && user.gradient_banner ? "color_two" : "color_one"]}" class="user-badge banner-pfp"></div
-                  > ${escapeHTML(user.display_name)} ${user.badges.length && ENABLE_BADGES ? `<span aria-hidden="true" class="user-badge">${user.badges.map((icon) => (badges[icon])).join("</span> <span aria-hidden=\"true\" class=\"user-badge\">")}</span>` : ""}</div>
+                  ><div style="--color-one: ${user.color_one}; --color-two: ${user[conf.gradient_banners && user.gradient_banner ? "color_two" : "color_one"]}" class="user-badge banner-pfp"></div
+                  > ${escapeHTML(user.display_name)} ${user.badges.length && conf.badges ? `<span aria-hidden="true" class="user-badge">${user.badges.map((icon) => (badges[icon])).join("</span> <span aria-hidden=\"true\" class=\"user-badge\">")}</span>` : ""}</div>
                 <div class="upper-lower-opacity">
                   <div class="username">@${user.username}</div>
                   ${user.timestamp ? `- <div class="username">${timeSince(user.timestamp)}</div>` : ""}
@@ -280,9 +274,9 @@ function apiResponse(json, extraData) {
         <input maxlength="300" id="data-display-name" placeholder="${lang.settings.profile_display_name_placeholder}" value="${escapeHTML(action.displ_name || "")}"><br>
         <textarea maxlength="65536" id="data-bio" placeholder="${lang.settings.profile_bio_placeholder}">${escapeHTML(action.bio || "")}</textarea><br>
         <button id="data-save" data-user-id="${action.user_id}">${lang.admin.modify.save}</button><br>
-        ${ENABLE_ACCOUNT_SWITCHER && action.token ? `<button id="data-switcher" data-token="${action.token}" data-username="${action.username}">${lang.admin.modify.switcher}</button>` : ""}
+        ${conf.account_switcher && action.token ? `<button id="data-switcher" data-token="${action.token}" data-username="${action.username}">${lang.admin.modify.switcher}</button>` : ""}
       `;
-            ENABLE_ACCOUNT_SWITCHER && dom("data-switcher").addEventListener("click", function () {
+            conf.account_switcher && dom("data-switcher").addEventListener("click", function () {
                 let username = this.dataset.username;
                 let token = this.dataset.token;
                 let accounts = JSON.parse(localStorage.getItem("acc-switcher") || "[]");
@@ -552,7 +546,7 @@ function sha256(ascii) {
 ;
 function timeSince(date, raw = false) {
     let dateObject = new Date(date * 1000);
-    let dateString = `${months[dateObject.getMonth()]} ${dateObject.getDate()}, ${dateObject.getFullYear()}, ${String(dateObject.getHours()).padStart(2, "0")}:${String(dateObject.getMinutes()).padStart(2, "0")}:${String(dateObject.getSeconds()).padStart(2, "0")}`;
+    let dateString = `${lang.generic.time.months[dateObject.getMonth()]} ${dateObject.getDate()}, ${dateObject.getFullYear()}, ${String(dateObject.getHours()).padStart(2, "0")}:${String(dateObject.getMinutes()).padStart(2, "0")}:${String(dateObject.getSeconds()).padStart(2, "0")}`;
     let seconds = Math.floor((+(new Date()) / 1000 - date + 1));
     let unit = "second";
     let amount = seconds > 0 ? seconds : 0;
@@ -647,8 +641,8 @@ function getPostHTML(postJSON, isComment = false, includeUserLink = true, includ
           <div class="main-area">
             <div class="pre-wrap displ-name-container"
               >${postJSON.edited ? `<span class="user-badge" ${postJSON.edited_at ? `title="${escapeHTML(timeSince(postJSON.edited_at, true))}"` : ""}>${icons.edit}</span><span class="spacing"></span>` : ""}<span class="displ-name"
-              ><span style="--color-one: ${postJSON.creator.color_one}; --color-two: ${postJSON.creator[ENABLE_GRADIENT_BANNERS && postJSON.creator.gradient_banner ? "color_two" : "color_one"]}" class="user-badge banner-pfp"></span
-              >${postJSON.private ? ` <span class="user-badge">${icons.lock}</span>` : ""} ${escapeHTML(postJSON.creator.display_name)} ${postJSON.creator.badges.length && ENABLE_BADGES ? `<span aria-hidden="true" class="user-badge">${postJSON.creator.badges.map((icon) => (badges[icon])).join("</span> <span aria-hidden=\"true\" class=\"user-badge\">")}</span>` : ""}</span>
+              ><span style="--color-one: ${postJSON.creator.color_one}; --color-two: ${postJSON.creator[conf.gradient_banners && postJSON.creator.gradient_banner ? "color_two" : "color_one"]}" class="user-badge banner-pfp"></span
+              >${postJSON.private ? ` <span class="user-badge">${icons.lock}</span>` : ""} ${escapeHTML(postJSON.creator.display_name)} ${postJSON.creator.badges.length && conf.badges ? `<span aria-hidden="true" class="user-badge">${postJSON.creator.badges.map((icon) => (badges[icon])).join("</span> <span aria-hidden=\"true\" class=\"user-badge\">")}</span>` : ""}</span>
             </div>
             <div class="upper-lower-opacity">
               <span class="username">@${postJSON.creator.username}</span> -
@@ -702,8 +696,8 @@ function getPostHTML(postJSON, isComment = false, includeUserLink = true, includ
                       <div class="main-area">
                       <div class="pre-wrap displ-name-container"
                         >${postJSON.quote.edited ? `<span class="user-badge" ${postJSON.quote.edited_at ? `title="${escapeHTML(timeSince(postJSON.quote.edited_at, true))}"` : ""}>${icons.edit}</span><span class="spacing"></span>` : ""}<span class="displ-name"
-                        ><span style="--color-one: ${postJSON.quote.creator.color_one}; --color-two: ${postJSON.quote.creator[ENABLE_GRADIENT_BANNERS && postJSON.quote.creator.gradient_banner ? "color_two" : "color_one"]}" class="user-badge banner-pfp"></span
-                        >${postJSON.quote.private ? ` <span class="user-badge">${icons.lock}</span>` : ""} ${escapeHTML(postJSON.quote.creator.display_name)} ${postJSON.quote.creator.badges.length && ENABLE_BADGES ? `<span aria-hidden="true" class="user-badge">${postJSON.quote.creator.badges.map((icon) => (badges[icon])).join("</span> <span aria-hidden=\"true\" class=\"user-badge\">")}</span>` : ""}</span>
+                        ><span style="--color-one: ${postJSON.quote.creator.color_one}; --color-two: ${postJSON.quote.creator[conf.gradient_banners && postJSON.quote.creator.gradient_banner ? "color_two" : "color_one"]}" class="user-badge banner-pfp"></span
+                        >${postJSON.quote.private ? ` <span class="user-badge">${icons.lock}</span>` : ""} ${escapeHTML(postJSON.quote.creator.display_name)} ${postJSON.quote.creator.badges.length && conf.badges ? `<span aria-hidden="true" class="user-badge">${postJSON.quote.creator.badges.map((icon) => (badges[icon])).join("</span> <span aria-hidden=\"true\" class=\"user-badge\">")}</span>` : ""}</span>
                       </div>
                         <div class="upper-lower-opacity">
                           <span class="username">@${postJSON.quote.creator.username}</span> -
@@ -753,7 +747,7 @@ function getPostHTML(postJSON, isComment = false, includeUserLink = true, includ
           <span class="bottom-content-icon comment-icon">${icons.comment}</span> ${postJSON.comments}
         ${includePostLink ? "</a>" : ""}
         <span class="bottom-spacing"></span>
-        ${ENABLE_QUOTES ? `<button class="bottom-content-icon" ${fakeMentions ? "" : `onclick="addQuote('${postJSON.post_id}', ${isComment})"`}>
+        ${conf.quotes ? `<button class="bottom-content-icon" ${fakeMentions ? "" : `onclick="addQuote('${postJSON.post_id}', ${isComment})"`}>
             ${icons.quote}
             <span class="quote-number">${postJSON.quotes}</span>
           </button>
@@ -769,14 +763,14 @@ function getPostHTML(postJSON, isComment = false, includeUserLink = true, includ
           <span class="like-number">${postJSON.likes}</span>
         </button>
 
-        ${(postJSON.can_pin && ENABLE_PINNED_POSTS) || (postJSON.can_delete && ENABLE_POST_DELETION) ? `
+        ${(postJSON.can_pin && conf.pinned_posts) || (postJSON.can_delete && conf.post_deletion) ? `
           <span class="bottom-spacing"></span>
           <div tabindex="0" class="bottom-content-icon more-button">${icons.more}</div>
 
-          <div class="more-container">${postJSON.can_pin && ENABLE_PINNED_POSTS ? `<button class="bottom-content-icon ${isPinned && postJSON.can_pin ? "red" : ""}" onclick="${isPinned && postJSON.can_pin ? "un" : ""}pinPost(${isPinned && postJSON.can_pin ? "" : postJSON.post_id})">
+          <div class="more-container">${postJSON.can_pin && conf.pinned_posts ? `<button class="bottom-content-icon ${isPinned && postJSON.can_pin ? "red" : ""}" onclick="${isPinned && postJSON.can_pin ? "un" : ""}pinPost(${isPinned && postJSON.can_pin ? "" : postJSON.post_id})">
               ${isPinned && postJSON.can_pin ? icons.unpin : icons.pin}
               ${isPinned && postJSON.can_pin ? lang.post.unpin : lang.post.pin}
-            </button>` : ""} ${postJSON.can_delete && ENABLE_POST_DELETION ? `<button class="bottom-content-icon red" onclick="deletePost(${postJSON.post_id}, ${isComment}, ${pageFocus})">
+            </button>` : ""} ${postJSON.can_delete && conf.post_deletion ? `<button class="bottom-content-icon red" onclick="deletePost(${postJSON.post_id}, ${isComment}, ${pageFocus})">
               ${icons.delete}
               ${lang.post.delete}
             </button>` : ""} ${postJSON.can_edit ? `<button class="bottom-content-icon" onclick="editPost(${postJSON.post_id}, ${isComment}, ${postJSON.private}, \`${escapeHTML(postJSON.content)}\`)">
@@ -815,7 +809,7 @@ function redirect(path) {
     return true;
 }
 function _modalKeyEvent(event) {
-    if (event.key === "Escape" || event.keyCode === 27) {
+    if (event.key === "Escape") {
         event.preventDefault();
         closeModal();
     }
