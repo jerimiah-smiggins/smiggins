@@ -91,6 +91,9 @@
       <script src="{% static 'scripts/settings.js' %}?v={{ conf.version }}"></script>
       <script src="{% static 'scripts/admin.js' %}?v={{ conf.version }}"></script>
       <script src="{% static 'scripts/notifications.js' %}?v={{ conf.version }}"></script>
+      {% if conf.private_messages %}
+        <script src="{% static 'scripts/message.js' %}?v={{ conf.version }}"></script>
+      {% endif %}
     {% else %}
       <script src="{% static 'scripts/login.js' %}?v={{ conf.version }}"></script>
       <script src="{% static 'scripts/signup.js' %}?v={{ conf.version }}"></script>

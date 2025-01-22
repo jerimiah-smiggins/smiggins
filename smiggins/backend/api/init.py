@@ -6,8 +6,8 @@ from ..variables import (CACHE_LANGUAGES, CONTACT_INFO, CREDITS,
                          DEFAULT_BANNER_COLOR, DEFAULT_LANGUAGE, DISCORD,
                          ENABLE_ACCOUNT_SWITCHER, ENABLE_BADGES,
                          ENABLE_CONTACT_PAGE, ENABLE_CREDITS_PAGE,
-                         ENABLE_NEW_ACCOUNTS, OWNER_USER_ID, SOURCE_CODE,
-                         THEMES, VALID_LANGUAGES)
+                         ENABLE_NEW_ACCOUNTS, ENABLE_PRIVATE_MESSAGES,
+                         OWNER_USER_ID, SOURCE_CODE, THEMES, VALID_LANGUAGES)
 from .admin import BitMask
 from .schema import APIResponse
 
@@ -77,6 +77,9 @@ def context(request) -> tuple[int, dict] | dict | APIResponse:
 
     if url == "/notifications" or url == "/notifications/":
         return index if user is None else gc("notifications")
+
+    if url == "/messages" or url == "/messages/":
+        return index if user is None or not ENABLE_PRIVATE_MESSAGES else gc("messages")
 
     if ENABLE_CONTACT_PAGE and (url == "/contact" or url == "/contact/"):
         return gc(

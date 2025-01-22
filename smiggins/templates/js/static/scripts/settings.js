@@ -226,9 +226,11 @@ function settingsInit() {
     dom("compact").addEventListener("change", function () {
         if (this.checked) {
             localStorage.setItem("compact", "1");
+            document.body.dataset.compact = "";
         }
         else {
             localStorage.removeItem("compact");
+            document.body.removeAttribute("data-compact");
         }
     });
     dom("bar-pos").value = localStorage.getItem("bar-pos") || "ul";

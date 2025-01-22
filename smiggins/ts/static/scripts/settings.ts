@@ -260,8 +260,10 @@ function settingsInit(): void {
   dom("compact").addEventListener("change", function(): void {
     if ((this as HTMLInputElement).checked) {
       localStorage.setItem("compact", "1");
+      document.body.dataset.compact = "";
     } else {
       localStorage.removeItem("compact");
+      document.body.removeAttribute("data-compact");
     }
   });
 

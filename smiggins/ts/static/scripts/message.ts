@@ -1,5 +1,3 @@
-timelineConfig.vars.offset = -1;
-
 function refreshMessageList(fromStart=false): void {
   if (fromStart) {
     timelineConfig.vars.offset = -1;
@@ -16,4 +14,7 @@ function refreshMessageList(fromStart=false): void {
   });
 }
 
-refreshMessageList(true);
+function messagesInit(): void {
+  timelineConfig.vars.offset = -1;
+  refreshMessageList(true);
+}

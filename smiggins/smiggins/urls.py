@@ -45,9 +45,7 @@ urlpatterns = list(filter(bool, [
 
     # path("settings/", settings),
     # path("contact/", contact) if ENABLE_CONTACT_PAGE else None,
-    # path("notifications/", create_simple_return("notifications.html", redirect_logged_out=True)),
     # path("credits/", credit) if ENABLE_CREDITS_PAGE else None,
-    # path("messages/", create_simple_return("messages.html", redirect_logged_out=True)) if ENABLE_PRIVATE_MESSAGES else None,
     # path("pending/", pending),
 
     # path("hashtag/<str:hashtag>/", hashtag) if ENABLE_HASHTAGS else None,

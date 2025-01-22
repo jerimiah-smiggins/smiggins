@@ -485,7 +485,13 @@ const pages: { [key: string]: [() => string, (() => void) | null] } = {
     <button id="read">${lang.notifications.read}</button>
     <button id="delete-unread">${lang.notifications.delete}</button><br><br>
     <div id="notif-container"></div>
-  `, loggedIn ? notificationsInit : null]
+  `, loggedIn ? notificationsInit : null],
+  messages: [(): string => `
+    <h1>${lang.messages.list_subtitle}</h1>
+    <button id="refresh" onclick="refreshMessageList(true);">${lang.generic.refresh}</button><br><br>
+    <div id="user-list"></div>
+    <button id="more" onclick="refreshMessageList();" hidden>${lang.generic.load_more}</button>
+  `, loggedIn && conf.private_messages ? messagesInit : null]
 };
 
 function inlineFor(
