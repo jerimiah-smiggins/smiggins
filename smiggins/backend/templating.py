@@ -5,19 +5,16 @@ from django.http import (HttpResponse, HttpResponseRedirect,
                          HttpResponseServerError)
 from django.template import loader
 from posts.backups import backup_db
-from posts.models import (Comment, Hashtag, MutedWord, Post,
-                          PrivateMessageContainer, User)
+from posts.models import Comment, Hashtag, Post, PrivateMessageContainer, User
 
-from .api.admin import BitMask
-from .helper import (LANGS, can_view_post, find_mentions, get_badges,
+from .helper import (can_view_post, find_mentions, get_badges,
                      get_container_id, get_HTTP_response, get_lang,
                      get_post_json, get_pronouns, get_strings)
-from .variables import (CACHE_LANGUAGES, CONTACT_INFO, CREDITS,
-                        DEFAULT_BANNER_COLOR, DEFAULT_DARK_THEME,
-                        DEFAULT_LANGUAGE, DEFAULT_LIGHT_THEME,
-                        ENABLE_ACCOUNT_SWITCHER, ENABLE_BADGES,
-                        ENABLE_CONTENT_WARNINGS, ENABLE_DYNAMIC_FAVICON,
-                        ENABLE_EMAIL, ENABLE_GRADIENT_BANNERS, ENABLE_HASHTAGS,
+from .variables import (DEFAULT_BANNER_COLOR, DEFAULT_DARK_THEME,
+                        DEFAULT_LIGHT_THEME, ENABLE_ACCOUNT_SWITCHER,
+                        ENABLE_BADGES, ENABLE_CONTENT_WARNINGS,
+                        ENABLE_DYNAMIC_FAVICON, ENABLE_EMAIL,
+                        ENABLE_GRADIENT_BANNERS, ENABLE_HASHTAGS,
                         ENABLE_LOGGED_OUT_CONTENT, ENABLE_NEW_ACCOUNTS,
                         ENABLE_PINNED_POSTS, ENABLE_POLLS,
                         ENABLE_POST_DELETION, ENABLE_PRIVATE_MESSAGES,
@@ -27,8 +24,7 @@ from .variables import (CACHE_LANGUAGES, CONTACT_INFO, CREDITS,
                         MAX_MUTED_WORD_LENGTH, MAX_MUTED_WORDS,
                         MAX_POLL_OPTION_LENGTH, MAX_POLL_OPTIONS,
                         MAX_POST_LENGTH, MAX_USERNAME_LENGTH, OWNER_USER_ID,
-                        SITE_NAME, THEMES, VALID_LANGUAGES, VERSION, MOTDs,
-                        error)
+                        SITE_NAME, THEMES, VERSION, MOTDs, error)
 
 
 def webapp(request) -> HttpResponse:
@@ -102,54 +98,6 @@ def webapp(request) -> HttpResponse:
             context, request
         ),
         status=strings[3]
-    )
-
-def settings(request) -> HttpResponse:
-    try:
-        user = User.objects.get(token=request.COOKIES.get("token"))
-    except User.DoesNotExist:
-        return HttpResponseRedirect("/logout/", status=307)
-
-    lang = get_lang(user)
-
-    _p = user.pronouns.filter(language=user.language)
-    if _p.exists():
-        pronouns = {
-            "primary": _p[0].primary,
-            "secondary": _p[0].secondary
-        }
-    else:
-        pronouns = {}
-
-    return get_HTTP_response(
-        request, "settings.html", user=user, lang_override=lang,
-
-        DISPLAY_NAME        = user.display_name,
-        BANNER_COLOR        = user.color or DEFAULT_BANNER_COLOR,
-        BANNER_COLOR_TWO    = user.color_two or DEFAULT_BANNER_COLOR,
-        CHECKED_IF_GRADIENT = "checked" if user.gradient else "",
-
-        pronouns = pronouns,
-
-        has_email = str(user.email is not None).lower(),
-        email = user.email or "",
-        email_valid = str(user.email_valid).lower(),
-        mute_description=lang["settings"]["mute"]["description"].replace("%m", str(MAX_MUTED_WORDS)).replace("%c", str(MAX_MUTED_WORD_LENGTH)),
-
-        USER_BIO = user.bio or "",
-
-        SELECTED_IF_PUBLIC = "" if user.default_post_private else "selected",
-        SELECTED_IF_PRIVATE = "selected" if user.default_post_private else "",
-
-        FOLLOWERS_REQUIRE_APPROVAL = str(user.verify_followers).lower(),
-
-        themes = [{"id": i, "name": lang["settings"]["cosmetic_themes"][i] if i in lang["settings"]["cosmetic_themes"] else THEMES[i]["name"][user.language if user.language in THEMES[i]["name"] else "default"]} for i in THEMES],
-        user_theme_valid = user.theme in THEMES,
-
-        LANGUAGE = user.language or DEFAULT_LANGUAGE,
-        LANGUAGES = VALID_LANGUAGES,
-
-        ADMIN = str(user.user_id == OWNER_USER_ID or user.admin_level >= 1).lower()
     )
 
 def user(request, username: str) -> HttpResponse | HttpResponseRedirect:
@@ -403,54 +351,6 @@ def comment(request, comment_id: int) -> HttpResponse:
         mentions = ("@" + (" @".join(sorted(mentions))) + " ") if mentions else ""
     )
 
-def contact(request) -> HttpResponse:
-    return get_HTTP_response(
-        request, "contact.html",
-
-        CONTACT_INFO = CONTACT_INFO
-    )
-
-def admin(request) -> HttpResponse | HttpResponseRedirect:
-    try:
-        user = User.objects.get(token=request.COOKIES.get("token"))
-    except User.DoesNotExist:
-        return get_HTTP_response(
-            request, "404.html", status=404
-        )
-
-    lv = (2 ** (BitMask.MAX_LEVEL + 1) - 1) if user.user_id == OWNER_USER_ID else user.admin_level
-
-    if lv == 0:
-        return get_HTTP_response(
-            request, "404.html", status=404
-        )
-
-    muted = ""
-    for i in MutedWord.objects.filter(user=None).values_list("string", "is_regex"):
-        if i[1]:
-            muted += f"/{i[0].split(')', 1)[-1]}/{i[0].split(')')[0].split('(?')[-1]}\n"
-        else:
-            muted += f"{i[0]}\n"
-
-    lang = get_lang(user)
-
-    return get_HTTP_response(
-        request, "admin.html", lang, user=user,
-
-        LEVEL=lv,
-        mask=BitMask,
-        mute_description=lang["settings"]["mute"]["description"].replace("%m", str(MAX_MUTED_WORDS)).replace("%c", str(MAX_MUTED_WORD_LENGTH)),
-        muted_words=muted[:-1],
-        LEVEL_RANGE=[str(i) for i in range(BitMask.MAX_LEVEL + 1)],
-        permissions_disabled={
-            str(BitMask.CREATE_BADGE): not ENABLE_BADGES,
-            str(BitMask.DELETE_BADGE): not ENABLE_BADGES,
-            str(BitMask.GIVE_BADGE_TO_USER): not ENABLE_BADGES,
-            str(BitMask.ACC_SWITCHER): not ENABLE_ACCOUNT_SWITCHER,
-            str(BitMask.GENERATE_OTP): ENABLE_NEW_ACCOUNTS != "otp"
-        }
-    )
-
 def message(request, username: str) -> HttpResponse | HttpResponseRedirect:
     username = username.lower()
 
@@ -496,28 +396,6 @@ def hashtag(request, hashtag: str) -> HttpResponse:
 
         HASHTAG = hashtag.lower(),
         NUM_POSTS = num_posts
-    )
-
-def credit(request) -> HttpResponse:
-    try:
-        user = User.objects.get(token=request.COOKIES.get("token"))
-    except User.DoesNotExist:
-        user = None
-
-    lang = get_lang(user)
-
-    return get_HTTP_response(
-        request, "credits.html", lang, user=user,
-
-        credits=CREDITS,
-        langs=[{
-            "name": LANGS[i]["meta"]["name"],
-            "maintainers": LANGS[i]["meta"]["maintainers"],
-            "past_maintainers": LANGS[i]["meta"]["past_maintainers"],
-            "num_past": len(LANGS[i]["meta"]["past_maintainers"])
-        } for i in LANGS] if CACHE_LANGUAGES else [],
-        cache_langs=CACHE_LANGUAGES,
-        fa=lang["credits"]["fontawesome"].replace("%s", "<a href=\"https://fontawesome.com/\" target=\"_blank\">Font Awesome</a>")
     )
 
 def pending(request) -> HttpResponse | HttpResponseRedirect:

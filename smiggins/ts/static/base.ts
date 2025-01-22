@@ -9,6 +9,7 @@ let inc: number;
 let c: number;
 let onLoad: () => void;
 let redirectConfirmation: (url: string) => boolean | null;
+let killIntervals: number[] = [];
 let timelineConfig: {
   vars: { offset: number | null, offsetC: number },
   timelines: { [key: string]: string },

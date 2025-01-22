@@ -491,7 +491,17 @@ const pages: { [key: string]: [() => string, (() => void) | null] } = {
     <button id="refresh" onclick="refreshMessageList(true);">${lang.generic.refresh}</button><br><br>
     <div id="user-list"></div>
     <button id="more" onclick="refreshMessageList();" hidden>${lang.generic.load_more}</button>
-  `, loggedIn && conf.private_messages ? messagesInit : null]
+  `, loggedIn && conf.private_messages ? messageListInit : null],
+  message: [(): string => `
+    <label for="your-mom" class="pre-wrap header-container"><h1 style="margin-bottom: 0;">${escapeHTML(lang.messages.title.replaceAll("%s", context.display_name))}${inlineFor(
+      context.badges,
+      ((badge: string): string => ` <span aria-hidden='true' class='user-badge'>${badges[badge]}</span>`)
+    )}</h1></label>
+    <div class="messages-container" data-username="${context.username}">
+      <div id="messages-go-here-btw" class="messages"></div>
+      <textarea id="your-mom" maxlength="${conf.max_post_length}" placeholder="${escapeHTML(lang.messages.input_placeholder.replaceAll("%s", context.display_name))}}"></textarea>
+    </div>
+  `, loggedIn && conf.private_messages ? messageInit : null]
 };
 
 function inlineFor(
@@ -544,6 +554,11 @@ function renderPage(): void {
   dom("content").dataset.page = context.page;
   updateIconBar();
 
+  for (const interval of killIntervals) {
+    clearInterval(interval);
+  }
+
+  killIntervals = [];
   u_for = null;
   profile = null;
   share = null;

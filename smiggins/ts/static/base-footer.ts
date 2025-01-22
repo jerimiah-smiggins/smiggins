@@ -111,16 +111,6 @@ if (loggedIn) {
   setInterval(getNotifications, 2 * 60 * 1000);
 }
 
-forEach(document.querySelectorAll("[data-add-icon]"), (val: HTMLElement, index: number): void => {
-  val.innerHTML = icons[val.dataset.addIcon];
-});
-
-if (conf.badges) {
-  forEach(document.querySelectorAll("[data-add-badge]"), (val: HTMLElement, index: number): void => {
-    val.innerHTML = badges[val.dataset.addBadge];
-  });
-}
-
 if (typeof onLoad === "function") {
   onLoad();
 }

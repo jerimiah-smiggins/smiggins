@@ -8,6 +8,7 @@ let inc;
 let c;
 let onLoad;
 let redirectConfirmation;
+let killIntervals = [];
 let timelineConfig = {
     vars: { offset: null, offsetC: 0 },
     timelines: {},

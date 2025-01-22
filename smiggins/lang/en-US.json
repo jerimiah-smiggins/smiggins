@@ -547,7 +547,6 @@
     "user_page": {
       "followers": "Followers: %s",
       "following": "Following: %s",
-      "user_on_smiggins": "%s on %t", // Ex: gerard on Smiggins (this would be if the site name is set to "Smiggins" and the user's display name is "gerard")
       "follow": "Follow",
       "unfollow": "Unfollow",
       "pending": "Pending",

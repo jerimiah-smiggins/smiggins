@@ -85,14 +85,6 @@ if (loggedIn) {
     getNotifications();
     setInterval(getNotifications, 2 * 60 * 1000);
 }
-forEach(document.querySelectorAll("[data-add-icon]"), (val, index) => {
-    val.innerHTML = icons[val.dataset.addIcon];
-});
-if (conf.badges) {
-    forEach(document.querySelectorAll("[data-add-badge]"), (val, index) => {
-        val.innerHTML = badges[val.dataset.addBadge];
-    });
-}
 if (typeof onLoad === "function") {
     onLoad();
 }
