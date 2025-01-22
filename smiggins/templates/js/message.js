@@ -2,7 +2,6 @@ let forwardOffset = 0;
 let reverseOffset = 0;
 u_for = document.body.dataset.username;
 c = 0;
-home = true;
 function refreshMessages(start = false, forward = true) {
     let params = {
         username: u_for,

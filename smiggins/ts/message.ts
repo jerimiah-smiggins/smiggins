@@ -3,8 +3,6 @@ let reverseOffset: number = 0;
 u_for = document.body.dataset.username;
 c = 0;
 
-home = true;
-
 function refreshMessages(start=false, forward=true): void {
   let params: {
     username: string,

@@ -1,4 +1,3 @@
-let home;
 let u_for;
 let profile;
 let share;

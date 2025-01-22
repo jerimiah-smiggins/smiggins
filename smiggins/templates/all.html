@@ -90,7 +90,8 @@
       <script src="{% static 'scripts/timeline.js' %}?v={{ conf.version }}"></script>
       <script src="{% static 'scripts/settings.js' %}?v={{ conf.version }}"></script>
       <script src="{% static 'scripts/admin.js' %}?v={{ conf.version }}"></script>
-      {% else %}
+      <script src="{% static 'scripts/notifications.js' %}?v={{ conf.version }}"></script>
+    {% else %}
       <script src="{% static 'scripts/login.js' %}?v={{ conf.version }}"></script>
       <script src="{% static 'scripts/signup.js' %}?v={{ conf.version }}"></script>
       {% if conf.email %}

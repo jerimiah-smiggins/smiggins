@@ -1,6 +1,5 @@
 u_for = document.body.getAttribute("data-username");
 share = location.href;
-home = true;
 timelineConfig.url = `/api/post/user/${u_for}`;
 type = "post";
 includeUserLink = false;

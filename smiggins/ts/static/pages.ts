@@ -478,7 +478,14 @@ const pages: { [key: string]: [() => string, (() => void) | null] } = {
     <input placeholder="${lang.account.username_placeholder}" id="username"><br>
     <button id="submit">Submit</button><br><br>
     <a href="/login/">${lang.http.home}</a><br><br>
-  `, loggedIn || !conf.email ? null : resetPasswordInit]
+  `, loggedIn || !conf.email ? null : resetPasswordInit],
+  notifications: [(): string => `
+    <h1>${lang.notifications.title}</h1>
+    <button id="refresh">${lang.generic.refresh}</button>
+    <button id="read">${lang.notifications.read}</button>
+    <button id="delete-unread">${lang.notifications.delete}</button><br><br>
+    <div id="notif-container"></div>
+  `, loggedIn ? notificationsInit : null]
 };
 
 function inlineFor(
@@ -529,9 +536,25 @@ function linkEventHandler(event: MouseEvent): void {
 function renderPage(): void {
   document.title = `${context.strings[0] ? `${context.strings[0]} - ` : ""}${conf.site_name} ${conf.version}`;
   dom("content").dataset.page = context.page;
-  redirectConfirmation = null;
-  onLoad = null;
   updateIconBar();
+
+  u_for = null;
+  profile = null;
+  share = null;
+  type = null;
+  includeUserLink = null;
+  includePostLink = null;
+  inc = null;
+  c = null;
+  onLoad = null;
+  redirectConfirmation = null;
+  timelineConfig = {
+    vars: { offset: null, offsetC: 0 },
+    timelines: {},
+    url: null,
+    disableTimeline: false,
+    useOffsetC: false
+  };
 
   let page;
   if (pages[context.page]) {

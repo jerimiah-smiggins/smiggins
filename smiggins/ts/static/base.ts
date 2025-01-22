@@ -1,5 +1,4 @@
 // Common variables used throughout the site
-let home: boolean | void;
 let u_for: string;
 let profile: boolean | void;
 let share: string | void;

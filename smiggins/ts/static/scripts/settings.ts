@@ -109,7 +109,6 @@ function settingsInit(): void {
   output = "<select id=\"color\">";
 
   inc = 0;
-  home = true;
 
   for (const color of validColors) {
     output += `<option ${((localStorage.getItem("color") == color || (!localStorage.getItem("color") && color == "mauve")) ? "selected" : "")} value="${color}">${lang.generic.colors[color]}</option>`;

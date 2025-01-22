@@ -1,6 +1,5 @@
 declare let hashtag: string;
 
-home = true;
 type = "post";
 includeUserLink = true;
 includePostLink = true;

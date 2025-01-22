@@ -212,7 +212,7 @@ function refresh(forceOffset=false): void {
   );
 }
 
-function timelineInit() {
+function timelineInit(): void {
   end = false;
 
   document.querySelectorAll("#switch > a").forEach((val: HTMLAnchorElement, index: number): void => {

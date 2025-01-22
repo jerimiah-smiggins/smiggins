@@ -18,7 +18,6 @@ function testMask(identifier: number, level: number=context.level): boolean {
 
 function adminInit(): void {
   inc = 0;
-  home = true;
 
   conf.post_deletion && testMask(Mask.DeletePost) && dom("post-delete").addEventListener("click", function(): void {
     s_fetch(`/api/${(dom("comment-toggle") as HTMLInputElement).checked ? "comment" : "post"}`, {

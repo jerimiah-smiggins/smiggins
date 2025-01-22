@@ -1,4 +1,3 @@
-home = true;
 timelineConfig.vars.offset = -1;
 function refreshPendingList(fromStart = false) {
     if (fromStart) {

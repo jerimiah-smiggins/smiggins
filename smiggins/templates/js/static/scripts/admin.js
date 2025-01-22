@@ -18,7 +18,6 @@ function testMask(identifier, level = context.level) {
 }
 function adminInit() {
     inc = 0;
-    home = true;
     conf.post_deletion && testMask(Mask.DeletePost) && dom("post-delete").addEventListener("click", function () {
         s_fetch(`/api/${dom("comment-toggle").checked ? "comment" : "post"}`, {
             method: "DELETE",

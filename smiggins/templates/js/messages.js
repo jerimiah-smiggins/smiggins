@@ -1,4 +1,3 @@
-home = true;
 timelineConfig.vars.offset = -1;
 function refreshMessageList(fromStart = false) {
     if (fromStart) {
