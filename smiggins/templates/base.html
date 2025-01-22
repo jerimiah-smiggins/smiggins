@@ -9,43 +9,6 @@
 
     <style id="theme-css"></style>
 
-    <script>
-      {% if ENABLE_BADGES == "true" %}
-        const badges = JSON.parse('{{ badges_str|escapejs }}');
-      {% endif %}
-      const lang = JSON.parse('{{ lang_str|escapejs }}');
-      const muted = JSON.parse('{{ muted|escapejs }}');
-
-      const MAX_POST_LENGTH = {{ MAX_POST_LENGTH }};
-      const MAX_POLL_OPTION_LENGTH = {{ MAX_POLL_OPTION_LENGTH }};
-      const MAX_POLL_OPTIONS = {{ MAX_POLL_OPTIONS }};
-      const MAX_CONTENT_WARNING_LENGTH = {{ MAX_CONTENT_WARNING_LENGTH }};
-
-      const ENABLE_USER_BIOS = {{ ENABLE_USER_BIOS }};
-      const ENABLE_PRONOUNS = {{ ENABLE_PRONOUNS }};
-      const ENABLE_GRADIENT_BANNERS = {{ ENABLE_GRADIENT_BANNERS }};
-      const ENABLE_BADGES = {{ ENABLE_BADGES }};
-      const ENABLE_PRIVATE_MESSAGES = {{ ENABLE_PRIVATE_MESSAGES }};
-      const ENABLE_QUOTES = {{ ENABLE_QUOTES }};
-      const ENABLE_POST_DELETION = {{ ENABLE_POST_DELETION }};
-      const ENABLE_PINNED_POSTS = {{ ENABLE_PINNED_POSTS }};
-      const ENABLE_ACCOUNT_SWITCHER = {{ ENABLE_ACCOUNT_SWITCHER }};
-      const ENABLE_POLLS = {{ ENABLE_POLLS }};
-      const ENABLE_CONTENT_WARNINGS = {{ ENABLE_CONTENT_WARNINGS }};
-      const ENABLE_EMAIL = {{ ENABLE_EMAIL }};
-      const ENABLE_DYNAMIC_FAVICON = {{ ENABLE_DYNAMIC_FAVICON }};
-      const ENABLE_NEW_ACCOUNTS = {% if ENABLE_NEW_ACCOUNTS == "otp" %}"otp"{% else %}{{ ENABLE_NEW_ACCOUNTS }}{% endif %};
-
-      const isAdmin = "{{ is_admin }}" == "True";
-
-      const defaultPrivate = {{ DEFAULT_PRIVATE }};
-      const username = "{{ self_username }}";
-
-      {% if username %}
-        localStorage.setItem("username", "{{ username }}");
-      {% endif %}
-    </script>
-
     {% if GOOGLE_VERIFICATION_TAG %}
       <meta name="google-site-verification" content="{{ GOOGLE_VERIFICATION_TAG }}">
     {% endif %}
@@ -54,7 +17,6 @@
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
     <link data-set-favi-href data-favi-large rel="apple-touch-startup-image" href="{% static "img/old_favicon.png" %}?v={{ VERSION }}">
-    <link data-set-favi-href data-favi-large rel="apple-touch-icon" href="{% static "img/old_favicon.png" %}?v={{ VERSION }}">
     <link data-set-favi-href data-favi-large rel="apple-touch-icon" href="{% static "img/old_favicon.png" %}?v={{ VERSION }}">
 
     <meta charset="utf-8">
@@ -84,13 +46,13 @@
     </style>
 
     <script>
-      {% include "js/linkify/linkify.min.js" %}
-      {% include "js/linkify/html.min.js" %}
-      {% include "js/linkify/mentions.js" %}
+      {% include "js/static/linkify/linkify.min.js" %}
+      {% include "js/static/linkify/html.min.js" %}
+      {% include "js/static/linkify/mentions.js" %}
       {% if ENABLE_HASHTAGS == "true" %}
-        {% include "js/linkify/hashtags.js" %}
+        {% include "js/static/linkify/hashtags.js" %}
       {% endif %}
-      {% include "js/base.js" %}
+      {% include "js/static/base.js" %}
     </script>
 
     {% block head %}{% endblock %}
@@ -112,8 +74,5 @@
     </noscript>
 
     <div id="toast"></div>
-
-    <script>{% include "js/base-footer.js" %}</script>
-    <script>{% include "js/keybinds.js" %}</script>
   </body>
 </html>

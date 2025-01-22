@@ -511,7 +511,7 @@ const pages: { [key: string]: [() => string, (() => void) | null] } = {
       )}</div>
     </div>
     <div id="secondary-username-container">
-      <a href="/u/${context.username}/lists/" class="no-underline text">
+      <a data-link href="/u/${context.username}/lists/" class="no-underline text">
         <div id="username-lower">
           @${context.username}
           ${conf.pronouns && context.pronouns ? `<span id="pronouns">- ${context.pronouns}</span>` : ""}
