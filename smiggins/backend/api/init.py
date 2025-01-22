@@ -1,9 +1,14 @@
 from posts.models import MutedWord, User
 
-from ..helper import check_ratelimit, get_badge_data, get_lang, get_strings
-from ..variables import (DEFAULT_BANNER_COLOR, DEFAULT_LANGUAGE, DISCORD,
-                         ENABLE_CONTACT_PAGE, ENABLE_CREDITS_PAGE, SOURCE_CODE,
+from ..helper import (LANGS, check_ratelimit, get_badge_data, get_lang,
+                      get_strings)
+from ..variables import (CACHE_LANGUAGES, CONTACT_INFO, CREDITS,
+                         DEFAULT_BANNER_COLOR, DEFAULT_LANGUAGE, DISCORD,
+                         ENABLE_ACCOUNT_SWITCHER, ENABLE_BADGES,
+                         ENABLE_CONTACT_PAGE, ENABLE_CREDITS_PAGE,
+                         ENABLE_NEW_ACCOUNTS, OWNER_USER_ID, SOURCE_CODE,
                          THEMES, VALID_LANGUAGES)
+from .admin import BitMask
 from .schema import APIResponse
 
 
@@ -67,6 +72,27 @@ def context(request) -> tuple[int, dict] | dict | APIResponse:
     if url == "/signup" or url == "/signup/":
         return gc("signup") if user is None else home
 
+    if ENABLE_CONTACT_PAGE and (url == "/contact" or url == "/contact/"):
+        return gc(
+            "contact",
+            contact=CONTACT_INFO
+        )
+
+    if ENABLE_CREDITS_PAGE and (url == "/credits" or url == "/credits/"):
+        lang = get_lang(user)
+
+        return gc(
+            "credits",
+
+            credits=CREDITS,
+            langs=[{
+                "code": i,
+                "maintainers": LANGS[i]["meta"]["maintainers"],
+                "past_maintainers": LANGS[i]["meta"]["past_maintainers"],
+            } for i in LANGS] if CACHE_LANGUAGES else [],
+            cache_langs=CACHE_LANGUAGES
+        )
+
     if url == "/settings" or url == "/settings/":
         if user is None:
             return index
@@ -108,6 +134,26 @@ def context(request) -> tuple[int, dict] | dict | APIResponse:
 
             contact=ENABLE_CONTACT_PAGE,
             credits=ENABLE_CREDITS_PAGE
+        )
+
+    if url == "/admin" or url == "/admin/":
+        if user is None:
+            return index
+
+        lv = (2 ** (BitMask.MAX_LEVEL + 1) - 1) if user.user_id == OWNER_USER_ID else user.admin_level
+
+        return gc(
+            "admin",
+            level=lv,
+            muted="\n".join([f"/{i[0].split(')', 1)[-1]}/{i[0].split(')')[0].split('(?')[-1]}" if i[1] else f"{i[0]}" for i in MutedWord.objects.filter(user=None).values_list("string", "is_regex")]) if BitMask.can_use_direct(lv, BitMask.CHANGE_MUTED_WORDS) else None,
+            max_level=BitMask.MAX_LEVEL + 1,
+            permissions_disabled={
+                str(BitMask.CREATE_BADGE): not ENABLE_BADGES,
+                str(BitMask.DELETE_BADGE): not ENABLE_BADGES,
+                str(BitMask.GIVE_BADGE_TO_USER): not ENABLE_BADGES,
+                str(BitMask.ACC_SWITCHER): not ENABLE_ACCOUNT_SWITCHER,
+                str(BitMask.GENERATE_OTP): ENABLE_NEW_ACCOUNTS != "otp"
+            }
         )
 
     return gc("404")

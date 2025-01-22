@@ -68,7 +68,7 @@ def signup(request, data: Account) -> APIResponse:
             "success": True,
             "actions": [
                 { "name": "set_auth", "token": token },
-                { "name": "redirect", "to": "home" }
+                { "name": "reload" }
             ]
         }
 
@@ -102,7 +102,7 @@ def login(request, data: Account) -> APIResponse:
                 "success": True,
                 "actions": [
                     { "name": "set_auth", "token": token },
-                    { "name": "redirect", "to": "home" }
+                    { "name": "reload" }
                 ]
             }
 

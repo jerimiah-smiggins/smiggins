@@ -813,7 +813,7 @@ if isinstance(ENABLE_NEW_ACCOUNTS, str):
 if CACHE_LANGUAGES is None:
     CACHE_LANGUAGES = not DEBUG
 
-VALID_LANGUAGES: list[str] = [i[:-5:] for i in os.listdir(BASE_DIR / "lang") if len(i) <= 10 and i[-5::] == ".json"]
+VALID_LANGUAGES: list[str] = sorted([i[:-5:] for i in os.listdir(BASE_DIR / "lang") if len(i) <= 10 and i[-5::] == ".json"])
 
 if ENABLE_EMAIL and WEBSITE_URL is None:
     ENABLE_EMAIL = False

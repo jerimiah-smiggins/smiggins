@@ -215,7 +215,7 @@
         "name_label": "Badge:",
         "data_placeholder": "Badge SVG data...",
         "manage_title": "Add/remove Badges",
-        "manage_empty": "Somehow there are no existing badges. This shouldn't happen.",
+        "manage_empty": "There are currently no badges.",
         "manage_add_button": "Add Badge",
         "manage_remove_button": "Remove Badge",
         "manage_add_protected": "Cannot set that badge as it is done automatically",
@@ -289,6 +289,7 @@
 
       "disabled": {
         "generic": "Disabled",
+        "deletion": "Post deletion is disabled.",
         "badge": "Badges are disabled.",
         "otp": "One-time invite codes are disabled."
       }

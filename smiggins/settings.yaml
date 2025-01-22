@@ -1,6 +1,14 @@
 # TODO -
-# SETTINGS UNSAVED CHANGES MODAL !!!!
 # add all existing pages
+# - hashtag pages
+# - message pages
+# - message list page
+# - notifications page
+# - pending followers page
+# - post/comment pages
+# - reset password page
+# - user pages
+# - user list pages
 
 # This file contains all of the backend settings for the server. This is
 # likely the only file you will edit when running the server. It's possible

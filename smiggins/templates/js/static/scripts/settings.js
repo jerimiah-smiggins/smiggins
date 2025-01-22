@@ -411,20 +411,6 @@ function settingsInit() {
                 } }
         ]);
     });
-    onLoad = function () {
-        document.querySelectorAll("a").forEach((val, index) => {
-            if (!val.href || val.href[0] === "#" || val.href.startsWith("javascript:") || val.target === "_blank") {
-                return;
-            }
-            val.addEventListener("click", (event) => {
-                if (unload) {
-                    let url = val.href;
-                    event.preventDefault();
-                    redirect(url);
-                }
-            });
-        });
-    };
     redirectConfirmation = (url) => {
         if (!unload) {
             return true;
@@ -434,8 +420,8 @@ function settingsInit() {
                 name: lang.settings.unload.leave,
                 onclick: () => {
                     removeUnload();
-                    location.href = url;
                     closeModal();
+                    redirect(url, true);
                 }
             }, {
                 name: lang.settings.unload.save,
@@ -443,7 +429,9 @@ function settingsInit() {
                 onclick: () => {
                     save((success) => {
                         if (success) {
-                            location.href = url;
+                            removeUnload();
+                            closeModal();
+                            redirect(url, true);
                         }
                     });
                 }

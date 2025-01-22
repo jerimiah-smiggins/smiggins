@@ -84,7 +84,7 @@ def webapp(request) -> HttpResponse:
         "something_went_wrong": lang["generic"]["something_went_wrong"],
         "logged_in": user is not None,
         "username": user and user.username,
-        "is_admin": user is not None and user.admin_level != 0,
+        "is_admin": user is not None and (user.admin_level != 0 or user.user_id == OWNER_USER_ID),
         "default_post_private": user.default_post_private if user else False,
         "theme": theme if theme in THEMES else "auto",
         "theme_str": "{}" if theme == "auto" or theme not in THEMES else json.dumps(THEMES[theme]),
@@ -442,7 +442,6 @@ def admin(request) -> HttpResponse | HttpResponseRedirect:
         mute_description=lang["settings"]["mute"]["description"].replace("%m", str(MAX_MUTED_WORDS)).replace("%c", str(MAX_MUTED_WORD_LENGTH)),
         muted_words=muted[:-1],
         LEVEL_RANGE=[str(i) for i in range(BitMask.MAX_LEVEL + 1)],
-        LEVEL_BINARY=f"{'0' * (BitMask.MAX_LEVEL - len(f'{lv:b}'))}{lv:b}",
         permissions_disabled={
             str(BitMask.CREATE_BADGE): not ENABLE_BADGES,
             str(BitMask.DELETE_BADGE): not ENABLE_BADGES,

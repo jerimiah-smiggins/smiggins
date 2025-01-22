@@ -148,7 +148,7 @@ function apiResponse(json, extraData) {
         }
         else if (action.name == "remove_from_timeline") {
             if (extraData.pageFocus) {
-                window.location.href = "/";
+                redirect("/");
             }
             else {
                 document.querySelector(`.post-container[data-${action.comment ? "comment" : "post"}-id="${action.post_id}"]`).remove();
@@ -392,7 +392,7 @@ function apiResponse(json, extraData) {
             else if (action.to == "logout") {
                 url = "/logout/";
             }
-            location.href = url;
+            redirect(url);
             break;
         }
         else if (action.name == "set_theme") {
@@ -794,11 +794,14 @@ function hasContent(string) {
     }
     return string.length !== 0;
 }
-function redirect(path) {
+function getLanguageName(code) {
+    return (new Intl.DisplayNames([code, lang.meta.language], { type: "language" })).of(code);
+}
+function redirect(path, bypassConfirmation = false) {
     if (location.href == path || location.pathname == path) {
         return false;
     }
-    if (redirectConfirmation && !redirectConfirmation(path)) {
+    if (!bypassConfirmation && redirectConfirmation && !redirectConfirmation(path)) {
         return false;
     }
     loadContext(path);

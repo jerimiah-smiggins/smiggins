@@ -80,7 +80,7 @@ const pages: { [key: string]: [() => string, (() => void) | null] } = {
     <button id="refresh" onclick="refresh()">${lang.generic.refresh}</button>
     <div id="posts"></div>
     <button id="more" onclick="refresh(true)" hidden>${lang.generic.load_more}</button>
-  `, (): void => { homeInit(); timelineInit(); }],
+  `, loggedIn ? (): void => { homeInit(); timelineInit(); } : null],
   settings: [(): string => `
     <h1>${lang.settings.title}</h1>
     <hr><br>
@@ -102,13 +102,10 @@ const pages: { [key: string]: [() => string, (() => void) | null] } = {
                 <td class="left">
           ` : ""}
                   <select id="pronouns-primary">
-                    ${((): string => {
-                      let out: string = "";
-                      for (const noun of lang.generic.pronouns.primary) {
-                        out += `<option value="${noun.key}" data-special="${noun.special}">${noun.name}</option>`;
-                      }
-                      return out;
-                    })()}
+                    ${inlineFor(
+                      lang.generic.pronouns.primary,
+                      ((noun: { key: string, special: string, name: string }): string => `<option value="${noun.key}" data-special="${noun.special}">${noun.name}</option>`)
+                    )}
                   </select>
             ${lang.generic.pronouns.enable_secondary ? `
                 </td>
@@ -118,13 +115,10 @@ const pages: { [key: string]: [() => string, (() => void) | null] } = {
                 <td class="right"><label for="pronouns-secondary">${lang.generic.pronouns.secondary_label}</label></${lang.generic.pronouns.enable_secondary ? "td" : "span"}>
                 <td class="left">
                   <select id="pronouns-secondary">
-                    ${((): string => {
-                      let out: string = "";
-                      for (const noun of lang.generic.pronouns.secondary) {
-                        out += `<option value="${noun.key}" data-special="${noun.special}">${noun.name}</option>`;
-                      }
-                      return out;
-                    })()}
+                    ${inlineFor(
+                      lang.generic.pronouns.secondary,
+                      ((noun: { key: string, special: string, name: string }): string => `<option value="${noun.key}" data-special="${noun.special}">${noun.name}</option>`)
+                    )}
                   </select>
                 </td>
               </tr>
@@ -156,28 +150,18 @@ const pages: { [key: string]: [() => string, (() => void) | null] } = {
         <label for="theme">${lang.settings.cosmetic_theme}:</label><br>
         <select id="theme">
           <option ${context.theme == "auto" ? "selected" : ""} value="auto">${lang.settings.cosmetic_themes.auto}</option>
-          ${((): string => {
-            let out: string = "";
-
-            for (const theme of context.themes) {
-              out += `<option ${context.theme == theme.id ? "selected" : ""} value="${theme.id}">${escapeHTML(theme.name)}</option>`;
-            }
-
-            return out;
-          })()}
+          ${inlineFor(
+            context.themes,
+            ((theme: { id: string, name: string }): string => `<option ${context.theme == theme.id ? "selected" : ""} value="${theme.id}">${escapeHTML(theme.name)}</option>`)
+          )}
         </select><br><br>
 
         <label for="lang">${lang.settings.cosmetic_language}:</label><br>
         <select id="lang">
-          ${((): string => {
-            let out: string = "";
-
-            for (const language of context.languages) {
-              out += `<option value="${language}" ${language == context.language ? "selected" : ""}>${(new Intl.DisplayNames([language, context.language], { type: "language" })).of(language)}</option>`;
-            }
-
-            return out;
-          })()}
+          ${inlineFor(
+            context.languages,
+            ((language: string): string => `<option value="${language}" ${language == context.language ? "selected" : ""}>${getLanguageName(language)}</option>`)
+          )}
         </select><br><br>
 
         <label>
@@ -267,7 +251,7 @@ const pages: { [key: string]: [() => string, (() => void) | null] } = {
       </div>
     </div>
 
-    <a href="/logout/">${conf.account_switcher ? lang.settings.logout : lang.settings.logout_singular}</a><br><br>
+    <a data-link href="/logout/">${conf.account_switcher ? lang.settings.logout : lang.settings.logout_singular}</a><br><br>
 
     ${isAdmin ? `<a data-link href='/admin'>${lang.settings.admin}</a><br>` : ""}
     ${context.source ? `<a href="https://github.com/jerimiah-smiggins/smiggins" target="_blank">${lang.generic.source_code}</a><br>` : ""}
@@ -280,8 +264,238 @@ const pages: { [key: string]: [() => string, (() => void) | null] } = {
     ${context.source ? `<br><a href="https://github.com/jerimiah-smiggins/smiggins/tree/main/CHANGELOG.md" target="_blank">${lang.settings.changelogs}</a>` : ""}
     ${context.contact ? `<br><a data-link href="/contact/">${lang.contact.title}</a>` : ""}
     ${context.credits ? `<br><a data-link href="/credits/">${lang.credits.title}</a>` : ""}
-  `, settingsInit]
+  `, loggedIn ? settingsInit : null],
+  contact: [(): string => `
+    <h1>${lang.contact.subtitle}</h1>
+    <h2>${conf.site_name} ${conf.version}</h2>
+    <ul>
+      ${
+        context.contact,
+        ((contact: string): string => `<li>
+          ${contact[0] == "email" ?
+            `<a href="mailto:${encodeURIComponent(contact[1])}">${escapeHTML(contact[1])}</a>`
+          : contact[0] == "url" ?
+            `<a href="${encodeURIComponent(contact[1])}">${escapeHTML(contact[1])}</a>`
+          : escapeHTML(contact[1])}
+        </li>`)
+      }
+    </ul>
+  `, null],
+  credits: [(): string => `
+    <h1>${lang.credits.title}</h1>
+    <h2>${conf.site_name} ${conf.version}</h2>
+
+    <h3>${lang.credits.main_title}</h3>
+    <ul>
+      <li>${lang.credits.lead} <a href="https://github.com/${context.credits.lead[0]}}/" target="_blank">${context.credits.lead[0]}</a></li>
+      <li>
+        ${lang.credits.contributors}<br>
+        <ul>
+          ${inlineFor(
+            context.credits.contributors,
+            "<li><a href=\"https://github.com/%s/\" target=\"_blank\">%s</a></li>",
+            `<li><i>${lang.generic.none}</i></li>`
+          )}
+        </ul>
+      </li>
+    </ul>
+    ${context.cache_langs ? `
+      <h3>${lang.credits.lang_title}</h3>
+      <ul>
+        ${inlineFor(
+          context.langs,
+          ((l: { code: string, maintainers: string[], past_maintainers: string[] }): string => `
+            <li>
+              ${getLanguageName(l.code)}:<br>
+              <ul>
+                <li>
+                  ${lang.credits.current}<br>
+                  <ul>
+                    ${inlineFor(
+                      l.maintainers,
+                      "<li><a href=\"https://github.com/%s/\" target=\"_blank\">%s</a></li>",
+                      `<li><i>${lang.generic.none}</i></li>`
+                    )}
+                  </ul>
+                </li>
+                ${l.past_maintainers.length ? `
+                  <li>
+                    ${lang.credits.past}<br>
+                    <ul>
+                      ${inlineFor(
+                        l.past_maintainers,
+                        "<li><a href=\"https://github.com/%s/\" target=\"_blank\">%s</a></li>"
+                      )}
+                    </ul>
+                  </li>
+                ` : ""}
+              </ul>
+            </li>
+          `)
+        )}
+      </ul>
+    ` : ""}
+    <h3>${lang.credits.other_title}</h3>
+    <ul>
+      <li>${lang.credits.fontawesome.replaceAll("%s", "<a href=\"https://fontawesome.com/\" target=\"_blank\">Font Awesome</a>")}</li>
+    </ul>
+  `, null],
+  admin: [(): string => `
+    <h1>${lang.admin.title}</h1>
+    <hr>
+
+    <div class="actions-container">
+      ${testMask(Mask.DeletePost) ? (conf.post_deletion ? `
+        <div>
+          <h3><label for="post-id">${lang.admin.post_deletion.title}</label></h3>
+          <div id="post-deletion">
+            <input id="post-id" placeholder="${lang.admin.post_id_placeholder}"><br>
+            <label for="comment-toggle">${lang.admin.is_comment_label}</label>
+            <input id="comment-toggle" type="checkbox"><br>
+            <button id="post-delete">${lang.admin.post_deletion.button}</button>
+          </div>
+        </div>
+      ` : `<h3 class="red">${lang.admin.disabled.deletion}</h3>`) : ""}
+
+      ${testMask(Mask.DeleteUser) ? `
+        <div>
+          <h3><label for="account-del-identifier">${lang.admin.account_deletion.title}</label></h3>
+          <div>
+            <input id="account-del-identifier" placeholder="${lang.admin.user_id_placeholder}"><br>
+            <label for="delete-id-toggle">${lang.admin.use_id_label}</label>
+            <input id="delete-id-toggle" type="checkbox"><br>
+            <button id="account-delete">${lang.admin.account_deletion.button}</button>
+          </div>
+        </div>
+      ` : ""}
+
+      ${testMask(Mask.CreateBadge) || testMask(Mask.DeleteBadge) || testMask(Mask.GiveBadges) ? (conf.badges ? `
+        <div>
+          ${testMask(Mask.GiveBadges) ? `
+            <h3><label for="badge-identifier">${lang.admin.badge.manage_title}</label></h3>
+            <input id="badge-identifier" placeholder="${lang.admin.user_id_placeholder}"><br>
+            <label for="badge-use-id">${ lang.admin.use_id_label}</label>
+            <input id="badge-use-id" type="checkbox"><br>
+            <label for="badge-name">${lang.admin.badge.name_label}</label>
+            <select id="badge-name">
+              ${inlineFor(
+                Object.keys(badges).filter((val: string): boolean => (val !== "administrator")),
+                "<option value=\"%s\">%s</option>",
+                `<option value="">${lang.admin.badge.manage_empty}</option>`
+              )}
+            </select><br>
+            <button id="badge-add">${lang.admin.badge.manage_add_button}</button>
+            <button id="badge-remove">${lang.admin.badge.manage_remove_button}</button>
+          ` : ""}
+
+          ${testMask(Mask.CreateBadge) ? `
+            <h3><label for="badge-create-name">${lang.admin.badge.create_title}</label></h3>
+            <input id="badge-create-name" placeholder="${lang.admin.badge.name_placeholder}" maxlength="64"><br>
+            <textarea id="badge-create-data" placeholder="${lang.admin.badge.data_placeholder}" maxlength="65536"></textarea><br>
+            <button id="badge-create">${lang.admin.badge.create_button}</button>
+          ` : ""}
+
+          ${testMask(Mask.DeleteBadge) ? `
+            <h3><label for="badge-delete-name">${lang.admin.badge.delete_title}</label></h3>
+            <input id="badge-delete-name" placeholder="${lang.admin.badge.name_placeholder}"><br>
+            <button id="badge-delete">${lang.admin.badge.delete_button}</button>
+          ` : ""}
+        </div>
+      ` : `<h3 class="red">${lang.admin.disabled.badge}</h3>`) : ""}
+
+      ${testMask(Mask.ModifyAccount) ? `
+        <div>
+          <h3><label for="data-identifier">${lang.admin.modify.title}</label></h3>
+          <input id="data-identifier" placeholder="${lang.admin.user_id_placeholder}"><br>
+          <label for="data-use-id">${lang.admin.use_id_label}</label>
+          <input type="checkbox" id="data-use-id"><br>
+          <button id="data-get">${lang.admin.modify.get_button}</button><br><br>
+          <div id="data-section"></div>
+        </div>
+      ` : ""}
+
+      ${testMask(Mask.AdminLevel) ? `
+        <div>
+          <h3><label for="level-identifier">${lang.admin.permissions.title}</label></h3>
+          <input id="level-identifier" placeholder="${lang.admin.user_id_placeholder}"><br>
+          <label for="level-use-id">${lang.admin.use_id_label}</label>
+          <input id="level-use-id" type="checkbox"><br><br>
+
+          <b>${lang.admin.permissions.label}</b><br>
+          <div id="level-selection">
+            ${inlineFor(
+              [...Array(context.max_level).keys()],
+              ((lv: number): string => `
+                <p>
+                  <input type="checkbox" id="level-${lv}"><label for="level-${lv}">
+                  ${lang.admin.permissions.descriptions[String(lv)]}
+                  ${context.permissions_disabled[String(lv)] ? `
+                    <span class="red">(${lang.admin.disabled.generic})</span>
+                  ` : ""}
+                  ${lang.admin.permissions.descriptions_extra[String(lv)] ? `
+                    <small>${lang.admin.permissions.descriptions_extra[String(lv)]}</small>
+                  ` : ""}
+                </label>
+              </p>
+              `)
+            )}
+          </div>
+
+          <button id="level-set">${lang.admin.permissions.set}</button>
+          <button id="level-load">${lang.admin.permissions.load}</button>
+        </div>
+      ` : ""}
+
+      ${testMask(Mask.GenerateOTP) ? (conf.new_accounts === "otp" ? `
+        <div>
+          <h3>${lang.admin.otp.generate}</h3>
+          <button id="otp-create">${lang.admin.otp.generate_button}</button>
+          <div id="otp-generated"></div>
+          <h3>${lang.admin.otp.all}</h3>
+          <button id="otp-load">${lang.admin.otp.all_button}</button>
+          <div id="otp-all"></div>
+        </div>
+      ` : `<h3 class="red">${lang.admin.disabled.otp}</h3>`) : ""}
+
+      ${testMask(Mask.ChangeMutedWords) ? `
+        <div>
+          <h3>${lang.settings.mute.title}</h3>
+          <textarea id="muted" placeholder="${lang.settings.mute.placeholder}">${escapeHTML(context.muted)}</textarea><br>
+          <button id="save-muted">${lang.generic.save}</button><br>
+          <small>${lang.settings.mute.description.replaceAll("%m", String(conf.max_muted_words)).replaceAll("%c", String(conf.max_muted_word_length))}</small>
+        </div>
+      ` : ""}
+    </div>
+
+    ${testMask(Mask.ReadLogs) ? `
+      <br><br>
+      <button id="load-logs">${lang.admin.logs.button}</button>
+      <div id="admin-logs"></div>
+    ` : ""}
+  `, isAdmin ? adminInit : null]
 };
+
+function inlineFor(
+  iter: any[],
+  callback: ((obj: any) => string) | string,
+  empty: string | null=null
+): string {
+  let out: string = "";
+
+  for (const item of iter) {
+    if (typeof callback == "string") {
+      out += callback.replaceAll("%s", String(item));
+    } else {
+      out += callback(item);
+    }
+  }
+
+  if (out === "") {
+    out = empty;
+  }
+
+  return out;
+}
 
 function registerLinks(element: HTMLElement): void {
   for (const el of element.querySelectorAll("a[data-link]")) {
@@ -303,14 +517,15 @@ function linkEventHandler(event: MouseEvent): void {
     return;
   }
 
-  loadContext(path);
+  redirect(path);
 }
 
 function renderPage(): void {
   document.title = `${context.strings[0] ? `${context.strings[0]} - ` : ""}${conf.site_name} ${conf.version}`;
   dom("content").dataset.page = context.page;
-  updateIconBar();
+  redirectConfirmation = null;
   onLoad = null;
+  updateIconBar();
 
   let page;
   if (pages[context.page]) {
@@ -334,7 +549,7 @@ function loadContext(url: string, postFunction: () => void=renderPage): void {
 
   contextLoading = true;
 
-  fetch(`/api/init/context?url=${encodeURIComponent(url)}`)
+  fetch(`/api/init/context?url=${encodeURIComponent(url.split("?")[0])}`)
     .then((response) => (response.json()))
     .then((json: {
       success: boolean,

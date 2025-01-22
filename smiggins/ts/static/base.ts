@@ -203,7 +203,7 @@ function apiResponse(
       registerLinks(post);
     } else if (action.name == "remove_from_timeline") {
       if (extraData.pageFocus) {
-        window.location.href = "/";
+        redirect("/");
       } else {
         document.querySelector(`.post-container[data-${action.comment ? "comment" : "post"}-id="${action.post_id}"]`).remove();
       }
@@ -460,7 +460,7 @@ function apiResponse(
         url = "/logout/";
       }
 
-      location.href = url;
+      redirect(url);
       break;
     } else if (action.name == "set_theme") {
       dom("theme-css").innerHTML = action.auto ? getThemeAuto() : getThemeCSS(action.theme);
@@ -945,12 +945,16 @@ function hasContent(string: string): boolean {
   return string.length !== 0;
 }
 
-function redirect(path: string): boolean {
+function getLanguageName(code: string): string {
+  return (new Intl.DisplayNames([code, lang.meta.language], { type: "language" })).of(code)
+}
+
+function redirect(path: string, bypassConfirmation: boolean=false): boolean {
   if (location.href == path || location.pathname == path) {
     return false;
   }
 
-  if (redirectConfirmation && !redirectConfirmation(path)) {
+  if (!bypassConfirmation && redirectConfirmation && !redirectConfirmation(path)) {
     return false;
   }
 
