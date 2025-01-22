@@ -270,7 +270,7 @@ const pages = {
 
     <h3>${lang.credits.main_title}</h3>
     <ul>
-      <li>${lang.credits.lead} <a href="https://github.com/${context.credits.lead[0]}}/" target="_blank">${context.credits.lead[0]}</a></li>
+      <li>${lang.credits.lead} <a href="https://github.com/${context.credits.lead[0]}/" target="_blank">${context.credits.lead[0]}</a></li>
       <li>
         ${lang.credits.contributors}<br>
         <ul>
@@ -467,7 +467,7 @@ const pages = {
       <div class="pre-wrap" id="username-main">${escapeHTML(context.display_name)}${inlineFor(context.badges, ((badge) => ` <span aria-hidden='true' class='user-badge'>${badges[badge]}</span>`))}</div>
     </div>
     <div id="secondary-username-container">
-      <a href="/u/${context.username}/lists/" class="no-underline text">
+      <a data-link href="/u/${context.username}/lists/" class="no-underline text">
         <div id="username-lower">
           @${context.username}
           ${conf.pronouns && context.pronouns ? `<span id="pronouns">- ${context.pronouns}</span>` : ""}
