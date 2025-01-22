@@ -472,7 +472,13 @@ const pages: { [key: string]: [() => string, (() => void) | null] } = {
       <button id="load-logs">${lang.admin.logs.button}</button>
       <div id="admin-logs"></div>
     ` : ""}
-  `, isAdmin ? adminInit : null]
+  `, isAdmin ? adminInit : null],
+  reset: [(): string => `
+    <h1><label for="username">${lang.email.reset.html_title}</label></h1>
+    <input placeholder="${lang.account.username_placeholder}" id="username"><br>
+    <button id="submit">Submit</button><br><br>
+    <a href="/login/">${lang.http.home}</a><br><br>
+  `, loggedIn || !conf.email ? null : resetPasswordInit]
 };
 
 function inlineFor(

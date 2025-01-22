@@ -3,6 +3,10 @@
 
   "editor.insertSpaces": true,
   "editor.tabSize": 2,
+
+  "files.insertFinalNewline": true,
+  "files.eol": "\n",
+
   "[python]": {
     "editor.tabSize": 4
   },
@@ -16,8 +20,6 @@
     "**/css/**/*.css": "css",
     "**/js/**/*.js": "javascript"
   },
-
-  "files.eol": "\n",
 
   "typescript.inlayHints.propertyDeclarationTypes.enabled": true,
   "typescript.inlayHints.variableTypes.enabled": true,

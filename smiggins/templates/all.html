@@ -76,7 +76,9 @@
     <script src="{% static 'linkify/linkify.min.js' %}?v={{ conf.version }}"></script>
     <script src="{% static 'linkify/html.min.js' %}?v={{ conf.version }}"></script>
     <script src="{% static 'linkify/mentions.js' %}?v={{ conf.version }}"></script>
-    <script src="{% static 'linkify/hashtags.js' %}?v={{ conf.version }}"></script>
+    {% if conf.hashtags %}
+      <script src="{% static 'linkify/hashtags.js' %}?v={{ conf.version }}"></script>
+    {% endif %}
     <script src="{% static 'base.js' %}?v={{ conf.version }}"></script>
     <script src="{% static 'keybinds.js' %}?v={{ conf.version }}"></script>
     <script src="{% static 'scripts/logout.js' %}?v={{ conf.version }}"></script>
@@ -88,9 +90,12 @@
       <script src="{% static 'scripts/timeline.js' %}?v={{ conf.version }}"></script>
       <script src="{% static 'scripts/settings.js' %}?v={{ conf.version }}"></script>
       <script src="{% static 'scripts/admin.js' %}?v={{ conf.version }}"></script>
-    {% else %}
+      {% else %}
       <script src="{% static 'scripts/login.js' %}?v={{ conf.version }}"></script>
       <script src="{% static 'scripts/signup.js' %}?v={{ conf.version }}"></script>
+      {% if conf.email %}
+        <script src="{% static 'scripts/reset-password.js' %}?v={{ conf.version }}"></script>
+      {% endif %}
     {% endif %}
   </body>
 </html>

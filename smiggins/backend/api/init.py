@@ -13,6 +13,9 @@ from .schema import APIResponse
 
 
 def context(request) -> tuple[int, dict] | dict | APIResponse:
+    import time
+    time.sleep(0.3)
+
     # add artifial delay to simulate ping
     # import time
     # time.sleep(0.2)
@@ -71,6 +74,9 @@ def context(request) -> tuple[int, dict] | dict | APIResponse:
 
     if url == "/signup" or url == "/signup/":
         return gc("signup") if user is None else home
+
+    if url == "/reset-password" or url == "/reset-password/":
+        return gc("reset") if user is None else home
 
     if ENABLE_CONTACT_PAGE and (url == "/contact" or url == "/contact/"):
         return gc(

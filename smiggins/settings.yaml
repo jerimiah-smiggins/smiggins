@@ -6,7 +6,6 @@
 # - notifications page
 # - pending followers page
 # - post/comment pages
-# - reset password page
 # - user pages
 # - user list pages
 
@@ -119,7 +118,7 @@ enable_dynamic_favicon: true
 # the email variables in .env. (Read docs/running-the-server.md)
 # Aliases: email, enable_email
 # Default: false
-enable_email: false
+enable_email: true
 
 # The maximum of lines of logs to store in the database at once. 1+
 max_admin_log_lines: 150

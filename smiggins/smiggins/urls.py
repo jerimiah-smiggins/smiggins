@@ -43,8 +43,6 @@ urlpatterns = list(filter(bool, [
 
     re_path("^.*$", webapp)
 
-    # path("reset-password/", create_simple_return("reset-password.html", redirect_logged_in=True)) if ENABLE_EMAIL else None,
-
     # path("settings/", settings),
     # path("contact/", contact) if ENABLE_CONTACT_PAGE else None,
     # path("notifications/", create_simple_return("notifications.html", redirect_logged_out=True)),
