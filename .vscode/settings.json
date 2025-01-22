@@ -39,8 +39,8 @@
   },
 
   "files.exclude": {
-    "smiggins/templates/js": true,
-    "smiggins/templates/css": true,
+    // "smiggins/templates/js": true,
+    // "smiggins/templates/css": true,
     "**/__pycache__": true
   }
 }
