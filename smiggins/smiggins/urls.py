@@ -43,17 +43,12 @@ urlpatterns = list(filter(bool, [
 
     re_path("^.*$", webapp)
 
-    # path("settings/", settings),
-    # path("contact/", contact) if ENABLE_CONTACT_PAGE else None,
-    # path("credits/", credit) if ENABLE_CREDITS_PAGE else None,
     # path("pending/", pending),
 
     # path("hashtag/<str:hashtag>/", hashtag) if ENABLE_HASHTAGS else None,
-    # path("u/<str:username>/", user),
     # path("u/<str:username>/lists/", user_lists),
     # path("p/<int:post_id>/", post),
     # path("c/<int:comment_id>/", comment),
-    # path("m/<str:username>/", message) if ENABLE_PRIVATE_MESSAGES else None,
 
     # path("admin/", admin),
 ]))

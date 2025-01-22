@@ -1,4 +1,3 @@
-let u_for;
 let profile;
 let share;
 let type;
@@ -571,6 +570,9 @@ function timeSince(date, raw = false) {
     return raw ? dateString : `<span data-timestamp="${date}" title="${dateString}">${lang.generic.time.ago.replaceAll("%s", `${Math.floor(amount)} ${lang.generic.time[unit + (Math.floor(amount) == 1 ? "_singular" : "_plural")]}`)}</span>`;
 }
 function escapeHTML(str) {
+    if (str === undefined) {
+        return "⚠️";
+    }
     return str.replaceAll("&", "&amp;").replaceAll("<", "&lt;").replaceAll("\"", "&quot;").replaceAll("`", "&#96;");
 }
 function getLinkify(content, isComment, fakeMentions, postID) {

@@ -43,6 +43,7 @@
       {% include "css/contact.css" %}
       {% include "css/admin.css" %}
       {% include "css/messages.css" %}
+      {% include "css/user.css" %}
     </style>
 
     <script>
@@ -83,6 +84,7 @@
     <script src="{% static 'base.js' %}?v={{ conf.version }}"></script>
     <script src="{% static 'keybinds.js' %}?v={{ conf.version }}"></script>
     <script src="{% static 'scripts/logout.js' %}?v={{ conf.version }}"></script>
+    <script src="{% static 'scripts/user.js' %}?v={{ conf.version }}"></script>
     {% if is_admin %}
       <script src="{% static 'scripts/admin.js' %}?v={{ conf.version }}"></script>
     {% endif %}

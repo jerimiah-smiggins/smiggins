@@ -20,7 +20,7 @@ function refreshMessages(start=false, forward=true): void {
     forward: boolean,
     offset: number
   } = {
-    username: u_for,
+    username: context.username,
     forward: start || forward,
     offset: start ? -1 : forward ? forwardOffset : reverseOffset
   };
@@ -51,7 +51,6 @@ let forwardOffset: number;
 let reverseOffset: number;
 
 function messageInit(): void {
-  u_for = (document.querySelector(".messages-container") as HTMLElement).dataset.username;
   c = 0;
   forwardOffset = 0
   reverseOffset = 0
@@ -65,7 +64,7 @@ function messageInit(): void {
           method: "POST",
           body: JSON.stringify({
             content: (dom("your-mom") as HTMLInputElement).value,
-            username: u_for
+            username: context.username
           }),
           disable: [dom("your-mom")],
         });

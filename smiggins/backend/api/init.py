@@ -21,7 +21,6 @@ def _get_user(request, user: User, self_user: User | None=None) -> dict:
         username=user.username,
         display_name=user.display_name,
         pronouns=get_pronouns(user) if ENABLE_PRONOUNS else None,
-        bio=user.bio,
         followers=user.followers.count(),
         following=user.following.count(),
         badges=get_badges(user),
@@ -222,6 +221,17 @@ def context(request) -> tuple[int, dict] | dict | APIResponse:
             display_name=other_user.display_name,
             badges=get_badges(other_user)
         )
+
+    match = re.match(re.compile(r"^/u/([a-z0-9_\-]+)/?$"), url)
+    if match:
+        username = match.group(1).lower()
+
+        try:
+            other_user = User.objects.get(username=username)
+        except User.DoesNotExist:
+            return gc(request, user, "404-user")
+
+        return _get_user(request, other_user, user)
 
     return gc(request, user, "404")
 

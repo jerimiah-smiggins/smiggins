@@ -25,8 +25,8 @@ const icons: { [key: string]: string } = {
 
 const pages: { [key: string]: [() => string, (() => void) | null] } = {
   "404": [(): string => `<h1>${lang.http["404"].standard_title}</h1>${lang.http["404"].standard_description}<br><a data-link href="/">${lang.http.home}</a>`, null],
-  "404_user": [(): string => `<h1>${lang.http["404"].user_title}</h1>${lang.http["404"].user_description}<br><a data-link href="/">${lang.http.home}</a>`, null],
-  "404_post": [(): string => `<h1>${lang.http["404"].post_title}</h1>${lang.http["404"].post_description}<br><a data-link href="/">${lang.http.home}</a>`, null],
+  "404-user": [(): string => `<h1>${lang.http["404"].user_title}</h1>${lang.http["404"].user_description}<br><a data-link href="/">${lang.http.home}</a>`, null],
+  "404-post": [(): string => `<h1>${lang.http["404"].post_title}</h1>${lang.http["404"].post_description}<br><a data-link href="/">${lang.http.home}</a>`, null],
   index: [(): string => `
     <h1>${escapeHTML(conf.site_name)}</h1>
     <h3>${escapeHTML(conf.version)}</h3>
@@ -287,7 +287,7 @@ const pages: { [key: string]: [() => string, (() => void) | null] } = {
 
     <h3>${lang.credits.main_title}</h3>
     <ul>
-      <li>${lang.credits.lead} <a href="https://github.com/${context.credits.lead[0]}}/" target="_blank">${context.credits.lead[0]}</a></li>
+      <li>${lang.credits.lead} <a href="https://github.com/${context.credits.lead[0]}/" target="_blank">${context.credits.lead[0]}</a></li>
       <li>
         ${lang.credits.contributors}<br>
         <ul>
@@ -497,11 +497,54 @@ const pages: { [key: string]: [() => string, (() => void) | null] } = {
       context.badges,
       ((badge: string): string => ` <span aria-hidden='true' class='user-badge'>${badges[badge]}</span>`)
     )}</h1></label>
-    <div class="messages-container" data-username="${context.username}">
+    <div class="messages-container">
       <div id="messages-go-here-btw" class="messages"></div>
-      <textarea id="your-mom" maxlength="${conf.max_post_length}" placeholder="${escapeHTML(lang.messages.input_placeholder.replaceAll("%s", context.display_name))}}"></textarea>
+      <textarea id="your-mom" maxlength="${conf.max_post_length}" placeholder="${escapeHTML(lang.messages.input_placeholder.replaceAll("%s", context.display_name))}"></textarea>
     </div>
-  `, loggedIn && conf.private_messages ? messageInit : null]
+  `, loggedIn && conf.private_messages ? messageInit : null],
+  user: [(): string => `
+    <div id="banner" ${context.gradient ? "class='gradient'" : ""}></div>
+    <div>
+      <div class="pre-wrap" id="username-main">${escapeHTML(context.display_name)}${inlineFor(
+        context.badges,
+        ((badge: string): string => ` <span aria-hidden='true' class='user-badge'>${badges[badge]}</span>`)
+      )}</div>
+    </div>
+    <div id="secondary-username-container">
+      <a href="/u/${context.username}/lists/" class="no-underline text">
+        <div id="username-lower">
+          @${context.username}
+          ${conf.pronouns && context.pronouns ? `<span id="pronouns">- ${context.pronouns}</span>` : ""}
+        </div><br>
+        <div id="follow">
+          ${lang.user_page.followers.replaceAll("%s", String(context.followers))} -
+          ${lang.user_page.following.replaceAll("%s", String(context.following))}
+        </div>
+      </a>
+      <div>${context.is_.blocked ? lang.account.follow_blocked : context.is_.followed ? lang.user_page.follows : ""}</div>
+    </div>
+
+    ${conf.user_bios ? `<div class="pre-wrap" id="user-bio"></div>` : ""}
+
+    <button ${context.is_.blocked ? "hidden" : ""} id="refresh" onclick="refresh()">
+      ${lang.generic.refresh}
+    </button>
+    <button ${context.is_.blocked || context.is_.self ? "hidden" : ""} id="toggle" data-followed="${+(context.is_.following || context.is_.pending)}" onclick="toggleFollow()">
+      ${context.is_.following ? lang.user_page.unfollow : context.is_.pending ? lang.user_page.pending : lang.user_page.follow}
+    </button>
+    <button ${context.is_.self ? "hidden" : ""} id="block" data-blocked="${+context.is_.blocking}" onclick="toggleBlock()">
+      ${context.is_.blocking ? lang.user_page.unblock : lang.user_page.block}
+    </button>
+    ${conf.private_messages ? `
+      <button id="message" ${context.is_.self ? "hidden" : ""} onclick="createMessage()">
+        ${lang.user_page.message}
+      </button>
+    ` : ""}
+
+    <div id="pinned"></div>
+    <div id="posts"></div>
+    <div id="more-container"><button id="more" onclick="refresh(true)" hidden>${lang.generic.load_more}</button></div>
+  `, (): void => { userInit(); !context.is_.blocked && timelineInit(); }]
 };
 
 function inlineFor(
@@ -559,7 +602,6 @@ function renderPage(): void {
   }
 
   killIntervals = [];
-  u_for = null;
   profile = null;
   share = null;
   type = null;

@@ -15,7 +15,7 @@ function refreshMessageList(fromStart = false) {
 }
 function refreshMessages(start = false, forward = true) {
     let params = {
-        username: u_for,
+        username: context.username,
         forward: start || forward,
         offset: start ? -1 : forward ? forwardOffset : reverseOffset
     };
@@ -40,7 +40,6 @@ function refreshMessages(start = false, forward = true) {
 let forwardOffset;
 let reverseOffset;
 function messageInit() {
-    u_for = document.querySelector(".messages-container").dataset.username;
     c = 0;
     forwardOffset = 0;
     reverseOffset = 0;
@@ -52,7 +51,7 @@ function messageInit() {
                     method: "POST",
                     body: JSON.stringify({
                         content: dom("your-mom").value,
-                        username: u_for
+                        username: context.username
                     }),
                     disable: [dom("your-mom")],
                 });

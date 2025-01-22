@@ -1,16 +1,3 @@
-u_for = document.body.getAttribute("data-username");
-share = location.href;
-
-timelineConfig.url = `/api/post/user/${u_for}`;
-type = "post";
-includeUserLink = false;
-includePostLink = true;
-
-if (!loggedIn) {
-  dom("more-container").innerHTML = lang.generic.see_more.replaceAll("%s", `<a data-link href="/signup">${lang.account.sign_up_title}</a>`);
-  registerLinks(dom("more-container"));
-}
-
 function toggleFollow(): void {
   s_fetch(`/api/user/follow`, {
     method: dom("toggle").getAttribute("data-followed") === "1" ? "DELETE" : "POST",
@@ -35,8 +22,23 @@ function createMessage(): void {
   s_fetch("/api/messages/new", {
     method: "POST",
     body: JSON.stringify({
-      username: u_for
+      username: context.username
     }),
     disable: [dom("message")]
   });
+}
+
+function userInit(): void {
+  share = location.href;
+  timelineConfig.url = `/api/post/user/${context.username}`;
+  type = "post";
+  includeUserLink = false;
+  includePostLink = true;
+  document.body.style.setProperty("--banner", context.banner_color_one);
+  document.body.style.setProperty("--banner-two", context.banner_color_two);
+
+  if (!loggedIn) {
+    dom("more-container").innerHTML = lang.generic.see_more.replaceAll("%s", `<a data-link href="/signup">${lang.account.sign_up_title}</a>`);
+    registerLinks(dom("more-container"));
+  }
 }

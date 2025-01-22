@@ -1,5 +1,4 @@
 // Common variables used throughout the site
-let u_for: string;
 let profile: boolean | void;
 let share: string | void;
 let type: string;
@@ -664,6 +663,8 @@ function timeSince(date: number, raw: boolean=false): string {
 }
 
 function escapeHTML(str: string): string {
+  if (str === undefined) { return "⚠️"; }
+
   return str.replaceAll("&", "&amp;").replaceAll("<", "&lt;").replaceAll("\"", "&quot;").replaceAll("`", "&#96;");
 }
 
