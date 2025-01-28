@@ -1,5 +1,3 @@
-timelineConfig.vars.offset = -1;
-
 function refreshPendingList(fromStart=false): void {
   if (fromStart) {
     timelineConfig.vars.offset = -1;
@@ -38,4 +36,7 @@ function block(username: string): void {
   });
 }
 
-refreshPendingList(true);
+function pendingInit(): void {
+  timelineConfig.vars.offset = -1;
+  refreshPendingList(true);
+}

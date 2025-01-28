@@ -1,16 +1,18 @@
 import re
 
-from posts.models import MutedWord, PrivateMessageContainer, User
+from posts.models import (Comment, Hashtag, MutedWord, Post,
+                          PrivateMessageContainer, User)
 
 from ..helper import (LANGS, check_ratelimit, get_badge_data, get_badges,
-                      get_container_id, get_lang, get_pronouns, get_strings)
+                      get_container_id, get_lang, get_post_json, get_pronouns,
+                      get_strings)
 from ..variables import (CACHE_LANGUAGES, CONTACT_INFO, CREDITS,
                          DEFAULT_BANNER_COLOR, DEFAULT_LANGUAGE, DISCORD,
                          ENABLE_ACCOUNT_SWITCHER, ENABLE_BADGES,
                          ENABLE_CONTACT_PAGE, ENABLE_CREDITS_PAGE,
-                         ENABLE_NEW_ACCOUNTS, ENABLE_PRIVATE_MESSAGES,
-                         ENABLE_PRONOUNS, OWNER_USER_ID, SOURCE_CODE, THEMES,
-                         VALID_LANGUAGES)
+                         ENABLE_LOGGED_OUT_CONTENT, ENABLE_NEW_ACCOUNTS,
+                         ENABLE_PRIVATE_MESSAGES, ENABLE_PRONOUNS,
+                         OWNER_USER_ID, SOURCE_CODE, THEMES, VALID_LANGUAGES)
 from .admin import BitMask
 from .schema import APIResponse
 
@@ -111,6 +113,9 @@ def context(request) -> tuple[int, dict] | dict | APIResponse:
 
     if url == "/messages" or url == "/messages/":
         return index if user is None or not ENABLE_PRIVATE_MESSAGES else gc(request, user, "messages")
+
+    if url == "/pending" or url == "/pending/":
+        return index if user is None else gc(request, user, "pending")
 
     if ENABLE_CONTACT_PAGE and (url == "/contact" or url == "/contact/"):
         return gc(
@@ -224,6 +229,9 @@ def context(request) -> tuple[int, dict] | dict | APIResponse:
 
     match = re.match(re.compile(r"^/u/([a-z0-9_\-]+)/?$"), url)
     if match:
+        if not user and not ENABLE_LOGGED_OUT_CONTENT:
+            return index
+
         username = match.group(1).lower()
 
         try:
@@ -232,6 +240,65 @@ def context(request) -> tuple[int, dict] | dict | APIResponse:
             return gc(request, user, "404-user")
 
         return _get_user(request, other_user, user)
+
+    match = re.match(re.compile(r"^/hashtag/([a-z0-9_]+)/?$"), url)
+    if match:
+        if not user and not ENABLE_LOGGED_OUT_CONTENT:
+            return index
+
+        hashtag = match.group(1).lower()
+        try:
+            hashtag_object = Hashtag.objects.get(tag=hashtag)
+        except Hashtag.DoesNotExist:
+            posts = 0
+        else:
+            posts = hashtag_object.posts.count()
+
+        return gc(
+            request, user, "hashtag",
+            hashtag=hashtag,
+            count=posts
+        )
+
+    match = re.match(re.compile(r"^/p/([0-9]+)/?$"), url)
+    if match:
+        if not user and not ENABLE_LOGGED_OUT_CONTENT:
+            return index
+
+        post_id = int(match.group(1))
+
+        try:
+            post = Post.objects.get(post_id=post_id)
+        except Post.DoesNotExist:
+            return gc(
+                request, user, "404-post"
+            )
+
+        return gc(
+            request, user, "post",
+            post=get_post_json(post, user, False),
+            comment=False
+        )
+
+    match = re.match(re.compile(r"^/c/([0-9]+)/?$"), url)
+    if match:
+        if not user and not ENABLE_LOGGED_OUT_CONTENT:
+            return index
+
+        comment_id = int(match.group(1))
+
+        try:
+            post = Comment.objects.get(comment_id=comment_id)
+        except Comment.DoesNotExist:
+            return gc(
+                request, user, "404-post"
+            )
+
+        return gc(
+            request, user, "post",
+            post=get_post_json(post, user, True),
+            comment=True
+        )
 
     return gc(request, user, "404")
 

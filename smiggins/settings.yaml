@@ -1,8 +1,5 @@
 # TODO -
 # add all existing pages
-# - hashtag pages
-# - pending followers page
-# - post/comment pages
 # - user list pages
 
 # This file contains all of the backend settings for the server. This is
@@ -114,7 +111,7 @@ enable_dynamic_favicon: true
 # the email variables in .env. (Read docs/running-the-server.md)
 # Aliases: email, enable_email
 # Default: false
-enable_email: true
+enable_email: false
 
 # The maximum of lines of logs to store in the database at once. 1+
 max_admin_log_lines: 150

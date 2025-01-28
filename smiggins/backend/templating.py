@@ -5,11 +5,10 @@ from django.http import (HttpResponse, HttpResponseRedirect,
                          HttpResponseServerError)
 from django.template import loader
 from posts.backups import backup_db
-from posts.models import Comment, Hashtag, Post, PrivateMessageContainer, User
+from posts.models import User
 
-from .helper import (can_view_post, find_mentions, get_badges,
-                     get_container_id, get_HTTP_response, get_lang,
-                     get_post_json, get_pronouns, get_strings)
+from .helper import (get_badges, get_HTTP_response, get_lang, get_pronouns,
+                     get_strings)
 from .variables import (DEFAULT_BANNER_COLOR, DEFAULT_DARK_THEME,
                         DEFAULT_LIGHT_THEME, ENABLE_ACCOUNT_SWITCHER,
                         ENABLE_BADGES, ENABLE_CONTENT_WARNINGS,
@@ -98,57 +97,6 @@ def webapp(request) -> HttpResponse:
             context, request
         ),
         status=strings[3]
-    )
-
-def user(request, username: str) -> HttpResponse | HttpResponseRedirect:
-    username = username.lower()
-
-    try:
-        self_user = User.objects.get(token=request.COOKIES.get("token"))
-
-    except User.DoesNotExist:
-        if not ENABLE_LOGGED_OUT_CONTENT:
-            return HttpResponseRedirect("/signup", status=307)
-
-        self_user = None
-
-    lang = get_lang(self_user)
-
-    try:
-        user = User.objects.get(username=username)
-    except User.DoesNotExist:
-        return get_HTTP_response(
-            request, "404-user.html", status=404
-        )
-
-    return get_HTTP_response(
-        request, "user.html", lang, user=self_user,
-
-        IS_HIDDEN = "hidden" if self_user is None or username == self_user.username else "",
-        LOGGED_IN = str(self_user is not None).lower(),
-
-        USERNAME = user.username,
-        DISPLAY_NAME = user.display_name,
-        PRONOUNS = get_pronouns(user),
-
-        BIO = user.bio,
-
-        FOLLOWER_COUNT = lang["user_page"]["followers"].replace("%s", str(user.followers.count())),
-        FOLLOWING_COUNT = lang["user_page"]["following"].replace("%s", str(user.following.count())),
-
-        EMBED_TITLE = lang["user_page"]["user_on_smiggins"].replace("%t", SITE_NAME).replace("%s", user.display_name),
-
-        BADGES = "".join([f"<span aria-hidden='true' class='user-badge' data-add-badge='{i}'></span> " for i in get_badges(user)]),
-
-        GRADIENT = "gradient" if ENABLE_GRADIENT_BANNERS and user.gradient else "",
-        BANNER_COLOR = user.color or DEFAULT_BANNER_COLOR,
-        BANNER_COLOR_TWO = user.color_two or DEFAULT_BANNER_COLOR,
-
-        IS_BLOCKED   = "false" if self_user is None else str(user.blocking.contains(self_user)).lower(),
-        IS_BLOCKING  = "false" if self_user is None else str(self_user.blocking.contains(user)).lower(),
-        IS_FOLLOWING = "false" if self_user is None else str(self_user.following.contains(user)).lower(),
-        IS_PENDING   = "false" if self_user is None else str(user.pending_followers.contains(self_user)).lower(),
-        IS_FOLLOWED  = "false" if self_user is None else str(self_user.user_id != user.user_id and user.following.contains(self_user)).lower()
     )
 
 def user_lists(request, username: str) -> HttpResponse:
@@ -247,169 +195,6 @@ def user_lists(request, username: str) -> HttpResponse:
         INCLUDE_BLOCKS = str(self_user is not None and username == self_user.username).lower(),
         LOGGED_IN = str(self_user is not None).lower()
     )
-
-def post(request, post_id: int) -> HttpResponse:
-    try:
-        user = User.objects.get(token=request.COOKIES.get("token"))
-    except User.DoesNotExist:
-        if not ENABLE_LOGGED_OUT_CONTENT:
-            return HttpResponseRedirect("/signup", status=307)
-
-        user = None
-
-    try:
-        post = Post.objects.get(pk=post_id)
-        creator = post.creator
-    except Post.DoesNotExist:
-        return get_HTTP_response(
-            request, "404-post.html", status=404
-        )
-    except User.DoesNotExist:
-        return get_HTTP_response(
-            request, "404-post.html", status=404
-        )
-
-    can_view = can_view_post(user, creator, post)
-
-    if can_view[0] is False and can_view[1] in ["private", "blocked"]:
-        return get_HTTP_response(
-            request, "404-post.html", status=404
-        )
-
-    post_json = get_post_json(post_id, user)
-    lang = get_lang(user)
-    mentions = find_mentions(post.content + " @" + post.creator.username, exclude_users=[user.username if user else ""])
-    cw = post.content_warning or ""
-
-    return get_HTTP_response(
-        request, "post.html", lang, user=user,
-
-        DISPLAY_NAME = creator.display_name,
-        LOGGED_IN = str(user is not None).lower(),
-        POST_ID = str(post_id),
-        COMMENT = "false",
-        POST_JSON = json.dumps(post_json),
-        CONTENT = (post.content_warning or post.content) + ("\n" + lang["home"]["quote_poll"] if post.poll else "\n" + lang["home"]["quote_recursive"] if post.quote else ""),
-        C_WARNING = cw[:MAX_CONTENT_WARNING_LENGTH] if not cw or cw.startswith("re: ") else f"re: {cw[:MAX_CONTENT_WARNING_LENGTH - 4]}",
-        EMBED_TITLE = lang["user_page"]["user_on_smiggins"].replace("%t", SITE_NAME).replace("%s", creator.display_name),
-
-        LIKES = lang["post_page"]["likes"].replace("%s", str(post_json["likes"])),
-        COMMENTS = lang["post_page"]["comments"].replace("%s", str(post_json["comments"])),
-        QUOTES = lang["post_page"]["quotes"].replace("%s", str(post_json["quotes"])),
-
-        mentions = ("@" + (" @".join(sorted(mentions))) + " ") if mentions else ""
-    )
-
-def comment(request, comment_id: int) -> HttpResponse:
-    try:
-        user = User.objects.get(token=request.COOKIES.get("token"))
-    except User.DoesNotExist:
-        if not ENABLE_LOGGED_OUT_CONTENT:
-            return HttpResponseRedirect("/signup", status=307)
-        user = None
-
-    try:
-        comment = Comment.objects.get(pk=comment_id)
-        creator = comment.creator
-    except Comment.DoesNotExist:
-        return get_HTTP_response(
-            request, "404-post.html", status=404
-        )
-    except User.DoesNotExist:
-        return get_HTTP_response(
-            request, "404-post.html", status=404
-        )
-
-    can_view = can_view_post(user, creator, comment)
-
-    if can_view[0] is False and can_view[1] in ["private", "blocked"]:
-        return get_HTTP_response(
-            request, "404-post.html", status=404
-        )
-
-    comment_json = get_post_json(comment_id, user, True)
-    lang = get_lang(user if user is not None else None)
-    mentions = find_mentions(comment.content + " @" + comment.creator.username, exclude_users=[user.username if user else ""])
-    cw = comment.content_warning or ""
-
-    return get_HTTP_response(
-        request, "post.html", lang, user=user,
-
-        DISPLAY_NAME = creator.display_name,
-        LOGGED_IN = str(user is not None).lower(),
-        POST_ID   = str(comment_id),
-        COMMENT   = "true",
-        POST_JSON = json.dumps(comment_json),
-        CONTENT   = comment.content_warning or comment.content,
-        C_WARNING = cw[:MAX_CONTENT_WARNING_LENGTH] if not cw or cw.startswith("re: ") else f"re: {cw[:MAX_CONTENT_WARNING_LENGTH - 4]}",
-        EMBED_TITLE = lang["user_page"]["user_on_smiggins"].replace("%t", SITE_NAME).replace("%s", creator.display_name),
-
-        LIKES = lang["post_page"]["likes"].replace("%s", str(comment_json["likes"])),
-        COMMENTS = lang["post_page"]["comments"].replace("%s", str(comment_json["comments"])),
-        QUOTES = lang["post_page"]["quotes"].replace("%s", str(comment_json["quotes"])),
-
-        mentions = ("@" + (" @".join(sorted(mentions))) + " ") if mentions else ""
-    )
-
-def message(request, username: str) -> HttpResponse | HttpResponseRedirect:
-    username = username.lower()
-
-    try:
-        self_user = User.objects.get(token=request.COOKIES.get("token"))
-    except User.DoesNotExist:
-        return HttpResponseRedirect("/logout/", status=307)
-
-    try:
-        PrivateMessageContainer.objects.get(
-            container_id = get_container_id(username, self_user.username)
-        )
-    except PrivateMessageContainer.DoesNotExist:
-        return HttpResponseRedirect(f"/u/{username}/", status=307)
-
-    try:
-        user = User.objects.get(username=username)
-    except User.DoesNotExist:
-        return get_HTTP_response(request, "404-user.html")
-
-    lang = get_lang(self_user)
-
-    return get_HTTP_response(
-        request, "message.html", lang, user=self_user,
-
-        PLACEHOLDER = lang["messages"]["input_placeholder"].replace("%s", user.display_name),
-        TITLE = lang["messages"]["title"].replace("%s", user.display_name),
-        USERNAME = username,
-        BADGES = "".join([f"<span aria-hidden='true' class='user-badge' data-add-badge='{i}'></span> " for i in get_badges(user)])
-    )
-
-def hashtag(request, hashtag: str) -> HttpResponse:
-    if not ENABLE_LOGGED_OUT_CONTENT:
-        return HttpResponseRedirect("/signup/")
-
-    try:
-        num_posts = Hashtag.objects.get(tag=hashtag.lower()).posts.count()
-    except Hashtag.DoesNotExist:
-        num_posts = 0
-
-    return get_HTTP_response(
-        request, "hashtag.html",
-
-        HASHTAG = hashtag.lower(),
-        NUM_POSTS = num_posts
-    )
-
-def pending(request) -> HttpResponse | HttpResponseRedirect:
-    try:
-        user = User.objects.get(token=request.COOKIES.get("token"))
-    except User.DoesNotExist:
-        return get_HTTP_response(
-            request, "404.html", status=404
-        )
-
-    if not user.verify_followers:
-        return HttpResponseRedirect("/", status=307)
-
-    return get_HTTP_response(request, "pending.html", user=user)
 
 generate_favicon = lambda request, a: HttpResponseRedirect("/static/img/old_favicon.png", status=308) # noqa: E731
 

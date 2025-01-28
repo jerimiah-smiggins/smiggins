@@ -85,15 +85,17 @@
     <script src="{% static 'keybinds.js' %}?v={{ conf.version }}"></script>
     <script src="{% static 'scripts/logout.js' %}?v={{ conf.version }}"></script>
     <script src="{% static 'scripts/user.js' %}?v={{ conf.version }}"></script>
+    <script src="{% static 'scripts/hashtag.js' %}?v={{ conf.version }}"></script>
+    <script src="{% static 'scripts/timeline.js' %}?v={{ conf.version }}"></script>
     {% if is_admin %}
       <script src="{% static 'scripts/admin.js' %}?v={{ conf.version }}"></script>
     {% endif %}
     {% if logged_in %}
       <script src="{% static 'scripts/home.js' %}?v={{ conf.version }}"></script>
-      <script src="{% static 'scripts/timeline.js' %}?v={{ conf.version }}"></script>
       <script src="{% static 'scripts/settings.js' %}?v={{ conf.version }}"></script>
       <script src="{% static 'scripts/admin.js' %}?v={{ conf.version }}"></script>
       <script src="{% static 'scripts/notifications.js' %}?v={{ conf.version }}"></script>
+      <script src="{% static 'scripts/pending.js' %}?v={{ conf.version }}"></script>
       {% if conf.private_messages %}
         <script src="{% static 'scripts/message.js' %}?v={{ conf.version }}"></script>
       {% endif %}

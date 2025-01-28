@@ -544,7 +544,48 @@ const pages: { [key: string]: [() => string, (() => void) | null] } = {
     <div id="pinned"></div>
     <div id="posts"></div>
     <div id="more-container"><button id="more" onclick="refresh(true)" hidden>${lang.generic.load_more}</button></div>
-  `, (): void => { userInit(); !context.is_.blocked && timelineInit(); }]
+  `, (): void => { userInit(); !context.is_.blocked && timelineInit(); }],
+  hashtag: [(): string => `
+    <h1>#${context.hashtag}</h1>
+    ${context.count} ${context.count == 1 ? lang.hashtag.post_singular : lang.hashtag.post_plural}
+    <p id="switch">
+      <a data-timeline="random">${lang.hashtag.timeline.random}</a> -
+      <a data-timeline="recent" href="javascript:void(0);">${lang.hashtag.timeline.recent}</a> -
+      <a data-timeline="liked" href="javascript:void(0);">${lang.hashtag.timeline.liked}</a>
+    </p>
+    <button id="refresh" onclick="refresh();">${lang.generic.refresh}</button><br><br>
+    <div id="posts"></div>
+    <button id="more" onclick="refresh(true)" hidden>${lang.generic.load_more}</button>
+  `, (): void => { hashtagInit(); timelineInit(); }],
+  pending: [(): string => `
+    <h1>${lang.user_page.pending_title}</h1>
+    <button id="refresh" onclick="refreshPendingList(true);">${lang.generic.refresh}</button><br><br>
+    <div id="user-list"></div>
+    <button id="more" onclick="refreshPendingList();" hidden>${lang.generic.load_more}</button>
+  `, pendingInit],
+  post: [(): string => `
+    ${context.post.parent && context.post.parent > 0 ? `<div id="parent"><a id="parent-link" href="/${context.post.parent_is_comment ? "c" : "p"}/${context.post.post_id}/">${lang.post_page.comment_parent}</a></div>` : ""}
+    <div id="top">${getPostHTML(context.post_json, context.comment, true, false, false, true)}</div>
+
+    ${loggedIn ? `
+      <label for="default-private">${lang.post.type_followers_only}:</label>
+      <input id="default-private" type="checkbox" ${defaultPrivate ? "checked" : ""}><br>
+      ${conf.content_warnings ? `<input id="c-warning" data-create-post ${context.post.c_warning ? `value="${((context.post.c_warning.startsWith("re: ") ? "" : "re: ") + context.post.c_warning).slice(0, conf.max_content_warning_length)}"` : ""} maxlength="${conf.max_content_warning_length}" placeholder="${lang.home.c_warning_placeholder}"><br>` : ""}
+      <textarea id="post-text" data-create-post maxlength="${conf.max_post_length}" placeholder="{{ lang.post_page.comment_input_placeholder }}">{{ mentions }}</textarea><br>
+      <button id="post" class="inverted">${lang.generic.post}</button><br>
+    ` : ""}
+
+    <p id="switch">
+      <a data-timeline="random" href="javascript:void(0);">${lang.post_page.timeline.random}</a> -
+      <a data-timeline="newest">${lang.post_page.timeline.newest}</a> -
+      <a data-timeline="oldest" href="javascript:void(0);">${lang.post_page.timeline.oldest}</a> -
+      <a data-timeline="liked" href="javascript:void(0);">${lang.post_page.timeline.liked}</a>
+    </p>
+
+    <button id="refresh" onclick="refresh()">${lang.generic.refresh}</button><br><br>
+    <div id="posts"></div>
+    <div id="more-container"><button id="more" onclick="refresh(true)" hidden>${lang.generic.load_more}</button></div>
+  `, (): void => { postInit(); timelineInit(); }]
 };
 
 function inlineFor(

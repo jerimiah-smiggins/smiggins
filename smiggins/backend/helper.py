@@ -126,7 +126,7 @@ def get_strings(request, lang: dict, user: User | None, url_override: str | None
         return lang["messages"]["title"].replace("%s", u.display_name), None, None, 200
 
     complex_titles = [
-        { "path": r"^/hashtags/([a-z0-9_]+)/?$", "return": lambda x: (f"#{x}", None, f"#{x}", None), "condition": ENABLE_HASHTAGS },
+        { "path": r"^/hashtag/([a-z0-9_]+)/?$", "return": lambda x: (f"#{x}", None, f"#{x}", None), "condition": ENABLE_HASHTAGS },
         { "path": r"^/u/([a-z0-9_\-]+)(?:/lists)?/?$", "return": _get_user_title, "condition": True },
         { "path": r"^/p/([0-9]+)/?$", "return": _get_post_title, "condition": True },
         { "path": r"^/c/([0-9]+)/?$", "return": _get_comment_title, "condition": True },
