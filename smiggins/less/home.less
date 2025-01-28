@@ -395,6 +395,21 @@ body[data-compact] {
   }
 }
 
+#content[data-page="post"] {
+  #top .main-content {
+    -webkit-line-clamp: unset;
+    line-clamp: unset;
+  }
+
+  #parent {
+    margin-bottom: 1.5em;
+  }
+
+  #post-text {
+    height: 6em;
+  }
+}
+
 @media screen and (max-width: 565px) {
   #post-text,
   #c-warning,
