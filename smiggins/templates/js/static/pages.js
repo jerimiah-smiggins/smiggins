@@ -70,7 +70,7 @@ const pages = {
       <button id="toggle-poll" class="inverted">${lang.home.poll}</button><br>
       <div hidden id="poll">
         ${inlineFor([...Array(conf.max_poll_options).keys()], (i) => `
-          <input data-create-post placeholder="${(i > 2 ? lang.home.poll_optional : lang.home.poll_option).replaceAll("%s", i)}" maxlength="${conf.max_poll_option_length}"></br>
+          <input data-create-post placeholder="${(i + 1 > 2 ? lang.home.poll_optional : lang.home.poll_option).replaceAll("%s", i + 1)}" maxlength="${conf.max_poll_option_length}"></br>
         `)}
       </div>
     ` : ""}
