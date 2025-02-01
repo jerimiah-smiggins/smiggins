@@ -762,7 +762,7 @@ function getPostHTML(
   includeContainer: boolean=true
 ): string {
   let muted: string | boolean | null = username !== postJSON.creator.username && checkMuted(postJSON.content) || (postJSON.c_warning && checkMuted(postJSON.c_warning)) || (postJSON.poll && postJSON.poll.content.map((val: { value: string, votes: number, voted: boolean }): string | true => checkMuted(val.value)).reduce((real: string | true, val: string | true): string | true | null => real || val));
-  let quoteMuted: string | boolean | null = postJSON.quote && username !== postJSON.quote.creator.username && (checkMuted(postJSON.quote.content) || (postJSON.quote.c_warning ? checkMuted(postJSON.quote.c_warning) : null));
+  let quoteMuted: string | boolean | null = postJSON.quote && postJSON.quote.can_view && postJSON.quote.can_delete && username !== postJSON.quote.creator.username && (checkMuted(postJSON.quote.content) || (postJSON.quote.c_warning ? checkMuted(postJSON.quote.c_warning) : null));
 
   if (muted === true) {
     return "";

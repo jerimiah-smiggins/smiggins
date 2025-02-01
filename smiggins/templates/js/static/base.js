@@ -650,7 +650,7 @@ function getPollHTML(pollJSON, postID, gInc, showResults, loggedIn = true) {
 }
 function getPostHTML(postJSON, isComment = false, includeUserLink = true, includePostLink = true, fakeMentions = false, pageFocus = false, isPinned = false, includeContainer = true) {
     let muted = username !== postJSON.creator.username && checkMuted(postJSON.content) || (postJSON.c_warning && checkMuted(postJSON.c_warning)) || (postJSON.poll && postJSON.poll.content.map((val) => checkMuted(val.value)).reduce((real, val) => real || val));
-    let quoteMuted = postJSON.quote && username !== postJSON.quote.creator.username && (checkMuted(postJSON.quote.content) || (postJSON.quote.c_warning ? checkMuted(postJSON.quote.c_warning) : null));
+    let quoteMuted = postJSON.quote && postJSON.quote.can_view && postJSON.quote.can_delete && username !== postJSON.quote.creator.username && (checkMuted(postJSON.quote.content) || (postJSON.quote.c_warning ? checkMuted(postJSON.quote.c_warning) : null));
     if (muted === true) {
         return "";
     }
