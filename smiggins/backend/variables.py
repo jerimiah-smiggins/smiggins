@@ -849,6 +849,7 @@ for key, val in {
   "DELETE /api/user/block": (10, 5),
   "PATCH /api/user/pin": (2, 10),
   "DELETE /api/user/pin": (2, 10),
+  "GET /api/user/lists": (10, 5),
   "DELETE /api/user": (4, 120),
   "PUT /api/comment/create": (5, 30),
   "PUT /api/quote/create": (5, 30),
