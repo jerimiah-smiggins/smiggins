@@ -246,7 +246,7 @@ function apiResponse(
       for (const user of action.users) {
         let y: HTMLElement = document.createElement("div");
         y.innerHTML = `
-          <div class="post" ${user.unread === undefined || user.unread ? "" : "data-color=\"gray\""}">
+          <div class="post" ${user.unread === undefined || user.unread ? "" : "data-color=\"gray\""}>
             <div class="upper-content">
               <a data-link href="/u/${user.username}" class="no-underline text">
                 <div class="displ-name pre-wrap"
@@ -288,15 +288,24 @@ function apiResponse(
         x.append(y);
       }
 
-      dom("user-list").append(x);
-      dom("refresh").removeAttribute("disabled");
-      dom("more").removeAttribute("disabled");
+      if (action.special == "followers" || action.special == "following" || action.special == "blocking") {
+        dom(action.special).append(x);
 
-      if (action.more) {
-        dom("more").removeAttribute("hidden");
+        if (action.more) {
+          dom(`${action.special}-more`).removeAttribute("hidden");
+        } else {
+          dom(`${action.special}-more`).setAttribute("hidden", "");
+        }
       } else {
-        dom("more").setAttribute("hidden", "");
+        dom("user-list").append(x);
+
+        if (action.more) {
+          dom("more").removeAttribute("hidden");
+        } else {
+          dom("more").setAttribute("hidden", "");
+        }
       }
+
     } else if (action.name == "notification_list") {
       let x: DocumentFragment = document.createDocumentFragment();
       let hasBeenRead: boolean = false;

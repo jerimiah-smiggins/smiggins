@@ -54,6 +54,7 @@ routes: list[tuple[str, str, Callable, bool | None, str, str, str | list[str]]] 
     ("user/block", "DELETE", ApiUser.block_remove, None, "Unblock", "Unblocks another user", "User"),
     ("user/pin", "PATCH", ApiPost.pin_post, None, "Pin", "Pins a post to your profile", ["User", "Post"]),
     ("user/pin", "DELETE", ApiPost.unpin_post, None, "Unpin", "Unpins a post to your profile", ["User", "Post"]),
+    ("user/lists", "GET", ApiUser.lists, None, "User lists", "Returns followers, following, and blocking for users", "User"),
     ("user", "DELETE", ApiUser.user_delete, None, "Delete Account", "Deletes the current account", "User"),
     ("comment/create", "PUT", ApiComment.comment_create, None, "Create comment", "Handles creating a comment", "Comment"),
     ("quote/create", "PUT", ApiPost.quote_create, ENABLE_QUOTES, "Create quote", "Handles quoting a post", "Post"),

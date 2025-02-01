@@ -199,7 +199,7 @@ class _actions_user_tl(TypedDict):
     name: Literal["user_timeline"]
     users: list[_actions_user_tl_user]
     more: bool
-    special: NotRequired[Literal["pending", "messages"]]
+    special: NotRequired[Literal["pending", "messages", "following", "followers", "blocking"]]
 
 class _actions_notification_list(TypedDict):
     data: _postJSON

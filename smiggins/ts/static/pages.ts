@@ -582,6 +582,62 @@ const pages: { [key: string]: [() => string, (() => void) | null] } = {
     <div id="posts"></div>
     <div id="more-container"><button id="more" onclick="refresh(true)" hidden>${lang.generic.load_more}</button></div>
   `, (): void => { userInit(); !context.is_.blocked && timelineInit(); }],
+  "user-lists": [(): string => `
+    <div id="banner" ${context.gradient ? "class='gradient'" : ""}></div>
+    <div>
+      <div class="pre-wrap" id="username-main">${escapeHTML(context.display_name)}${inlineFor(
+        context.badges,
+        ((badge: string): string => ` <span aria-hidden='true' class='user-badge'>${badges[badge]}</span>`)
+      )}</div>
+    </div>
+    <div id="secondary-username-container">
+      <a data-link href="/u/${context.username}/" class="no-underline text">
+        <div id="username-lower">
+          @${context.username}
+          ${conf.pronouns && context.pronouns ? `<span id="pronouns">- ${context.pronouns}</span>` : ""}
+        </div><br>
+        <div id="follow">
+          ${lang.user_page.followers.replaceAll("%s", String(context.followers))} -
+          ${lang.user_page.following.replaceAll("%s", String(context.following))}
+        </div>
+      </a>
+      <div>${context.is_.blocked ? lang.account.follow_blocked : context.is_.followed ? lang.user_page.follows : ""}</div>
+    </div>
+
+    ${conf.user_bios ? `<div class="pre-wrap" id="user-bio">${linkifyHtml(escapeHTML(context.bio), {
+      formatHref: {
+        mention: (href: string): string => "/u/" + href.slice(1),
+        hashtag: (href: string): string => "/hashtag/" + href.slice(1)
+      }
+    })}</div>` : ""}
+
+    <div class="lists-container">
+      ${context.is_.self ? `
+        <div>
+          <h2>${lang.user_page.lists_blocks}</h2>
+          <button id="blocking-refresh" onclick="loadList('blocking', true);">${lang.generic.refresh}</button><br><br>
+          <div id="blocking"></div>
+          <button hidden id="blocking-more" onclick="loadList('blocking');">${lang.generic.load_more}</button>
+        </div>
+      ` : ""}
+
+      ${context.is_.blocked ? "" : `
+        <div>
+          <h2>${lang.user_page.lists_following}</h2>
+          <button id="following-refresh" onclick="loadList('following', true);">${lang.generic.refresh}</button><br><br>
+          <div id="following"></div>
+          <button hidden id="following-more" onclick="loadList('following');">${lang.generic.load_more}</button>
+        </div>
+
+        <div>
+          <h2>${lang.user_page.lists_followers}</h2>
+          <button id="followers-refresh" onclick="loadList('followers', true);">${lang.generic.refresh}</button><br><br>
+          <div id="followers"></div>
+          <button hidden id="followers-more" onclick="loadList('followers');">${lang.generic.load_more}</button>
+        </div>
+      `}
+    </div>
+  `, userListsInit],
   hashtag: [(): string => `
     <h1>#${context.hashtag}</h1>
     ${context.count} ${context.count == 1 ? lang.hashtag.post_singular : lang.hashtag.post_plural}

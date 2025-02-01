@@ -137,9 +137,11 @@ def get_strings(request, lang: dict, user: User | None, url_override: str | None
         if not title["condition"]:
             continue
 
-        match = re.match(re.compile(title["path"]), request.path)
+        match = re.match(re.compile(title["path"]), path)
         if match:
             return title["return"](match.group(1))
+
+    print(path)
 
     return lang["http"]["404"]["standard_title"], f"{lang['http']['404']['standard_title']}\n{lang['http']['404']['standard_description']}", None, 404
 

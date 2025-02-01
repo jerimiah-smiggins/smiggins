@@ -7,15 +7,12 @@ from django.template import loader
 from posts.backups import backup_db
 from posts.models import User
 
-from .helper import (get_badges, get_HTTP_response, get_lang, get_pronouns,
-                     get_strings)
-from .variables import (DEFAULT_BANNER_COLOR, DEFAULT_DARK_THEME,
-                        DEFAULT_LIGHT_THEME, ENABLE_ACCOUNT_SWITCHER,
-                        ENABLE_BADGES, ENABLE_CONTENT_WARNINGS,
-                        ENABLE_DYNAMIC_FAVICON, ENABLE_EMAIL,
-                        ENABLE_GRADIENT_BANNERS, ENABLE_HASHTAGS,
-                        ENABLE_LOGGED_OUT_CONTENT, ENABLE_NEW_ACCOUNTS,
-                        ENABLE_PINNED_POSTS, ENABLE_POLLS,
+from .helper import get_HTTP_response, get_lang, get_strings
+from .variables import (DEFAULT_DARK_THEME, DEFAULT_LIGHT_THEME,
+                        ENABLE_ACCOUNT_SWITCHER, ENABLE_BADGES,
+                        ENABLE_CONTENT_WARNINGS, ENABLE_DYNAMIC_FAVICON,
+                        ENABLE_EMAIL, ENABLE_GRADIENT_BANNERS, ENABLE_HASHTAGS,
+                        ENABLE_NEW_ACCOUNTS, ENABLE_PINNED_POSTS, ENABLE_POLLS,
                         ENABLE_POST_DELETION, ENABLE_PRIVATE_MESSAGES,
                         ENABLE_PRONOUNS, ENABLE_QUOTES, ENABLE_USER_BIOS,
                         FAVICON_DATA, GOOGLE_VERIFICATION_TAG, MAX_BIO_LENGTH,
@@ -97,103 +94,6 @@ def webapp(request) -> HttpResponse:
             context, request
         ),
         status=strings[3]
-    )
-
-def user_lists(request, username: str) -> HttpResponse:
-    username = username.lower()
-
-    try:
-        user = User.objects.get(username=username)
-    except User.DoesNotExist:
-        return get_HTTP_response(
-            request, "404-user.html", status=404
-        )
-
-    try:
-        self_user = User.objects.get(token=request.COOKIES.get("token"))
-
-    except User.DoesNotExist:
-        if not ENABLE_LOGGED_OUT_CONTENT:
-            return HttpResponseRedirect("/signup", status=307)
-        self_user = None
-
-    lang = get_lang(self_user)
-
-    followers = []
-    for i in user.followers.all():
-        if i.user_id != user.user_id:
-            followers.append({
-                "username": i.username,
-                "display_name": i.display_name,
-                "bio": i.bio or "\n\n\n",
-                "badges": get_badges(i),
-                "color_one": i.color,
-                "color_two": i.color_two,
-                "is_gradient": str(ENABLE_GRADIENT_BANNERS and i.gradient).lower()
-            })
-
-    following = []
-    for i in user.following.all():
-        if i.user_id != user.user_id:
-            following.append({
-                "username": i.username,
-                "display_name": i.display_name,
-                "bio": i.bio or "\n\n\n",
-                "badges": get_badges(i),
-                "color_one": i.color,
-                "color_two": i.color_two,
-                "is_gradient": str(ENABLE_GRADIENT_BANNERS and i.gradient).lower()
-            })
-
-    blocking = []
-    if self_user is not None and username == self_user.username:
-        for i in user.blocking.all():
-            try:
-                if i.user_id != user.user_id:
-                    blocking.append({
-                        "username": i.username,
-                        "display_name": i.display_name,
-                        "bio": i.bio or "\n\n\n",
-                        "badges": get_badges(i),
-                        "color_one": i.color,
-                        "color_two": i.color_two,
-                        "is_gradient": str(ENABLE_GRADIENT_BANNERS and i.gradient).lower()
-                    })
-
-            except User.DoesNotExist:
-                continue
-
-    return get_HTTP_response(
-        request, "user_lists.html", lang, user=self_user,
-
-        USERNAME = user.username,
-        DISPLAY_NAME = user.display_name,
-        PRONOUNS = get_pronouns(user),
-        USER_BIO = user.bio or "",
-
-        EMPTY = "\n\n\n",
-
-        FOLLOWING = following,
-        FOLLOWERS = followers,
-        BLOCKS = blocking,
-
-        FOLLOWER_COUNT = lang["user_page"]["followers"].replace("%s", str(user.followers.count())),
-        FOLLOWING_COUNT = lang["user_page"]["following"].replace("%s", str(user.following.count())),
-
-        BADGES = "".join([f"<span aria-hidden='true' class='user-badge' data-add-badge='{i}'></span> " for i in get_badges(user)]),
-
-        GRADIENT = "gradient" if ENABLE_GRADIENT_BANNERS and user.gradient else "",
-        BANNER_COLOR = user.color or DEFAULT_BANNER_COLOR,
-        BANNER_COLOR_TWO = user.color_two or DEFAULT_BANNER_COLOR,
-
-        IS_BLOCKED   = "false" if self_user is None else str(user.blocking.contains(self_user)).lower(),
-        IS_BLOCKING  = "false" if self_user is None else str(self_user.blocking.contains(user)).lower(),
-        IS_FOLLOWING = "false" if self_user is None else str(self_user.following.contains(user)).lower(),
-        IS_PENDING   = "false" if self_user is None else str(user.pending_followers.contains(self_user)).lower(),
-        IS_FOLLOWED  = "false" if self_user is None else str(self_user.user_id != user.user_id and user.following.contains(self_user)).lower(),
-
-        INCLUDE_BLOCKS = str(self_user is not None and username == self_user.username).lower(),
-        LOGGED_IN = str(self_user is not None).lower()
     )
 
 generate_favicon = lambda request, a: HttpResponseRedirect("/static/img/old_favicon.png", status=308) # noqa: E731

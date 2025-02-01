@@ -1,7 +1,9 @@
 # For API functions that are user-specific, like settings, following, etc.
 
 import re
+from typing import Literal
 
+from django.db.models import Manager
 from posts.models import (Comment, MutedWord, OneTimePassword, Post,
                           PrivateMessageContainer, User, UserPronouns)
 
@@ -9,13 +11,14 @@ from ..helper import (DEFAULT_LANG, check_ratelimit, generate_token,
                       get_badges, get_lang, get_post_json, trim_whitespace,
                       validate_username)
 from ..variables import (DEFAULT_BANNER_COLOR, DEFAULT_LANGUAGE,
-                         ENABLE_GRADIENT_BANNERS, ENABLE_NEW_ACCOUNTS,
-                         ENABLE_PRONOUNS, ENABLE_USER_BIOS, MAX_BIO_LENGTH,
+                         ENABLE_GRADIENT_BANNERS, ENABLE_LOGGED_OUT_CONTENT,
+                         ENABLE_NEW_ACCOUNTS, ENABLE_PRONOUNS,
+                         ENABLE_USER_BIOS, MAX_BIO_LENGTH,
                          MAX_DISPL_NAME_LENGTH, MAX_MUTED_WORD_LENGTH,
                          MAX_MUTED_WORDS, MAX_USERNAME_LENGTH,
                          POSTS_PER_REQUEST, THEMES, VALID_LANGUAGES)
 from .schema import (Account, APIResponse, ChangePassword, MutedWords,
-                     Password, Settings, Theme, Username)
+                     Password, Settings, Theme, Username, _actions_user_tl)
 
 
 def signup(request, data: Account) -> APIResponse:
@@ -737,4 +740,69 @@ def muted(request, data: MutedWords) -> APIResponse:
     return {
         "success": True,
         "message": lang["generic"]["success"]
+    }
+
+def _lists_get_values(query: Manager[User], page: int, special: Literal["following", "followers", "blocking"]) -> _actions_user_tl:
+    out = []
+    for user in query[page * POSTS_PER_REQUEST : (page + 1) * POSTS_PER_REQUEST :]:
+        out.append({
+            "username": user.username,
+            "display_name": user.display_name,
+            "badges": get_badges(user),
+            "color_one": user.color,
+            "color_two": user.color_two if ENABLE_GRADIENT_BANNERS else user.color,
+            "gradient": user.gradient,
+            "bio": user.bio
+        })
+
+    return {
+        "name": "user_timeline",
+        "users": out,
+        "more": query.count() > ((page + 1) * POSTS_PER_REQUEST),
+        "special": special
+    }
+
+def lists(request, username: str, column: str, page: int | None=None) -> APIResponse:
+    if rl := check_ratelimit(request, "GET /api/user/lists"):
+        return rl
+
+    try:
+        user = User.objects.get(username=username)
+    except User.DoesNotExist:
+        return 404, {
+            "success": False
+        }
+
+    try:
+        self_user = User.objects.get(token=request.COOKIES.get("token"))
+    except User.DoesNotExist:
+        if not ENABLE_LOGGED_OUT_CONTENT:
+            return 400, {
+                "success": False
+            }
+    else:
+        if user.blocking.contains(self_user):
+            return 400, {
+                "success": False
+            }
+
+    is_self = user.token == request.COOKIES.get("token")
+
+    if column == "all" or not page or page < 0:
+        page = 0
+
+    actions = []
+
+    if column == "all" or column == "followers":
+        actions.append(_lists_get_values(user.followers.all(), page, "followers"))
+
+    if column == "all" or column == "following":
+        actions.append(_lists_get_values(user.following.all(), page, "following"))
+
+    if is_self and (column == "all" or column == "blocking"):
+        actions.append(_lists_get_values(user.blocking.all(), page, "blocking"))
+
+    return {
+        "success": True,
+        "actions": actions
     }

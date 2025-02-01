@@ -187,7 +187,7 @@ type _actions = {
       unread?: boolean
     }[],
     more: boolean
-    special?: "pending" | "messages" | null
+    special?: "pending" | "messages" | "following" | "followers" | "blocking" | null
   } | {
     name: "notification_list",
     notifications: {

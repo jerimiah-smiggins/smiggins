@@ -241,6 +241,37 @@ def context(request) -> tuple[int, dict] | dict | APIResponse:
 
         return _get_user(request, other_user, user)
 
+    match = re.match(re.compile(r"^/u/([a-z0-9_\-]+)/lists/?$"), url)
+    if match: # User Lists
+        if not user and not ENABLE_ACCOUNT_SWITCHER:
+            return index
+
+        username = match.group(1).lower()
+
+        try:
+            other_user = User.objects.get(username=username)
+        except User.DoesNotExist:
+            return gc(request, user, "404-user")
+
+        return gc(
+            request, user, "user-lists",
+            banner_color_one=other_user.color,
+            banner_color_two=other_user.color_two,
+            gradient=other_user.gradient,
+            display_name=other_user.display_name,
+            badges=get_badges(other_user),
+            username=other_user.username,
+            pronouns=get_pronouns(other_user),
+            followers=other_user.followers.count(),
+            following=other_user.following.count(),
+            bio=other_user.bio,
+            is_={
+                "followed": user and user.followers.contains(other_user),
+                "blocked": user and user.blockers.contains(other_user),
+                "self": user and user.username == other_user.username
+            }
+        )
+
     match = re.match(re.compile(r"^/hashtag/([a-z0-9_]+)/?$"), url)
     if match: # Hashtags
         if not user and not ENABLE_LOGGED_OUT_CONTENT:
