@@ -28,7 +28,14 @@ function getNotifications() {
         });
         if (!pendingFollowersIconEnabled && json.followers) {
             pendingFollowersIconEnabled = true;
-            dom("icons").innerHTML += `<div class="dot" data-value="${json.followers}" id="pending-followers-icon" title="${lang.user_page.pending_title}"><a data-link href="/pending/">${icons.follower}</a></div>`;
+            let pending = document.createElement("div");
+            pending.classList.add("dot");
+            pending.dataset.value = String(json.followers);
+            pending.id = "pending-followers-icon";
+            pending.title = lang.user_page.pending_title;
+            pending.innerHTML = `<a data-link href="/pending/">${icons.follower}</a></div>`;
+            dom("icons").append(pending);
+            registerLinks(pending);
         }
         else if (pendingFollowersIconEnabled && !json.followers) {
             pendingFollowersIconEnabled = false;
@@ -78,7 +85,7 @@ if (loggedIn) {
     if (conf.private_messages) {
         iconsElement.innerHTML += `<div data-icon="message" data-add-message-dot><a data-link title="${lang.messages.list_title}" href="/messages/">${icons.message}</a></div>`;
     }
-    iconsElement.innerHTML += `<div ${share ? "" : "hidden"} data-icon="share"><span title="${lang.generic.share}" role="button" onkeydown="genericKeyboardEvent(event, () => { navigator.clipboard.writeText(share); showlog(lang.generic.copied); })" tabindex="0" onclick="navigator.clipboard.writeText(share); showlog(lang.generic.copied);">${icons.share}</span></div>`;
+    iconsElement.innerHTML += `<div ${share ? "" : "hidden"} data-icon="share"><span title="${lang.generic.share}" role="button" onkeydown="genericKeyboardEvent(event, () => { navigator.clipboard.writeText(share); toast(lang.generic.copied); })" tabindex="0" onclick="navigator.clipboard.writeText(share); toast(lang.generic.copied);">${icons.share}</span></div>`;
     iconsElement.innerHTML += `<div data-icon="user"><a data-link title="${lang.settings.profile_title}" href="/u/${username}/">${icons.user}</a></div>`;
     document.body.prepend(iconsElement);
     registerLinks(iconsElement);

@@ -57,13 +57,6 @@ function homeInit(): void {
       } else {
         dom("poll").setAttribute("hidden", "");
       }
-    })
-
-    output = "";
-    for (let i: number = 1; i <= conf.max_poll_options; i++) {
-      output += `<input data-create-post placeholder="${(i > 2 ? lang.home.poll_optional : lang.home.poll_option).replaceAll("%s", i)}" maxlength="${conf.max_poll_option_length}"></br>`;
-    }
-
-    dom("poll").innerHTML = output;
+    });
   }
 }

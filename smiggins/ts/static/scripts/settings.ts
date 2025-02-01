@@ -1,10 +1,4 @@
-let unload: boolean
-let output: string
-let hasEmail: boolean;
-let userPronouns: {
-  primary: string,
-  secondary: string | null
-};
+let unload: boolean;
 
 function toggleGradient(setUnloadStatus: boolean | any): void {
   if (typeof setUnloadStatus !== "boolean" || setUnloadStatus) {
@@ -26,19 +20,19 @@ function updatePronouns(): void {
     if (lang.generic.pronouns.enable_secondary) {
       if ((document.querySelector(`#pronouns-primary > option[value="${this.value}"]`) as HTMLObjectElement).dataset.special == "no-secondary") {
         dom("pronouns-secondary-container").setAttribute("hidden", "");
-        userPronouns.secondary = null;
+        context.pronouns.secondary = null;
       } else {
         dom("pronouns-secondary-container").removeAttribute("hidden");
-        userPronouns.secondary = (dom("pronouns-secondary") as HTMLOptionElement).value
+        context.pronouns.secondary = (dom("pronouns-secondary") as HTMLOptionElement).value
       }
     }
 
-    userPronouns.primary = this.value;
+    context.pronouns.primary = this.value;
   } else {
     if ((document.querySelector(`#pronouns-secondary > option[value="${this.value}"]`) as HTMLObjectElement).dataset.special == "inherit") {
-      userPronouns.secondary = userPronouns.primary;
+      context.pronouns.secondary = context.pronouns.primary;
     } else {
-      userPronouns.secondary = this.value;
+      context.pronouns.secondary = this.value;
     }
   }
 }
@@ -67,7 +61,7 @@ function save(post?: (success: boolean) => void): void {
       bio: conf.user_bios ? (dom("bio") as HTMLInputElement).value : "",
       lang: (dom("lang") as HTMLInputElement).value,
       color: (dom("banner-color") as HTMLInputElement).value,
-      pronouns: Boolean(Object.keys(userPronouns).length) ? userPronouns : { primary: "", secondary: null },
+      pronouns: Boolean(Object.keys(context.pronouns).length) ? context.pronouns : { primary: "", secondary: null },
       color_two: conf.gradient_banners ? (dom("banner-color-two") as HTMLInputElement).value : "",
       displ_name: (dom("displ-name") as HTMLInputElement).value,
       is_gradient: conf.gradient_banners ? (dom("banner-is-gradient") as HTMLInputElement).checked : false,
@@ -100,35 +94,16 @@ function save(post?: (success: boolean) => void): void {
 }
 
 function settingsInit(): void {
-  userPronouns = context.pronouns;
-  hasEmail = context.has_email;
   document.body.style.setProperty("--banner", context.banner_color_one);
   document.body.style.setProperty("--banner-two", context.banner_color_two);
 
   unload = false;
-  output = "<select id=\"color\">";
-
   inc = 0;
 
-  for (const color of validColors) {
-    output += `<option ${((localStorage.getItem("color") == color || (!localStorage.getItem("color") && color == "mauve")) ? "selected" : "")} value="${color}">${lang.generic.colors[color]}</option>`;
-  }
-  output += "</select><br><br>";
-
-  if (conf.pronouns && lang.generic.pronouns.enable_pronouns) {
-    try {
-      let primary: HTMLOptionElement = document.querySelector(`#pronouns-primary > option[value="${userPronouns.primary}"]`);
-      primary.setAttribute("selected", "");
-
-      if (lang.generic.pronouns.enable_secondary) {
-        if (primary.dataset.special == "no-secondary") {
-          dom("pronouns-secondary-container").setAttribute("hidden", "");
-        }
-
-        document.querySelector(`#pronouns-secondary > option[value="${userPronouns.secondary}"]`).setAttribute("selected", "");
-      }
-    } catch (err) {
-      console.error("Error loading pronouns", err);
+  if (conf.pronouns && lang.generic.pronouns.enable_pronouns && lang.generic.pronouns.enable_secondary) {
+    let primary: HTMLOptionElement = document.querySelector(`#pronouns-primary > option[value="${context.pronouns.primary}"]`);
+    if (!primary || primary.dataset.special == "no-secondary") {
+      dom("pronouns-secondary-container").setAttribute("hidden", "");
     }
   }
 
@@ -182,41 +157,6 @@ function settingsInit(): void {
 
     dom("accs").append(x);
   }
-
-  dom("color-selector").innerHTML = output;
-  dom("post-example").innerHTML = getPostHTML(
-    {
-      creator: {
-        badges: ["administrator"],
-        color_one: "#" + Math.floor(Math.random() * 16777216).toString(16).padStart(6, "0"),
-        color_two: "#" + Math.floor(Math.random() * 16777216).toString(16).padStart(6, "0"),
-        display_name: lang.settings.cosmetic_example_post_display_name,
-        gradient_banner: true,
-        pronouns: null,
-        username: lang.settings.cosmetic_example_post_username,
-      },
-      private: false,
-      can_delete: false,
-      can_edit: false,
-      can_pin: false,
-      can_view: true,
-      comments: Math.floor(Math.random() * 100),
-      content: lang.settings.cosmetic_example_post_content,
-      liked: true,
-      likes: Math.floor(Math.random() * 99) + 1,
-      owner: false,
-      parent_is_comment: false,
-      parent: -1,
-      post_id: 0,
-      quotes: Math.floor(Math.random() * 100),
-      c_warning: null,
-      timestamp: Date.now() / 1000 - Math.random() * 86400,
-      poll: null,
-      logged_in: true,
-      edited: false
-    }, false, false, false, true
-  );
-  registerLinks(dom("post-example"));
 
   if (oldFavicon) {
     dom("old-favi").setAttribute("checked", "");

@@ -2,7 +2,7 @@ function toggleFollow() {
     s_fetch(`/api/user/follow`, {
         method: dom("toggle").getAttribute("data-followed") === "1" ? "DELETE" : "POST",
         body: JSON.stringify({
-            username: document.querySelector("body").getAttribute("data-username")
+            username: context.username
         }),
         disable: [dom("toggle")]
     });
@@ -11,7 +11,7 @@ function toggleBlock() {
     s_fetch(`/api/user/block`, {
         method: dom("block").getAttribute("data-blocked") === "1" ? "DELETE" : "POST",
         body: JSON.stringify({
-            username: document.querySelector("body").getAttribute("data-username")
+            username: context.username
         }),
         disable: [dom("block")]
     });

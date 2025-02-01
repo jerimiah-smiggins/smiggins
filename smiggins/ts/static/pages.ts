@@ -71,7 +71,11 @@ const pages: { [key: string]: [() => string, (() => void) | null] } = {
     <button id="post" class="inverted">${lang.generic.post}</button><br>
     ${conf.polls ? `
       <button id="toggle-poll" class="inverted">${lang.home.poll}</button><br>
-      <div hidden id="poll"></div>
+      <div hidden id="poll">
+        ${inlineFor([...Array(conf.max_poll_options).keys()], (i: number): string => `
+          <input data-create-post placeholder="${(i > 2 ? lang.home.poll_optional : lang.home.poll_option).replaceAll("%s", i)}" maxlength="${conf.max_poll_option_length}"></br>
+        `)}
+      </div>
     ` : ""}
     <p id="switch">
       <a data-timeline="following" data-storage-id="home-page" href="javascript:void(0);">${lang.home.timeline.following}</a> -
@@ -104,7 +108,7 @@ const pages: { [key: string]: [() => string, (() => void) | null] } = {
                   <select id="pronouns-primary">
                     ${inlineFor(
                       lang.generic.pronouns.primary,
-                      ((noun: { key: string, special: string, name: string }): string => `<option value="${noun.key}" data-special="${noun.special}">${noun.name}</option>`)
+                      ((noun: { key: string, special: string, name: string }): string => `<option value="${noun.key}" data-special="${noun.special}" ${noun.key == context.pronouns.primary ? "selected" : ""}>${noun.name}</option>`)
                     )}
                   </select>
             ${lang.generic.pronouns.enable_secondary ? `
@@ -117,7 +121,7 @@ const pages: { [key: string]: [() => string, (() => void) | null] } = {
                   <select id="pronouns-secondary">
                     ${inlineFor(
                       lang.generic.pronouns.secondary,
-                      ((noun: { key: string, special: string, name: string }): string => `<option value="${noun.key}" data-special="${noun.special}">${noun.name}</option>`)
+                      ((noun: { key: string, special: string, name: string }): string => `<option value="${noun.key}" data-special="${noun.special}" ${noun.key == context.pronouns.secondary ? "selected" : ""}>${noun.name}</option>`)
                     )}
                   </select>
                 </td>
@@ -205,8 +209,41 @@ const pages: { [key: string]: [() => string, (() => void) | null] } = {
         ` : ""}
 
         <label for="color">${lang.settings.cosmetic_color}:</label><br>
-        <div id="color-selector"></div>
-        <div id="post-example"></div>
+        <div id="color-selector"><select id="color">
+          ${inlineFor(validColors, (col: string): string => `
+            <option ${localStorage.getItem("color") == col || (!localStorage.getItem("color") && col == "mauve") ? "selected" : ""} value="${col}"${lang.generic.colors[col]}</option>
+          `)}
+        </select></div>
+        <div id="post-example">${getPostHTML({
+          creator: {
+            badges: ["administrator"],
+            color_one: "#" + Math.floor(Math.random() * 16777216).toString(16).padStart(6, "0"),
+            color_two: "#" + Math.floor(Math.random() * 16777216).toString(16).padStart(6, "0"),
+            display_name: lang.settings.cosmetic_example_post_display_name,
+            gradient_banner: true,
+            pronouns: null,
+            username: lang.settings.cosmetic_example_post_username,
+          },
+          private: false,
+          can_delete: false,
+          can_edit: false,
+          can_pin: false,
+          can_view: true,
+          comments: Math.floor(Math.random() * 100),
+          content: lang.settings.cosmetic_example_post_content,
+          liked: true,
+          likes: Math.floor(Math.random() * 99) + 1,
+          owner: false,
+          parent_is_comment: false,
+          parent: -1,
+          post_id: 0,
+          quotes: Math.floor(Math.random() * 100),
+          c_warning: null,
+          timestamp: Date.now() / 1000 - Math.random() * 86400,
+          poll: null,
+          logged_in: true,
+          edited: false
+        }, false, false, false, true)}</div>
       </div>
 
       <div class="settings-side">
@@ -562,16 +599,16 @@ const pages: { [key: string]: [() => string, (() => void) | null] } = {
     <button id="refresh" onclick="refreshPendingList(true);">${lang.generic.refresh}</button><br><br>
     <div id="user-list"></div>
     <button id="more" onclick="refreshPendingList();" hidden>${lang.generic.load_more}</button>
-  `, pendingInit],
+  `, loggedIn ? pendingInit : null],
   post: [(): string => `
     ${context.post.parent && context.post.parent > 0 ? `<div id="parent"><a id="parent-link" href="/${context.post.parent_is_comment ? "c" : "p"}/${context.post.post_id}/">${lang.post_page.comment_parent}</a></div>` : ""}
-    <div id="top">${getPostHTML(context.post_json, context.comment, true, false, false, true)}</div>
+    <div id="top">${getPostHTML(context.post, context.comment, true, false, false, true)}</div>
 
     ${loggedIn ? `
       <label for="default-private">${lang.post.type_followers_only}:</label>
       <input id="default-private" type="checkbox" ${defaultPrivate ? "checked" : ""}><br>
       ${conf.content_warnings ? `<input id="c-warning" data-create-post ${context.post.c_warning ? `value="${((context.post.c_warning.startsWith("re: ") ? "" : "re: ") + context.post.c_warning).slice(0, conf.max_content_warning_length)}"` : ""} maxlength="${conf.max_content_warning_length}" placeholder="${lang.home.c_warning_placeholder}"><br>` : ""}
-      <textarea id="post-text" data-create-post maxlength="${conf.max_post_length}" placeholder="{{ lang.post_page.comment_input_placeholder }}">{{ mentions }}</textarea><br>
+      <textarea autofocus id="post-text" data-create-post maxlength="${conf.max_post_length}" placeholder="${lang.post_page.comment_input_placeholder}">${context.mentions}</textarea><br>
       <button id="post" class="inverted">${lang.generic.post}</button><br>
     ` : ""}
 
@@ -636,7 +673,6 @@ function linkEventHandler(event: MouseEvent): void {
 function renderPage(): void {
   document.title = `${context.strings[0] ? `${context.strings[0]} - ` : ""}${conf.site_name} ${conf.version}`;
   dom("content").dataset.page = context.page;
-  updateIconBar();
 
   for (const interval of killIntervals) {
     clearInterval(interval);
@@ -673,6 +709,8 @@ function renderPage(): void {
   if (page[1]) {
     page[1]();
   }
+
+  updateIconBar();
 }
 
 function loadContext(url: string, postFunction: () => void=renderPage): void {

@@ -3,9 +3,9 @@ import re
 from posts.models import (Comment, Hashtag, MutedWord, Post,
                           PrivateMessageContainer, User)
 
-from ..helper import (LANGS, check_ratelimit, get_badge_data, get_badges,
-                      get_container_id, get_lang, get_post_json, get_pronouns,
-                      get_strings)
+from ..helper import (LANGS, check_ratelimit, find_mentions, get_badge_data,
+                      get_badges, get_container_id, get_lang, get_post_json,
+                      get_pronouns, get_strings)
 from ..variables import (CACHE_LANGUAGES, CONTACT_INFO, CREDITS,
                          DEFAULT_BANNER_COLOR, DEFAULT_LANGUAGE, DISCORD,
                          ENABLE_ACCOUNT_SWITCHER, ENABLE_BADGES,
@@ -202,7 +202,7 @@ def context(request) -> tuple[int, dict] | dict | APIResponse:
         )
 
     match = re.match(re.compile(r"^/m/([a-z0-9_\-]+)/?$"), url)
-    if match:
+    if match: # Messages
         if user is None:
             return index
 
@@ -228,7 +228,7 @@ def context(request) -> tuple[int, dict] | dict | APIResponse:
         )
 
     match = re.match(re.compile(r"^/u/([a-z0-9_\-]+)/?$"), url)
-    if match:
+    if match: # Users
         if not user and not ENABLE_LOGGED_OUT_CONTENT:
             return index
 
@@ -242,7 +242,7 @@ def context(request) -> tuple[int, dict] | dict | APIResponse:
         return _get_user(request, other_user, user)
 
     match = re.match(re.compile(r"^/hashtag/([a-z0-9_]+)/?$"), url)
-    if match:
+    if match: # Hashtags
         if not user and not ENABLE_LOGGED_OUT_CONTENT:
             return index
 
@@ -261,7 +261,7 @@ def context(request) -> tuple[int, dict] | dict | APIResponse:
         )
 
     match = re.match(re.compile(r"^/p/([0-9]+)/?$"), url)
-    if match:
+    if match: # Posts
         if not user and not ENABLE_LOGGED_OUT_CONTENT:
             return index
 
@@ -277,11 +277,12 @@ def context(request) -> tuple[int, dict] | dict | APIResponse:
         return gc(
             request, user, "post",
             post=get_post_json(post, user, False),
-            comment=False
+            comment=False,
+            mentions=" ".join([f"@{i} " for i in find_mentions(f"{post.content} @{post.creator.username}", [user.username] if user else [])])
         )
 
     match = re.match(re.compile(r"^/c/([0-9]+)/?$"), url)
-    if match:
+    if match: # Comments
         if not user and not ENABLE_LOGGED_OUT_CONTENT:
             return index
 
@@ -297,7 +298,8 @@ def context(request) -> tuple[int, dict] | dict | APIResponse:
         return gc(
             request, user, "post",
             post=get_post_json(post, user, True),
-            comment=True
+            comment=True,
+            mentions="".join([f"@{i} " for i in find_mentions(f"{post.content} @{post.creator.username}", [user.username] if user else [])])
         )
 
     return gc(request, user, "404")
