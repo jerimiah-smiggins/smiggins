@@ -303,7 +303,7 @@ def hashtag_list(request, hashtag: str, sort: str, offset: int=0) -> APIResponse
     try:
         user = User.objects.get(token=request.COOKIES.get("token"))
     except User.DoesNotExist:
-        ...
+        user = None
 
     try:
         tag = Hashtag.objects.get(tag=hashtag)

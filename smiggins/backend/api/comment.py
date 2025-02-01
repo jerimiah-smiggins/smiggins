@@ -119,6 +119,7 @@ def comment_list(request, id: int, comment: bool, sort: str, offset: int=0) -> A
                 "success": False
             }
 
+        user = None
         lang = DEFAULT_LANG
 
     try:
