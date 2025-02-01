@@ -211,7 +211,7 @@ const pages: { [key: string]: [() => string, (() => void) | null] } = {
         <label for="color">${lang.settings.cosmetic_color}:</label><br>
         <div id="color-selector"><select id="color">
           ${inlineFor(validColors, (col: string): string => `
-            <option ${localStorage.getItem("color") == col || (!localStorage.getItem("color") && col == "mauve") ? "selected" : ""} value="${col}"${lang.generic.colors[col]}</option>
+            <option ${localStorage.getItem("color") == col || (!localStorage.getItem("color") && col == "mauve") ? "selected" : ""} value="${col}">${lang.generic.colors[col]}</option>
           `)}
         </select></div>
         <div id="post-example">${getPostHTML({
