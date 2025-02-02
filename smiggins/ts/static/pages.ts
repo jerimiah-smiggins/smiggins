@@ -684,7 +684,7 @@ const pages: { [key: string]: [() => string, (() => void) | null] } = {
 function inlineFor(
   iter: any[],
   callback: ((obj: any) => string) | string,
-  empty: string | null=null
+  empty: string=""
 ): string {
   let out: string = "";
 

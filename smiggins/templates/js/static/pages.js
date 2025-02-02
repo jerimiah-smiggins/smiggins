@@ -633,7 +633,7 @@ const pages = {
     <div id="more-container"><button id="more" onclick="refresh(true)" hidden>${lang.generic.load_more}</button></div>
   `, () => { postInit(); timelineInit(); }]
 };
-function inlineFor(iter, callback, empty = null) {
+function inlineFor(iter, callback, empty = "") {
     let out = "";
     for (const item of iter) {
         if (typeof callback == "string") {
