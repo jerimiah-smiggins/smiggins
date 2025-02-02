@@ -751,7 +751,7 @@ def _lists_get_values(query: Manager[User], page: int, special: Literal["followi
             "badges": get_badges(user),
             "color_one": user.color,
             "color_two": user.color_two if ENABLE_GRADIENT_BANNERS else user.color,
-            "gradient": user.gradient,
+            "gradient_banner": user.gradient,
             "bio": user.bio
         })
 
