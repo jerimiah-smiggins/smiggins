@@ -307,14 +307,16 @@ const pages: { [key: string]: [() => string, (() => void) | null] } = {
     <h2>${conf.site_name} ${conf.version}</h2>
     <ul>
       ${
-        context.contact,
-        ((contact: string): string => `<li>
-          ${contact[0] == "email" ?
-            `<a href="mailto:${encodeURIComponent(contact[1])}">${escapeHTML(contact[1])}</a>`
-          : contact[0] == "url" ?
-            `<a href="${encodeURIComponent(contact[1])}">${escapeHTML(contact[1])}</a>`
-          : escapeHTML(contact[1])}
-        </li>`)
+        inlineFor(
+          context.contact,
+          ((contact: string): string => `<li>
+            ${contact[0] == "email" ?
+              `<a href="mailto:${encodeURIComponent(contact[1])}">${escapeHTML(contact[1])}</a>`
+            : contact[0] == "url" ?
+              `<a href="${encodeURIComponent(contact[1])}">${escapeHTML(contact[1])}</a>`
+            : escapeHTML(contact[1])}
+          </li>`)
+        )
       }
     </ul>
   `, null],

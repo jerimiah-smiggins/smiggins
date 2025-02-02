@@ -291,14 +291,13 @@ const pages = {
     <h1>${lang.contact.subtitle}</h1>
     <h2>${conf.site_name} ${conf.version}</h2>
     <ul>
-      ${context.contact,
-            ((contact) => `<li>
-          ${contact[0] == "email" ?
-                `<a href="mailto:${encodeURIComponent(contact[1])}">${escapeHTML(contact[1])}</a>`
-                : contact[0] == "url" ?
-                    `<a href="${encodeURIComponent(contact[1])}">${escapeHTML(contact[1])}</a>`
-                    : escapeHTML(contact[1])}
-        </li>`)}
+      ${inlineFor(context.contact, ((contact) => `<li>
+            ${contact[0] == "email" ?
+            `<a href="mailto:${encodeURIComponent(contact[1])}">${escapeHTML(contact[1])}</a>`
+            : contact[0] == "url" ?
+                `<a href="${encodeURIComponent(contact[1])}">${escapeHTML(contact[1])}</a>`
+                : escapeHTML(contact[1])}
+          </li>`))}
     </ul>
   `, null],
     credits: [() => `
