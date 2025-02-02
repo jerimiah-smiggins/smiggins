@@ -666,7 +666,7 @@ function linkEventHandler(event) {
     redirect(path);
 }
 function renderPage() {
-    document.title = `${context.strings[0] ? `${context.strings[0]} - ` : ""}${conf.site_name} ${conf.version}`;
+    document.title = `${titleNotificationIndicator ? "[ ! ]" : ""} ${context.strings[0] ? `${context.strings[0]} - ` : ""}${conf.site_name} ${conf.version}`;
     dom("content").dataset.page = context.page;
     for (const interval of killIntervals) {
         clearInterval(interval);
