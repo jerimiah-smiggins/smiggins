@@ -7,14 +7,13 @@ from typing import Any
 from django.core.handlers.wsgi import WSGIRequest
 from django.http import HttpResponse, HttpResponseRedirect
 from django.views.decorators.csrf import csrf_exempt
-from posts.models import URLPart, User
+from posts.models import GenericData, URLPart, User
 
-from ..helper import (generate_token, get_HTTP_response, get_lang, send_email,
-                      sha)
+from ..helper import (check_ratelimit, generate_token, get_HTTP_response,
+                      get_lang, send_email, sha)
 from ..variables import DEFAULT_DARK_THEME, THEMES, WEBSITE_URL
 from .schema import APIResponse, Email, Username
 
-LAST_TRIM: int = 0
 
 def _get_url(user: User, intent: str, extra_data: dict | None=None) -> str:
     if extra_data is None:
@@ -149,6 +148,9 @@ def verify_email(request, user: User, data: Email) -> APIResponse:
     }
 
 def password_reset(request, data: Username) -> APIResponse:
+    if rl := check_ratelimit(request, "POST /api/email/password"):
+        return rl
+
     user = User.objects.get(username=data.username.lower())
     lang = get_lang(user)
 
@@ -295,7 +297,7 @@ def test_link(request, intent=True) -> HttpResponse:
         return HttpResponseRedirect("/", status=307)
 
     if intent not in ["reset", "remove", "verify", "pwd_fm"]:
-        return HttpResponseRedirect("/home/", status=307)
+        return HttpResponseRedirect("/", status=307)
 
     key = "test-key"
 
@@ -310,6 +312,9 @@ def test_link(request, intent=True) -> HttpResponse:
     return HttpResponse(f"/email/test-key/?i={intent}")
 
 def set_email(request, data: Email) -> APIResponse:
+    if rl := check_ratelimit(request, "POST /api/email/save"):
+        return rl
+
     user = User.objects.get(token=request.COOKIES.get("token"))
 
     if generate_token(user.username, data.password) != user.token:
@@ -324,12 +329,29 @@ def set_email(request, data: Email) -> APIResponse:
     return verify_email(request, user, data)
 
 def remove_extra_urlparts():
-    current_time = round(time.time())
+    lUObj = None
+    try:
+        lUObj = GenericData.objects.get(id="email_url_trim")
+        lastUpdate = int(lUObj.value)
+    except GenericData.DoesNotExist:
+        lastUpdate = 0
+    except TypeError:
+        lastUpdate = 0
 
-    # Only rerun if it's been over two hours
-    if LAST_TRIM >= current_time + 60 * 60 * 2:
+    if lastUpdate + 60 * 60 * 2 > time.time():
         return
 
     for i in URLPart.objects.all():
-        if i.expire <= current_time:
+        if i.expire <= time.time():
             i.delete()
+
+    now = str(int(time.time()))
+
+    if lUObj:
+        lUObj.value = now
+        lUObj.save()
+    else:
+        GenericData.objects.create(
+            id="email_url_trim",
+            value=now
+        )

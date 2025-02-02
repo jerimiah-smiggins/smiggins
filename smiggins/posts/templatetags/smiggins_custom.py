@@ -1,20 +1,12 @@
-from backend.api.admin import BitMask
+from html import escape
+
+from backend.variables import REAL_VERSION
 from django import template
+from django.templatetags.static import static
 
 register = template.Library()
+version_string = ".".join([str(i) for i in REAL_VERSION])
 
-@register.filter
-def get(obj, key):
-    return obj.get(key)
-
-@register.filter
-def js_bool(input: bool):
-    return str(input).lower()
-
-@register.simple_tag
-def admin_level(level, identifier):
-    return BitMask.can_use_direct(level, identifier)
-
-@register.simple_tag(name="any")
-def any_true(*args):
-    return any(args)
+@register.filter(is_safe=True)
+def get_script(path: str) -> str:
+    return f"<script src='{escape(static(path))}?v={version_string}'></script>"

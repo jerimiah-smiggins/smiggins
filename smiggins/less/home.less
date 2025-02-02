@@ -156,7 +156,7 @@ button:not(.bottom-content-icon) {
       border-radius: 0.3em;
       position: absolute;
       overflow: hidden;
-      white-space: nowrap;
+      white-space: pre;
       text-overflow: ellipsis;
       max-width: ~"calc(min(@{post-max-width}, 100vw - (@{post-margin-mobile} * 2) - (@{post-border-width} * 2) - (@{post-padding} * 2)) - 1.2em)";
     }
@@ -365,6 +365,10 @@ button.bottom-content-icon {
 }
 
 body[data-compact] {
+  #notif-container .post {
+    margin-bottom: 10px !important;
+  }
+
   .post-container {
     &:first-child > .post {
       border-top-left-radius: @post-border-width;
@@ -388,6 +392,21 @@ body[data-compact] {
 
   .quote-area > .post {
     border-radius: @post-border-width;
+  }
+}
+
+#content[data-page="post"] {
+  #top .main-content {
+    -webkit-line-clamp: unset;
+    line-clamp: unset;
+  }
+
+  #parent {
+    margin-bottom: 1.5em;
+  }
+
+  #post-text {
+    height: 6em;
   }
 }
 

@@ -1,3 +1,17 @@
+# changelog
+tracks changes across versions
+## v0.13.9
+1. Rewrote the frontend to function as a single page application (#304)
+2. Rewrote the ratelimiting system (#302)
+3. Made it so comments and posts can no longer be set to have no text content when editing (#306)
+4. Posts, user bios, display names, and messages now all support multiple spaces in a row (#299)
+5. Notification/message/pending followers indicators now have numbers indicating how many there are (#298)
+6. Languages now use Javascript's `Intl` api, instead of relying on predefined names (#213)
+7. Some variables now sync properly when using services like Gunicorn to split up the server load across several processes (#307)
+8. Fixed two strings on the credits page that were hardcoded instead of respecting the user's language (#309)
+9. /u/.../lists/ pages now have pagination (#294)
+10. The timeline no longer breaks if you can't view a quoted post (ex. it was deleted, it was followers-only) (#211)
+11. You can now view hashtag and comment timelines when logged out (#312)
 ## v0.13.8
 1. Rewrote the CSS for the post box (#285)
 2. Added a compact UI option (#278)

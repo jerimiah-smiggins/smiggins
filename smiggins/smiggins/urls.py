@@ -3,12 +3,8 @@ from backend.api.email import test_link as test_email
 from backend.helper import create_simple_return
 from backend.sitemaps import (sitemap_base, sitemap_comment, sitemap_hashtag,
                               sitemap_index, sitemap_post, sitemap_user)
-from backend.templating import (admin, comment, contact, credit,
-                                generate_favicon, hashtag, message, pending,
-                                post, settings, user, user_lists)
-from backend.variables import (CONTACT_INFO, DEBUG, ENABLE_CONTACT_PAGE,
-                               ENABLE_CREDITS_PAGE, ENABLE_EMAIL,
-                               ENABLE_HASHTAGS, ENABLE_PRIVATE_MESSAGES,
+from backend.templating import generate_favicon, webapp
+from backend.variables import (CONTACT_INFO, DEBUG, ENABLE_EMAIL,
                                ENABLE_SITEMAPS, FAVICON_CACHE_TIMEOUT,
                                GENERIC_CACHE_TIMEOUT, REAL_VERSION, ROBOTS,
                                SITEMAP_CACHE_TIMEOUT)
@@ -26,32 +22,9 @@ _security_txt = create_simple_return("", content_type="text/plain", content_over
 
 urlpatterns = list(filter(bool, [
     path("api/", include("smiggins.api")),
-
-    path("", create_simple_return("index.html", redirect_logged_in=True)),
-    path("home/", create_simple_return("home.html", redirect_logged_out=True)),
-    path("login/", create_simple_return("login.html", redirect_logged_in=True)),
-    path("signup/", create_simple_return("signup.html", redirect_logged_in=True)),
-    path("logout/", create_simple_return("logout.html")),
-    path("reset-password/", create_simple_return("reset-password.html", redirect_logged_in=True)) if ENABLE_EMAIL else None,
-
-    path("settings/", settings),
-    path("contact/", contact) if ENABLE_CONTACT_PAGE else None,
-    path("notifications/", create_simple_return("notifications.html", redirect_logged_out=True)),
-    path("credits/", credit) if ENABLE_CREDITS_PAGE else None,
-    path("messages/", create_simple_return("messages.html", redirect_logged_out=True)) if ENABLE_PRIVATE_MESSAGES else None,
-    path("pending/", pending),
-
-    path("hashtag/<str:hashtag>/", hashtag) if ENABLE_HASHTAGS else None,
-    path("u/<str:username>/", user),
-    path("u/<str:username>/lists/", user_lists),
-    path("p/<int:post_id>/", post),
-    path("c/<int:comment_id>/", comment),
-    path("m/<str:username>/", message) if ENABLE_PRIVATE_MESSAGES else None,
-
     path("email/test/<str:intent>", test_email) if DEBUG and ENABLE_EMAIL else None,
     path("email/<str:key>/", email_manager) if ENABLE_EMAIL else None,
 
-    path("admin/", admin),
     path("django-admin/", django_admin.site.urls),
 
     #                 base   crust  accent
@@ -66,10 +39,20 @@ urlpatterns = list(filter(bool, [
     path("sitemaps/u/<int:index>.xml", (cache_page(SITEMAP_CACHE_TIMEOUT, key_prefix=cache_prefix)(sitemap_user) if SITEMAP_CACHE_TIMEOUT else sitemap_user)) if ENABLE_SITEMAPS else None,
     path("sitemaps/p/<int:index>.xml", (cache_page(SITEMAP_CACHE_TIMEOUT, key_prefix=cache_prefix)(sitemap_post) if SITEMAP_CACHE_TIMEOUT else sitemap_post)) if ENABLE_SITEMAPS else None,
     path("sitemaps/c/<int:index>.xml", (cache_page(SITEMAP_CACHE_TIMEOUT, key_prefix=cache_prefix)(sitemap_comment) if SITEMAP_CACHE_TIMEOUT else sitemap_post)) if ENABLE_SITEMAPS else None,
-    path("sitemaps/h/<int:index>.xml", (cache_page(SITEMAP_CACHE_TIMEOUT, key_prefix=cache_prefix)(sitemap_hashtag) if SITEMAP_CACHE_TIMEOUT else sitemap_post)) if ENABLE_SITEMAPS else None
+    path("sitemaps/h/<int:index>.xml", (cache_page(SITEMAP_CACHE_TIMEOUT, key_prefix=cache_prefix)(sitemap_hashtag) if SITEMAP_CACHE_TIMEOUT else sitemap_post)) if ENABLE_SITEMAPS else None,
+
+    re_path("^.*$", webapp)
+
+    # path("pending/", pending),
+
+    # path("hashtag/<str:hashtag>/", hashtag) if ENABLE_HASHTAGS else None,
+    # path("u/<str:username>/lists/", user_lists),
+    # path("p/<int:post_id>/", post),
+    # path("c/<int:comment_id>/", comment),
+
+    # path("admin/", admin),
 ]))
 
 del _favicon, _robots_txt, _security_txt
 
-handler404 = "backend.templating._404"
 handler500 = "backend.templating._500"

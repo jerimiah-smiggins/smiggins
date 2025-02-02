@@ -1,13 +1,14 @@
-# This is to get information about the client, like ip, username, etc.
-# Do NOT add telemetry here.
+from django.db.models import Q
+from posts.models import PrivateMessageContainer, User
 
-from posts.models import User
-
+from ..helper import check_ratelimit
 from ..variables import ENABLE_PRIVATE_MESSAGES, REAL_VERSION
+from .schema import APIResponse
 
 
-def notifications(request) -> tuple[int, dict] | dict:
-    # Returns whether or not you have unread notifications
+def notifications(request) -> tuple[int, dict] | dict | APIResponse:
+    if rl := check_ratelimit(request, "GET /api/info/notifications"):
+        return rl
 
     try:
         user = User.objects.get(token=request.COOKIES.get("token"))
@@ -18,13 +19,14 @@ def notifications(request) -> tuple[int, dict] | dict:
 
     return {
         "success": True,
-        "notifications": not user.read_notifs,
-        "messages": ENABLE_PRIVATE_MESSAGES and len(user.unread_messages) != 0,
-        "followers": user.verify_followers and user.pending_followers.count() > 0
+        "notifications": user.notifications.filter(read=False).count(),
+        "messages": PrivateMessageContainer.objects.filter(Q(user_one=user, unread_one=True) | Q(user_two=user, unread_two=True)).count() if ENABLE_PRIVATE_MESSAGES else 0,
+        "followers": (user.verify_followers or 0) and user.pending_followers.count()
     }
 
-def version(request) -> dict:
-    # Returns the site version
+def version(request) -> dict | APIResponse:
+    if rl := check_ratelimit(request, "GET /api/info/version"):
+        return rl
 
     return {
         "success": True,

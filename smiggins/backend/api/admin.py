@@ -9,12 +9,13 @@ from django.db.utils import OperationalError
 from posts.models import (AdminLog, Badge, MutedWord, OneTimePassword,
                           PrivateMessageContainer, User)
 
-from ..helper import get_lang, sha_to_bytes, trim_whitespace
-from ..variables import (BADGE_DATA, MAX_ADMIN_LOG_LINES,
-                         MAX_MUTED_WORD_LENGTH, MAX_MUTED_WORDS, OWNER_USER_ID,
+from ..helper import check_ratelimit, get_lang, sha_to_bytes, trim_whitespace
+from ..variables import (MAX_ADMIN_LOG_LINES, MAX_MUTED_WORD_LENGTH,
+                         MAX_MUTED_WORDS, OWNER_USER_ID,
                          PRIVATE_AUTHENTICATOR_KEY)
-from .schema import (AccountIdentifier, APIResponse, DeleteBadge, MutedWords,
-                     NewBadge, OTPName, SaveUser, UserBadge, UserLevel)
+from .schema import (AccountIdentifier, APIResponse, DeleteBadge,
+                     MutedWordsAdmin, NewBadge, OTPName, SaveUser, UserBadge,
+                     UserLevel)
 
 
 class BitMask:
@@ -47,7 +48,6 @@ def log_admin_action(
     log_info: str
 ) -> None:
     # Logs an administrative action
-
     if isinstance(for_user_object, str):
         AdminLog.objects.create(
             type=action_name,
@@ -68,7 +68,8 @@ def log_admin_action(
     AdminLog.objects.filter(pk__in=AdminLog.objects.order_by("timestamp").reverse().values_list("pk", flat=True)[MAX_ADMIN_LOG_LINES:]).delete()
 
 def user_delete(request, data: AccountIdentifier) -> APIResponse:
-    # Deleting an account
+    if rl := check_ratelimit(request, "DELETE /api/admin/user"):
+        return rl
 
     try:
         user = User.objects.get(token=request.COOKIES.get("token"))
@@ -130,7 +131,8 @@ def user_delete(request, data: AccountIdentifier) -> APIResponse:
     }
 
 def badge_create(request, data: NewBadge) -> APIResponse:
-    # Creating a badge
+    if rl := check_ratelimit(request, "PUT /api/admin/badge"):
+        return rl
 
     try:
         self_user = User.objects.get(token=request.COOKIES.get("token"))
@@ -142,7 +144,7 @@ def badge_create(request, data: NewBadge) -> APIResponse:
 
     if BitMask.can_use(self_user, BitMask.CREATE_BADGE):
         badge_name = data.badge_name.lower().replace(" ", "")
-        badge_data = trim_whitespace(data.badge_data, True)
+        badge_data = trim_whitespace(data.badge_data, True)[0]
 
         if len(badge_name) > 64 or len(badge_name) <= 0:
             log_admin_action("Create badge", self_user, None, f"Invalid badge name {badge_name}")
@@ -184,8 +186,6 @@ def badge_create(request, data: NewBadge) -> APIResponse:
 
         badge.save()
 
-        BADGE_DATA[badge_name] = badge_data
-
         lang = get_lang(self_user)
 
         log_admin_action("Create badge", self_user, None, f"Created badge {badge_name}")
@@ -199,7 +199,8 @@ def badge_create(request, data: NewBadge) -> APIResponse:
     }
 
 def badge_delete(request, data: DeleteBadge) -> APIResponse:
-    # Deleting a badge
+    if rl := check_ratelimit(request, "DELETE /api/admin/badge"):
+        return rl
 
     try:
         self_user = User.objects.get(token=request.COOKIES.get("token"))
@@ -248,8 +249,6 @@ def badge_delete(request, data: DeleteBadge) -> APIResponse:
 
         badge.delete()
 
-        del BADGE_DATA[badge_name]
-
         log_admin_action("Delete badge", self_user, None, f"Badge {badge_name} successfully deleted")
         return {
             "success": True,
@@ -261,7 +260,8 @@ def badge_delete(request, data: DeleteBadge) -> APIResponse:
     }
 
 def badge_add(request, data: UserBadge) -> APIResponse:
-    # Adding a badge to a user
+    if rl := check_ratelimit(request, "POST /api/admin/badge"):
+        return rl
 
     try:
         self_user = User.objects.get(token=request.COOKIES.get("token"))
@@ -291,20 +291,22 @@ def badge_add(request, data: UserBadge) -> APIResponse:
                 "message": lang["admin"]["badge"]["manage_add_protected"]
             }
 
-        if data.badge_name.lower() in BADGE_DATA:
-            if not user.badges.contains(badge := Badge.objects.get(name=data.badge_name.lower())):
-                badge.users.add(user)
-
-            log_admin_action("Add badge", self_user, user, f"Added badge {data.badge_name}")
-            return {
-                "success": True,
-                "message": lang["generic"]["success"]
+        try:
+            badge = Badge.objects.get(name=data.badge_name.lower())
+        except Badge.DoesNotExist:
+            log_admin_action("Add badge", self_user, user, f"Tried to add badge {data.badge_name}, but badge doesn't exist")
+            return 404, {
+                "success": False,
+                "message": lang["admin"]["badge"]["not_found"].replace("%s", data.badge_name)
             }
 
-        log_admin_action("Add badge", self_user, user, f"Tried to add badge {data.badge_name}, but badge doesn't exist")
-        return 404, {
-            "success": False,
-            "message": lang["admin"]["badge"]["not_found"].replace("%s", data.badge_name)
+        if not user.badges.contains(badge):
+            badge.users.add(user)
+
+        log_admin_action("Add badge", self_user, user, f"Added badge {data.badge_name}")
+        return {
+            "success": True,
+            "message": lang["generic"]["success"]
         }
 
     return 400, {
@@ -312,7 +314,8 @@ def badge_add(request, data: UserBadge) -> APIResponse:
     }
 
 def badge_remove(request, data: UserBadge) -> APIResponse:
-    # Removing a badge from a user
+    if rl := check_ratelimit(request, "PATCH /api/admin/badge"):
+        return rl
 
     try:
         self_user = User.objects.get(token=request.COOKIES.get("token"))
@@ -342,20 +345,21 @@ def badge_remove(request, data: UserBadge) -> APIResponse:
                 "message": lang["admin"]["badge"]["manage_remove_protected"]
             }
 
-        if data.badge_name.lower() in BADGE_DATA:
+        try:
             badge = Badge.objects.get(name=data.badge_name.lower())
-            badge.users.remove(user)
-
-            log_admin_action("Remove badge", self_user, user, f"Removed badge {data.badge_name}")
-            return {
-                "success": True,
-                "message": lang["generic"]["success"]
+        except Badge.DoesNotExist:
+            log_admin_action("Remove badge", self_user, user, f"Tried to remove badge {data.badge_name}, but badge doesn't exist")
+            return 404, {
+                "success": False,
+                "message": lang["admin"]["badge"]["not_found"].replace("%s", data.badge_name)
             }
 
-        log_admin_action("Remove badge", self_user, user, f"Tried to remove badge {data.badge_name}, but badge doesn't exist")
-        return 404, {
-            "success": False,
-            "message": lang["admin"]["badge"]["not_found"].replace("%s", data.badge_name)
+        badge.users.remove(user)
+
+        log_admin_action("Remove badge", self_user, user, f"Removed badge {data.badge_name}")
+        return {
+            "success": True,
+            "message": lang["generic"]["success"]
         }
 
     return 400, {
@@ -363,7 +367,8 @@ def badge_remove(request, data: UserBadge) -> APIResponse:
     }
 
 def account_info(request, identifier: str, use_id: bool) -> APIResponse:
-    # Get account information
+    if rl := check_ratelimit(request, "GET /api/admin/info"):
+        return rl
 
     identifier = identifier.lower()
 
@@ -409,7 +414,8 @@ def account_info(request, identifier: str, use_id: bool) -> APIResponse:
     }
 
 def account_save(request, data: SaveUser) -> APIResponse:
-    # Save account information
+    if rl := check_ratelimit(request, "PATCH /api/admin/info"):
+        return rl
 
     try:
         self_user = User.objects.get(token=request.COOKIES.get("token"))
@@ -429,14 +435,16 @@ def account_save(request, data: SaveUser) -> APIResponse:
                 "message": lang["generic"]["user_not_found"]
             }
 
-        if len(data.bio) > 65536:
+        new_bio = trim_whitespace(data.bio, True)
+        if len(new_bio[0]) > 65536:
             log_admin_action("Save account info", self_user, user, f"Tried to save info, but bio (length {len(data.bio)}) is invalid")
             return 400, {
                 "success": False,
                 "message": lang["admin"]["modify"]["invalid_bio_size"]
             }
 
-        if len(data.displ_name) == 0 or len(data.displ_name) > 300:
+        new_display_name = trim_whitespace(data.displ_name, True)
+        if not new_display_name[1] or len(new_display_name[0]) > 300:
             log_admin_action("Save account info", self_user, user, f"Tried to save info, but display name {data.displ_name} is invalid")
             return 400, {
                 "success": False,
@@ -445,18 +453,16 @@ def account_save(request, data: SaveUser) -> APIResponse:
 
         old_bio = user.bio
         old_display_name = user.display_name
-        new_bio = trim_whitespace(data.bio, True)
-        new_display_name = trim_whitespace(data.displ_name, True)
 
-        user.bio = new_bio
-        user.display_name = new_display_name
+        user.bio = new_bio[0]
+        user.display_name = new_display_name[0]
         user.save()
 
-        if old_bio == new_bio and old_display_name == new_display_name:
+        if old_bio == new_bio[0] and old_display_name == new_display_name[0]:
             log_admin_action("Save account info", self_user, user, "Nothing changed")
-        elif old_display_name == new_display_name:
+        elif old_display_name == new_display_name[0]:
             log_admin_action("Save account info", self_user, user, "Saved bio")
-        elif old_bio == new_bio:
+        elif old_bio == new_bio[0]:
             log_admin_action("Save account info", self_user, user, "Saved display name")
         else:
             log_admin_action("Save account info", self_user, user, "Save bio and display name")
@@ -471,7 +477,8 @@ def account_save(request, data: SaveUser) -> APIResponse:
     }
 
 def set_level(request, data: UserLevel) -> APIResponse:
-    # Set the admin level for a different person
+    if rl := check_ratelimit(request, "PATCH /api/admin/level"):
+        return rl
 
     try:
         self_user = User.objects.get(token=request.COOKIES.get("token"))
@@ -508,6 +515,9 @@ def set_level(request, data: UserLevel) -> APIResponse:
     }
 
 def load_level(request, identifier: str, use_id: bool) -> APIResponse:
+    if rl := check_ratelimit(request, "GET /api/admin/level"):
+        return rl
+
     try:
         self_user = User.objects.get(token=request.COOKIES.get("token"))
     except User.DoesNotExist:
@@ -544,6 +554,9 @@ def load_level(request, identifier: str, use_id: bool) -> APIResponse:
     }
 
 def logs(request) -> APIResponse:
+    if rl := check_ratelimit(request, "GET /api/admin/logs"):
+        return rl
+
     try:
         self_user = User.objects.get(token=request.COOKIES.get("token"))
     except User.DoesNotExist:
@@ -573,6 +586,9 @@ def logs(request) -> APIResponse:
     }
 
 def otp_generate(request) -> APIResponse:
+    if rl := check_ratelimit(request, "POST /api/admin/otp"):
+        return rl
+
     user = User.objects.get(token=request.COOKIES.get("token"))
 
     if BitMask.can_use(user, BitMask.READ_LOGS):
@@ -595,6 +611,9 @@ def otp_generate(request) -> APIResponse:
     }
 
 def otp_delete(request, data: OTPName) -> APIResponse:
+    if rl := check_ratelimit(request, "DELETE /api/admin/otp"):
+        return rl
+
     user = User.objects.get(token=request.COOKIES.get("token"))
 
     if BitMask.can_use(user, BitMask.READ_LOGS):
@@ -624,6 +643,9 @@ def otp_delete(request, data: OTPName) -> APIResponse:
     }
 
 def otp_load(request) -> APIResponse:
+    if rl := check_ratelimit(request, "GET /api/admin/otp"):
+        return rl
+
     user = User.objects.get(token=request.COOKIES.get("token"))
 
     if BitMask.can_use(user, BitMask.READ_LOGS):
@@ -646,8 +668,10 @@ def otp_load(request) -> APIResponse:
         "success": False
     }
 
-def muted(request, data: MutedWords) -> APIResponse:
+def muted(request, data: MutedWordsAdmin) -> APIResponse:
     # You may need to also edit the muted function in backend.api.user to match functionality
+    if rl := check_ratelimit(request, "POST /api/admin/muted"):
+        return rl
 
     user = User.objects.get(token=request.COOKIES.get("token"))
 
@@ -656,9 +680,9 @@ def muted(request, data: MutedWords) -> APIResponse:
         objs = []
 
         for word in data.muted.split("\n"):
-            word = trim_whitespace(word)
+            word, valid = trim_whitespace(word, True)
 
-            if not word:
+            if not valid:
                 continue
 
             if len(word) > MAX_MUTED_WORD_LENGTH:
@@ -699,10 +723,6 @@ def muted(request, data: MutedWords) -> APIResponse:
 # Set default badges
 try:
     Badge.objects.get(name="administrator")
-
-    for i in Badge.objects.all():
-        BADGE_DATA[i.name] = i.svg_data
-
 except Badge.DoesNotExist:
     icons = {
         "verified": '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><title>Verified</title><path d="M200.3 81.5C210.9 61.5 231.9 48 256 48s45.1 13.5 55.7 33.5c5.4 10.2 17.3 15.1 28.3 11.7 21.6-6.6 46.1-1.4 63.1 15.7s22.3 41.5 15.7 63.1c-3.4 11 1.5 22.9 11.7 28.2 20 10.6 33.5 31.6 33.5 55.7s-13.5 45.1-33.5 55.7c-10.2 5.4-15.1 17.2-11.7 28.2 6.6 21.6 1.4 46.1-15.7 63.1s-41.5 22.3-63.1 15.7c-11-3.4-22.9 1.5-28.2 11.7-10.6 20-31.6 33.5-55.7 33.5s-45.1-13.5-55.7-33.5c-5.4-10.2-17.2-15.1-28.2-11.7-21.6 6.6-46.1 1.4-63.1-15.7S86.6 361.6 93.2 340c3.4-11-1.5-22.9-11.7-28.2C61.5 301.1 48 280.1 48 256s13.5-45.1 33.5-55.7c10.2-5.4 15.1-17.3 11.7-28.3-6.6-21.6-1.4-46.1 15.7-63.1s41.5-22.3 63.1-15.7c11 3.4 22.9-1.5 28.2-11.7zM256 0c-35.9 0-67.8 17-88.1 43.4-33-4.3-67.6 6.2-93 31.6S39 135 43.3 168C17 188.2 0 220.1 0 256s17 67.8 43.4 88.1c-4.3 33 6.2 67.6 31.6 93s60 35.9 93 31.6c20.2 26.3 52.1 43.3 88 43.3s67.8-17 88.1-43.4c33 4.3 67.6-6.2 93-31.6s35.9-60 31.6-93c26.3-20.2 43.3-52.1 43.3-88s-17-67.8-43.4-88.1c4.3-33-6.2-67.6-31.6-93S377 39 344 43.3C323.8 17 291.9 0 256 0m113 209c9.4-9.4 9.4-24.6 0-33.9s-24.6-9.4-33.9 0l-111 111-47-47c-9.4-9.4-24.6-9.4-33.9 0s-9.4 24.6 0 33.9l64 64c9.4 9.4 24.6 9.4 33.9 0z"/></svg>',
@@ -719,9 +739,6 @@ except Badge.DoesNotExist:
         del x
 
     del icons
-
-    for i in Badge.objects.all():
-        BADGE_DATA[i.name] = i.svg_data
 
 except OperationalError:
     ...

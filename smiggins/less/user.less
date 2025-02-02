@@ -1,12 +1,32 @@
-#banner {
-  display: inline-block;
-  border-radius: 1em;
-  width: 35em;
-  height: 6em;
-  background-color: var(--banner);
+#content[data-page="user"],
+#content[data-page="user-lists"] {
+  #banner {
+    display: inline-block;
+    border-radius: 1em;
+    width: 35em;
+    height: 6em;
+    background-color: var(--banner);
 
-  &.gradient {
-    background: linear-gradient(90deg, var(--banner), var(--banner-two));
+    &.gradient {
+      background: linear-gradient(90deg, var(--banner), var(--banner-two));
+    }
+  }
+}
+
+#content[data-page="user-lists"] .lists-container {
+  display: flex;
+  flex-direction: row;
+  flex-wrap: wrap;
+  justify-content: center;
+
+  & > div {
+    width: 100%;
+    max-width: 25em;
+    margin: 0 3em;
+  }
+
+  .post {
+    max-width: 22.125em;
   }
 }
 
@@ -54,9 +74,4 @@
     font-size: 1.5em;
     top: -1.25em;
   }
-}
-
-hr {
-  max-width: 25em;
-  margin-bottom: 2em;
 }

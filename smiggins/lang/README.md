@@ -5,6 +5,14 @@ For contributing, read [this document](/docs/contributing.md#translating).
 Updates for each language version are listed below:
 
 <details>
+<summary>v1.10.3</summary>
+
+```diff
++ admin.permissions.descriptions.10
+```
+</details>
+
+<details>
 <summary>v1.10.2</summary>
 
 ```diff

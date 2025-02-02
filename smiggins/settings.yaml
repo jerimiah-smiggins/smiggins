@@ -11,6 +11,11 @@ version: null
 # The name of the instance
 site_name: Jerimiah Smiggins
 
+# A list of words/phrases to show up when loading. If none are set, it uses the
+# word for "loading" in the user's set language
+MOTDs:
+# - "Loading..."
+
 # The url of the website that you are running. This is VERY IMPORTANT to set,
 # and is required for emails and sitemaps to work properly. Make sure to
 # include the "https://" part.
@@ -232,22 +237,6 @@ custom_headers:
 # Whether or not to show links to the github page
 source_code: true
 
-# Whether or not to enforce the ratelimit
-ratelimit: true
-
-# This defines the times needed for ratelimits to expire. Timings are all in
-# milliseconds (1000ms = 1 second). If ratelimit is false, this gets ignored.
-# Defaults: 1000, 15000, 1000, 5000, 3000, 1000, 3000, 1000
-api_timings:
-  "signup unsuccessful": 1000
-  "signup successful": 15000
-  "login unsuccessful": 1000
-  "login successful": 5000
-  "create comment": 3000
-  "create comment failure": 1000
-  "create post": 3000
-  "create post failure": 1000
-
 # NOTE:
 # Changing any of the following settings won't modify any existing values in
 # the database, instead ignoring them to meet the preferred setting. This
@@ -293,7 +282,7 @@ enable_logged_out_content: true # Last tested: v0.13.6
 # "otp" (one-time password) to require users to input a one time invite code
 # when signing up. Those can be found in the admin page.
 # Aliases: enable_signup, enable_new_users, enable_new_accounts
-enable_new_accounts: true # Last tested: v0.13.6
+enable_new_accounts: true # Last tested: v0.13.8
 
 # Any custom themes added to your website. Format is as follows:
 # {
@@ -412,3 +401,80 @@ custom_themes:
 #       sapphire: ...
 #       blue: ...
 #       lavender: ...
+
+# it is HIGHLY ENCOURAGED to ENABLE RATELIMITING on public instances to prevent
+# spam and abuse from automated systems or malicious individuals
+enable_ratelimit: true
+
+# Format:
+# "METHOD /api/url": [# requests, per # seconds]
+# Find all methods/urls in smiggins/api.py. Set to null to disable ratelimits
+# for a specific method/url pair. Whether or not to ratelimit someone is based
+# on username (logged in) or ip address (logged out). Make sure the "alternate_ips"
+# setting is set properly for logged out ratelimiting to properly function. Does
+# NOT SUPPORT fractional timings.
+ratelimits:
+  GET /api/init/context: [10, 5]
+  GET /api/init/lang: [10, 60]
+  GET /api/init/muted: [10, 60]
+  GET /api/init/badges: [10, 60]
+  POST /api/user/signup: [2, 10]
+  POST /api/user/login: [5, 10]
+  GET /api/user/notifications: [5, 10]
+  PATCH /api/user/notifications: [2, 10]
+  DELETE /api/user/notifications: [2, 10]
+  PATCH /api/user/settings/theme: [10, 5]
+  PATCH /api/user/settings: [5, 10]
+  POST /api/user/muted: [4, 20]
+  PATCH /api/user/password: [4, 60]
+  POST /api/user/follow: [10, 5]
+  DELETE /api/user/follow: [10, 5]
+  GET /api/user/pending: [5, 10]
+  POST /api/user/pending: [10, 5]
+  DELETE /api/user/pending: [10, 5]
+  POST /api/user/block: [10, 5]
+  DELETE /api/user/block: [10, 5]
+  PATCH /api/user/pin: [2, 10]
+  DELETE /api/user/pin: [2, 10]
+  GET /api/user/lists: [10, 5]
+  DELETE /api/user: [4, 120]
+  PUT /api/comment/create: [5, 30]
+  PUT /api/quote/create: [5, 30]
+  PUT /api/post/create: [5, 60]
+  GET /api/post/user/{str:username}: [20, 60]
+  GET /api/post/following: [20, 60]
+  GET /api/post/recent: [20, 60]
+  GET /api/comments: [5, 10]
+  GET /api/hashtag/{str:hashtag}: [10, 5]
+  DELETE /api/post: [10, 10]
+  DELETE /api/comment: [10, 10]
+  POST /api/post/like: [10, 5]
+  DELETE /api/post/like: [10, 5]
+  POST /api/comment/like: [10, 5]
+  DELETE /api/comment/like: [10, 5]
+  PATCH /api/post/edit: [2, 10]
+  PATCH /api/comment/edit: [2, 10]
+  POST /api/post/poll: [10, 5]
+  GET /api/post/poll: [5, 10]
+  GET /api/messages/list: [10, 5]
+  POST /api/messages/new: [3, 10]
+  GET /api/messages: [10, 5]
+  POST /api/messages: [10, 10]
+  DELETE /api/admin/user: [4, 60]
+  POST /api/admin/badge: [10, 5]
+  PATCH /api/admin/badge: [10, 5]
+  PUT /api/admin/badge: [2, 5]
+  DELETE /api/admin/badge: [5, 5]
+  GET /api/admin/info: [10, 30]
+  PATCH /api/admin/info: [5, 10]
+  GET /api/admin/level: [10, 5]
+  PATCH /api/admin/level: [5, 5]
+  GET /api/admin/logs: [5, 10]
+  POST /api/admin/otp: [5, 5]
+  DELETE /api/admin/otp: [10, 5]
+  GET /api/admin/otp: [10, 5]
+  POST /api/admin/muted: [2, 10]
+  POST /api/email/password: [3, 60]
+  POST /api/email/save: [4, 20]
+  GET /api/info/notifications: [5, 10]
+  GET /api/info/version: null

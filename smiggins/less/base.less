@@ -9,6 +9,10 @@
   outline: calc(2em / 14) var(--accent) solid;
 }
 
+:root {
+  scrollbar-width: none;
+}
+
 ::-webkit-scrollbar {
   display: none;
 }
@@ -40,6 +44,14 @@ body {
 
 hr {
   border-color: var(--accent);
+  max-width: 25em;
+}
+
+#content[data-page="notifications"],
+#content[data-page="user"] {
+  hr {
+    margin-bottom: 2em;
+  }
 }
 
 small {
@@ -294,6 +306,10 @@ svg.red,
   white-space: nowrap;
 }
 
+.pre-wrap {
+  white-space: pre-wrap;
+}
+
 .left {
   text-align: left;
 }
@@ -383,12 +399,17 @@ body[data-bar-dir="v"][data-bar-pos^="l"] {
   .dot::after {
     position: absolute;
     display: inline-block;
-    width: 0.5em;
-    height: 0.5em;
-    border-radius: 0.25em;
-    transform: translate(-0.3em, 0);
+    height: 1rem;
+    min-width: calc(1rem - 4px);
+    padding: 1px 3px;
+    border-radius: calc(1rem + 2px);
+    transform: translate(-.6rem, -0.3rem);
     background-color: var(--accent);
-    content: "";
+    color: var(--background);
+    content: attr(data-value);
+    font-weight: 700;
+    font-size: 11.2px;
+    text-align: center;
   }
 }
 
@@ -470,6 +491,49 @@ body[data-bar-dir="v"][data-bar-pos^="l"] {
     &.warning {
       color: var(--red);
       border-color: var(--red);
+    }
+  }
+}
+
+.loading-container {
+  height: 90vh;
+  position: relative;
+  display: inline-block;
+  margin: 0 auto;
+  width: 250px;
+  max-width: 90vw;
+  min-width: 200px;
+
+  .loading {
+    position: absolute;
+    bottom: 50%;
+    width: 250px;
+    max-width: 90vw;
+    min-width: 200px;
+  }
+
+  #loading-image {
+    max-width: 100px;
+    height: 100px;
+    width: 90vw;
+    object-fit: contain;
+  }
+
+  #loading-progress {
+    width: 200px;
+    height: 10px;
+    border-radius: 5px;
+    background-color: var(--input-background);
+    margin: 0 auto;
+
+    &::before {
+      content: "";
+      position: absolute;
+      background-color: var(--accent);
+      width: calc(var(--progress) * 2px);
+      transform: translatex(-100px);
+      height: 10px;
+      border-radius: 5px;
     }
   }
 }

@@ -4,13 +4,13 @@ from datetime import datetime, timedelta
 from pathlib import Path
 
 from backend.variables import DATABASE_BACKUPS
+from posts.models import GenericData
 
 from smiggins.settings import BASE_DIR, DATABASES
 
 db_path = DATABASES["default"]["NAME"]
 
 td = timedelta(hours=DATABASE_BACKUPS["frequency"])
-update_at = datetime.now() + td
 
 if DATABASE_BACKUPS["path"].startswith("$"):
     path = BASE_DIR / DATABASE_BACKUPS["path"][1::]
@@ -20,10 +20,21 @@ else:
 def backup_db():
     global update_at
 
-    if DATABASE_BACKUPS["enabled"] or update_at > datetime.now():
+    if not DATABASE_BACKUPS["enabled"]:
         return
 
-    update_at = datetime.now() + td
+    lUObj = None
+    try:
+        lUObj = GenericData.objects.get(id="database_backup")
+        lastUpdate = int(lUObj.value)
+    except GenericData.DoesNotExist:
+        lastUpdate = 0
+    except TypeError:
+        lastUpdate = 0
+
+    if datetime.fromtimestamp(lastUpdate) + td > datetime.now():
+        return
+
     os.makedirs(path, exist_ok=True)
 
     if os.path.exists(path / DATABASE_BACKUPS["filename"].replace("$", str(DATABASE_BACKUPS["keep"]))):
@@ -38,3 +49,14 @@ def backup_db():
             )
 
     shutil.copy(db_path, path / DATABASE_BACKUPS["filename"].replace("$", str(1)))
+
+    now = str(int(datetime.now().timestamp()))
+
+    if lUObj:
+        lUObj.value = now
+        lUObj.save()    
+    else:
+        GenericData.objects.create(
+            id="database_backup",
+            value=now
+        )

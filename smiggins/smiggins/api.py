@@ -1,8 +1,8 @@
 import json
 from typing import Callable
 
-from backend.api import (ApiAdmin, ApiComment, ApiEmail, ApiInfo, ApiMessages,
-                         ApiPost, ApiUser)
+from backend.api import (ApiAdmin, ApiComment, ApiEmail, ApiInfo, ApiInit,
+                         ApiMessages, ApiPost, ApiUser)
 from backend.variables import (ENABLE_BADGES, ENABLE_EDITING_POSTS,
                                ENABLE_EMAIL, ENABLE_HASHTAGS,
                                ENABLE_NEW_ACCOUNTS, ENABLE_PRIVATE_MESSAGES,
@@ -32,6 +32,10 @@ api = NinjaAPI(
 
 routes: list[tuple[str, str, Callable, bool | None, str, str, str | list[str]]] = [
 #   ["path/to/endpoint", "METHOD", function,, requirements, "summary", "description", "group"]
+    ("init/context", "GET", ApiInit.context, None, "Load Context", "Handles loading context for pages and whatnot", "Init"),
+    ("init/badges", "GET", ApiInit.badges, None, "Load Badges", "Loads badges", "Init"),
+    ("init/lang", "GET", ApiInit.lang, None, "Load Language", "Gives the client the language for the current user", "Init"),
+    ("init/muted", "GET", ApiInit.muted, None, "Load Muted Words", "Loads the user's muted words", "Init"),
     ("user/signup", "POST", ApiUser.signup, bool(ENABLE_NEW_ACCOUNTS), "Sign up", "Handles signing up for a new account", "User"),
     ("user/login", "POST", ApiUser.login, None, "Log in", "Handles logging in to an account", "User"),
     ("user/notifications", "GET", ApiUser.notifications_list, None, "Get notification list", "Returns a list of notifications for a user", "User"),
@@ -50,6 +54,7 @@ routes: list[tuple[str, str, Callable, bool | None, str, str, str | list[str]]] 
     ("user/block", "DELETE", ApiUser.block_remove, None, "Unblock", "Unblocks another user", "User"),
     ("user/pin", "PATCH", ApiPost.pin_post, None, "Pin", "Pins a post to your profile", ["User", "Post"]),
     ("user/pin", "DELETE", ApiPost.unpin_post, None, "Unpin", "Unpins a post to your profile", ["User", "Post"]),
+    ("user/lists", "GET", ApiUser.lists, None, "User lists", "Returns followers, following, and blocking for users", "User"),
     ("user", "DELETE", ApiUser.user_delete, None, "Delete Account", "Deletes the current account", "User"),
     ("comment/create", "PUT", ApiComment.comment_create, None, "Create comment", "Handles creating a comment", "Comment"),
     ("quote/create", "PUT", ApiPost.quote_create, ENABLE_QUOTES, "Create quote", "Handles quoting a post", "Post"),
@@ -79,7 +84,7 @@ routes: list[tuple[str, str, Callable, bool | None, str, str, str | list[str]]] 
     ("admin/badge", "PUT", ApiAdmin.badge_create, ENABLE_BADGES, "New badge", "Creates a new badge", "Admin"),
     ("admin/badge", "DELETE", ApiAdmin.badge_delete, ENABLE_BADGES, "Delete badge", "Deletes an existing badge", "Admin"),
     ("admin/info", "GET", ApiAdmin.account_info, None, "Get account info", "Returns basic public information about a user", "Admin"),
-    ("admin/save-acc", "PATCH", ApiAdmin.account_save, None, "Save account info", "Saves basic information about a user's account", "Admin"),
+    ("admin/info", "PATCH", ApiAdmin.account_save, None, "Save account info", "Saves basic information about a user's account", "Admin"),
     ("admin/level", "GET", ApiAdmin.load_level, None, "Load permissions", "Loads the admin permissions for a user", "Admin"),
     ("admin/level", "PATCH", ApiAdmin.set_level, None, "Set permissions", "Sets the admin permissions for a user", "Admin"),
     ("admin/logs", "GET", ApiAdmin.logs, None, "Get logs", "Returns a list of admin logs", "Admin"),

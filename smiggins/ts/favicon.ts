@@ -1,7 +1,7 @@
 '{% load static %}';
 
 let favicon: HTMLLinkElement = document.createElement("link");
-let oldFavicon: boolean = !!localStorage.getItem("old-favicon") && ENABLE_DYNAMIC_FAVICON;
+let oldFavicon: boolean = !!localStorage.getItem("old-favicon") && conf.dynamic_favicon;
 let autoThemeObject: {
   background: string,
   background_alt: string,
@@ -9,8 +9,8 @@ let autoThemeObject: {
 } | null = null;
 
 function getThemeAuto(
-  defLight: _themeObject=JSON.parse('{{ DEFAULT_LIGHT_THEME|escapejs }}'),
-  defDark: _themeObject=JSON.parse('{{ DEFAULT_DARK_THEME|escapejs }}')
+  defLight: _themeObject=JSON.parse('{{ theme_default_light|escapejs }}'),
+  defDark: _themeObject=JSON.parse('{{ theme_default_dark|escapejs }}')
 ): string {
   _autoColors = {
     dark: {
@@ -97,8 +97,8 @@ function autoCancel(): void {
 }
 
 function setOldFavicon(): void {
-  for (const el of document.querySelectorAll("[data-set-favi-href]")) {
-    (el as HTMLLinkElement).href = "{% static '/img/old_favicon.png' %}?v={{ VERSION }}";
+  for (const el of document.querySelectorAll("[data-set-favi]")) {
+    el.setAttribute((el as HTMLElement).dataset.setFavi, "{% static '/img/old_favicon.png' %}?v={{ version }}");
   }
 }
 
@@ -115,12 +115,12 @@ function setGenericFavicon(): void {
 
   let bg: string = obj.background.slice(1, 7);
   let bb: string = obj.background_alt.slice(1, 7);
-  let accent: string = obj.accent[validColors.indexOf(localStorage.getItem("color")) == -1 ? "mauve" : localStorage.getItem("color")].slice(1, 7)
+  let accent: string = (obj.accent[localStorage.getItem("color")] || obj.accent.mauve).slice(1, 7)
 
   let href: string = `/favicon-${bg == "accent" ? accent : bg}-${bb == "accent" ? accent : bb}-${accent}`;
 
-  for (const el of document.querySelectorAll("[data-set-favi-href]")) {
-    (el as HTMLLinkElement).href = href + ((el as HTMLElement).dataset.faviLarge !== undefined ? "?large" : "");
+  for (const el of document.querySelectorAll("[data-set-favi]")) {
+    el.setAttribute((el as HTMLElement).dataset.setFavi, href + ((el as HTMLElement).dataset.faviLarge !== undefined ? "?large" : ""));
   }
 }
 
@@ -137,7 +137,7 @@ let _autoColors: {
 };
 
 //  @ts-ignore
-if ("{{ THEME|escapejs }}" == "auto") {
+if ("{{ theme|escapejs }}" == "auto") {
   themeObject = null;
   document.getElementById("theme-css").innerHTML = getThemeAuto();
   autoInit();
@@ -149,7 +149,7 @@ if ("{{ THEME|escapejs }}" == "auto") {
 // set proper favicon
 favicon.rel = "shortcut icon";
 favicon.type = "image/png";
-favicon.dataset.setFaviHref = "";
+favicon.dataset.setFavi = "href";
 
 document.head.append(favicon);
 

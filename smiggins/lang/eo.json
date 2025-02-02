@@ -1,7 +1,6 @@
 {
   "meta": {
     "fallback": ["en-US"],
-    "name": "Esperanto",
     "version": "1.8.3",
     "maintainers": ["Subroutine7901"],
     "past_maintainers": []
@@ -37,43 +36,67 @@
     },
 
     "generic": {
-      "version": "La verŝinudo estas %v",
+      "version": "Verŝinudo %v",
       "success": "Sukceso!",
       "something_went_wrong": "Io misfunkciis!",
-      "something_went_wrong_x": "Io misfunkciis %s!",
-      "try_again": "Reprovu post iom...",
-      "ratelimit_verbose": "Vi estas tariflimigita!",
       "ratelimit": "Tariflimigita",
       "refresh": "Refreŝigu",
       "load_more": "Ŝargu pli",
       "post": "Afiŝu",
       "cancel": "Nuligu",
+      "close": "Close",
       "source_code": "Fontkodo",
       "save": "Savu",
       "none": "Neniu",
-      "reason": "Kialo: %s",
       "user_not_found": "Uzanto Estas Ne Trovita!",
       "share": "Kunhavigu",
       "copied": "Kopiita al tondujo!",
       "see_more": "%s vidi pli!",
       "discord": "Diskorda Servilo",
 
+      "keybinds": {
+        "title": "Klavara Ŝparvojoj",
+        "plus": "%a + %b", // Ex:  "Ctrl + /"
+        "dash": "%k - %d", // Ex: "Ctrl + / - Shows this menu"
+
+        "ctrl": "Ctrl",
+        "enter": "Enter",
+
+        "navigation": {
+          "title": "Navigado",
+          "admin": "Navigadas al la administra paĝo",
+          "home": "Navigadas al la hejma paĝo",
+          "messages": "Navigadas al la mesaĝa paĝo",
+          "notifications": "Navigadas al la aviza paĝo",
+          "profile": "Navigadas al via profila paĝo",
+          "settings": "Navigadas al la agorda paĝo"
+        },
+
+        "other": {
+          "title": "Aliaj",
+          "help": "Vidigas klavaran ŝparvojojn",
+          "post": "Kreas afiŝon",
+          "jump": "Iras al la afiŝa skatolo",
+          "refresh": "Refreŝigas la afiŝliston"
+        }
+      },
+
       "pronouns": {
         "title": "Pronomoj",
         "primary_label": "Primara:",
         "secondary_label": "Akcesora:",
 
-        "default": "none", // Default pronouns for primary assuming the current one is invalid. Must have "special": "no-secondary"
+        "default": "neniu", // Default pronouns for primary assuming the current one is invalid. Must have "special": "no-secondary"
         "enable_pronouns": true, // Set to false if the language doesn't have a pronoun-like system or this wouldn't make sense in the language
-        "enable_secondary": true, // Set this to false if the langauge doesn't have a primary/secondary pronoun format, instead only a primary
+        "enable_secondary": true, // Set this to false if the language doesn't have a primary/secondary pronoun format, instead only a primary
 
         "primary": [
           { "key": "none", "name": "Malagorda", "special": "no-secondary" },
-          { "key": "m", "name": "Li/Lin" },
-          { "key": "n", "name": "Ri/Rin" },
-          { "key": "f", "name": "Ŝi/Ŝin" },
-          { "key": "o", "name": "Ĝi/Ĝin" },
-          { "key": "a", "name": "Ajna/Ĉia" },
+          { "key": "m", "name": "li/lin" },
+          { "key": "n", "name": "ri/rin" },
+          { "key": "f", "name": "ŝi/ŝin" },
+          { "key": "o", "name": "ĝi/ĝin" },
+          { "key": "a", "name": "ajna/ĉia" },
           { "key": "ask", "name": "Demandu pronomojn", "special": "no-secondary" },
           { "key": "other", "name": "Aliaj pronomoj", "special": "no-secondary" },
           { "key": "avoid", "name": "Ne uzu pronomojn", "special": "no-secondary" }
@@ -81,48 +104,50 @@
 
         "secondary": [
           { "key": "_", "name": "Sama kiel primara", "special": "inherit" },
-          { "key": "m", "name": "Li/Lin" },
-          { "key": "n", "name": "Ri/Rin" },
-          { "key": "f", "name": "Ŝi/Ŝin" },
-          { "key": "o", "name": "Ĝi/Ĝin" },
-          { "key": "a", "name": "Ajna/Ĉia" },
+          { "key": "m", "name": "li/lin" },
+          { "key": "n", "name": "ri/rin" },
+          { "key": "f", "name": "ŝi/ŝin" },
+          { "key": "o", "name": "ĝi/ĝin" },
+          { "key": "a", "name": "ajna/ĉia" },
           { "key": "x", "name": "Aliaj pronomoj" }
         ],
 
         "visible": {
+          // primary key [+ "_" + secondary key]
+          // secondary key can be ignored if "special": "no-secondary" is set.
           "ask": "Demandu pronomojn",
           "other": "Aliaj pronomoj",
           "avoid": "Ne uzu pronomojn",
-          "a_a": "Ajna/Ĉia",
-          "a_f": "Ajna/Ŝi",
-          "a_m": "Ajna/Li",
-          "a_n": "Ajna/Ri",
-          "a_o": "Ajna/Ĝi",
-          "a_x": "Ajna/Aliaj",
-          "f_a": "Ŝi/Ajna",
-          "f_f": "Ŝi/Ŝin",
-          "f_m": "Ŝi/Li",
-          "f_n": "Ŝi/Ri",
-          "f_o": "Ŝi/Ĝi",
-          "f_x": "Ŝi/Aliaj",
-          "m_a": "Li/Ĉiuj",
-          "m_f": "Li/Ŝi",
-          "m_m": "Li/Lin",
-          "m_n": "Li/Ri",
-          "m_o": "Li/Ĝi",
-          "m_x": "Li/Aliaj",
-          "n_a": "Ri/Ajna",
-          "n_f": "Ri/Ŝi",
-          "n_m": "Ri/Li",
-          "n_n": "Ri/Rin",
-          "n_o": "Ri/Ĝi",
-          "n_x": "Ri/Aliaj",
-          "o_a": "Ĝi/Ajna",
-          "o_f": "Ĝi/Ŝi",
-          "o_m": "Ĝi/Li",
-          "o_n": "Ĝi/Ri",
-          "o_o": "Ĝi/Ĝin",
-          "o_x": "Ĝi/Aliaj"
+          "a_a": "ajna/ĉia",
+          "a_f": "ajna/ŝi",
+          "a_m": "ajna/li",
+          "a_n": "ajna/ri",
+          "a_o": "ajna/ĝi",
+          "a_x": "ajna/aliaj",
+          "f_a": "ŝi/ajna",
+          "f_f": "ŝi/ŝin",
+          "f_m": "ŝi/li",
+          "f_n": "ŝi/ri",
+          "f_o": "ŝi/ĝi",
+          "f_x": "ŝi/aliaj",
+          "m_a": "li/ĉiuj",
+          "m_f": "li/ŝi",
+          "m_m": "li/lin",
+          "m_n": "li/ri",
+          "m_o": "li/ĝi",
+          "m_x": "li/aliaj",
+          "n_a": "ri/ajna",
+          "n_f": "ri/ŝi",
+          "n_m": "ri/li",
+          "n_n": "ri/rin",
+          "n_o": "ri/ĝi",
+          "n_x": "ri/aliaj",
+          "o_a": "ĝi/ajna",
+          "o_f": "ĝi/ŝi",
+          "o_m": "ĝi/li",
+          "o_n": "ĝi/ri",
+          "o_o": "ĝi/ĝin",
+          "o_x": "ĝi/aliaj"
         }
       },
 
@@ -176,14 +201,12 @@
 
       "post_deletion": {
         "title": "Afiŝa Forigo",
-        "button": "Forigas Afiŝa",
-        "error": "forigi la precizigis afiŝa/komenta"
+        "button": "Forigas Afiŝa"
       },
 
       "account_deletion": {
         "title": "Konta Forigo",
-        "button": "Forigas Konto",
-        "error": "forigi la precizigis konto"
+        "button": "Forigas Konto"
       },
 
       "badge": {
@@ -193,9 +216,7 @@
         "manage_title": "Aldonas/forigas Insignioj",
         "manage_empty": "Kiel mankas insignoj... Kion vi faris?",
         "manage_add_button": "Aldonu Insignio",
-        "manage_add_error": "aldoni la insignio",
         "manage_remove_button": "Forigu Insignio",
-        "manage_remove_error": "forigi la insignio",
         "manage_add_protected": "Ne povas aldoni tiun insignon ĉar ĝi estas protektita",
         "manage_remove_protected": "Ne povas forigi tiun insignon ĉar ĝi estas protektita",
         "create_title": "Kreas/Superregas Insignio",
@@ -217,15 +238,12 @@
         "save": "Savu informoj",
         "switcher": "Aldonu al kontŝanĝilo",
         "invalid_bio_size": "La biografio de uzanto estas tro longa! Ĝi devas esti inter 1 kaj 65536 signoj longaj.",
-        "invalid_display_name_long": "La Montrnomo estas tro longa! Ĝi devas esti inter 1 kaj 300 signoj longaj.",
-        "invalid_display_name_short": "La Montrnomo estas tro mallonga! Ĝi devas esti inter 1 kaj 300 signoj longaj.",
+        "invalid_display_name": "La Montrnomo estas tro longa! Ĝi devas esti inter 1 kaj 300 signoj longaj.",
         "id": "legitimilo: %s"
       },
 
       "permissions": {
         "title": "Ŝanĝas Administra Permesoj",
-        "error": "ŝanĝi la permesoj de tiu konto",
-        "invalid": "Nevalida permesa masko. Ĉi tio ne devus okazi.",
         "label": "Permesojn:",
         "set": "ŝanĝi permesojn",
         "load": "ŝarĝi permesojn",
@@ -238,8 +256,9 @@
           "4": "Aldonas/Forigas insignojn de uzantoj",
           "5": "Modifas uzantajn datumojn",
           "6": "Aldonas ajnan konton al la konta Ŝaltanto",
-          "7": "ŝanĝi administrantajn Permesojn",
-          "8": "Legas administrantajn ŝtipojn"
+          "7": "Ŝanĝas administrantajn Permesojn",
+          "8": "Legas administrantajn ŝtipojn",
+          "9": "Kreas unufojan invitkodon"
         },
 
         "descriptions_extra": {
@@ -251,13 +270,25 @@
 
       "logs": {
         "button": "Ŝargu ŝtipoj",
-        "error": "ŝargi la ŝtipoj",
         "timestamp": "Tempmarko",
         "action": "Ago",
         "who": "Kiu",
         "more_info": "Pliaj Informoj",
         "who_format": "Farite de %1, je %2",
         "who_format_single": "Farite de %1"
+      },
+
+      "otp": {
+        "generate": "Kreas Invitkodon",
+        "generate_button": "Kreas",
+        "all": "Vidu Ĉiujn Invitkodojn",
+        "all_button": "Ŝargu Invitkodojn"
+      },
+
+      "disabled": {
+        "generic": "Malebligita",
+        "badge": "Insignoj estas malebligita.",
+        "otp": "Unufoja invitkodo estas malebligita."
       }
     },
 
@@ -268,17 +299,24 @@
 
     "hashtag": {
       "post_singular": "afiŝo",
-      "post_plural": "afiŝoj"
+      "post_plural": "afiŝoj",
+
+      "timeline": {
+        "random": "Hazardan",
+        "recent": "Lastatempan",
+        "liked": "Plej Ŝatatajn"
+      }
     },
 
     "home": {
       "title": "Hejmo",
       "post_input_placeholder": "Kio estas en via menso?",
       "c_warning_placeholder": "Enhavaverto...",
-      "c_warning_label": "Enhavaverto:",
 
-      "switch_recent": "Ŝanĝu al lastatempaj afiŝoj...",
-      "switch_following": "Ŝanĝu al sekvantaraj afiŝoj...",
+      "timeline": {
+        "global": "Tutmondan",
+        "following": "Sekvantaran"
+      },
 
       "quote_blocked": "Ĉi tiu afiŝo estas de konto, kiun vi blokis",
       "quote_blocked_other": "Ĉi tiu afiŝo estas de konto, kiu blokas vin",
@@ -297,17 +335,20 @@
       "poll_optional": "Opcio %s (nedeviga)", // Ex: Option 3 (optional)
       "poll_total_plural": "%s totalaj voĉoj",
       "poll_total_singular": "%s totala voĉo",
-      "poll_view_results": "Rigardu rezultojn"
+      "poll_view_results": "Rigardu rezultojn",
+      "poll_hide_results": "Revenu al balotado"
     },
 
     "account": {
       "log_in_title": "Ensalutas",
       "log_in_instead": "Ensalutu anstataŭe...",
-      "log_in_failure": "Ne povas ensaluti! Kialo: %s",
 
       "sign_up_title": "Registriĝas",
       "sign_up_instead": "Registriĝu anstataŭe...",
-      "sign_up_failure": "Ne povas registriĝi! Kialo: %s",
+
+      "invite_code": "Invitkodon...",
+      "invite_code_info": "Ĉi tiu kazo nur akceptas uzantojn ke havas invitkodon.",
+      "invite_code_invalid": "Nevalida invitkodon!",
 
       "no_new": "Ĉi tiu kazo ne akceptas novajn uzantojn.",
       "password_match_failure": "La pasvortoj ne kongruas!",
@@ -334,10 +375,10 @@
 
     "messages": {
       "title": "Sendante mesaĝojn al %s",
-      "error": "ŝargi lastatempajn mesaĝojn",
       "input_placeholder": "Kion vi volas diri al %s?",
 
       "no_messages": "Neniu mesaĝoj senditaj",
+      "muted": "Ĉi tiu mesaĝojn havas vorto ke la kazo administrado blokas.",
 
       "list_title": "Mesaĝojn",
       "list_subtitle": "Lastatempajn Mesaĝojn",
@@ -354,10 +395,12 @@
       "read": "Marku kiel legitan",
       "error": "ŝargi la avizajn listojn",
 
-      "comment": "%s komentis vian afiŝon:",
-      "quote": "%s citis vian afiŝon:",
-      "ping_p": "%s mensiis vi en afiŝo:",
-      "ping_c": "%s mensiis vi en komento:"
+      "event": {
+        "comment": "%s komentis vian afiŝon:",
+        "quote": "%s citis vian afiŝon:",
+        "ping_p": "%s mensiis vi en afiŝo:",
+        "ping_c": "%s mensiis vi en komento:"
+      }
     },
 
     "post_page": {
@@ -365,17 +408,24 @@
       "comments": "Komentojn: %s",
       "quotes": "Citaĵoj: %s",
       "comment_parent": "Iru al originala afiŝo...",
-      "comment_input_placeholder": "Ĉu vi havas ion por diri pri ĉi tio?"
+      "comment_input_placeholder": "Ĉu vi havas ion por diri pri ĉi tio?",
+
+      "timeline": {
+        "newest": "Plej Junajn",
+        "oldest": "Plej Maljunajn",
+        "liked": "Ŝatatan",
+        "random": "Hazarda"
+      }
     },
 
     "post": {
       "invalid_length": "Nevalida afiŝa longeco. Ĝi devas esti inter 1 kaj %s signoj longaj.",
       "invalid_comment_id": "Mns via legitimilo estas tre ne bona",
-      "comment_id_does_not_exist": "Via legitimilo rompis iom owo",
-      "invalid_quote_post": "La afiŜo, kiun vi citas, ne ekzistas!",
+      "invalid_quote_post": "La afiŝo, kiun vi citas, ne ekzistas!",
       "invalid_quote_comment": "La kommento, kiun vi citas, ne ekzistas!",
       "invalid_username": "Uzantnomo estas nesvaligdeg... RIGARDU NUR SILENTU",
       "invalid_poll": "La balotenketo devas havi pli ol unu opcion!",
+      "muted": "Ĉi tiu afiŝo havas vorto ke la kazo administrado blokas.",
       "type_public": "Publika",
       "type_followers_only": "Nur por sekvantoj",
       "no_posts": "Neniuj afiŝoj",
@@ -389,15 +439,13 @@
       "pin": "Pinglu",
       "unpin": "Malpinglu",
       "more": "Pli...",
-      "edit": "Redaktu"
+      "edit": "Redaktu",
+      "chars_singular": "%c signon",
+      "chars_plural": "%c signojn" // home.poll + post.quote
     },
 
     "settings": {
       "title": "Agordoj",
-      "username_load_failure": "Uzantnomo ne eblis ŝarĝi! Provu reŝargi la pagojn?",
-      "unload": {
-        "description": "Vi havas nekonservitajn ŝanĝojn! Ĉu vi certas, ke vi volas foriri?"
-      },
 
       "profile_title": "Profilo",
       "profile_basic_title": "Baza informoj",
@@ -415,15 +463,18 @@
       "cosmetic_theme": "Tema",
       "cosmetic_theme_invalid": "Tio ne estas vailida temo, idioto.",
       "cosmetic_themes": {
-        "auto": "Sistemo",
-        "warm": "Tagmezo",
+        "auto": "Sistema",
+        "warm": "Tagmeza",
         "light": "Tagiĝa",
         "gray": "Krepuska",
-        "purple": "Sunset",
+        "purple": "Sunsubira",
         "dark": "Malhela",
         "black": "Noktomeza",
         "oled": "Nigra"
       },
+
+      "cosmetic_compact": "Kompakta UI?",
+      "cosmetic_expand": "Ĉu ĉiam vastigi enhavajn avertojn?",
 
       "cosmetic_bar": "Ikona trinkeja pozicio",
       "cosmetic_bar_position": "Pozicio:",
@@ -434,8 +485,8 @@
       "cosmetic_bar_ll": "Malsupra maldekstro",
       "cosmetic_bar_h": "Horizontala",
       "cosmetic_bar_v": "Vertikala",
+
       "cosmetic_language": "Lingvo",
-      "cosmetic_language_invalid": "Nevalida lingvo '%s'",
       "cosmetic_color": "Kolora",
       "cosmetic_example_post_display_name": "Ekzemplo",
       "cosmetic_example_post_username": "ekzemplo",
@@ -448,7 +499,6 @@
       "account_password_current": "Aktuala pasvorto...",
       "account_password_new": "Nova pasvorto...",
       "account_password_success": "Via pasvorto estis ŝanĝita",
-      "account_password_failure": "Ne povas ŝanĝi vian pasvorton! Kialo: %s",
       "account_switcher": "Konta Ŝaltanto",
       "account_switcher_switch": "Ŝaltilo",
       "account_switcher_remove": "Forigu",
@@ -458,11 +508,30 @@
       "account_email_update": "Ŝanĝu/Ĝisdatigu",
       "account_email_verify": "Kontrolu vian retpoŝton al konfirmas ŝin",
       "account_email_check": "Kontrolu vian retpoŝton",
+      "account_deletion_warning": "Ĉu vi estas TUTE CERTA ke vi volas forigas vian konton? Ĉi tio estas NEINVERSIGEBLA AGO, kiu NE POVAS ESTI NEFARITA. Ĉia de via afiŝoj, kommentoj, ŝatoj, mesaĝoj ktp. forigos kaj ne povas esti reakirita.",
+      "account_deletion_confirm": "Jes, Forigas Mian Konton",
+      "account_deletion_password": "Enigas vian pasvorton daŭrigi kun forigo de konto.",
+
+      "mute": {
+        "title": "Muted Words",
+        "placeholder": "bad word\n/badwords?/i",
+        "post_blocked": "%u - %m", // Ex: trinkey - bad word
+
+        "long": "Too long (max %m chars, %s currently - '%v')", // Ex: Too long (max 10 chars, 16 currently - 'this is 16 chars')
+        "too_many": "Too many muted words (max %m, %s set)",
+
+        "soft": "Soft mute",
+        "hard": "Hard mute",
+        "hard_description": "Hard muting completely hides posts",
+        "quote_hard": "This post has a hard-muted word, and has been hidden.", // Only used on quotes
+
+        // \u00a0 is the non breaking space character that prevents unwanted line wrapping
+        "description": "Use spaces to separate words condition (ex: \"some\u00a0word\" would match \"[...]\u00a0some\u00a0[...]\u00a0word\u00a0[...]\" but not \"[...]\u00a0word\u00a0[...]\u00a0some\u00a0[...]\"), and use newlines to separate different definitions. Surround with forward slashes (/) for regex. Put flags after the last slash (ex: \"/text/i\"). You can have up to %m different definitions, maximum %c characters each."
+      },
 
       "admin": "Administra retpaĝo",
       "logout": "Elsalutu el ĉiuj kontojn"
     },
-
     "user_page": {
       "followers": "Sekvantoj: %s",
       "following": "Sekvantaraj: %s",
@@ -478,7 +547,6 @@
       "lists_followers": "Sekvantoj",
       "lists_no_bio": "Neniu bio agordita"
     },
-
     "changelog": {
       "title": "Ŝanĝprotokolo",
       "unknown": "Nesciata"

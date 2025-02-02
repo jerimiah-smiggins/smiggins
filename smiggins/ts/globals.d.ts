@@ -1,37 +1,45 @@
-// Configuration options
-declare const MAX_POST_LENGTH: number;
-declare const MAX_POLL_OPTION_LENGTH: number;
-declare const MAX_POLL_OPTIONS: number;
-declare const MAX_CONTENT_WARNING_LENGTH: number;
+declare const conf: {
+  max_post_length: number,
+  max_poll_option_length: number,
+  max_poll_options: number,
+  max_content_warning_length: number,
+  max_bio_length: number,
+  max_username_length: number,
+  max_muted_words: number,
+  max_muted_word_length: number,
+  max_display_name_length: number,
+  user_bios: boolean,
+  pronouns: boolean,
+  gradient_banners: boolean,
+  badges: boolean,
+  private_messages: boolean,
+  quotes: boolean,
+  post_deletion: boolean,
+  pinned_posts: boolean,
+  account_switcher: boolean,
+  polls: boolean,
+  content_warnings: boolean,
+  email: boolean,
+  dynamic_favicon: boolean,
+  new_accounts: boolean | "otp",
+  hashtags: boolean,
+  site_name: string,
+  version: string
+};
 
-declare const ENABLE_USER_BIOS: boolean;
-declare const ENABLE_PRONOUNS: boolean;
-declare const ENABLE_GRADIENT_BANNERS: boolean;
-declare const ENABLE_BADGES: boolean;
-declare const ENABLE_PRIVATE_MESSAGES: boolean;
-declare const ENABLE_QUOTES: boolean;
-declare const ENABLE_POST_DELETION: boolean;
-declare const ENABLE_PINNED_POSTS: boolean;
-declare const ENABLE_ACCOUNT_SWITCHER: boolean;
-declare const ENABLE_POLLS: boolean;
-declare const ENABLE_CONTENT_WARNINGS: boolean;
-declare const ENABLE_EMAIL: boolean;
-declare const ENABLE_DYNAMIC_FAVICON: boolean;
-declare const ENABLE_NEW_ACCOUNTS: boolean | "otp";
-
+declare const username: string | null;
 declare const isAdmin: boolean;
-declare const username: string;
+declare const loggedIn: boolean;
+declare let defaultPrivate: boolean;
 
-declare const defaultPrivate: boolean;
-declare const muted: [string, number, boolean][] | null;
 declare const linkify;
 
 // Global variables
-declare const lang: { [key: string]: any };
-declare const badges: { [key: string]: string } | undefined;
 declare function linkifyHtml(text: string, settings: object): string;
 
 // Types
+type _anyDict = { [key: string]: any };
+
 type _postJSON = {
   creator: {
     badges: string[],
@@ -179,7 +187,7 @@ type _actions = {
       unread?: boolean
     }[],
     more: boolean
-    special?: "pending" | "messages" | null
+    special?: "pending" | "messages" | "following" | "followers" | "blocking" | null
   } | {
     name: "notification_list",
     notifications: {
@@ -257,4 +265,11 @@ type _keybind = {
   allowInputs?: boolean,
   allowLoggedOut?: boolean,
   noPreventDefault?: boolean
+};
+
+type _context = {
+  page: string,
+  strings: [string | null, string | null, string | null, number],
+  share?: string,
+  [key: string]: any
 };

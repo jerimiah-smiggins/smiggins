@@ -1,0 +1,112 @@
+<!DOCTYPE html>
+{% load static %}
+{% load smiggins_custom %}
+
+<html>
+  <head>
+    <title>{% if title %}{{ title }} - {% endif %}{{ conf.site_name }} {{ conf.version }}</title>
+
+    <style id="theme-css"></style>
+
+    <link rel="preload" href="{% static '/font/poppins-normal.woff' %}" as="font" type="font/woff" crossorigin>
+    <link rel="preload" href="{% static '/font/poppins-bold.woff' %}" as="font" type="font/woff" crossorigin>
+
+    {% if google_verification_tag %}
+      <meta name="google-site-verification" content="{{ google_verification_tag }}">
+    {% endif %}
+
+    <meta name="mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <link data-set-favi="href" data-favi-large rel="apple-touch-startup-image" href="{% static "img/old_favicon.png" %}?v={{ conf.version }}">
+    <link data-set-favi="href" data-favi-large rel="apple-touch-icon" href="{% static "img/old_favicon.png" %}?v={{ conf.version }}">
+
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width,initial-scale=1">
+    <meta name="pronouns" content="she/her">
+
+    <meta property="og:type" content="website">
+    <meta name="twitter:card" content="summary_large_image">
+
+    <meta name="author" content="{% if title %}{{ title }}{% else %}{{ conf.site_name }}{% endif %}">
+    <meta property="og:title" content="{% if title %}{{ title }}{% else %}{{ conf.site_name }}{% endif %}">
+    <meta name="twitter:title" content="{% if title %}{{ title }}{% else %}{{ conf.site_name }}{% endif %}">
+
+    <meta name="description" content="{% if meta_description %}{{ meta_description }}{% elif title %}{{ conf.site_name }} {{ conf.version }}{% else %}{{ conf.version }}{% endif %}">
+    <meta property="og:description" content="{% if meta_description %}{{ meta_description }}{% elif title %}{{ conf.site_name }} {{ conf.version }}{% else %}{{ conf.version }}{% endif %}">
+    <meta name="twitter:description" content="{% if meta_description %}{{ meta_description }}{% elif title %}{{ conf.site_name }} {{ conf.version }}{% else %}{{ conf.version }}{% endif %}">
+
+    <style>
+      {% include "css/fonts.css" %}
+      {% include "css/base.css" %}
+      {% include "css/home.css" %}
+      {% include "css/settings.css" %}
+      {% include "css/contact.css" %}
+      {% include "css/admin.css" %}
+      {% include "css/messages.css" %}
+      {% include "css/user.css" %}
+    </style>
+
+    <script>
+      const conf = JSON.parse('{{ conf_str|escapejs }}');
+      const somethingWentWrong = "{{ something_went_wrong }}";
+      const username = "{{ username }}";
+      const isAdmin = "{{ is_admin }}" == "True";
+      const loggedIn = "{{ logged_in }}" == "True";
+      let defaultPrivate = "{{ default_post_private }}" == "True";
+      {% include "js/favicon.js" %}
+    </script>
+  </head>
+
+  <body>
+    <div class="hidden">{{ scraper_text }}</div>
+
+    <div id="content">
+      <div class="loading-container">
+        <div class="loading">
+          <img id="loading-image" data-set-favi="src" data-favi-large>
+          <p id="loading-motd">{{ loading }}</p>
+          <div id="loading-progress" style="--progress: 0;"></div>
+        </div>
+      </div>
+    </div>
+    <div id="toast"></div>
+
+    <script>
+      {% include "js/init.js" %}
+    </script>
+
+    {{ 'linkify/linkify.min.js'|get_script }}
+    {{ 'linkify/html.min.js'|get_script }}
+    {{ 'linkify/mentions.js'|get_script }}
+    {% if conf.hashtags %}
+      {{ 'linkify/hashtags.js'|get_script }}
+    {% endif %}
+    {{ 'base.js'|get_script }}
+    {{ 'keybinds.js'|get_script }}
+    {{ 'scripts/logout.js'|get_script }}
+    {{ 'scripts/user.js'|get_script }}
+    {{ 'scripts/hashtag.js'|get_script }}
+    {{ 'scripts/timeline.js'|get_script }}
+    {{ 'scripts/post.js'|get_script }}
+    {% if is_admin %}
+      {{ 'scripts/admin.js'|get_script }}
+    {% endif %}
+    {% if logged_in %}
+      {{ 'scripts/home.js'|get_script }}
+      {{ 'scripts/settings.js'|get_script }}
+      {{ 'scripts/admin.js'|get_script }}
+      {{ 'scripts/notifications.js'|get_script }}
+      {{ 'scripts/pending.js'|get_script }}
+      {% if conf.private_messages %}
+        {{ 'scripts/message.js'|get_script }}
+      {% endif %}
+    {% else %}
+        {{ 'scripts/login.js'|get_script }}
+        {{ 'scripts/signup.js'|get_script }}
+      {% if conf.email %}
+        {{ 'scripts/reset-password.js'|get_script }}
+      {% endif %}
+    {% endif %}
+  </body>
+</html>

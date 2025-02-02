@@ -5,14 +5,15 @@ from sys import maxsize
 
 from posts.models import PrivateMessage, PrivateMessageContainer, User
 
-from ..helper import (check_muted_words, get_badges, get_container_id,
-                      get_lang, trim_whitespace)
+from ..helper import (check_muted_words, check_ratelimit, get_badges,
+                      get_container_id, get_lang, trim_whitespace)
 from ..variables import MAX_POST_LENGTH, MESSAGES_PER_REQUEST
 from .schema import APIResponse, NewContainer, NewMessage
 
 
 def container_create(request, data: NewContainer) -> APIResponse:
-    # Called when a new comment is created.
+    if rl := check_ratelimit(request, "POST /api/messages/new"):
+        return rl
 
     self_user = User.objects.get(token=request.COOKIES.get("token"))
     username = data.username.strip().lower()
@@ -63,6 +64,9 @@ def container_create(request, data: NewContainer) -> APIResponse:
     }
 
 def send_message(request, data: NewMessage) -> APIResponse:
+    if rl := check_ratelimit(request, "POST /api/messages"):
+        return rl
+
     user = User.objects.get(token=request.COOKIES.get("token"))
 
     if user.username == data.username:
@@ -86,19 +90,19 @@ def send_message(request, data: NewMessage) -> APIResponse:
             "message": lang["messages"]["blocking_blocked"]
         }
 
-    content = trim_whitespace(data.content, True)
-    if len(content) == 0 or len(content) > MAX_POST_LENGTH:
+    content = trim_whitespace(data.content)
+    if not content[1] or len(content[0]) > MAX_POST_LENGTH:
         lang = get_lang(user)
         return 400, {
             "success": False,
             "message": lang["messages"]["invalid_size"]
         }
 
-    if check_muted_words(content):
+    if check_muted_words(content[0]):
         lang = get_lang(user)
         return 400, {
             "success": False,
-            "message": lang["message"]["muted"]
+            "message": lang["messages"]["muted"]
         }
 
     timestamp = round(time.time())
@@ -123,18 +127,17 @@ def send_message(request, data: NewMessage) -> APIResponse:
     container.user_two.messages = y
 
     if data.username == container_id.split(":")[0]:
-        if container_id not in container.user_one.unread_messages:
-            container.user_one.unread_messages.append(container_id)
+        container.unread_one = True
     else:
-        if container_id not in container.user_two.unread_messages:
-            container.user_two.unread_messages.append(container_id)
+        container.unread_two = True
 
     container.user_one.save()
     container.user_two.save()
+    container.save()
 
     PrivateMessage.objects.create(
         timestamp=timestamp,
-        content=content,
+        content=content[0],
         from_user_one=data.username == container_id.split(":")[1],
         message_container=container
     )
@@ -148,6 +151,9 @@ def send_message(request, data: NewMessage) -> APIResponse:
     }
 
 def messages_list(request, username: str, forward: bool=True, offset: int=-1) -> APIResponse:
+    if rl := check_ratelimit(request, "GET /api/messages"):
+        return rl
+
     user = User.objects.get(token=request.COOKIES.get("token"))
 
     if user.username == username:
@@ -159,13 +165,13 @@ def messages_list(request, username: str, forward: bool=True, offset: int=-1) ->
     container = PrivateMessageContainer.objects.get(container_id=container_id)
     is_user_one = username == container_id.split(":")[1]
 
-    if is_user_one and container_id in container.user_one.unread_messages:
-        container.user_one.unread_messages.remove(container_id)
-        container.user_one.save()
+    if is_user_one and container.unread_one:
+        container.unread_one = False
+        container.save()
 
-    if not is_user_one and container_id in container.user_two.unread_messages:
-        container.user_two.unread_messages.remove(container_id)
-        container.user_two.save()
+    if not is_user_one and container.unread_two:
+        container.unread_two = False
+        container.save()
 
     if forward:
         list_of_messages = container.messages.filter(message_id__lt=maxsize if offset == -1 else offset).order_by("-message_id")
@@ -198,6 +204,9 @@ def messages_list(request, username: str, forward: bool=True, offset: int=-1) ->
     }
 
 def recent_messages(request, offset: int=-1) -> APIResponse:
+    if rl := check_ratelimit(request, "GET /api/messages/list"):
+        return rl
+
     user = User.objects.get(token=request.COOKIES.get("token"))
 
     if offset == -1:
@@ -213,7 +222,8 @@ def recent_messages(request, offset: int=-1) -> APIResponse:
                 container_id=i
             )
 
-            other_user = container.user_one if i.split(":")[1] == self_username else container.user_two
+            isnt_user_one = self_username == container.container_id.split(":")[1]
+            other_user = container.user_one if isnt_user_one else container.user_two
             recent_message = container.messages.last()
             message = PrivateMessage.objects.get(message_id=recent_message.message_id) if recent_message else ""
 
@@ -226,7 +236,7 @@ def recent_messages(request, offset: int=-1) -> APIResponse:
                 "gradient_banner": other_user.gradient,
                 "bio": message.content if isinstance(message, PrivateMessage) else "",
                 "timestamp": message.timestamp if isinstance(message, PrivateMessage) else 0,
-                "unread": i in user.unread_messages
+                "unread": container.unread_two if isnt_user_one else container.unread_one
             })
 
         except PrivateMessageContainer.DoesNotExist:
