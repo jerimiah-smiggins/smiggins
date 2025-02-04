@@ -609,7 +609,7 @@ const pages = {
     <button id="more" onclick="refreshPendingList();" hidden>${lang.generic.load_more}</button>
   `, loggedIn ? pendingInit : null],
     post: [() => `
-    ${context.post.parent && context.post.parent > 0 ? `<div id="parent"><a id="parent-link" href="/${context.post.parent_is_comment ? "c" : "p"}/${context.post.post_id}/">${lang.post_page.comment_parent}</a></div>` : ""}
+    ${context.post.parent && context.post.parent > 0 ? `<div id="parent"><a id="parent-link" href="/${context.post.parent_is_comment ? "c" : "p"}/${context.post.parent}/">${lang.post_page.comment_parent}</a></div>` : ""}
     <div id="top">${getPostHTML(context.post, context.comment, true, false, false, true)}</div>
 
     ${loggedIn ? `

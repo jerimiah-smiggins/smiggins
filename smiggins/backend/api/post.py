@@ -529,7 +529,7 @@ def post_like_add(request, data: PostID) -> APIResponse:
     return {
         "success": True,
         "actions": [
-            { "name": "update_element", "query": f"div[data-post-id='{data.id}'] button.like", "attribute": [{ "name": "data-liked", "value": "true" }] },
+            { "name": "update_element", "query": f"div[data-post-id='{data.id}'] button.like", "attribute": [{ "name": "data-liked", "value": "true" }, { "name": "data-like-anim", "value": "" }] },
             { "name": "update_element", "query": f"div[data-post-id='{data.id}'] span.like-number", "inc": 1 }
         ]
     }
