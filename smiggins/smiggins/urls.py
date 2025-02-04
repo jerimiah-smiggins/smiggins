@@ -42,15 +42,6 @@ urlpatterns = list(filter(bool, [
     path("sitemaps/h/<int:index>.xml", (cache_page(SITEMAP_CACHE_TIMEOUT, key_prefix=cache_prefix)(sitemap_hashtag) if SITEMAP_CACHE_TIMEOUT else sitemap_post)) if ENABLE_SITEMAPS else None,
 
     re_path("^.*$", webapp)
-
-    # path("pending/", pending),
-
-    # path("hashtag/<str:hashtag>/", hashtag) if ENABLE_HASHTAGS else None,
-    # path("u/<str:username>/lists/", user_lists),
-    # path("p/<int:post_id>/", post),
-    # path("c/<int:comment_id>/", comment),
-
-    # path("admin/", admin),
 ]))
 
 del _favicon, _robots_txt, _security_txt
