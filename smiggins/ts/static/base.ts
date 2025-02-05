@@ -551,7 +551,6 @@ function apiResponse(
         +poll.dataset.pollId,
         +poll.id.split("-")[1],
         true,
-        poll.dataset.pollLoggedIn == "true"
       );
     } else {
       console.log(`Unknown API action`, action);
@@ -696,7 +695,6 @@ function getPollHTML(
   postID: number,
   gInc: number,
   showResults?: boolean,
-  loggedIn: boolean=true
 ): string {
   if (!pollJSON) {
     return "";
@@ -770,7 +768,7 @@ function getPostHTML(
   }
 
   let muted: string | boolean | null = username !== postJSON.creator.username && checkMuted(postJSON.content) || (postJSON.content_warning && checkMuted(postJSON.content_warning)) || (postJSON.poll && postJSON.poll.content.map((val: { value: string, votes: number, voted: boolean }): string | true => checkMuted(val.value)).reduce((real: string | true, val: string | true): string | true | null => real || val));
-  let quoteMuted: string | boolean | null = postJSON.quote && postJSON.quote.can_view && postJSON.quote.can_delete && username !== postJSON.quote.creator.username && (checkMuted(postJSON.quote.content) || (postJSON.quote.c_warning ? checkMuted(postJSON.quote.c_warning) : null));
+  let quoteMuted: string | boolean | null = postJSON.quote !== null && postJSON.quote !== true && postJSON.quote.visible && username !== postJSON.quote.creator.username && (checkMuted(postJSON.quote.content) || (postJSON.quote.content_warning ? checkMuted(postJSON.quote.content_warning) : null));
 
   if (muted === true) {
     return "";
@@ -790,9 +788,9 @@ function getPostHTML(
         ${includeUserLink ? `<a data-link href="/u/${postJSON.creator.username}" class="no-underline text">` : "<span>"}
           <div class="main-area">
             <div class="pre-wrap displ-name-container"
-              >${postJSON.edited ? `<span class="user-badge" ${postJSON.edited_at ? `title="${escapeHTML(timeSince(postJSON.edited_at, true))}"` : ""}>${icons.edit}</span><span class="spacing"></span>` : ""
+              >${postJSON.edited ? `<span class="user-badge" title="${escapeHTML(timeSince(postJSON.edited, true))}">${icons.edit}</span><span class="spacing"></span>` : ""
               }<span class="displ-name"
-              ><span style="--color-one: ${postJSON.creator.color_one}; --color-two: ${postJSON.creator[conf.gradient_banners && postJSON.creator.gradient_banner ? "color_two" : "color_one"]}" class="user-badge banner-pfp"></span
+              ><span style="--color-one: ${postJSON.creator.color_one}; --color-two: ${postJSON.creator[conf.gradient_banners && postJSON.creator.gradient ? "color_two" : "color_one"]}" class="user-badge banner-pfp"></span
               >${postJSON.private ? ` <span class="user-badge">${icons.lock}</span>` : ""} ${escapeHTML(postJSON.creator.display_name)} ${
                 postJSON.creator.badges.length && conf.badges ? `<span aria-hidden="true" class="user-badge">${postJSON.creator.badges.map((icon) => (badges[icon])).join("</span> <span aria-hidden=\"true\" class=\"user-badge\">")}</span>` : ""
               }</span>
@@ -807,8 +805,8 @@ function getPostHTML(
       </div>
 
       <div class="main-area">
-        ${postJSON.c_warning ? `<details ${localStorage.getItem("expand-cws") ? "open" : ""} class="c-warning"><summary>
-          <div class="pre-wrap c-warning-main">${escapeHTML(postJSON.c_warning)}</div>
+        ${postJSON.content_warning ? `<details ${localStorage.getItem("expand-cws") ? "open" : ""} class="c-warning"><summary>
+          <div class="pre-wrap c-warning-main">${escapeHTML(postJSON.content_warning)}</div>
           <div class="c-warning-stats">
             (${lang.post[postJSON.content.length == 1 ? "chars_singular" : "chars_plural"].replaceAll("%c", postJSON.content.length)
             }${postJSON.quote ? `, ${lang.post.quote}` : ""
@@ -826,14 +824,12 @@ function getPostHTML(
             id="gi-${globalIncrement}"
             data-poll-json="${escapeHTML(JSON.stringify(postJSON.poll))}"
             data-poll-id="${postJSON.post_id}"
-            data-poll-voted="${postJSON.poll.voted}"
-            data-poll-logged-in="${postJSON.logged_in}">
+            data-poll-voted="${postJSON.poll.voted}">
           ${getPollHTML(
             postJSON.poll,
             postJSON.post_id,
             globalIncrement++,
-            postJSON.poll.voted,
-            postJSON.logged_in
+            postJSON.poll.voted
           )}
         </div>`) : ""
       }
@@ -845,16 +841,22 @@ function getPostHTML(
               ${quoteMuted === true ? `<i>${lang.settings.mute.quote_hard}</i>` : `
               ${quoteMuted ? `<details><summary class="small">${escapeHTML(lang.settings.mute.post_blocked.replaceAll("%u", postJSON.creator.username).replaceAll("%m", quoteMuted))}</summary>` : ""}
               ${
-                postJSON.quote.blocked ? (postJSON.quote.blocked_by_self ? lang.home.quote_blocked : lang.home.quote_blocked_other) : postJSON.quote.deleted ? lang.home.quote_deleted : postJSON.quote.can_view ? `
+                postJSON.quote === true ? lang.home.quote_recursive :
+                // (postJSON.quote.blocked_by_self ? lang.home.quote_blocked : lang.home.quote_blocked_other) : postJSON.quote.deleted ? lang.home.quote_deleted : postJSON.quote.can_view ? `
+                postJSON.quote.visible === false ? (
+                  postJSON.quote.reason == "blocked" ? lang.home.quote_blocked_other :
+                  postJSON.quote.reason == "blocking" ? lang.home.quote_blocked :
+                  postJSON.quote.reason == "private" ? lang.home.quote_private : "⚠️"
+                ) : `
                   <div class="upper-content">
                     <a data-link href="/u/${postJSON.quote.creator.username}" class="no-underline text">
                       <div class="main-area">
                       <div class="pre-wrap displ-name-container"
-                        >${postJSON.quote.edited ? `<span class="user-badge" ${postJSON.quote.edited_at ? `title="${escapeHTML(timeSince(postJSON.quote.edited_at, true))}"` : ""}>${icons.edit}</span><span class="spacing"></span>` : ""
+                        >${postJSON.quote.edited ? `<span class="user-badge" ${escapeHTML(timeSince(postJSON.quote.edited, true))}>${icons.edit}</span><span class="spacing"></span>` : ""
                         }<span class="displ-name"
-                        ><span style="--color-one: ${postJSON.quote.creator.color_one}; --color-two: ${postJSON.quote.creator[conf.gradient_banners && postJSON.quote.creator.gradient_banner ? "color_two" : "color_one"]}" class="user-badge banner-pfp"></span
+                        ><span style="--color-one: ${postJSON.quote.creator.color_one}; --color-two: ${postJSON.quote.creator[conf.gradient_banners && postJSON.quote.creator.gradient ? "color_two" : "color_one"]}" class="user-badge banner-pfp"></span
                         >${postJSON.quote.private ? ` <span class="user-badge">${icons.lock}</span>` : ""} ${escapeHTML(postJSON.quote.creator.display_name)} ${
-                          postJSON.quote.creator.badges.length && conf.badges ? `<span aria-hidden="true" class="user-badge">${postJSON.quote.creator.badges.map((icon) => (badges[icon])).join("</span> <span aria-hidden=\"true\" class=\"user-badge\">")}</span>` : ""
+                          postJSON.quote.creator.badges.length && conf.badges ? `<span aria-hidden="true" class="user-badge">${postJSON.quote.creator.badges.map((icon: string): string => (badges[icon])).join("</span> <span aria-hidden=\"true\" class=\"user-badge\">")}</span>` : ""
                         }</span>
                       </div>
                         <div class="upper-lower-opacity">
@@ -866,8 +868,8 @@ function getPostHTML(
                     </a>
                   </div>
 
-                  ${postJSON.quote.c_warning ? `<details ${localStorage.getItem("expand-cws") ? "open" : ""} class="c-warning"><summary>
-                    <div class="c-warning-main">${escapeHTML(postJSON.quote.c_warning)}</div>
+                  ${postJSON.quote.content_warning ? `<details ${localStorage.getItem("expand-cws") ? "open" : ""} class="c-warning"><summary>
+                    <div class="c-warning-main">${escapeHTML(postJSON.quote.content_warning)}</div>
                     <div class="c-warning-stats">
                       (${lang.post[postJSON.quote.content.length == 1 ? "chars_singular" : "chars_plural"].replaceAll("%c", postJSON.quote.content.length)
                       }${postJSON.quote.quote ? `, ${lang.post.quote}` : ""
@@ -877,12 +879,12 @@ function getPostHTML(
                   <div class="main-content">
                     <a data-link aria-hidden="true" href="/${postJSON.quote.comment ? "c" : "p"}/${postJSON.quote.post_id}" class="text no-underline">
                       <div class="pre-wrap">${getLinkify(postJSON.quote.content, postJSON.quote.comment, fakeMentions, postJSON.quote.post_id)}</div>
-                      ${postJSON.quote.has_quote ? `<br><i>${lang.home.quote_recursive}</i>` : ""}
+                      ${postJSON.quote.quote ? `<br><i>${lang.home.quote_recursive}</i>` : ""}
                       ${postJSON.quote.poll ? `<br><i>${lang.home.quote_poll}</i>` : ""}
                     </a>
                   </div>
-                  ${postJSON.quote.c_warning ? `</details>` : ""}
-                ` : lang.home.quote_private
+                  ${postJSON.quote.content_warning ? `</details>` : ""}
+                `
               }
               ${quoteMuted ? `</details>` : ""}
               `}
@@ -890,18 +892,18 @@ function getPostHTML(
           </div>
         ` : ""
       }
-      ${postJSON.c_warning ? `</details>` : ""}
+      ${postJSON.content_warning ? `</details>` : ""}
       </div>
 
       <div class="bottom-content">
         ${includePostLink ? `<a data-link href="/${isComment ? "c" : "p"}/${postJSON.post_id}" class="text no-underline">` : ""}
-          <span class="bottom-content-icon comment-icon">${icons.comment}</span> ${postJSON.comments}
+          <span class="bottom-content-icon comment-icon">${icons.comment}</span> ${postJSON.interactions.comments}
         ${includePostLink ? "</a>" : ""}
         <span class="bottom-spacing"></span>
         ${
           conf.quotes ? `<button class="bottom-content-icon" ${fakeMentions ? "" : `onclick="addQuote('${postJSON.post_id}', ${isComment})"`}>
             ${icons.quote}
-            <span class="quote-number">${postJSON.quotes}</span>
+            <span class="quote-number">${postJSON.interactions.quotes}</span>
           </button>
           <span class="bottom-spacing"></span>` : ''
         }
@@ -910,29 +912,29 @@ function getPostHTML(
           ${icons.like}
         </span>
 
-        <button class="bottom-content-icon like" data-liked="${postJSON.liked}" ${fakeMentions ? "" : `onclick="toggleLike(${postJSON.post_id}, ${isComment ? "'comment'" : "'post'"})"`}>
+        <button class="bottom-content-icon like" data-liked="${postJSON.interactions.liked}" ${fakeMentions ? "" : `onclick="toggleLike(${postJSON.post_id}, ${isComment ? "'comment'" : "'post'"})"`}>
           <span class="hidden-if-unlike">${icons.like}</span>
           <span class="hidden-if-like">${icons.unlike}</span>
-          <span class="like-number">${postJSON.likes}</span>
+          <span class="like-number">${postJSON.interactions.likes}</span>
         </button>
 
         ${
-          (postJSON.can_pin && conf.pinned_posts) || (postJSON.can_delete && conf.post_deletion) ? `
+          (postJSON.can.pin && conf.pinned_posts) || (postJSON.can.delete && conf.post_deletion) ? `
           <span class="bottom-spacing"></span>
           <div tabindex="0" class="bottom-content-icon more-button">${icons.more}</div>
 
           <div class="more-container">${
-            postJSON.can_pin && conf.pinned_posts ? `<button class="bottom-content-icon ${isPinned && postJSON.can_pin ? "red" : ""}" onclick="${isPinned && postJSON.can_pin ? "un" : ""}pinPost(${isPinned && postJSON.can_pin ? "" : postJSON.post_id})">
-              ${isPinned && postJSON.can_pin ? icons.unpin : icons.pin}
-              ${isPinned && postJSON.can_pin ? lang.post.unpin : lang.post.pin}
+            postJSON.can.pin && conf.pinned_posts ? `<button class="bottom-content-icon ${isPinned && postJSON.can.pin ? "red" : ""}" onclick="${isPinned && postJSON.can.pin ? "un" : ""}pinPost(${isPinned && postJSON.can.pin ? "" : postJSON.post_id})">
+              ${isPinned && postJSON.can.pin ? icons.unpin : icons.pin}
+              ${isPinned && postJSON.can.pin ? lang.post.unpin : lang.post.pin}
             </button>` : ""
           } ${
-            postJSON.can_delete && conf.post_deletion ? `<button class="bottom-content-icon red" onclick="deletePost(${postJSON.post_id}, ${isComment}, ${pageFocus})">
+            postJSON.can.delete && conf.post_deletion ? `<button class="bottom-content-icon red" onclick="deletePost(${postJSON.post_id}, ${isComment}, ${pageFocus})">
               ${icons.delete}
               ${lang.post.delete}
             </button>` : ""
           } ${
-            postJSON.can_edit ? `<button class="bottom-content-icon" onclick="editPost(${postJSON.post_id}, ${isComment}, ${postJSON.private}, \`${escapeHTML(postJSON.content)}\`)">
+            postJSON.can.edit ? `<button class="bottom-content-icon" onclick="editPost(${postJSON.post_id}, ${isComment}, ${postJSON.private}, \`${escapeHTML(postJSON.content)}\`)">
               ${icons.edit}
               ${lang.post.edit}
             </button>` : ""
