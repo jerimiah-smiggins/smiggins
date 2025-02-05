@@ -1,12 +1,110 @@
 from typing import TYPE_CHECKING, Any, Literal
 
-from backend.helper import get_lang
-from backend.variables import ENABLE_BADGES, ENABLE_PRONOUNS, OWNER_USER_ID
+from backend.lang import get_lang
+from backend.variables import ENABLE_BADGES, ENABLE_PRONOUNS, OWNER_USER_ID, ENABLE_PINNED_POSTS, ENABLE_EDITING_POSTS
 from django.contrib import admin as django_admin
 from django.contrib.admin.exceptions import AlreadyRegistered  # type: ignore
 from django.db import models
 
 # The "#!# <something>" comment shows something that might happen in the future but has yet to be implemented
+
+def _can_view(post: "Post | Comment", user: "User | None") -> tuple[Literal[True]] | tuple[Literal[False], Literal["blocked", "private", "blocking"]]:
+    if user is None:
+        if post.private:
+            return False, "private"
+        return True,
+
+    creator = post.creator
+
+    if creator.user_id == user.user_id:
+        return True,
+
+    if creator.blocking.contains(user):
+        return False, "blocked"
+
+    if post.private and not creator.followers.contains(user):
+        return False, "private"
+
+    if user.blocking.contains(creator):
+        return False, "blocking"
+
+    return True,
+
+def _post_json(
+    post: "Post | Comment",
+    user: "User | None",
+    show_blocking: bool=True,
+    *,
+    _quote_recursion: int=1
+) -> dict[str, Any]:
+    post_id = post.post_id if isinstance(post, Post) else post.comment_id
+    creator = post.creator
+    user_id = user.user_id if user else 0
+
+    can_view = post.can_view(user)
+
+    if can_view[0] is False and (can_view[1] == "private" or can_view[1] == "blocked" or (hide_blocking and can_view[1] == "blocking")):
+        return {
+            "visible": False,
+            "reason": can_view[1],
+            "post_id": post_id,
+            "comment": False
+        }
+
+    quote = None
+    if isinstance(post, Post) and post.quote and _quote_recursion <= 0:
+        quote = True
+    elif isinstance(post, Post) and post.quote:
+        try:
+            if post.quote_is_comment:
+                quote = Comment.objects.get(comment_id=post.quote).json(user)
+            else:
+                quote = Post.objects.get(post_id=post.quote).json(user)
+        except Comment.DoesNotExist:
+            quote = { "visible": False, "reason": "deleted", "post_id": post.quote, "comment": True }
+        except Post.DoesNotExist:
+            quote = { "visible": False, "reason": "deleted", "post_id": post.quote, "comment": False }
+
+    return {
+        "visible": True,
+        "post_id": post_id,
+
+        "comment": isinstance(post, Comment),
+        "parent": None,
+
+        "private": post.private,
+        "content_warning": post.content_warning,
+        "content": post.content,
+        "timestamp": post.timestamp,
+        "poll": post.get_poll(user_id),
+        "edited": (post.edited_at or 0) if post.edited else None,
+
+        "quote": quote,
+
+        "interactions": {
+            "likes": post.likes.count(),
+            "liked": post.likes.contains(user) if user else False,
+            "comments": len(post.comments),
+            "quotes": len(post.quotes)
+        },
+
+        "can": {
+            "delete": user is not None and (user_id == creator.user_id or user_id == OWNER_USER_ID or user.admin_level % 2 == 1),
+            "pin": ENABLE_PINNED_POSTS and not isinstance(post, Comment) and user is not None,
+            "edit": ENABLE_EDITING_POSTS and creator.user_id == user.user_id
+        },
+
+        "creator": {
+            "display_name": creator.display_name,
+            "username": creator.username,
+            "badges": creator.get_badges(),
+            "pronouns": creator.get_pronouns(),
+            "color_one": creator.color,
+            "color_two": creator.color_two if creator.gradient else creator.color,
+            "gradient": creator.gradient
+        }
+    }
+
 
 class User(models.Model):
     user_id = models.IntegerField(primary_key=True, unique=True)
@@ -160,59 +258,11 @@ class Post(models.Model):
             } for i in p["content"]]
         }
 
-    def can_view(self: "Post", user: User | None) -> tuple[Literal[True]] | tuple[Literal[False], Literal["blocked", "private", "blocking"]]:
-        if user is None:
-            return True,
+    def can_view(self: "Post", user: User | None):
+        return _can_view(self, user)
 
-        creator = self.creator
-
-        if creator.user_id == user.user_id:
-            return True,
-
-        if creator.blocking.contains(user):
-            return False, "blocked"
-
-        if self.private and not creator.followers.contains(user):
-            return False, "private"
-
-        if user.blocking.contains(creator):
-            return False, "blocking"
-
-        return True,
-
-    def json(self: "Post", user: User | None=None, *, _quote_recursion: int=1) -> dict[str, Any]:
-        post_id = self.post_id
-        creator = self.creator
-        user_id = user.user_id if user else 0
-
-        can_delete_all = user is not None and (user_id == OWNER_USER_ID or user.admin_level % 2 == 1)
-        can_view = self.can_view(user)
-
-        if can_view[0] is False and (can_view[1] == "private" or can_view[1] == "blocked"):
-            return {
-                "visible": False,
-                "reason": can_view[1],
-                "post_id": post_id,
-                "comment": False
-            }
-
-        output = {
-            "visible": True,
-            "post_id": post_id,
-            "comment": False,
-
-            "creator": {
-                "display_name": creator.display_name,
-                "username": creator.username,
-                "badges": creator.get_badges(),
-                "pronouns": creator.get_pronouns(),
-                "color_one": creator.color,
-                "color_two": creator.color_two if creator.gradient else creator.color,
-                "gradient": creator.gradient
-            }
-        }
-
-        return output
+    def json(self: "Post", user: User | None=None, hide_blocking: bool=False, *, _quote_recursion: int=1) -> dict[str, Any]:
+        return _post_json(self, user, hide_blocking, _quote_recursion=_quote_recursion)
 
     def __str__(self):
         return f"({self.post_id}) {self.content}"
@@ -240,24 +290,10 @@ class Comment(models.Model):
         return None
 
     def can_view(self: "Comment", user: User | None) -> tuple[Literal[True]] | tuple[Literal[False], Literal["blocked", "private", "blocking"]]:
-        if user is None:
-            return True,
+        return _can_view(self, user)
 
-        creator = self.creator
-
-        if creator.user_id == user.user_id:
-            return True,
-
-        if creator.blocking.contains(user):
-            return False, "blocked"
-
-        if self.private and not creator.followers.contains(user):
-            return False, "private"
-
-        if user.blocking.contains(creator):
-            return False, "blocking"
-
-        return True,
+    def json(self: "Post", user: User | None=None, hide_blocking: bool=False, *, _quote_recursion: int=1) -> dict[str, Any]:
+        return _post_json(self, user, hide_blocking, _quote_recursion=_quote_recursion)
 
     def __str__(self):
         return f"({self.comment_id}) {self.content}"

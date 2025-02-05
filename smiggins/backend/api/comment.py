@@ -6,10 +6,12 @@ from django.db.models import Count
 from django.db.utils import IntegrityError
 from posts.models import Comment, M2MLikeC, Notification, Post, User
 
-from ..helper import (DEFAULT_LANG, can_view_post, check_muted_words,
+from ..helper import (check_muted_words,
                       check_ratelimit, create_notification,
-                      delete_notification, find_mentions, get_lang,
-                      get_post_json, trim_whitespace)
+                      delete_notification, find_mentions,
+                      trim_whitespace)
+from ..lang import get_lang, DEFAULT_LANG
+
 from ..variables import (ENABLE_CONTENT_WARNINGS, ENABLE_LOGGED_OUT_CONTENT,
                          ENABLE_POST_DELETION, MAX_CONTENT_WARNING_LENGTH,
                          MAX_POST_LENGTH, OWNER_USER_ID, POSTS_PER_REQUEST)
@@ -29,7 +31,7 @@ def comment_create(request, data: NewComment) -> APIResponse:
     c_warning = trim_whitespace(data.c_warning, True) if ENABLE_CONTENT_WARNINGS else ("", False)
 
     parent = (Comment if data.comment else Post).objects.get(pk=data.id)
-    can_view = can_view_post(user, parent.creator, parent)
+    can_view = parent.can_view(user)
     if can_view[0] is False and (can_view[1] == "blocked" or can_view[1] == "private"):
         return 400, {
             "success": False
@@ -93,7 +95,7 @@ def comment_create(request, data: NewComment) -> APIResponse:
     return {
         "success": True,
         "actions": [
-            { "name": "prepend_timeline", "post": get_post_json(comment, user, True), "comment": True },
+            { "name": "prepend_timeline", "post": comment.json(user), "comment": True },
             { "name": "update_element", "query": "#post-text", "value": "" },
             { "name": "update_element", "query": "#c-warning", "value": "", "focus": True }
         ]
@@ -161,13 +163,13 @@ def comment_list(request, id: int, comment: bool, sort: str, offset: int=0) -> A
     offset = 0
 
     for comment_object in comments:
-        can_view = can_view_post(user, comment_object.creator, comment_object)
+        can_view = comment_object.can_view(user)
         if can_view[0] is False and (can_view[1] == "blocked" or can_view[1] == "private"):
             offset += 1
             continue
 
         else:
-            outputList.append(get_post_json(comment_object, user, True))
+            outputList.append(comment_object.json(user))
 
         if len(outputList) + offset >= POSTS_PER_REQUEST:
             break
@@ -186,7 +188,7 @@ def comment_like_add(request, data: CommentID) -> APIResponse:
     user = User.objects.get(token=request.COOKIES.get("token"))
     comment = Comment.objects.get(comment_id=data.id)
 
-    can_view = can_view_post(user, comment.creator, comment)
+    can_view = comment.can_view(user)
     if can_view[0] is False and (can_view[1] == "blocked" or can_view[1] == "private"):
         return 400, {
             "success": False
@@ -312,7 +314,7 @@ def comment_edit(request, data: EditComment) -> APIResponse:
         return {
             "success": True,
             "actions": [
-                { "name": "reset_post_html", "post_id": data.id, "comment": True, "post": get_post_json(data.id, user, True) }
+                { "name": "reset_post_html", "post_id": data.id, "comment": True, "post": post.json(user) }
             ]
         }
 

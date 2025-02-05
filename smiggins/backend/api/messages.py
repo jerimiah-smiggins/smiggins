@@ -6,7 +6,8 @@ from sys import maxsize
 from posts.models import PrivateMessage, PrivateMessageContainer, User
 
 from ..helper import (check_muted_words, check_ratelimit, get_container_id,
-                      get_lang, trim_whitespace)
+                      trim_whitespace)
+from ..lang import get_lang
 from ..variables import MAX_POST_LENGTH, MESSAGES_PER_REQUEST
 from .schema import APIResponse, NewContainer, NewMessage
 

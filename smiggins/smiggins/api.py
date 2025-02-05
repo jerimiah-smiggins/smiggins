@@ -22,6 +22,7 @@ class JSONRenderer(BaseRenderer):
             return json.dumps(data)
 
         except TypeError:
+            print(data)
             return data()
 
 api = NinjaAPI(

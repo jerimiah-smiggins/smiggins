@@ -42,7 +42,7 @@ type _anyDict = { [key: string]: any };
 
 type _postJSON = {
   visible: false,
-  reason: "private" | "blocked" | "blocking",
+  reason: "private" | "blocked" | "blocking" | "deleted",
   post_id: number,
   comment: boolean
 } | {

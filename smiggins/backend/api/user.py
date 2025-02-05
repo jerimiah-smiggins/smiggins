@@ -7,8 +7,10 @@ from django.db.models import Manager
 from posts.models import (Comment, MutedWord, OneTimePassword, Post,
                           PrivateMessageContainer, User, UserPronouns)
 
-from ..helper import (DEFAULT_LANG, check_ratelimit, generate_token, get_lang,
-                      get_post_json, trim_whitespace, validate_username)
+from ..lang import get_lang, DEFAULT_LANG
+
+from ..helper import (check_ratelimit, generate_token,
+                      trim_whitespace, validate_username)
 from ..variables import (DEFAULT_BANNER_COLOR, DEFAULT_LANGUAGE,
                          ENABLE_GRADIENT_BANNERS, ENABLE_LOGGED_OUT_CONTENT,
                          ENABLE_NEW_ACCOUNTS, ENABLE_PRONOUNS,
@@ -543,7 +545,12 @@ def notifications_list(request) -> APIResponse:
 
     for notification in all_notifs:
         try:
-            x = get_post_json(notification.event_id, self_user, notification.event_type in ["comment", "ping_c"])
+            if notification.event_type in ["comment", "ping_c"]:
+                post = Comment.objects.get(comment_id=notification.event_id)
+            else:
+                post = Post.objects.get(post_id=notification.event_id)
+    
+            x = post.json(self_user)
 
             if "content" in x:
                 notifs_list.append({

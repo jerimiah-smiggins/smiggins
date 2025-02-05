@@ -10,10 +10,12 @@ from django.db.models import Count
 from django.db.utils import IntegrityError
 from posts.models import Comment, Hashtag, M2MLike, Notification, Post, User
 
-from ..helper import (DEFAULT_LANG, can_view_post, check_muted_words,
+from ..lang import get_lang, DEFAULT_LANG
+
+from ..helper import (check_muted_words,
                       check_ratelimit, create_notification,
                       delete_notification, find_hashtags, find_mentions,
-                      get_lang, get_post_json, trim_whitespace,
+                      trim_whitespace,
                       validate_username)
 from ..variables import (ENABLE_CONTENT_WARNINGS, ENABLE_LOGGED_OUT_CONTENT,
                          ENABLE_PINNED_POSTS, ENABLE_POLLS,
@@ -169,7 +171,7 @@ def post_create(request, data: NewPost) -> APIResponse:
     return {
         "success": True,
         "actions": [
-            { "name": "prepend_timeline", "post": get_post_json(post, user), "comment": False },
+            { "name": "prepend_timeline", "post": post.json(user), "comment": False },
             { "name": "update_element", "query": "#post-text", "value": "", "disabled": False, "focus": True},
             { "name": "update_element", "query": "#c-warning", "value": "" },
             { "name": "update_element", "query": "#poll input", "value": "", "all": True }
@@ -199,7 +201,7 @@ def quote_create(request, data: NewQuote) -> APIResponse:
             "message": lang["post"]["invalid_quote_comment"]
         }
 
-    can_view = can_view_post(user, quoted_post.creator, quoted_post)
+    can_view = quoted_post.can_view(user)
 
     if can_view[0] is False and can_view[1] in ["private", "blocked"]:
         return 400, {
@@ -285,7 +287,7 @@ def quote_create(request, data: NewQuote) -> APIResponse:
     return {
         "success": True,
         "actions": [
-            { "name": "prepend_timeline", "post": get_post_json(post, user), "comment": False },
+            { "name": "prepend_timeline", "post": post.json(user), "comment": False },
             { "name": "update_element", "query": f".post-container[data-{'comment' if data.quote_is_comment else 'post'}-id='{data.quote_id}'] .quote-inputs", "html": "" },
             { "name": "update_element", "query": f".post-container[data-{'comment' if data.quote_is_comment else 'post'}-id='{data.quote_id}'] .quote-number", "inc": 1 }
         ]
@@ -325,7 +327,7 @@ def hashtag_list(request, hashtag: str, sort: str, offset: int=0) -> APIResponse
 
     offset = 0
     for post in posts:
-        x = get_post_json(post, user)
+        x = post.json(user)
 
         if "can_view" in x and x["can_view"]:
             post_list.append(x)
@@ -369,7 +371,7 @@ def post_list_following(request, offset: int=-1) -> APIResponse:
 
     for post in combined_posts:
         try:
-            post_json = get_post_json(post, user)
+            post_json = post.json(user)
         except Post.DoesNotExist:
             offset += 1
             continue
@@ -422,11 +424,11 @@ def post_list_recent(request, offset: int=-1) -> APIResponse:
             i -= 1
             continue
 
-        if not can_view_post(user, None, current_post)[0]:
+        if not current_post.can_view(user)[0]:
             offset += 1
 
         else:
-            outputList.append(get_post_json(current_post, user))
+            outputList.append(current_post.json(user))
 
         i -= 1
 
@@ -453,6 +455,7 @@ def post_list_user(request, username: str, offset: int=-1) -> APIResponse:
                 "success": False
             }
 
+        self_user = None
         lang = DEFAULT_LANG
         logged_in = False
 
@@ -477,7 +480,7 @@ def post_list_user(request, username: str, offset: int=-1) -> APIResponse:
     c = 0
     for i in potential:
         c += 1
-        x = get_post_json(i, self_user if logged_in else 0)
+        x = i.json(self_user)
 
         if "private_acc" not in x or not x["private_acc"]:
             outputList.append(x)
@@ -488,7 +491,7 @@ def post_list_user(request, username: str, offset: int=-1) -> APIResponse:
     pinned_post = None
     if ENABLE_PINNED_POSTS:
         if user.pinned:
-            pinned_post = get_post_json(user.pinned, self_user if logged_in else 0, False)
+            pinned_post = user.pinned.json(self_user)
 
     return {
         "success": True,
@@ -515,7 +518,7 @@ def post_like_add(request, data: PostID) -> APIResponse:
     user = User.objects.get(token=request.COOKIES.get("token"))
     post = Post.objects.get(post_id=data.id)
 
-    can_view = can_view_post(user, post.creator, post)
+    can_view = post.can_view(user)
     if can_view[0] is False and can_view[1] in ["private", "blocked"]:
         return 400, {
             "success": False
@@ -681,7 +684,7 @@ def poll_vote(request, data: Poll) -> APIResponse:
 
         user = User.objects.get(token=request.COOKIES.get("token"))
 
-        can_view = can_view_post(user, post.creator, post)
+        can_view = post.can_view(user)
         if can_view[0] is False and can_view[1] in ["private", "blocked"]:
             return 400, {
                 "success": False
@@ -714,7 +717,7 @@ def poll_refresh(request, id: int) -> APIResponse:
     if post.poll:
         user = User.objects.get(token=request.COOKIES.get("token"))
 
-        can_view = can_view_post(user, post.creator, post)
+        can_view = post.can_view(user)
         if can_view[0] is False and can_view[1] in ["private", "blocked"]:
             return 400, {
                 "success": False
@@ -795,7 +798,7 @@ def post_edit(request, data: EditPost) -> APIResponse:
         return {
             "success": True,
             "actions": [
-                { "name": "reset_post_html", "post_id": data.id, "comment": False, "post": get_post_json(post, user, False) }
+                { "name": "reset_post_html", "post_id": data.id, "comment": False, "post": post.json(user) }
             ]
         }
 

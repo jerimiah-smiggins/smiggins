@@ -7,7 +7,8 @@ from django.template import loader
 from posts.backups import backup_db
 from posts.models import User
 
-from .helper import get_HTTP_response, get_lang, get_strings
+from .lang import get_lang
+from .helper import get_HTTP_response, get_strings
 from .variables import (DEFAULT_DARK_THEME, DEFAULT_LIGHT_THEME,
                         ENABLE_ACCOUNT_SWITCHER, ENABLE_BADGES,
                         ENABLE_CONTENT_WARNINGS, ENABLE_DYNAMIC_FAVICON,

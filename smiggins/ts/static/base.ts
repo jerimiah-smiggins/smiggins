@@ -842,11 +842,11 @@ function getPostHTML(
               ${quoteMuted ? `<details><summary class="small">${escapeHTML(lang.settings.mute.post_blocked.replaceAll("%u", postJSON.creator.username).replaceAll("%m", quoteMuted))}</summary>` : ""}
               ${
                 postJSON.quote === true ? lang.home.quote_recursive :
-                // (postJSON.quote.blocked_by_self ? lang.home.quote_blocked : lang.home.quote_blocked_other) : postJSON.quote.deleted ? lang.home.quote_deleted : postJSON.quote.can_view ? `
                 postJSON.quote.visible === false ? (
                   postJSON.quote.reason == "blocked" ? lang.home.quote_blocked_other :
                   postJSON.quote.reason == "blocking" ? lang.home.quote_blocked :
-                  postJSON.quote.reason == "private" ? lang.home.quote_private : "⚠️"
+                  postJSON.quote.reason == "private" ? lang.home.quote_private : 
+                  postJSON.quote.reason == "deleted" ? lang.home.quote_deleted : "⚠️"
                 ) : `
                   <div class="upper-content">
                     <a data-link href="/u/${postJSON.quote.creator.username}" class="no-underline text">

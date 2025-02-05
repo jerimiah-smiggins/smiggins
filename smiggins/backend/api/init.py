@@ -3,8 +3,9 @@ import re
 from posts.models import (Comment, Hashtag, MutedWord, Post,
                           PrivateMessageContainer, User)
 
-from ..helper import (LANGS, check_ratelimit, find_mentions, get_badge_data,
-                      get_container_id, get_lang, get_post_json, get_strings)
+from ..lang import get_lang, LANGS
+from ..helper import (check_ratelimit, find_mentions, get_badge_data,
+                      get_container_id, get_strings)
 from ..variables import (CACHE_LANGUAGES, CONTACT_INFO, CREDITS,
                          DEFAULT_BANNER_COLOR, DEFAULT_LANGUAGE, DISCORD,
                          ENABLE_ACCOUNT_SWITCHER, ENABLE_BADGES,
@@ -306,7 +307,7 @@ def context(request) -> tuple[int, dict] | dict | APIResponse:
 
         return gc(
             request, user, "post",
-            post=get_post_json(post, user, False),
+            post=post.json(user),
             comment=False,
             mentions=" ".join([f"@{i} " for i in find_mentions(f"{post.content} @{post.creator.username}", [user.username] if user else [])])
         )
@@ -327,7 +328,7 @@ def context(request) -> tuple[int, dict] | dict | APIResponse:
 
         return gc(
             request, user, "post",
-            post=get_post_json(post, user, True),
+            post=post.json(user),
             comment=True,
             mentions="".join([f"@{i} " for i in find_mentions(f"{post.content} @{post.creator.username}", [user.username] if user else [])])
         )

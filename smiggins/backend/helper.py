@@ -6,7 +6,6 @@ import re
 import time
 from typing import Any, Callable, Literal
 
-import json5 as json
 from django.core.mail import send_mail
 from django.http import HttpResponse, HttpResponseRedirect
 from django.template import loader
@@ -15,8 +14,8 @@ from posts.models import (Badge, Comment, MutedWord, Notification, Post,
                           Ratelimit, User)
 
 from .api.schema import APIResponse
-from .variables import (ALTERNATE_IPS, BASE_DIR, CACHE_LANGUAGES,
-                        DEFAULT_DARK_THEME, DEFAULT_LANGUAGE,
+from .variables import (ALTERNATE_IPS,
+                        DEFAULT_DARK_THEME,
                         DEFAULT_LIGHT_THEME, DISCORD, ENABLE_ACCOUNT_SWITCHER,
                         ENABLE_BADGES, ENABLE_CONTACT_PAGE,
                         ENABLE_CONTENT_WARNINGS, ENABLE_CREDITS_PAGE,
@@ -31,7 +30,7 @@ from .variables import (ALTERNATE_IPS, BASE_DIR, CACHE_LANGUAGES,
                         MAX_POLL_OPTION_LENGTH, MAX_POLL_OPTIONS,
                         MAX_POST_LENGTH, MAX_USERNAME_LENGTH, OWNER_USER_ID,
                         PRIVATE_AUTHENTICATOR_KEY, RATELIMITS, SITE_NAME,
-                        SOURCE_CODE, THEMES, VALID_LANGUAGES, VERSION, error)
+                        SOURCE_CODE, THEMES, VERSION, error)
 
 StringReturn = tuple[str | None, str | None, str | None, int]
 
@@ -356,158 +355,6 @@ def check_ratelimit(request, route_id: str) -> None | APIResponse:
 
     return None
 
-def get_post_json(
-    post_id: int | Post | Comment,
-    current_user_id: int | User | None=None,
-    comment: bool=False
-) -> dict[str, str | int | dict]:
-    # Returns a dict object that includes information about the specified post
-    # When editing the json content response of this function, make sure you also
-    # correct the schema in static/ts/globals.d.ts
-
-    if comment:
-        post = Comment.objects.get(comment_id=post_id) if isinstance(post_id, int) else post_id
-    else:
-        post = Post.objects.get(post_id=post_id) if isinstance(post_id, int) else post_id
-
-    post_id = post.post_id if isinstance(post, Post) else post.comment_id
-
-    creator = post.creator
-
-    if isinstance(current_user_id, int):
-        try:
-            user = User.objects.get(user_id=current_user_id)
-        except User.DoesNotExist:
-            user = None
-    else:
-        user = current_user_id
-        current_user_id = user.user_id if user else 0
-
-    can_delete_all = user is not None and (current_user_id == OWNER_USER_ID or user.admin_level % 2 == 1)
-    can_view = post.can_view(user)
-
-    if can_view[0] is False:
-        if can_view[1] == "private":
-            return {
-                "private_acc": True,
-                "can_view": False,
-                "blocked": False
-            }
-
-        if can_view[1] == "blocked":
-            return {
-                "deleted": False,
-                "blocked": True,
-                "blocked_by_self": False
-            }
-
-    post_json = {
-        "creator": {
-            "display_name": creator.display_name,
-            "username": creator.username,
-            "badges": creator.get_badges(),
-            "pronouns": creator.get_pronouns(),
-            "color_one": creator.color,
-            "color_two": creator.color_two,
-            "gradient_banner": creator.gradient
-        },
-        "private": post.private,
-        "post_id": post_id,
-        "content": post.content,
-        "timestamp": post.timestamp,
-        "liked": post.likes.filter(user_id=user.user_id).exists() if user else False,
-        "likes": post.likes.count(),
-        "comments": len(post.comments),
-        "quotes": len(post.quotes),
-        "c_warning": post.content_warning,
-        "can_delete": can_delete_all or creator.user_id == current_user_id,
-        "can_pin": ENABLE_PINNED_POSTS and user is not None,
-        "can_edit": creator.user_id == current_user_id and ENABLE_EDITING_POSTS,
-        "can_view": True,
-        "parent": post.parent if isinstance(post, Comment) else -1,
-        "parent_is_comment": post.parent_is_comment if isinstance(post, Comment) else False,
-        "poll": post.get_poll(current_user_id),
-        "logged_in": user is not None,
-        "edited": post.edited,
-        "edited_at": post.edited_at
-    }
-
-    if isinstance(post, Post) and post.quote != 0:
-        try:
-            if post.quote_is_comment:
-                quote = Comment.objects.get(comment_id=post.quote)
-            else:
-                quote = Post.objects.get(post_id=post.quote)
-
-            quote_creator = quote.creator
-            can_view_quote = can_view_post(user, quote_creator, quote)
-
-            if can_view_quote[0] is False:
-                if can_view_quote[1] == "blocking":
-                    quote_info = {
-                        "deleted": False,
-                        "blocked": True,
-                        "blocked_by_self": True
-                    }
-
-                if can_view_quote[1] == "blocked":
-                    quote_info = {
-                        "deleted": False,
-                        "blocked": True,
-                        "blocked_by_self": False
-                    }
-
-                if can_view_quote[1] == "private":
-                    quote_info = {
-                        "deleted": False,
-                        "private_acc": True,
-                        "can_view": False,
-                        "blocked": False
-                    }
-
-            else:
-                quote_info = {
-                    "creator": {
-                        "display_name": quote_creator.display_name,
-                        "username": quote_creator.username,
-                        "badges": quote_creator.get_badges(),
-                        "pronouns": quote_creator.get_pronouns(),
-                        "color_one": quote_creator.color,
-                        "color_two": quote_creator.color_two,
-                        "gradient_banner": quote_creator.gradient
-                    },
-                    "private": quote.private,
-                    "deleted": False,
-                    "comment": post.quote_is_comment,
-                    "post_id": quote.post_id if isinstance(quote, Post) else quote.comment_id,
-                    "content": quote.content,
-                    "timestamp": quote.timestamp,
-                    "liked": quote.likes.filter(user_id=user.user_id).exists() if user else False,
-                    "likes": quote.likes.count(),
-                    "comments": len(quote.comments),
-                    "quotes": len(quote.quotes),
-                    "c_warning": quote.content_warning,
-                    "can_view": True,
-                    "blocked": False,
-                    "has_quote": isinstance(quote, Post) and quote.quote,
-                    "poll": bool(quote.poll) if isinstance(quote, Post) else False,
-                    "edited": quote.edited,
-                    "edited_at": quote.edited_at
-                }
-
-        except Comment.DoesNotExist:
-            quote_info = {
-                "deleted": True
-            }
-        except Post.DoesNotExist:
-            quote_info = {
-                "deleted": True
-            }
-
-        post_json["quote"] = quote_info
-
-    return post_json
-
 def trim_whitespace(string: str, purge_newlines: bool=False) -> tuple[str, bool]:
     # Trims whitespace from strings
     # reutrn: new_string, has_content
@@ -579,63 +426,6 @@ def send_email(subject: str, recipients: list[str], raw_message: str, html_messa
         recipient_list=recipients
     )
 
-def get_lang(lang: User | str | None=None, override_cache=False) -> dict[str, dict]:
-    # Gets the language file for the specified user/language
-
-    if isinstance(lang, User):
-        lang = lang.language or DEFAULT_LANGUAGE
-    elif not isinstance(lang, str):
-        lang = DEFAULT_LANGUAGE
-
-    if not override_cache and CACHE_LANGUAGES:
-        return LANGS[lang] if lang in LANGS else LANGS[DEFAULT_LANGUAGE]
-
-    parsed = []
-
-    def loop_through(found: dict, context: dict) -> dict:
-        if isinstance(context, dict):
-            for i in context:
-                if isinstance(context[i], str):
-                    if i not in found:
-                        found[i] = context[i]
-                else:
-                    if i not in found:
-                        found[i] = context[i]
-                    else:
-                        found[i] = loop_through(found[i], context[i])
-
-        elif isinstance(found, str):
-            if len(found) == 0:
-                found = context
-
-        return found
-
-    def resolve_dependencies(lang: str, context: dict | None=None) -> tuple[dict[str, dict], dict]:
-        if context is None:
-            context = {}
-
-        f = json.load(open(BASE_DIR / f"lang/{lang}.json", "r", encoding="utf-8"))
-        parsed.append(lang)
-
-        context = loop_through(context, f["texts"])
-
-        for i in f["meta"]["fallback"]:
-            if i not in parsed:
-                resolve_dependencies(i, context)
-
-        return context, f
-
-    x, full = resolve_dependencies(lang)
-
-    x["meta"] = {
-        "language": lang,
-        "version": full["meta"]["version"],
-        "maintainers": full["meta"]["maintainers"],
-        "past_maintainers": full["meta"]["past_maintainers"],
-    }
-
-    return x
-
 # Used only once
 def get_ip_addr(request) -> str:
     if isinstance(ALTERNATE_IPS, str):
@@ -661,24 +451,3 @@ def check_muted_words(*content: str) -> bool:
                 return True
 
     return False
-
-LANGS = {}
-if CACHE_LANGUAGES:
-    import sys
-
-    print("Generating language cache for ", end="")
-    first = True
-
-    for i in VALID_LANGUAGES:
-        print(f"{'' if first else ', '}{i}", end="")
-        LANGS[i] = get_lang(i, True)
-
-        sys.stdout.flush()
-
-        if first:
-            first = False
-
-    print()
-    del sys
-
-DEFAULT_LANG = get_lang()
