@@ -13,7 +13,7 @@ from posts.models import Comment, Hashtag, M2MLike, Notification, Post, User
 from ..helper import (DEFAULT_LANG, can_view_post, check_muted_words,
                       check_ratelimit, create_notification,
                       delete_notification, find_hashtags, find_mentions,
-                      get_lang, get_poll, get_post_json, trim_whitespace,
+                      get_lang, get_post_json, trim_whitespace,
                       validate_username)
 from ..variables import (ENABLE_CONTENT_WARNINGS, ENABLE_LOGGED_OUT_CONTENT,
                          ENABLE_PINNED_POSTS, ENABLE_POLLS,
@@ -697,7 +697,7 @@ def poll_vote(request, data: Poll) -> APIResponse:
         return {
             "success": True,
             "actions": [
-                { "name": "refresh_poll", "poll": get_poll(post, user.user_id), "post_id": post.post_id }
+                { "name": "refresh_poll", "poll": post.get_poll(user.user_id), "post_id": post.post_id }
             ]
         }
 
@@ -723,7 +723,7 @@ def poll_refresh(request, id: int) -> APIResponse:
         return {
             "success": True,
             "actions": [
-                { "name": "refresh_poll", "poll": get_poll(post, user.user_id), "post_id": post.post_id }
+                { "name": "refresh_poll", "poll": post.get_poll(user.user_id), "post_id": post.post_id }
             ]
         }
 

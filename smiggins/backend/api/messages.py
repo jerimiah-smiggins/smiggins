@@ -5,8 +5,8 @@ from sys import maxsize
 
 from posts.models import PrivateMessage, PrivateMessageContainer, User
 
-from ..helper import (check_muted_words, check_ratelimit, get_badges,
-                      get_container_id, get_lang, trim_whitespace)
+from ..helper import (check_muted_words, check_ratelimit, get_container_id,
+                      get_lang, trim_whitespace)
 from ..variables import MAX_POST_LENGTH, MESSAGES_PER_REQUEST
 from .schema import APIResponse, NewContainer, NewMessage
 
@@ -230,7 +230,7 @@ def recent_messages(request, offset: int=-1) -> APIResponse:
             message_json.append({
                 "username": other_user.username,
                 "display_name": other_user.display_name,
-                "badges": get_badges(other_user),
+                "badges": other_user.get_badges(),
                 "color_one": other_user.color,
                 "color_two": other_user.color_two,
                 "gradient_banner": other_user.gradient,

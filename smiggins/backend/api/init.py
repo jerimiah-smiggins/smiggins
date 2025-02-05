@@ -4,8 +4,7 @@ from posts.models import (Comment, Hashtag, MutedWord, Post,
                           PrivateMessageContainer, User)
 
 from ..helper import (LANGS, check_ratelimit, find_mentions, get_badge_data,
-                      get_badges, get_container_id, get_lang, get_post_json,
-                      get_pronouns, get_strings)
+                      get_container_id, get_lang, get_post_json, get_strings)
 from ..variables import (CACHE_LANGUAGES, CONTACT_INFO, CREDITS,
                          DEFAULT_BANNER_COLOR, DEFAULT_LANGUAGE, DISCORD,
                          ENABLE_ACCOUNT_SWITCHER, ENABLE_BADGES,
@@ -22,10 +21,10 @@ def _get_user(request, user: User, self_user: User | None=None) -> dict:
         request, user, "user", f"/u/{user.username}/",
         username=user.username,
         display_name=user.display_name,
-        pronouns=get_pronouns(user) if ENABLE_PRONOUNS else None,
+        pronouns=user.get_pronouns() if ENABLE_PRONOUNS else None,
         followers=user.followers.count(),
         following=user.following.count(),
-        badges=get_badges(user),
+        badges=user.get_badges(),
         banner_color_one=user.color,
         banner_color_two=user.color_two,
         gradient=user.gradient,
@@ -224,7 +223,7 @@ def context(request) -> tuple[int, dict] | dict | APIResponse:
             request, user, "message",
             username=username,
             display_name=other_user.display_name,
-            badges=get_badges(other_user)
+            badges=other_user.get_badges()
         )
 
     match = re.match(re.compile(r"^/u/([a-z0-9_\-]+)/?$"), url)
@@ -259,9 +258,9 @@ def context(request) -> tuple[int, dict] | dict | APIResponse:
             banner_color_two=other_user.color_two,
             gradient=other_user.gradient,
             display_name=other_user.display_name,
-            badges=get_badges(other_user),
+            badges=other_user.get_badges(),
             username=other_user.username,
-            pronouns=get_pronouns(other_user),
+            pronouns=other_user.get_pronouns(),
             followers=other_user.followers.count(),
             following=other_user.following.count(),
             bio=other_user.bio,

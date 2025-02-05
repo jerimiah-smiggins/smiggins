@@ -7,9 +7,8 @@ from django.db.models import Manager
 from posts.models import (Comment, MutedWord, OneTimePassword, Post,
                           PrivateMessageContainer, User, UserPronouns)
 
-from ..helper import (DEFAULT_LANG, check_ratelimit, generate_token,
-                      get_badges, get_lang, get_post_json, trim_whitespace,
-                      validate_username)
+from ..helper import (DEFAULT_LANG, check_ratelimit, generate_token, get_lang,
+                      get_post_json, trim_whitespace, validate_username)
 from ..variables import (DEFAULT_BANNER_COLOR, DEFAULT_LANGUAGE,
                          ENABLE_GRADIENT_BANNERS, ENABLE_LOGGED_OUT_CONTENT,
                          ENABLE_NEW_ACCOUNTS, ENABLE_PRONOUNS,
@@ -588,7 +587,7 @@ def list_pending(request, offset: int=-1) -> APIResponse:
         pending_json.append({
             "username": other_user.username,
             "display_name": other_user.display_name,
-            "badges": get_badges(other_user),
+            "badges": other_user.get_badges(),
             "color_one": other_user.color,
             "color_two": other_user.color_two,
             "gradient_banner": other_user.gradient,
@@ -748,7 +747,7 @@ def _lists_get_values(query: Manager[User], page: int, special: Literal["followi
         out.append({
             "username": user.username,
             "display_name": user.display_name,
-            "badges": get_badges(user),
+            "badges": user.get_badges(),
             "color_one": user.color,
             "color_two": user.color_two if ENABLE_GRADIENT_BANNERS else user.color,
             "gradient_banner": user.gradient,

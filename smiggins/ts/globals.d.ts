@@ -82,6 +82,27 @@ type _postJSON = {
   blocked_by_self?: boolean
 };
 
+type _postJSONv2 = {
+  visible: false,
+  reason: "private" | "blocked" | "blocking",
+  post_id: number,
+  comment: boolean
+} | {
+  visible: true,
+  post_id: number,
+  comment: boolean,
+
+  creator: {
+    display_name: string,
+    username: string,
+    badges: string[],
+    pronouns: string,
+    color_one: string,
+    color_two: string,
+    gradient: boolean
+  }
+}
+
 type _pollJSON = {
   votes: number,
   voted: boolean,

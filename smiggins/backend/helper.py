@@ -145,7 +145,6 @@ def get_strings(request, lang: dict, user: User | None, url_override: str | None
 
     return lang["http"]["404"]["standard_title"], f"{lang['http']['404']['standard_title']}\n{lang['http']['404']['standard_description']}", None, 404
 
-# Used only once
 def get_badge_data() -> dict[str, str]:
     badges = {}
     data = Badge.objects.all().values_list("name", "svg_data")
@@ -357,71 +356,6 @@ def check_ratelimit(request, route_id: str) -> None | APIResponse:
 
     return None
 
-def get_badges(user: User) -> list[str]:
-    # Returns the list of badges for the specified user
-
-    return list(user.badges.all().values_list("name", flat=True)) + (["administrator"] if user.admin_level != 0 or user.user_id == OWNER_USER_ID else []) if ENABLE_BADGES else []
-
-def get_pronouns(user: User, lang: dict | None=None) -> str | None:
-    _p = user.pronouns.filter(language=user.language)
-
-    if lang is None:
-        creator_lang = get_lang(user)
-    else:
-        creator_lang = lang
-
-    if ENABLE_PRONOUNS and creator_lang["generic"]["pronouns"]["enable_pronouns"]:
-        if _p.exists():
-            try:
-                if _p[0].secondary and creator_lang["generic"]["pronouns"]["enable_secondary"]:
-                    return creator_lang["generic"]["pronouns"]["visible"][f"{_p[0].primary}_{_p[0].secondary}"]
-                else:
-                    return creator_lang["generic"]["pronouns"]["visible"][f"{_p[0].primary}"]
-
-            except KeyError:
-                ...
-
-        try:
-            return creator_lang["generic"]["pronouns"]["visible"][creator_lang["generic"]["pronouns"]["default"]]
-        except KeyError:
-            ...
-
-    return None
-
-def can_view_post(self_user: User | None, creator: User | None, post: Post | Comment) -> tuple[Literal[True]] | tuple[Literal[False], Literal["blocked", "private", "blocking"]]:
-    if self_user is None:
-        return True,
-
-    creator = post.creator
-
-    if creator.user_id == self_user.user_id:
-        return True,
-
-    if creator.blocking.contains(self_user):
-        return False, "blocked"
-
-    if post.private and not creator.followers.contains(self_user):
-        return False, "private"
-
-    if self_user.blocking.contains(creator):
-        return False, "blocking"
-
-    return True,
-
-def get_poll(post: Post | Comment, user_id: int) -> dict | None:
-    if not isinstance(post, Post) or not isinstance(post.poll, dict):
-        return None
-
-    return {
-        "votes": len(post.poll["votes"]),
-        "voted": user_id in post.poll["votes"],
-        "content": [{
-            "value": i["value"],
-            "votes": len(i["votes"]),
-            "voted": user_id in i["votes"]
-        } for i in post.poll["content"]], # type: ignore
-    }
-
 def get_post_json(
     post_id: int | Post | Comment,
     current_user_id: int | User | None=None,
@@ -450,7 +384,7 @@ def get_post_json(
         current_user_id = user.user_id if user else 0
 
     can_delete_all = user is not None and (current_user_id == OWNER_USER_ID or user.admin_level % 2 == 1)
-    can_view = can_view_post(user, creator, post)
+    can_view = post.can_view(user)
 
     if can_view[0] is False:
         if can_view[1] == "private":
@@ -471,8 +405,8 @@ def get_post_json(
         "creator": {
             "display_name": creator.display_name,
             "username": creator.username,
-            "badges": get_badges(creator),
-            "pronouns": get_pronouns(creator),
+            "badges": creator.get_badges(),
+            "pronouns": creator.get_pronouns(),
             "color_one": creator.color,
             "color_two": creator.color_two,
             "gradient_banner": creator.gradient
@@ -492,7 +426,7 @@ def get_post_json(
         "can_view": True,
         "parent": post.parent if isinstance(post, Comment) else -1,
         "parent_is_comment": post.parent_is_comment if isinstance(post, Comment) else False,
-        "poll": get_poll(post, current_user_id),
+        "poll": post.get_poll(current_user_id),
         "logged_in": user is not None,
         "edited": post.edited,
         "edited_at": post.edited_at
@@ -536,8 +470,8 @@ def get_post_json(
                     "creator": {
                         "display_name": quote_creator.display_name,
                         "username": quote_creator.username,
-                        "badges": get_badges(quote_creator),
-                        "pronouns": get_pronouns(quote_creator),
+                        "badges": quote_creator.get_badges(),
+                        "pronouns": quote_creator.get_pronouns(),
                         "color_one": quote_creator.color,
                         "color_two": quote_creator.color_two,
                         "gradient_banner": quote_creator.gradient

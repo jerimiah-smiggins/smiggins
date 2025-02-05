@@ -1,5 +1,7 @@
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, Any, Literal
 
+from backend.helper import get_lang
+from backend.variables import ENABLE_BADGES, ENABLE_PRONOUNS, OWNER_USER_ID
 from django.contrib import admin as django_admin
 from django.contrib.admin.exceptions import AlreadyRegistered  # type: ignore
 from django.db import models
@@ -67,6 +69,38 @@ class User(models.Model):
         badges: models.Manager["Badge"]
         pronouns: models.Manager["UserPronouns"]
 
+    def get_badges(self: "User") -> list[str]:
+        return list(self.badges.all().values_list("name", flat=True)) + (["administrator"] if self.admin_level != 0 or self.user_id == OWNER_USER_ID else []) if ENABLE_BADGES else []
+
+    def get_pronouns(self: "User", lang: dict | None=None) -> str | None:
+        if not ENABLE_PRONOUNS:
+            return None
+
+        _p = self.pronouns.filter(language=self.language)
+
+        if lang is None:
+            creator_lang = get_lang(self)
+        else:
+            creator_lang = lang
+
+        if creator_lang["generic"]["pronouns"]["enable_pronouns"]:
+            if _p.exists():
+                try:
+                    if _p[0].secondary and creator_lang["generic"]["pronouns"]["enable_secondary"]:
+                        return creator_lang["generic"]["pronouns"]["visible"][f"{_p[0].primary}_{_p[0].secondary}"]
+                    else:
+                        return creator_lang["generic"]["pronouns"]["visible"][f"{_p[0].primary}"]
+
+                except KeyError:
+                    ...
+
+            try:
+                return creator_lang["generic"]["pronouns"]["visible"][creator_lang["generic"]["pronouns"]["default"]]
+            except KeyError:
+                ...
+
+        return None
+
     def __str__(self):
         return f"({self.user_id}) {self.username}"
 
@@ -110,6 +144,76 @@ class Post(models.Model):
     if TYPE_CHECKING:
         hashtags: models.Manager["Hashtag"]
 
+    def get_poll(self: "Post", user_id: int) -> dict | None:
+        p: dict | None = self.poll
+
+        if not isinstance(p, dict):
+            return None
+
+        return {
+            "votes": len(p["votes"]),
+            "voted": user_id in p["votes"],
+            "content": [{
+                "value": i["value"],
+                "votes": len(i["votes"]),
+                "voted": user_id in i["votes"]
+            } for i in p["content"]]
+        }
+
+    def can_view(self: "Post", user: User | None) -> tuple[Literal[True]] | tuple[Literal[False], Literal["blocked", "private", "blocking"]]:
+        if user is None:
+            return True,
+
+        creator = self.creator
+
+        if creator.user_id == user.user_id:
+            return True,
+
+        if creator.blocking.contains(user):
+            return False, "blocked"
+
+        if self.private and not creator.followers.contains(user):
+            return False, "private"
+
+        if user.blocking.contains(creator):
+            return False, "blocking"
+
+        return True,
+
+    def json(self: "Post", user: User | None=None, *, _quote_recursion: int=1) -> dict[str, Any]:
+        post_id = self.post_id
+        creator = self.creator
+        user_id = user.user_id if user else 0
+
+        can_delete_all = user is not None and (user_id == OWNER_USER_ID or user.admin_level % 2 == 1)
+        can_view = self.can_view(user)
+
+        if can_view[0] is False and (can_view[1] == "private" or can_view[1] == "blocked"):
+            return {
+                "visible": False,
+                "reason": can_view[1],
+                "post_id": post_id,
+                "comment": False
+            }
+
+        output = {
+            "visible": True,
+            "post_id": post_id,
+            "comment": False,
+
+            "creator": {
+                "display_name": creator.display_name,
+                "username": creator.username,
+                "badges": creator.get_badges(),
+                "pronouns": creator.get_pronouns(),
+                "color_one": creator.color,
+                "color_two": creator.color_two if creator.gradient else creator.color,
+                "gradient": creator.gradient
+            }
+        }
+
+        return output
+
     def __str__(self):
         return f"({self.post_id}) {self.content}"
 
@@ -131,6 +235,29 @@ class Comment(models.Model):
     likes = models.ManyToManyField(User, through="M2MLikeC", related_name="liked_comments", blank=True)
     comments = models.JSONField(default=list, blank=True) #!# reverse foreignkey
     quotes = models.JSONField(default=list, blank=True) #!# reverse foreignkey
+
+    def get_poll(self: "Comment", user_id: int) -> None:
+        return None
+
+    def can_view(self: "Comment", user: User | None) -> tuple[Literal[True]] | tuple[Literal[False], Literal["blocked", "private", "blocking"]]:
+        if user is None:
+            return True,
+
+        creator = self.creator
+
+        if creator.user_id == user.user_id:
+            return True,
+
+        if creator.blocking.contains(user):
+            return False, "blocked"
+
+        if self.private and not creator.followers.contains(user):
+            return False, "private"
+
+        if user.blocking.contains(creator):
+            return False, "blocking"
+
+        return True,
 
     def __str__(self):
         return f"({self.comment_id}) {self.content}"
