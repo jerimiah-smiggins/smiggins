@@ -95,11 +95,11 @@ function vote(option, postID) {
 }
 function showPollResults(gInc) {
     let poll = dom(`gi-${gInc}`);
-    poll.innerHTML = getPollHTML(JSON.parse(poll.dataset.pollJson), +poll.dataset.pollId, gInc, true, poll.dataset.pollLoggedIn == "true");
+    poll.innerHTML = getPollHTML(JSON.parse(poll.dataset.pollJson), +poll.dataset.pollId, gInc, true);
 }
 function hidePollResults(gInc) {
     let poll = dom(`gi-${gInc}`);
-    poll.innerHTML = getPollHTML(JSON.parse(poll.dataset.pollJson), +poll.dataset.pollId, gInc, false, poll.dataset.pollLoggedIn == "true");
+    poll.innerHTML = getPollHTML(JSON.parse(poll.dataset.pollJson), +poll.dataset.pollId, gInc, false);
 }
 function refreshPoll(gInc) {
     let poll = dom(`gi-${gInc}`);
