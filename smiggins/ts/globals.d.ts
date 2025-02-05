@@ -41,48 +41,6 @@ declare function linkifyHtml(text: string, settings: object): string;
 type _anyDict = { [key: string]: any };
 
 type _postJSON = {
-  creator: {
-    badges: string[],
-    color_one: string,
-    color_two: string,
-    display_name: string,
-    gradient_banner: boolean
-    pronouns: string,
-    username: string,
-  },
-
-  private: boolean,
-  can_delete: boolean,
-  can_pin?: boolean,
-  can_edit: boolean,
-  can_view: boolean,
-  comments: number,
-  content: string,
-  liked: boolean,
-  likes: number,
-  owner: boolean,
-  parent_is_comment: boolean,
-  parent: number,
-  post_id: number,
-  quote?: _postJSON,
-  quotes: number,
-  c_warning: string | null,
-  timestamp: number,
-  logged_in: boolean,
-  edited: boolean,
-  edited_at?: number,
-
-  poll?: _pollJSON,
-
-  // Quote-specific
-  blocked?: boolean,
-  deleted?: boolean,
-  comment?: boolean,
-  has_quote?: boolean,
-  blocked_by_self?: boolean
-};
-
-type _postJSONv2 = {
   visible: false,
   reason: "private" | "blocked" | "blocking",
   post_id: number,
@@ -90,7 +48,34 @@ type _postJSONv2 = {
 } | {
   visible: true,
   post_id: number,
+
   comment: boolean,
+  parent: {
+    id: number | null,
+    comment: boolean
+  } | null,
+
+  private: boolean,
+  content_warning: string | null,
+  content: string,
+  timestamp: number,
+  poll: _pollJSON | null,
+  edited: number | null,
+
+  quote: _postJSON | true | null,  
+
+  interactions: {
+    likes: number,
+    liked: boolean,
+    comments: number,
+    quotes: number
+  },
+
+  can: {
+    delete: boolean,
+    pin: boolean,
+    edit: boolean
+  },
 
   creator: {
     display_name: string,

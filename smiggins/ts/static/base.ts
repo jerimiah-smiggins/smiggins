@@ -149,7 +149,7 @@ function apiResponse(
           }
         }));
 
-        if (action.extra.pinned && action.extra.pinned.content) {
+        if (action.extra.pinned && action.extra.pinned.visible && action.extra.pinned.content) {
           dom("pinned").innerHTML = getPostHTML(
             action.extra.pinned, // postJSON
             false, // isComment
@@ -312,7 +312,7 @@ function apiResponse(
       let first: boolean = true;
 
       for (const notif of action.notifications) {
-        if (notif.data.can_view) {
+        if (notif.data.visible) {
           let y: HTMLElement = document.createElement("div");
 
           if (!hasBeenRead && notif.read) {
@@ -692,12 +692,16 @@ function getLinkify(content: string, isComment: boolean, fakeMentions: boolean, 
 }
 
 function getPollHTML(
-  pollJSON: _postJSON["poll"],
+  pollJSON: _pollJSON | null,
   postID: number,
   gInc: number,
   showResults?: boolean,
   loggedIn: boolean=true
 ): string {
+  if (!pollJSON) {
+    return "";
+  }
+
   if (showResults === undefined) {
     showResults = loggedIn && pollJSON.voted;
   }
@@ -761,7 +765,11 @@ function getPostHTML(
   isPinned: boolean=false,
   includeContainer: boolean=true
 ): string {
-  let muted: string | boolean | null = username !== postJSON.creator.username && checkMuted(postJSON.content) || (postJSON.c_warning && checkMuted(postJSON.c_warning)) || (postJSON.poll && postJSON.poll.content.map((val: { value: string, votes: number, voted: boolean }): string | true => checkMuted(val.value)).reduce((real: string | true, val: string | true): string | true | null => real || val));
+  if (!postJSON.visible) {
+    return "need to do smt here at some point";
+  }
+
+  let muted: string | boolean | null = username !== postJSON.creator.username && checkMuted(postJSON.content) || (postJSON.content_warning && checkMuted(postJSON.content_warning)) || (postJSON.poll && postJSON.poll.content.map((val: { value: string, votes: number, voted: boolean }): string | true => checkMuted(val.value)).reduce((real: string | true, val: string | true): string | true | null => real || val));
   let quoteMuted: string | boolean | null = postJSON.quote && postJSON.quote.can_view && postJSON.quote.can_delete && username !== postJSON.quote.creator.username && (checkMuted(postJSON.quote.content) || (postJSON.quote.c_warning ? checkMuted(postJSON.quote.c_warning) : null));
 
   if (muted === true) {

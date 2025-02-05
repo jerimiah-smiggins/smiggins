@@ -215,34 +215,42 @@ const pages: { [key: string]: [() => string, (() => void) | null] } = {
           `)}
         </select></div>
         <div id="post-example">${getPostHTML({
-          creator: {
-            badges: ["administrator"],
-            color_one: "#" + Math.floor(Math.random() * 16777216).toString(16).padStart(6, "0"),
-            color_two: "#" + Math.floor(Math.random() * 16777216).toString(16).padStart(6, "0"),
-            display_name: lang.settings.cosmetic_example_post_display_name,
-            gradient_banner: true,
-            pronouns: null,
-            username: lang.settings.cosmetic_example_post_username,
-          },
-          private: false,
-          can_delete: false,
-          can_edit: false,
-          can_pin: false,
-          can_view: true,
-          comments: Math.floor(Math.random() * 100),
-          content: lang.settings.cosmetic_example_post_content,
-          liked: true,
-          likes: Math.floor(Math.random() * 99) + 1,
-          owner: false,
-          parent_is_comment: false,
-          parent: -1,
+          visible: true,
           post_id: 0,
-          quotes: Math.floor(Math.random() * 100),
-          c_warning: null,
+
+          comment: false,
+          parent: null,
+
+          private: false,
+          content_warning: null,
+          content: lang.settings.cosmetic_example_post_content,
           timestamp: Date.now() / 1000 - Math.random() * 86400,
           poll: null,
-          logged_in: true,
-          edited: false
+          edited: null,
+          quote: null,
+
+          interactions: {
+            likes: Math.floor(Math.random() * 99) + 1,
+            liked: true,
+            comments: Math.floor(Math.random() * 100),
+            quotes: Math.floor(Math.random() * 100)
+          },
+
+          can: {
+            delete: false,
+            pin: false,
+            edit: false
+          },
+
+          creator: {
+            display_name: lang.settings.cosmetic_example_post_display_name,
+            username: lang.settings.cosmetic_example_post_username,
+            badges: ["administrator"],
+            pronouns: null,
+            color_one: "#" + Math.floor(Math.random() * 16777216).toString(16).padStart(6, "0"),
+            color_two: "#" + Math.floor(Math.random() * 16777216).toString(16).padStart(6, "0"),
+            gradient: true
+          }
         }, false, false, false, true)}</div>
       </div>
 
