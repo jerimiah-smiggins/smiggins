@@ -108,8 +108,7 @@ function showPollResults(gInc: number): void {
     JSON.parse(poll.dataset.pollJson),
     +poll.dataset.pollId,
     gInc,
-    true,
-    poll.dataset.pollLoggedIn == "true"
+    true
   );
 }
 
@@ -119,8 +118,7 @@ function hidePollResults(gInc: number): void {
     JSON.parse(poll.dataset.pollJson),
     +poll.dataset.pollId,
     gInc,
-    false,
-    poll.dataset.pollLoggedIn == "true"
+    false
   );
 }
 
