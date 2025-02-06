@@ -716,7 +716,8 @@ function getPostHTML(postJSON, isComment = false, includeUserLink = true, includ
               ${postJSON.quote === true ? lang.home.quote_recursive :
         postJSON.quote.visible === false ? (postJSON.quote.reason == "blocked" ? lang.home.quote_blocked_other :
             postJSON.quote.reason == "blocking" ? lang.home.quote_blocked :
-                postJSON.quote.reason == "private" ? lang.home.quote_private : "⚠️") : `
+                postJSON.quote.reason == "private" ? lang.home.quote_private :
+                    postJSON.quote.reason == "deleted" ? lang.home.quote_deleted : "⚠️") : `
                   <div class="upper-content">
                     <a data-link href="/u/${postJSON.quote.creator.username}" class="no-underline text">
                       <div class="main-area">

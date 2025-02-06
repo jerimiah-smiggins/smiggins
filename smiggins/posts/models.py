@@ -57,9 +57,9 @@ def _post_json(
     elif isinstance(post, Post) and post.quote:
         try:
             if post.quote_is_comment:
-                quote = Comment.objects.get(comment_id=post.quote).json(user)
+                quote = Comment.objects.get(comment_id=post.quote).json(user, False, _quote_recursion=_quote_recursion - 1)
             else:
-                quote = Post.objects.get(post_id=post.quote).json(user)
+                quote = Post.objects.get(post_id=post.quote).json(user, False, _quote_recursion=_quote_recursion - 1)
         except Comment.DoesNotExist:
             quote = { "visible": False, "reason": "deleted", "post_id": post.quote, "comment": True }
         except Post.DoesNotExist:
