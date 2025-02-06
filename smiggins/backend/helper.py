@@ -56,6 +56,7 @@ def get_strings(request, lang: dict, user: User | None, url_override: str | None
 
     simple_titles = [
         { "path": "", "return": None, "condition": True },
+        { "path": "/home", "return": None, "condition": user is not None },
         { "path": "/login", "return": lang["account"]["log_in_title"], "condition": user is None },
         { "path": "/signup", "return": lang["account"]["sign_up_title"], "condition": user is None },
         { "path": "/logout", "return": lang["account"]["log_out_title"], "condition": user is None },
