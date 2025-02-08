@@ -9,9 +9,8 @@ from django.db.utils import OperationalError
 from posts.models import (AdminLog, Badge, MutedWord, OneTimePassword,
                           PrivateMessageContainer, User)
 
-from ..lang import get_lang
-
 from ..helper import check_ratelimit, sha_to_bytes, trim_whitespace
+from ..lang import get_lang
 from ..variables import (MAX_ADMIN_LOG_LINES, MAX_MUTED_WORD_LENGTH,
                          MAX_MUTED_WORDS, OWNER_USER_ID,
                          PRIVATE_AUTHENTICATOR_KEY)

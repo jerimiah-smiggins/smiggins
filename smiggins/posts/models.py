@@ -1,7 +1,9 @@
 from typing import TYPE_CHECKING, Any, Literal
 
 from backend.lang import get_lang
-from backend.variables import ENABLE_BADGES, ENABLE_PRONOUNS, OWNER_USER_ID, ENABLE_PINNED_POSTS, ENABLE_EDITING_POSTS
+from backend.variables import (ENABLE_BADGES, ENABLE_EDITING_POSTS,
+                               ENABLE_PINNED_POSTS, ENABLE_PRONOUNS,
+                               OWNER_USER_ID)
 from django.contrib import admin as django_admin
 from django.contrib.admin.exceptions import AlreadyRegistered  # type: ignore
 from django.db import models
@@ -33,7 +35,7 @@ def _can_view(post: "Post | Comment", user: "User | None") -> tuple[Literal[True
 def _post_json(
     post: "Post | Comment",
     user: "User | None",
-    show_blocking: bool=True,
+    hide_blocking: bool=True,
     *,
     _quote_recursion: int=1
 ) -> dict[str, Any]:
@@ -57,9 +59,9 @@ def _post_json(
     elif isinstance(post, Post) and post.quote:
         try:
             if post.quote_is_comment:
-                quote = Comment.objects.get(comment_id=post.quote).json(user, False, _quote_recursion=_quote_recursion - 1)
+                quote = Comment.objects.get(comment_id=post.quote).json(user, True, _quote_recursion=_quote_recursion - 1)
             else:
-                quote = Post.objects.get(post_id=post.quote).json(user, False, _quote_recursion=_quote_recursion - 1)
+                quote = Post.objects.get(post_id=post.quote).json(user, True, _quote_recursion=_quote_recursion - 1)
         except Comment.DoesNotExist:
             quote = { "visible": False, "reason": "deleted", "post_id": post.quote, "comment": True }
         except Post.DoesNotExist:
@@ -91,7 +93,7 @@ def _post_json(
         "can": {
             "delete": user is not None and (user_id == creator.user_id or user_id == OWNER_USER_ID or user.admin_level % 2 == 1),
             "pin": ENABLE_PINNED_POSTS and not isinstance(post, Comment) and user is not None,
-            "edit": ENABLE_EDITING_POSTS and creator.user_id == user.user_id
+            "edit": ENABLE_EDITING_POSTS and user is not None and creator.user_id == user.user_id
         },
 
         "creator": {
@@ -292,7 +294,7 @@ class Comment(models.Model):
     def can_view(self: "Comment", user: User | None) -> tuple[Literal[True]] | tuple[Literal[False], Literal["blocked", "private", "blocking"]]:
         return _can_view(self, user)
 
-    def json(self: "Post", user: User | None=None, hide_blocking: bool=False, *, _quote_recursion: int=1) -> dict[str, Any]:
+    def json(self: "Comment", user: User | None=None, hide_blocking: bool=False, *, _quote_recursion: int=1) -> dict[str, Any]:
         return _post_json(self, user, hide_blocking, _quote_recursion=_quote_recursion)
 
     def __str__(self):

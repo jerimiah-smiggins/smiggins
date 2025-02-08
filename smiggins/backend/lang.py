@@ -1,7 +1,8 @@
-from .variables import CACHE_LANGUAGES, DEFAULT_LANGUAGE, VALID_LANGUAGES
+import json5 as json
+
 from smiggins.settings import BASE_DIR
 
-import json5 as json
+from .variables import CACHE_LANGUAGES, DEFAULT_LANGUAGE, VALID_LANGUAGES
 
 
 def get_lang(lang=None, override_cache=False) -> dict[str, dict]:

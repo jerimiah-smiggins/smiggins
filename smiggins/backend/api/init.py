@@ -3,9 +3,9 @@ import re
 from posts.models import (Comment, Hashtag, MutedWord, Post,
                           PrivateMessageContainer, User)
 
-from ..lang import get_lang, LANGS
 from ..helper import (check_ratelimit, find_mentions, get_badge_data,
                       get_container_id, get_strings)
+from ..lang import LANGS, get_lang
 from ..variables import (CACHE_LANGUAGES, CONTACT_INFO, CREDITS,
                          DEFAULT_BANNER_COLOR, DEFAULT_LANGUAGE, DISCORD,
                          ENABLE_ACCOUNT_SWITCHER, ENABLE_BADGES,

@@ -10,13 +10,10 @@ from django.db.models import Count
 from django.db.utils import IntegrityError
 from posts.models import Comment, Hashtag, M2MLike, Notification, Post, User
 
-from ..lang import get_lang, DEFAULT_LANG
-
-from ..helper import (check_muted_words,
-                      check_ratelimit, create_notification,
+from ..helper import (check_muted_words, check_ratelimit, create_notification,
                       delete_notification, find_hashtags, find_mentions,
-                      trim_whitespace,
-                      validate_username)
+                      trim_whitespace, validate_username)
+from ..lang import DEFAULT_LANG, get_lang
 from ..variables import (ENABLE_CONTENT_WARNINGS, ENABLE_LOGGED_OUT_CONTENT,
                          ENABLE_PINNED_POSTS, ENABLE_POLLS,
                          ENABLE_POST_DELETION, MAX_CONTENT_WARNING_LENGTH,

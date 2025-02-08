@@ -5,7 +5,6 @@ let includeUserLink;
 let includePostLink;
 let inc;
 let c;
-let onLoad;
 let redirectConfirmation;
 let killIntervals = [];
 let timelineConfig = {
@@ -584,18 +583,23 @@ function escapeHTML(str) {
     }
     return str.replaceAll("&", "&amp;").replaceAll("<", "&lt;").replaceAll("\"", "&quot;").replaceAll("`", "&#96;");
 }
-function getLinkify(content, isComment, fakeMentions, postID) {
-    return linkifyHtml(escapeHTML(content), {
+function getLinkify(content, isComment, fakeMentions, postID, includePostLink) {
+    let l = linkifyHtml(escapeHTML(content), {
         formatHref: {
             mention: (href) => fakeMentions ? "javascript:void(0);" : "/u/" + href.slice(1),
             hashtag: (href) => "/hashtag/" + href.slice(1)
         }
-    }).replaceAll("<a", includePostLink ? "\u2000" : "<a target=\"_blank\"")
-        .replaceAll("</a>", includePostLink ? `</a><a data-link aria-hidden="true" href="/${isComment ? "c" : "p"}/${postID}" tabindex="-1" class="text no-underline">` : "</a>")
-        .replaceAll("\u2000", "</a><a target=\"_blank\"")
-        .replaceAll(`<a data-link aria-hidden="true" href="/${isComment ? "c" : "p"}/${postID}" tabindex="-1" class="text no-underline"></a>`, "")
-        .replaceAll("<a target=\"_blank\" href=\"/", "<a data-link href=\"/")
-        .replaceAll("<a target=\"_blank\" href=\"javascript:", "<a href=\"javascript:");
+    });
+    if (!includePostLink) {
+        return l;
+    }
+    let selfLink = `<a data-link href="/${isComment ? "c" : "p"}/${postID}/" tabindex="-1" class="text no-underline">`;
+    l = l.replaceAll("<a", "</\u2000a><a")
+        .replaceAll("</a>", `</a>${selfLink}`)
+        .replaceAll("\u2000", "")
+        .replaceAll("<a href=\"/", "<a data-link href=\"/")
+        .replaceAll(`${selfLink}</a>`, "");
+    return `${selfLink}${l}</a>`;
 }
 function getPollHTML(pollJSON, postID, gInc, showResults) {
     if (!pollJSON) {
@@ -695,9 +699,7 @@ function getPostHTML(postJSON, isComment = false, includeUserLink = true, includ
           </div>
         </summary>` : ""}
         <div class="main-content">
-          ${includePostLink ? `<a data-link aria-hidden="true" href="/${isComment ? "c" : "p"}/${postJSON.post_id}" tabindex="-1" class="text no-underline">` : ""}
-            <div class="pre-wrap">${getLinkify(postJSON.content, isComment, fakeMentions, postJSON.post_id)}</div>
-          ${includePostLink ? "</a>" : ""}
+          <div class="pre-wrap">${getLinkify(postJSON.content, isComment, fakeMentions, postJSON.post_id, includePostLink)}</div>
         </div>
 
       ${postJSON.poll && typeof postJSON.poll == "object" ? (`<div
@@ -742,11 +744,9 @@ function getPostHTML(postJSON, isComment = false, includeUserLink = true, includ
                     </div>
                   </summary>` : ""}
                   <div class="main-content">
-                    <a data-link aria-hidden="true" href="/${postJSON.quote.comment ? "c" : "p"}/${postJSON.quote.post_id}" class="text no-underline">
-                      <div class="pre-wrap">${getLinkify(postJSON.quote.content, postJSON.quote.comment, fakeMentions, postJSON.quote.post_id)}</div>
-                      ${postJSON.quote.quote ? `<br><i>${lang.home.quote_recursive}</i>` : ""}
-                      ${postJSON.quote.poll ? `<br><i>${lang.home.quote_poll}</i>` : ""}
-                    </a>
+                    <div class="pre-wrap">${getLinkify(postJSON.quote.content, postJSON.quote.comment, fakeMentions, postJSON.quote.post_id, true)}</div>
+                    ${postJSON.quote.quote ? `<br><a data-link href="/${postJSON.quote.comment ? "c" : "p"}/${postJSON.quote.post_id}/" tabindex="-1" class="text no-underline"><i>${lang.home.quote_recursive}</i></a>` : ""}
+                    ${postJSON.quote.poll ? `<br><a data-link href="/${postJSON.quote.comment ? "c" : "p"}/${postJSON.quote.post_id}/" tabindex="-1" class="text no-underline"><i>${lang.home.quote_poll}</i></a>` : ""}
                   </div>
                   ${postJSON.quote.content_warning ? `</details>` : ""}
                 `}

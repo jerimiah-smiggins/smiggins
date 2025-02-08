@@ -83,30 +83,32 @@
       {{ 'linkify/hashtags.js'|get_script }}
     {% endif %}
     {{ 'base.js'|get_script }}
+    {{ 'base-footer.js'|get_script }}
     {{ 'keybinds.js'|get_script }}
-    {{ 'scripts/logout.js'|get_script }}
-    {{ 'scripts/user.js'|get_script }}
-    {{ 'scripts/hashtag.js'|get_script }}
-    {{ 'scripts/timeline.js'|get_script }}
-    {{ 'scripts/post.js'|get_script }}
+    {{ 'timeline.js'|get_script }}
+    {{ 'page/logout.js'|get_script }}
+    {{ 'page/user.js'|get_script }}
+    {{ 'page/hashtag.js'|get_script }}
+    {{ 'page/post.js'|get_script }}
     {% if is_admin %}
-      {{ 'scripts/admin.js'|get_script }}
+      {{ 'page/admin.js'|get_script }}
     {% endif %}
     {% if logged_in %}
-      {{ 'scripts/home.js'|get_script }}
-      {{ 'scripts/settings.js'|get_script }}
-      {{ 'scripts/admin.js'|get_script }}
-      {{ 'scripts/notifications.js'|get_script }}
-      {{ 'scripts/pending.js'|get_script }}
+      {{ 'page/home.js'|get_script }}
+      {{ 'page/settings.js'|get_script }}
+      {{ 'page/admin.js'|get_script }}
+      {{ 'page/notifications.js'|get_script }}
+      {{ 'page/pending.js'|get_script }}
       {% if conf.private_messages %}
-        {{ 'scripts/message.js'|get_script }}
+        {{ 'page/message.js'|get_script }}
       {% endif %}
     {% else %}
-        {{ 'scripts/login.js'|get_script }}
-        {{ 'scripts/signup.js'|get_script }}
+        {{ 'page/login.js'|get_script }}
+        {{ 'page/signup.js'|get_script }}
       {% if conf.email %}
-        {{ 'scripts/reset-password.js'|get_script }}
+        {{ 'page/reset-password.js'|get_script }}
       {% endif %}
     {% endif %}
+    {{ 'pages.js'|get_script }}
   </body>
 </html>

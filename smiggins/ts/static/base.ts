@@ -6,7 +6,6 @@ let includeUserLink: boolean;
 let includePostLink: boolean;
 let inc: number;
 let c: number;
-let onLoad: () => void;
 let redirectConfirmation: (url: string) => boolean | null;
 let killIntervals: number[] = [];
 let timelineConfig: {
@@ -117,7 +116,6 @@ function apiResponse(
   }
 
   for (const action of json.actions) {
-    // console.log(action.name, action);
     if (action.name == "populate_timeline") {
       if (!extraData.forceOffset) {
         timelineConfig.vars.offsetC = 0;
@@ -676,18 +674,26 @@ function escapeHTML(str: string): string {
   return str.replaceAll("&", "&amp;").replaceAll("<", "&lt;").replaceAll("\"", "&quot;").replaceAll("`", "&#96;");
 }
 
-function getLinkify(content: string, isComment: boolean, fakeMentions: boolean, postID: number): string {
-  return linkifyHtml(escapeHTML(content), {
+function getLinkify(content: string, isComment: boolean, fakeMentions: boolean, postID: number, includePostLink: boolean): string {
+  let l: string = linkifyHtml(escapeHTML(content), {
     formatHref: {
       mention: (href: string): string => fakeMentions ? "javascript:void(0);" : "/u/" + href.slice(1),
       hashtag: (href: string): string => "/hashtag/" + href.slice(1)
     }
-  }).replaceAll("<a", includePostLink ? "\u2000" : "<a target=\"_blank\"")
-    .replaceAll("</a>", includePostLink ? `</a><a data-link aria-hidden="true" href="/${isComment ? "c" : "p"}/${postID}" tabindex="-1" class="text no-underline">` : "</a>")
-    .replaceAll("\u2000", "</a><a target=\"_blank\"")
-    .replaceAll(`<a data-link aria-hidden="true" href="/${isComment ? "c" : "p"}/${postID}" tabindex="-1" class="text no-underline"></a>`, "")
-    .replaceAll("<a target=\"_blank\" href=\"/", "<a data-link href=\"/")
-    .replaceAll("<a target=\"_blank\" href=\"javascript:", "<a href=\"javascript:")
+  });
+
+  if (!includePostLink) {
+    return l;
+  }
+
+  let selfLink: string = `<a data-link href="/${isComment ? "c" : "p"}/${postID}/" tabindex="-1" class="text no-underline">`;
+  l = l.replaceAll("<a", "</\u2000a><a") // differentiate post links from real links
+       .replaceAll("</a>", `</a>${selfLink}`) // add post links
+       .replaceAll("\u2000", "") // remove unneeded differentiation
+       .replaceAll("<a href=\"/", "<a data-link href=\"/") // register internal links
+       .replaceAll(`${selfLink}</a>`, ""); // remove empty links
+
+  return `${selfLink}${l}</a>`;
 }
 
 function getPollHTML(
@@ -814,9 +820,7 @@ function getPostHTML(
           </div>
         </summary>` : ""}
         <div class="main-content">
-          ${includePostLink ? `<a data-link aria-hidden="true" href="/${isComment ? "c" : "p"}/${postJSON.post_id}" tabindex="-1" class="text no-underline">` : ""}
-            <div class="pre-wrap">${getLinkify(postJSON.content, isComment, fakeMentions, postJSON.post_id)}</div>
-          ${includePostLink ? "</a>" : ""}
+          <div class="pre-wrap">${getLinkify(postJSON.content, isComment, fakeMentions, postJSON.post_id, includePostLink)}</div>
         </div>
 
       ${
@@ -845,7 +849,7 @@ function getPostHTML(
                 postJSON.quote.visible === false ? (
                   postJSON.quote.reason == "blocked" ? lang.home.quote_blocked_other :
                   postJSON.quote.reason == "blocking" ? lang.home.quote_blocked :
-                  postJSON.quote.reason == "private" ? lang.home.quote_private : 
+                  postJSON.quote.reason == "private" ? lang.home.quote_private :
                   postJSON.quote.reason == "deleted" ? lang.home.quote_deleted : "⚠️"
                 ) : `
                   <div class="upper-content">
@@ -877,11 +881,9 @@ function getPostHTML(
                     </div>
                   </summary>` : ""}
                   <div class="main-content">
-                    <a data-link aria-hidden="true" href="/${postJSON.quote.comment ? "c" : "p"}/${postJSON.quote.post_id}" class="text no-underline">
-                      <div class="pre-wrap">${getLinkify(postJSON.quote.content, postJSON.quote.comment, fakeMentions, postJSON.quote.post_id)}</div>
-                      ${postJSON.quote.quote ? `<br><i>${lang.home.quote_recursive}</i>` : ""}
-                      ${postJSON.quote.poll ? `<br><i>${lang.home.quote_poll}</i>` : ""}
-                    </a>
+                    <div class="pre-wrap">${getLinkify(postJSON.quote.content, postJSON.quote.comment, fakeMentions, postJSON.quote.post_id, true)}</div>
+                    ${postJSON.quote.quote ? `<br><a data-link href="/${postJSON.quote.comment ? "c" : "p"}/${postJSON.quote.post_id}/" tabindex="-1" class="text no-underline"><i>${lang.home.quote_recursive}</i></a>` : ""}
+                    ${postJSON.quote.poll  ? `<br><a data-link href="/${postJSON.quote.comment ? "c" : "p"}/${postJSON.quote.post_id}/" tabindex="-1" class="text no-underline"><i>${lang.home.quote_poll     }</i></a>` : ""}
                   </div>
                   ${postJSON.quote.content_warning ? `</details>` : ""}
                 `

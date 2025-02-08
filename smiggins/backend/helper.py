@@ -14,12 +14,11 @@ from posts.models import (Badge, Comment, MutedWord, Notification, Post,
                           Ratelimit, User)
 
 from .api.schema import APIResponse
-from .variables import (ALTERNATE_IPS,
-                        DEFAULT_DARK_THEME,
-                        DEFAULT_LIGHT_THEME, DISCORD, ENABLE_ACCOUNT_SWITCHER,
-                        ENABLE_BADGES, ENABLE_CONTACT_PAGE,
-                        ENABLE_CONTENT_WARNINGS, ENABLE_CREDITS_PAGE,
-                        ENABLE_DYNAMIC_FAVICON, ENABLE_EDITING_POSTS,
+from .lang import get_lang
+from .variables import (ALTERNATE_IPS, DEFAULT_DARK_THEME, DEFAULT_LIGHT_THEME,
+                        DISCORD, ENABLE_ACCOUNT_SWITCHER, ENABLE_BADGES,
+                        ENABLE_CONTACT_PAGE, ENABLE_CONTENT_WARNINGS,
+                        ENABLE_CREDITS_PAGE, ENABLE_DYNAMIC_FAVICON,
                         ENABLE_EMAIL, ENABLE_GRADIENT_BANNERS, ENABLE_HASHTAGS,
                         ENABLE_NEW_ACCOUNTS, ENABLE_PINNED_POSTS, ENABLE_POLLS,
                         ENABLE_POST_DELETION, ENABLE_PRIVATE_MESSAGES,
@@ -28,7 +27,7 @@ from .variables import (ALTERNATE_IPS,
                         MAX_BIO_LENGTH, MAX_CONTENT_WARNING_LENGTH,
                         MAX_DISPL_NAME_LENGTH, MAX_NOTIFICATIONS,
                         MAX_POLL_OPTION_LENGTH, MAX_POLL_OPTIONS,
-                        MAX_POST_LENGTH, MAX_USERNAME_LENGTH, OWNER_USER_ID,
+                        MAX_POST_LENGTH, MAX_USERNAME_LENGTH,
                         PRIVATE_AUTHENTICATOR_KEY, RATELIMITS, SITE_NAME,
                         SOURCE_CODE, THEMES, VERSION, error)
 

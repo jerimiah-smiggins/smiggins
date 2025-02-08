@@ -6,12 +6,9 @@ from django.db.models import Count
 from django.db.utils import IntegrityError
 from posts.models import Comment, M2MLikeC, Notification, Post, User
 
-from ..helper import (check_muted_words,
-                      check_ratelimit, create_notification,
-                      delete_notification, find_mentions,
-                      trim_whitespace)
-from ..lang import get_lang, DEFAULT_LANG
-
+from ..helper import (check_muted_words, check_ratelimit, create_notification,
+                      delete_notification, find_mentions, trim_whitespace)
+from ..lang import DEFAULT_LANG, get_lang
 from ..variables import (ENABLE_CONTENT_WARNINGS, ENABLE_LOGGED_OUT_CONTENT,
                          ENABLE_POST_DELETION, MAX_CONTENT_WARNING_LENGTH,
                          MAX_POST_LENGTH, OWNER_USER_ID, POSTS_PER_REQUEST)
