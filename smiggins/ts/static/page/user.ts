@@ -54,6 +54,7 @@ function loadList(column: "blocking" | "following" | "followers", fromStart: boo
 function userInit(): void {
   share = location.href;
   timelineConfig.url = `/api/post/user/${context.username}`;
+  timelineConfig.enableForwards = true;
   type = "post";
   includeUserLink = false;
   includePostLink = true;

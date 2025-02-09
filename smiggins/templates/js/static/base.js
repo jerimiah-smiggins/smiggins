@@ -7,13 +7,7 @@ let inc;
 let c;
 let redirectConfirmation;
 let killIntervals = [];
-let timelineConfig = {
-    vars: { offset: null, offsetC: 0 },
-    timelines: {},
-    url: null,
-    disableTimeline: false,
-    useOffsetC: false
-};
+let timelineConfig;
 let globalIncrement = 0;
 function dom(id) {
     return document.getElementById(id);
@@ -88,27 +82,61 @@ function apiResponse(json, extraData) {
         return;
     }
     for (const action of json.actions) {
-        if (action.name == "populate_timeline") {
+        if (action.name == "populate_forwards_cache") {
+            if (action.its_a_lost_cause_just_refresh_at_this_point) {
+                lostCause = true;
+            }
+            else {
+                if (action.posts.length) {
+                    timelineConfig.vars.first = action.posts[action.posts.length - 1].post_id;
+                }
+                timelineConfig.vars.forwardsCache.push(...action.posts);
+                if (timelineConfig.vars.forwardsCache.length > timelineConfig.vars.forwardOffset) {
+                    dom("load-new-number").innerText = String(timelineConfig.vars.forwardsCache.length - timelineConfig.vars.forwardOffset);
+                    dom("load-new").removeAttribute("hidden");
+                    dom("refresh").setAttribute("hidden", "");
+                }
+                else {
+                    dom("load-new").setAttribute("hidden", "");
+                    dom("refresh").removeAttribute("hidden");
+                }
+            }
+        }
+        else if (action.name == "populate_timeline") {
+            if (action.forwards) {
+                for (const el of document.querySelectorAll("[data-timeline-prepended]")) {
+                    el.remove();
+                    timelineConfig.vars.first = null;
+                }
+            }
             if (!extraData.forceOffset) {
-                timelineConfig.vars.offsetC = 0;
+                timelineConfig.vars.page = 0;
                 if (!action.posts.length) {
                     dom("posts").innerHTML = `<i data-no-posts>${escapeHTML(lang.post.no_posts)}</i>`;
                 }
             }
-            timelineConfig.vars.offsetC++;
+            timelineConfig.vars.page++;
             let output = "";
-            for (const post of action.posts) {
+            for (const post of action.forwards ? action.posts.reverse() : action.posts) {
                 output += getPostHTML(post, type == "comment", includeUserLink, includePostLink, false, false, false);
-                timelineConfig.vars.offset = post.post_id;
+                if (!action.forwards) {
+                    timelineConfig.vars.offset = post.post_id;
+                }
+                if (timelineConfig.vars.first === null) {
+                    timelineConfig.vars.first = post.post_id;
+                }
             }
             if (action.extra && action.extra.type == "user") {
-                conf.user_bios && dom("user-bio").removeAttribute("hidden");
-                conf.user_bios && (dom("user-bio").innerHTML = linkifyHtml(escapeHTML(action.extra.bio), {
-                    formatHref: {
-                        mention: (href) => "/u/" + href.slice(1),
-                        hashtag: (href) => "/hashtag/" + href.slice(1)
-                    }
-                }));
+                if (conf.user_bios) {
+                    dom("user-bio").removeAttribute("hidden");
+                    dom("user-bio").innerHTML = linkifyHtml(escapeHTML(action.extra.bio), {
+                        formatHref: {
+                            mention: (href) => "/u/" + href.slice(1),
+                            hashtag: (href) => "/hashtag/" + href.slice(1)
+                        }
+                    }).replaceAll("<a href", "<a data-link href");
+                    registerLinks(dom("user-bio"));
+                }
                 if (action.extra.pinned && action.extra.pinned.visible && action.extra.pinned.content) {
                     dom("pinned").innerHTML = getPostHTML(action.extra.pinned, false, false, true, false, false, true) + "<hr>";
                     registerLinks(dom("pinned"));
@@ -118,9 +146,9 @@ function apiResponse(json, extraData) {
                 }
                 dom("follow").innerText = `${lang.user_page.followers.replaceAll("%s", action.extra.followers)} - ${lang.user_page.following.replaceAll("%s", action.extra.following)}`;
             }
-            dom("posts").insertAdjacentHTML("beforeend", output);
+            dom("posts").insertAdjacentHTML(action.forwards ? "afterbegin" : "beforeend", output);
             registerLinks(dom("posts"));
-            if (dom("more")) {
+            if (!action.forwards && dom("more")) {
                 if (extraData.forceOffset !== true) {
                     dom("more").removeAttribute("hidden");
                 }
@@ -134,7 +162,8 @@ function apiResponse(json, extraData) {
         }
         else if (action.name == "prepend_timeline") {
             if (dom("posts")) {
-                dom("posts").insertAdjacentHTML("afterbegin", getPostHTML(action.post, action.comment));
+                dom("posts").insertAdjacentHTML("afterbegin", "<div data-timeline-prepended>" + getPostHTML(action.post, action.comment) + "</div>");
+                timelineConfig.vars.forwardOffset++;
                 registerLinks(dom("posts"));
             }
         }
@@ -149,7 +178,15 @@ function apiResponse(json, extraData) {
                 redirect("/");
             }
             else {
-                document.querySelector(`.post-container[data-${action.comment ? "comment" : "post"}-id="${action.post_id}"]`).remove();
+                let el = document.querySelector(`.post-container[data-${action.comment ? "comment" : "post"}-id="${action.post_id}"]`);
+                for (let i = 0; i < timelineConfig.vars.forwardsCache.length; i++) {
+                    if (timelineConfig.vars.forwardsCache[i].post_id == action.post_id) {
+                        timelineConfig.vars.forwardsCache.splice(i, 1);
+                        --timelineConfig.vars.forwardOffset;
+                        --i;
+                    }
+                }
+                el.remove();
             }
         }
         else if (action.name == "refresh_notifications") {
@@ -591,7 +628,7 @@ function getLinkify(content, isComment, fakeMentions, postID, includePostLink) {
         }
     });
     if (!includePostLink) {
-        return l;
+        return l.replaceAll("<a href=\"/", "<a data-link href=\"/");
     }
     let selfLink = `<a data-link href="/${isComment ? "c" : "p"}/${postID}/" tabindex="-1" class="text no-underline">`;
     l = l.replaceAll("<a", "</\u2000a><a")
@@ -925,15 +962,8 @@ function checkMuted(text) {
     }
     return null;
 }
-function forEach(iter, callback) {
-    let out = [];
-    for (let i = 0; i < iter.length; i++) {
-        out.push(callback(iter[i], i));
-    }
-    return out;
-}
 setInterval(function () {
-    forEach(document.querySelectorAll("[data-timestamp]"), (val, index) => {
-        val.innerHTML = timeSince(Number(val.dataset.timestamp));
-    });
+    for (const el of document.querySelectorAll("[data-timestamp]")) {
+        el.innerHTML = timeSince(Number(el.dataset.timestamp));
+    }
 }, 5000);

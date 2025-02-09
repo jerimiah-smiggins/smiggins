@@ -62,7 +62,7 @@ type _postJSON = {
   poll: _pollJSON | null,
   edited: number | null,
 
-  quote: _postJSON | true | null,  
+  quote: _postJSON | true | null,
 
   interactions: {
     likes: number,
@@ -159,7 +159,12 @@ type _actions = {
       followers: number,
       following: number
     },
-    posts: _postJSON[]
+    posts: _postJSON[],
+    forwards?: boolean
+  } | {
+    name: "populate_forwards_cache",
+    posts: _postJSON[],
+    its_a_lost_cause_just_refresh_at_this_point: boolean
   } | {
     name: "prepend_timeline",
     post: _postJSON,

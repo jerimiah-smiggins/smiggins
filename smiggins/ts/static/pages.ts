@@ -61,6 +61,7 @@ const pages: { [key: string]: [() => string, (() => void) | null] } = {
       <a data-timeline="recent" data-storage-id="home-page" href="javascript:void(0);">${lang.home.timeline.global}</a>
     </p>
     <button id="refresh" onclick="refresh()">${lang.generic.refresh}</button>
+    <button id="load-new" hidden onclick="loadNew()">${lang.generic.show_new.replaceAll("%n", "<span id='load-new-number'>0</span>")}</button>
     <div id="posts"></div>
     <button id="more" onclick="refresh(true)" hidden>${lang.generic.load_more}</button>
   `, loggedIn ? (): void => { homeInit(); timelineInit(); } : null],
@@ -508,13 +509,15 @@ const pages: { [key: string]: [() => string, (() => void) | null] } = {
   notifications: [(): string => `
     <h1>${lang.notifications.title}</h1>
     <button id="refresh">${lang.generic.refresh}</button>
+    <button id="load-new" hidden onclick="loadNew()">${lang.generic.show_new.replaceAll("%n", "<span id='load-new-number'>0</span>")}</button>
     <button id="read">${lang.notifications.read}</button>
     <button id="delete-unread">${lang.notifications.delete}</button><br><br>
     <div id="notif-container"></div>
   `, loggedIn ? notificationsInit : null],
   messages: [(): string => `
     <h1>${lang.messages.list_subtitle}</h1>
-    <button id="refresh" onclick="refreshMessageList(true);">${lang.generic.refresh}</button><br><br>
+    <button id="refresh" onclick="refreshMessageList(true);">${lang.generic.refresh}</button>
+    <button id="load-new" hidden onclick="loadNew()">${lang.generic.show_new.replaceAll("%n", "<span id='load-new-number'>0</span>")}</button><br><br>
     <div id="user-list"></div>
     <button id="more" onclick="refreshMessageList();" hidden>${lang.generic.load_more}</button>
   `, loggedIn && conf.private_messages ? messageListInit : null],
@@ -555,6 +558,7 @@ const pages: { [key: string]: [() => string, (() => void) | null] } = {
     <button ${context.is_.blocked ? "hidden" : ""} id="refresh" onclick="refresh()">
       ${lang.generic.refresh}
     </button>
+    <button id="load-new" hidden onclick="loadNew()">${lang.generic.show_new.replaceAll("%n", "<span id='load-new-number'>0</span>")}</button>
     <button ${context.is_.blocked || context.is_.self ? "hidden" : ""} id="toggle" data-followed="${+(context.is_.following || context.is_.pending)}" onclick="toggleFollow()">
       ${context.is_.following ? lang.user_page.unfollow : context.is_.pending ? lang.user_page.pending : lang.user_page.follow}
     </button>
@@ -635,13 +639,15 @@ const pages: { [key: string]: [() => string, (() => void) | null] } = {
       <a data-timeline="recent" href="javascript:void(0);">${lang.hashtag.timeline.recent}</a> -
       <a data-timeline="liked" href="javascript:void(0);">${lang.hashtag.timeline.liked}</a>
     </p>
-    <button id="refresh" onclick="refresh();">${lang.generic.refresh}</button><br><br>
+    <button id="refresh" onclick="refresh();">${lang.generic.refresh}</button>
+    <button id="load-new" hidden onclick="loadNew()">${lang.generic.show_new.replaceAll("%n", "<span id='load-new-number'>0</span>")}</button><br><br>
     <div id="posts"></div>
     <button id="more" onclick="refresh(true)" hidden>${lang.generic.load_more}</button>
   `, (): void => { hashtagInit(); timelineInit(); }],
   pending: [(): string => `
     <h1>${lang.user_page.pending_title}</h1>
-    <button id="refresh" onclick="refreshPendingList(true);">${lang.generic.refresh}</button><br><br>
+    <button id="refresh" onclick="refreshPendingList(true);">${lang.generic.refresh}</button>
+    <button id="load-new" hidden onclick="loadNew()">${lang.generic.show_new.replaceAll("%n", "<span id='load-new-number'>0</span>")}</button><br><br>
     <div id="user-list"></div>
     <button id="more" onclick="refreshPendingList();" hidden>${lang.generic.load_more}</button>
   `, loggedIn ? pendingInit : null],
@@ -664,7 +670,8 @@ const pages: { [key: string]: [() => string, (() => void) | null] } = {
       <a data-timeline="liked" href="javascript:void(0);">${lang.post_page.timeline.liked}</a>
     </p>
 
-    <button id="refresh" onclick="refresh()">${lang.generic.refresh}</button><br><br>
+    <button id="refresh" onclick="refresh()">${lang.generic.refresh}</button>
+    <button id="load-new" hidden onclick="loadNew()">${lang.generic.show_new.replaceAll("%n", "<span id='load-new-number'>0</span>")}</button><br><br>
     <div id="posts"></div>
     <div id="more-container"><button id="more" onclick="refresh(true)" hidden>${lang.generic.load_more}</button></div>
   `, (): void => { postInit(); timelineInit(); }]
@@ -732,12 +739,14 @@ function renderPage(): void {
   inc = null;
   c = null;
   redirectConfirmation = null;
+  lostCause = false;
   timelineConfig = {
-    vars: { offset: null, offsetC: 0 },
+    vars: { offset: null, page: 0, first: null, forwardOffset: 0, forwardsCache: []},
     timelines: {},
     url: null,
     disableTimeline: false,
-    useOffsetC: false
+    usePages: false,
+    enableForwards: false
   };
 
   let page;

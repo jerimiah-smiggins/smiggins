@@ -53,6 +53,7 @@
       "share": "Share",
       "copied": "Copied to clipboard!",
       "see_more": "%s to see more!", // Ex: Sign up to see more!
+      "show_new": "Show new (%n)",
       "discord": "Discord Server",
 
       "keybinds": {

@@ -3,11 +3,11 @@ function getPollText() {
         return [];
     }
     let out = [];
-    forEach(document.querySelectorAll("#poll input"), function (val, index) {
-        if (val.value) {
-            out.push(val.value);
+    for (const el of document.querySelectorAll("#poll input")) {
+        if (el.value) {
+            out.push(el.value);
         }
-    });
+    }
     return out;
 }
 function homeInit() {
@@ -19,10 +19,12 @@ function homeInit() {
     includeUserLink = true;
     includePostLink = true;
     timelineConfig.timelines = {
-        recent: "/api/post/recent",
-        following: "/api/post/following"
+        recent: { url: "/api/post/recent", forwards: true, pages: false },
+        following: { url: "/api/post/following", forwards: true, pages: false }
     };
-    timelineConfig.url = timelineConfig.timelines[page];
+    timelineConfig.url = timelineConfig.timelines[page].url;
+    timelineConfig.enableForwards = timelineConfig.timelines[page].forwards;
+    timelineConfig.usePages = timelineConfig.timelines[page].pages;
     dom("switch").querySelector(`[data-timeline="${page}"]`).removeAttribute("href");
     dom("post").addEventListener("click", function () {
         if (hasContent(dom("post-text").value) || getPollText().length) {

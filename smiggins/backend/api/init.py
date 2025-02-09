@@ -10,9 +10,10 @@ from ..variables import (CACHE_LANGUAGES, CONTACT_INFO, CREDITS,
                          DEFAULT_BANNER_COLOR, DEFAULT_LANGUAGE, DISCORD,
                          ENABLE_ACCOUNT_SWITCHER, ENABLE_BADGES,
                          ENABLE_CONTACT_PAGE, ENABLE_CREDITS_PAGE,
-                         ENABLE_LOGGED_OUT_CONTENT, ENABLE_NEW_ACCOUNTS,
-                         ENABLE_PRIVATE_MESSAGES, ENABLE_PRONOUNS,
-                         OWNER_USER_ID, SOURCE_CODE, THEMES, VALID_LANGUAGES)
+                         ENABLE_EMAIL, ENABLE_LOGGED_OUT_CONTENT,
+                         ENABLE_NEW_ACCOUNTS, ENABLE_PRIVATE_MESSAGES,
+                         ENABLE_PRONOUNS, OWNER_USER_ID, SOURCE_CODE, THEMES,
+                         VALID_LANGUAGES)
 from .admin import BitMask
 from .schema import APIResponse
 
@@ -106,7 +107,7 @@ def context(request) -> tuple[int, dict] | dict | APIResponse:
         return gc(request, user, "signup") if user is None else home
 
     if url == "/reset-password" or url == "/reset-password/":
-        return gc(request, user, "reset") if user is None else home
+        return gc(request, user, "reset") if user is None and ENABLE_EMAIL else home if user else index
 
     if url == "/notifications" or url == "/notifications/":
         return index if user is None else gc(request, user, "notifications")

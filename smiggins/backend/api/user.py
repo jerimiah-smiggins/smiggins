@@ -96,7 +96,7 @@ def login(request, data: Account) -> APIResponse:
     if rl := check_ratelimit(request, "POST /api/user/login"):
         return rl
 
-    username = data.username.lower()
+    username = data.username.lower().replace(" ", "")
     token = generate_token(username, data.password)
 
     if validate_username(username) == 1:
@@ -527,7 +527,7 @@ def clear_read_notifs(request) -> APIResponse:
         ]
     }
 
-def notifications_list(request) -> APIResponse:
+def notifications_list(request) -> APIResponse: # TODO
     if rl := check_ratelimit(request, "GET /api/user/notifications"):
         return rl
 
@@ -570,7 +570,7 @@ def notifications_list(request) -> APIResponse:
         ]
     }
 
-def list_pending(request, offset: int=-1) -> APIResponse:
+def list_pending(request, offset: int=-1) -> APIResponse: # TODO
     if rl := check_ratelimit(request, "GET /api/user/pending"):
         return rl
 
@@ -767,7 +767,7 @@ def _lists_get_values(query: Manager[User], page: int, special: Literal["followi
         "special": special
     }
 
-def lists(request, username: str, column: str, page: int | None=None) -> APIResponse:
+def lists(request, username: str, column: str, page: int | None=None) -> APIResponse: # TODO
     if rl := check_ratelimit(request, "GET /api/user/lists"):
         return rl
 

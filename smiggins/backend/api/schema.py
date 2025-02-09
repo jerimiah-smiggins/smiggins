@@ -147,6 +147,11 @@ class Settings(Schema):
 # types
 _postJSON = dict
 
+class _actions_forwards_cache(TypedDict):
+    name: Literal["populate_forwards_cache"]
+    posts: list[_postJSON]
+    its_a_lost_cause_just_refresh_at_this_point: bool
+
 class _actions_timeline_extra(TypedDict):
     type: Literal["user"]
     pinned: _postJSON | None
@@ -159,6 +164,7 @@ class _actions_timeline(TypedDict):
     end: bool
     extra: NotRequired[_actions_timeline_extra]
     posts: list[_postJSON]
+    forwards: NotRequired[bool]
 
 class _actions_prepend(TypedDict):
     name: Literal["prepend_timeline"]
@@ -294,7 +300,8 @@ class _actions(TypedDict):
     success: bool
     message: NotRequired[str]
     actions: NotRequired[list[
-        _actions_timeline
+        _actions_forwards_cache
+      | _actions_timeline
       | _actions_prepend
       | _actions_reset
       | _actions_remove

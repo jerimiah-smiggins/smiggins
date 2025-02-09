@@ -3,14 +3,16 @@ function postInit() {
     type = "comment";
     includeUserLink = true;
     includePostLink = true;
-    timelineConfig.useOffsetC = true;
+    timelineConfig.usePages = true;
     timelineConfig.timelines = {
-        random: `/api/comments?id=${context.post.post_id}&comment=${context.comment}&sort=random`,
-        newest: `/api/comments?id=${context.post.post_id}&comment=${context.comment}&sort=newest`,
-        oldest: `/api/comments?id=${context.post.post_id}&comment=${context.comment}&sort=oldest`,
-        liked: `/api/comments?id=${context.post.post_id}&comment=${context.comment}&sort=liked`,
+        random: { url: `/api/comments?id=${context.post.post_id}&comment=${context.comment}&sort=random`, forwards: false, pages: false },
+        newest: { url: `/api/comments?id=${context.post.post_id}&comment=${context.comment}&sort=newest`, forwards: true, pages: false },
+        oldest: { url: `/api/comments?id=${context.post.post_id}&comment=${context.comment}&sort=oldest`, forwards: true, pages: false },
+        liked: { url: `/api/comments?id=${context.post.post_id}&comment=${context.comment}&sort=liked`, forwards: false, pages: true },
     };
-    timelineConfig.url = timelineConfig.timelines.newest;
+    timelineConfig.url = timelineConfig.timelines.newest.url;
+    timelineConfig.enableForwards = timelineConfig.timelines.newest.forwards;
+    timelineConfig.usePages = timelineConfig.timelines.newest.pages;
     dom("post") && dom("post").addEventListener("click", function () {
         if (hasContent(dom("post-text").value)) {
             s_fetch("/api/comment/create", {

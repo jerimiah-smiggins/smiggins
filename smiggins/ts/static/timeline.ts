@@ -1,4 +1,5 @@
 let end: boolean;
+let lostCause: boolean;
 
 function deletePost(postID: number, isComment: boolean, pageFocus: boolean): void {
   s_fetch(`/api/${isComment ? "comment" : "post"}`, {
@@ -179,15 +180,17 @@ function switchTimeline(event: MouseEvent): void {
     localStorage.setItem(storageID, tl);
   }
 
-  if (timelineConfig.url == timelineConfig.timelines[tl]) { return; }
+  if (timelineConfig.url == timelineConfig.timelines[tl].url) { return; }
 
-  document.querySelectorAll("#switch > a:not([href])").forEach((val: HTMLAnchorElement, index: number): void => {
-    val.href = "javascript:void(0);";
-  });
+  for (const el of document.querySelectorAll("#switch > a:not([href])")) {
+    (el as HTMLAnchorElement).href = "javascript:void(0);";
+  }
 
   this.removeAttribute("href")
 
-  timelineConfig.url = timelineConfig.timelines[tl];
+  timelineConfig.url = timelineConfig.timelines[tl].url;
+  timelineConfig.enableForwards = timelineConfig.timelines[tl].forwards;
+  timelineConfig.usePages = timelineConfig.timelines[tl].pages;
   refresh();
 }
 
@@ -198,10 +201,13 @@ function switchTimeline(event: MouseEvent): void {
 function refresh(forceOffset=false): void {
   if (forceOffset !== true) {
     dom("posts").innerHTML = "";
+    timelineConfig.vars.first = null;
+    timelineConfig.vars.forwardOffset = 0;
+    lostCause = false;
   }
 
   s_fetch(
-    `${timelineConfig.url}${forceOffset === true && !end ? `${timelineConfig.url.includes("?") ? "&" : "?"}offset=${timelineConfig.useOffsetC ? timelineConfig.vars.offsetC : timelineConfig.vars.offset}` : ""}`, {
+    `${timelineConfig.url}${forceOffset === true && !end ? `${timelineConfig.url.includes("?") ? "&" : "?"}offset=${timelineConfig.usePages ? timelineConfig.vars.page : timelineConfig.vars.offset}` : ""}`, {
       disable: [...document.querySelectorAll("button[onclick*='refresh(']")],
       extraData: {
         forceOffset: forceOffset
@@ -210,12 +216,32 @@ function refresh(forceOffset=false): void {
   );
 }
 
+function checkForwards(): void {
+  if (!lostCause && !timelineConfig.usePages && timelineConfig.enableForwards && timelineConfig.vars.first) {
+    s_fetch(`${timelineConfig.url}${timelineConfig.url.includes("?") ? "&" : "?"}forwards=true&offset=${timelineConfig.vars.first}`);
+  }
+}
+
+function loadNew(): void {
+  apiResponse({
+    success: true,
+    actions: [
+      { name: "populate_timeline", posts: timelineConfig.vars.forwardsCache, end: false, forwards: true }
+    ]
+  }, {});
+
+  timelineConfig.vars.forwardsCache = [];
+  dom("load-new").setAttribute("hidden", "");
+  dom("refresh").removeAttribute("hidden");
+}
+
 function timelineInit(): void {
   end = false;
+  killIntervals.push(setInterval(checkForwards, 60000));
 
-  document.querySelectorAll("#switch > a").forEach((val: HTMLAnchorElement, index: number): void => {
-    val.addEventListener("click", switchTimeline);
-  });
+  for (const el of document.querySelectorAll("#switch > a")) {
+    el.addEventListener("click", switchTimeline);
+  }
 
   if (typeof timelineConfig.disableTimeline === "undefined" || !timelineConfig.disableTimeline) {
     refresh();

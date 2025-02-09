@@ -98,7 +98,7 @@ def comment_create(request, data: NewComment) -> APIResponse:
         ]
     }
 
-def comment_list(request, id: int, comment: bool, sort: str, offset: int=0) -> APIResponse:
+def comment_list(request, id: int, comment: bool, sort: str, offset: int=0) -> APIResponse: # TODO
     if rl := check_ratelimit(request, "GET /api/comments"):
         return rl
 

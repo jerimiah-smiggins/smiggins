@@ -9,24 +9,26 @@ function getNotifications() {
     fetch("/api/info/notifications")
         .then((response) => (response.json()))
         .then((json) => {
-        forEach(document.querySelectorAll("[data-add-notification-dot]"), (val, index) => {
+        for (const el of document.querySelectorAll("[data-add-notification-dot]")) {
             if (json.success && json.notifications) {
-                val.classList.add("dot");
-                val.dataset.value = String(json.notifications);
+                el.classList.add("dot");
+                el.dataset.value = String(json.notifications);
             }
             else {
-                val.classList.remove("dot");
+                el.classList.remove("dot");
             }
-        });
-        conf.private_messages && forEach(document.querySelectorAll("[data-add-message-dot]"), (val, index) => {
-            if (json.success && json.messages) {
-                val.classList.add("dot");
-                val.dataset.value = String(json.messages);
+        }
+        if (conf.private_messages) {
+            for (const el of document.querySelectorAll("[data-add-message-dot]")) {
+                if (json.success && json.messages) {
+                    el.classList.add("dot");
+                    el.dataset.value = String(json.messages);
+                }
+                else {
+                    el.classList.remove("dot");
+                }
             }
-            else {
-                val.classList.remove("dot");
-            }
-        });
+        }
         if (!pendingFollowersIconEnabled && json.followers) {
             pendingFollowersIconEnabled = true;
             let pending = document.createElement("div");

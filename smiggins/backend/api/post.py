@@ -1,9 +1,7 @@
 # For API functions that relate to posts, for example creating, fetching home lists, etc.
 
-import sys
 import threading
 import time
-from itertools import chain
 
 import requests
 from django.db.models import Count
@@ -14,12 +12,13 @@ from ..helper import (check_muted_words, check_ratelimit, create_notification,
                       delete_notification, find_hashtags, find_mentions,
                       trim_whitespace, validate_username)
 from ..lang import DEFAULT_LANG, get_lang
+from ..timeline import get_timeline
 from ..variables import (ENABLE_CONTENT_WARNINGS, ENABLE_LOGGED_OUT_CONTENT,
                          ENABLE_PINNED_POSTS, ENABLE_POLLS,
-                         ENABLE_POST_DELETION, MAX_CONTENT_WARNING_LENGTH,
-                         MAX_POLL_OPTION_LENGTH, MAX_POLL_OPTIONS,
-                         MAX_POST_LENGTH, OWNER_USER_ID, POST_WEBHOOKS,
-                         POSTS_PER_REQUEST, SITE_NAME, VERSION)
+                         ENABLE_POST_DELETION, ENABLE_USER_BIOS,
+                         MAX_CONTENT_WARNING_LENGTH, MAX_POLL_OPTION_LENGTH,
+                         MAX_POLL_OPTIONS, MAX_POST_LENGTH, OWNER_USER_ID,
+                         POST_WEBHOOKS, SITE_NAME, VERSION)
 from .admin import BitMask, log_admin_action
 from .schema import APIResponse, EditPost, NewPost, NewQuote, Poll, PostID
 
@@ -290,7 +289,7 @@ def quote_create(request, data: NewQuote) -> APIResponse:
         ]
     }
 
-def hashtag_list(request, hashtag: str, sort: str, offset: int=0) -> APIResponse:
+def hashtag_list(request, hashtag: str, sort: str, offset: int | None=None, forwards: bool=False) -> APIResponse:
     if rl := check_ratelimit(request, "GET /api/hashtag/{str:hashtag}"):
         return rl
 
@@ -302,6 +301,11 @@ def hashtag_list(request, hashtag: str, sort: str, offset: int=0) -> APIResponse
     try:
         user = User.objects.get(token=request.COOKIES.get("token"))
     except User.DoesNotExist:
+        if not ENABLE_LOGGED_OUT_CONTENT:
+            return 400, {
+                "success": False
+            }
+
         user = None
 
     try:
@@ -314,38 +318,36 @@ def hashtag_list(request, hashtag: str, sort: str, offset: int=0) -> APIResponse
             ]
         }
 
+    def post_cv(post: Post | Comment | User) -> bool:
+        return isinstance(post, Post) and post.can_view(user)[0]
+
     if sort == "liked":
         posts = tag.posts.all().annotate(like_count=Count('likes')).order_by('-like_count')
     else:
         posts = tag.posts.all().order_by("?" if sort == "random" else "-post_id")
 
-    posts = posts[POSTS_PER_REQUEST * offset:]
-    post_list = []
-
-    offset = 0
-    for post in posts:
-        x = post.json(user)
-
-        if "can_view" in x and x["can_view"]:
-            post_list.append(x)
-        else:
-            offset += 1
-
-        if len(post_list) + offset >= POSTS_PER_REQUEST:
-            break
+    tl = get_timeline(
+        posts,
+        offset,
+        user,
+        use_pages=sort == "liked",
+        always_end=sort == "random",
+        forwards=forwards and sort == "recent",
+        condition=post_cv
+    )
 
     return {
         "success": True,
         "actions": [
-            { "name": "populate_timeline", "end": sort == "random" or posts.count() <= POSTS_PER_REQUEST, "posts": post_list }
+            { "name": "populate_forwards_cache", "posts": tl[0] if tl[1] else [], "its_a_lost_cause_just_refresh_at_this_point": not tl[1] }
+            if forwards and sort == "recent" else
+            { "name": "populate_timeline", "posts": tl[0], "end": tl[1], "forwards": forwards }
         ]
     }
 
-def post_list_following(request, offset: int=-1) -> APIResponse:
+def post_list_following(request, offset: int | None=None, forwards: bool=False) -> APIResponse:
     if rl := check_ratelimit(request, "GET /api/post/following"):
         return rl
-
-    offset = sys.maxsize if offset == -1 else offset
 
     try:
         user = User.objects.get(token=request.COOKIES.get("token"))
@@ -354,89 +356,53 @@ def post_list_following(request, offset: int=-1) -> APIResponse:
             "success": False
         }
 
-    user_posts = user.posts.filter(post_id__lt=offset)
+    def post_cv(post: Post | Comment | User) -> bool:
+        return isinstance(post, Post) and (post.creator.user_id == user.user_id or post.creator.following.contains(user)) and post.can_view(user)[0]
 
-    followed_users_posts = []
-    for followed_user in user.following.all():
-        followed_user_posts = followed_user.posts.filter(post_id__lt=offset)
-        followed_users_posts.append(followed_user_posts)
-
-    combined_posts = sorted(list(chain(user_posts, *followed_users_posts)), key=lambda p: p.post_id, reverse=True)
-
-    offset = 0
-    outputList = []
-
-    for post in combined_posts:
-        try:
-            post_json = post.json(user)
-        except Post.DoesNotExist:
-            offset += 1
-            continue
-        else:
-            if post_json["can_view"]:
-                outputList.append(post_json)
-            else:
-                offset += 1
-                continue
-
-        if len(outputList) >= POSTS_PER_REQUEST:
-            break
+    tl = get_timeline(
+        Post.objects.order_by("-pk"),
+        offset if offset != -1 else None,
+        user,
+        condition=post_cv,
+        forwards=forwards
+    )
 
     return {
         "success": True,
         "actions": [
-            { "name": "populate_timeline", "posts": outputList, "end": len(combined_posts) - offset <= POSTS_PER_REQUEST }
+            { "name": "populate_forwards_cache", "posts": tl[0] if tl[1] else [], "its_a_lost_cause_just_refresh_at_this_point": not tl[1] }
+            if forwards else
+            { "name": "populate_timeline", "posts": tl[0], "end": tl[1], "forwards": forwards }
         ]
     }
 
-def post_list_recent(request, offset: int=-1) -> APIResponse:
+def post_list_recent(request, offset: int | None=None, forwards: bool=False) -> APIResponse:
     if rl := check_ratelimit(request, "GET /api/post/recent"):
         return rl
 
-    if offset == -1:
-        try:
-            next_id = Post.objects.latest('post_id').post_id
-        except Post.DoesNotExist: # No posts exist
-            return {
-                "success": True,
-                "actions": [
-                    { "name": "populate_timeline", "posts": [], "end": True }
-                ]
-            }
-    else:
-        next_id = offset - 1
-
-    end = next_id <= POSTS_PER_REQUEST
     user = User.objects.get(token=request.COOKIES.get("token"))
 
-    outputList = []
-    offset = 0
-    i = next_id
+    def post_cv(post: Post | Comment | User) -> bool:
+        return isinstance(post, Post) and post.can_view(user)[0]
 
-    while i > next_id - POSTS_PER_REQUEST - offset and i > 0:
-        try:
-            current_post = Post.objects.get(pk=i)
-        except Post.DoesNotExist:
-            offset += 1
-            i -= 1
-            continue
-
-        if not current_post.can_view(user)[0]:
-            offset += 1
-
-        else:
-            outputList.append(current_post.json(user))
-
-        i -= 1
+    tl = get_timeline(
+        Post.objects.order_by("-pk"),
+        offset if offset != -1 else None,
+        user,
+        condition=post_cv,
+        forwards=forwards
+    )
 
     return {
         "success": True,
         "actions": [
-            {  "name": "populate_timeline", "posts": outputList, "end": end }
+            { "name": "populate_forwards_cache", "posts": tl[0] if tl[1] else [], "its_a_lost_cause_just_refresh_at_this_point": not tl[1] }
+            if forwards else
+            { "name": "populate_timeline", "posts": tl[0], "end": tl[1], "forwards": forwards }
         ]
     }
 
-def post_list_user(request, username: str, offset: int=-1) -> APIResponse:
+def post_list_user(request, username: str, offset: int | None=None, forwards: bool=False) -> APIResponse:
     if rl := check_ratelimit(request, "GET /api/post/user/{str:username}"):
         return rl
 
@@ -459,10 +425,16 @@ def post_list_user(request, username: str, offset: int=-1) -> APIResponse:
     if not validate_username(username):
         return 404, {
             "success": False,
-            "message" : lang["post"]["invalid_username"]
+            "message": lang["post"]["invalid_username"]
         }
 
-    offset = sys.maxsize if offset == -1 or not isinstance(offset, int) else offset
+    def post_cv(post: Post | Comment | User) -> bool:
+        if not isinstance(post, Post):
+            return False
+
+        cv = post.can_view(user)
+        return cv[0] is True or cv[1] == "blocking"
+
     user = User.objects.get(username=username)
 
     if logged_in and user.blocking.contains(self_user):
@@ -471,36 +443,27 @@ def post_list_user(request, username: str, offset: int=-1) -> APIResponse:
             "message": lang["messages"]["blocked"]
         }
 
-    potential = user.posts.filter(post_id__lt=offset).order_by("-post_id")
-
-    outputList = []
-    c = 0
-    for i in potential:
-        c += 1
-        x = i.json(self_user)
-
-        if "private_acc" not in x or not x["private_acc"]:
-            outputList.append(x)
-
-        if len(outputList) >= POSTS_PER_REQUEST:
-            break
-
-    pinned_post = None
-    if ENABLE_PINNED_POSTS:
-        if user.pinned:
-            pinned_post = user.pinned.json(self_user)
+    tl = get_timeline(
+        user.posts.order_by("-pk"),
+        None if offset == -1 else offset,
+        self_user,
+        condition=post_cv,
+        forwards=forwards
+    )
 
     return {
         "success": True,
         "actions": [
+            { "name": "populate_forwards_cache", "posts": tl[0] if tl[1] else [], "its_a_lost_cause_just_refresh_at_this_point": not tl[1] }
+            if forwards else
             {
                 "name": "populate_timeline",
-                "posts": outputList,
-                "end": len(potential) <= c,
+                "posts": tl[0],
+                "end": tl[1],
                 "extra": {
                     "type": "user",
-                    "pinned": pinned_post,
-                    "bio": user.bio or "",
+                    "pinned": user.pinned.json(self_user) if ENABLE_PINNED_POSTS and user.pinned else None,
+                    "bio": user.bio or "" if ENABLE_USER_BIOS else "",
                     "following": user.following.count(),
                     "followers": user.followers.count()
                 }

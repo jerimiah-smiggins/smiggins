@@ -17,23 +17,25 @@ function getNotifications(): void {
       messages: number,
       followers: number
     }) => {
-      forEach(document.querySelectorAll("[data-add-notification-dot]"), (val: HTMLElement, index: number): void => {
+      for (const el of document.querySelectorAll("[data-add-notification-dot]")) {
         if (json.success && json.notifications) {
-          val.classList.add("dot");
-          val.dataset.value = String(json.notifications);
+          el.classList.add("dot");
+          (el as HTMLElement).dataset.value = String(json.notifications);
         } else {
-          val.classList.remove("dot");
+          el.classList.remove("dot");
         }
-      });
+      }
 
-      conf.private_messages && forEach(document.querySelectorAll("[data-add-message-dot]"), (val: HTMLElement, index: number): void => {
-        if (json.success && json.messages) {
-          val.classList.add("dot");
-          val.dataset.value = String(json.messages);
-        } else {
-          val.classList.remove("dot");
+      if (conf.private_messages) {
+        for (const el of document.querySelectorAll("[data-add-message-dot]")) {
+          if (json.success && json.messages) {
+            el.classList.add("dot");
+            (el as HTMLElement).dataset.value = String(json.messages);
+          } else {
+            el.classList.remove("dot");
+          }
         }
-      });
+      }
 
       if (!pendingFollowersIconEnabled && json.followers) {
         pendingFollowersIconEnabled = true;

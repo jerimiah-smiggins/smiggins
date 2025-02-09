@@ -107,7 +107,6 @@ def _post_json(
         }
     }
 
-
 class User(models.Model):
     user_id = models.IntegerField(primary_key=True, unique=True)
     username = models.CharField(max_length=300, unique=True)

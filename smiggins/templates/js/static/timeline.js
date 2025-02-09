@@ -1,4 +1,5 @@
 let end;
+let lostCause;
 function deletePost(postID, isComment, pageFocus) {
     s_fetch(`/api/${isComment ? "comment" : "post"}`, {
         method: "DELETE",
@@ -146,32 +147,54 @@ function switchTimeline(event) {
     if (storageID) {
         localStorage.setItem(storageID, tl);
     }
-    if (timelineConfig.url == timelineConfig.timelines[tl]) {
+    if (timelineConfig.url == timelineConfig.timelines[tl].url) {
         return;
     }
-    document.querySelectorAll("#switch > a:not([href])").forEach((val, index) => {
-        val.href = "javascript:void(0);";
-    });
+    for (const el of document.querySelectorAll("#switch > a:not([href])")) {
+        el.href = "javascript:void(0);";
+    }
     this.removeAttribute("href");
-    timelineConfig.url = timelineConfig.timelines[tl];
+    timelineConfig.url = timelineConfig.timelines[tl].url;
+    timelineConfig.enableForwards = timelineConfig.timelines[tl].forwards;
+    timelineConfig.usePages = timelineConfig.timelines[tl].pages;
     refresh();
 }
 function refresh(forceOffset = false) {
     if (forceOffset !== true) {
         dom("posts").innerHTML = "";
+        timelineConfig.vars.first = null;
+        timelineConfig.vars.forwardOffset = 0;
+        lostCause = false;
     }
-    s_fetch(`${timelineConfig.url}${forceOffset === true && !end ? `${timelineConfig.url.includes("?") ? "&" : "?"}offset=${timelineConfig.useOffsetC ? timelineConfig.vars.offsetC : timelineConfig.vars.offset}` : ""}`, {
+    s_fetch(`${timelineConfig.url}${forceOffset === true && !end ? `${timelineConfig.url.includes("?") ? "&" : "?"}offset=${timelineConfig.usePages ? timelineConfig.vars.page : timelineConfig.vars.offset}` : ""}`, {
         disable: [...document.querySelectorAll("button[onclick*='refresh(']")],
         extraData: {
             forceOffset: forceOffset
         }
     });
 }
+function checkForwards() {
+    if (!lostCause && !timelineConfig.usePages && timelineConfig.enableForwards && timelineConfig.vars.first) {
+        s_fetch(`${timelineConfig.url}${timelineConfig.url.includes("?") ? "&" : "?"}forwards=true&offset=${timelineConfig.vars.first}`);
+    }
+}
+function loadNew() {
+    apiResponse({
+        success: true,
+        actions: [
+            { name: "populate_timeline", posts: timelineConfig.vars.forwardsCache, end: false, forwards: true }
+        ]
+    }, {});
+    timelineConfig.vars.forwardsCache = [];
+    dom("load-new").setAttribute("hidden", "");
+    dom("refresh").removeAttribute("hidden");
+}
 function timelineInit() {
     end = false;
-    document.querySelectorAll("#switch > a").forEach((val, index) => {
-        val.addEventListener("click", switchTimeline);
-    });
+    killIntervals.push(setInterval(checkForwards, 60000));
+    for (const el of document.querySelectorAll("#switch > a")) {
+        el.addEventListener("click", switchTimeline);
+    }
     if (typeof timelineConfig.disableTimeline === "undefined" || !timelineConfig.disableTimeline) {
         refresh();
     }
