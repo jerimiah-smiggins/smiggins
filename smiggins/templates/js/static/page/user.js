@@ -46,6 +46,7 @@ function loadList(column, fromStart = false) {
 function userInit() {
     share = location.href;
     timelineConfig.url = `/api/post/user/${context.username}`;
+    timelineConfig.enableForwards = true;
     type = "post";
     includeUserLink = false;
     includePostLink = true;
