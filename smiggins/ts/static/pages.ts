@@ -508,12 +508,13 @@ const pages: { [key: string]: [() => string, (() => void) | null] } = {
   `, loggedIn || !conf.email ? null : resetPasswordInit],
   notifications: [(): string => `
     <h1>${lang.notifications.title}</h1>
-    <button id="refresh">${lang.generic.refresh}</button>
+    <button id="refresh" onclick="refresh()">${lang.generic.refresh}</button>
     <button id="load-new" hidden onclick="loadNew()">${lang.generic.show_new.replaceAll("%n", "<span id='load-new-number'>0</span>")}</button>
     <button id="read">${lang.notifications.read}</button>
     <button id="delete-unread">${lang.notifications.delete}</button><br><br>
-    <div id="notif-container"></div>
-  `, loggedIn ? notificationsInit : null],
+    <div id="posts"></div>
+    <button id="more" onclick="refresh(true)" hidden>${lang.generic.load_more}</button>
+  `, loggedIn ? (): void => { notificationsInit(); timelineInit(); } : null],
   messages: [(): string => `
     <h1>${lang.messages.list_subtitle}</h1>
     <button id="refresh" onclick="refreshMessageList(true);">${lang.generic.refresh}</button>
@@ -746,7 +747,8 @@ function renderPage(): void {
     url: null,
     disableTimeline: false,
     usePages: false,
-    enableForwards: false
+    enableForwards: false,
+    forwardsHandler: null
   };
 
   let page;

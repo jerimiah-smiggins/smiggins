@@ -1,11 +1,18 @@
-function refreshNotifications() {
-    dom("notif-container").innerHTML = "";
-    s_fetch("/api/user/notifications", {
-        disable: [dom("refresh")]
-    });
+function notificationsForwardHandler() {
+    apiResponse({
+        success: true,
+        actions: [
+            { name: "notification_list", notifications: timelineConfig.vars.forwardsCache, end: false, forwards: true }
+        ]
+    }, {});
+    timelineConfig.vars.forwardsCache = [];
+    dom("load-new").setAttribute("hidden", "");
+    dom("refresh").removeAttribute("hidden");
 }
 function notificationsInit() {
-    timelineConfig.disableTimeline = true;
+    timelineConfig.url = "/api/user/notifications";
+    timelineConfig.enableForwards = true;
+    timelineConfig.forwardsHandler = notificationsForwardHandler;
     dom("read").addEventListener("click", function () {
         s_fetch("/api/user/notifications", {
             method: "PATCH",
@@ -18,6 +25,4 @@ function notificationsInit() {
             disable: [this]
         });
     });
-    dom("refresh").addEventListener("click", refreshNotifications);
-    refreshNotifications();
 }

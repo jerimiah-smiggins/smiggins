@@ -1,6 +1,7 @@
 # For API functions that relate to comments, for example liking, creating, etc.
 
 import time
+from typing import Any
 
 from django.db.models import Count
 from django.db.utils import IntegrityError
@@ -9,9 +10,10 @@ from posts.models import Comment, M2MLikeC, Notification, Post, User
 from ..helper import (check_muted_words, check_ratelimit, create_notification,
                       delete_notification, find_mentions, trim_whitespace)
 from ..lang import DEFAULT_LANG, get_lang
+from ..timeline import get_timeline
 from ..variables import (ENABLE_CONTENT_WARNINGS, ENABLE_LOGGED_OUT_CONTENT,
                          ENABLE_POST_DELETION, MAX_CONTENT_WARNING_LENGTH,
-                         MAX_POST_LENGTH, OWNER_USER_ID, POSTS_PER_REQUEST)
+                         MAX_POST_LENGTH, OWNER_USER_ID)
 from .admin import BitMask, log_admin_action
 from .schema import APIResponse, CommentID, EditComment, NewComment
 
@@ -98,7 +100,7 @@ def comment_create(request, data: NewComment) -> APIResponse:
         ]
     }
 
-def comment_list(request, id: int, comment: bool, sort: str, offset: int=0) -> APIResponse: # TODO
+def comment_list(request, id: int, comment: bool, sort: str, offset: int | None=None, forwards: bool=False) -> APIResponse:
     if rl := check_ratelimit(request, "GET /api/comments"):
         return rl
 
@@ -127,7 +129,6 @@ def comment_list(request, id: int, comment: bool, sort: str, offset: int=0) -> A
                 "success": False,
                 "message": lang["post"]["commend_id_does_not_exist"]
             }
-
     except ValueError:
         return 400, {
             "success": False,
@@ -146,35 +147,25 @@ def comment_list(request, id: int, comment: bool, sort: str, offset: int=0) -> A
     else:
         comments = comments.order_by("?" if sort == "random" else "comment_id" if sort == "oldest" else "-comment_id")
 
-    comments = comments[POSTS_PER_REQUEST * offset:]
+    def post_cv(post: Comment | Any) -> bool:
+        return isinstance(post, Comment) and post.can_view(user)[0]
 
-    if comments.count() == 0:
-        return {
-            "success": True,
-            "actions": [
-                { "name": "populate_timeline", "posts": [], "end": True }
-            ]
-        }
-
-    outputList = []
-    offset = 0
-
-    for comment_object in comments:
-        can_view = comment_object.can_view(user)
-        if can_view[0] is False and (can_view[1] == "blocked" or can_view[1] == "private"):
-            offset += 1
-            continue
-
-        else:
-            outputList.append(comment_object.json(user))
-
-        if len(outputList) + offset >= POSTS_PER_REQUEST:
-            break
+    tl = get_timeline(
+        comments,
+        offset,
+        user,
+        use_pages=sort == "liked",
+        always_end=sort == "random",
+        forwards=sort == "newest" and forwards,
+        condition=post_cv
+    )
 
     return {
         "success": True,
         "actions": [
-            { "name": "populate_timeline", "posts": outputList, "end": sort == "random" or comments.count() <= POSTS_PER_REQUEST }
+            { "name": "populate_forwards_cache", "posts": tl[0] if tl[1] else [], "its_a_lost_cause_just_refresh_at_this_point": not tl[1] }
+            if forwards and sort == "newest" else
+            { "name": "populate_timeline", "posts": tl[0], "end": tl[1], "forwards": forwards }
         ]
     }
 
@@ -231,8 +222,15 @@ def comment_delete(request, data: CommentID) -> APIResponse:
     try:
         comment = Comment.objects.get(comment_id=data.id)
         user = User.objects.get(token=request.COOKIES.get("token"))
-    except Comment.DoesNotExist or User.DoesNotExist:
+    except Comment.DoesNotExist:
         return 404, {
+            "success": True,
+            "actions": [
+                { "name": "remove_from_timeline", "post_id": data.id, "comment": False }
+            ]
+        }
+    except User.DoesNotExist:
+        return 400, {
             "success": False
         }
 

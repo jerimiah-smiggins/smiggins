@@ -3,11 +3,10 @@ function postInit() {
     type = "comment";
     includeUserLink = true;
     includePostLink = true;
-    timelineConfig.usePages = true;
     timelineConfig.timelines = {
         random: { url: `/api/comments?id=${context.post.post_id}&comment=${context.comment}&sort=random`, forwards: false, pages: false },
         newest: { url: `/api/comments?id=${context.post.post_id}&comment=${context.comment}&sort=newest`, forwards: true, pages: false },
-        oldest: { url: `/api/comments?id=${context.post.post_id}&comment=${context.comment}&sort=oldest`, forwards: true, pages: false },
+        oldest: { url: `/api/comments?id=${context.post.post_id}&comment=${context.comment}&sort=oldest`, forwards: false, pages: false },
         liked: { url: `/api/comments?id=${context.post.post_id}&comment=${context.comment}&sort=liked`, forwards: false, pages: true },
     };
     timelineConfig.url = timelineConfig.timelines.newest.url;

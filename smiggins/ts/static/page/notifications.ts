@@ -1,12 +1,20 @@
-function refreshNotifications(): void {
-  dom("notif-container").innerHTML = "";
-  s_fetch("/api/user/notifications", {
-    disable: [dom("refresh")]
-  });
+function notificationsForwardHandler(): void {
+  apiResponse({
+    success: true,
+    actions: [
+      { name: "notification_list", notifications: timelineConfig.vars.forwardsCache, end: false, forwards: true }
+    ]
+  }, {});
+
+  timelineConfig.vars.forwardsCache = [];
+  dom("load-new").setAttribute("hidden", "");
+  dom("refresh").removeAttribute("hidden");
 }
 
 function notificationsInit(): void {
-  timelineConfig.disableTimeline = true;
+  timelineConfig.url = "/api/user/notifications";
+  timelineConfig.enableForwards = true;
+  timelineConfig.forwardsHandler = notificationsForwardHandler;
 
   dom("read").addEventListener("click", function(): void {
     s_fetch("/api/user/notifications", {
@@ -21,7 +29,4 @@ function notificationsInit(): void {
       disable: [this]
     });
   });
-
-  dom("refresh").addEventListener("click", refreshNotifications);
-  refreshNotifications();
 }

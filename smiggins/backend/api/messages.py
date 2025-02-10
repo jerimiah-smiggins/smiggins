@@ -1,13 +1,13 @@
 # For API functions that relate to messages for example sending, deleting, etc.
 
 import time
-from sys import maxsize
 
 from posts.models import PrivateMessage, PrivateMessageContainer, User
 
 from ..helper import (check_muted_words, check_ratelimit, get_container_id,
                       trim_whitespace)
 from ..lang import get_lang
+from ..timeline import get_timeline
 from ..variables import MAX_POST_LENGTH, MESSAGES_PER_REQUEST
 from .schema import APIResponse, NewContainer, NewMessage
 
@@ -147,11 +147,11 @@ def send_message(request, data: NewMessage) -> APIResponse:
         "success": True,
         "actions": [
             { "name": "update_element", "query": "#your-mom", "value": "", "focus": True, "attribute": [{ "name": "disabled", "value": None }] },
-            { "name": "refresh_timeline", "special": "message" },
+            { "name": "refresh_timeline", "special": "message" }
         ]
     }
 
-def messages_list(request, username: str, forward: bool=True, offset: int=-1) -> APIResponse: # TODO
+def messages_list(request, username: str, forward: bool=True, offset: int | None=None) -> APIResponse: # TODO
     if rl := check_ratelimit(request, "GET /api/messages"):
         return rl
 
@@ -174,29 +174,29 @@ def messages_list(request, username: str, forward: bool=True, offset: int=-1) ->
         container.unread_two = False
         container.save()
 
-    if forward:
-        list_of_messages = container.messages.filter(message_id__lt=maxsize if offset == -1 else offset).order_by("-message_id")
-    else:
-        list_of_messages = container.messages.filter(message_id__gt=offset).order_by("-message_id")
+    def message_json(m: PrivateMessage) -> dict:
+        return {
+            "timestamp": m.timestamp,
+            "content": m.content,
+            "from_self": is_user_one == m.from_user_one,
+            "id": m.message_id
+        }
 
-    more = list_of_messages.count() > MESSAGES_PER_REQUEST
-    list_of_messages = list_of_messages[:MESSAGES_PER_REQUEST]
-
-    messages = []
-    for message in list_of_messages:
-        messages.append({
-            "timestamp": message.timestamp,
-            "content": message.content,
-            "from_self": is_user_one == message.from_user_one,
-            "id": message.message_id
-        })
+    tl = get_timeline(
+        container.messages.all().order_by("-message_id"),
+        offset,
+        user,
+        forwards=not forward,
+        to_json=message_json,
+        limit=MESSAGES_PER_REQUEST
+    )
 
     actions = []
 
-    if len(messages):
-        actions.append({ "name": "message_list", "messages": messages, "more": more, "forward": forward })
+    if len(tl[0]):
+        actions.append({ "name": "message_list", "messages": tl[0] if forward else tl[0][::-1], "more": not tl[1], "forward": forward })
 
-    if offset == -1:
+    if offset is None:
         actions.append({ "name": "refresh_notifications" })
 
     return {
@@ -204,7 +204,7 @@ def messages_list(request, username: str, forward: bool=True, offset: int=-1) ->
         "actions": actions
     }
 
-def recent_messages(request, offset: int=-1) -> APIResponse: # TODO??
+def recent_messages(request, offset: int=-1) -> APIResponse:
     if rl := check_ratelimit(request, "GET /api/messages/list"):
         return rl
 

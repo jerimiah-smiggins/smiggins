@@ -10,12 +10,12 @@ if ENABLE_EMAIL:
     except ImportError:
         smtp_auth = {}
 
-    EMAIL_HOST =          dotenv_or_("email_host",          smtp_auth["email_host"]          if "email_host"          in smtp_auth else None)
-    EMAIL_HOST_USER =     dotenv_or_("email_host_user",     smtp_auth["email_host_user"]     if "email_host_user"     in smtp_auth else None)
-    EMAIL_HOST_PASSWORD = dotenv_or_("email_host_password", smtp_auth["email_host_password"] if "email_host_password" in smtp_auth else None)
-    EMAIL_PORT =          dotenv_or_("email_port",          smtp_auth["email_port"]          if "email_port"          in smtp_auth else None, int)
-    EMAIL_USE_TLS =       dotenv_or_("email_use_tls",       smtp_auth["email_use_tls"]       if "email_use_tls"       in smtp_auth else None)
-    DEFAULT_FROM_EMAIL =  dotenv_or_("default_from_email",  smtp_auth["default_from_email"]  if "default_from_email"  in smtp_auth else None, lambda x: x.lower() == "true")
+    EMAIL_HOST =          dotenv_or_("email_host",          smtp_auth["EMAIL_HOST"]          if "EMAIL_HOST"          in smtp_auth else None)
+    EMAIL_HOST_USER =     dotenv_or_("email_host_user",     smtp_auth["EMAIL_HOST_USER"]     if "EMAIL_HOST_USER"     in smtp_auth else None)
+    EMAIL_HOST_PASSWORD = dotenv_or_("email_host_password", smtp_auth["EMAIL_HOST_PASSWORD"] if "EMAIL_HOST_PASSWORD" in smtp_auth else None)
+    EMAIL_PORT =          dotenv_or_("email_port",          smtp_auth["EMAIL_PORT"]          if "EMAIL_PORT"          in smtp_auth else None, int)
+    EMAIL_USE_TLS =       dotenv_or_("email_use_tls",       smtp_auth["EMAIL_USE_TLS"]       if "EMAIL_USE_TLS"       in smtp_auth else None)
+    DEFAULT_FROM_EMAIL =  dotenv_or_("default_from_email",  smtp_auth["DEFAULT_FROM_EMAIL"]  if "DEFAULT_FROM_EMAIL"  in smtp_auth else None, lambda x: x.lower() == "true")
 
     del smtp_auth
 

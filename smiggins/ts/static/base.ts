@@ -14,7 +14,8 @@ let timelineConfig: {
   url: string,
   disableTimeline: boolean,
   usePages: boolean,
-  enableForwards: boolean
+  enableForwards: boolean,
+  forwardsHandler: null | (() => void)
 };
 let globalIncrement: number = 0;
 
@@ -202,10 +203,6 @@ function apiResponse(
       registerLinks(dom("posts"));
 
       if (!action.forwards && dom("more")) {
-        if (extraData.forceOffset !== true) {
-          dom("more").removeAttribute("hidden");
-        }
-
         if (action.end) {
           dom("more").setAttribute("hidden", "");
         } else {
@@ -241,7 +238,7 @@ function apiResponse(
         for (let i: number = 0; i < timelineConfig.vars.forwardsCache.length; i++) {
           if (timelineConfig.vars.forwardsCache[i].post_id == action.post_id) {
             timelineConfig.vars.forwardsCache.splice(i, 1);
-              --timelineConfig.vars.forwardOffset;
+            --timelineConfig.vars.forwardOffset;
             --i;
           }
         }
@@ -251,7 +248,7 @@ function apiResponse(
     } else if (action.name == "refresh_notifications") {
       getNotifications();
     } else if (action.name == "refresh_timeline") {
-      let rfFunc = action.special == "notifications" ? refreshNotifications : action.special == "pending" ? refreshPendingList : action.special == "message" ? refreshMessages : refresh;
+      let rfFunc = action.special == "pending" ? refreshPendingList : action.special == "message" ? refreshMessages : refresh;
       if (action.url_includes) {
         for (const url of action.url_includes) {
           if (location.href.includes(url)) {
@@ -350,8 +347,9 @@ function apiResponse(
 
     } else if (action.name == "notification_list") {
       let x: DocumentFragment = document.createDocumentFragment();
-      let hasBeenRead: boolean = false;
-      let first: boolean = true;
+      let oldNotifs: NodeListOf<HTMLDivElement> = dom("posts").querySelectorAll(".post");
+      let hasBeenRead: boolean = oldNotifs.length > 0 && oldNotifs[oldNotifs.length - 1].dataset.color == "gray";
+      let first: boolean = !extraData.forceOffset;
 
       for (const notif of action.notifications) {
         if (notif.data.visible) {
@@ -371,20 +369,41 @@ function apiResponse(
             ["comment", "ping_c"].includes(notif.event_type),
           ).replace("\"post\"", hasBeenRead ? "\"post\" data-color='gray'" : "\"post\" data-notif-unread");
 
-          registerLinks(y);
           x.append(y);
 
           first = false;
+
+          if (!action.forwards) {
+            timelineConfig.vars.offset = notif.id;
+          }
+
+          if (timelineConfig.vars.first === null) {
+            timelineConfig.vars.first = notif.id;
+          }
         }
       }
 
-      if (action.notifications.length === 0) {
+      if (action.notifications.length === 0 && first) {
         let el: HTMLElement = document.createElement("i");
         el.innerHTML = lang.generic.none;
         x.append(el);
       }
 
-      dom("notif-container").append(x);
+      if (action.forwards) {
+        dom("posts").prepend(x);
+      } else {
+        dom("posts").append(x);
+      }
+
+      registerLinks(dom("posts"));
+
+      if (!action.forwards) {
+        if (action.end) {
+          dom("more").setAttribute("hidden", "");
+        } else {
+          dom("more").removeAttribute("hidden");
+        }
+      }
     } else if (action.name == "admin_info") {
       dom("data-section").innerHTML = `
         ${lang.admin.modify.current} <a data-link href="/u/${action.username}"><code>@${action.username}</code></a> (${lang.admin.modify.id.replaceAll("%s", action.user_id)})<br>

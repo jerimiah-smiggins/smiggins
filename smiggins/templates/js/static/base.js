@@ -149,9 +149,6 @@ function apiResponse(json, extraData) {
             dom("posts").insertAdjacentHTML(action.forwards ? "afterbegin" : "beforeend", output);
             registerLinks(dom("posts"));
             if (!action.forwards && dom("more")) {
-                if (extraData.forceOffset !== true) {
-                    dom("more").removeAttribute("hidden");
-                }
                 if (action.end) {
                     dom("more").setAttribute("hidden", "");
                 }
@@ -193,7 +190,7 @@ function apiResponse(json, extraData) {
             getNotifications();
         }
         else if (action.name == "refresh_timeline") {
-            let rfFunc = action.special == "notifications" ? refreshNotifications : action.special == "pending" ? refreshPendingList : action.special == "message" ? refreshMessages : refresh;
+            let rfFunc = action.special == "pending" ? refreshPendingList : action.special == "message" ? refreshMessages : refresh;
             if (action.url_includes) {
                 for (const url of action.url_includes) {
                     if (location.href.includes(url)) {
@@ -289,8 +286,9 @@ function apiResponse(json, extraData) {
         }
         else if (action.name == "notification_list") {
             let x = document.createDocumentFragment();
-            let hasBeenRead = false;
-            let first = true;
+            let oldNotifs = dom("posts").querySelectorAll(".post");
+            let hasBeenRead = oldNotifs.length > 0 && oldNotifs[oldNotifs.length - 1].dataset.color == "gray";
+            let first = !extraData.forceOffset;
             for (const notif of action.notifications) {
                 if (notif.data.visible) {
                     let y = document.createElement("div");
@@ -302,17 +300,36 @@ function apiResponse(json, extraData) {
                     }
                     y.innerHTML += `<div class='pre-wrap'>${escapeHTML(lang.notifications.event[notif.event_type].replaceAll("%s", notif.data.creator.display_name))}</div>`;
                     y.innerHTML += getPostHTML(notif.data, ["comment", "ping_c"].includes(notif.event_type)).replace("\"post\"", hasBeenRead ? "\"post\" data-color='gray'" : "\"post\" data-notif-unread");
-                    registerLinks(y);
                     x.append(y);
                     first = false;
+                    if (!action.forwards) {
+                        timelineConfig.vars.offset = notif.id;
+                    }
+                    if (timelineConfig.vars.first === null) {
+                        timelineConfig.vars.first = notif.id;
+                    }
                 }
             }
-            if (action.notifications.length === 0) {
+            if (action.notifications.length === 0 && first) {
                 let el = document.createElement("i");
                 el.innerHTML = lang.generic.none;
                 x.append(el);
             }
-            dom("notif-container").append(x);
+            if (action.forwards) {
+                dom("posts").prepend(x);
+            }
+            else {
+                dom("posts").append(x);
+            }
+            registerLinks(dom("posts"));
+            if (!action.forwards) {
+                if (action.end) {
+                    dom("more").setAttribute("hidden", "");
+                }
+                else {
+                    dom("more").removeAttribute("hidden");
+                }
+            }
         }
         else if (action.name == "admin_info") {
             dom("data-section").innerHTML = `

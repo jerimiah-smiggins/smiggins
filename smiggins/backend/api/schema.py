@@ -188,7 +188,7 @@ class _actions_notifications(TypedDict):
 class _actions_refresh(TypedDict):
     name: Literal["refresh_timeline"]
     url_includes: NotRequired[list[str]]
-    special: NotRequired[Literal["notifications", "pending", "message"]]
+    special: NotRequired[Literal["pending", "message"]]
 
 class _actions_user_tl_user(TypedDict):
     username: str
@@ -211,10 +211,13 @@ class _actions_notification_list(TypedDict):
     data: _postJSON
     read: bool
     event_type: str
+    id: int
 
 class _actions_notification(TypedDict):
     name: Literal["notification_list"]
     notifications: list[_actions_notification_list]
+    end: bool
+    forwards: bool
 
 class _actions_admin_info(TypedDict):
     name: Literal["admin_info"]

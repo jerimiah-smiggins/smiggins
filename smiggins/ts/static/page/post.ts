@@ -3,11 +3,10 @@ function postInit(): void {
   type = "comment";
   includeUserLink = true;
   includePostLink = true;
-  timelineConfig.usePages = true;
   timelineConfig.timelines = {
     random: { url: `/api/comments?id=${context.post.post_id}&comment=${context.comment}&sort=random`, forwards: false, pages: false },
     newest: { url: `/api/comments?id=${context.post.post_id}&comment=${context.comment}&sort=newest`, forwards: true, pages: false },
-    oldest: { url: `/api/comments?id=${context.post.post_id}&comment=${context.comment}&sort=oldest`, forwards: true, pages: false },
+    oldest: { url: `/api/comments?id=${context.post.post_id}&comment=${context.comment}&sort=oldest`, forwards: false, pages: false },
     liked: { url: `/api/comments?id=${context.post.post_id}&comment=${context.comment}&sort=liked`, forwards: false, pages: true },
   }
 
@@ -15,7 +14,7 @@ function postInit(): void {
   timelineConfig.enableForwards = timelineConfig.timelines.newest.forwards;
   timelineConfig.usePages = timelineConfig.timelines.newest.pages;
 
-  dom("post") && dom("post").addEventListener("click", function() {
+  dom("post") && dom("post").addEventListener("click", function(): void {
     if (hasContent((dom("post-text") as HTMLButtonElement).value)) {
       s_fetch("/api/comment/create", {
         method: "PUT",

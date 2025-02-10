@@ -140,8 +140,6 @@ def get_strings(request, lang: dict, user: User | None, url_override: str | None
         if match:
             return title["return"](match.group(1))
 
-    print(path)
-
     return lang["http"]["404"]["standard_title"], f"{lang['http']['404']['standard_title']}\n{lang['http']['404']['standard_description']}", None, 404
 
 def get_badge_data() -> dict[str, str]:

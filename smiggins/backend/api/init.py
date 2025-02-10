@@ -116,7 +116,7 @@ def context(request) -> tuple[int, dict] | dict | APIResponse:
         return index if user is None or not ENABLE_PRIVATE_MESSAGES else gc(request, user, "messages")
 
     if url == "/pending" or url == "/pending/":
-        return index if user is None else gc(request, user, "pending")
+        return index if user is None else gc(request, user, "pending") if user.verify_followers else home
 
     if ENABLE_CONTACT_PAGE and (url == "/contact" or url == "/contact/"):
         return gc(

@@ -2,8 +2,8 @@ from typing import TYPE_CHECKING, Any, Literal
 
 from backend.lang import get_lang
 from backend.variables import (ENABLE_BADGES, ENABLE_EDITING_POSTS,
-                               ENABLE_PINNED_POSTS, ENABLE_PRONOUNS,
-                               OWNER_USER_ID)
+                               ENABLE_GRADIENT_BANNERS, ENABLE_PINNED_POSTS,
+                               ENABLE_PRONOUNS, OWNER_USER_ID)
 from django.contrib import admin as django_admin
 from django.contrib.admin.exceptions import AlreadyRegistered  # type: ignore
 from django.db import models
@@ -200,6 +200,17 @@ class User(models.Model):
 
         return None
 
+    def json(self: "User") -> dict:
+        return {
+            "username": self.username,
+            "display_name": self.display_name,
+            "badges": self.get_badges(),
+            "color_one": self.color,
+            "color_two": self.color_two if ENABLE_GRADIENT_BANNERS else self.color,
+            "gradient_banner": self.gradient,
+            "bio": self.bio
+        }
+
     def __str__(self):
         return f"({self.user_id}) {self.username}"
 
@@ -344,7 +355,7 @@ class PrivateMessageContainer(models.Model):
     unread_two = models.BooleanField(default=False)
 
     if TYPE_CHECKING:
-        messages: models.QuerySet["PrivateMessage"]
+        messages: models.Manager["PrivateMessage"]
 
     def __str__(self):
         return f"Message group between {self.user_one.username} and {self.user_two.username}"

@@ -179,6 +179,10 @@ function checkForwards() {
     }
 }
 function loadNew() {
+    if (timelineConfig.forwardsHandler) {
+        timelineConfig.forwardsHandler();
+        return;
+    }
     apiResponse({
         success: true,
         actions: [

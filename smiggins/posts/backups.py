@@ -42,7 +42,6 @@ def backup_db():
 
     for i in range(DATABASE_BACKUPS["keep"] - 1, 0, -1):
         if os.path.exists(path / DATABASE_BACKUPS["filename"].replace("$", str(i))):
-            print(f"{i} => {i + 1}")
             os.rename(
                 path / DATABASE_BACKUPS["filename"].replace("$", str(i)),
                 path / DATABASE_BACKUPS["filename"].replace("$", str(i + 1))
@@ -54,7 +53,7 @@ def backup_db():
 
     if lUObj:
         lUObj.value = now
-        lUObj.save()    
+        lUObj.save()
     else:
         GenericData.objects.create(
             id="database_backup",

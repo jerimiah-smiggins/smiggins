@@ -2,6 +2,7 @@
 
 import threading
 import time
+from typing import Any
 
 import requests
 from django.db.models import Count
@@ -318,7 +319,7 @@ def hashtag_list(request, hashtag: str, sort: str, offset: int | None=None, forw
             ]
         }
 
-    def post_cv(post: Post | Comment | User) -> bool:
+    def post_cv(post: Post | Any) -> bool:
         return isinstance(post, Post) and post.can_view(user)[0]
 
     if sort == "liked":
@@ -356,7 +357,7 @@ def post_list_following(request, offset: int | None=None, forwards: bool=False) 
             "success": False
         }
 
-    def post_cv(post: Post | Comment | User) -> bool:
+    def post_cv(post: Post | Any) -> bool:
         return isinstance(post, Post) and (post.creator.user_id == user.user_id or post.creator.following.contains(user)) and post.can_view(user)[0]
 
     tl = get_timeline(
@@ -382,7 +383,7 @@ def post_list_recent(request, offset: int | None=None, forwards: bool=False) -> 
 
     user = User.objects.get(token=request.COOKIES.get("token"))
 
-    def post_cv(post: Post | Comment | User) -> bool:
+    def post_cv(post: Post | Any) -> bool:
         return isinstance(post, Post) and post.can_view(user)[0]
 
     tl = get_timeline(
@@ -428,7 +429,7 @@ def post_list_user(request, username: str, offset: int | None=None, forwards: bo
             "message": lang["post"]["invalid_username"]
         }
 
-    def post_cv(post: Post | Comment | User) -> bool:
+    def post_cv(post: Post | Any) -> bool:
         if not isinstance(post, Post):
             return False
 
@@ -526,7 +527,10 @@ def post_delete(request, data: PostID) -> APIResponse:
         user = User.objects.get(token=request.COOKIES.get("token"))
     except Post.DoesNotExist:
         return 404, {
-            "success": False
+            "success": True,
+            "actions": [
+                { "name": "remove_from_timeline", "post_id": data.id, "comment": False }
+            ]
         }
     except User.DoesNotExist:
         return 400, {

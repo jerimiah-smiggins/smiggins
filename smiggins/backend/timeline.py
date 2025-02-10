@@ -7,7 +7,7 @@ from .variables import POSTS_PER_REQUEST
 
 
 def get_timeline(
-    timeline: BaseManager[Post] | BaseManager[Comment] | BaseManager[User],
+    timeline: BaseManager,
     identifier: Any=None,
     user: User | None=None,
     *,
@@ -16,11 +16,11 @@ def get_timeline(
     forwards: bool=False, # true: new ones since, false: older ones
     limit: int=POSTS_PER_REQUEST,
     always_end: bool=False,
-    condition: Callable[[Post | Comment | User], bool]=lambda a: True,
-    to_json: Callable[[Post | Comment | User], dict] | None=None
+    condition: Callable[[Any], bool]=lambda a: True,
+    to_json: Callable[[Any], dict] | None=None
 ) -> tuple[list, bool]:
     if to_json is None:
-        to_json = lambda a: {} if isinstance(a, User) else a.json(user) # noqa: E731
+        to_json = lambda a: a.json(user) if isinstance(a, Post) or isinstance(a, Comment) else a.json() if isinstance(a, User) else {} # noqa: E731
 
     if use_pages:
         if not isinstance(identifier, int) and identifier is not None:

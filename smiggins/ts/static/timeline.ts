@@ -223,6 +223,11 @@ function checkForwards(): void {
 }
 
 function loadNew(): void {
+  if (timelineConfig.forwardsHandler) {
+    timelineConfig.forwardsHandler();
+    return;
+  }
+
   apiResponse({
     success: true,
     actions: [
