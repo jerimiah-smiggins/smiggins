@@ -72,7 +72,10 @@ def _post_json(
         "post_id": post_id,
 
         "comment": isinstance(post, Comment),
-        "parent": None,
+        "parent": None if isinstance(post, Post) else {
+            "id": post.parent,
+            "comment": post.parent_is_comment
+        },
 
         "private": post.private,
         "content_warning": post.content_warning,
