@@ -9,6 +9,8 @@ tracks changes across versions
 6. Some timelines now have a "Show New" button that appears if more content has been added to the timeline since it was last reloaded
 7. Notifications are not paginated (#295)
 8. When loading the page on `/home/`, it no longer briefly says "Page Not Found" in the title
+9. Gave the loading bar a slight animation to make it seem smoother
+10. API requests that finish after navigating to a new page now get ignored
 ## v0.13.9
 1. Rewrote the frontend to function as a single page application (#304)
 2. Rewrote the ratelimiting system (#302)
