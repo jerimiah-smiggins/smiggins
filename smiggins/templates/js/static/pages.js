@@ -662,6 +662,7 @@ function renderPage() {
     for (const interval of killIntervals) {
         clearInterval(interval);
     }
+    pageCounter++;
     killIntervals = [];
     profile = null;
     share = null;
@@ -704,7 +705,6 @@ function loadContext(url, postFunction = renderPage) {
         .then((response) => (response.json()))
         .then((json) => {
         if (json.success) {
-            pageCounter++;
             context = json.context;
             let args = [context, ""];
             if (json.set_url) {
