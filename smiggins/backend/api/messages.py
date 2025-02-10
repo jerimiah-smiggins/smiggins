@@ -151,7 +151,7 @@ def send_message(request, data: NewMessage) -> APIResponse:
         ]
     }
 
-def messages_list(request, username: str, forward: bool=True, offset: int | None=None) -> APIResponse: # TODO
+def messages_list(request, username: str, forward: bool=True, offset: int | None=None) -> APIResponse:
     if rl := check_ratelimit(request, "GET /api/messages"):
         return rl
 
