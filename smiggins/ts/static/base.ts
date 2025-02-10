@@ -18,6 +18,7 @@ let timelineConfig: {
   forwardsHandler: null | (() => void)
 };
 let globalIncrement: number = 0;
+let pageCounter: number = 0;
 
 function dom(id: string): HTMLElement {
   return document.getElementById(id);
@@ -29,13 +30,16 @@ function s_fetch(
     body?: string | null,
     disable?: (Element | string | false | null)[],
     extraData?: _anyDict,
-    postFunction?: (success: boolean) => void
+    postFunction?: (success: boolean) => void,
+    ignorePage?: boolean
   }
 ): void {
+  let page: number = pageCounter;
   data = data || {};
 
   data.method = data.method || "GET";
   data.disable = data.disable || [];
+  data.ignorePage = data.ignorePage || false;
 
   for (const el of data.disable) {
     if (el === false || el === null) {
@@ -62,6 +66,10 @@ function s_fetch(
     body: data.body
   }).then((response: Response) => (response.json()))
     .then((json: _actions): void => {
+      if (!data.ignorePage && page !== pageCounter) {
+        return;
+      }
+
       apiResponse(json, data.extraData);
       success = json.success;
     })

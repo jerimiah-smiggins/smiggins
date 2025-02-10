@@ -784,6 +784,7 @@ function loadContext(url: string, postFunction: () => void=renderPage): void {
       set_url?: string
     }) => {
       if (json.success) {
+        pageCounter++;
         context = json.context;
         let args: [_context, "", string?] = [context, ""];
 
