@@ -53,7 +53,7 @@ function userInit() {
     document.body.style.setProperty("--banner", context.banner_color_one);
     document.body.style.setProperty("--banner-two", context.banner_color_two);
     if (!loggedIn) {
-        dom("more-container").innerHTML = lang.generic.see_more.replaceAll("%s", `<a data-link href="/signup">${lang.account.sign_up_title}</a>`);
+        dom("more-container").innerHTML = lang.generic.see_more.replaceAll("%s", `<a data-link href="/signup/">${lang.account.sign_up_title}</a>`);
         registerLinks(dom("more-container"));
     }
 }

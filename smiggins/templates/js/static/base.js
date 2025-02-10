@@ -233,7 +233,7 @@ function apiResponse(json, extraData) {
                 y.innerHTML = `
           <div class="post" ${user.unread === undefined || user.unread ? "" : "data-color=\"gray\""}>
             <div class="upper-content">
-              <a data-link href="/u/${user.username}" class="no-underline text">
+              <a data-link href="/u/${user.username}/" class="no-underline text">
                 <div class="displ-name pre-wrap"
                   ><div style="--color-one: ${user.color_one}; --color-two: ${user[conf.gradient_banners && user.gradient_banner ? "color_two" : "color_one"]}" class="user-badge banner-pfp"></div
                   > ${escapeHTML(user.display_name)} ${user.badges.length && conf.badges ? `<span aria-hidden="true" class="user-badge">${user.badges.map((icon) => (badges[icon])).join("</span> <span aria-hidden=\"true\" class=\"user-badge\">")}</span>` : ""}</div>
@@ -245,7 +245,7 @@ function apiResponse(json, extraData) {
             </div>
 
             <div class="main-content class="pre-wrap">${action.special == "messages" ? `
-                <a data-link class="no-underline text" href="/m/${user.username}">
+                <a data-link class="no-underline text" href="/m/${user.username}/">
                   ${escapeHTML(user.bio) || `<i>${lang.messages.no_messages}</i>`}
                 </a>
               ` : (user.bio ? linkifyHtml(escapeHTML(user.bio), {
@@ -333,7 +333,7 @@ function apiResponse(json, extraData) {
         }
         else if (action.name == "admin_info") {
             dom("data-section").innerHTML = `
-        ${lang.admin.modify.current} <a data-link href="/u/${action.username}"><code>@${action.username}</code></a> (${lang.admin.modify.id.replaceAll("%s", action.user_id)})<br>
+        ${lang.admin.modify.current} <a data-link href="/u/${action.username}/"><code>@${action.username}</code></a> (${lang.admin.modify.id.replaceAll("%s", action.user_id)})<br>
         <input maxlength="300" id="data-display-name" placeholder="${lang.settings.profile_display_name_placeholder}" value="${escapeHTML(action.displ_name || "")}"><br>
         <textarea maxlength="65536" id="data-bio" placeholder="${lang.settings.profile_bio_placeholder}">${escapeHTML(action.bio || "")}</textarea><br>
         <button id="data-save" data-user-id="${action.user_id}">${lang.admin.modify.save}</button><br>
@@ -376,7 +376,7 @@ function apiResponse(json, extraData) {
                     output += `<tr>
             <td class="nowrap">${timeSince(+line.timestamp)}</td>
             <td class="nowrap">${line.type}</td>
-            <td>${lang.admin.logs[line.target ? "who_format" : "who_format_single"].replaceAll(" ", "&nbsp;").replaceAll(",&nbsp;", ", ").replaceAll("%1", `<a data-link href="/u/${line.by}">@${line.by}</a>`).replaceAll("%2", `<a data-link href="/u/${line.target}">@${line.target}</a>`)}</td>
+            <td>${lang.admin.logs[line.target ? "who_format" : "who_format_single"].replaceAll(" ", "&nbsp;").replaceAll(",&nbsp;", ", ").replaceAll("%1", `<a data-link href="/u/${line.by}/">@${line.by}</a>`).replaceAll("%2", `<a data-link href="/u/${line.target}/">@${line.target}</a>`)}</td>
             <td>${escapeHTML(line.info)}</td>
           </tr>`;
                 }
@@ -729,7 +729,7 @@ function getPostHTML(postJSON, isComment = false, includeUserLink = true, includ
     }))}">
       ${muted ? `<details><summary class="small">${escapeHTML(lang.settings.mute.post_blocked.replaceAll("%u", postJSON.creator.username).replaceAll("%m", muted))}</summary>` : ""}
       <div class="upper-content">
-        ${includeUserLink ? `<a data-link href="/u/${postJSON.creator.username}" class="no-underline text">` : "<span>"}
+        ${includeUserLink ? `<a data-link href="/u/${postJSON.creator.username}/" class="no-underline text">` : "<span>"}
           <div class="main-area">
             <div class="pre-wrap displ-name-container"
               >${postJSON.edited ? `<span class="user-badge" title="${escapeHTML(timeSince(postJSON.edited, true))}">${icons.edit}</span><span class="spacing"></span>` : ""}<span class="displ-name"
@@ -775,7 +775,7 @@ function getPostHTML(postJSON, isComment = false, includeUserLink = true, includ
                 postJSON.quote.reason == "private" ? lang.home.quote_private :
                     postJSON.quote.reason == "deleted" ? lang.home.quote_deleted : "⚠️") : `
                   <div class="upper-content">
-                    <a data-link href="/u/${postJSON.quote.creator.username}" class="no-underline text">
+                    <a data-link href="/u/${postJSON.quote.creator.username}/" class="no-underline text">
                       <div class="main-area">
                       <div class="pre-wrap displ-name-container"
                         >${postJSON.quote.edited ? `<span class="user-badge" ${escapeHTML(timeSince(postJSON.quote.edited, true))}>${icons.edit}</span><span class="spacing"></span>` : ""}<span class="displ-name"
@@ -813,7 +813,7 @@ function getPostHTML(postJSON, isComment = false, includeUserLink = true, includ
       </div>
 
       <div class="bottom-content">
-        ${includePostLink ? `<a data-link href="/${isComment ? "c" : "p"}/${postJSON.post_id}" class="text no-underline">` : ""}
+        ${includePostLink ? `<a data-link href="/${isComment ? "c" : "p"}/${postJSON.post_id}/" class="text no-underline">` : ""}
           <span class="bottom-content-icon comment-icon">${icons.comment}</span> ${postJSON.interactions.comments}
         ${includePostLink ? "</a>" : ""}
         <span class="bottom-spacing"></span>

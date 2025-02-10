@@ -260,7 +260,7 @@ const pages = {
 
     <a data-link href="/logout/">${conf.account_switcher ? lang.settings.logout : lang.settings.logout_singular}</a><br><br>
 
-    ${isAdmin ? `<a data-link href='/admin'>${lang.settings.admin}</a><br>` : ""}
+    ${isAdmin ? `<a data-link href='/admin/'>${lang.settings.admin}</a><br>` : ""}
     ${context.source ? `<a href="https://github.com/jerimiah-smiggins/smiggins" target="_blank">${lang.generic.source_code}</a><br>` : ""}
     ${context.discord ? `<a href="https://discord.gg/${context.discord}" target="_blank">${lang.generic.discord}</a><br>` : ""}
 
