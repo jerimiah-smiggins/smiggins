@@ -9,13 +9,16 @@ let redirectConfirmation;
 let killIntervals = [];
 let timelineConfig;
 let globalIncrement = 0;
+let pageCounter = 0;
 function dom(id) {
     return document.getElementById(id);
 }
 function s_fetch(url, data) {
+    let page = pageCounter;
     data = data || {};
     data.method = data.method || "GET";
     data.disable = data.disable || [];
+    data.ignorePage = data.ignorePage || false;
     for (const el of data.disable) {
         if (el === false || el === null) {
             continue;
@@ -37,6 +40,9 @@ function s_fetch(url, data) {
         body: data.body
     }).then((response) => (response.json()))
         .then((json) => {
+        if (!data.ignorePage && page !== pageCounter) {
+            return;
+        }
         apiResponse(json, data.extraData);
         success = json.success;
     })
