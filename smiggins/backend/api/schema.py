@@ -109,7 +109,7 @@ class NewQuote(Schema):
 class PostID(Schema):
     id: int
 
-class Poll(Schema):
+class PollSchema(Schema):
     id: int
     option: int
 

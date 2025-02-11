@@ -7,7 +7,8 @@ from typing import Any
 import requests
 from django.db.models import Count
 from django.db.utils import IntegrityError
-from posts.models import Comment, Hashtag, M2MLike, Notification, Post, User
+from posts.models import (Comment, Hashtag, M2MLike, Notification, Poll,
+                          PollChoice, PollVote, Post, User)
 
 from ..helper import (check_muted_words, check_ratelimit, create_notification,
                       delete_notification, find_hashtags, find_mentions,
@@ -21,7 +22,8 @@ from ..variables import (ENABLE_CONTENT_WARNINGS, ENABLE_LOGGED_OUT_CONTENT,
                          MAX_POLL_OPTIONS, MAX_POST_LENGTH, OWNER_USER_ID,
                          POST_WEBHOOKS, SITE_NAME, VERSION)
 from .admin import BitMask, log_admin_action
-from .schema import APIResponse, EditPost, NewPost, NewQuote, Poll, PostID
+from .schema import (APIResponse, EditPost, NewPost, NewQuote, PollSchema,
+                     PostID)
 
 
 def post_hook(request, user: User, post: Post) -> None:
@@ -29,7 +31,7 @@ def post_hook(request, user: User, post: Post) -> None:
         meta = POST_WEBHOOKS[user.username]
         lang = get_lang()
 
-        content = (post.content_warning or post.content) + (f"\n\n{lang['home']['quote_recursive']}" if post.quote else f"\n\n{lang['home']['quote_poll']}" if post.poll else "")
+        content = (post.content_warning or post.content) + (f"\n\n{lang['home']['quote_recursive']}" if post.quote else f"\n\n{lang['home']['quote_poll']}" if hasattr(post, "poll") else "")
 
         if meta[1] == "discord":
             body = {
@@ -75,7 +77,7 @@ def post_create(request, data: NewPost) -> APIResponse:
             "success": False
         }
 
-    poll = []
+    poll: list[str] = []
     for i in data.poll:
         i = trim_whitespace(i, True)
         if i[1]:
@@ -131,12 +133,7 @@ def post_create(request, data: NewPost) -> APIResponse:
         timestamp=timestamp,
         comments=[],
         quotes=[],
-        private=data.private,
-        poll={
-            "votes": [],
-            "choices": len(poll),
-            "content": [{ "value": i, "votes": [] } for i in poll]
-        } if poll else None
+        private=data.private
     )
 
     post = Post.objects.get(
@@ -144,6 +141,18 @@ def post_create(request, data: NewPost) -> APIResponse:
         creator=user.user_id,
         content=content[0]
     )
+
+    if len(poll) >= 2:
+        p = Poll.objects.create(target=post)
+        choices: list[PollChoice] = []
+
+        for choice in poll:
+            choices.append(PollChoice(
+                poll=p,
+                content=choice
+            ))
+
+        PollChoice.objects.bulk_create(choices)
 
     for i in find_mentions(content[0], [user.username]):
         try:
@@ -633,43 +642,45 @@ def unpin_post(request) -> APIResponse:
         ]
     }
 
-def poll_vote(request, data: Poll) -> APIResponse:
+def poll_vote(request, data: PollSchema) -> APIResponse:
     if rl := check_ratelimit(request, "POST /api/post/poll"):
         return rl
 
+    user = User.objects.get(token=request.COOKIES.get("token"))
     post = Post.objects.get(post_id=data.id)
-    poll = post.poll
 
-    if isinstance(poll, dict):
-        if (poll["choices"] < data.option or data.option <= 0):
-            return 400, {
-                "success": False
-            }
-
-        user = User.objects.get(token=request.COOKIES.get("token"))
-
-        can_view = post.can_view(user)
-        if can_view[0] is False and can_view[1] in ["private", "blocked"]:
-            return 400, {
-                "success": False
-            }
-
-        if user.user_id not in poll["votes"]:
-            poll["votes"].append(user.user_id)
-            poll["content"][data.option - 1]["votes"].append(user.user_id)
-
-            post.poll = poll
-            post.save()
-
-        return {
-            "success": True,
-            "actions": [
-                { "name": "refresh_poll", "poll": post.get_poll(user.user_id), "post_id": post.post_id }
-            ]
+    if not hasattr(post, "poll"):
+        return 400, {
+            "success": False
         }
 
-    return 400, {
-        "success": False
+    poll = post.poll
+
+    if (poll.choices.count() < data.option or data.option <= 0):
+        return 400, {
+            "success": False
+        }
+
+    can_view = post.can_view(user)
+    if can_view[0] is False and can_view[1] in ["private", "blocked"]:
+        return 400, {
+            "success": False
+        }
+
+    try:
+        PollVote.objects.create(
+            poll=poll,
+            choice=poll.choices.all()[poll.choices.count() - data.option - 1],
+            user=user
+        )
+    except IntegrityError:
+        ...
+
+    return {
+        "success": True,
+        "actions": [
+            { "name": "refresh_poll", "poll": post.get_poll(user), "post_id": post.post_id }
+        ]
     }
 
 def poll_refresh(request, id: int) -> APIResponse:
@@ -678,7 +689,12 @@ def poll_refresh(request, id: int) -> APIResponse:
 
     post = Post.objects.get(post_id=id)
 
-    if post.poll:
+    if not hasattr(post, "poll"):
+        return 400, {
+            "success": False
+        }
+
+    try:
         user = User.objects.get(token=request.COOKIES.get("token"))
 
         can_view = post.can_view(user)
@@ -686,16 +702,14 @@ def poll_refresh(request, id: int) -> APIResponse:
             return 400, {
                 "success": False
             }
+    except User.DoesNotExist:
+        ...
 
-        return {
-            "success": True,
-            "actions": [
-                { "name": "refresh_poll", "poll": post.get_poll(user.user_id), "post_id": post.post_id }
-            ]
-        }
-
-    return 400, {
-        "success": False
+    return {
+        "success": True,
+        "actions": [
+            { "name": "refresh_poll", "poll": post.get_poll(user), "post_id": post.post_id }
+        ]
     }
 
 def post_edit(request, data: EditPost) -> APIResponse:

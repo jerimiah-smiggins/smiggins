@@ -81,7 +81,7 @@ def _post_json(
         "content_warning": post.content_warning,
         "content": post.content,
         "timestamp": post.timestamp,
-        "poll": post.get_poll(user_id),
+        "poll": post.get_poll(user),
         "edited": (post.edited_at or 0) if post.edited else None,
 
         "quote": quote,
@@ -252,25 +252,26 @@ class Post(models.Model):
     #     ...
     #   ]
     # }
-    poll = models.JSONField(default=None, null=True, blank=True)
+    # poll = models.JSONField(default=None, null=True, blank=True)
 
     if TYPE_CHECKING:
         hashtags: models.Manager["Hashtag"]
+        poll: "Poll"
 
-    def get_poll(self: "Post", user_id: int) -> dict | None:
-        p: dict | None = self.poll
-
-        if not isinstance(p, dict):
+    def get_poll(self: "Post", user: User | None) -> dict | None:
+        if hasattr(self, "poll"):
+            p: Poll = self.poll
+        else:
             return None
 
         return {
-            "votes": len(p["votes"]),
-            "voted": user_id in p["votes"],
+            "votes": p.votes.count(),
+            "voted": user is not None and p.votes.filter(user=user).count() > 0,
             "content": [{
-                "value": i["value"],
-                "votes": len(i["votes"]),
-                "voted": user_id in i["votes"]
-            } for i in p["content"]]
+                "value": c.content,
+                "votes": c.votes.count(),
+                "voted": user is not None and c.votes.filter(user=user).count() > 0
+            } for c in p.choices.all()]
         }
 
     def can_view(self: "Post", user: User | None):
@@ -301,7 +302,7 @@ class Comment(models.Model):
     comments = models.JSONField(default=list, blank=True) #!# reverse foreignkey
     quotes = models.JSONField(default=list, blank=True) #!# reverse foreignkey
 
-    def get_poll(self: "Comment", user_id: int) -> None:
+    def get_poll(self: "Comment", user: User | None) -> None:
         return None
 
     def can_view(self: "Comment", user: User | None) -> tuple[Literal[True]] | tuple[Literal[False], Literal["blocked", "private", "blocking"]]:
@@ -441,6 +442,37 @@ class Ratelimit(models.Model):
     route_id = models.CharField(max_length=100)
     user_id = models.CharField(max_length=64) # user token or ip address
 
+class Poll(models.Model):
+    target = models.OneToOneField(Post, on_delete=models.CASCADE, related_name="poll")
+
+    if TYPE_CHECKING:
+        choices: models.Manager["PollChoice"]
+        votes: models.Manager["PollVote"]
+
+    def __str__(self):
+        return f"post {self.target.post_id} - {self.votes.count()} vote(s) on {self.choices.count()} choices"
+
+class PollChoice(models.Model):
+    poll = models.ForeignKey(Poll, on_delete=models.CASCADE, related_name="choices")
+    content = models.TextField()
+
+    if TYPE_CHECKING:
+        votes: models.Manager["PollVote"]
+
+    def __str__(self):
+        return f"post {self.poll.target.post_id} - {self.votes.count()} vote(s) on '{self.content}'"
+
+class PollVote(models.Model):
+    poll = models.ForeignKey(Poll, on_delete=models.CASCADE, related_name="votes")
+    choice = models.ForeignKey(PollChoice, on_delete=models.CASCADE, related_name="votes")
+    user = models.ForeignKey(User, on_delete=models.CASCADE)
+
+    class Meta:
+        unique_together = ("poll", "user")
+
+    def __str__(self):
+        return f"post {self.poll.target.post_id} - {self.user.username} voted '{self.choice.content}'"
+
 class M2MLike(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE)
     post = models.ForeignKey(Post, on_delete=models.CASCADE)
@@ -516,27 +548,32 @@ class GenericData(models.Model):
     value = models.TextField(blank=True)
 
 try:
-    django_admin.site.register(User)
-    django_admin.site.register(Post)
-    django_admin.site.register(Comment)
-    django_admin.site.register(Badge)
-    django_admin.site.register(Notification)
-    django_admin.site.register(PrivateMessageContainer)
-    django_admin.site.register(PrivateMessage)
-    django_admin.site.register(Hashtag)
-    django_admin.site.register(URLPart)
-    django_admin.site.register(AdminLog)
-    django_admin.site.register(OneTimePassword)
-    django_admin.site.register(UserPronouns)
-    django_admin.site.register(MutedWord)
-    django_admin.site.register(M2MLike)
-    django_admin.site.register(M2MLikeC)
-    django_admin.site.register(M2MFollow)
-    django_admin.site.register(M2MBlock)
-    django_admin.site.register(M2MPending)
-    django_admin.site.register(M2MHashtagPost)
-    django_admin.site.register(M2MBadgeUser)
-    django_admin.site.register(GenericData)
+    django_admin.site.register([
+        User,
+        Post,
+        Comment,
+        Badge,
+        Notification,
+        PrivateMessageContainer,
+        PrivateMessage,
+        Hashtag,
+        URLPart,
+        AdminLog,
+        OneTimePassword,
+        UserPronouns,
+        MutedWord,
+        Poll,
+        PollChoice,
+        PollVote,
+        M2MLike,
+        M2MLikeC,
+        M2MFollow,
+        M2MBlock,
+        M2MPending,
+        M2MHashtagPost,
+        M2MBadgeUser,
+        GenericData
+    ])
 
 except AlreadyRegistered:
     ...
