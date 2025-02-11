@@ -11,6 +11,7 @@ tracks changes across versions
 8. When loading the page on `/home/`, it no longer briefly says "Page Not Found" in the title
 9. Gave the loading bar a slight animation to make it seem smoother
 10. API requests that finish after navigating to a new page now get ignored
+11. Moved polls to a dedicated model in the database instead of using plain json (#288)
 ## v0.13.9
 1. Rewrote the frontend to function as a single page application (#304)
 2. Rewrote the ratelimiting system (#302)
