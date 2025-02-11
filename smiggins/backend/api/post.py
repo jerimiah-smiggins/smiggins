@@ -654,15 +654,16 @@ def poll_vote(request, data: PollSchema) -> APIResponse:
             "success": False
         }
 
-    poll = post.poll
-
-    if (poll.choices.count() < data.option or data.option <= 0):
+    can_view = post.can_view(user)
+    if can_view[0] is False and can_view[1] in ["private", "blocked"]:
         return 400, {
             "success": False
         }
 
-    can_view = post.can_view(user)
-    if can_view[0] is False and can_view[1] in ["private", "blocked"]:
+    poll = post.poll
+    choice = poll.choices.filter(id=data.option)
+
+    if choice.count() == 0:
         return 400, {
             "success": False
         }
@@ -670,7 +671,7 @@ def poll_vote(request, data: PollSchema) -> APIResponse:
     try:
         PollVote.objects.create(
             poll=poll,
-            choice=poll.choices.all()[poll.choices.count() - data.option - 1],
+            choice=choice[0],
             user=user
         )
     except IntegrityError:

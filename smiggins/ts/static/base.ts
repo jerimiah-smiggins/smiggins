@@ -797,13 +797,13 @@ function getPollHTML(
   } else {
     for (const option of pollJSON.content) {
       c++;
-      output += `<div data-index="${c}"
+      output += `<div data-index="${option.id}"
                  data-total-votes="${pollJSON.votes}"
                  data-votes="${option.votes}"
                  class="poll-bar-container"
                  role="button"
-                 onclick="vote(${c}, ${postID})"
-                 onkeydown="genericKeyboardEvent(event, () => (vote(${c}, ${postID})))"
+                 onclick="vote(${option.id}, ${postID})"
+                 onkeydown="genericKeyboardEvent(event, () => (vote(${option.id}, ${postID})))"
                  tabindex="0">
         <div class="poll-text">${escapeHTML(option.value)}</div>
       </div>`;

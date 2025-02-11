@@ -104,6 +104,7 @@ type _pollJSON = {
   votes: number,
   voted: boolean,
   content: {
+    id: number,
     value: string,
     votes: number,
     voted: boolean

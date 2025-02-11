@@ -268,6 +268,7 @@ class Post(models.Model):
             "votes": p.votes.count(),
             "voted": user is not None and p.votes.filter(user=user).count() > 0,
             "content": [{
+                "id": c.id,
                 "value": c.content,
                 "votes": c.votes.count(),
                 "voted": user is not None and c.votes.filter(user=user).count() > 0
@@ -458,6 +459,7 @@ class PollChoice(models.Model):
 
     if TYPE_CHECKING:
         votes: models.Manager["PollVote"]
+        id: int
 
     def __str__(self):
         return f"post {self.poll.target.post_id} - {self.votes.count()} vote(s) on '{self.content}'"
