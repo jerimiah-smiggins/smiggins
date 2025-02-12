@@ -306,9 +306,16 @@ def context(request) -> tuple[int, dict] | dict | APIResponse:
                 request, user, "404-post"
             )
 
+        p = post.json(user, hide_blocking=False)
+
+        if not p["visible"]:
+            return gc(
+                request, user, "404-post"
+            )
+
         return gc(
             request, user, "post",
-            post=post.json(user),
+            post=p,
             comment=False,
             mentions=" ".join([f"@{i} " for i in find_mentions(f"{post.content} @{post.creator.username}", [user.username] if user else [])])
         )
@@ -327,9 +334,16 @@ def context(request) -> tuple[int, dict] | dict | APIResponse:
                 request, user, "404-post"
             )
 
+        c = post.json(user, hide_blocking=False)
+
+        if not c["visible"]:
+            return gc(
+                request, user, "404-post"
+            )
+
         return gc(
             request, user, "post",
-            post=post.json(user),
+            post=c,
             comment=True,
             mentions="".join([f"@{i} " for i in find_mentions(f"{post.content} @{post.creator.username}", [user.username] if user else [])])
         )
