@@ -442,8 +442,14 @@ def post_list_user(request, username: str, offset: int | None=None, forwards: bo
         if not isinstance(post, Post):
             return False
 
-        cv = post.can_view(user)
+        cv = post.can_view(self_user)
         return cv[0] is True or cv[1] == "blocking"
+
+    def post_json(post: Post | Any) -> dict:
+        if not isinstance(post, Post):
+            return {}
+
+        return post.json(self_user, hide_blocking=False)
 
     user = User.objects.get(username=username)
 
@@ -458,6 +464,7 @@ def post_list_user(request, username: str, offset: int | None=None, forwards: bo
         None if offset == -1 else offset,
         self_user,
         condition=post_cv,
+        to_json=post_json,
         forwards=forwards
     )
 
