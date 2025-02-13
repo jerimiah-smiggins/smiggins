@@ -841,7 +841,7 @@ function getPostHTML(
   includeContainer: boolean=true
 ): string {
   if (!postJSON.visible) {
-    return "need to do smt here at some point";
+    return "⚠️";
   }
 
   let muted: string | boolean | null = username !== postJSON.creator.username && checkMuted(postJSON.content) || (postJSON.content_warning && checkMuted(postJSON.content_warning)) || (postJSON.poll && postJSON.poll.content.map((val: { value: string, votes: number, voted: boolean }): string | true => checkMuted(val.value)).reduce((real: string | true, val: string | true): string | true | null => real || val));
