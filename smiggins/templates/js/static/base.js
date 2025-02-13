@@ -717,7 +717,7 @@ function getPollHTML(pollJSON, postID, gInc, showResults) {
 }
 function getPostHTML(postJSON, isComment = false, includeUserLink = true, includePostLink = true, fakeMentions = false, pageFocus = false, isPinned = false, includeContainer = true) {
     if (!postJSON.visible) {
-        return "need to do smt here at some point";
+        return "⚠️";
     }
     let muted = username !== postJSON.creator.username && checkMuted(postJSON.content) || (postJSON.content_warning && checkMuted(postJSON.content_warning)) || (postJSON.poll && postJSON.poll.content.map((val) => checkMuted(val.value)).reduce((real, val) => real || val));
     let quoteMuted = postJSON.quote !== null && postJSON.quote !== true && postJSON.quote.visible && username !== postJSON.quote.creator.username && (checkMuted(postJSON.quote.content) || (postJSON.quote.content_warning ? checkMuted(postJSON.quote.content_warning) : null));
