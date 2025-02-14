@@ -10,7 +10,8 @@ from django.views.decorators.csrf import csrf_exempt
 from posts.models import GenericData, URLPart, User
 
 from ..helper import (check_ratelimit, generate_token, get_HTTP_response,
-                      get_lang, send_email, sha)
+                      send_email, sha)
+from ..lang import get_lang
 from ..variables import DEFAULT_DARK_THEME, THEMES, WEBSITE_URL
 from .schema import APIResponse, Email, Username
 

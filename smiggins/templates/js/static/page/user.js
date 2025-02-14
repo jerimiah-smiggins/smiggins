@@ -46,13 +46,14 @@ function loadList(column, fromStart = false) {
 function userInit() {
     share = location.href;
     timelineConfig.url = `/api/post/user/${context.username}`;
+    timelineConfig.enableForwards = true;
     type = "post";
     includeUserLink = false;
     includePostLink = true;
     document.body.style.setProperty("--banner", context.banner_color_one);
     document.body.style.setProperty("--banner-two", context.banner_color_two);
     if (!loggedIn) {
-        dom("more-container").innerHTML = lang.generic.see_more.replaceAll("%s", `<a data-link href="/signup">${lang.account.sign_up_title}</a>`);
+        dom("more-container").innerHTML = lang.generic.see_more.replaceAll("%s", `<a data-link href="/signup/">${lang.account.sign_up_title}</a>`);
         registerLinks(dom("more-container"));
     }
 }

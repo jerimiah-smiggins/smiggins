@@ -1,18 +1,19 @@
 # For API functions that relate to comments, for example liking, creating, etc.
 
 import time
+from typing import Any
 
 from django.db.models import Count
 from django.db.utils import IntegrityError
 from posts.models import Comment, M2MLikeC, Notification, Post, User
 
-from ..helper import (DEFAULT_LANG, can_view_post, check_muted_words,
-                      check_ratelimit, create_notification,
-                      delete_notification, find_mentions, get_lang,
-                      get_post_json, trim_whitespace)
+from ..helper import (check_muted_words, check_ratelimit, create_notification,
+                      delete_notification, find_mentions, trim_whitespace)
+from ..lang import DEFAULT_LANG, get_lang
+from ..timeline import get_timeline
 from ..variables import (ENABLE_CONTENT_WARNINGS, ENABLE_LOGGED_OUT_CONTENT,
                          ENABLE_POST_DELETION, MAX_CONTENT_WARNING_LENGTH,
-                         MAX_POST_LENGTH, OWNER_USER_ID, POSTS_PER_REQUEST)
+                         MAX_POST_LENGTH, OWNER_USER_ID)
 from .admin import BitMask, log_admin_action
 from .schema import APIResponse, CommentID, EditComment, NewComment
 
@@ -29,7 +30,7 @@ def comment_create(request, data: NewComment) -> APIResponse:
     c_warning = trim_whitespace(data.c_warning, True) if ENABLE_CONTENT_WARNINGS else ("", False)
 
     parent = (Comment if data.comment else Post).objects.get(pk=data.id)
-    can_view = can_view_post(user, parent.creator, parent)
+    can_view = parent.can_view(user)
     if can_view[0] is False and (can_view[1] == "blocked" or can_view[1] == "private"):
         return 400, {
             "success": False
@@ -93,13 +94,13 @@ def comment_create(request, data: NewComment) -> APIResponse:
     return {
         "success": True,
         "actions": [
-            { "name": "prepend_timeline", "post": get_post_json(comment, user, True), "comment": True },
+            { "name": "prepend_timeline", "post": comment.json(user), "comment": True },
             { "name": "update_element", "query": "#post-text", "value": "" },
             { "name": "update_element", "query": "#c-warning", "value": "", "focus": True }
         ]
     }
 
-def comment_list(request, id: int, comment: bool, sort: str, offset: int=0) -> APIResponse:
+def comment_list(request, id: int, comment: bool, sort: str, offset: int | None=None, forwards: bool=False) -> APIResponse:
     if rl := check_ratelimit(request, "GET /api/comments"):
         return rl
 
@@ -128,7 +129,6 @@ def comment_list(request, id: int, comment: bool, sort: str, offset: int=0) -> A
                 "success": False,
                 "message": lang["post"]["commend_id_does_not_exist"]
             }
-
     except ValueError:
         return 400, {
             "success": False,
@@ -147,35 +147,25 @@ def comment_list(request, id: int, comment: bool, sort: str, offset: int=0) -> A
     else:
         comments = comments.order_by("?" if sort == "random" else "comment_id" if sort == "oldest" else "-comment_id")
 
-    comments = comments[POSTS_PER_REQUEST * offset:]
+    def post_cv(post: Comment | Any) -> bool:
+        return isinstance(post, Comment) and post.can_view(user)[0]
 
-    if comments.count() == 0:
-        return {
-            "success": True,
-            "actions": [
-                { "name": "populate_timeline", "posts": [], "end": True }
-            ]
-        }
-
-    outputList = []
-    offset = 0
-
-    for comment_object in comments:
-        can_view = can_view_post(user, comment_object.creator, comment_object)
-        if can_view[0] is False and (can_view[1] == "blocked" or can_view[1] == "private"):
-            offset += 1
-            continue
-
-        else:
-            outputList.append(get_post_json(comment_object, user, True))
-
-        if len(outputList) + offset >= POSTS_PER_REQUEST:
-            break
+    tl = get_timeline(
+        comments,
+        offset,
+        user,
+        use_pages=sort == "liked",
+        always_end=sort == "random",
+        forwards=sort == "newest" and forwards,
+        condition=post_cv
+    )
 
     return {
         "success": True,
         "actions": [
-            { "name": "populate_timeline", "posts": outputList, "end": sort == "random" or comments.count() <= POSTS_PER_REQUEST }
+            { "name": "populate_forwards_cache", "posts": tl[0] if tl[1] else [], "its_a_lost_cause_just_refresh_at_this_point": not tl[1] }
+            if forwards and sort == "newest" else
+            { "name": "populate_timeline", "posts": tl[0], "end": tl[1], "forwards": forwards }
         ]
     }
 
@@ -186,7 +176,7 @@ def comment_like_add(request, data: CommentID) -> APIResponse:
     user = User.objects.get(token=request.COOKIES.get("token"))
     comment = Comment.objects.get(comment_id=data.id)
 
-    can_view = can_view_post(user, comment.creator, comment)
+    can_view = comment.can_view(user)
     if can_view[0] is False and (can_view[1] == "blocked" or can_view[1] == "private"):
         return 400, {
             "success": False
@@ -200,7 +190,7 @@ def comment_like_add(request, data: CommentID) -> APIResponse:
     return {
         "success": True,
         "actions": [
-            { "name": "update_element", "query": f"div[data-comment-id='{data.id}'] button.like", "attribute": [{ "name": "data-liked", "value": "true" }] },
+            { "name": "update_element", "query": f"div[data-comment-id='{data.id}'] button.like", "attribute": [{ "name": "data-liked", "value": "true" }, { "name": "data-like-anim", "value": "" }] },
             { "name": "update_element", "query": f"div[data-comment-id='{data.id}'] span.like-number", "inc": 1 }
         ]
     }
@@ -232,8 +222,15 @@ def comment_delete(request, data: CommentID) -> APIResponse:
     try:
         comment = Comment.objects.get(comment_id=data.id)
         user = User.objects.get(token=request.COOKIES.get("token"))
-    except Comment.DoesNotExist or User.DoesNotExist:
+    except Comment.DoesNotExist:
         return 404, {
+            "success": True,
+            "actions": [
+                { "name": "remove_from_timeline", "post_id": data.id, "comment": False }
+            ]
+        }
+    except User.DoesNotExist:
+        return 400, {
             "success": False
         }
 
@@ -312,7 +309,7 @@ def comment_edit(request, data: EditComment) -> APIResponse:
         return {
             "success": True,
             "actions": [
-                { "name": "reset_post_html", "post_id": data.id, "comment": True, "post": get_post_json(data.id, user, True) }
+                { "name": "reset_post_html", "post_id": data.id, "comment": True, "post": post.json(user) }
             ]
         }
 

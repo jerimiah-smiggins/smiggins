@@ -202,8 +202,8 @@ messages_per_request: 40
 # The maximum number of notifications to be stored per user. Whenever this
 # limit is exceeded, it will remove the oldest notifications for that user.
 # Aliases: max_notifs, max_notifications
-# Default: 25
-max_notifications: 25
+# Default: 100
+max_notifications: 100
 
 # Limits for muted words. Applies to per-user and global. Doesn't affect
 # existing limits.

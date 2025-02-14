@@ -22,7 +22,7 @@ function refreshMessages(start=false, forward=true): void {
   } = {
     username: context.username,
     forward: start || forward,
-    offset: start ? -1 : forward ? forwardOffset : reverseOffset
+    offset: start ? null : forward ? forwardOffset : reverseOffset
   };
 
   if (start) {
@@ -37,7 +37,7 @@ function refreshMessages(start=false, forward=true): void {
 
   c++;
 
-  s_fetch(`/api/messages?username=${params.username}&forward=${params.forward}&offset=${params.offset}`, {
+  s_fetch(`/api/messages?username=${params.username}&forward=${params.forward}${params.offset !== null ? `&offset=${params.offset}` : ""}`, {
     extraData: {
       start: start
     },

@@ -1,5 +1,17 @@
 # changelog
 tracks changes across versions
+## v0.14.0
+1. Fixed parent post links on comments (#315)
+2. The "Pin" button is no longer shown on comments (#318)
+3. Fixed post links in some circumstances (#316)
+4. The like button animation no longer plays when a post that is already liked is loaded (#314)
+5. Timelines are more consistent (#319)
+6. Some timelines now have a "Show New" button that appears if more content has been added to the timeline since it was last reloaded
+7. Notifications are now paginated (#295)
+8. When loading the page on `/home/`, it no longer briefly says "Page Not Found" in the title
+9. Gave the loading bar a slight animation to make it seem smoother
+10. API requests that finish after navigating to a new page now get ignored
+11. Moved polls to a dedicated model in the database instead of using plain json (#288)
 ## v0.13.9
 1. Rewrote the frontend to function as a single page application (#304)
 2. Rewrote the ratelimiting system (#302)

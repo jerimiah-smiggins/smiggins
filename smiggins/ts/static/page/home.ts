@@ -5,11 +5,11 @@ function getPollText(): string[] {
 
   let out: string[] = [];
 
-  forEach(document.querySelectorAll("#poll input"), function(val: Element, index: number): void {
-    if ((val as HTMLInputElement).value) {
-      out.push((val as HTMLInputElement).value);
+  for (const el of document.querySelectorAll("#poll input")) {
+    if ((el as HTMLInputElement).value) {
+      out.push((el as HTMLInputElement).value);
     }
-  });
+  }
 
   return out;
 }
@@ -23,11 +23,13 @@ function homeInit(): void {
   includePostLink = true;
 
   timelineConfig.timelines = {
-    recent: "/api/post/recent",
-    following: "/api/post/following"
+    recent: { url: "/api/post/recent", forwards: true, pages: false },
+    following: { url: "/api/post/following", forwards: true, pages: false }
   };
 
-  timelineConfig.url = timelineConfig.timelines[page];
+  timelineConfig.url = timelineConfig.timelines[page].url;
+  timelineConfig.enableForwards = timelineConfig.timelines[page].forwards;
+  timelineConfig.usePages = timelineConfig.timelines[page].pages;
 
   (dom("switch").querySelector(`[data-timeline="${page}"]`) as HTMLAnchorElement).removeAttribute("href");
 

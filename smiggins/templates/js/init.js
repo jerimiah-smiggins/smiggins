@@ -1,9 +1,19 @@
 '{% load static %}';
+let initContextLoaded = undefined;
+let javascriptLoaded = undefined;
+function init() {
+    baseFooterInit();
+    loadContext(location.pathname, renderPage);
+}
 function loadNext() {
     document.getElementById("loading-progress").style.setProperty("--progress", String(loadIndex / loadURLs.length * 100));
     if (loadIndex >= loadURLs.length) {
-        document.body.append(script);
-        loadContext(location.pathname, renderPage);
+        if (typeof javascriptLoaded == "undefined") {
+            initContextLoaded = true;
+        }
+        else {
+            init();
+        }
         return;
     }
     let load = loadURLs[loadIndex];
@@ -41,15 +51,13 @@ function loadNext() {
             })
                 .catch((err) => {
                 document.getElementById("loading-motd").innerText = `${somethingWentWrong} ${err}`;
+                throw err;
             });
         }
     })
         .catch((err) => {
         document.getElementById("loading-motd").innerText = `${somethingWentWrong} ${err}`;
     });
-}
-function loadJS(content) {
-    script.innerHTML += "\n" + content;
 }
 const validColors = [
     "rosewater", "flamingo", "pink", "mauve",
@@ -60,10 +68,7 @@ let loadURLs = [
     conf.badges ? ["/api/init/badges", (json) => { badges = json.badges; }, false] : null,
     ["/api/init/lang", (json) => { lang = json.lang; }, false],
     loggedIn ? ["/api/init/muted", (json) => { muted = json.muted; }, false] : null,
-    ["{% static 'pages.js' %}?v={{ conf.version }}", loadJS, true],
-    ["{% static 'base-footer.js' %}?v={{ conf.version }}", loadJS, true],
 ].filter(Boolean);
-let script = document.createElement("script");
 let loadIndex = 0;
 let context;
 let badges;

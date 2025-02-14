@@ -3,16 +3,17 @@ import re
 from posts.models import (Comment, Hashtag, MutedWord, Post,
                           PrivateMessageContainer, User)
 
-from ..helper import (LANGS, check_ratelimit, find_mentions, get_badge_data,
-                      get_badges, get_container_id, get_lang, get_post_json,
-                      get_pronouns, get_strings)
+from ..helper import (check_ratelimit, find_mentions, get_badge_data,
+                      get_container_id, get_strings)
+from ..lang import LANGS, get_lang
 from ..variables import (CACHE_LANGUAGES, CONTACT_INFO, CREDITS,
                          DEFAULT_BANNER_COLOR, DEFAULT_LANGUAGE, DISCORD,
                          ENABLE_ACCOUNT_SWITCHER, ENABLE_BADGES,
                          ENABLE_CONTACT_PAGE, ENABLE_CREDITS_PAGE,
-                         ENABLE_LOGGED_OUT_CONTENT, ENABLE_NEW_ACCOUNTS,
-                         ENABLE_PRIVATE_MESSAGES, ENABLE_PRONOUNS,
-                         OWNER_USER_ID, SOURCE_CODE, THEMES, VALID_LANGUAGES)
+                         ENABLE_EMAIL, ENABLE_LOGGED_OUT_CONTENT,
+                         ENABLE_NEW_ACCOUNTS, ENABLE_PRIVATE_MESSAGES,
+                         ENABLE_PRONOUNS, OWNER_USER_ID, SOURCE_CODE, THEMES,
+                         VALID_LANGUAGES)
 from .admin import BitMask
 from .schema import APIResponse
 
@@ -22,10 +23,10 @@ def _get_user(request, user: User, self_user: User | None=None) -> dict:
         request, user, "user", f"/u/{user.username}/",
         username=user.username,
         display_name=user.display_name,
-        pronouns=get_pronouns(user) if ENABLE_PRONOUNS else None,
+        pronouns=user.get_pronouns() if ENABLE_PRONOUNS else None,
         followers=user.followers.count(),
         following=user.following.count(),
-        badges=get_badges(user),
+        badges=user.get_badges(),
         banner_color_one=user.color,
         banner_color_two=user.color_two,
         gradient=user.gradient,
@@ -106,7 +107,7 @@ def context(request) -> tuple[int, dict] | dict | APIResponse:
         return gc(request, user, "signup") if user is None else home
 
     if url == "/reset-password" or url == "/reset-password/":
-        return gc(request, user, "reset") if user is None else home
+        return gc(request, user, "reset") if user is None and ENABLE_EMAIL else home if user else index
 
     if url == "/notifications" or url == "/notifications/":
         return index if user is None else gc(request, user, "notifications")
@@ -115,7 +116,7 @@ def context(request) -> tuple[int, dict] | dict | APIResponse:
         return index if user is None or not ENABLE_PRIVATE_MESSAGES else gc(request, user, "messages")
 
     if url == "/pending" or url == "/pending/":
-        return index if user is None else gc(request, user, "pending")
+        return index if user is None else gc(request, user, "pending") if user.verify_followers else home
 
     if ENABLE_CONTACT_PAGE and (url == "/contact" or url == "/contact/"):
         return gc(
@@ -224,7 +225,7 @@ def context(request) -> tuple[int, dict] | dict | APIResponse:
             request, user, "message",
             username=username,
             display_name=other_user.display_name,
-            badges=get_badges(other_user)
+            badges=other_user.get_badges()
         )
 
     match = re.match(re.compile(r"^/u/([a-z0-9_\-]+)/?$"), url)
@@ -259,9 +260,9 @@ def context(request) -> tuple[int, dict] | dict | APIResponse:
             banner_color_two=other_user.color_two,
             gradient=other_user.gradient,
             display_name=other_user.display_name,
-            badges=get_badges(other_user),
+            badges=other_user.get_badges(),
             username=other_user.username,
-            pronouns=get_pronouns(other_user),
+            pronouns=other_user.get_pronouns(),
             followers=other_user.followers.count(),
             following=other_user.following.count(),
             bio=other_user.bio,
@@ -305,9 +306,16 @@ def context(request) -> tuple[int, dict] | dict | APIResponse:
                 request, user, "404-post"
             )
 
+        p = post.json(user, hide_blocking=False)
+
+        if not p["visible"]:
+            return gc(
+                request, user, "404-post"
+            )
+
         return gc(
             request, user, "post",
-            post=get_post_json(post, user, False),
+            post=p,
             comment=False,
             mentions=" ".join([f"@{i} " for i in find_mentions(f"{post.content} @{post.creator.username}", [user.username] if user else [])])
         )
@@ -326,9 +334,16 @@ def context(request) -> tuple[int, dict] | dict | APIResponse:
                 request, user, "404-post"
             )
 
+        c = post.json(user, hide_blocking=False)
+
+        if not c["visible"]:
+            return gc(
+                request, user, "404-post"
+            )
+
         return gc(
             request, user, "post",
-            post=get_post_json(post, user, True),
+            post=c,
             comment=True,
             mentions="".join([f"@{i} " for i in find_mentions(f"{post.content} @{post.creator.username}", [user.username] if user else [])])
         )

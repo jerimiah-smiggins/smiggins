@@ -17,7 +17,7 @@ function refreshMessages(start = false, forward = true) {
     let params = {
         username: context.username,
         forward: start || forward,
-        offset: start ? -1 : forward ? forwardOffset : reverseOffset
+        offset: start ? null : forward ? forwardOffset : reverseOffset
     };
     if (start) {
         dom("messages-go-here-btw").innerHTML = "";
@@ -28,7 +28,7 @@ function refreshMessages(start = false, forward = true) {
         return;
     }
     c++;
-    s_fetch(`/api/messages?username=${params.username}&forward=${params.forward}&offset=${params.offset}`, {
+    s_fetch(`/api/messages?username=${params.username}&forward=${params.forward}${params.offset !== null ? `&offset=${params.offset}` : ""}`, {
         extraData: {
             start: start
         },

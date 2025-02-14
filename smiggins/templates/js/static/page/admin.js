@@ -99,7 +99,7 @@ function adminInit() {
             body: JSON.stringify({
                 identifier: dom("level-identifier").value,
                 use_id: dom("level-use-id").checked,
-                level: parseInt(forEach(document.querySelectorAll("#level-selection input[type='checkbox']"), (val, index) => (+val.checked)).reverse().join(""), 2)
+                level: parseInt(inlineFor([...document.querySelectorAll("#level-selection input[type='checkbox']")], (el) => (String(+el.checked))).split("").reverse().join(""), 2)
             }),
             disable: [this, dom("level-identifier")]
         });

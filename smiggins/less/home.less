@@ -207,7 +207,7 @@ button:not(.bottom-content-icon) {
       position: absolute;
       display: none;
 
-      &:has(+ .like[data-liked="true"]) {
+      &:has(+ .like[data-liked="true"][data-like-anim]) {
         display: inline-block;
         animation: like-anim 1s forwards ease-out;
       }
@@ -365,7 +365,7 @@ button.bottom-content-icon {
 }
 
 body[data-compact] {
-  #notif-container .post {
+  body[data-page="notifications"] .post {
     margin-bottom: 10px !important;
   }
 

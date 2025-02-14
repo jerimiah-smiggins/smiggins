@@ -108,10 +108,10 @@ function adminInit(): void {
       body: JSON.stringify({
         identifier: (dom("level-identifier") as HTMLInputElement).value,
         use_id: (dom("level-use-id") as HTMLInputElement).checked,
-        level: parseInt(forEach(
-          document.querySelectorAll("#level-selection input[type='checkbox']"),
-          (val: HTMLInputElement, index: number) => (+val.checked)
-        ).reverse().join(""), 2)
+        level: parseInt(inlineFor(
+          [...document.querySelectorAll("#level-selection input[type='checkbox']")],
+          (el: HTMLInputElement): string => (String(+el.checked))
+        ).split("").reverse().join(""), 2)
       }),
       disable: [this, dom("level-identifier")]
     });

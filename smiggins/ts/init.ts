@@ -1,11 +1,22 @@
 '{% load static %}';
 declare const somethingWentWrong: string;
 
+let initContextLoaded: undefined | true = undefined;
+let javascriptLoaded: undefined | true = undefined;
+
+function init(): void {
+  baseFooterInit();
+  loadContext(location.pathname, renderPage);
+}
+
 function loadNext(): void {
   document.getElementById("loading-progress").style.setProperty("--progress", String(loadIndex / loadURLs.length * 100));
   if (loadIndex >= loadURLs.length) {
-    document.body.append(script);
-    loadContext(location.pathname, renderPage);
+    if (typeof javascriptLoaded == "undefined") {
+      initContextLoaded = true;
+    } else {
+      init();
+    }
     return;
   }
 
@@ -46,16 +57,13 @@ function loadNext(): void {
           })
           .catch((err: any): void => {
             document.getElementById("loading-motd").innerText = `${somethingWentWrong} ${err}`;
+            throw err;
           });
       }
     })
     .catch((err: any): void => {
       document.getElementById("loading-motd").innerText = `${somethingWentWrong} ${err}`;
     });
-}
-
-function loadJS(content: string): void {
-  script.innerHTML += "\n" + content;
 }
 
 const validColors: string[] = [
@@ -69,11 +77,8 @@ let loadURLs: ([string, (response: any) => void, boolean])[] = [
   conf.badges ? ["/api/init/badges", (json: _anyDict): void => { badges = json.badges; }, false] : null,
   ["/api/init/lang", (json: _anyDict): void => { lang = json.lang; }, false],
   loggedIn ? ["/api/init/muted", (json: _anyDict): void => { muted = json.muted; }, false] : null,
-  ["{% static 'pages.js' %}?v={{ conf.version }}", loadJS, true],
-  ["{% static 'base-footer.js' %}?v={{ conf.version }}", loadJS, true],
 ].filter(Boolean);
 
-let script: HTMLScriptElement = document.createElement("script");
 let loadIndex: number = 0;
 let context: _context;
 let badges: { [key: string]: string };

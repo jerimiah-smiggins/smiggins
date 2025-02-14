@@ -2,6 +2,11 @@
 ## How do I run this server?
 Read [this document](running-the-server.md)
 
+## I see the "⚠️" emoji somewhere. What does this mean?
+Something broke. Please [create an issue](https://github.com/jerimiah-smiggins/smiggins/issues)
+including your username (or if you were logged out) and what page you were
+trying to view, along with any further information on how to reproduce this.
+
 ## What is a user ID? How is it different from a username?
 A user ID is a unique number identifying every account. These are never used by
 the frontend except on the admin page, it is mainly used in the backend. These

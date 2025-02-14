@@ -109,7 +109,7 @@ class NewQuote(Schema):
 class PostID(Schema):
     id: int
 
-class Poll(Schema):
+class PollSchema(Schema):
     id: int
     option: int
 
@@ -147,6 +147,11 @@ class Settings(Schema):
 # types
 _postJSON = dict
 
+class _actions_forwards_cache(TypedDict):
+    name: Literal["populate_forwards_cache"]
+    posts: list[_postJSON]
+    its_a_lost_cause_just_refresh_at_this_point: bool
+
 class _actions_timeline_extra(TypedDict):
     type: Literal["user"]
     pinned: _postJSON | None
@@ -159,6 +164,7 @@ class _actions_timeline(TypedDict):
     end: bool
     extra: NotRequired[_actions_timeline_extra]
     posts: list[_postJSON]
+    forwards: NotRequired[bool]
 
 class _actions_prepend(TypedDict):
     name: Literal["prepend_timeline"]
@@ -182,7 +188,7 @@ class _actions_notifications(TypedDict):
 class _actions_refresh(TypedDict):
     name: Literal["refresh_timeline"]
     url_includes: NotRequired[list[str]]
-    special: NotRequired[Literal["notifications", "pending", "message"]]
+    special: NotRequired[Literal["pending", "message"]]
 
 class _actions_user_tl_user(TypedDict):
     username: str
@@ -205,10 +211,13 @@ class _actions_notification_list(TypedDict):
     data: _postJSON
     read: bool
     event_type: str
+    id: int
 
 class _actions_notification(TypedDict):
     name: Literal["notification_list"]
     notifications: list[_actions_notification_list]
+    end: bool
+    forwards: bool
 
 class _actions_admin_info(TypedDict):
     name: Literal["admin_info"]
@@ -294,7 +303,8 @@ class _actions(TypedDict):
     success: bool
     message: NotRequired[str]
     actions: NotRequired[list[
-        _actions_timeline
+        _actions_forwards_cache
+      | _actions_timeline
       | _actions_prepend
       | _actions_reset
       | _actions_remove

@@ -4,19 +4,20 @@ import re
 from typing import Literal
 
 from django.db.models import Manager
-from posts.models import (Comment, MutedWord, OneTimePassword, Post,
-                          PrivateMessageContainer, User, UserPronouns)
+from posts.models import (Comment, MutedWord, Notification, OneTimePassword,
+                          Post, PrivateMessageContainer, User, UserPronouns)
 
-from ..helper import (DEFAULT_LANG, check_ratelimit, generate_token,
-                      get_badges, get_lang, get_post_json, trim_whitespace,
+from ..helper import (check_ratelimit, generate_token, trim_whitespace,
                       validate_username)
+from ..lang import DEFAULT_LANG, get_lang
+from ..timeline import get_timeline
 from ..variables import (DEFAULT_BANNER_COLOR, DEFAULT_LANGUAGE,
                          ENABLE_GRADIENT_BANNERS, ENABLE_LOGGED_OUT_CONTENT,
                          ENABLE_NEW_ACCOUNTS, ENABLE_PRONOUNS,
                          ENABLE_USER_BIOS, MAX_BIO_LENGTH,
                          MAX_DISPL_NAME_LENGTH, MAX_MUTED_WORD_LENGTH,
-                         MAX_MUTED_WORDS, MAX_USERNAME_LENGTH,
-                         POSTS_PER_REQUEST, THEMES, VALID_LANGUAGES)
+                         MAX_MUTED_WORDS, MAX_USERNAME_LENGTH, THEMES,
+                         VALID_LANGUAGES)
 from .schema import (Account, APIResponse, ChangePassword, MutedWords,
                      Password, Settings, Theme, Username, _actions_user_tl)
 
@@ -96,7 +97,7 @@ def login(request, data: Account) -> APIResponse:
     if rl := check_ratelimit(request, "POST /api/user/login"):
         return rl
 
-    username = data.username.lower()
+    username = data.username.lower().replace(" ", "")
     token = generate_token(username, data.password)
 
     if validate_username(username) == 1:
@@ -523,49 +524,69 @@ def clear_read_notifs(request) -> APIResponse:
     return {
         "success": True,
         "actions": [
-            { "name": "refresh_timeline", "special": "notifications" }
+            { "name": "refresh_timeline" }
         ]
     }
 
-def notifications_list(request) -> APIResponse:
+def notifications_list(request, offset: int | None=None, forwards: bool=False) -> APIResponse:
     if rl := check_ratelimit(request, "GET /api/user/notifications"):
         return rl
 
     try:
-        self_user = User.objects.get(token=request.COOKIES.get("token"))
+        user = User.objects.get(token=request.COOKIES.get("token"))
     except User.DoesNotExist:
         return 400, {
             "success": False
         }
 
-    notifs_list = []
-
-    all_notifs = self_user.notifications.all().order_by("-notif_id")
-
-    for notification in all_notifs:
+    def notif_visible(notification: Notification) -> bool:
         try:
-            x = get_post_json(notification.event_id, self_user, notification.event_type in ["comment", "ping_c"])
+            if notification.event_type in ["comment", "ping_c"]:
+                post = Comment.objects.get(comment_id=notification.event_id)
+            else:
+                post = Post.objects.get(post_id=notification.event_id)
 
-            if "content" in x:
-                notifs_list.append({
-                    "event_type": notification.event_type,
-                    "read": notification.read,
-                    "data": x
-                })
+            return post.can_view(user)[0]
 
         except Post.DoesNotExist:
             notification.delete()
         except Comment.DoesNotExist:
             notification.delete()
 
+        return False
+
+    def notif_to_json(notification: Notification) -> dict:
+        if notification.event_type in ["comment", "ping_c"]:
+            post = Comment.objects.get(comment_id=notification.event_id)
+        else:
+            post = Post.objects.get(post_id=notification.event_id)
+
+        return {
+            "event_type": notification.event_type,
+            "read": notification.read,
+            "data": post.json(user),
+            "id": notification.notif_id
+        }
+
+    tl = get_timeline(
+        user.notifications.order_by("-notif_id"),
+        offset,
+        user,
+        forwards=forwards,
+        condition=notif_visible,
+        to_json=notif_to_json
+    )
+
     return {
         "success": True,
         "actions": [
-            { "name": "notification_list", "notifications": notifs_list }
+            { "name": "populate_forwards_cache", "posts": tl[0] if tl[1] else [], "its_a_lost_cause_just_refresh_at_this_point": not tl[1] }
+            if forwards else
+            { "name": "notification_list", "notifications": tl[0], "end": tl[1], "forwards": False }
         ]
     }
 
-def list_pending(request, offset: int=-1) -> APIResponse:
+def list_pending(request, offset: int | None=None) -> APIResponse:
     if rl := check_ratelimit(request, "GET /api/user/pending"):
         return rl
 
@@ -582,26 +603,17 @@ def list_pending(request, offset: int=-1) -> APIResponse:
             ]
         }
 
-    pending_json = []
-
-    for other_user in user.pending_followers.all()[POSTS_PER_REQUEST * offset::]:
-        pending_json.append({
-            "username": other_user.username,
-            "display_name": other_user.display_name,
-            "badges": get_badges(other_user),
-            "color_one": other_user.color,
-            "color_two": other_user.color_two,
-            "gradient_banner": other_user.gradient,
-            "bio": other_user.bio
-        })
-
-        if len(pending_json) >= POSTS_PER_REQUEST:
-            break
+    tl = get_timeline(
+        user.pending_followers.all(),
+        offset,
+        user,
+        use_pages=True
+    )
 
     return {
         "success": True,
         "actions": [
-            { "name": "user_timeline", "users": pending_json, "more": user.pending_followers.count() > POSTS_PER_REQUEST * (offset + 1), "special": "pending" }
+            { "name": "user_timeline", "users": tl[0], "more": not tl[1], "special": "pending" }
         ]
     }
 
@@ -743,22 +755,16 @@ def muted(request, data: MutedWords) -> APIResponse:
     }
 
 def _lists_get_values(query: Manager[User], page: int, special: Literal["following", "followers", "blocking"]) -> _actions_user_tl:
-    out = []
-    for user in query[page * POSTS_PER_REQUEST : (page + 1) * POSTS_PER_REQUEST :]:
-        out.append({
-            "username": user.username,
-            "display_name": user.display_name,
-            "badges": get_badges(user),
-            "color_one": user.color,
-            "color_two": user.color_two if ENABLE_GRADIENT_BANNERS else user.color,
-            "gradient_banner": user.gradient,
-            "bio": user.bio
-        })
+    tl = get_timeline(
+        query,
+        page,
+        use_pages=True
+    )
 
     return {
         "name": "user_timeline",
-        "users": out,
-        "more": query.count() > ((page + 1) * POSTS_PER_REQUEST),
+        "users": tl[0],
+        "more": not tl[1],
         "special": special
     }
 

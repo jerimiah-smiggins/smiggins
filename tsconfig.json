@@ -11,6 +11,6 @@
     "./smiggins/ts/*.ts",
     "./smiggins/ts/static/*.ts",
     "./smiggins/ts/static/linkify/*.ts",
-    "./smiggins/ts/static/scripts/*.ts"
+    "./smiggins/ts/static/page/*.ts"
   ]
 }

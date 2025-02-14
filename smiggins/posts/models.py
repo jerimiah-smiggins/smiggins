@@ -1,10 +1,114 @@
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, Any, Literal
 
+from backend.lang import get_lang
+from backend.variables import (ENABLE_BADGES, ENABLE_EDITING_POSTS,
+                               ENABLE_GRADIENT_BANNERS, ENABLE_PINNED_POSTS,
+                               ENABLE_PRONOUNS, OWNER_USER_ID)
 from django.contrib import admin as django_admin
 from django.contrib.admin.exceptions import AlreadyRegistered  # type: ignore
 from django.db import models
 
 # The "#!# <something>" comment shows something that might happen in the future but has yet to be implemented
+
+def _can_view(post: "Post | Comment", user: "User | None") -> tuple[Literal[True]] | tuple[Literal[False], Literal["blocked", "private", "blocking"]]:
+    if user is None:
+        if post.private:
+            return False, "private"
+        return True,
+
+    creator = post.creator
+
+    if creator.user_id == user.user_id:
+        return True,
+
+    if creator.blocking.contains(user):
+        return False, "blocked"
+
+    if post.private and not creator.followers.contains(user):
+        return False, "private"
+
+    if user.blocking.contains(creator):
+        return False, "blocking"
+
+    return True,
+
+def _post_json(
+    post: "Post | Comment",
+    user: "User | None",
+    hide_blocking: bool=True,
+    *,
+    _quote_recursion: int=1
+) -> dict[str, Any]:
+    post_id = post.post_id if isinstance(post, Post) else post.comment_id
+    creator = post.creator
+    user_id = user.user_id if user else 0
+
+    can_view = post.can_view(user)
+
+    if can_view[0] is False and (can_view[1] == "private" or can_view[1] == "blocked" or (hide_blocking and can_view[1] == "blocking")):
+        return {
+            "visible": False,
+            "reason": can_view[1],
+            "post_id": post_id,
+            "comment": False
+        }
+
+    quote = None
+    if isinstance(post, Post) and post.quote and _quote_recursion <= 0:
+        quote = True
+    elif isinstance(post, Post) and post.quote:
+        try:
+            if post.quote_is_comment:
+                quote = Comment.objects.get(comment_id=post.quote).json(user, True, _quote_recursion=_quote_recursion - 1)
+            else:
+                quote = Post.objects.get(post_id=post.quote).json(user, True, _quote_recursion=_quote_recursion - 1)
+        except Comment.DoesNotExist:
+            quote = { "visible": False, "reason": "deleted", "post_id": post.quote, "comment": True }
+        except Post.DoesNotExist:
+            quote = { "visible": False, "reason": "deleted", "post_id": post.quote, "comment": False }
+
+    return {
+        "visible": True,
+        "post_id": post_id,
+
+        "comment": isinstance(post, Comment),
+        "parent": None if isinstance(post, Post) else {
+            "id": post.parent,
+            "comment": post.parent_is_comment
+        },
+
+        "private": post.private,
+        "content_warning": post.content_warning,
+        "content": post.content,
+        "timestamp": post.timestamp,
+        "poll": post.get_poll(user),
+        "edited": (post.edited_at or 0) if post.edited else None,
+
+        "quote": quote,
+
+        "interactions": {
+            "likes": post.likes.count(),
+            "liked": post.likes.contains(user) if user else False,
+            "comments": len(post.comments),
+            "quotes": len(post.quotes)
+        },
+
+        "can": {
+            "delete": user is not None and (user_id == creator.user_id or user_id == OWNER_USER_ID or user.admin_level % 2 == 1),
+            "pin": ENABLE_PINNED_POSTS and not isinstance(post, Comment) and user is not None,
+            "edit": ENABLE_EDITING_POSTS and user is not None and creator.user_id == user.user_id
+        },
+
+        "creator": {
+            "display_name": creator.display_name,
+            "username": creator.username,
+            "badges": creator.get_badges(),
+            "pronouns": creator.get_pronouns(),
+            "color_one": creator.color,
+            "color_two": creator.color_two if creator.gradient else creator.color,
+            "gradient": creator.gradient
+        }
+    }
 
 class User(models.Model):
     user_id = models.IntegerField(primary_key=True, unique=True)
@@ -67,6 +171,49 @@ class User(models.Model):
         badges: models.Manager["Badge"]
         pronouns: models.Manager["UserPronouns"]
 
+    def get_badges(self: "User") -> list[str]:
+        return list(self.badges.all().values_list("name", flat=True)) + (["administrator"] if self.admin_level != 0 or self.user_id == OWNER_USER_ID else []) if ENABLE_BADGES else []
+
+    def get_pronouns(self: "User", lang: dict | None=None) -> str | None:
+        if not ENABLE_PRONOUNS:
+            return None
+
+        _p = self.pronouns.filter(language=self.language)
+
+        if lang is None:
+            creator_lang = get_lang(self)
+        else:
+            creator_lang = lang
+
+        if creator_lang["generic"]["pronouns"]["enable_pronouns"]:
+            if _p.exists():
+                try:
+                    if _p[0].secondary and creator_lang["generic"]["pronouns"]["enable_secondary"]:
+                        return creator_lang["generic"]["pronouns"]["visible"][f"{_p[0].primary}_{_p[0].secondary}"]
+                    else:
+                        return creator_lang["generic"]["pronouns"]["visible"][f"{_p[0].primary}"]
+
+                except KeyError:
+                    ...
+
+            try:
+                return creator_lang["generic"]["pronouns"]["visible"][creator_lang["generic"]["pronouns"]["default"]]
+            except KeyError:
+                ...
+
+        return None
+
+    def json(self: "User") -> dict:
+        return {
+            "username": self.username,
+            "display_name": self.display_name,
+            "badges": self.get_badges(),
+            "color_one": self.color,
+            "color_two": self.color_two if ENABLE_GRADIENT_BANNERS else self.color,
+            "gradient_banner": self.gradient,
+            "bio": self.bio
+        }
+
     def __str__(self):
         return f"({self.user_id}) {self.username}"
 
@@ -105,10 +252,34 @@ class Post(models.Model):
     #     ...
     #   ]
     # }
-    poll = models.JSONField(default=None, null=True, blank=True)
+    # poll = models.JSONField(default=None, null=True, blank=True)
 
     if TYPE_CHECKING:
         hashtags: models.Manager["Hashtag"]
+        poll: "Poll"
+
+    def get_poll(self: "Post", user: User | None) -> dict | None:
+        if hasattr(self, "poll"):
+            p: Poll = self.poll
+        else:
+            return None
+
+        return {
+            "votes": p.votes.count(),
+            "voted": user is not None and p.votes.filter(user=user).count() > 0,
+            "content": [{
+                "id": c.id,
+                "value": c.content,
+                "votes": c.votes.count(),
+                "voted": user is not None and c.votes.filter(user=user).count() > 0
+            } for c in p.choices.all()]
+        }
+
+    def can_view(self: "Post", user: User | None):
+        return _can_view(self, user)
+
+    def json(self: "Post", user: User | None=None, hide_blocking: bool=False, *, _quote_recursion: int=1) -> dict[str, Any]:
+        return _post_json(self, user, hide_blocking, _quote_recursion=_quote_recursion)
 
     def __str__(self):
         return f"({self.post_id}) {self.content}"
@@ -131,6 +302,15 @@ class Comment(models.Model):
     likes = models.ManyToManyField(User, through="M2MLikeC", related_name="liked_comments", blank=True)
     comments = models.JSONField(default=list, blank=True) #!# reverse foreignkey
     quotes = models.JSONField(default=list, blank=True) #!# reverse foreignkey
+
+    def get_poll(self: "Comment", user: User | None) -> None:
+        return None
+
+    def can_view(self: "Comment", user: User | None) -> tuple[Literal[True]] | tuple[Literal[False], Literal["blocked", "private", "blocking"]]:
+        return _can_view(self, user)
+
+    def json(self: "Comment", user: User | None=None, hide_blocking: bool=False, *, _quote_recursion: int=1) -> dict[str, Any]:
+        return _post_json(self, user, hide_blocking, _quote_recursion=_quote_recursion)
 
     def __str__(self):
         return f"({self.comment_id}) {self.content}"
@@ -180,7 +360,7 @@ class PrivateMessageContainer(models.Model):
     unread_two = models.BooleanField(default=False)
 
     if TYPE_CHECKING:
-        messages: models.QuerySet["PrivateMessage"]
+        messages: models.Manager["PrivateMessage"]
 
     def __str__(self):
         return f"Message group between {self.user_one.username} and {self.user_two.username}"
@@ -263,6 +443,38 @@ class Ratelimit(models.Model):
     route_id = models.CharField(max_length=100)
     user_id = models.CharField(max_length=64) # user token or ip address
 
+class Poll(models.Model):
+    target = models.OneToOneField(Post, on_delete=models.CASCADE, related_name="poll")
+
+    if TYPE_CHECKING:
+        choices: models.Manager["PollChoice"]
+        votes: models.Manager["PollVote"]
+
+    def __str__(self):
+        return f"post {self.target.post_id} - {self.votes.count()} vote(s) on {self.choices.count()} choices"
+
+class PollChoice(models.Model):
+    poll = models.ForeignKey(Poll, on_delete=models.CASCADE, related_name="choices")
+    content = models.TextField()
+
+    if TYPE_CHECKING:
+        votes: models.Manager["PollVote"]
+        id: int
+
+    def __str__(self):
+        return f"post {self.poll.target.post_id} - {self.votes.count()} vote(s) on '{self.content}'"
+
+class PollVote(models.Model):
+    poll = models.ForeignKey(Poll, on_delete=models.CASCADE, related_name="votes")
+    choice = models.ForeignKey(PollChoice, on_delete=models.CASCADE, related_name="votes")
+    user = models.ForeignKey(User, on_delete=models.CASCADE)
+
+    class Meta:
+        unique_together = ("poll", "user")
+
+    def __str__(self):
+        return f"post {self.poll.target.post_id} - {self.user.username} voted '{self.choice.content}'"
+
 class M2MLike(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE)
     post = models.ForeignKey(Post, on_delete=models.CASCADE)
@@ -338,27 +550,32 @@ class GenericData(models.Model):
     value = models.TextField(blank=True)
 
 try:
-    django_admin.site.register(User)
-    django_admin.site.register(Post)
-    django_admin.site.register(Comment)
-    django_admin.site.register(Badge)
-    django_admin.site.register(Notification)
-    django_admin.site.register(PrivateMessageContainer)
-    django_admin.site.register(PrivateMessage)
-    django_admin.site.register(Hashtag)
-    django_admin.site.register(URLPart)
-    django_admin.site.register(AdminLog)
-    django_admin.site.register(OneTimePassword)
-    django_admin.site.register(UserPronouns)
-    django_admin.site.register(MutedWord)
-    django_admin.site.register(M2MLike)
-    django_admin.site.register(M2MLikeC)
-    django_admin.site.register(M2MFollow)
-    django_admin.site.register(M2MBlock)
-    django_admin.site.register(M2MPending)
-    django_admin.site.register(M2MHashtagPost)
-    django_admin.site.register(M2MBadgeUser)
-    django_admin.site.register(GenericData)
+    django_admin.site.register([
+        User,
+        Post,
+        Comment,
+        Badge,
+        Notification,
+        PrivateMessageContainer,
+        PrivateMessage,
+        Hashtag,
+        URLPart,
+        AdminLog,
+        OneTimePassword,
+        UserPronouns,
+        MutedWord,
+        Poll,
+        PollChoice,
+        PollVote,
+        M2MLike,
+        M2MLikeC,
+        M2MFollow,
+        M2MBlock,
+        M2MPending,
+        M2MHashtagPost,
+        M2MBadgeUser,
+        GenericData
+    ])
 
 except AlreadyRegistered:
     ...

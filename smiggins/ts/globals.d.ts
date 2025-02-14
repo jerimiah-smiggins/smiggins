@@ -41,51 +41,70 @@ declare function linkifyHtml(text: string, settings: object): string;
 type _anyDict = { [key: string]: any };
 
 type _postJSON = {
-  creator: {
-    badges: string[],
-    color_one: string,
-    color_two: string,
-    display_name: string,
-    gradient_banner: boolean
-    pronouns: string,
-    username: string,
-  },
+  visible: false,
+  reason: "private" | "blocked" | "blocking" | "deleted",
+  post_id: number,
+  comment: boolean
+} | {
+  visible: true,
+  post_id: number,
+
+  comment: boolean,
+  parent: {
+    id: number | null,
+    comment: boolean
+  } | null,
 
   private: boolean,
-  can_delete: boolean,
-  can_pin?: boolean,
-  can_edit: boolean,
-  can_view: boolean,
-  comments: number,
+  content_warning: string | null,
   content: string,
-  liked: boolean,
-  likes: number,
-  owner: boolean,
-  parent_is_comment: boolean,
-  parent: number,
-  post_id: number,
-  quote?: _postJSON,
-  quotes: number,
-  c_warning: string | null,
   timestamp: number,
-  logged_in: boolean,
-  edited: boolean,
-  edited_at?: number,
+  poll: _pollJSON | null,
+  edited: number | null,
 
-  poll?: _pollJSON,
+  quote: _postJSON | true | null,
 
-  // Quote-specific
-  blocked?: boolean,
-  deleted?: boolean,
-  comment?: boolean,
-  has_quote?: boolean,
-  blocked_by_self?: boolean
+  interactions: {
+    likes: number,
+    liked: boolean,
+    comments: number,
+    quotes: number
+  },
+
+  can: {
+    delete: boolean,
+    pin: boolean,
+    edit: boolean
+  },
+
+  creator: {
+    display_name: string,
+    username: string,
+    badges: string[],
+    pronouns: string,
+    color_one: string,
+    color_two: string,
+    gradient: boolean
+  }
+}
+
+type _userJSON = {
+  username: string,
+  display_name: string,
+  badges: string[],
+  color_one: string,
+  color_two: string,
+  gradient_banner: boolean,
+  bio: string,
+  timestamp?: number,
+  unread?: boolean
 };
 
 type _pollJSON = {
   votes: number,
   voted: boolean,
   content: {
+    id: number,
     value: string,
     votes: number,
     voted: boolean
@@ -153,7 +172,12 @@ type _actions = {
       followers: number,
       following: number
     },
-    posts: _postJSON[]
+    posts: _postJSON[],
+    forwards?: boolean
+  } | {
+    name: "populate_forwards_cache",
+    posts: _anyDict[],
+    its_a_lost_cause_just_refresh_at_this_point: boolean
   } | {
     name: "prepend_timeline",
     post: _postJSON,
@@ -172,20 +196,10 @@ type _actions = {
   } | {
     name: "refresh_timeline",
     url_includes?: string[],
-    special?: "notifications" | "pending" | "message" | null
+    special?: "pending" | "message" | null
   } | {
     name: "user_timeline",
-    users: {
-      username: string,
-      display_name: string,
-      badges: string[],
-      color_one: string,
-      color_two: string,
-      gradient_banner: boolean,
-      bio: string,
-      timestamp?: number,
-      unread?: boolean
-    }[],
+    users: _userJSON[],
     more: boolean
     special?: "pending" | "messages" | "following" | "followers" | "blocking" | null
   } | {
@@ -193,8 +207,11 @@ type _actions = {
     notifications: {
       data: _postJSON,
       read: boolean,
-      event_type: string
+      event_type: string,
+      id: number
     }[],
+    end: boolean,
+    forwards: boolean
   } | {
     name: "admin_info",
     username: string,
