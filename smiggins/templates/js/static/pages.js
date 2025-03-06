@@ -213,7 +213,7 @@ const pages = {
                 color_two: "#" + Math.floor(Math.random() * 16777216).toString(16).padStart(6, "0"),
                 gradient: true
             }
-        }, false, false, false, true)}</div>
+        }, false, false, true)}</div>
       </div>
 
       <div class="settings-side">
@@ -601,7 +601,7 @@ const pages = {
   `, loggedIn ? pendingInit : null],
     post: [() => `
     ${context.post.parent && context.post.parent.id > 0 ? `<div id="parent"><a data-link id="parent-link" href="/${context.post.parent.comment ? "c" : "p"}/${context.post.parent.id}/">${lang.post_page.comment_parent}</a></div>` : ""}
-    <div id="top">${getPostHTML(context.post, context.comment, true, false, false, true)}</div>
+    <div id="top">${getPostHTML(context.post, true, false, false, true)}</div>
 
     ${loggedIn ? `
       <label for="default-private">${lang.post.type_followers_only}:</label>
