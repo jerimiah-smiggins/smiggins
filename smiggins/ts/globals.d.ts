@@ -24,7 +24,12 @@ declare const conf: {
   new_accounts: boolean | "otp",
   hashtags: boolean,
   site_name: string,
-  version: string
+  version: string,
+  polling: {
+    notif: null | number,
+    message: null | number,
+    timeline: null | number
+  }
 };
 
 declare const username: string | null;

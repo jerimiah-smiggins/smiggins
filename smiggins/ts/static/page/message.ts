@@ -72,12 +72,12 @@ function messageInit(): void {
     }
   }
 
-  killIntervals.push(setInterval(
+  conf.polling.message && killIntervals.push(setInterval(
     (): void => {
       if (!document.visibilityState || document.visibilityState == "visible") {
         refreshMessages(false, false);
       }
-    }, 10 * 1000
+    }, conf.polling.message
   ));
 
   refreshMessages(true);

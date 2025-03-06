@@ -242,7 +242,7 @@ function loadNew(): void {
 
 function timelineInit(): void {
   end = false;
-  killIntervals.push(setInterval(checkForwards, 60000));
+  conf.polling.timeline && killIntervals.push(setInterval(checkForwards, conf.polling.timeline));
 
   for (const el of document.querySelectorAll("#switch > a")) {
     el.addEventListener("click", switchTimeline);
