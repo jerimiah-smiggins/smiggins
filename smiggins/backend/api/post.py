@@ -5,7 +5,7 @@ import time
 from typing import Any
 
 import requests
-from django.db.models import Count
+from django.db.models import Count, Q
 from django.db.utils import IntegrityError
 from posts.models import (Comment, Hashtag, M2MLike, Notification, Poll,
                           PollChoice, PollVote, Post, User)
@@ -367,10 +367,10 @@ def post_list_following(request, offset: int | None=None, forwards: bool=False) 
         }
 
     def post_cv(post: Post | Any) -> bool:
-        return isinstance(post, Post) and (post.creator.user_id == user.user_id or post.creator.following.contains(user)) and post.can_view(user)[0]
+        return isinstance(post, Post) and post.can_view(user)[0]
 
     tl = get_timeline(
-        Post.objects.order_by("-pk"),
+        Post.objects.filter(Q(creator__in=user.following.all()) | Q(creator=user)).order_by("-pk"),
         offset if offset != -1 else None,
         user,
         condition=post_cv,

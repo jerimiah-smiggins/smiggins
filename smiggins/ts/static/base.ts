@@ -162,7 +162,6 @@ function apiResponse(
       for (const post of action.forwards ? action.posts.reverse() : action.posts) {
         output += getPostHTML(
           post,
-          type == "comment",
           includeUserLink,
           includePostLink,
           false, false, false
@@ -192,7 +191,6 @@ function apiResponse(
         if (action.extra.pinned && action.extra.pinned.visible && action.extra.pinned.content) {
           dom("pinned").innerHTML = getPostHTML(
             action.extra.pinned, // postJSON
-            false, // isComment
             false, // includeUserLink
             true,  // includePostLink,
             false, // fakeMentions
@@ -228,7 +226,6 @@ function apiResponse(
       let postSettings: { [key: string]: boolean } = JSON.parse(post.querySelector(".post").getAttribute("data-settings"));
       post.innerHTML = getPostHTML(
         action.post,
-        postSettings.isComment,
         postSettings.includeUserLink,
         postSettings.includePostLink,
         postSettings.fakeMentions,
@@ -372,10 +369,7 @@ function apiResponse(
           }
 
           y.innerHTML += `<div class='pre-wrap'>${escapeHTML(lang.notifications.event[notif.event_type].replaceAll("%s", notif.data.creator.display_name))}</div>`;
-          y.innerHTML += getPostHTML(
-            notif.data, // postJSON
-            ["comment", "ping_c"].includes(notif.event_type),
-          ).replace("\"post\"", hasBeenRead ? "\"post\" data-color='gray'" : "\"post\" data-notif-unread");
+          y.innerHTML += getPostHTML(notif.data).replace("\"post\"", hasBeenRead ? "\"post\" data-color='gray'" : "\"post\" data-notif-unread");
 
           x.append(y);
 
@@ -832,7 +826,6 @@ function getPollHTML(
 
 function getPostHTML(
   postJSON: _postJSON,
-  isComment: boolean=false,
   includeUserLink: boolean=true,
   includePostLink: boolean=true,
   fakeMentions: boolean=false,
@@ -851,9 +844,8 @@ function getPostHTML(
     return "";
   }
 
-  return `${includeContainer ? `<div class="post-container" data-${isComment ? "comment" : "post"}-id="${postJSON.post_id}">` : ""}
+  return `${includeContainer ? `<div class="post-container" data-${postJSON.comment ? "comment" : "post"}-id="${postJSON.post_id}">` : ""}
     <div class="post" data-settings="${escapeHTML(JSON.stringify({
-      isComment: isComment,
       includeUserLink: includeUserLink,
       includePostLink: includePostLink,
       fakeMentions: fakeMentions,
@@ -891,7 +883,7 @@ function getPostHTML(
           </div>
         </summary>` : ""}
         <div class="main-content">
-          <div class="pre-wrap">${getLinkify(postJSON.content, isComment, fakeMentions, postJSON.post_id, includePostLink)}</div>
+          <div class="pre-wrap">${getLinkify(postJSON.content, postJSON.comment, fakeMentions, postJSON.post_id, includePostLink)}</div>
         </div>
 
       ${
@@ -969,12 +961,12 @@ function getPostHTML(
       </div>
 
       <div class="bottom-content">
-        ${includePostLink ? `<a data-link href="/${isComment ? "c" : "p"}/${postJSON.post_id}/" class="text no-underline">` : ""}
+        ${includePostLink ? `<a data-link href="/${postJSON.comment ? "c" : "p"}/${postJSON.post_id}/" class="text no-underline">` : ""}
           <span class="bottom-content-icon comment-icon">${icons.comment}</span> ${postJSON.interactions.comments}
         ${includePostLink ? "</a>" : ""}
         <span class="bottom-spacing"></span>
         ${
-          conf.quotes ? `<button class="bottom-content-icon" ${fakeMentions ? "" : `onclick="addQuote('${postJSON.post_id}', ${isComment})"`}>
+          conf.quotes ? `<button class="bottom-content-icon" ${fakeMentions ? "" : `onclick="addQuote('${postJSON.post_id}', ${postJSON.comment})"`}>
             ${icons.quote}
             <span class="quote-number">${postJSON.interactions.quotes}</span>
           </button>
@@ -985,7 +977,7 @@ function getPostHTML(
           ${icons.like}
         </span>
 
-        <button class="bottom-content-icon like" data-liked="${postJSON.interactions.liked}" ${fakeMentions ? "" : `onclick="toggleLike(${postJSON.post_id}, ${isComment ? "'comment'" : "'post'"})"`}>
+        <button class="bottom-content-icon like" data-liked="${postJSON.interactions.liked}" ${fakeMentions ? "" : `onclick="toggleLike(${postJSON.post_id}, ${postJSON.comment ? "'comment'" : "'post'"})"`}>
           <span class="hidden-if-unlike">${icons.like}</span>
           <span class="hidden-if-like">${icons.unlike}</span>
           <span class="like-number">${postJSON.interactions.likes}</span>
@@ -1002,12 +994,12 @@ function getPostHTML(
               ${isPinned && postJSON.can.pin ? lang.post.unpin : lang.post.pin}
             </button>` : ""
           } ${
-            postJSON.can.delete && conf.post_deletion ? `<button class="bottom-content-icon red" onclick="deletePost(${postJSON.post_id}, ${isComment}, ${pageFocus})">
+            postJSON.can.delete && conf.post_deletion ? `<button class="bottom-content-icon red" onclick="deletePost(${postJSON.post_id}, ${postJSON.comment}, ${pageFocus})">
               ${icons.delete}
               ${lang.post.delete}
             </button>` : ""
           } ${
-            postJSON.can.edit ? `<button class="bottom-content-icon" onclick="editPost(${postJSON.post_id}, ${isComment}, ${postJSON.private}, \`${escapeHTML(postJSON.content)}\`)">
+            postJSON.can.edit ? `<button class="bottom-content-icon" onclick="editPost(${postJSON.post_id}, ${postJSON.comment}, ${postJSON.private}, \`${escapeHTML(postJSON.content)}\`)">
               ${icons.edit}
               ${lang.post.edit}
             </button>` : ""
