@@ -62,6 +62,8 @@ function keybindHelpMenu(): void {
 function keyDown(event: KeyboardEvent): void {
   heldKeys[event.key] = true;
 
+  if (!javascriptLoaded || !initContextLoaded) { return; }
+
   let action: _keybind | undefined = keybinds[event.key];
   if (action) {
     if (!(

@@ -824,8 +824,7 @@ addEventListener("popstate", (e: PopStateEvent): void => {
   }
 });
 
-if (typeof initContextLoaded == "undefined") {
-  javascriptLoaded = true;
-} else {
+javascriptLoaded = true;
+if (typeof initContextLoaded != "undefined") {
   init();
 }

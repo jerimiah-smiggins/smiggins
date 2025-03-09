@@ -741,9 +741,7 @@ addEventListener("popstate", (e) => {
         renderPage();
     }
 });
-if (typeof initContextLoaded == "undefined") {
-    javascriptLoaded = true;
-}
-else {
+javascriptLoaded = true;
+if (typeof initContextLoaded != "undefined") {
     init();
 }

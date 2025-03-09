@@ -60,6 +60,9 @@ function keybindHelpMenu() {
 }
 function keyDown(event) {
     heldKeys[event.key] = true;
+    if (!javascriptLoaded || !initContextLoaded) {
+        return;
+    }
     let action = keybinds[event.key];
     if (action) {
         if (!((!action.allowInputs && (["textarea", "input"].includes(event.target.tagName.toLowerCase()) || event.target.isContentEditable))
