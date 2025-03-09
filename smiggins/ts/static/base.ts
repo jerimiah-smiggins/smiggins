@@ -162,7 +162,7 @@ function apiResponse(
       for (const post of action.forwards ? action.posts.reverse() : action.posts) {
         output += getPostHTML(
           post,
-          includeUserLink,
+          !includeUserLink && (typeof context.username == "string" ? context.username : false),
           includePostLink,
           false, false, false
         );
@@ -191,7 +191,7 @@ function apiResponse(
         if (action.extra.pinned && action.extra.pinned.visible && action.extra.pinned.content) {
           dom("pinned").innerHTML = getPostHTML(
             action.extra.pinned, // postJSON
-            false, // includeUserLink
+            context.username, // includeUserLink
             true,  // includePostLink,
             false, // fakeMentions
             false, // pageFocus
@@ -217,7 +217,7 @@ function apiResponse(
       }
     } else if (action.name == "prepend_timeline") {
       if (dom("posts")) {
-        dom("posts").insertAdjacentHTML("afterbegin", "<div data-timeline-prepended>" + getPostHTML(action.post, action.comment) + "</div>");
+        dom("posts").insertAdjacentHTML("afterbegin", "<div data-timeline-prepended>" + getPostHTML(action.post) + "</div>");
         timelineConfig.vars.forwardOffset++;
         registerLinks(dom("posts"));
       }
@@ -776,11 +776,9 @@ function getPollHTML(
   }
 
   let output: string = "";
-  let c: number = 0;
 
   if (showResults || !loggedIn) {
     for (const option of pollJSON.content) {
-      c++;
       output += `<div class="poll-bar-container">
         <div class="poll-bar ${option.voted ? "voted" : ""}">
           <div style="width: ${option.votes / pollJSON.votes * 100 || 0}%"></div>
@@ -790,7 +788,6 @@ function getPollHTML(
     }
   } else {
     for (const option of pollJSON.content) {
-      c++;
       output += `<div data-index="${option.id}"
                  data-total-votes="${pollJSON.votes}"
                  data-votes="${option.votes}"
@@ -826,7 +823,7 @@ function getPollHTML(
 
 function getPostHTML(
   postJSON: _postJSON,
-  includeUserLink: boolean=true,
+  hideUserLinkFor: string | boolean=false, // doesn't include user link if creator username is in here
   includePostLink: boolean=true,
   fakeMentions: boolean=false,
   pageFocus: boolean=false,
@@ -843,6 +840,8 @@ function getPostHTML(
   if (muted === true) {
     return "";
   }
+
+  let includeUserLink: boolean = !(typeof hideUserLinkFor == "boolean" ? hideUserLinkFor : hideUserLinkFor == postJSON.creator.username);
 
   return `${includeContainer ? `<div class="post-container" data-${postJSON.comment ? "comment" : "post"}-id="${postJSON.post_id}">` : ""}
     <div class="post" data-settings="${escapeHTML(JSON.stringify({

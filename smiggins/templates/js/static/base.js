@@ -124,7 +124,7 @@ function apiResponse(json, extraData) {
             timelineConfig.vars.page++;
             let output = "";
             for (const post of action.forwards ? action.posts.reverse() : action.posts) {
-                output += getPostHTML(post, includeUserLink, includePostLink, false, false, false);
+                output += getPostHTML(post, !includeUserLink && (typeof context.username == "string" ? context.username : false), includePostLink, false, false, false);
                 if (!action.forwards) {
                     timelineConfig.vars.offset = post.post_id;
                 }
@@ -144,7 +144,7 @@ function apiResponse(json, extraData) {
                     registerLinks(dom("user-bio"));
                 }
                 if (action.extra.pinned && action.extra.pinned.visible && action.extra.pinned.content) {
-                    dom("pinned").innerHTML = getPostHTML(action.extra.pinned, false, true, false, false, true) + "<hr>";
+                    dom("pinned").innerHTML = getPostHTML(action.extra.pinned, context.username, true, false, false, true) + "<hr>";
                     registerLinks(dom("pinned"));
                 }
                 else {
@@ -165,7 +165,7 @@ function apiResponse(json, extraData) {
         }
         else if (action.name == "prepend_timeline") {
             if (dom("posts")) {
-                dom("posts").insertAdjacentHTML("afterbegin", "<div data-timeline-prepended>" + getPostHTML(action.post, action.comment) + "</div>");
+                dom("posts").insertAdjacentHTML("afterbegin", "<div data-timeline-prepended>" + getPostHTML(action.post) + "</div>");
                 timelineConfig.vars.forwardOffset++;
                 registerLinks(dom("posts"));
             }
@@ -669,10 +669,8 @@ function getPollHTML(pollJSON, postID, gInc, showResults) {
         showResults = loggedIn && pollJSON.voted;
     }
     let output = "";
-    let c = 0;
     if (showResults || !loggedIn) {
         for (const option of pollJSON.content) {
-            c++;
             output += `<div class="poll-bar-container">
         <div class="poll-bar ${option.voted ? "voted" : ""}">
           <div style="width: ${option.votes / pollJSON.votes * 100 || 0}%"></div>
@@ -683,7 +681,6 @@ function getPollHTML(pollJSON, postID, gInc, showResults) {
     }
     else {
         for (const option of pollJSON.content) {
-            c++;
             output += `<div data-index="${option.id}"
                  data-total-votes="${pollJSON.votes}"
                  data-votes="${option.votes}"
@@ -715,7 +712,7 @@ function getPollHTML(pollJSON, postID, gInc, showResults) {
       tabindex="0">${lang.home.poll_hide_results}</span>` : ""}
   </small>`;
 }
-function getPostHTML(postJSON, includeUserLink = true, includePostLink = true, fakeMentions = false, pageFocus = false, isPinned = false, includeContainer = true) {
+function getPostHTML(postJSON, hideUserLinkFor = false, includePostLink = true, fakeMentions = false, pageFocus = false, isPinned = false, includeContainer = true) {
     if (!postJSON.visible) {
         return "⚠️";
     }
@@ -724,6 +721,7 @@ function getPostHTML(postJSON, includeUserLink = true, includePostLink = true, f
     if (muted === true) {
         return "";
     }
+    let includeUserLink = !(typeof hideUserLinkFor == "boolean" ? hideUserLinkFor : hideUserLinkFor == postJSON.creator.username);
     return `${includeContainer ? `<div class="post-container" data-${postJSON.comment ? "comment" : "post"}-id="${postJSON.post_id}">` : ""}
     <div class="post" data-settings="${escapeHTML(JSON.stringify({
         includeUserLink: includeUserLink,
