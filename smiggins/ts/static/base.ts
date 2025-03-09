@@ -306,16 +306,14 @@ function apiResponse(
             </div>
 
             <div class="main-content pre-wrap">${
-              action.special == "messages" ? `
-                <a data-link class="no-underline text" href="/m/${user.username}/">
-                  ${escapeHTML(user.bio) || `<i>${lang.messages.no_messages}</i>`}
-                </a>
-              ` : (user.bio ? linkifyHtml(escapeHTML(user.bio), {
-                formatHref: {
-                  mention: (href: string): string => "/u/" + href.slice(1),
-                  hashtag: (href: string): string => "/hashtag/" + href.slice(1)
-                }
-              }) : `<i>${lang.user_page.lists_no_bio}</i>`)
+              action.special == "messages" ?
+                `<a data-link class="no-underline text" href="/m/${user.username}/">${escapeHTML(user.bio) || `<i>${lang.messages.no_messages}</i>`}</a>` :
+                (user.bio ? linkifyHtml(escapeHTML(user.bio), {
+                  formatHref: {
+                    mention: (href: string): string => "/u/" + href.slice(1),
+                    hashtag: (href: string): string => "/hashtag/" + href.slice(1)
+                  }
+                }) : `<i>${lang.user_page.lists_no_bio}</i>`)
             }</div>
 
             ${
