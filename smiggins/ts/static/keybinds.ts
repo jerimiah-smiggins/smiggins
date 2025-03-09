@@ -6,15 +6,23 @@ const keybinds: { [key: string]: _keybind } = {
   h: { requireNav: true, action: (event: KeyboardEvent): void => { redirect("/"); }},
   m: { requireNav: true, action: (event: KeyboardEvent): void => { if (conf.private_messages) { redirect("/messages/"); }}},
   p: { requireNav: true, action: (event: KeyboardEvent): void => { redirect(`/u/${username}/`); }},
-  r: { noPreventDefault: true, allowLoggedOut: true, action: (event: KeyboardEvent): void => { if (!(event.ctrlKey) && dom("refresh")) { event.preventDefault(); dom("refresh").click(); }}},
   s: { requireNav: true, action: (event: KeyboardEvent): void => { redirect("/settings/"); }},
   "?": { allowLoggedOut: true, action: keybindHelpMenu },
 
   n: { action: (event: KeyboardEvent): void => {
     if (heldKeys[navKey]) {
       redirect("/notifications/");
-    // } else if (!(event.ctrlKey)) {
-    //   showPostModal();
+      // } else if (!(event.ctrlKey)) {
+      //   showPostModal();
+      // }
+    }
+  }},
+
+  r: { noPreventDefault: true, allowLoggedOut: true, action: (event: KeyboardEvent): void => {
+    let el: HTMLButtonElement = document.querySelector("#refresh-container > button:not([hidden])");
+    if (!(event.ctrlKey) && el) {
+      event.preventDefault();
+      el.click();
     }
   }},
 

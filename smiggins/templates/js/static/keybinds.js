@@ -9,15 +9,18 @@ const keybinds = {
             redirect("/messages/");
         } } },
     p: { requireNav: true, action: (event) => { redirect(`/u/${username}/`); } },
-    r: { noPreventDefault: true, allowLoggedOut: true, action: (event) => { if (!(event.ctrlKey) && dom("refresh")) {
-            event.preventDefault();
-            dom("refresh").click();
-        } } },
     s: { requireNav: true, action: (event) => { redirect("/settings/"); } },
     "?": { allowLoggedOut: true, action: keybindHelpMenu },
     n: { action: (event) => {
             if (heldKeys[navKey]) {
                 redirect("/notifications/");
+            }
+        } },
+    r: { noPreventDefault: true, allowLoggedOut: true, action: (event) => {
+            let el = document.querySelector("#refresh-container > button:not([hidden])");
+            if (!(event.ctrlKey) && el) {
+                event.preventDefault();
+                el.click();
             }
         } },
     "/": { allowLoggedOut: true, action: (event) => {
