@@ -305,7 +305,7 @@ function apiResponse(
               </a>
             </div>
 
-            <div class="main-content class="pre-wrap">${
+            <div class="main-content pre-wrap">${
               action.special == "messages" ? `
                 <a data-link class="no-underline text" href="/m/${user.username}/">
                   ${escapeHTML(user.bio) || `<i>${lang.messages.no_messages}</i>`}
@@ -881,9 +881,7 @@ function getPostHTML(
             }${postJSON.poll ? `, ${lang.home.poll}` : ""})
           </div>
         </summary>` : ""}
-        <div class="main-content">
-          <div class="pre-wrap">${getLinkify(postJSON.content, postJSON.comment, fakeMentions, postJSON.post_id, includePostLink)}</div>
-        </div>
+        <div class="main-content pre-wrap">${getLinkify(postJSON.content, postJSON.comment, fakeMentions, postJSON.post_id, includePostLink)}</div>
 
       ${
         postJSON.poll && typeof postJSON.poll == "object" ? (`<div
@@ -998,7 +996,7 @@ function getPostHTML(
               ${lang.post.delete}
             </button>` : ""
           } ${
-            postJSON.can.edit ? `<button class="bottom-content-icon" onclick="editPost(${postJSON.post_id}, ${postJSON.comment}, ${postJSON.private}, \`${escapeHTML(postJSON.content)}\`)">
+            postJSON.can.edit ? `<button class="bottom-content-icon" onclick="editPost(${postJSON.post_id}, ${postJSON.comment}, ${postJSON.private}, '${btoa(postJSON.content)}')">
               ${icons.edit}
               ${lang.post.edit}
             </button>` : ""

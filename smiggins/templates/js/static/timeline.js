@@ -119,7 +119,7 @@ function editPost(postID, isComment, private, originalText) {
     <label for="default-private-${globalIncrement}">${lang.post.type_followers_only}:</label>
     <input id="default-private-${globalIncrement}" type="checkbox" ${private ? "checked" : ""}><br>
     ${conf.content_warnings ? `<input class="c-warning" ${originalCW ? `value="${originalCW}"` : ""} maxlength="${conf.max_content_warning_length}" placeholder="${lang.home.c_warning_placeholder}"><br>` : ""}
-    <textarea class="post-text" maxlength="${conf.max_post_length}" placeholder="${lang.home.post_input_placeholder}">${escapeHTML(originalText)}</textarea><br>
+    <textarea class="post-text" maxlength="${conf.max_post_length}" placeholder="${lang.home.post_input_placeholder}">${escapeHTML(atob(originalText))}</textarea><br>
     <button class="post-button">${lang.generic.post}</button>
     <button class="cancel-button">${lang.generic.cancel}</button>`;
     contentField.querySelector("textarea").focus();

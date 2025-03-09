@@ -250,7 +250,7 @@ function apiResponse(json, extraData) {
               </a>
             </div>
 
-            <div class="main-content class="pre-wrap">${action.special == "messages" ? `
+            <div class="main-content pre-wrap">${action.special == "messages" ? `
                 <a data-link class="no-underline text" href="/m/${user.username}/">
                   ${escapeHTML(user.bio) || `<i>${lang.messages.no_messages}</i>`}
                 </a>
@@ -755,9 +755,7 @@ function getPostHTML(postJSON, hideUserLinkFor = false, includePostLink = true, 
             (${lang.post[postJSON.content.length == 1 ? "chars_singular" : "chars_plural"].replaceAll("%c", postJSON.content.length)}${postJSON.quote ? `, ${lang.post.quote}` : ""}${postJSON.poll ? `, ${lang.home.poll}` : ""})
           </div>
         </summary>` : ""}
-        <div class="main-content">
-          <div class="pre-wrap">${getLinkify(postJSON.content, postJSON.comment, fakeMentions, postJSON.post_id, includePostLink)}</div>
-        </div>
+        <div class="main-content pre-wrap">${getLinkify(postJSON.content, postJSON.comment, fakeMentions, postJSON.post_id, includePostLink)}</div>
 
       ${postJSON.poll && typeof postJSON.poll == "object" ? (`<div
             id="gi-${globalIncrement}"
@@ -846,7 +844,7 @@ function getPostHTML(postJSON, hideUserLinkFor = false, includePostLink = true, 
             </button>` : ""} ${postJSON.can.delete && conf.post_deletion ? `<button class="bottom-content-icon red" onclick="deletePost(${postJSON.post_id}, ${postJSON.comment}, ${pageFocus})">
               ${icons.delete}
               ${lang.post.delete}
-            </button>` : ""} ${postJSON.can.edit ? `<button class="bottom-content-icon" onclick="editPost(${postJSON.post_id}, ${postJSON.comment}, ${postJSON.private}, \`${escapeHTML(postJSON.content)}\`)">
+            </button>` : ""} ${postJSON.can.edit ? `<button class="bottom-content-icon" onclick="editPost(${postJSON.post_id}, ${postJSON.comment}, ${postJSON.private}, '${btoa(postJSON.content)}')">
               ${icons.edit}
               ${lang.post.edit}
             </button>` : ""}</div>` : ""}
