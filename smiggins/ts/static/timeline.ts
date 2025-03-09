@@ -132,21 +132,17 @@ function editPost(postID: number, isComment: boolean, private: boolean, original
   let post: HTMLDivElement = document.querySelector(`[data-${isComment ? "comment" : "post"}-id="${postID}"]`);
   let contentField: HTMLDivElement = post.querySelectorAll(".main-area")[1] as HTMLDivElement;
 
-  if (contentField.hasAttribute("data-editing")) {
-    return;
-  }
-
+  if (contentField.hasAttribute("data-editing")) { return; }
   contentField.setAttribute("data-editing", "");
 
   let oldContentField: string = contentField.innerHTML;
-
   let originalCW: string = contentField.querySelector("summary") ? (contentField.querySelector("summary > .c-warning-main") as HTMLElement).innerText : "";
 
   contentField.innerHTML = `
     <label for="default-private-${globalIncrement}">${lang.post.type_followers_only}:</label>
     <input id="default-private-${globalIncrement}" type="checkbox" ${private ? "checked" : ""}><br>
     ${conf.content_warnings ? `<input class="c-warning" ${originalCW ? `value="${originalCW}"` : ""} maxlength="${conf.max_content_warning_length}" placeholder="${lang.home.c_warning_placeholder}"><br>` : ""}
-    <textarea class="post-text" maxlength="${conf.max_post_length}" placeholder="${lang.home.post_input_placeholder}">${escapeHTML(originalText)}</textarea><br>
+    <textarea class="post-text" maxlength="${conf.max_post_length}" placeholder="${lang.home.post_input_placeholder}">${escapeHTML(atob(originalText))}</textarea><br>
     <button class="post-button">${lang.generic.post}</button>
     <button class="cancel-button">${lang.generic.cancel}</button>`;
 
@@ -211,6 +207,13 @@ function refresh(forceOffset=false): void {
       disable: [...document.querySelectorAll("button[onclick*='refresh(']")],
       extraData: {
         forceOffset: forceOffset
+      },
+      postFunction: (success: boolean): void => {
+        if (success && dom("up-to-date")) {
+          dom("up-to-date").removeAttribute("hidden");
+          dom("load-new").setAttribute("hidden", "");
+          dom("refresh").setAttribute("hidden", "");
+        }
       }
     }
   );
@@ -236,13 +239,14 @@ function loadNew(): void {
   }, {});
 
   timelineConfig.vars.forwardsCache = [];
+  dom("up-to-date").removeAttribute("hidden");
   dom("load-new").setAttribute("hidden", "");
-  dom("refresh").removeAttribute("hidden");
+  dom("refresh").setAttribute("hidden", "");
 }
 
 function timelineInit(): void {
   end = false;
-  killIntervals.push(setInterval(checkForwards, 60000));
+  conf.polling.timeline && killIntervals.push(setInterval(checkForwards, conf.polling.timeline));
 
   for (const el of document.querySelectorAll("#switch > a")) {
     el.addEventListener("click", switchTimeline);

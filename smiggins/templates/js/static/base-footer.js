@@ -113,6 +113,6 @@ function baseFooterInit() {
         document.body.prepend(iconsElement);
         registerLinks(iconsElement);
         getNotifications();
-        setInterval(getNotifications, 2 * 60 * 1000);
+        conf.polling.notif && setInterval(getNotifications, conf.polling.notif);
     }
 }

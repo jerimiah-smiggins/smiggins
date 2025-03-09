@@ -153,6 +153,12 @@ cache_languages: true
 allow_scraping: false
 allow_indexing: true
 
+# How long to wait between refetching certain things (ms)
+# null to disable polling
+notification_polling: 120000 # 2m
+timeline_polling: 60000 # 1m
+message_polling: 10000 # 10s
+
 # The maximum length of a username/display name. Must be between 1 and 200,
 # but the display name length must be more than username length.
 # Username default: 18

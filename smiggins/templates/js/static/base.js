@@ -91,6 +91,9 @@ function apiResponse(json, extraData) {
         if (action.name == "populate_forwards_cache") {
             if (action.its_a_lost_cause_just_refresh_at_this_point) {
                 lostCause = true;
+                dom("up-to-date").setAttribute("hidden", "");
+                dom("load-new").setAttribute("hidden", "");
+                dom("refresh").removeAttribute("hidden");
             }
             else {
                 if (action.posts.length) {
@@ -99,12 +102,14 @@ function apiResponse(json, extraData) {
                 timelineConfig.vars.forwardsCache.push(...action.posts);
                 if (timelineConfig.vars.forwardsCache.length > timelineConfig.vars.forwardOffset) {
                     dom("load-new-number").innerText = String(timelineConfig.vars.forwardsCache.length - timelineConfig.vars.forwardOffset);
+                    dom("up-to-date").setAttribute("hidden", "");
                     dom("load-new").removeAttribute("hidden");
                     dom("refresh").setAttribute("hidden", "");
                 }
                 else {
+                    dom("up-to-date").removeAttribute("hidden");
                     dom("load-new").setAttribute("hidden", "");
-                    dom("refresh").removeAttribute("hidden");
+                    dom("refresh").setAttribute("hidden", "");
                 }
             }
         }
@@ -124,7 +129,7 @@ function apiResponse(json, extraData) {
             timelineConfig.vars.page++;
             let output = "";
             for (const post of action.forwards ? action.posts.reverse() : action.posts) {
-                output += getPostHTML(post, type == "comment", includeUserLink, includePostLink, false, false, false);
+                output += getPostHTML(post, !includeUserLink && (typeof context.username == "string" ? context.username : false), includePostLink, false, false, false);
                 if (!action.forwards) {
                     timelineConfig.vars.offset = post.post_id;
                 }
@@ -144,7 +149,7 @@ function apiResponse(json, extraData) {
                     registerLinks(dom("user-bio"));
                 }
                 if (action.extra.pinned && action.extra.pinned.visible && action.extra.pinned.content) {
-                    dom("pinned").innerHTML = getPostHTML(action.extra.pinned, false, false, true, false, false, true) + "<hr>";
+                    dom("pinned").innerHTML = getPostHTML(action.extra.pinned, context.username, true, false, false, true) + "<hr>";
                     registerLinks(dom("pinned"));
                 }
                 else {
@@ -165,7 +170,7 @@ function apiResponse(json, extraData) {
         }
         else if (action.name == "prepend_timeline") {
             if (dom("posts")) {
-                dom("posts").insertAdjacentHTML("afterbegin", "<div data-timeline-prepended>" + getPostHTML(action.post, action.comment) + "</div>");
+                dom("posts").insertAdjacentHTML("afterbegin", "<div data-timeline-prepended>" + getPostHTML(action.post) + "</div>");
                 timelineConfig.vars.forwardOffset++;
                 registerLinks(dom("posts"));
             }
@@ -173,7 +178,7 @@ function apiResponse(json, extraData) {
         else if (action.name == "reset_post_html") {
             let post = document.querySelector(`[data-${action.comment ? "comment" : "post"}-id="${action.post_id}"]`);
             let postSettings = JSON.parse(post.querySelector(".post").getAttribute("data-settings"));
-            post.innerHTML = getPostHTML(action.post, postSettings.isComment, postSettings.includeUserLink, postSettings.includePostLink, postSettings.fakeMentions, postSettings.pageFocus, postSettings.isPinned, false);
+            post.innerHTML = getPostHTML(action.post, postSettings.includeUserLink, postSettings.includePostLink, postSettings.fakeMentions, postSettings.pageFocus, postSettings.isPinned, false);
             registerLinks(post);
         }
         else if (action.name == "remove_from_timeline") {
@@ -250,16 +255,14 @@ function apiResponse(json, extraData) {
               </a>
             </div>
 
-            <div class="main-content class="pre-wrap">${action.special == "messages" ? `
-                <a data-link class="no-underline text" href="/m/${user.username}/">
-                  ${escapeHTML(user.bio) || `<i>${lang.messages.no_messages}</i>`}
-                </a>
-              ` : (user.bio ? linkifyHtml(escapeHTML(user.bio), {
-                    formatHref: {
-                        mention: (href) => "/u/" + href.slice(1),
-                        hashtag: (href) => "/hashtag/" + href.slice(1)
-                    }
-                }) : `<i>${lang.user_page.lists_no_bio}</i>`)}</div>
+            <div class="main-content pre-wrap">${action.special == "messages" ?
+                    `<a data-link class="no-underline text" href="/m/${user.username}/">${escapeHTML(user.bio) || `<i>${lang.messages.no_messages}</i>`}</a>` :
+                    (user.bio ? linkifyHtml(escapeHTML(user.bio), {
+                        formatHref: {
+                            mention: (href) => "/u/" + href.slice(1),
+                            hashtag: (href) => "/hashtag/" + href.slice(1)
+                        }
+                    }) : `<i>${lang.user_page.lists_no_bio}</i>`)}</div>
 
             ${action.special == "pending" ? `<div class="bottom-content">
                 <button onclick="_followAction('${user.username}', 'POST');">${lang.user_page.pending_accept}</button>
@@ -305,7 +308,7 @@ function apiResponse(json, extraData) {
                         hasBeenRead = true;
                     }
                     y.innerHTML += `<div class='pre-wrap'>${escapeHTML(lang.notifications.event[notif.event_type].replaceAll("%s", notif.data.creator.display_name))}</div>`;
-                    y.innerHTML += getPostHTML(notif.data, ["comment", "ping_c"].includes(notif.event_type)).replace("\"post\"", hasBeenRead ? "\"post\" data-color='gray'" : "\"post\" data-notif-unread");
+                    y.innerHTML += getPostHTML(notif.data).replace("\"post\"", hasBeenRead ? "\"post\" data-color='gray'" : "\"post\" data-notif-unread");
                     x.append(y);
                     first = false;
                     if (!action.forwards) {
@@ -669,10 +672,8 @@ function getPollHTML(pollJSON, postID, gInc, showResults) {
         showResults = loggedIn && pollJSON.voted;
     }
     let output = "";
-    let c = 0;
     if (showResults || !loggedIn) {
         for (const option of pollJSON.content) {
-            c++;
             output += `<div class="poll-bar-container">
         <div class="poll-bar ${option.voted ? "voted" : ""}">
           <div style="width: ${option.votes / pollJSON.votes * 100 || 0}%"></div>
@@ -683,7 +684,6 @@ function getPollHTML(pollJSON, postID, gInc, showResults) {
     }
     else {
         for (const option of pollJSON.content) {
-            c++;
             output += `<div data-index="${option.id}"
                  data-total-votes="${pollJSON.votes}"
                  data-votes="${option.votes}"
@@ -715,7 +715,7 @@ function getPollHTML(pollJSON, postID, gInc, showResults) {
       tabindex="0">${lang.home.poll_hide_results}</span>` : ""}
   </small>`;
 }
-function getPostHTML(postJSON, isComment = false, includeUserLink = true, includePostLink = true, fakeMentions = false, pageFocus = false, isPinned = false, includeContainer = true) {
+function getPostHTML(postJSON, hideUserLinkFor = false, includePostLink = true, fakeMentions = false, pageFocus = false, isPinned = false, includeContainer = true) {
     if (!postJSON.visible) {
         return "⚠️";
     }
@@ -724,9 +724,9 @@ function getPostHTML(postJSON, isComment = false, includeUserLink = true, includ
     if (muted === true) {
         return "";
     }
-    return `${includeContainer ? `<div class="post-container" data-${isComment ? "comment" : "post"}-id="${postJSON.post_id}">` : ""}
+    let includeUserLink = !(typeof hideUserLinkFor == "boolean" ? hideUserLinkFor : hideUserLinkFor == postJSON.creator.username);
+    return `${includeContainer ? `<div class="post-container" data-${postJSON.comment ? "comment" : "post"}-id="${postJSON.post_id}">` : ""}
     <div class="post" data-settings="${escapeHTML(JSON.stringify({
-        isComment: isComment,
         includeUserLink: includeUserLink,
         includePostLink: includePostLink,
         fakeMentions: fakeMentions,
@@ -758,9 +758,7 @@ function getPostHTML(postJSON, isComment = false, includeUserLink = true, includ
             (${lang.post[postJSON.content.length == 1 ? "chars_singular" : "chars_plural"].replaceAll("%c", postJSON.content.length)}${postJSON.quote ? `, ${lang.post.quote}` : ""}${postJSON.poll ? `, ${lang.home.poll}` : ""})
           </div>
         </summary>` : ""}
-        <div class="main-content">
-          <div class="pre-wrap">${getLinkify(postJSON.content, isComment, fakeMentions, postJSON.post_id, includePostLink)}</div>
-        </div>
+        <div class="main-content pre-wrap">${getLinkify(postJSON.content, postJSON.comment, fakeMentions, postJSON.post_id, includePostLink)}</div>
 
       ${postJSON.poll && typeof postJSON.poll == "object" ? (`<div
             id="gi-${globalIncrement}"
@@ -819,11 +817,11 @@ function getPostHTML(postJSON, isComment = false, includeUserLink = true, includ
       </div>
 
       <div class="bottom-content">
-        ${includePostLink ? `<a data-link href="/${isComment ? "c" : "p"}/${postJSON.post_id}/" class="text no-underline">` : ""}
+        ${includePostLink ? `<a data-link href="/${postJSON.comment ? "c" : "p"}/${postJSON.post_id}/" class="text no-underline">` : ""}
           <span class="bottom-content-icon comment-icon">${icons.comment}</span> ${postJSON.interactions.comments}
         ${includePostLink ? "</a>" : ""}
         <span class="bottom-spacing"></span>
-        ${conf.quotes ? `<button class="bottom-content-icon" ${fakeMentions ? "" : `onclick="addQuote('${postJSON.post_id}', ${isComment})"`}>
+        ${conf.quotes ? `<button class="bottom-content-icon" ${fakeMentions ? "" : `onclick="addQuote('${postJSON.post_id}', ${postJSON.comment})"`}>
             ${icons.quote}
             <span class="quote-number">${postJSON.interactions.quotes}</span>
           </button>
@@ -833,7 +831,7 @@ function getPostHTML(postJSON, isComment = false, includeUserLink = true, includ
           ${icons.like}
         </span>
 
-        <button class="bottom-content-icon like" data-liked="${postJSON.interactions.liked}" ${fakeMentions ? "" : `onclick="toggleLike(${postJSON.post_id}, ${isComment ? "'comment'" : "'post'"})"`}>
+        <button class="bottom-content-icon like" data-liked="${postJSON.interactions.liked}" ${fakeMentions ? "" : `onclick="toggleLike(${postJSON.post_id}, ${postJSON.comment ? "'comment'" : "'post'"})"`}>
           <span class="hidden-if-unlike">${icons.like}</span>
           <span class="hidden-if-like">${icons.unlike}</span>
           <span class="like-number">${postJSON.interactions.likes}</span>
@@ -846,10 +844,10 @@ function getPostHTML(postJSON, isComment = false, includeUserLink = true, includ
           <div class="more-container">${postJSON.can.pin && conf.pinned_posts ? `<button class="bottom-content-icon ${isPinned && postJSON.can.pin ? "red" : ""}" onclick="${isPinned && postJSON.can.pin ? "un" : ""}pinPost(${isPinned && postJSON.can.pin ? "" : postJSON.post_id})">
               ${isPinned && postJSON.can.pin ? icons.unpin : icons.pin}
               ${isPinned && postJSON.can.pin ? lang.post.unpin : lang.post.pin}
-            </button>` : ""} ${postJSON.can.delete && conf.post_deletion ? `<button class="bottom-content-icon red" onclick="deletePost(${postJSON.post_id}, ${isComment}, ${pageFocus})">
+            </button>` : ""} ${postJSON.can.delete && conf.post_deletion ? `<button class="bottom-content-icon red" onclick="deletePost(${postJSON.post_id}, ${postJSON.comment}, ${pageFocus})">
               ${icons.delete}
               ${lang.post.delete}
-            </button>` : ""} ${postJSON.can.edit ? `<button class="bottom-content-icon" onclick="editPost(${postJSON.post_id}, ${isComment}, ${postJSON.private}, \`${escapeHTML(postJSON.content)}\`)">
+            </button>` : ""} ${postJSON.can.edit ? `<button class="bottom-content-icon" onclick="editPost(${postJSON.post_id}, ${postJSON.comment}, ${postJSON.private}, '${btoa(postJSON.content)}')">
               ${icons.edit}
               ${lang.post.edit}
             </button>` : ""}</div>` : ""}

@@ -7,8 +7,9 @@ function notificationsForwardHandler(): void {
   }, {});
 
   timelineConfig.vars.forwardsCache = [];
+  dom("up-to-date").removeAttribute("hidden");
   dom("load-new").setAttribute("hidden", "");
-  dom("refresh").removeAttribute("hidden");
+  dom("refresh").setAttribute("hidden", "");
 }
 
 function notificationsInit(): void {

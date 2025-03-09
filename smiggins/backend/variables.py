@@ -137,6 +137,9 @@ ENABLE_DYNAMIC_FAVICON: bool = True
 ALTERNATE_IPS: bool | str = False
 ENABLE_RATELIMIT: bool = True
 RATELIMITS: dict[str, tuple[int, int] | None] = {}
+NOTIF_POLLING: int | None = 120_000
+MESSAGE_POLLING: int | None = 60_000
+TIMELINE_POLLING: int | None = 10_000
 
 THEMES = {
   "warm": {
@@ -540,7 +543,10 @@ _VARIABLES: list[tuple[str | None, list[str], type | str | list | tuple | dict, 
     ("ENABLE_DYNAMIC_FAVICON", ["dynamic_favicon", "enable_dynamic_favicon"], bool, False),
     ("ALTERNATE_IPS", ["alternate_ips"], (bool, str), False),
     ("ENABLE_RATELIMIT", ["enable_ratelimit"], bool, False),
-    ("RATELIMITS", ["ratelimits"], {str: "ratelimit-value"}, False)
+    ("RATELIMITS", ["ratelimits"], {str: "ratelimit-value"}, False),
+    ("NOTIF_POLLING", ["notif_polling", "notification_polling", "notifications_polling"], int, True),
+    ("MESSAGE_POLLING", ["message_polling", "messages_polling"], int, True),
+    ("TIMELINE_POLLING", ["timeline_polling", "timelines_polling"], int, True)
 ]
 
 f = {}
@@ -806,6 +812,9 @@ SITEMAP_CACHE_TIMEOUT = clamp(SITEMAP_CACHE_TIMEOUT, minimum=0)
 GENERIC_CACHE_TIMEOUT = clamp(SITEMAP_CACHE_TIMEOUT, minimum=0)
 DATABASE_BACKUPS["frequency"] = clamp(DATABASE_BACKUPS["frequency"], minimum=1) # type: ignore
 DATABASE_BACKUPS["keep"] = clamp(DATABASE_BACKUPS["keep"], minimum=1)
+NOTIF_POLLING = clamp(NOTIF_POLLING, minimum=1)
+MESSAGE_POLLING = clamp(MESSAGE_POLLING, minimum=1)
+TIMELINE_POLLING = clamp(TIMELINE_POLLING, minimum=1)
 
 if isinstance(ENABLE_NEW_ACCOUNTS, str):
     ENABLE_NEW_ACCOUNTS = ENABLE_NEW_ACCOUNTS.lower()

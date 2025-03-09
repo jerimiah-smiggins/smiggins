@@ -119,7 +119,7 @@ function editPost(postID, isComment, private, originalText) {
     <label for="default-private-${globalIncrement}">${lang.post.type_followers_only}:</label>
     <input id="default-private-${globalIncrement}" type="checkbox" ${private ? "checked" : ""}><br>
     ${conf.content_warnings ? `<input class="c-warning" ${originalCW ? `value="${originalCW}"` : ""} maxlength="${conf.max_content_warning_length}" placeholder="${lang.home.c_warning_placeholder}"><br>` : ""}
-    <textarea class="post-text" maxlength="${conf.max_post_length}" placeholder="${lang.home.post_input_placeholder}">${escapeHTML(originalText)}</textarea><br>
+    <textarea class="post-text" maxlength="${conf.max_post_length}" placeholder="${lang.home.post_input_placeholder}">${escapeHTML(atob(originalText))}</textarea><br>
     <button class="post-button">${lang.generic.post}</button>
     <button class="cancel-button">${lang.generic.cancel}</button>`;
     contentField.querySelector("textarea").focus();
@@ -170,6 +170,13 @@ function refresh(forceOffset = false) {
         disable: [...document.querySelectorAll("button[onclick*='refresh(']")],
         extraData: {
             forceOffset: forceOffset
+        },
+        postFunction: (success) => {
+            if (success && dom("up-to-date")) {
+                dom("up-to-date").removeAttribute("hidden");
+                dom("load-new").setAttribute("hidden", "");
+                dom("refresh").setAttribute("hidden", "");
+            }
         }
     });
 }
@@ -190,12 +197,13 @@ function loadNew() {
         ]
     }, {});
     timelineConfig.vars.forwardsCache = [];
+    dom("up-to-date").removeAttribute("hidden");
     dom("load-new").setAttribute("hidden", "");
-    dom("refresh").removeAttribute("hidden");
+    dom("refresh").setAttribute("hidden", "");
 }
 function timelineInit() {
     end = false;
-    killIntervals.push(setInterval(checkForwards, 60000));
+    conf.polling.timeline && killIntervals.push(setInterval(checkForwards, conf.polling.timeline));
     for (const el of document.querySelectorAll("#switch > a")) {
         el.addEventListener("click", switchTimeline);
     }

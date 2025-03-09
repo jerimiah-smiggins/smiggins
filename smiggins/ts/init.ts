@@ -12,9 +12,8 @@ function init(): void {
 function loadNext(): void {
   document.getElementById("loading-progress").style.setProperty("--progress", String(loadIndex / loadURLs.length * 100));
   if (loadIndex >= loadURLs.length) {
-    if (typeof javascriptLoaded == "undefined") {
-      initContextLoaded = true;
-    } else {
+    initContextLoaded = true;
+    if (typeof javascriptLoaded != "undefined") {
       init();
     }
     return;

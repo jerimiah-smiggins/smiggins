@@ -59,8 +59,11 @@ const pages = {
       <a data-timeline="following" data-storage-id="home-page" href="javascript:void(0);">${lang.home.timeline.following}</a> -
       <a data-timeline="recent" data-storage-id="home-page" href="javascript:void(0);">${lang.home.timeline.global}</a>
     </p>
-    <button id="refresh" onclick="refresh()">${lang.generic.refresh}</button>
-    <button id="load-new" hidden onclick="loadNew()">${lang.generic.show_new.replaceAll("%n", "<span id='load-new-number'>0</span>")}</button>
+    <div id="refresh-container">
+      <i id="up-to-date" onclick="refresh()">${lang.generic.up_to_date}</i>
+      <button id="load-new" hidden onclick="loadNew()">${lang.generic.show_new.replaceAll("%n", "<span id='load-new-number'>0</span>")}</button>
+      <button id="refresh" hidden onclick="refresh()">${lang.generic.refresh}</button>
+    </div>
     <div id="posts"></div>
     <button id="more" onclick="refresh(true)" hidden>${lang.generic.load_more}</button>
   `, loggedIn ? () => { homeInit(); timelineInit(); } : null],
@@ -213,7 +216,7 @@ const pages = {
                 color_two: "#" + Math.floor(Math.random() * 16777216).toString(16).padStart(6, "0"),
                 gradient: true
             }
-        }, false, false, false, true)}</div>
+        }, true, false, true)}</div>
       </div>
 
       <div class="settings-side">
@@ -601,7 +604,7 @@ const pages = {
   `, loggedIn ? pendingInit : null],
     post: [() => `
     ${context.post.parent && context.post.parent.id > 0 ? `<div id="parent"><a data-link id="parent-link" href="/${context.post.parent.comment ? "c" : "p"}/${context.post.parent.id}/">${lang.post_page.comment_parent}</a></div>` : ""}
-    <div id="top">${getPostHTML(context.post, context.comment, true, false, false, true)}</div>
+    <div id="top">${getPostHTML(context.post, false, false, false, true)}</div>
 
     ${loggedIn ? `
       <label for="default-private">${lang.post.type_followers_only}:</label>
@@ -741,9 +744,7 @@ addEventListener("popstate", (e) => {
         renderPage();
     }
 });
-if (typeof initContextLoaded == "undefined") {
-    javascriptLoaded = true;
-}
-else {
+javascriptLoaded = true;
+if (typeof initContextLoaded != "undefined") {
     init();
 }

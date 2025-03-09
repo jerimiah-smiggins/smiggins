@@ -20,8 +20,9 @@ from .variables import (DEFAULT_DARK_THEME, DEFAULT_LIGHT_THEME,
                         MAX_CONTENT_WARNING_LENGTH, MAX_DISPL_NAME_LENGTH,
                         MAX_MUTED_WORD_LENGTH, MAX_MUTED_WORDS,
                         MAX_POLL_OPTION_LENGTH, MAX_POLL_OPTIONS,
-                        MAX_POST_LENGTH, MAX_USERNAME_LENGTH, OWNER_USER_ID,
-                        SITE_NAME, THEMES, VERSION, MOTDs, error)
+                        MAX_POST_LENGTH, MAX_USERNAME_LENGTH, MESSAGE_POLLING,
+                        NOTIF_POLLING, OWNER_USER_ID, SITE_NAME, THEMES,
+                        TIMELINE_POLLING, VERSION, MOTDs, error)
 
 
 def webapp(request) -> HttpResponse:
@@ -68,7 +69,12 @@ def webapp(request) -> HttpResponse:
         "new_accounts": ENABLE_NEW_ACCOUNTS,
         "hashtags": ENABLE_HASHTAGS,
         "site_name": SITE_NAME,
-        "version": lang["generic"]["version"].replace("%v", VERSION)
+        "version": lang["generic"]["version"].replace("%v", VERSION),
+        "polling": {
+            "notif": NOTIF_POLLING,
+            "message": MESSAGE_POLLING,
+            "timeline": TIMELINE_POLLING
+        }
     }
 
     context = {
