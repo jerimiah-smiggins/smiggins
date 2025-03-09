@@ -317,7 +317,7 @@ def context(request) -> tuple[int, dict] | dict | APIResponse:
             request, user, "post",
             post=p,
             comment=False,
-            mentions=" ".join([f"@{i} " for i in find_mentions(f"{post.content} @{post.creator.username}", [user.username] if user else [])])
+            mentions="".join([f"@{i} " for i in find_mentions(f"{post.content} @{post.creator.username}", [user.username] if user else [])])
         )
 
     match = re.match(re.compile(r"^/c/([0-9]+)/?$"), url)
