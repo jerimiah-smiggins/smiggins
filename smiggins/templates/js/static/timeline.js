@@ -170,6 +170,13 @@ function refresh(forceOffset = false) {
         disable: [...document.querySelectorAll("button[onclick*='refresh(']")],
         extraData: {
             forceOffset: forceOffset
+        },
+        postFunction: (success) => {
+            if (success && dom("up-to-date")) {
+                dom("up-to-date").removeAttribute("hidden");
+                dom("load-new").setAttribute("hidden", "");
+                dom("refresh").setAttribute("hidden", "");
+            }
         }
     });
 }
@@ -190,8 +197,9 @@ function loadNew() {
         ]
     }, {});
     timelineConfig.vars.forwardsCache = [];
+    dom("up-to-date").removeAttribute("hidden");
     dom("load-new").setAttribute("hidden", "");
-    dom("refresh").removeAttribute("hidden");
+    dom("refresh").setAttribute("hidden", "");
 }
 function timelineInit() {
     end = false;

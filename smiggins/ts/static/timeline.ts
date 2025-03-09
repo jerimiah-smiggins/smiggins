@@ -207,6 +207,13 @@ function refresh(forceOffset=false): void {
       disable: [...document.querySelectorAll("button[onclick*='refresh(']")],
       extraData: {
         forceOffset: forceOffset
+      },
+      postFunction: (success: boolean): void => {
+        if (success && dom("up-to-date")) {
+          dom("up-to-date").removeAttribute("hidden");
+          dom("load-new").setAttribute("hidden", "");
+          dom("refresh").setAttribute("hidden", "");
+        }
       }
     }
   );
@@ -232,8 +239,9 @@ function loadNew(): void {
   }, {});
 
   timelineConfig.vars.forwardsCache = [];
+  dom("up-to-date").removeAttribute("hidden");
   dom("load-new").setAttribute("hidden", "");
-  dom("refresh").removeAttribute("hidden");
+  dom("refresh").setAttribute("hidden", "");
 }
 
 function timelineInit(): void {

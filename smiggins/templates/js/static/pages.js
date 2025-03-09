@@ -60,8 +60,9 @@ const pages = {
       <a data-timeline="recent" data-storage-id="home-page" href="javascript:void(0);">${lang.home.timeline.global}</a>
     </p>
     <div id="refresh-container">
-      <button id="refresh" onclick="refresh()">${lang.generic.refresh}</button>
+      <i id="up-to-date" onclick="refresh()">${lang.generic.up_to_date}</i>
       <button id="load-new" hidden onclick="loadNew()">${lang.generic.show_new.replaceAll("%n", "<span id='load-new-number'>0</span>")}</button>
+      <button id="refresh" hidden onclick="refresh()">${lang.generic.refresh}</button>
     </div>
     <div id="posts"></div>
     <button id="more" onclick="refresh(true)" hidden>${lang.generic.load_more}</button>

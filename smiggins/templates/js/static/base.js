@@ -91,6 +91,9 @@ function apiResponse(json, extraData) {
         if (action.name == "populate_forwards_cache") {
             if (action.its_a_lost_cause_just_refresh_at_this_point) {
                 lostCause = true;
+                dom("up-to-date").setAttribute("hidden", "");
+                dom("load-new").setAttribute("hidden", "");
+                dom("refresh").removeAttribute("hidden");
             }
             else {
                 if (action.posts.length) {
@@ -99,12 +102,14 @@ function apiResponse(json, extraData) {
                 timelineConfig.vars.forwardsCache.push(...action.posts);
                 if (timelineConfig.vars.forwardsCache.length > timelineConfig.vars.forwardOffset) {
                     dom("load-new-number").innerText = String(timelineConfig.vars.forwardsCache.length - timelineConfig.vars.forwardOffset);
+                    dom("up-to-date").setAttribute("hidden", "");
                     dom("load-new").removeAttribute("hidden");
                     dom("refresh").setAttribute("hidden", "");
                 }
                 else {
+                    dom("up-to-date").removeAttribute("hidden");
                     dom("load-new").setAttribute("hidden", "");
-                    dom("refresh").removeAttribute("hidden");
+                    dom("refresh").setAttribute("hidden", "");
                 }
             }
         }
