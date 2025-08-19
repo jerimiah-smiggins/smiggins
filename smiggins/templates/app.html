@@ -1,0 +1,65 @@
+{% load static %}
+<!DOCTYPE html>
+
+<html>
+  <head>
+    <title>{% if title %}{{ title }} - {% endif %}{{ conf.site_name }} {{ conf.version }}</title>
+
+    <link rel="preload" href="{% static 'font/poppins-normal.woff' %}" as="font" type="font/woff" crossorigin>
+    <link rel="preload" href="{% static 'font/poppins-bold.woff' %}" as="font" type="font/woff" crossorigin>
+
+    {% if google_verification_tag %}
+      <meta name="google-site-verification" content="{{ google_verification_tag }}">
+    {% endif %}
+
+    <meta name="mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <link rel="apple-touch-startup-image" href="{% static 'img/old_favicon.png' %}?v={{ conf.version }}">
+    <link rel="apple-touch-icon" href="{% static 'img/old_favicon.png' %}?v={{ conf.version }}">
+    <link rel="icon" href="{% static 'img/old_favicon.png' %}?v={{ conf.version }}">
+
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width,initial-scale=1">
+
+    <script>
+      const loggedIn = "{{ logged_in }}" == "True";
+    </script>
+
+    <link rel="stylesheet" href="{% static 'base.css' %}?v={{ conf.version }}">
+  </head>
+
+  <body>
+    <div id="container">
+      <div id="loading">
+        <img id="loading-icon" src="{% static 'img/old_favicon.png' %}?v={{ conf.version }}">
+        <div>{{ loading }}</div>
+      </div>
+    </div>
+
+    <div id="toasts"></div>
+
+    <div id="snippets">
+      <!-- pages -->
+      {% include "snippet.html" with id="404" vars="site_name,home_page" %}
+      {% include "snippet.html" with id="logout" processing="logout" %}
+      <!-- logged out pages -->
+      {% include "snippet.html" with id="index" vars="site_name" %}
+      {% include "snippet.html" with id="login" processing="input_enter,password_toggle,login" %}
+      {% include "snippet.html" with id="signup" processing="input_enter,password_toggle,signup" %}
+      <!-- logged in pages -->
+      {% include "snippet.html" with id="home" %}
+
+      <!-- other -->
+      {% include "snippet.html" with id="post" %}
+      {% include "snippet.html" with id="toast" vars="title,content" %}
+    </div>
+
+    <script src="{% static 'app.js' %}"></script>
+    <script>
+      let currentPage = urlToIntent(location.pathname);
+      history.replaceState(currentPage, "");
+      renderPage(currentPage);
+    </script>
+  </body>
+</html>

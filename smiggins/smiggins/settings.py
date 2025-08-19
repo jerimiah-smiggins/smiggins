@@ -19,9 +19,6 @@ if ENABLE_EMAIL:
 
     del smtp_auth
 
-if WEBSITE_URL:
-    CSRF_TRUSTED_ORIGINS = [WEBSITE_URL]
-
 del ENABLE_EMAIL, WEBSITE_URL, dotenv_or_
 
 # SECURITY WARNING: keep the secret key used in production secret!
@@ -45,7 +42,6 @@ MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
-    'django.middleware.csrf.CsrfViewMiddleware',
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',

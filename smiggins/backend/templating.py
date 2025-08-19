@@ -91,7 +91,7 @@ def webapp(request) -> HttpResponse:
     }
 
     return HttpResponse(
-        loader.get_template("all.html").render(
+        loader.get_template("app.html").render(
             context, request
         ),
         status=strings[3]

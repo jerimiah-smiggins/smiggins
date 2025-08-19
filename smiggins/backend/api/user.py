@@ -22,9 +22,9 @@ from .schema import (Account, APIResponse, ChangePassword, MutedWords,
                      Password, Settings, Theme, Username, _actions_user_tl)
 
 
-def signup(request, data: Account) -> APIResponse:
-    if rl := check_ratelimit(request, "POST /api/user/signup"):
-        return rl
+def signup(request, data: Account) -> tuple[int, dict] | dict:
+    # if rl := check_ratelimit(request, "POST /api/user/signup"):
+    #     return NEW_RL
 
     username = data.username.lower().replace(" ", "")
     password = data.password.lower()
@@ -35,90 +35,84 @@ def signup(request, data: Account) -> APIResponse:
         except OneTimePassword.DoesNotExist:
             return 400, {
                 "success": False,
-                "message": DEFAULT_LANG["account"]["invite_code_invalid"]
+                "reason": "INVALID_OTP"
             }
 
     # e3b0c44... is the sha256 hash for an empty string
     if len(password) != 64 or password == "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855":
         return 400, {
             "success": False,
-            "message": DEFAULT_LANG["account"]["bad_password"]
+            "reason": "BAD_PASSWORD"
         }
 
     for i in password:
         if i not in "abcdef0123456789":
             return 400, {
                 "success": False,
-                "message": DEFAULT_LANG["account"]["bad_password"]
+                "reason": "BAD_PASSWORD"
             }
 
-    user_valid = validate_username(username, existing=False)
-    if user_valid == 1:
-        token = generate_token(username, password)
-        User.objects.create(
-            username=username,
-            token=token,
-            display_name=trim_whitespace(data.username, purge_newlines=True)[0][:MAX_DISPL_NAME_LENGTH],
-            theme="auto",
-            color=DEFAULT_BANNER_COLOR,
-            color_two=DEFAULT_BANNER_COLOR,
-            language=DEFAULT_LANGUAGE
-        )
-
-        if ENABLE_NEW_ACCOUNTS == "otp":
-            otp.delete()
-
-        return {
-            "success": True,
-            "actions": [
-                { "name": "set_auth", "token": token },
-                { "name": "reload" }
-            ]
-        }
-
-    if user_valid == -1:
-        return {
+    try:
+        User.objects.get(username=username)
+        return 400, {
             "success": False,
-            "message": DEFAULT_LANG["account"]["username_taken"]
+            "reason": "USERNAME_USED"
+        }
+    except User.DoesNotExist:
+        ...
+
+    if len(username) > MAX_USERNAME_LENGTH or not username:
+        return 400, {
+            "success": False,
+            "reason": "BAD_USERNAME"
         }
 
-    elif user_valid == -2:
-        return {
-            "success": False,
-            "message": DEFAULT_LANG["account"]["invalid_username_chars"]
-        }
+    if ENABLE_NEW_ACCOUNTS == "otp":
+        otp.delete()
+
+    token = generate_token(username, password)
+
+    User.objects.create(
+        username=username,
+        token=token,
+        display_name=trim_whitespace(data.username, purge_newlines=True)[0][:MAX_DISPL_NAME_LENGTH],
+        theme="auto",
+        color=DEFAULT_BANNER_COLOR,
+        color_two=DEFAULT_BANNER_COLOR,
+        language=DEFAULT_LANGUAGE
+    )
 
     return {
-        "success": False,
-        "message": DEFAULT_LANG["account"]["invalid_username_length"].replace("%s", str(MAX_USERNAME_LENGTH))
+        "success": True,
+        "token": token
     }
 
-def login(request, data: Account) -> APIResponse:
-    if rl := check_ratelimit(request, "POST /api/user/login"):
-        return rl
+def login(request, data: Account) -> tuple[int, dict] | dict:
+    # if rl := check_ratelimit(request, "POST /api/user/login"):
+    #     return NEW_RL
 
     username = data.username.lower().replace(" ", "")
     token = generate_token(username, data.password)
 
-    if validate_username(username) == 1:
-        if token == User.objects.get(username=username).token:
+    try:
+        user = User.objects.get(username=username)
+
+        if token == user.token:
             return {
                 "success": True,
-                "actions": [
-                    { "name": "set_auth", "token": token },
-                    { "name": "reload" }
-                ]
+                "token": token
             }
 
         return 400, {
             "success": False,
-            "message": DEFAULT_LANG["account"]["bad_password"]
+            "reason": "BAD_PASSWORD"
         }
 
-    return 400, {
-        "success": False,
-        "message": DEFAULT_LANG["account"]["username_does_not_exist"].replace("%s", data.username)
-    }
+    except User.DoesNotExist:
+        return 400, {
+            "success": False,
+            "reason": "BAD_USERNAME"
+        }
 
 def settings_theme(request, data: Theme) -> APIResponse:
     if rl := check_ratelimit(request, "PATCH /api/user/settings/theme"):
