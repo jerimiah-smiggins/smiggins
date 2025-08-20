@@ -20,7 +20,7 @@ function urlToIntent(path: string): intent {
   return "404";
 }
 
-function processInternalLinks(element?: HTMLElement): void {
+function generateInternalLinks(element?: HTMLElement): void {
   if (!element) { element = container; }
 
   let links: NodeListOf<HTMLElement> = element.querySelectorAll("[data-internal-link]:not([data-link-processed])");

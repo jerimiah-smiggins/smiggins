@@ -37,6 +37,6 @@ function loginSubmitEvent(e: MouseEvent) {
     });
 }
 
-function processLogin(element: HTMLDivElement): void {
+function p_login(element: HTMLDivElement): void {
   (element.querySelector("#submit") as HTMLButtonElement).addEventListener("click", loginSubmitEvent);
 }

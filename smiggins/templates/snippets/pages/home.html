@@ -1,0 +1,24 @@
+{% include "snippets/generic/page-start.html" with active_page="home" %}
+
+<div id="timeline-carousel">
+  <div data-timeline-id="following">Following</div>
+  <div data-timeline-id="global" data-timeline-active>Global</div>
+</div>
+
+<div id="compose-box">
+  <div><input placeholder="Content warning (optional)"></div>
+  <div><textarea placeholder="Cool post"></textarea></div>
+  <div class="post-options">
+    <div><label><input type="checkbox"> Followers only</label></div>
+    <div class="flex-spacer"></div>
+    <div><button data-button-alt-colors id="post">Post</button></div>
+  </div>
+</div>
+
+<hr>
+
+<div id="timeline-posts"></div>
+
+<button id="timeline-more" hidden>Load More</button>
+
+{% include "snippets/generic/page-end.html" %}

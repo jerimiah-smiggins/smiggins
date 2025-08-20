@@ -1,14 +1,18 @@
 let snippetVariables: { [key: string]: string } = {
   site_name: "Jerimiah Smiggins",
-  home_page: loggedIn ? "home" : "index"
+  home_page: loggedIn ? "home" : "index",
+  username: loggedIn ? username : ""
 };
 
 let snippetProcessing: { [key: string]: (element: HTMLDivElement) => void } = {
-  input_enter: processInputEnter,
-  password_toggle: processPasswordToggle,
-  login: processLogin,
-  signup: processSignup,
-  logout: processLogout
+  input_enter: p_inputEnter,
+  password_toggle: p_passwordToggle,
+  login: p_login,
+  signup: p_signup,
+  logout: p_logout,
+  home: p_home,
+  timeline_switch: p_tlSwitch,
+  timeline_more: p_tlMore
 };
 
 function getSnippet(snippet: snippet, extraVariables?: { [key: string]: string }): HTMLDivElement {
@@ -20,15 +24,19 @@ function getSnippet(snippet: snippet, extraVariables?: { [key: string]: string }
   for (const i of variables) {
     let replacementValue: string = "";
 
-    if (extraVariables && i in extraVariables) {
-      replacementValue = extraVariables[i];
-    } else if (i in snippetVariables) {
+    if (i in snippetVariables) {
       replacementValue = snippetVariables[i];
     } else {
       console.log(`Unknown snippet variable "${i}"`);
     }
 
     content = content.replaceAll(`@{${i}}`, replacementValue);
+  }
+
+  if (extraVariables) {
+    for (const i of Object.keys(extraVariables)) {
+      content = content.replaceAll(`@{${i}}`, extraVariables[i]);
+    }
   }
 
   let element: HTMLDivElement = document.createElement("div");
@@ -45,13 +53,13 @@ function getSnippet(snippet: snippet, extraVariables?: { [key: string]: string }
   return element;
 }
 
-function processInputEnter(element: HTMLDivElement): void {
+function p_inputEnter(element: HTMLDivElement): void {
   for (const el of element.querySelectorAll("[data-enter-submit]")) {
     (el as HTMLElement).onkeydown = inputEnterEvent;
   }
 }
 
-function processPasswordToggle(element: HTMLDivElement): void {
+function p_passwordToggle(element: HTMLDivElement): void {
   for (const el of element.querySelectorAll("[data-password-toggle]")) {
     (el as HTMLElement).onclick = togglePasswords;
   }

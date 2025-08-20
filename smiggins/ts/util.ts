@@ -100,3 +100,41 @@ function escapeHTML(str: string): string {
   if (str === undefined) { return "⚠️"; }
   return str.replaceAll("&", "&amp;").replaceAll("<", "&lt;").replaceAll("\"", "&quot;").replaceAll("`", "&#96;");
 }
+
+function getTimestamp(timestamp: number, raw: boolean=false): string {
+  let difference: number = Math.round(new Date().getTime() / 1000 - timestamp);
+  let future: boolean = difference < 0;
+  let complexTimestamps: boolean = !!localStorage.getItem("complex-timestamps");
+  if (future) { difference = -difference; }
+
+  let output: string = "?";
+
+  if (difference < 60) {
+    output = `${difference}s`;
+  } else if (difference < 60 * 60) {
+    output = `${Math.floor(difference / 60)}m` + (complexTimestamps ? `${difference % 60}s` : "");
+  } else if (difference < 60 * 60 * 24) {
+    output = `${Math.floor(difference / 60 / 60)}h` + (complexTimestamps ? `${Math.floor(difference / 60) % 60}m` : "");
+  } else if (difference < 60 * 60 * 24 * 365) {
+    output = `${Math.floor(difference / 60 / 60 / 24)}d` + (complexTimestamps ? `${Math.floor(difference / 60 / 60) % 24}h` : "");
+  } else if (!isNaN(timestamp)) {
+    output = `${Math.floor(difference / 60 / 60 / 24 / 365)}y` + (complexTimestamps ? `${Math.floor(difference / 60 / 60 / 24) % 365}d` : "");
+  }
+
+  if (future) { output = "in " + output; }
+  if (raw) { return output; }
+  return `<span data-timestamp="${timestamp}">${output}</span>`;
+}
+
+function updateTimestamps(): void {
+  let timestamps: NodeListOf<HTMLSpanElement> = document.querySelectorAll("[data-timestamp]");
+
+  for (const i of timestamps) {
+    let newTime: string = getTimestamp(+(i.dataset.timestamp || NaN), true);
+    if (newTime !== i.innerText) {
+      i.innerText = newTime;
+    }
+  }
+}
+
+setInterval(updateTimestamps, 1000);

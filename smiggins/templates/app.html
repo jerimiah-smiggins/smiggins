@@ -24,6 +24,7 @@
 
     <script>
       const loggedIn = "{{ logged_in }}" == "True";
+      const username = "{{ username }}";
     </script>
 
     <link rel="stylesheet" href="{% static 'base.css' %}?v={{ conf.version }}">
@@ -41,18 +42,19 @@
 
     <div id="snippets">
       <!-- pages -->
-      {% include "snippet.html" with id="404" vars="site_name,home_page" %}
-      {% include "snippet.html" with id="logout" processing="logout" %}
+      {% include "snippet.html" with id="pages/404" vars="site_name,home_page" %}
+      {% include "snippet.html" with id="pages/logout" processing="logout" %}
       <!-- logged out pages -->
-      {% include "snippet.html" with id="index" vars="site_name" %}
-      {% include "snippet.html" with id="login" processing="input_enter,password_toggle,login" %}
-      {% include "snippet.html" with id="signup" processing="input_enter,password_toggle,signup" %}
+      {% include "snippet.html" with id="pages/index" vars="site_name" %}
+      {% include "snippet.html" with id="pages/login" processing="input_enter,password_toggle,login" %}
+      {% include "snippet.html" with id="pages/signup" processing="input_enter,password_toggle,signup" %}
       <!-- logged in pages -->
-      {% include "snippet.html" with id="home" %}
+      {% include "snippet.html" with id="pages/home" vars="username" processing="home,timeline_switch,timeline_more" %}
+      {% include "snippet.html" with id="pages/settings" vars="username" %}
 
       <!-- other -->
       {% include "snippet.html" with id="post" %}
-      {% include "snippet.html" with id="toast" vars="title,content" %}
+      {% include "snippet.html" with id="toast" %}
     </div>
 
     <script src="{% static 'app.js' %}"></script>

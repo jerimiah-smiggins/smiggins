@@ -13,7 +13,7 @@
   max-width: calc(100vw - 2em);
   min-height: 100vh;
   box-sizing: border-box;
-  border: 1px solid var(--border-color);
+  border: 2px solid var(--border-color);
   border-bottom: none;
   border-top: none;
   padding: 1em;
@@ -26,7 +26,7 @@
     box-sizing: border-box;
     border: none;
     outline: none;
-    border-bottom: 1px solid var(--border-color);
+    border-bottom: 2px solid var(--border-color);
   }
 
   #timeline-carousel {
@@ -36,7 +36,7 @@
     flex-direction: row;
     flex-wrap: wrap;
     margin: -1em;
-    border-bottom: 1px solid var(--border-color);
+    border-bottom: 2px solid var(--border-color);
     backdrop-filter: blur(4px);
 
     > div {
@@ -46,6 +46,8 @@
       padding: 1em;
       background-color: rgba(var(--background-rgb) / 25%);
       transition: background-color 0.5s;
+      cursor: pointer;
+      min-width: 125px;
 
       &:hover {
         background-color: var(--background-mid);
@@ -59,65 +61,114 @@
   }
 
   #compose-box {
-    margin: -1em;
+    margin: -1em 0;
     margin-top: calc(1em + 2px);
 
-    textarea {
-      font-family: "Poppins", sans-serif;
+    > div:not(:last-child) {
+      border-bottom: 1px solid var(--border-color);
+    }
 
+    textarea {
+      font-family: @font-family;
       background-color: transparent;
       color: var(--text);
-      width: 100%;
+      width: calc(100% + 2em);
       margin: 0;
       resize: none;
       border: none;
-      padding: 1em;
+      padding: 0.5em 1.5em;
       height: 10em;
       box-sizing: border-box;
+      font-size: 1em;
+      margin: 0 -1em;
 
       &:not(:focus) {
         outline: none;
       }
+    }
+
+    input:not([type="checkbox"]) {
+      background-color: transparent;
+      border-radius: 0;
+      width: calc(100% + 2em);
+      max-width: unset;
+      margin: 0;
+      resize: none;
+      padding: 0.5em 1.5em;
+      box-sizing: border-box;
+      font-size: 1em;
+      margin: 0 -1em;
+    }
+
+    .post-options {
+      text-wrap: nowrap;
+      padding: 0.5em;
+      display: flex;
+      flex-direction: row;
+      flex-wrap: nowrap;
+      gap: 0.5em;
+    }
+  }
+
+  .timeline-status {
+    display: block;
+    padding: 1em 0;
+  }
+
+  #timeline-more {
+    font-size: 1em;
+    display: block;
+    width: 100%;
+    background-color: transparent;
+    border: none;
+    outline: none;
+    border-top: 1px solid var(--border-color);
+    padding: 1em 0.5em;
+    border-radius: 0;
+    margin-top: 1em;
+    margin-bottom: -1em;
+
+    &:focus {
+      outline: none !important;
     }
   }
 }
 
 #navbar {
   position: sticky;
-  top: 0.75em;
+  top: 2em;
   display: flex;
   flex-direction: column;
   flex-wrap: nowrap;
-  overflow-y: scroll;
   align-self: flex-start;
   height: auto;
-  font-size: @navbar-item-height;
   text-align: left;
-  gap: 0.25em;
-  min-width: @navbar-item-height;
+  gap: 1em;
   align-items: center;
 
   svg {
     fill: currentColor;
     stroke: none;
-    width: 1em;
-    height: 1em;
+    width: @navbar-item-height;
+    height: @navbar-item-height;
   }
 
-  > div > svg {
-    &:first-child {
+  > a {
+    height: 1.5em;
+
+    > svg:first-child {
       display: none;
     }
-  }
 
-  > div.navbar-current > svg {
-    &:first-child {
-      display: inline;
-      filter: drop-shadow(0 0 3px var(--subtext));
-    }
+    &.navbar-current > svg {
+      &:first-child {
+        display: inline;
+        filter: drop-shadow(0 0 3px var(--subtext));
+      }
 
-    &:last-child {
-      display: none;
+      &:last-child {
+        display: none;
+      }
     }
   }
 }
@@ -145,21 +196,21 @@
     position: fixed;
     gap: 0;
     align-items: center;
-    top: calc(100vh - @navbar-item-height - 0.5em);
     left: 0;
+    top: calc(100vh - @navbar-item-height - 1em);
     height: @navbar-item-height;
-    padding: 0.25em;
+    padding: 0.5em 0.25em;
     width: calc(100vw - 0.5em);;
     flex-direction: row;
     z-index: 999;
-    overflow: visible;
     backdrop-filter: blur(4px);
     background-color: rgba(var(--background-rgb) / 25%);
-    border-top: 1px solid var(--border-color);
+    border-top: 2px solid var(--border-color);
     text-align: center;
 
-    > div {
+    > a {
       flex: 1;
+      padding: 0.5em 0;
     }
   }
 }

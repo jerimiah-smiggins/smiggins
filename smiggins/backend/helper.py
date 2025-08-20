@@ -318,6 +318,11 @@ def generate_token(username: str, password: str) -> str:
 
     return sha(sha(f"{username}:{password}") + PRIVATE_AUTHENTICATOR_KEY)
 
+NEW_RL = 429, {
+    "success": False,
+    "reason": "RATELIMIT"
+}
+
 def check_ratelimit(request, route_id: str) -> None | APIResponse:
     if not ENABLE_RATELIMIT:
         return None

@@ -25,7 +25,7 @@ function urlToIntent(path) {
     }
     return "404";
 }
-function processInternalLinks(element) {
+function generateInternalLinks(element) {
     if (!element) {
         element = container;
     }
@@ -53,20 +53,24 @@ onpopstate = function (e) {
     renderPage(currentPage);
 };
 function renderPage(intent) {
-    let snippet = getSnippet(intent);
-    processInternalLinks(snippet);
+    let snippet = getSnippet(`pages/${intent}`);
+    generateInternalLinks(snippet);
     container.replaceChildren(snippet);
 }
 let snippetVariables = {
     site_name: "Jerimiah Smiggins",
-    home_page: loggedIn ? "home" : "index"
+    home_page: loggedIn ? "home" : "index",
+    username: loggedIn ? username : ""
 };
 let snippetProcessing = {
-    input_enter: processInputEnter,
-    password_toggle: processPasswordToggle,
-    login: processLogin,
-    signup: processSignup,
-    logout: processLogout
+    input_enter: p_inputEnter,
+    password_toggle: p_passwordToggle,
+    login: p_login,
+    signup: p_signup,
+    logout: p_logout,
+    home: p_home,
+    timeline_switch: p_tlSwitch,
+    timeline_more: p_tlMore
 };
 function getSnippet(snippet, extraVariables) {
     var _a, _b;
@@ -76,16 +80,18 @@ function getSnippet(snippet, extraVariables) {
     let content = page.innerHTML;
     for (const i of variables) {
         let replacementValue = "";
-        if (extraVariables && i in extraVariables) {
-            replacementValue = extraVariables[i];
-        }
-        else if (i in snippetVariables) {
+        if (i in snippetVariables) {
             replacementValue = snippetVariables[i];
         }
         else {
             console.log(`Unknown snippet variable "${i}"`);
         }
         content = content.replaceAll(`@{${i}}`, replacementValue);
+    }
+    if (extraVariables) {
+        for (const i of Object.keys(extraVariables)) {
+            content = content.replaceAll(`@{${i}}`, extraVariables[i]);
+        }
     }
     let element = document.createElement("div");
     element.innerHTML = content;
@@ -99,14 +105,118 @@ function getSnippet(snippet, extraVariables) {
     }
     return element;
 }
-function processInputEnter(element) {
+function p_inputEnter(element) {
     for (const el of element.querySelectorAll("[data-enter-submit]")) {
         el.onkeydown = inputEnterEvent;
     }
 }
-function processPasswordToggle(element) {
+function p_passwordToggle(element) {
     for (const el of element.querySelectorAll("[data-password-toggle]")) {
         el.onclick = togglePasswords;
+    }
+}
+let currentTl;
+let tlElement;
+let timelines = {};
+let offset = null;
+const LOADING_HTML = "<i class=\"timeline-status\">Loading...</i>";
+function hookTimeline(element, tls, activeTimeline) {
+    timelines = tls;
+    currentTl = timelines[activeTimeline];
+    tlElement = element;
+    reloadTimeline();
+}
+function reloadTimeline() {
+    tlElement.innerHTML = LOADING_HTML;
+    fetch(currentTl.url, {
+        headers: { Accept: "application/json" }
+    }).then((response) => (response.json()))
+        .then(renderTimeline)
+        .catch((err) => {
+        createToast("Something went wrong!", String(err));
+        throw err;
+    });
+}
+function loadMorePosts() {
+    let more = document.getElementById("timeline-more");
+    if (more) {
+        more.hidden = true;
+    }
+    tlElement.insertAdjacentHTML("beforeend", LOADING_HTML);
+    fetch(`${currentTl.url}?offset=${offset}`, {
+        headers: { Accept: "application/json" }
+    }).then((response) => (response.json()))
+        .then(renderTimeline)
+        .catch((err) => {
+        createToast("Something went wrong!", String(err));
+        if (more) {
+            more.hidden = false;
+        }
+        clearTimelineStatuses();
+        throw err;
+    });
+}
+function clearTimelineStatuses() {
+    let statuses = tlElement.querySelectorAll(".timeline-status");
+    for (const el of statuses) {
+        el.remove();
+    }
+}
+function renderTimeline(json) {
+    if (!json.success) {
+        createToast("Something went wrong!");
+        console.log(json);
+        return;
+    }
+    clearTimelineStatuses();
+    let frag = document.createDocumentFragment();
+    let more = document.getElementById("timeline-more");
+    if (more) {
+        if (json.end) {
+            more.hidden = true;
+        }
+        else {
+            more.hidden = false;
+        }
+    }
+    for (const post of json.posts) {
+        let postContent = escapeHTML(post.content);
+        offset = post.id;
+        if (post.content_warning) {
+            postContent = `<details class="content-warning"><summary><div>${escapeHTML(post.content_warning)}<div class="content-warning-stats"> (${post.content.length} char${post.content.length === 1 ? "" : "s"})</div></div></summary>${postContent}</details>`;
+        }
+        frag.append(getSnippet("post", {
+            timestamp: getTimestamp(post.timestamp),
+            username: post.user.username,
+            display_name: escapeHTML(post.user.display_name),
+            content: postContent
+        }));
+    }
+    tlElement.append(frag);
+}
+function switchTimeline(e) {
+    let el = e.target;
+    if (!el) {
+        return;
+    }
+    if (el.dataset.timelineId && el.dataset.timelineId in timelines && timelines[el.dataset.timelineId].url !== currentTl.url) {
+        currentTl = timelines[el.dataset.timelineId];
+        reloadTimeline();
+    }
+}
+function p_tlMore(element) {
+    let el = element.querySelector("[id=\"timeline-more\"]");
+    if (el) {
+        el.addEventListener("click", () => {
+            el.setAttribute("hidden", "");
+            loadMorePosts();
+        });
+    }
+}
+function p_tlSwitch(element) {
+    let carouselItems = element.querySelectorAll("[data-timeline-id]");
+    for (const i of carouselItems) {
+        i.addEventListener("click", switchTimeline);
     }
 }
 function createToast(title, content, timeout) {
@@ -214,6 +324,53 @@ function escapeHTML(str) {
     }
     return str.replaceAll("&", "&amp;").replaceAll("<", "&lt;").replaceAll("\"", "&quot;").replaceAll("`", "&#96;");
 }
+function getTimestamp(timestamp, raw = false) {
+    let difference = Math.round(new Date().getTime() / 1000 - timestamp);
+    let future = difference < 0;
+    let complexTimestamps = !!localStorage.getItem("complex-timestamps");
+    if (future) {
+        difference = -difference;
+    }
+    let output = "?";
+    if (difference < 60) {
+        output = `${difference}s`;
+    }
+    else if (difference < 60 * 60) {
+        output = `${Math.floor(difference / 60)}m` + (complexTimestamps ? `${difference % 60}s` : "");
+    }
+    else if (difference < 60 * 60 * 24) {
+        output = `${Math.floor(difference / 60 / 60)}h` + (complexTimestamps ? `${Math.floor(difference / 60) % 60}m` : "");
+    }
+    else if (difference < 60 * 60 * 24 * 365) {
+        output = `${Math.floor(difference / 60 / 60 / 24)}d` + (complexTimestamps ? `${Math.floor(difference / 60 / 60) % 24}h` : "");
+    }
+    else if (!isNaN(timestamp)) {
+        output = `${Math.floor(difference / 60 / 60 / 24 / 365)}y` + (complexTimestamps ? `${Math.floor(difference / 60 / 60 / 24) % 365}d` : "");
+    }
+    if (future) {
+        output = "in " + output;
+    }
+    if (raw) {
+        return output;
+    }
+    return `<span data-timestamp="${timestamp}">${output}</span>`;
+}
+function updateTimestamps() {
+    let timestamps = document.querySelectorAll("[data-timestamp]");
+    for (const i of timestamps) {
+        let newTime = getTimestamp(+(i.dataset.timestamp || NaN), true);
+        if (newTime !== i.innerText) {
+            i.innerText = newTime;
+        }
+    }
+}
+setInterval(updateTimestamps, 1000);
+function p_home(element) {
+    hookTimeline(element.querySelector("[id=\"timeline-posts\"]"), {
+        following: { url: "/api/timeline/following", prependPosts: true },
+        global: { url: "/api/timeline/global", prependPosts: true }
+    }, "global");
+}
 function loginSubmitEvent(e) {
     let usernameElement = document.getElementById("username");
     let passwordElement = document.getElementById("password");
@@ -265,10 +422,10 @@ function loginSubmitEvent(e) {
         throw err;
     });
 }
-function processLogin(element) {
+function p_login(element) {
     element.querySelector("#submit").addEventListener("click", loginSubmitEvent);
 }
-function processLogout(element) {
+function p_logout(element) {
     document.cookie = "token=;Path=/;Expires=Thu, 01 Jan 1970 00:00:01 GMT;";
     location.href = "/";
 }
@@ -344,6 +501,6 @@ function signupSubmitEvent(e) {
         throw err;
     });
 }
-function processSignup(element) {
+function p_signup(element) {
     element.querySelector("#submit").addEventListener("click", signupSubmitEvent);
 }

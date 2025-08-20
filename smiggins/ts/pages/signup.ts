@@ -53,6 +53,6 @@ function signupSubmitEvent(e: MouseEvent) {
     });
 }
 
-function processSignup(element: HTMLDivElement): void {
+function p_signup(element: HTMLDivElement): void {
   (element.querySelector("#submit") as HTMLButtonElement).addEventListener("click", signupSubmitEvent);
 }
