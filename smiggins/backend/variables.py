@@ -98,7 +98,6 @@ CONTACT_INFO: list[list[str]] = [
     ["url",   "https://discord.gg/tH7QnHApwu"],
     ["text",  "DM me on discord (@trinkey_)"]
 ]
-POST_WEBHOOKS: dict[str, list[str]] = {}
 CUSTOM_HEADERS: dict[str, Any] = {}
 SOURCE_CODE: bool = True
 ENABLE_USER_BIOS: bool = True
@@ -114,7 +113,6 @@ ENABLE_PINNED_POSTS: bool = True
 ENABLE_ACCOUNT_SWITCHER: bool = True
 ENABLE_BADGES: bool = True
 ENABLE_QUOTES: bool = True
-ENABLE_CONTENT_WARNINGS: bool = True
 ENABLE_POLLS: bool = True
 ENABLE_LOGGED_OUT_CONTENT: bool = True
 ENABLE_NEW_ACCOUNTS: bool | Literal["otp"] = True
@@ -507,7 +505,6 @@ _VARIABLES: list[tuple[str | None, list[str], type | str | list | tuple | dict, 
     ("MAX_MUTED_WORDS", ["max_muted_words"], int, False),
     ("MAX_MUTED_WORD_LENGTH", ["max_muted_word_length"], int, False),
     ("CONTACT_INFO", ["contact_info", "contact_information"], [[str]], False),
-    ("POST_WEBHOOKS", ["webhooks", "auto_webhooks", "post_webhooks", "auto_post_webhooks"], {str: [str]}, False),
     ("CUSTOM_HEADERS", ["custom_headers", "headers"], {str: Any}, False),
     ("SOURCE_CODE", ["source_code"], bool, False),
     ("ENABLE_USER_BIOS", ["enable_user_bios"], bool, False),
@@ -524,7 +521,6 @@ _VARIABLES: list[tuple[str | None, list[str], type | str | list | tuple | dict, 
     ("ENABLE_BADGES", ["enable_badges"], bool, False),
     ("ENABLE_QUOTES", ["enable_quotes"], bool, False),
     ("ENABLE_POLLS", ["enable_polls"], bool, False),
-    ("ENABLE_CONTENT_WARNINGS", ["enable_cws", "enable_c_warnings", "enable_content_warnings"], bool, False),
     ("ENABLE_LOGGED_OUT_CONTENT", ["enable_logged_out", "enable_logged_out_content"], bool, False),
     ("ENABLE_NEW_ACCOUNTS", ["enable_signup", "enable_new_users", "enable_new_accounts"], (bool, "Literal_otp"), False),
     ("ENABLE_EMAIL", ["email", "enable_email"], bool, False),

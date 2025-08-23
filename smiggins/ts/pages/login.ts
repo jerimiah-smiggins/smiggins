@@ -1,4 +1,4 @@
-function loginSubmitEvent(e: MouseEvent) {
+function loginSubmitEvent(e: MouseEvent): void {
   let usernameElement: HTMLElement | null = document.getElementById("username");
   let passwordElement: HTMLElement | null = document.getElementById("password");
 
@@ -9,6 +9,8 @@ function loginSubmitEvent(e: MouseEvent) {
 
   if (!username) { usernameElement.focus(); return; }
   else if (!password) { passwordElement.focus(); return; }
+
+  (e.target as HTMLButtonElement | null)?.setAttribute("disabled", "");
 
   fetch("/api/user/login", {
     method: "POST",
@@ -23,15 +25,12 @@ function loginSubmitEvent(e: MouseEvent) {
         document.cookie = `token=${json.token};Path=/;SameSite=Lax;Expires=${new Date(new Date().getTime() + (356 * 24 * 60 * 60 * 1000)).toUTCString()}`;
         location.href = "/";
       } else {
-        switch (json.reason) {
-          case "BAD_USERNAME": createToast("Incorrect username.", `User '${escapeHTML(username)}' does not exist.`); usernameElement.focus(); break;
-          case "BAD_PASSWORD": createToast("Incorrect password."); passwordElement.focus(); break;
-          case "RATELIMIT": createToast("Ratelimited.", "Try again in a few seconds."); break;
-          default: createToast("Something went wrong!");
-        }
+        (e.target as HTMLButtonElement | null)?.removeAttribute("disabled");
+        createToast(...errorCodeStrings(json.reason, "login"));
       }
     })
     .catch((err: any): void => {
+      (e.target as HTMLButtonElement | null)?.removeAttribute("disabled");
       createToast("Something went wrong!", String(err));
       throw err;
     });

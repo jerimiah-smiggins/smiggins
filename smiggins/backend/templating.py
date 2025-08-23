@@ -11,8 +11,8 @@ from .helper import get_HTTP_response, get_strings
 from .lang import get_lang
 from .variables import (DEFAULT_DARK_THEME, DEFAULT_LIGHT_THEME,
                         ENABLE_ACCOUNT_SWITCHER, ENABLE_BADGES,
-                        ENABLE_CONTENT_WARNINGS, ENABLE_DYNAMIC_FAVICON,
-                        ENABLE_EMAIL, ENABLE_GRADIENT_BANNERS, ENABLE_HASHTAGS,
+                        ENABLE_DYNAMIC_FAVICON, ENABLE_EMAIL,
+                        ENABLE_GRADIENT_BANNERS, ENABLE_HASHTAGS,
                         ENABLE_NEW_ACCOUNTS, ENABLE_PINNED_POSTS, ENABLE_POLLS,
                         ENABLE_POST_DELETION, ENABLE_PRIVATE_MESSAGES,
                         ENABLE_PRONOUNS, ENABLE_QUOTES, ENABLE_USER_BIOS,
@@ -42,52 +42,72 @@ def webapp(request) -> HttpResponse:
 
     lang = get_lang(user)
     strings = get_strings(request, lang, user)
-    conf = {
-        "max_post_length": MAX_POST_LENGTH,
-        "max_poll_option_length": MAX_POLL_OPTION_LENGTH,
-        "max_poll_options": MAX_POLL_OPTIONS,
-        "max_content_warning_length": MAX_CONTENT_WARNING_LENGTH,
-        "max_bio_length": MAX_BIO_LENGTH,
-        "max_username_length": MAX_USERNAME_LENGTH,
-        "max_muted_words": MAX_MUTED_WORDS,
-        "max_muted_word_length": MAX_MUTED_WORD_LENGTH,
-        "max_display_name_length": MAX_DISPL_NAME_LENGTH,
-        "user_bios": ENABLE_USER_BIOS,
-        "pronouns": ENABLE_PRONOUNS,
-        "gradient_banners": ENABLE_GRADIENT_BANNERS,
-        "badges": ENABLE_BADGES,
-        "private_messages": ENABLE_PRIVATE_MESSAGES,
-        "quotes": ENABLE_QUOTES,
-        "post_deletion": ENABLE_POST_DELETION,
-        "pinned_posts": ENABLE_PINNED_POSTS,
-        "account_switcher": ENABLE_ACCOUNT_SWITCHER,
-        "polls": ENABLE_POLLS,
-        "content_warnings": ENABLE_CONTENT_WARNINGS,
-        "email": ENABLE_EMAIL,
-        "dynamic_favicon": ENABLE_DYNAMIC_FAVICON,
-        "new_accounts": ENABLE_NEW_ACCOUNTS,
-        "hashtags": ENABLE_HASHTAGS,
-        "site_name": SITE_NAME,
-        "version": lang["generic"]["version"].replace("%v", VERSION)
-    }
+    # conf = {
+    #     "max_post_length": MAX_POST_LENGTH,
+    #     "max_poll_option_length": MAX_POLL_OPTION_LENGTH,
+    #     "max_poll_options": MAX_POLL_OPTIONS,
+    #     "max_content_warning_length": MAX_CONTENT_WARNING_LENGTH,
+    #     "max_bio_length": MAX_BIO_LENGTH,
+    #     "max_username_length": MAX_USERNAME_LENGTH,
+    #     "max_muted_words": MAX_MUTED_WORDS,
+    #     "max_muted_word_length": MAX_MUTED_WORD_LENGTH,
+    #     "max_display_name_length": MAX_DISPL_NAME_LENGTH,
+    #     "user_bios": ENABLE_USER_BIOS,
+    #     "pronouns": ENABLE_PRONOUNS,
+    #     "gradient_banners": ENABLE_GRADIENT_BANNERS,
+    #     "badges": ENABLE_BADGES,
+    #     "private_messages": ENABLE_PRIVATE_MESSAGES,
+    #     "quotes": ENABLE_QUOTES,
+    #     "post_deletion": ENABLE_POST_DELETION,
+    #     "pinned_posts": ENABLE_PINNED_POSTS,
+    #     "account_switcher": ENABLE_ACCOUNT_SWITCHER,
+    #     "polls": ENABLE_POLLS,
+    #     "content_warnings": ENABLE_CONTENT_WARNINGS,
+    #     "email": ENABLE_EMAIL,
+    #     "dynamic_favicon": ENABLE_DYNAMIC_FAVICON,
+    #     "new_accounts": ENABLE_NEW_ACCOUNTS,
+    #     "hashtags": ENABLE_HASHTAGS,
+    #     "site_name": SITE_NAME,
+    #     "version": lang["generic"]["version"].replace("%v", VERSION)
+    # }
+
+    # context = {
+    #     "title": strings[0],
+    #     "loading": random.choice(MOTDs) if MOTDs else lang["generic"]["loading"],
+    #     "something_went_wrong": lang["generic"]["something_went_wrong"],
+    #     "logged_in": user is not None,
+    #     "username": user and user.username,
+    #     "is_admin": user is not None and (user.admin_level != 0 or user.user_id == OWNER_USER_ID),
+    #     "default_post_private": user.default_post_private if user else False,
+    #     "theme": theme if theme in THEMES else "auto",
+    #     "theme_str": "{}" if theme == "auto" or theme not in THEMES else json.dumps(THEMES[theme]),
+    #     "theme_default_light": json.dumps(THEMES[DEFAULT_LIGHT_THEME]),
+    #     "theme_default_dark": json.dumps(THEMES[DEFAULT_DARK_THEME]),
+    #     "scraper_text": strings[1],
+    #     "meta_description": strings[2],
+    #     "google_verification_tag": GOOGLE_VERIFICATION_TAG,
+    #     "conf": conf,
+    #     "conf_str": json.dumps(conf)
+    # }
 
     context = {
+        "conf": {
+            "site_name": SITE_NAME,
+            "version": VERSION,
+            "new_accounts": ENABLE_NEW_ACCOUNTS,
+
+            "max_length": {
+                "username": MAX_USERNAME_LENGTH,
+                "post": MAX_POST_LENGTH,
+                "cw": MAX_CONTENT_WARNING_LENGTH
+            }
+        },
+
         "title": strings[0],
-        "loading": random.choice(MOTDs) if MOTDs else lang["generic"]["loading"],
-        "something_went_wrong": lang["generic"]["something_went_wrong"],
         "logged_in": user is not None,
         "username": user and user.username,
-        "is_admin": user is not None and (user.admin_level != 0 or user.user_id == OWNER_USER_ID),
-        "default_post_private": user.default_post_private if user else False,
-        "theme": theme if theme in THEMES else "auto",
-        "theme_str": "{}" if theme == "auto" or theme not in THEMES else json.dumps(THEMES[theme]),
-        "theme_default_light": json.dumps(THEMES[DEFAULT_LIGHT_THEME]),
-        "theme_default_dark": json.dumps(THEMES[DEFAULT_DARK_THEME]),
-        "scraper_text": strings[1],
-        "meta_description": strings[2],
-        "google_verification_tag": GOOGLE_VERIFICATION_TAG,
-        "conf": conf,
-        "conf_str": json.dumps(conf)
+        "loading": random.choice(MOTDs) if MOTDs else lang["generic"]["loading"],
+        "google_verification_tag": GOOGLE_VERIFICATION_TAG
     }
 
     return HttpResponse(

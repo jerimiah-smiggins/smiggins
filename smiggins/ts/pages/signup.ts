@@ -24,6 +24,8 @@ function signupSubmitEvent(e: MouseEvent) {
     return;
   }
 
+  (e.target as HTMLButtonElement | null)?.setAttribute("disabled", "");
+
   fetch("/api/user/signup", {
     method: "POST",
     body: JSON.stringify({
@@ -38,21 +40,17 @@ function signupSubmitEvent(e: MouseEvent) {
         document.cookie = `token=${json.token};Path=/;SameSite=Lax;Expires=${new Date(new Date().getTime() + (356 * 24 * 60 * 60 * 1000)).toUTCString()}`;
         location.href = "/";
       } else {
-        switch (json.reason) {
-          case "USERNAME_USED": createToast("Username in use.", `User '${escapeHTML(username)}' already exists.`); usernameElement.focus(); break;
-          case "BAD_PASSWORD": createToast("Invalid password."); passwordElement.focus(); break;
-          case "INVALID_OTP": createToast("Invalid invite code.", "Make sure your invite code is valid and try again."); otpElement.focus(); break;
-          case "RATELIMIT": createToast("Ratelimited.", "Try again in a few seconds."); break;
-          default: createToast("Something went wrong!");
-        }
+        (e.target as HTMLButtonElement | null)?.removeAttribute("disabled");
+        createToast(...errorCodeStrings(json.reason, "signup"));
       }
     })
     .catch((err: any): void => {
+      (e.target as HTMLButtonElement | null)?.removeAttribute("disabled");
       createToast("Something went wrong!", String(err));
       throw err;
     });
 }
 
 function p_signup(element: HTMLDivElement): void {
-  (element.querySelector("#submit") as HTMLButtonElement).addEventListener("click", signupSubmitEvent);
+  (element.querySelector("#submit") as HTMLButtonElement | null)?.addEventListener("click", signupSubmitEvent);
 }

@@ -34,6 +34,7 @@ function reloadTimeline(): void {
 
 function loadMorePosts(): void {
   let more: HTMLElement | null = document.getElementById("timeline-more");
+  let currentTimeline: timelineConfig = currentTl;
   if (more) { more.hidden = true; }
 
   tlElement.insertAdjacentHTML("beforeend", LOADING_HTML);
@@ -41,7 +42,14 @@ function loadMorePosts(): void {
   fetch(`${currentTl.url}?offset=${offset}`, {
     headers: { Accept: "application/json" }
   }).then((response: Response): Promise<api_timeline> => (response.json()))
-    .then(renderTimeline)
+    .then((json: api_timeline): void => {
+      if (currentTl.url !== currentTimeline.url) {
+        console.log("timeline switched, discarding request");
+        return;
+      }
+
+      renderTimeline(json);
+    })
     .catch((err: any): void => {
       createToast("Something went wrong!", String(err));
 
@@ -79,19 +87,7 @@ function renderTimeline(json: api_timeline): void {
   }
 
   for (const post of json.posts) {
-    let postContent: string = escapeHTML(post.content);
-    offset = post.id;
-
-    if (post.content_warning) {
-      postContent = `<details class="content-warning"><summary><div>${escapeHTML(post.content_warning)}<div class="content-warning-stats"> (${post.content.length} char${post.content.length === 1 ? "" : "s"})</div></div></summary>${postContent}</details>`;
-    }
-
-    frag.append(getSnippet("post", {
-      timestamp: getTimestamp(post.timestamp),
-      username: post.user.username,
-      display_name: escapeHTML(post.user.display_name),
-      content: postContent
-    }));
+    frag.append(getPost(post));
   }
 
   tlElement.append(frag);

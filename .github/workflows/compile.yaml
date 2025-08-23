@@ -5,6 +5,7 @@ on:
     branches:
       - main
       - dev
+      - fe-rewrite
 
 jobs:
 
@@ -26,8 +27,7 @@ jobs:
     - name: Compile
       run: |
         npm i -g typescript less less-plugin-clean-css
-        tsc
-        python3 compile-less.py
+        ./compile.sh
 
     - name: Commit
       run: |

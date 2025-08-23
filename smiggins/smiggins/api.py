@@ -1,12 +1,10 @@
 import json
-from typing import Callable
+from typing import Any, Callable
 
-from backend.api import (ApiAdmin, ApiComment, ApiEmail, ApiInfo, ApiInit,
-                         ApiMessages, ApiPost, ApiTimeline, ApiUser)
-from backend.variables import (ENABLE_BADGES, ENABLE_EDITING_POSTS,
-                               ENABLE_EMAIL, ENABLE_HASHTAGS,
-                               ENABLE_NEW_ACCOUNTS, ENABLE_PRIVATE_MESSAGES,
-                               ENABLE_QUOTES, SITE_NAME, VERSION)
+from backend.api.post import post_create
+from backend.api.timeline import tl_following, tl_global
+from backend.api.user import login, signup
+from backend.variables import DEBUG, SITE_NAME, VERSION
 from django.urls import path
 from ninja import NinjaAPI
 from ninja.renderers import BaseRenderer
@@ -27,17 +25,28 @@ class JSONRenderer(BaseRenderer):
 api = NinjaAPI(
     renderer=JSONRenderer(),
     title=SITE_NAME,
-    version=VERSION
+    version=VERSION,
+    docs_url="/docs" if DEBUG else None,
+    openapi_url="/openapi.json" if DEBUG else None
 )
 
+RESPONSE_SCHEMA = {
+    200: dict,
+    400: dict,
+    404: dict,
+    429: dict
+}
+
+r: dict[str, Any] = {
+    "response": RESPONSE_SCHEMA
+}
+
 routes: list[tuple[str, str, Callable, bool | None, str, str, str | list[str]]] = [
-#   ["path/to/endpoint", "METHOD", function,, requirements, "summary", "description", "group"]
+    # ["path/to/endpoint", "METHOD", function,, requirements, "summary", "description", "group"]
     # ("init/context", "GET", ApiInit.context, None, "Load Context", "Handles loading context for pages and whatnot", "Init"),
     # ("init/badges", "GET", ApiInit.badges, None, "Load Badges", "Loads badges", "Init"),
     # ("init/lang", "GET", ApiInit.lang, None, "Load Language", "Gives the client the language for the current user", "Init"),
     # ("init/muted", "GET", ApiInit.muted, None, "Load Muted Words", "Loads the user's muted words", "Init"),
-    ("user/signup", "POST", ApiUser.signup, bool(ENABLE_NEW_ACCOUNTS), "Sign up", "Handles signing up for a new account", "User"),
-    ("user/login", "POST", ApiUser.login, None, "Log in", "Handles logging in to an account", "User"),
     # ("user/notifications", "GET", ApiUser.notifications_list, None, "Get notification list", "Returns a list of notifications for a user", "User"),
     # ("user/notifications", "PATCH", ApiUser.read_notifs, None, "Read notifications", "Marks notifications as read", "User"),
     # ("user/notifications", "DELETE", ApiUser.clear_read_notifs, None, "Clear notifications", "Clears all read notifications", "User"),
@@ -60,8 +69,6 @@ routes: list[tuple[str, str, Callable, bool | None, str, str, str | list[str]]] 
     # ("quote/create", "PUT", ApiPost.quote_create, ENABLE_QUOTES, "Create quote", "Handles quoting a post", "Post"),
     # ("post/create", "PUT", ApiPost.post_create, None, "Create post", "Handles creating a post", "Post"),
     # ("post/user/{str:username}", "GET", ApiPost.post_list_user, None, "User timeline", "Returns a list of the posts from a user", ["Post", "Timeline"]),
-    ("timeline/following", "GET", ApiTimeline.tl_following, None, "Following timeline", "Returns a list of posts for your following timeline", "Timeline"),
-    ("timeline/global", "GET", ApiTimeline.tl_global, None, "Recent timeline", "Returns a list of the most recent posts for the recent timeline", "Timeline"),
     # ("comments", "GET", ApiComment.comment_list, None, "Comment timeline", "Returns a list of comments for a post", ["Comment", "Timeline"]),
     # ("hashtag/{str:hashtag}", "GET", ApiPost.hashtag_list, ENABLE_HASHTAGS, "Hashtag timeline", "Returns a list of posts with a hashtag", ["Post", "Timeline"]),
     # ("post", "DELETE", ApiPost.post_delete, None, "Delete post", "Deletes a post", "Post"),
@@ -98,21 +105,24 @@ routes: list[tuple[str, str, Callable, bool | None, str, str, str | list[str]]] 
     # ("info/version", "GET", ApiInfo.version, None, "Get version", "Returns the real version of the server. Isn't based on the configuration in settings", "Misc")
 ]
 
-for route in routes:
-    if route[3] is None or route[3]:
-        getattr(api, route[1].lower())(
-            route[0],
-            response={
-                200: dict,
-                400: dict,
-                404: dict,
-                429: dict
-            },
-            summary=route[4],
-            description=route[5],
-            tags=[route[6]] if isinstance(route[6], str) else route[6]
-        )(route[2])
+# for route in routes:
+#     if route[3] is None or route[3]:
+#         getattr(api, route[1].lower())(
+#             route[0],
+#             response=RESPONSE_SCHEMA,
+#             summary=route[4],
+#             description=route[5],
+#             tags=[route[6]] if isinstance(route[6], str) else route[6]
+#         )(route[2])
+
+api.post("user/signup", **r)(signup)
+api.post("user/login", **r)(login)
+
+api.get("timeline/global", **r)(tl_global)
+api.get("timeline/following", **r)(tl_following)
+
+api.post("post", **r)(post_create)
 
 urlpatterns = [
-    path("", api.urls) # type: ignore
+    path("", api.urls)
 ]

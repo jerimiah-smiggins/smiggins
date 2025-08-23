@@ -12,8 +12,7 @@ from .messages import (container_create, messages_list, recent_messages,
                        send_message)
 from .post import (hashtag_list, pin_post, poll_refresh, poll_vote,
                    post_create, post_delete, post_edit, post_like_add,
-                   post_like_remove, post_list_following, post_list_recent,
-                   post_list_user, quote_create, unpin_post)
+                   post_like_remove, post_list_user, quote_create, unpin_post)
 from .timeline import tl_following, tl_global
 from .user import (accept_pending, block_add, block_remove, change_password,
                    clear_read_notifs, follower_add, follower_remove,
@@ -74,8 +73,6 @@ class ApiPost:
     post_delete = post_delete
     post_like_add = post_like_add
     post_like_remove = post_like_remove
-    post_list_following = post_list_following
-    post_list_recent = post_list_recent
     post_list_user = post_list_user
     quote_create = quote_create
     unpin_post = unpin_post
@@ -104,5 +101,5 @@ class ApiUser:
     lists = lists
 
 class ApiTimeline:
-    tl_following = tl_following
-    tl_global = tl_global
+    following = tl_following
+    all = tl_global

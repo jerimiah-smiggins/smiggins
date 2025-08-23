@@ -3,7 +3,7 @@ function inputEnterEvent(e: KeyboardEvent): void {
 
   let el: HTMLElement = e.currentTarget as HTMLElement;
   let eventQuery: string | undefined = (e.ctrlKey && el.dataset.enterSubmit) || el.dataset.enterNext || el.dataset.enterSubmit;
-  if (!eventQuery) { return; }
+  if (!eventQuery || eventQuery === "!avoid") { return; }
 
   let newElement: HTMLElement | null = document.querySelector(eventQuery);
   if (!newElement) { return; }
@@ -135,6 +135,48 @@ function updateTimestamps(): void {
       i.innerText = newTime;
     }
   }
+}
+
+function errorCodeStrings(code: apiErrors | undefined, context?: string, data?: { [key: string]: string }): [title: string, content?: string] {
+  switch (code) {
+    case "BAD_PASSWORD": return ["Invalid password."];
+    case "BAD_USERNAME": switch (context) {
+      case "login": return ["Invalid username.", `User '${data?.username}' does not exist.`];
+      default: return ["Invalid username."];
+    }
+    case "INVALID_OTP": return ["Invalid invite code.", "Make sure your invite code is correct and try again."];
+    case "NOT_AUTHENTICATED": return ["Not authenticated."];
+    case "POLL_SINGLE_OPTION": return ["Invalid poll.", "Must have more than one option."];
+    case "RATELIMIT": return ["Ratelimited.", "Try again in a few seconds."];
+    case "USERNAME_USED": switch (context) {
+      case "login": return ["Username in use.", `User '${data?.username}' already exists.`];
+      default: return ["Username in use."];
+    }
+  }
+
+  return [code || "Something went wrong!"];
+}
+
+function getPost(post: post): HTMLDivElement {
+  let postContent: string = escapeHTML(post.content);
+  offset = post.id;
+
+  if (post.content_warning) {
+    postContent = `<details class="content-warning"><summary><div>${escapeHTML(post.content_warning)}<div class="content-warning-stats"> (${post.content.length} char${post.content.length === 1 ? "" : "s"})</div></div></summary>${postContent}</details>`;
+  }
+
+  let el: HTMLDivElement = getSnippet("post", {
+    timestamp: getTimestamp(post.timestamp),
+    username: post.user.username,
+    display_name: escapeHTML(post.user.display_name),
+    content: postContent
+  });
+
+  if (post.private) {
+    el.dataset.privatePost = "";
+  }
+
+  return el;
 }
 
 setInterval(updateTimestamps, 1000);

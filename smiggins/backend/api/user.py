@@ -33,39 +33,24 @@ def signup(request, data: Account) -> tuple[int, dict] | dict:
         try:
             otp = OneTimePassword.objects.get(code=data.otp)
         except OneTimePassword.DoesNotExist:
-            return 400, {
-                "success": False,
-                "reason": "INVALID_OTP"
-            }
+            return 400, { "success": False, "reason": "INVALID_OTP" }
 
     # e3b0c44... is the sha256 hash for an empty string
     if len(password) != 64 or password == "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855":
-        return 400, {
-            "success": False,
-            "reason": "BAD_PASSWORD"
-        }
+        return 400, { "success": False, "reason": "BAD_PASSWORD" }
 
     for i in password:
         if i not in "abcdef0123456789":
-            return 400, {
-                "success": False,
-                "reason": "BAD_PASSWORD"
-            }
+            return 400, { "success": False, "reason": "BAD_PASSWORD" }
 
     try:
         User.objects.get(username=username)
-        return 400, {
-            "success": False,
-            "reason": "USERNAME_USED"
-        }
+        return 400, { "success": False, "reason": "USERNAME_USED" }
     except User.DoesNotExist:
         ...
 
     if len(username) > MAX_USERNAME_LENGTH or not username:
-        return 400, {
-            "success": False,
-            "reason": "BAD_USERNAME"
-        }
+        return 400, { "success": False, "reason": "BAD_USERNAME" }
 
     if ENABLE_NEW_ACCOUNTS == "otp":
         otp.delete()
@@ -103,16 +88,10 @@ def login(request, data: Account) -> tuple[int, dict] | dict:
                 "token": token
             }
 
-        return 400, {
-            "success": False,
-            "reason": "BAD_PASSWORD"
-        }
+        return 400, { "success": False, "reason": "BAD_PASSWORD" }
 
     except User.DoesNotExist:
-        return 400, {
-            "success": False,
-            "reason": "BAD_USERNAME"
-        }
+        return 400, { "success": False, "reason": "BAD_USERNAME" }
 
 def settings_theme(request, data: Theme) -> APIResponse:
     if rl := check_ratelimit(request, "PATCH /api/user/settings/theme"):

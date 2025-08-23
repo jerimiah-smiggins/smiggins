@@ -88,7 +88,7 @@ class NewMessage(Schema):
 # post.py
 
 class NewPost(Schema):
-    c_warning: str
+    cw: str | None
     content: str
     poll: list[str]
     private: bool

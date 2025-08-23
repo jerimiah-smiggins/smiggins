@@ -3,5 +3,5 @@ if [ "$1" != "less" ]; then
 fi
 
 if [ "$1" != "ts" ]; then
-  lessc ./smiggins/less/base.less ./smiggins/static/base.css
+  lessc ./smiggins/less/base.less ./smiggins/static/base.css --cleancss || lessc ./smiggins/less/base.less ./smiggins/static/base.css
 fi

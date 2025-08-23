@@ -57,6 +57,7 @@ function renderPage(intent) {
     generateInternalLinks(snippet);
     container.replaceChildren(snippet);
 }
+var _a, _b, _c;
 let snippetVariables = {
     site_name: "Jerimiah Smiggins",
     home_page: loggedIn ? "home" : "index",
@@ -72,13 +73,11 @@ let snippetProcessing = {
     timeline_switch: p_tlSwitch,
     timeline_more: p_tlMore
 };
+let snippets = {};
 function getSnippet(snippet, extraVariables) {
-    var _a, _b;
-    let page = document.querySelector(`[data-snippet="${snippet}"]`);
-    let variables = ((_a = page.dataset.snippetVariables) === null || _a === void 0 ? void 0 : _a.split(",").filter((a) => a)) || [];
-    let processing = ((_b = page.dataset.snippetProcessing) === null || _b === void 0 ? void 0 : _b.split(",").filter((a) => a)) || [];
-    let content = page.innerHTML;
-    for (const i of variables) {
+    let s = snippets[snippet];
+    let content = s.content;
+    for (const i of s.variables) {
         let replacementValue = "";
         if (i in snippetVariables) {
             replacementValue = snippetVariables[i];
@@ -95,7 +94,7 @@ function getSnippet(snippet, extraVariables) {
     }
     let element = document.createElement("div");
     element.innerHTML = content;
-    for (const i of processing) {
+    for (const i of s.processing) {
         if (i in snippetProcessing) {
             snippetProcessing[i](element);
         }
@@ -115,11 +114,22 @@ function p_passwordToggle(element) {
         el.onclick = togglePasswords;
     }
 }
+for (const snippet of document.querySelectorAll("[data-snippet]")) {
+    snippets[snippet.dataset.snippet] = {
+        variables: ((_a = snippet.dataset.snippetVariables) === null || _a === void 0 ? void 0 : _a.split(",").filter((a) => a)) || [],
+        processing: ((_b = snippet.dataset.snippetProcessing) === null || _b === void 0 ? void 0 : _b.split(",").filter((a) => a)) || [],
+        content: snippet.innerHTML
+    };
+    snippet.remove();
+}
+(_c = document.getElementById("snippets")) === null || _c === void 0 ? void 0 : _c.remove();
 let currentTl;
 let tlElement;
 let timelines = {};
+let tlCache = {};
 let offset = null;
 const LOADING_HTML = "<i class=\"timeline-status\">Loading...</i>";
+const TL_CACHE_TTL = 60 * 60 * 1000;
 function hookTimeline(element, tls, activeTimeline) {
     timelines = tls;
     currentTl = timelines[activeTimeline];
@@ -139,6 +149,7 @@ function reloadTimeline() {
 }
 function loadMorePosts() {
     let more = document.getElementById("timeline-more");
+    let currentTimeline = currentTl;
     if (more) {
         more.hidden = true;
     }
@@ -146,7 +157,13 @@ function loadMorePosts() {
     fetch(`${currentTl.url}?offset=${offset}`, {
         headers: { Accept: "application/json" }
     }).then((response) => (response.json()))
-        .then(renderTimeline)
+        .then((json) => {
+        if (currentTl.url !== currentTimeline.url) {
+            console.log("timeline switched, discarding request");
+            return;
+        }
+        renderTimeline(json);
+    })
         .catch((err) => {
         createToast("Something went wrong!", String(err));
         if (more) {
@@ -180,17 +197,7 @@ function renderTimeline(json) {
         }
     }
     for (const post of json.posts) {
-        let postContent = escapeHTML(post.content);
-        offset = post.id;
-        if (post.content_warning) {
-            postContent = `<details class="content-warning"><summary><div>${escapeHTML(post.content_warning)}<div class="content-warning-stats"> (${post.content.length} char${post.content.length === 1 ? "" : "s"})</div></div></summary>${postContent}</details>`;
-        }
-        frag.append(getSnippet("post", {
-            timestamp: getTimestamp(post.timestamp),
-            username: post.user.username,
-            display_name: escapeHTML(post.user.display_name),
-            content: postContent
-        }));
+        frag.append(getPost(post));
     }
     tlElement.append(frag);
 }
@@ -238,7 +245,7 @@ function inputEnterEvent(e) {
     }
     let el = e.currentTarget;
     let eventQuery = (e.ctrlKey && el.dataset.enterSubmit) || el.dataset.enterNext || el.dataset.enterSubmit;
-    if (!eventQuery) {
+    if (!eventQuery || eventQuery === "!avoid") {
         return;
     }
     let newElement = document.querySelector(eventQuery);
@@ -368,14 +375,106 @@ function updateTimestamps() {
         }
     }
 }
+function errorCodeStrings(code, context, data) {
+    switch (code) {
+        case "BAD_PASSWORD": return ["Invalid password."];
+        case "BAD_USERNAME": switch (context) {
+            case "login": return ["Invalid username.", `User '${data === null || data === void 0 ? void 0 : data.username}' does not exist.`];
+            default: return ["Invalid username."];
+        }
+        case "INVALID_OTP": return ["Invalid invite code.", "Make sure your invite code is correct and try again."];
+        case "NOT_AUTHENTICATED": return ["Not authenticated."];
+        case "POLL_SINGLE_OPTION": return ["Invalid poll.", "Must have more than one option."];
+        case "RATELIMIT": return ["Ratelimited.", "Try again in a few seconds."];
+        case "USERNAME_USED": switch (context) {
+            case "login": return ["Username in use.", `User '${data === null || data === void 0 ? void 0 : data.username}' already exists.`];
+            default: return ["Username in use."];
+        }
+    }
+    return [code || "Something went wrong!"];
+}
+function getPost(post) {
+    let postContent = escapeHTML(post.content);
+    offset = post.id;
+    if (post.content_warning) {
+        postContent = `<details class="content-warning"><summary><div>${escapeHTML(post.content_warning)}<div class="content-warning-stats"> (${post.content.length} char${post.content.length === 1 ? "" : "s"})</div></div></summary>${postContent}</details>`;
+    }
+    let el = getSnippet("post", {
+        timestamp: getTimestamp(post.timestamp),
+        username: post.user.username,
+        display_name: escapeHTML(post.user.display_name),
+        content: postContent
+    });
+    if (post.private) {
+        el.dataset.privatePost = "";
+    }
+    return el;
+}
 setInterval(updateTimestamps, 1000);
 function p_home(element) {
+    var _a;
     hookTimeline(element.querySelector("[id=\"timeline-posts\"]"), {
         following: { url: "/api/timeline/following", prependPosts: true },
         global: { url: "/api/timeline/global", prependPosts: true }
     }, "global");
+    (_a = element.querySelector("#post")) === null || _a === void 0 ? void 0 : _a.addEventListener("click", homeCreatePost);
+}
+function homeCreatePost(e) {
+    var _a;
+    let cwElement = document.getElementById("post-cw");
+    let contentElement = document.getElementById("post-content");
+    let privatePostElement = document.getElementById("post-private");
+    if (!cwElement || !contentElement || !privatePostElement) {
+        return;
+    }
+    let cw = cwElement.value;
+    let content = contentElement.value;
+    let privatePost = privatePostElement.checked;
+    if (!content) {
+        contentElement.focus();
+        return;
+    }
+    (_a = e.target) === null || _a === void 0 ? void 0 : _a.setAttribute("disabled", "");
+    createPost(content, cw || null, privatePost, (success) => {
+        var _a;
+        (_a = e.target) === null || _a === void 0 ? void 0 : _a.removeAttribute("disabled");
+        contentElement.focus();
+        if (success) {
+            cwElement.value = "";
+            contentElement.value = "";
+        }
+    });
+}
+function createPost(content, cw, followersOnly, callback) {
+    fetch("/api/post", {
+        method: "POST",
+        body: JSON.stringify({
+            content: content,
+            cw: cw,
+            private: followersOnly,
+            poll: []
+        }),
+        headers: { Accept: "application/json" }
+    }).then((response) => (response.json()))
+        .then((json) => {
+        if (json.success) {
+            if (currentTl.prependPosts) {
+                tlElement.prepend(getPost(json.post));
+            }
+        }
+        else {
+            createToast(...errorCodeStrings(json.reason, "post"));
+        }
+        callback && callback(json.success);
+    })
+        .catch((err) => {
+        callback && callback(false);
+        createToast("Something went wrong!", String(err));
+        throw err;
+    });
 }
 function loginSubmitEvent(e) {
+    var _a;
     let usernameElement = document.getElementById("username");
     let passwordElement = document.getElementById("password");
     if (!usernameElement || !passwordElement) {
@@ -391,6 +490,7 @@ function loginSubmitEvent(e) {
         passwordElement.focus();
         return;
     }
+    (_a = e.target) === null || _a === void 0 ? void 0 : _a.setAttribute("disabled", "");
     fetch("/api/user/login", {
         method: "POST",
         body: JSON.stringify({
@@ -400,28 +500,19 @@ function loginSubmitEvent(e) {
         headers: { Accept: "application/json" }
     }).then((response) => (response.json()))
         .then((json) => {
+        var _a;
         if (json.success) {
             document.cookie = `token=${json.token};Path=/;SameSite=Lax;Expires=${new Date(new Date().getTime() + (356 * 24 * 60 * 60 * 1000)).toUTCString()}`;
             location.href = "/";
         }
         else {
-            switch (json.reason) {
-                case "BAD_USERNAME":
-                    createToast("Incorrect username.", `User '${escapeHTML(username)}' does not exist.`);
-                    usernameElement.focus();
-                    break;
-                case "BAD_PASSWORD":
-                    createToast("Incorrect password.");
-                    passwordElement.focus();
-                    break;
-                case "RATELIMIT":
-                    createToast("Ratelimited.", "Try again in a few seconds.");
-                    break;
-                default: createToast("Something went wrong!");
-            }
+            (_a = e.target) === null || _a === void 0 ? void 0 : _a.removeAttribute("disabled");
+            createToast(...errorCodeStrings(json.reason, "login"));
         }
     })
         .catch((err) => {
+        var _a;
+        (_a = e.target) === null || _a === void 0 ? void 0 : _a.removeAttribute("disabled");
         createToast("Something went wrong!", String(err));
         throw err;
     });
@@ -434,6 +525,7 @@ function p_logout(element) {
     location.href = "/";
 }
 function signupSubmitEvent(e) {
+    var _a;
     let usernameElement = document.getElementById("username");
     let passwordElement = document.getElementById("password");
     let confirmElement = document.getElementById("confirm");
@@ -465,6 +557,7 @@ function signupSubmitEvent(e) {
         createToast("Passwords don't match.");
         return;
     }
+    (_a = e.target) === null || _a === void 0 ? void 0 : _a.setAttribute("disabled", "");
     fetch("/api/user/signup", {
         method: "POST",
         body: JSON.stringify({
@@ -475,36 +568,24 @@ function signupSubmitEvent(e) {
         headers: { Accept: "application/json" }
     }).then((response) => (response.json()))
         .then((json) => {
+        var _a;
         if (json.success) {
             document.cookie = `token=${json.token};Path=/;SameSite=Lax;Expires=${new Date(new Date().getTime() + (356 * 24 * 60 * 60 * 1000)).toUTCString()}`;
             location.href = "/";
         }
         else {
-            switch (json.reason) {
-                case "USERNAME_USED":
-                    createToast("Username in use.", `User '${escapeHTML(username)}' already exists.`);
-                    usernameElement.focus();
-                    break;
-                case "BAD_PASSWORD":
-                    createToast("Invalid password.");
-                    passwordElement.focus();
-                    break;
-                case "INVALID_OTP":
-                    createToast("Invalid invite code.", "Make sure your invite code is valid and try again.");
-                    otpElement.focus();
-                    break;
-                case "RATELIMIT":
-                    createToast("Ratelimited.", "Try again in a few seconds.");
-                    break;
-                default: createToast("Something went wrong!");
-            }
+            (_a = e.target) === null || _a === void 0 ? void 0 : _a.removeAttribute("disabled");
+            createToast(...errorCodeStrings(json.reason, "signup"));
         }
     })
         .catch((err) => {
+        var _a;
+        (_a = e.target) === null || _a === void 0 ? void 0 : _a.removeAttribute("disabled");
         createToast("Something went wrong!", String(err));
         throw err;
     });
 }
 function p_signup(element) {
-    element.querySelector("#submit").addEventListener("click", signupSubmitEvent);
+    var _a;
+    (_a = element.querySelector("#submit")) === null || _a === void 0 ? void 0 : _a.addEventListener("click", signupSubmitEvent);
 }

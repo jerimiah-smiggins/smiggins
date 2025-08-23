@@ -11,6 +11,7 @@ def get_post_json(post: Post | Comment) -> dict:
         "content": post.content,
         "content_warning": post.content_warning,
         "timestamp": post.timestamp,
+        "private": post.private,
 
         "user": {
             "username": post.creator.username,
@@ -46,11 +47,7 @@ def get_timeline(
         else:
             tl = tl.filter(~Q(private=True))
 
-    if forwards:
-        tl = tl.reverse()
-
     objs = list(tl[:POSTS_PER_REQUEST + 1])
-
     return len(objs) <= POSTS_PER_REQUEST, [get_post_json(i) for i in objs[:POSTS_PER_REQUEST]]
 
 def tl_following(request, offset: int | None=None, forwards: bool=False):
@@ -60,17 +57,15 @@ def tl_following(request, offset: int | None=None, forwards: bool=False):
     try:
         user = User.objects.get(token=request.COOKIES.get("token"))
     except User.DoesNotExist:
-        return 400, {
-            "success": False,
-            "reason": "NOT_AUTHENTICATED"
-        }
+        return 400, { "success": False, "reason": "NOT_AUTHENTICATED" }
 
     end, posts = get_timeline(
         Post.objects.order_by("-pk").filter(
             Q(creator=user) | Q(creator__followers=user)
         ),
         offset,
-        user
+        user,
+        forwards
     )
 
     return {
@@ -86,10 +81,7 @@ def tl_global(request, offset: int | None=None, forwards: bool=False) -> dict | 
     try:
         user = User.objects.get(token=request.COOKIES.get("token"))
     except User.DoesNotExist:
-        return 400, {
-            "success": False,
-            "reason": "NOT_AUTHENTICATED"
-        }
+        return 400, { "success": False, "reason": "NOT_AUTHENTICATED" }
 
     end, posts = get_timeline(
         Post.objects.order_by("-pk"),

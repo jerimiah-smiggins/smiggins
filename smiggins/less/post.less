@@ -19,6 +19,10 @@
     gap: 0.25em;
     max-width: 100%;
 
+    .post-private {
+      display: none;
+    }
+
     .post-user {
       text-wrap: nowrap;
       overflow-x: hidden;
@@ -29,7 +33,6 @@
     }
 
     .post-username {
-      min-width: 3em;
       text-wrap: nowrap;
       overflow-x: hidden;
       text-overflow: ellipsis;
@@ -95,6 +98,15 @@
 
   .subtext {
     color: var(--subtext);
+  }
+}
+
+[data-private-post] .post-private {
+  display: inline-block !important;
+
+  svg {
+    height: 1.2em;
+    fill: currentColor;
   }
 }
 

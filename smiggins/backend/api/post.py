@@ -1,10 +1,8 @@
 # For API functions that relate to posts, for example creating, fetching home lists, etc.
 
-import threading
 import time
 from typing import Any
 
-import requests
 from django.db.models import Count
 from django.db.utils import IntegrityError
 from posts.models import (Comment, Hashtag, M2MLike, Notification, Poll,
@@ -15,54 +13,74 @@ from ..helper import (check_muted_words, check_ratelimit, create_notification,
                       trim_whitespace, validate_username)
 from ..lang import DEFAULT_LANG, get_lang
 from ..timeline import get_timeline
-from ..variables import (ENABLE_CONTENT_WARNINGS, ENABLE_LOGGED_OUT_CONTENT,
-                         ENABLE_PINNED_POSTS, ENABLE_POLLS,
-                         ENABLE_POST_DELETION, ENABLE_USER_BIOS,
+from ..variables import (ENABLE_LOGGED_OUT_CONTENT, ENABLE_PINNED_POSTS,
+                         ENABLE_POLLS, ENABLE_POST_DELETION, ENABLE_USER_BIOS,
                          MAX_CONTENT_WARNING_LENGTH, MAX_POLL_OPTION_LENGTH,
-                         MAX_POLL_OPTIONS, MAX_POST_LENGTH, OWNER_USER_ID,
-                         POST_WEBHOOKS, SITE_NAME, VERSION)
+                         MAX_POLL_OPTIONS, MAX_POST_LENGTH, OWNER_USER_ID)
 from .admin import BitMask, log_admin_action
 from .schema import (APIResponse, EditPost, NewPost, NewQuote, PollSchema,
                      PostID)
+from .timeline import get_post_json
 
 
-def post_hook(request, user: User, post: Post) -> None:
-    def post_inside(request, user: User, post: Post):
-        meta = POST_WEBHOOKS[user.username]
-        lang = get_lang()
+def post_create(request, data: NewPost) -> dict | tuple[int, dict]:
+    # if rl := check_ratelimit(request, "POST /api/post"):
+    #     return rl
 
-        content = (post.content_warning or post.content) + (f"\n\n{lang['home']['quote_recursive']}" if post.quote else f"\n\n{lang['home']['quote_poll']}" if hasattr(post, "poll") else "")
+    token = request.COOKIES.get("token")
+    try:
+        user = User.objects.get(token=token)
+    except User.DoesNotExist:
+        return 400, { "success": False, "reason": "NOT_AUTHENTICATED" }
 
-        if meta[1] == "discord":
-            body = {
-                "content": None,
-                "embeds": [{
-                    "description": content,
-                    "color": int(user.color[1::], 16),
-                    "author": {
-                        "name": user.display_name,
-                        "url": f"http://{request.META['HTTP_HOST']}/u/{user.username}"
-                    },
-                    "footer": {
-                        "text": f"{SITE_NAME} v{VERSION}"
-                    }
-                }]
-            }
+    poll: list[str] = []
+    for i in data.poll:
+        if (i := trim_whitespace(i, True))[0]:
+            if not isinstance(i[0], str) or len(i[0]) > MAX_POLL_OPTION_LENGTH:
+                return 400, {
+                    "success": False
+                }
 
-        else:
-            body = {
-                "content": content
-            }
+            poll.append(i[0])
 
-        requests.post(meta[0], json=body, timeout=5)
+    if len(poll) == 1:
+        return 400, { "success": False, "reason": "POLL_SINGLE_OPTION" }
 
-    threading.Thread(target=post_inside, kwargs={
-        "request": request,
-        "user": user,
-        "post": post
-    }).start()
+    content = trim_whitespace(data.content)
+    cw = trim_whitespace(data.cw or "", True)
 
-def post_create(request, data: NewPost) -> APIResponse:
+    if len(cw[0]) > MAX_CONTENT_WARNING_LENGTH or len(content[0]) > MAX_POST_LENGTH or not (content[1] or len(poll)):
+        return 400, { "success": False, "reason": "INVALID_LENGTH" }
+
+    ts = round(time.time())
+
+    Post.objects.create(
+        content=content[0],
+        content_warning=cw[0] or None,
+        creator=user,
+        timestamp=ts,
+        comments=[],
+        quotes=[],
+        private=data.private
+    )
+
+    post = Post.objects.get(
+        content=content[0],
+        content_warning=cw[0] or None,
+        creator=user,
+        timestamp=ts,
+        private=data.private
+    )
+
+    # TODO: add poll
+    # TODO: mention notifications and whatnot
+
+    return {
+        "success": True,
+        "post": get_post_json(post)
+    }
+
+def OLD_post_create(request, data: NewPost) -> APIResponse:
     if rl := check_ratelimit(request, "PUT /api/post/create"):
         return rl
 
@@ -99,7 +117,7 @@ def post_create(request, data: NewPost) -> APIResponse:
         }
 
     content = trim_whitespace(data.content)
-    c_warning = trim_whitespace(data.c_warning, True) if ENABLE_CONTENT_WARNINGS else ""
+    c_warning = trim_whitespace(data.cw or "", True)
 
     if len(c_warning[0]) > MAX_CONTENT_WARNING_LENGTH or len(content[0]) > MAX_POST_LENGTH or not (content[1] or len(poll)):
         lang = get_lang(user)
@@ -171,9 +189,6 @@ def post_create(request, data: NewPost) -> APIResponse:
 
         tag.posts.add(post)
 
-    if user.username in POST_WEBHOOKS:
-        post_hook(request, user, post)
-
     return {
         "success": True,
         "actions": [
@@ -215,7 +230,7 @@ def quote_create(request, data: NewQuote) -> APIResponse:
         }
 
     content = trim_whitespace(data.content)
-    c_warning = trim_whitespace(data.c_warning, True) if ENABLE_CONTENT_WARNINGS else ""
+    c_warning = trim_whitespace(data.c_warning, True)
 
     if len(c_warning[0]) > MAX_CONTENT_WARNING_LENGTH or len(content[0]) > MAX_POST_LENGTH or not content[1]:
         lang = get_lang(user)
@@ -287,9 +302,6 @@ def quote_create(request, data: NewQuote) -> APIResponse:
 
         tag.posts.add(post)
 
-    if user.username in POST_WEBHOOKS:
-        post_hook(request, user, post)
-
     return {
         "success": True,
         "actions": [
@@ -351,63 +363,6 @@ def hashtag_list(request, hashtag: str, sort: str, offset: int | None=None, forw
         "actions": [
             { "name": "populate_forwards_cache", "posts": tl[0] if tl[1] else [], "its_a_lost_cause_just_refresh_at_this_point": not tl[1] }
             if forwards and sort == "recent" else
-            { "name": "populate_timeline", "posts": tl[0], "end": tl[1], "forwards": forwards }
-        ]
-    }
-
-def post_list_following(request, offset: int | None=None, forwards: bool=False) -> APIResponse:
-    if rl := check_ratelimit(request, "GET /api/post/following"):
-        return rl
-
-    try:
-        user = User.objects.get(token=request.COOKIES.get("token"))
-    except User.DoesNotExist:
-        return 400, {
-            "success": False
-        }
-
-    def post_cv(post: Post | Any) -> bool:
-        return isinstance(post, Post) and (post.creator.user_id == user.user_id or post.creator.following.contains(user)) and post.can_view(user)[0]
-
-    tl = get_timeline(
-        Post.objects.order_by("-pk"),
-        offset if offset != -1 else None,
-        user,
-        condition=post_cv,
-        forwards=forwards
-    )
-
-    return {
-        "success": True,
-        "actions": [
-            { "name": "populate_forwards_cache", "posts": tl[0] if tl[1] else [], "its_a_lost_cause_just_refresh_at_this_point": not tl[1] }
-            if forwards else
-            { "name": "populate_timeline", "posts": tl[0], "end": tl[1], "forwards": forwards }
-        ]
-    }
-
-def post_list_recent(request, offset: int | None=None, forwards: bool=False) -> APIResponse:
-    if rl := check_ratelimit(request, "GET /api/post/recent"):
-        return rl
-
-    user = User.objects.get(token=request.COOKIES.get("token"))
-
-    def post_cv(post: Post | Any) -> bool:
-        return isinstance(post, Post) and post.can_view(user)[0]
-
-    tl = get_timeline(
-        Post.objects.order_by("-pk"),
-        offset if offset != -1 else None,
-        user,
-        condition=post_cv,
-        forwards=forwards
-    )
-
-    return {
-        "success": True,
-        "actions": [
-            { "name": "populate_forwards_cache", "posts": tl[0] if tl[1] else [], "its_a_lost_cause_just_refresh_at_this_point": not tl[1] }
-            if forwards else
             { "name": "populate_timeline", "posts": tl[0], "end": tl[1], "forwards": forwards }
         ]
     }
@@ -738,7 +693,7 @@ def post_edit(request, data: EditPost) -> APIResponse:
 
     if post.creator.user_id == user.user_id:
         content = trim_whitespace(data.content)
-        c_warning = trim_whitespace(data.c_warning, True) if ENABLE_CONTENT_WARNINGS else ""
+        c_warning = trim_whitespace(data.c_warning, True)
 
         if len(c_warning[0]) > MAX_CONTENT_WARNING_LENGTH or len(content[0]) > MAX_POST_LENGTH or not (content[1] or post.poll):
             lang = get_lang(user)

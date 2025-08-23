@@ -11,9 +11,9 @@ from ..helper import (check_muted_words, check_ratelimit, create_notification,
                       delete_notification, find_mentions, trim_whitespace)
 from ..lang import DEFAULT_LANG, get_lang
 from ..timeline import get_timeline
-from ..variables import (ENABLE_CONTENT_WARNINGS, ENABLE_LOGGED_OUT_CONTENT,
-                         ENABLE_POST_DELETION, MAX_CONTENT_WARNING_LENGTH,
-                         MAX_POST_LENGTH, OWNER_USER_ID)
+from ..variables import (ENABLE_LOGGED_OUT_CONTENT, ENABLE_POST_DELETION,
+                         MAX_CONTENT_WARNING_LENGTH, MAX_POST_LENGTH,
+                         OWNER_USER_ID)
 from .admin import BitMask, log_admin_action
 from .schema import APIResponse, CommentID, EditComment, NewComment
 
@@ -27,7 +27,7 @@ def comment_create(request, data: NewComment) -> APIResponse:
     lang = get_lang(user)
 
     content = trim_whitespace(data.content)
-    c_warning = trim_whitespace(data.c_warning, True) if ENABLE_CONTENT_WARNINGS else ("", False)
+    c_warning = trim_whitespace(data.c_warning, True)
 
     parent = (Comment if data.comment else Post).objects.get(pk=data.id)
     can_view = parent.can_view(user)
@@ -289,7 +289,7 @@ def comment_edit(request, data: EditComment) -> APIResponse:
 
     if post.creator.user_id == user.user_id:
         content = trim_whitespace(data.content)
-        c_warning = trim_whitespace(data.c_warning, True) if ENABLE_CONTENT_WARNINGS else ("", False)
+        c_warning = trim_whitespace(data.c_warning, True)
 
         if not content[1] or len(c_warning[0]) > MAX_CONTENT_WARNING_LENGTH or len(content[0]) > MAX_POST_LENGTH:
             lang = get_lang(user)

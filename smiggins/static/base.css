@@ -263,6 +263,9 @@
   gap: 0.25em;
   max-width: 100%;
 }
+.post .post-upper .post-private {
+  display: none;
+}
 .post .post-upper .post-user {
   text-wrap: nowrap;
   overflow-x: hidden;
@@ -272,7 +275,6 @@
   white-space: pre;
 }
 .post .post-upper .post-username {
-  min-width: 3em;
   text-wrap: nowrap;
   overflow-x: hidden;
   text-overflow: ellipsis;
@@ -326,9 +328,12 @@
 .post .subtext {
   color: var(--subtext);
 }
-[data-hide-with-posts]:has(+ .post),
-[data-hide-with-posts]:has(+ div > .post) {
-  display: none !important;
+[data-private-post] .post-private {
+  display: inline-block !important;
+}
+[data-private-post] .post-private svg {
+  height: 1.2em;
+  fill: currentColor;
 }
 @media screen and (max-width: 500px) {
   .post > .post-user > .post-timestamp {
