@@ -33,8 +33,8 @@ jobs:
       run: |
         git config --global user.name 'github-actions[bot]'
         git config --global user.email 'github-actions[bot]@users.noreply.github.com'
-        git add smiggins/templates/js
-        git add smiggins/templates/css
+        git add smiggins/static/app.js
+        git add smiggins/static/base.css
         git diff --cached --quiet || (git commit -m 'Compile TS/LESS' && git push)
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
