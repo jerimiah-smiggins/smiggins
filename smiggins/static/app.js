@@ -203,6 +203,10 @@ function switchTimeline(e) {
         currentTl = timelines[el.dataset.timelineId];
         reloadTimeline();
     }
+    for (const el of document.querySelectorAll("[data-timeline-active]")) {
+        delete el.dataset.timelineActive;
+    }
+    e.target.dataset.timelineActive = "";
 }
 function p_tlMore(element) {
     let el = element.querySelector("[id=\"timeline-more\"]");

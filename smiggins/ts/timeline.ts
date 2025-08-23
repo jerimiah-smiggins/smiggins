@@ -1,8 +1,11 @@
 let currentTl: timelineConfig;
 let tlElement: HTMLDivElement;
 let timelines: { [key: string]: timelineConfig } = {};
+let tlCache: { [key: string]: { timestamp: number, posts: post[] } } = {}
 let offset: number | null = null;
+
 const LOADING_HTML: string = "<i class=\"timeline-status\">Loading...</i>";
+const TL_CACHE_TTL: number = 60 * 60 * 1000; // 1h
 
 function hookTimeline(
   element: HTMLDivElement,
@@ -102,6 +105,12 @@ function switchTimeline(e: MouseEvent): void {
     currentTl = timelines[el.dataset.timelineId];
     reloadTimeline();
   }
+
+  for (const el of document.querySelectorAll("[data-timeline-active]")) {
+    delete (el as HTMLDivElement).dataset.timelineActive;
+  }
+
+  (e.target as HTMLDivElement).dataset.timelineActive = "";
 }
 
 function p_tlMore(element: HTMLDivElement): void {
