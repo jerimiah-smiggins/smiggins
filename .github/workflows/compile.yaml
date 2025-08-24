@@ -8,7 +8,6 @@ on:
       - fe-rewrite
 
 jobs:
-
   build:
     permissions:
       contents: write
@@ -26,7 +25,7 @@ jobs:
 
     - name: Compile
       run: |
-        npm i -g typescript less less-plugin-clean-css
+        npm i -g typescript less uglify-js uglifycss
         ./compile.sh
 
     - name: Commit

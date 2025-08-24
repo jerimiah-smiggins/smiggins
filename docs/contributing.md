@@ -11,12 +11,12 @@ assuming all of the code works as intended.
 
 ## How to compile TypeScript/Less
 First, you need to install three npm packages:
-`npm i -g less typescript less-plugin-clean-css`
+`npm i -g less typescript less uglify-js uglifycss`
 
-To compile typescript, you can run `tsc` anywhere inside this project.
-
-To compile less, you can run `python compile-less.py` in the root directory of
-this project.
+To compile less and/or typescript, you can run the `compile.sh` script. If you
+only want to compile less or typescript, you can run `./compile.sh less` or
+`./compile.sh ts` respectively. If for some reason you don't want minified
+outputs, you can also run `./compile.sh uncompressed`.
 
 ## Translating
 If you want to help translate into languages that don't yet exist:
