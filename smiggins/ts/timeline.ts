@@ -106,6 +106,8 @@ function switchTimeline(e: MouseEvent): void {
     delete (el as HTMLDivElement).dataset.timelineActive;
   }
 
+  document.getElementById("timeline-more")?.setAttribute("hidden", "");
+
   (e.target as HTMLDivElement).dataset.timelineActive = "";
 }
 

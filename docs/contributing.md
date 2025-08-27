@@ -11,7 +11,7 @@ assuming all of the code works as intended.
 
 ## How to compile TypeScript/Less
 First, you need to install three npm packages:
-`npm i -g less typescript less uglify-js uglifycss`
+`npm i -g less typescript uglify-js uglifycss`
 
 To compile less and/or typescript, you can run the `compile.sh` script. If you
 only want to compile less or typescript, you can run `./compile.sh less` or
