@@ -2,8 +2,8 @@ declare const loggedIn: boolean;
 declare const username: string;
 declare let currentPage: intent;
 
-type intent = "index" | "login" | "signup" | "logout" | "404" | "home" | "settings"
-type snippet = "pages/index" | "pages/login" | "pages/signup" | "pages/logout" | "pages/404" | "pages/home" | "pages/settings" | "post" | "toast"
+type intent = "index" | "login" | "signup" | "logout" | "404" | "home" | "settings" | "user"
+type snippet = "pages/index" | "pages/login" | "pages/signup" | "pages/logout" | "pages/404" | "pages/home" | "pages/settings" | "pages/user" | "post" | "toast"
 
 type snippetData = {
   content: string,

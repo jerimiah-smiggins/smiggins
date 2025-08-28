@@ -7,12 +7,13 @@ let snippetVariables: { [key: string]: string } = {
 let snippetProcessing: { [key: string]: (element: HTMLDivElement) => void } = {
   input_enter: p_inputEnter,
   password_toggle: p_passwordToggle,
+  timeline_switch: p_tlSwitch,
+  timeline_more: p_tlMore,
   login: p_login,
   signup: p_signup,
   logout: p_logout,
   home: p_home,
-  timeline_switch: p_tlSwitch,
-  timeline_more: p_tlMore
+  user: p_user
 };
 
 // @ts-expect-error
@@ -51,6 +52,7 @@ function getSnippet(snippet: snippet, extraVariables?: { [key: string]: string }
     }
   }
 
+  generateInternalLinks(element);
   return element;
 }
 

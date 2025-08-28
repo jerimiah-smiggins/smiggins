@@ -1,11 +1,12 @@
 function urlToIntent(path: string): intent {
-  if (!path.endsWith("/"))  { path += "/"; }
-  if (!path.startsWith("/")) { path = "/" + path; }
+  path = normalizePath(path);
 
   if (loggedIn) {
     switch (path) {
       case "/home/": history.pushState("home", "", "/");
       case "/": return "home";
+      case "/settings/": return "settings";
+      case /^\/u\/[a-z0-9_\-]+\/$/.test(path) ? path : "": return "user";
     }
   } else {
     switch (path) {
@@ -15,9 +16,10 @@ function urlToIntent(path: string): intent {
     }
   }
 
-  if (path === "/logout/") { return "logout"; }
-
-  return "404";
+  switch (path) {
+    case "/logout/": return "logout";
+    default: return "404";
+  }
 }
 
 function generateInternalLinks(element?: HTMLElement): void {
@@ -45,6 +47,13 @@ function internalLinkHandler(e: MouseEvent): void {
 
     e.preventDefault();
   }
+}
+
+function normalizePath(path: string): string {
+  if (!path.endsWith("/"))  { path += "/"; }
+  if (!path.startsWith("/")) { path = "/" + path; }
+
+  return path.toLowerCase();
 }
 
 onpopstate = function(e: PopStateEvent): void {

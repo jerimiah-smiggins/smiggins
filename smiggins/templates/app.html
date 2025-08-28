@@ -51,6 +51,7 @@
       <!-- logged in pages -->
       {% include "snippet.html" with id="pages/home" vars="username" processing="home,timeline_switch,timeline_more,input_enter" %}
       {% include "snippet.html" with id="pages/settings" vars="username" %}
+      {% include "snippet.html" with id="pages/user" vars="username" processing="user,timeline_more" %}
 
       <!-- other -->
       {% include "snippet.html" with id="post" %}
@@ -60,7 +61,7 @@
     <script src="{% static 'app.js' %}"></script>
     <script>
       let currentPage = urlToIntent(location.pathname);
-      history.replaceState(currentPage, "");
+      history.replaceState(currentPage, "", normalizePath(location.pathname));
       renderPage(currentPage);
     </script>
   </body>

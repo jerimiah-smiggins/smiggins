@@ -2,7 +2,7 @@ import json
 from typing import Any, Callable
 
 from backend.api.post import post_create
-from backend.api.timeline import tl_following, tl_global
+from backend.api.timeline import tl_following, tl_global, tl_user
 from backend.api.user import login, signup
 from backend.variables import DEBUG, SITE_NAME, VERSION
 from django.urls import path
@@ -120,6 +120,7 @@ api.post("user/login", **r)(login)
 
 api.get("timeline/global", **r)(tl_global)
 api.get("timeline/following", **r)(tl_following)
+api.get("timeline/user/{str:username}", **r)(tl_user)
 
 api.post("post", **r)(post_create)
 

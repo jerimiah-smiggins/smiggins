@@ -25,7 +25,7 @@ function reloadTimeline(): void {
   fetch(currentTl.url, {
     headers: { Accept: "application/json" }
   }).then((response: Response): Promise<api_timeline> => (response.json()))
-    .then(renderTimeline)
+    .then((json: api_timeline) => { renderTimeline(json); if (currentTl.timelineCallback) { currentTl.timelineCallback(json); }})
     .catch((err: any): void => {
       createToast("Something went wrong!", String(err));
       throw err;

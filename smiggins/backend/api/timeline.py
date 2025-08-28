@@ -95,3 +95,35 @@ def tl_global(request, offset: int | None=None, forwards: bool=False) -> dict | 
         "posts": posts,
         "end": end
     }
+
+def tl_user(request, username: str, offset: int | None=None, forwards: bool=False) -> dict | tuple[int, dict]:
+    # if rl := check_ratelimit(request, "GET /api/timeline/global"):
+    #     return NEW_RL
+
+    try:
+        self_user = User.objects.get(token=request.COOKIES.get("token"))
+    except User.DoesNotExist:
+        return 400, { "success": False, "reason": "NOT_AUTHENTICATED" }
+
+    try:
+        user = User.objects.get(username=username)
+    except User.DoesNotExist:
+        return 400, { "success": False, "reason": "BAD_USERNAME" }
+
+    end, posts = get_timeline(
+        user.posts.all().order_by("-pk"),
+        offset,
+        self_user,
+        forwards
+    )
+
+    return {
+        "success": True,
+        "posts": posts,
+        "end": end,
+        "extraData": {
+            "display_name": user.display_name,
+            "color_one": user.color,
+            "color_two": user.color_two if user.gradient else user.color
+        }
+    }
