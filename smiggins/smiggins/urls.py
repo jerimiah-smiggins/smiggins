@@ -47,3 +47,4 @@ urlpatterns = list(filter(bool, [
 del _favicon, _robots_txt, _security_txt
 
 handler500 = "backend.templating._500"
+handler404 = "backend.templating._404"
