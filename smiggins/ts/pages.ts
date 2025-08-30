@@ -6,7 +6,9 @@ function renderPage(intent: intent): void {
       user_username: getUsernameFromPath(),
       display_name: getUsernameFromPath(),
       color_one: "var(--background-mid)",
-      color_two: "var(--background-mid)"
+      color_two: "var(--background-mid)",
+      following: "0",
+      followers: "0"
     }; break;
   }
 

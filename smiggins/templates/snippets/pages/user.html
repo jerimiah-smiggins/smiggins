@@ -2,13 +2,19 @@
 
 <div id="user-container">
   <div id="user-banner" style="--color-one: @{color_one}; --color-two: @{color_two}"></div>
+
   <div id="display-name">@{display_name}</div>
   <div id="username">@@{user_username}</div>
 
-  <div id="user-interactions" hidden>
+  <small>
+    following <span id="following">@{following}</span> -
+    followed by <span id="followers">@{followers}</span>
+  </small>
+
+  <p id="user-interactions" hidden>
     <button id="follow">Follow</button>
     <button id="block">Block</button>
-  </div>
+  </p>
 </div>
 
 <hr>

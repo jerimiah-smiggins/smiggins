@@ -9,7 +9,7 @@ from posts.models import (Comment, MutedWord, Notification, OneTimePassword,
 
 from ..helper import (check_ratelimit, generate_token, trim_whitespace,
                       validate_username)
-from ..lang import DEFAULT_LANG, get_lang
+from ..lang import get_lang
 from ..timeline import get_timeline
 from ..variables import (DEFAULT_BANNER_COLOR, DEFAULT_LANGUAGE,
                          ENABLE_GRADIENT_BANNERS, ENABLE_LOGGED_OUT_CONTENT,
@@ -99,7 +99,7 @@ def follow_add(request, data: Username):
 def follow_remove(request, data: Username):
     return follow(request, data, True)
 
-def follow(request, data: Username, unfollow: bool):    
+def follow(request, data: Username, unfollow: bool):
     # if rl := check_ratelimit(request, "POST /api/user/login"):
     #     return NEW_RL
 
@@ -117,8 +117,8 @@ def follow(request, data: Username, unfollow: bool):
         if user.pending_followers.contains(self_user):
             user.pending_followers.remove(self_user)
 
-        if user.followers.contains(self_user):
-            user.followers.remove(self_user)
+        if self_user.following.contains(user):
+            self_user.following.remove(user)
 
         return { "success": True }
 
@@ -130,8 +130,8 @@ def follow(request, data: Username, unfollow: bool):
     if user.verify_followers:
         if not user.pending_followers.contains(self_user):
             user.pending_followers.add(self_user)
-    elif not user.followers.contains(self_user):
-        user.followers.add(self_user)
+    elif not self_user.following.contains(user):
+        self_user.following.add(user)
 
     return { "success": True, "pending": user.verify_followers }
 
@@ -163,6 +163,9 @@ def block(request, data: Username, unblock: bool):
 
     if self_user.following.contains(user):
         self_user.following.remove(user)
+
+    if user.pending_followers.contains(self_user):
+        user.pending_followers.remove(self_user)
 
     if not self_user.blocking.contains(user):
         self_user.blocking.add(user)

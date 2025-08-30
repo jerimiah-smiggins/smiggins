@@ -34,11 +34,10 @@ def get_timeline(
 
     if not no_visibility_check:
         if user:
-            if show_blocked:
-                tl = tl.filter(
-                    ~Q(creator__blockers=user) # exclude blocked users
-                  | ~Q(creator__blocking=user) # exclude users who have blocked you
-                )
+            tl = tl.filter(~Q(creator__blocking=user)) # exclude users who block you
+
+            if not show_blocked:
+                tl = tl.filter(~Q(creator__blockers=user)) # exclude users who you block
 
             tl = tl.filter(
                 ~Q(private=True) # public posts
@@ -115,7 +114,8 @@ def tl_user(request, username: str, offset: int | None=None, forwards: bool=Fals
         user.posts.all().order_by("-pk"),
         offset,
         self_user,
-        forwards
+        forwards,
+        show_blocked=True
     )
 
     return {
@@ -127,6 +127,8 @@ def tl_user(request, username: str, offset: int | None=None, forwards: bool=Fals
             "color_one": user.color,
             "color_two": user.color_two if user.gradient else user.color,
             "following": self_user.following.contains(user),
-            "blocking": self_user.blocking.contains(user)
+            "blocking": self_user.blocking.contains(user),
+            "num_followers": user.followers.count(),
+            "num_following": user.following.count()
         }
     }

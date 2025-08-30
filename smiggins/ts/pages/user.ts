@@ -9,7 +9,7 @@ function p_user(element: HTMLDivElement): void {
   let tlId: string = `user_${userUsername}`;
 
   element.querySelector("#follow")?.addEventListener("click", toggleFollow);
-  element.querySelector("#block")?.addEventListener("click", toggleBlock); 
+  element.querySelector("#block")?.addEventListener("click", toggleBlock);
 
   hookTimeline(element.querySelector("[id=\"timeline-posts\"]") as HTMLDivElement, {
     [tlId]: { url: `/api/timeline/user/${userUsername}`, prependPosts: username === userUsername, timelineCallback: userUpdateStats }
@@ -18,7 +18,7 @@ function p_user(element: HTMLDivElement): void {
 
 function userUpdateStats(json: api_timeline): void {
   if (!json.success && json.reason === "BAD_USERNAME") {
-    let tlContainer = document.getElementById("timeline-posts");
+    let tlContainer: HTMLElement | null = document.getElementById("timeline-posts");
 
     if (tlContainer) {
       tlContainer.innerHTML = `<i class="timeline-status">User '${escapeHTML(getUsernameFromPath())}' does not exist.</i>`;
@@ -27,7 +27,7 @@ function userUpdateStats(json: api_timeline): void {
 
   if (!json.success || !json.extraData) { return; }
 
-  if (username !== getUsernameFromPath()) {
+  if (username !== getUsernameFromPath()) { // follow/block buttons
     document.getElementById("user-interactions")?.removeAttribute("hidden");
 
     let followElement: HTMLElement | null = document.getElementById("follow");
@@ -66,9 +66,14 @@ function userUpdateStats(json: api_timeline): void {
     if (colorOne && colorRegex.test(colorOne)) { bannerElement.style.setProperty("--color-one", colorOne); }
     if (colorTwo && colorRegex.test(colorTwo)) { bannerElement.style.setProperty("--color-two", colorTwo); }
   }
+
+  let followingElement: HTMLElement | null = document.getElementById("following");
+  let followersElement: HTMLElement | null = document.getElementById("followers");
+  if (followingElement && json.extraData.num_following) { followingElement.innerText = json.extraData.num_following };
+  if (followersElement && json.extraData.num_followers) { followersElement.innerText = json.extraData.num_followers };
 }
 
-function toggleFollow(e: Event) {
+function toggleFollow(e: Event): void {
   let followButton: HTMLButtonElement | null = e.target as HTMLButtonElement | null;
   if (!followButton) { return; }
 
@@ -106,7 +111,7 @@ function toggleFollow(e: Event) {
     });
 }
 
-function toggleBlock(e: Event) {
+function toggleBlock(e: Event): void {
   let blockButton: HTMLButtonElement | null = e.target as HTMLButtonElement | null;
   if (!blockButton) { return; }
 
@@ -128,6 +133,12 @@ function toggleBlock(e: Event) {
         } else {
           blockButton.innerText = "Unblock";
           blockButton.dataset.unblock = "";
+
+          let followButton: HTMLElement | null = document.getElementById("follow");
+          if (followButton && followButton.dataset.unfollow !== undefined) {
+            delete followButton.dataset.unfollow;
+            followButton.innerText = "Follow";
+          }
         }
       } else {
         createToast(...errorCodeStrings(json.reason, "user"));
