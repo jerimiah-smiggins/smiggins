@@ -37,6 +37,7 @@ def get_timeline(
             if show_blocked:
                 tl = tl.filter(
                     ~Q(creator__blockers=user) # exclude blocked users
+                  | ~Q(creator__blocking=user) # exclude users who have blocked you
                 )
 
             tl = tl.filter(
@@ -124,6 +125,8 @@ def tl_user(request, username: str, offset: int | None=None, forwards: bool=Fals
         "extraData": {
             "display_name": user.display_name,
             "color_one": user.color,
-            "color_two": user.color_two if user.gradient else user.color
+            "color_two": user.color_two if user.gradient else user.color,
+            "following": self_user.following.contains(user),
+            "blocking": self_user.blocking.contains(user)
         }
     }

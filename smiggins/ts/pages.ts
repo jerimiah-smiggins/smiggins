@@ -3,8 +3,8 @@ function renderPage(intent: intent): void {
 
   switch (intent) {
     case "user": extraVariables = {
-      user_username: location.pathname.split("/").filter(Boolean)[1],
-      display_name: location.pathname.split("/").filter(Boolean)[1],
+      user_username: getUsernameFromPath(),
+      display_name: getUsernameFromPath(),
       color_one: "var(--background-mid)",
       color_two: "var(--background-mid)"
     }; break;

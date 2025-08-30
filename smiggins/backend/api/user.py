@@ -93,6 +93,82 @@ def login(request, data: Account) -> tuple[int, dict] | dict:
     except User.DoesNotExist:
         return 400, { "success": False, "reason": "BAD_USERNAME" }
 
+def follow_add(request, data: Username):
+    return follow(request, data, False)
+
+def follow_remove(request, data: Username):
+    return follow(request, data, True)
+
+def follow(request, data: Username, unfollow: bool):    
+    # if rl := check_ratelimit(request, "POST /api/user/login"):
+    #     return NEW_RL
+
+    try:
+        self_user = User.objects.get(token=request.COOKIES.get("token"))
+    except User.DoesNotExist:
+        return 400, { "success": False, "reason": "NOT_AUTHENTICATED" }
+
+    try:
+        user = User.objects.get(username=data.username.lower())
+    except User.DoesNotExist:
+        return 400, { "success": False, "reason": "BAD_USERNAME" }
+
+    if unfollow:
+        if user.pending_followers.contains(self_user):
+            user.pending_followers.remove(self_user)
+
+        if user.followers.contains(self_user):
+            user.followers.remove(self_user)
+
+        return { "success": True }
+
+    if user.blocking.contains(self_user):
+        return 400, { "success": False, "reason": "CANT_INTERACT" }
+    elif self_user.blocking.contains(user):
+        return 400, { "success": False, "reason": "BLOCKING" }
+
+    if user.verify_followers:
+        if not user.pending_followers.contains(self_user):
+            user.pending_followers.add(self_user)
+    elif not user.followers.contains(self_user):
+        user.followers.add(self_user)
+
+    return { "success": True, "pending": user.verify_followers }
+
+def block_add(request, data: Username):
+    return block(request, data, False)
+
+def block_remove(request, data: Username):
+    return block(request, data, True)
+
+def block(request, data: Username, unblock: bool):
+    # if rl := check_ratelimit(request, "POST /api/user/login"):
+    #     return NEW_RL
+
+    try:
+        self_user = User.objects.get(token=request.COOKIES.get("token"))
+    except User.DoesNotExist:
+        return 400, { "success": False, "reason": "NOT_AUTHENTICATED" }
+
+    try:
+        user = User.objects.get(username=data.username.lower())
+    except User.DoesNotExist:
+        return 400, { "success": False, "reason": "BAD_USERNAME" }
+
+    if unblock:
+        if self_user.blocking.contains(user):
+            self_user.blocking.remove(user)
+
+        return { "success": True }
+
+    if self_user.following.contains(user):
+        self_user.following.remove(user)
+
+    if not self_user.blocking.contains(user):
+        self_user.blocking.add(user)
+
+    return { "success": True }
+
 def settings_theme(request, data: Theme) -> APIResponse:
     if rl := check_ratelimit(request, "PATCH /api/user/settings/theme"):
         return rl
@@ -217,7 +293,7 @@ def settings(request, data: Settings) -> APIResponse:
         ] if reload else []
     }
 
-def follower_add(request, data: Username) -> APIResponse:
+def OLD_follower_add(request, data: Username) -> APIResponse:
     if rl := check_ratelimit(request, "POST /api/user/follow"):
         return rl
 
@@ -263,7 +339,7 @@ def follower_add(request, data: Username) -> APIResponse:
         ]
     }
 
-def follower_remove(request, data: Username) -> APIResponse:
+def OLD_follower_remove(request, data: Username) -> APIResponse:
     if rl := check_ratelimit(request, "DELETE /api/user/follow"):
         return rl
 
@@ -304,7 +380,7 @@ def follower_remove(request, data: Username) -> APIResponse:
         ]
     }
 
-def block_add(request, data: Username) -> APIResponse:
+def OLD_block_add(request, data: Username) -> APIResponse:
     if rl := check_ratelimit(request, "POST /api/user/block"):
         return rl
 
@@ -356,7 +432,7 @@ def block_add(request, data: Username) -> APIResponse:
         ]
     }
 
-def block_remove(request, data: Username) -> APIResponse:
+def OLD_block_remove(request, data: Username) -> APIResponse:
     if rl := check_ratelimit(request, "DELETE /api/user/block"):
         return rl
 

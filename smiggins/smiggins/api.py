@@ -3,7 +3,7 @@ from typing import Any, Callable
 
 from backend.api.post import post_create
 from backend.api.timeline import tl_following, tl_global, tl_user
-from backend.api.user import login, signup
+from backend.api.user import login, signup, block_add, block_remove, follow_add, follow_remove
 from backend.variables import DEBUG, SITE_NAME, VERSION
 from django.urls import path
 from ninja import NinjaAPI
@@ -117,6 +117,12 @@ routes: list[tuple[str, str, Callable, bool | None, str, str, str | list[str]]] 
 
 api.post("user/signup", **r)(signup)
 api.post("user/login", **r)(login)
+
+api.post("user/follow", **r)(follow_add)
+api.delete("user/follow", **r)(follow_remove)
+api.post("user/block", **r)(block_add)
+api.delete("user/block", **r)(block_remove)
+
 
 api.get("timeline/global", **r)(tl_global)
 api.get("timeline/following", **r)(tl_following)
