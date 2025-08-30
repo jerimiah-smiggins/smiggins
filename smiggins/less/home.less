@@ -156,19 +156,8 @@
   > a {
     height: 1.5em;
 
-    > svg:first-child {
-      display: none;
-    }
-
     &.navbar-current > svg {
-      &:first-child {
-        display: inline;
-        filter: drop-shadow(0 0 3px var(--subtext));
-      }
-
-      &:last-child {
-        display: none;
-      }
+      filter: drop-shadow(0 0 3px var(--subtext));
     }
   }
 }
