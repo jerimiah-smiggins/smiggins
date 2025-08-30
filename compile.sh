@@ -1,14 +1,23 @@
 if [ "$1" != "less" ]; then
+  printf "compiling typescript..."
   tsc
+
+  if [ "$1" != "uncompressed" ]; then
+    printf " compressing..."
+    uglifyjs ./smiggins/static/app.js --output ./smiggins/static/app.js
+  fi
+
+  echo " done"
 fi
 
 if [ "$1" != "ts" ]; then
+  printf "compiling less..."
   lessc ./smiggins/less/base.less ./smiggins/static/base.css
-fi
 
-cd ./smiggins/static;
+  if [ "$1" != "uncompressed" ]; then
+    printf " compressing..."
+    uglifycss ./smiggins/static/base.css --output ./smiggins/static/base.css
+  fi
 
-if [ "$1" != "uncompressed" ]; then
-  uglifycss base.css --output base.css
-  uglifyjs app.js --output app.js
+  echo " done"
 fi
