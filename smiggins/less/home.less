@@ -115,22 +115,30 @@
     padding: 1em 0;
   }
 
-  #timeline-more {
+  #timeline-more,
+  #timeline-show-new {
     font-size: 1em;
     display: block;
     width: 100%;
     background-color: transparent;
     border: none;
     outline: none;
-    border-top: 1px solid var(--border-color);
     padding: 1em 0.5em;
     border-radius: 0;
-    margin-top: 1em;
-    margin-bottom: -1em;
 
     &:focus {
       outline: none !important;
     }
+  }
+
+  #timeline-more {
+    border-top: 1px solid var(--border-color);
+    margin-top: 1em;
+    margin-bottom: -1em;
+  }
+
+  #timeline-show-new {
+    border-bottom: 1px solid var(--border-color);
   }
 }
 

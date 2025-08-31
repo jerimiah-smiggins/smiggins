@@ -27,5 +27,6 @@ type post = {
 type timelineConfig = {
   url: string,
   prependPosts: boolean,
-  timelineCallback?: (json: api_timeline) => void
+  timelineCallback?: (json: api_timeline) => void,
+  disablePolling?: true
 };

@@ -46,9 +46,7 @@ function createPost(content: string, cw: string | null, followersOnly: boolean, 
   }).then((response: Response): Promise<api_post> => (response.json()))
     .then((json: api_post): void => {
       if (json.success) {
-        if (currentTl.prependPosts) {
-          tlElement.prepend(getPost(json.post));
-        }
+        prependPostToTimeline(json.post);
       } else {
         createToast(...errorCodeStrings(json.reason, "post"));
       }

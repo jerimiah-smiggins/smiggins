@@ -102,7 +102,7 @@ function escapeHTML(str: string): string {
 }
 
 function getTimestamp(timestamp: number, raw: boolean=false): string {
-  let difference: number = Math.round(new Date().getTime() / 1000 - timestamp);
+  let difference: number = Math.round(Date.now() / 1000 - timestamp);
   let future: boolean = difference < 0;
   let complexTimestamps: boolean = !!localStorage.getItem("complex-timestamps");
   if (future) { difference = -difference; }
@@ -156,27 +156,3 @@ function errorCodeStrings(code: apiErrors | undefined, context?: string, data?: 
 
   return [code || "Something went wrong!"];
 }
-
-function getPost(post: post): HTMLDivElement {
-  let postContent: string = escapeHTML(post.content);
-  offset = post.id;
-
-  if (post.content_warning) {
-    postContent = `<details class="content-warning"><summary><div>${escapeHTML(post.content_warning)}<div class="content-warning-stats"> (${post.content.length} char${post.content.length === 1 ? "" : "s"})</div></div></summary>${postContent}</details>`;
-  }
-
-  let el: HTMLDivElement = getSnippet("post", {
-    timestamp: getTimestamp(post.timestamp),
-    username: post.user.username,
-    display_name: escapeHTML(post.user.display_name),
-    content: postContent
-  });
-
-  if (post.private) {
-    el.dataset.privatePost = "";
-  }
-
-  return el;
-}
-
-setInterval(updateTimestamps, 1000);

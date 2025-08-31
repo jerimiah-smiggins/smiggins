@@ -37,7 +37,7 @@ function signupSubmitEvent(e: MouseEvent) {
   }).then((response: Response): Promise<api_login> => (response.json()))
     .then((json: api_login): void => {
       if (json.success) {
-        document.cookie = `token=${json.token};Path=/;SameSite=Lax;Expires=${new Date(new Date().getTime() + (356 * 24 * 60 * 60 * 1000)).toUTCString()}`;
+        document.cookie = `token=${json.token};Path=/;SameSite=Lax;Expires=${new Date(Date.now() + (356 * 24 * 60 * 60 * 1000)).toUTCString()}`;
         location.href = "/";
       } else {
         (e.target as HTMLButtonElement | null)?.removeAttribute("disabled");
