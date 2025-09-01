@@ -7,8 +7,7 @@ from django.db.models import Manager
 from posts.models import (Comment, MutedWord, Notification, OneTimePassword,
                           Post, PrivateMessageContainer, User, UserPronouns)
 
-from ..helper import (check_ratelimit, generate_token, trim_whitespace,
-                      validate_username)
+from ..helper import check_ratelimit, generate_token, trim_whitespace
 from ..lang import get_lang
 from ..timeline import get_timeline
 from ..variables import (DEFAULT_BANNER_COLOR, DEFAULT_LANGUAGE,
@@ -94,12 +93,12 @@ def login(request, data: Account) -> tuple[int, dict] | dict:
         return 400, { "success": False, "reason": "BAD_USERNAME" }
 
 def follow_add(request, data: Username):
-    return follow(request, data, False)
+    return _follow(request, data, False)
 
 def follow_remove(request, data: Username):
-    return follow(request, data, True)
+    return _follow(request, data, True)
 
-def follow(request, data: Username, unfollow: bool):
+def _follow(request, data: Username, unfollow: bool):
     # if rl := check_ratelimit(request, "POST /api/user/login"):
     #     return NEW_RL
 
@@ -136,12 +135,12 @@ def follow(request, data: Username, unfollow: bool):
     return { "success": True, "pending": user.verify_followers }
 
 def block_add(request, data: Username):
-    return block(request, data, False)
+    return _block(request, data, False)
 
 def block_remove(request, data: Username):
-    return block(request, data, True)
+    return _block(request, data, True)
 
-def block(request, data: Username, unblock: bool):
+def _block(request, data: Username, unblock: bool):
     # if rl := check_ratelimit(request, "POST /api/user/login"):
     #     return NEW_RL
 
@@ -294,189 +293,6 @@ def settings(request, data: Settings) -> APIResponse:
         "actions": [
             { "name": "reload" }
         ] if reload else []
-    }
-
-def OLD_follower_add(request, data: Username) -> APIResponse:
-    if rl := check_ratelimit(request, "POST /api/user/follow"):
-        return rl
-
-    username = data.username.lower()
-    user = User.objects.get(token=request.COOKIES.get("token"))
-    lang = get_lang(user)
-
-    try:
-        followed = User.objects.get(username=username)
-    except User.DoesNotExist:
-        return 400, {
-            "success": False,
-            "message": lang["account"]["username_does_not_exist"].replace("%s", data.username)
-        }
-
-    if user.blocking.contains(followed):
-        return 400, {
-            "success": False,
-            "message": lang["account"]["follow_blocking"]
-        }
-
-    if followed.blocking.contains(user):
-        return 400, {
-            "success": False,
-            "message": lang["account"]["follow_blocked"]
-        }
-
-    if not user.following.contains(followed):
-        if followed.verify_followers:
-            followed.pending_followers.add(user)
-        else:
-            user.following.add(followed)
-
-    return {
-        "success": True,
-        "actions": [
-            {
-                "name": "update_element",
-                "query": "#toggle",
-                "text": lang["user_page"]["pending" if followed.verify_followers else "unfollow"],
-                "attribute": [{ "name": "data-followed", "value": "1"}]
-            }
-        ]
-    }
-
-def OLD_follower_remove(request, data: Username) -> APIResponse:
-    if rl := check_ratelimit(request, "DELETE /api/user/follow"):
-        return rl
-
-    username = data.username.lower()
-    user = User.objects.get(token=request.COOKIES.get("token"))
-
-    if not validate_username(username):
-        lang = get_lang(user)
-        return 400, {
-            "success": False,
-            "message": lang["account"]["username_does_not_exist"].replace("%s", data.username)
-        }
-
-    followed = User.objects.get(username=username)
-    if user.user_id != followed.user_id:
-        if user.following.contains(followed):
-            user.following.remove(followed)
-
-        elif followed.pending_followers.contains(user):
-            followed.pending_followers.remove(user)
-
-    else:
-        return 400, {
-            "success": False
-        }
-
-    lang = get_lang(user)
-
-    return {
-        "success": True,
-        "actions": [
-            {
-                "name": "update_element",
-                "query": "#toggle",
-                "text": lang["user_page"]["follow"],
-                "attribute": [{ "name": "data-followed", "value": "0"}]
-            }
-        ]
-    }
-
-def OLD_block_add(request, data: Username) -> APIResponse:
-    if rl := check_ratelimit(request, "POST /api/user/block"):
-        return rl
-
-    username = data.username.lower()
-    user = User.objects.get(token=request.COOKIES.get("token"))
-
-    if not validate_username(username):
-        lang = get_lang(user)
-        return 400, {
-            "success": False,
-            "message": lang["account"]["username_does_not_exist"].replace("%s", data.username)
-        }
-
-    if user.username == username:
-        lang = get_lang(user)
-        return 400, {
-            "success": False,
-            "message": lang["account"]["block_self"]
-        }
-
-    blocked = User.objects.get(username=username)
-
-    if not user.blocking.contains(blocked):
-        if user.following.contains(blocked):
-            user.following.remove(blocked)
-
-        if user.pending_followers.contains(blocked):
-            user.pending_followers.remove(blocked)
-
-        if blocked.following.contains(user):
-            blocked.following.remove(user)
-
-        if blocked.pending_followers.contains(user):
-            blocked.pending_followers.remove(user)
-
-        user.blocking.add(blocked)
-
-    lang = get_lang(user)
-
-    return {
-        "success": True,
-        "actions": [
-            {
-                "name": "update_element",
-                "query": "#block",
-                "text": lang["user_page"]["unblock"],
-                "attribute": [{ "name": "data-blocked", "value": "1"}]
-            }
-        ]
-    }
-
-def OLD_block_remove(request, data: Username) -> APIResponse:
-    if rl := check_ratelimit(request, "DELETE /api/user/block"):
-        return rl
-
-    username = data.username.lower()
-    user = User.objects.get(token=request.COOKIES.get("token"))
-
-    if not validate_username(username):
-        lang = get_lang(user)
-        return 400, {
-            "success": False,
-            "message": lang["account"]["username_does_not_exist"].replace("%s", data.username)
-        }
-
-    if user.username == username:
-        lang = get_lang(user)
-        return 400, {
-            "success": False,
-            "message": lang["account"]["block_self"]
-        }
-
-    blocked = User.objects.get(username=username)
-    if user.blocking.contains(blocked):
-        user.blocking.remove(blocked)
-
-    else:
-        return 400, {
-            "success": False
-        }
-
-    lang = get_lang(user)
-
-    return {
-        "success": True,
-        "actions": [
-            {
-                "name": "update_element",
-                "query": "#block",
-                "text": lang["user_page"]["block"],
-                "attribute": [{ "name": "data-blocked", "value": "0"}]
-            }
-        ]
     }
 
 def change_password(request, data: ChangePassword) -> APIResponse:

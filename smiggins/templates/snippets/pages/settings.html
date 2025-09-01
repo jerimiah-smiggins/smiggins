@@ -1,5 +1,13 @@
 {% include "snippets/generic/page-start.html" with active_page="settings" %}
 
-settings
+<h1 class="no-margin-top">Settings</h1>
+<hr class="no-margin-bottom">
+<div id="settings-sections">
+  <a class="plain-link" href="/settings/profile/" data-internal-link="settings/profile">Profile <small>- Display name, banner color...</small></a>
+  <a class="plain-link" href="/settings/cosmetic/" data-internal-link="settings/cosmetic">Cosmetic <small>- Website theme, tweaks...</small></a>
+  <a class="plain-link" href="/settings/account/" data-internal-link="settings/account">Account <small>- Change password, delete account...</small></a>
+  <a href="/logout/" data-internal-link="logout">Log Out...</a>
+</div>
+<hr class="no-margin-top">
 
 {% include "snippets/generic/page-end.html" %}

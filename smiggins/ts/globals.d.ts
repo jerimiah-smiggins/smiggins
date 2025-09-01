@@ -2,8 +2,16 @@ declare const loggedIn: boolean;
 declare const username: string;
 declare let currentPage: intent;
 
-type intent = "index" | "login" | "signup" | "logout" | "404" | "home" | "settings" | "user"
-type snippet = "pages/index" | "pages/login" | "pages/signup" | "pages/logout" | "pages/404" | "pages/home" | "pages/settings" | "pages/user" | "post" | "toast"
+type intent = "index" | "login" | "signup"
+            | "logout" | "404"
+            | "home" | "user"
+            | "settings" | "settings/profile" | "settings/cosmetic" | "settings/account";
+
+type snippet = "pages/index" | "pages/login" | "pages/signup"
+             | "pages/logout" | "pages/404"
+             | "pages/home" | "pages/user"
+             | "pages/settings" | "pages/settings/profile" | "pages/settings/cosmetic" | "pages/settings/account"
+             | "post" | "toast";
 
 type snippetData = {
   content: string,

@@ -6,6 +6,9 @@ function urlToIntent(path: string): intent {
       case "/home/": history.pushState("home", "", "/");
       case "/": return "home";
       case "/settings/": return "settings";
+      case "/settings/profile/": return "settings/profile";
+      case "/settings/cosmetic/": return "settings/cosmetic";
+      case "/settings/account/": return "settings/account";
       case /^\/u\/[a-z0-9_\-]+\/$/.test(path) ? path : "": return "user";
     }
   } else {

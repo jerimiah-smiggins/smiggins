@@ -1,0 +1,36 @@
+#settings-sections {
+  display: flex;
+  flex-direction: column;
+  flex-wrap: nowrap;
+  gap: 0;
+
+  > a {
+    text-align: left;
+    border-bottom: 1px solid var(--border-color);
+    display: block;
+    padding: 1em;
+    box-sizing: border-box;
+    font-weight: 700;
+
+    small {
+      font-weight: 400;
+    }
+
+    &:last-child {
+      border-bottom: none;
+    }
+  }
+}
+
+.back-link {
+  display: block;
+  padding: 1em;
+  text-align: left;
+
+  svg {
+    fill: currentColor;
+    height: 1em;
+    translate: 0 0.125em;
+    padding-right: 0.2em
+  }
+}

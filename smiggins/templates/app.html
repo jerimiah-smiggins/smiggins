@@ -50,8 +50,11 @@
       {% include "snippet.html" with id="pages/signup" processing="input_enter,password_toggle,signup" %}
       <!-- logged in pages -->
       {% include "snippet.html" with id="pages/home" vars="username" processing="home,timeline_switch,timeline_more,input_enter" %}
-      {% include "snippet.html" with id="pages/settings" vars="username" %}
       {% include "snippet.html" with id="pages/user" vars="username" processing="user,timeline_more" %}
+      {% include "snippet.html" with id="pages/settings" vars="username" %}
+      {% include "snippet.html" with id="pages/settings/profile" vars="username" %}
+      {% include "snippet.html" with id="pages/settings/cosmetic" vars="username" %}
+      {% include "snippet.html" with id="pages/settings/account" vars="username" %}
 
       <!-- other -->
       {% include "snippet.html" with id="post" %}

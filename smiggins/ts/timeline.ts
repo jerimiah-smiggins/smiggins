@@ -293,6 +293,7 @@ function timelinePolling(): void {
     });
 }
 
+// prepends a post to the current timeline (ex. when creating a post, shows it immediately instead of waiting for load)
 function prependPostToTimeline(post: post): void {
   if (currentTl.prependPosts) {
     let newButton: HTMLElement | null = document.getElementById("timeline-show-new");
