@@ -59,6 +59,8 @@ function reloadTimeline(ignoreCache: boolean=false): void {
 
   document.getElementById("timeline-more")?.setAttribute("hidden", "");
   delete tlCache[currentTlID];
+  offset.upper = null;
+  offset.lower = null;
 
   fetch(currentTl.url, {
     headers: { Accept: "application/json" }
