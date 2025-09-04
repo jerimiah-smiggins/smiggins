@@ -8,6 +8,8 @@ from .variables import CACHE_LANGUAGES, DEFAULT_LANGUAGE, VALID_LANGUAGES
 def get_lang(lang=None, override_cache=False) -> dict[str, dict]:
     # Gets the language file for the specified user/language
 
+    return {}
+
     if lang is None:
         lang = DEFAULT_LANGUAGE
     elif isinstance(lang, str):

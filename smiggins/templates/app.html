@@ -3,7 +3,7 @@
 
 <html>
   <head>
-    <title>{% if title %}{{ title }} - {% endif %}{{ conf.site_name }} {{ conf.version }}</title>
+    <title>{{ conf.site_name }} {{ conf.version }}</title>
 
     <link rel="preload" href="{% static 'font/poppins-normal.woff' %}" as="font" type="font/woff" crossorigin>
     <link rel="preload" href="{% static 'font/poppins-bold.woff' %}" as="font" type="font/woff" crossorigin>
@@ -25,6 +25,7 @@
     <script>
       const loggedIn = "{{ logged_in }}" == "True";
       const username = "{{ username }}";
+      const pageTitle = "{{ conf.site_name }} {{ conf.version }}";
     </script>
 
     <link rel="stylesheet" href="{% static 'base.css' %}?v={{ conf.version }}">

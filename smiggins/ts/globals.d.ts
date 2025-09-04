@@ -1,5 +1,6 @@
 declare const loggedIn: boolean;
 declare const username: string;
+declare const pageTitle: string;
 declare let currentPage: intent;
 
 type intent = "index" | "login" | "signup"
@@ -25,6 +26,13 @@ type post = {
   content_warning: string | null,
   timestamp: number,
   private: boolean,
+
+  interactions: {
+    likes: number,
+    liked: boolean,
+    quotes: number,
+    comments: number
+  },
 
   user: {
     username: string,

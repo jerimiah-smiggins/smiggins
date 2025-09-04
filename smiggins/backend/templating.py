@@ -40,8 +40,6 @@ def webapp(request) -> HttpResponse:
         user = None
         theme = "auto"
 
-    lang = get_lang(user)
-    strings = get_strings(request, lang, user)
     # conf = {
     #     "max_post_length": MAX_POST_LENGTH,
     #     "max_poll_option_length": MAX_POLL_OPTION_LENGTH,
@@ -103,18 +101,16 @@ def webapp(request) -> HttpResponse:
             }
         },
 
-        "title": strings[0],
         "logged_in": user is not None,
         "username": user and user.username,
-        "loading": random.choice(MOTDs) if MOTDs else lang["generic"]["loading"],
+        "loading": random.choice(MOTDs) if MOTDs else "Loading...",
         "google_verification_tag": GOOGLE_VERIFICATION_TAG
     }
 
     return HttpResponse(
         loader.get_template("app.html").render(
             context, request
-        ),
-        status=strings[3]
+        )
     )
 
 generate_favicon = lambda request, a: HttpResponseRedirect("/static/img/old_favicon.png", status=308) # noqa: E731

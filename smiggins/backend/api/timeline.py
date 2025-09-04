@@ -5,13 +5,20 @@ from posts.models import Comment, Post, User
 from ..variables import POSTS_PER_REQUEST
 
 
-def get_post_json(post: Post | Comment) -> dict:
+def get_post_json(post: Post | Comment, user: User | None) -> dict:
     return {
         "id": post.post_id if isinstance(post, Post) else post.comment_id,
         "content": post.content,
         "content_warning": post.content_warning,
         "timestamp": post.timestamp,
         "private": post.private,
+
+        "interactions": {
+            "likes": post.likes.count(),
+            "liked": post.likes.contains(user) if user else False,
+            "quotes": len(post.quotes),
+            "comments": len(post.comments)
+        },
 
         "user": {
             "username": post.creator.username,
@@ -48,7 +55,7 @@ def get_timeline(
             tl = tl.filter(~Q(private=True))
 
     objs = list(tl[:POSTS_PER_REQUEST + 1])
-    return len(objs) <= POSTS_PER_REQUEST, [get_post_json(i) for i in objs[:POSTS_PER_REQUEST]]
+    return len(objs) <= POSTS_PER_REQUEST, [get_post_json(i, user) for i in objs[:POSTS_PER_REQUEST]]
 
 def tl_following(request, offset: int | None=None, forwards: bool=False):
     # if rl := check_ratelimit(request, "GET /api/timeline/following"):

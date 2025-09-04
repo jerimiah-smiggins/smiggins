@@ -56,7 +56,13 @@ function userUpdateStats(json: api_timeline): void {
 
   let displayNameElement: HTMLElement | null = document.getElementById("display-name");
   let displayName: string | undefined = json.extraData.display_name;
-  if (displayNameElement && displayName) { displayNameElement.innerText = displayName; }
+  if (displayName) {
+    document.title = `${displayName} - ${pageTitle}`;
+
+    if (displayNameElement) {
+      displayNameElement.innerText = displayName;
+    }
+  }
 
   let bannerElement: HTMLElement | null = document.getElementById("user-banner");
   if (bannerElement) {
