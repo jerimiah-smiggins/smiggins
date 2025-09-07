@@ -3,7 +3,9 @@ from typing import Any, Callable
 
 from backend.api.post import post_create
 from backend.api.timeline import tl_following, tl_global, tl_user
-from backend.api.user import login, signup, block_add, block_remove, follow_add, follow_remove
+from backend.api.user import (block_add, block_remove, change_password,
+                              delete_account, follow_add, follow_remove, login,
+                              signup)
 from backend.variables import DEBUG, SITE_NAME, VERSION
 from django.urls import path
 from ninja import NinjaAPI
@@ -123,6 +125,8 @@ api.delete("user/follow", **r)(follow_remove)
 api.post("user/block", **r)(block_add)
 api.delete("user/block", **r)(block_remove)
 
+api.patch("user/password", **r)(change_password)
+api.delete("user", **r)(delete_account)
 
 api.get("timeline/global", **r)(tl_global)
 api.get("timeline/following", **r)(tl_following)

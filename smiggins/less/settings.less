@@ -4,20 +4,28 @@
   flex-wrap: nowrap;
   gap: 0;
 
+  > div,
   > a {
     text-align: left;
     border-bottom: 1px solid var(--border-color);
     display: block;
     padding: 1em;
     box-sizing: border-box;
+
+    &:last-child {
+      border-bottom: none;
+    }
+  }
+
+  > div > :first-child {
+    font-weight: 700;
+  }
+
+  > a {
     font-weight: 700;
 
     small {
       font-weight: 400;
-    }
-
-    &:last-child {
-      border-bottom: none;
     }
   }
 }

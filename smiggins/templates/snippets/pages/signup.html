@@ -8,7 +8,7 @@
   <div><input data-enter-next="#password" data-enter-submit="#submit" id="username" placeholder="Username" maxlength="{{ conf.max_length.username }}"></div>
   <div><input data-enter-next="#confirm" data-enter-submit="#submit" id="password" placeholder="Password" type="password"></div>
   <div><input data-enter-submit="#submit" id="confirm" placeholder="Confirm Password" type="password"></div>
-  <p><button id="submit">Sign Up</button> <button data-password-toggle>Toggle Passwords</button></p>
+  <p><button id="submit">Sign Up</button> <button data-password-toggle="#password,#confirm">Toggle Password</button></p>
 {% else %}
   <p>New accounts are currently disabled.</p>
 {% endif %}

@@ -14,9 +14,32 @@ function inputEnterEvent(e: KeyboardEvent): void {
   e.preventDefault();
 }
 
-function togglePasswords(): void {
-  let toText: NodeListOf<HTMLInputElement> = document.querySelectorAll("input[type=\"password\"]");
-  let toPassword: NodeListOf<HTMLInputElement> = document.querySelectorAll("input[data-toggle-password]");
+function togglePasswords(e: Event): void {
+  let toText: HTMLInputElement[];
+  let toPassword: HTMLInputElement[];
+
+  let queries: string = "";
+
+  let baseElement: EventTarget | null = e.target;
+  if (baseElement) {
+    queries = (baseElement as HTMLButtonElement).dataset.passwordToggle || "";
+  }
+
+  if (queries) {
+    toText = [];
+    toPassword = [];
+
+    for (const q of queries.split(",")) {
+      let el: HTMLInputElement | null = document.querySelector(q.trim());
+      if (el) {
+        if (el.type === "password") { toText.push(el); }
+        else { toPassword.push(el); }
+      }
+    }
+  } else {
+    toText = [...(document.querySelectorAll("input[type=\"password\"]") as NodeListOf<HTMLInputElement>)];
+    toPassword = [...(document.querySelectorAll("input[data-toggle-password]") as NodeListOf<HTMLInputElement>)];
+  }
 
   for (const el of toText) {
     el.type = "text";
@@ -137,7 +160,11 @@ function updateTimestamps(): void {
   }
 }
 
-function errorCodeStrings(code: apiErrors | undefined, context?: string, data?: { [key: string]: string }): [title: string, content?: string] {
+function errorCodeStrings(
+  code: apiErrors | undefined,
+  context?: string,
+  data?: { [key: string]: string }
+): [title: string, content?: string] {
   switch (code) {
     case "BAD_PASSWORD": return ["Invalid password."];
     case "BAD_USERNAME": switch (context) {
@@ -155,4 +182,8 @@ function errorCodeStrings(code: apiErrors | undefined, context?: string, data?: 
   }
 
   return [code || "Something went wrong!"];
+}
+
+function setTokenCookie(token: string): void {
+  document.cookie = `token=${token};Path=/;SameSite=Lax;Expires=${new Date(Date.now() + (356 * 24 * 60 * 60 * 1000)).toUTCString()}`;
 }

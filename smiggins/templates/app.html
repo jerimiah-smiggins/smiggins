@@ -53,9 +53,9 @@
       {% include "snippet.html" with id="pages/home" vars="username" processing="home,timeline_switch,timeline_more,input_enter" %}
       {% include "snippet.html" with id="pages/user" vars="username" processing="user,timeline_more" %}
       {% include "snippet.html" with id="pages/settings" vars="username" %}
-      {% include "snippet.html" with id="pages/settings/profile" vars="username" %}
-      {% include "snippet.html" with id="pages/settings/cosmetic" vars="username" %}
-      {% include "snippet.html" with id="pages/settings/account" vars="username" %}
+      {% include "snippet.html" with id="pages/settings/profile" vars="username" processing="settings_profile" %}
+      {% include "snippet.html" with id="pages/settings/cosmetic" vars="username" processing="settings_cosmetic" %}
+      {% include "snippet.html" with id="pages/settings/account" vars="username" processing="settings_account,password_toggle,input_enter" %}
 
       <!-- other -->
       {% include "snippet.html" with id="post" %}

@@ -3,7 +3,7 @@ type apiErrors = "BAD_USERNAME" | "USERNAME_USED" | "BAD_PASSWORD" | "RATELIMIT"
 type GENERIC_API_FAILURE = { success: false, reason?: apiErrors };
 type GENERIC_API_RESPONSE = { success: true } | GENERIC_API_FAILURE;
 
-type api_login = { success: true, token: string } | GENERIC_API_FAILURE;
+type api_token = { success: true, token: string } | GENERIC_API_FAILURE;
 type api_post = { success: true, post: post } | GENERIC_API_FAILURE;
 type api_follow_add = { success: true, pending: boolean } | GENERIC_API_FAILURE;
 

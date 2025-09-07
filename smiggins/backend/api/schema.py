@@ -123,7 +123,7 @@ class Account(Username):
     otp: str | None = None
 
 class ChangePassword(Schema):
-    password: str
+    current_password: str
     new_password: str
 
 class Theme(Schema):

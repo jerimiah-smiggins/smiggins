@@ -4,18 +4,16 @@ function signupSubmitEvent(e: MouseEvent) {
   let confirmElement: HTMLElement | null = document.getElementById("confirm");
   let otpElement: HTMLElement | null = document.getElementById("otp");
 
-  if (!usernameElement || !passwordElement || !confirmElement || !otpElement) { return; }
+  if (!usernameElement || !passwordElement || !confirmElement) { return; }
 
   let username: string = (usernameElement as HTMLInputElement).value;
   let password: string = (passwordElement as HTMLInputElement).value;
   let confirm: string = (confirmElement as HTMLInputElement).value;
 
   let otp: string | null = null;
-  if (!otpElement.hidden) {
-    otp = (otpElement as HTMLInputElement).value
-  }
+  if (otpElement) { otp = (otpElement as HTMLInputElement).value }
 
-  if (!otpElement.hidden && !otp) { otpElement.focus(); return; }
+  if (otpElement && !otp) { otpElement.focus(); return; }
   else if (!username) { usernameElement.focus(); return; }
   else if (!password) { passwordElement.focus(); return; }
   else if (password !== confirm) {
@@ -34,10 +32,10 @@ function signupSubmitEvent(e: MouseEvent) {
       otp: otp
     }),
     headers: { Accept: "application/json" }
-  }).then((response: Response): Promise<api_login> => (response.json()))
-    .then((json: api_login): void => {
+  }).then((response: Response): Promise<api_token> => (response.json()))
+    .then((json: api_token): void => {
       if (json.success) {
-        document.cookie = `token=${json.token};Path=/;SameSite=Lax;Expires=${new Date(Date.now() + (356 * 24 * 60 * 60 * 1000)).toUTCString()}`;
+        setTokenCookie(json.token);
         location.href = "/";
       } else {
         (e.target as HTMLButtonElement | null)?.removeAttribute("disabled");

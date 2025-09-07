@@ -66,10 +66,7 @@ def signup(request, data: Account) -> tuple[int, dict] | dict:
         language=DEFAULT_LANGUAGE
     )
 
-    return {
-        "success": True,
-        "token": token
-    }
+    return { "success": True, "token": token }
 
 def login(request, data: Account) -> tuple[int, dict] | dict:
     # if rl := check_ratelimit(request, "POST /api/user/login"):
@@ -82,10 +79,7 @@ def login(request, data: Account) -> tuple[int, dict] | dict:
         user = User.objects.get(username=username)
 
         if token == user.token:
-            return {
-                "success": True,
-                "token": token
-            }
+            return { "success": True, "token": token }
 
         return 400, { "success": False, "reason": "BAD_PASSWORD" }
 
@@ -170,6 +164,43 @@ def _block(request, data: Username, unblock: bool):
         self_user.blocking.add(user)
 
     return { "success": True }
+
+def change_password(request, data: ChangePassword) -> dict | tuple[int, dict]:
+    # if rl := check_ratelimit(request, "PATCH /api/user/password"):
+    #     return rl
+
+    current_token = request.COOKIES.get("token")
+
+    try:
+        user = User.objects.get(token=current_token)
+    except User.DoesNotExist:
+        return 400, { "success": False, "reason": "NOT_AUTHENTICATED" }
+
+    if generate_token(user.username, data.current_password) != current_token or len(data.new_password) != 64 or data.new_password == "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855":
+        return 400, { "success": False, "reason": "BAD_PASSWORD" }
+
+    for i in data.new_password:
+        if i not in "abcdef0123456789":
+            return 400, { "success": False, "reason": "BAD_PASSWORD" }
+
+    new_token = generate_token(user.username, data.new_password)
+
+    user.token = new_token
+    user.save()
+
+    return { "success": True, "token": new_token }
+
+def delete_account(request, data: Password) -> dict | tuple[int, dict]:
+    try:
+        user = User.objects.get(token=request.COOKIES.get("token"))
+    except User.DoesNotExist:
+        return { "success": False, "reason": "NOT_AUTHENTICATED" }
+
+    if user.token == generate_token(user.username, data.password):
+        user.delete()
+        return { "success": True }
+
+    return { "success": False, "reason": "BAD_PASSWORD" }
 
 def settings_theme(request, data: Theme) -> APIResponse:
     if rl := check_ratelimit(request, "PATCH /api/user/settings/theme"):
@@ -293,55 +324,6 @@ def settings(request, data: Settings) -> APIResponse:
         "actions": [
             { "name": "reload" }
         ] if reload else []
-    }
-
-def change_password(request, data: ChangePassword) -> APIResponse:
-    if rl := check_ratelimit(request, "PATCH /api/user/password"):
-        return rl
-
-    try:
-        user = User.objects.get(token=request.COOKIES.get("token"))
-    except User.DoesNotExist:
-        return 400, {
-            "success": False
-        }
-
-    if len(data.password) != 64:
-        return 400, {
-            "success": False
-        }
-
-    for i in data.password:
-        if i not in "abcdef0123456789":
-            return 400, {
-                "success": False
-            }
-
-    lang = get_lang(user)
-
-    if data.password == "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855":
-        return 400, {
-            "success": False,
-            "message": lang["account"]["password_empty"]
-        }
-
-    if generate_token(user.username, data.password) != request.COOKIES.get("token"):
-        return 400, {
-            "success": False,
-            "message": lang["account"]["password_match_failure"]
-        }
-
-    new_token = generate_token(user.username, data.new_password)
-
-    user.token = new_token
-    user.save()
-
-    return {
-        "success": True,
-        "message": lang["settings"]["account_password_success"],
-        "actions": [
-            { "name": "set_auth", "token": new_token }
-        ]
     }
 
 def read_notifs(request) -> APIResponse:

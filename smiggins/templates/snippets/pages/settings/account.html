@@ -1,13 +1,35 @@
 {% include "snippets/generic/page-start.html" with active_page="settings" %}
 
-<h1 class="no-margin-top">Profile Settings</h1>
+<h1 class="no-margin-top">Account Settings</h1>
 
 <hr class="no-margin-bottom">
 <a class="back-link plain-link" href="/settings/" data-internal-link="settings">@{icon_back} Settings</a>
+<hr class="no-margin-top no-margin-bottom">
+
+<div id="settings-sections">
+  <div>
+    <p class="no-margin-top">Change Password</p>
+    <div><input type="password" id="password-current" placeholder="Current password" data-enter-next="#password-new" data-enter-submit="#password-set"></div>
+    <div><input type="password" id="password-new" placeholder="New password" data-enter-next="#password-confirm" data-enter-submit="#password-set"></div>
+    <div><input type="password" id="password-confirm" placeholder="Confirm password" data-enter-submit="#password-set"></div>
+    <button class="generic-margin-top" id="password-set">Set Password</button>
+    <button data-password-toggle="#password-current,#password-new,#password-confirm">Toggle Password</button>
+  </div>
+
+  <div>
+    <p class="no-margin-top">Delete Account</p>
+    <p><input type="password" id="delete-acc-password" placeholder="Password" data-enter-next="#delete-acc-confirm" data-enter-submit="#delete-acc"></p>
+    <p><label>
+      <input type="checkbox" id="delete-acc-confirm" data-enter-submit="#delete-acc">
+      I confirm that this action <span class="warning">can not be undone</span>, and any data associated with this account (<b>@{username}</b>) will <span class="warning">not be recoverable</span>.
+    </label></p>
+    <button id="delete-acc">Delete My Account</button>
+    <button data-password-toggle="#delete-acc-password">Toggle Password</button>
+  </div>
+
+  <a href="/logout/" data-internal-link="logout">Log Out...</a>
+</div>
+
 <hr class="no-margin-top">
-<div>change pw</div>
-<div>delete account</div>
-<div>log out</div>
-<hr>
 
 {% include "snippets/generic/page-end.html" %}

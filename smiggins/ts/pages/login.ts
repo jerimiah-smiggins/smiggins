@@ -19,14 +19,14 @@ function loginSubmitEvent(e: MouseEvent): void {
       password: sha256(password)
     }),
     headers: { Accept: "application/json" }
-  }).then((response: Response): Promise<api_login> => (response.json()))
-    .then((json: api_login): void => {
+  }).then((response: Response): Promise<api_token> => (response.json()))
+    .then((json: api_token): void => {
       if (json.success) {
-        document.cookie = `token=${json.token};Path=/;SameSite=Lax;Expires=${new Date(Date.now() + (356 * 24 * 60 * 60 * 1000)).toUTCString()}`;
+        setTokenCookie(json.token);
         location.href = "/";
       } else {
         (e.target as HTMLButtonElement | null)?.removeAttribute("disabled");
-        createToast(...errorCodeStrings(json.reason, "login"));
+        createToast(...errorCodeStrings(json.reason, "login", { username: username }));
       }
     })
     .catch((err: any): void => {
