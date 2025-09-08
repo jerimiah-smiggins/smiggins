@@ -77,7 +77,7 @@ def post_create(request, data: NewPost) -> dict | tuple[int, dict]:
 
     return {
         "success": True,
-        "post": get_post_json(post)
+        "post": get_post_json(post, user)
     }
 
 def OLD_post_create(request, data: NewPost) -> APIResponse:

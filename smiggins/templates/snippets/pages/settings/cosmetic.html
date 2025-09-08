@@ -5,11 +5,37 @@
 <hr class="no-margin-bottom">
 <a class="back-link plain-link" href="/settings/" data-internal-link="settings">@{icon_back} Settings</a>
 <hr class="no-margin-top">
-<div>theme</div>
-<div>complex timestamps</div>
-<div>always expand cws</div>
-<div>hide interactions</div>
-<div>auto show new posts</div>
-<hr>
+
+<div id="settings-sections">
+  <div>
+    <p class="no-margin-top">Colors</p>
+    <label>
+      Theme:
+      <select id="theme">
+        <option value="system">Automatic</option>
+        <option value="light">Light</option>
+        <option value="dark">Dark</option>
+      </select>
+    </label>
+  </div>
+
+  <div>
+    <p class="no-margin-top">Timestamps</p>
+    <label><input type="checkbox" id="complex-timestamps"> Enable complex timestamps (Ex. 1h becomes 1h32m, 5m becomes 5m48s)</label>
+  </div>
+
+  <div>
+    <p class="no-margin-top">Content Warnings</p>
+    <label><input type="checkbox" id="expand-cws"> Always expand content warnings</label>
+  </div>
+
+  <div>
+    <p class="no-margin-top">Posts</p>
+    <p><label><input type="checkbox" id="hide-interactions"> Hide interaction counts on posts</label></p>
+    <label><input type="checkbox" id="auto-show"> Automatically show new posts on the timeline</label>
+    <small><div>When disabled, there will instead be a button to show new posts.</div></small>
+  </div>
+</div>
+<hr class="no-margin-top">
 
 {% include "snippets/generic/page-end.html" %}

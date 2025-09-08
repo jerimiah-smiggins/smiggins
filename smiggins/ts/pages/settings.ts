@@ -1,14 +1,13 @@
-function p_settingsProfile(element: HTMLDivElement): void {
-  //
-}
+function settingsThemeSelection(e: Event) {
+  let themeElement: HTMLSelectElement | null = document.getElementById("theme") as HTMLSelectElement | null;
 
-function p_settingsCosmetic(element: HTMLDivElement): void {
-  //
-}
+  if (themeElement) {
+    let th = themeElement.value;
 
-function p_settingsAccount(element: HTMLDivElement): void {
-  element.querySelector("#password-set")?.addEventListener("click", changePassword);
-  element.querySelector("#delete-acc")?.addEventListener("click", deleteAccount);
+    if (th === "light" || th === "dark" || th === "system") {
+      setTheme(th);
+    }
+  }
 }
 
 function changePassword(e: Event): void {
@@ -89,4 +88,27 @@ function deleteAccount(e: Event): void {
       createToast("Something went wrong!", String(err));
       throw err;
     });
+}
+
+function p_settingsProfile(element: HTMLDivElement): void {
+  //
+}
+
+function p_settingsCosmetic(element: HTMLDivElement): void {
+  element.querySelector(`#theme > option[value="${theme}"]`)?.setAttribute("selected", "");
+  if (localStorage.getItem("smiggins-complex-timestamps")) { element.querySelector("#complex-timestamps")?.setAttribute("checked", ""); }
+  if (localStorage.getItem("smiggins-expand-cws"))         { element.querySelector("#expand-cws")        ?.setAttribute("checked", ""); }
+  if (localStorage.getItem("smiggins-hide-interactions"))  { element.querySelector("#hide-interactions") ?.setAttribute("checked", ""); }
+  if (localStorage.getItem("smiggins-auto-show-posts"))    { element.querySelector("#auto-show")         ?.setAttribute("checked", ""); }
+
+  element.querySelector("#theme")             ?.addEventListener("change", settingsThemeSelection);
+  element.querySelector("#complex-timestamps")?.addEventListener("change", genericCheckbox("smiggins-complex-timestamps"));
+  element.querySelector("#expand-cws")        ?.addEventListener("change", genericCheckbox("smiggins-expand-cws"));
+  element.querySelector("#hide-interactions") ?.addEventListener("change", genericCheckbox("smiggins-hide-interactions"));
+  element.querySelector("#auto-show")         ?.addEventListener("change", genericCheckbox("smiggins-auto-show-posts"));
+}
+
+function p_settingsAccount(element: HTMLDivElement): void {
+  element.querySelector("#password-set")?.addEventListener("click", changePassword);
+  element.querySelector("#delete-acc")?.addEventListener("click", deleteAccount);
 }

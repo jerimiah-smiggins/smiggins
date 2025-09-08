@@ -127,7 +127,7 @@ function escapeHTML(str: string): string {
 function getTimestamp(timestamp: number, raw: boolean=false): string {
   let difference: number = Math.round(Date.now() / 1000 - timestamp);
   let future: boolean = difference < 0;
-  let complexTimestamps: boolean = !!localStorage.getItem("complex-timestamps");
+  let complexTimestamps: boolean = !!localStorage.getItem("smiggins-complex-timestamps");
   if (future) { difference = -difference; }
 
   let output: string = "?";
@@ -179,6 +179,8 @@ function errorCodeStrings(
       case "login": return ["Username in use.", `User '${data?.username}' already exists.`];
       default: return ["Username in use."];
     }
+    case "CANT_INTERACT": return ["Can't interact.", "You can't interact with this user for some reason."];
+    case "BLOCKING": return ["You are blocking this person.", "You need to unblock them to do this."];
   }
 
   return [code || "Something went wrong!"];
@@ -186,4 +188,15 @@ function errorCodeStrings(
 
 function setTokenCookie(token: string): void {
   document.cookie = `token=${token};Path=/;SameSite=Lax;Expires=${new Date(Date.now() + (356 * 24 * 60 * 60 * 1000)).toUTCString()}`;
+}
+
+function genericCheckbox(storageId: string): (e: Event) => void {
+  return function(e: Event): void {
+    let el: HTMLInputElement | null = e.target as HTMLInputElement | null;
+
+    if (el) {
+      if (el.checked) { localStorage.setItem(storageId, "1"); }
+      else { localStorage.removeItem(storageId); }
+    } 
+  };
 }
