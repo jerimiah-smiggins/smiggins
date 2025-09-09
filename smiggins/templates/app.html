@@ -26,6 +26,11 @@
       const loggedIn = "{{ logged_in }}" == "True";
       const username = "{{ username }}";
       const pageTitle = "{{ conf.site_name }} {{ conf.version }}";
+      const limits = {
+        username: {{ conf.max_length.username }},
+        post: {{ conf.max_length.post }},
+        cw: {{ conf.max_length.cw }},
+      }
     </script>
 
     <link rel="stylesheet" href="{% static 'base.css' %}?v={{ conf.version }}">

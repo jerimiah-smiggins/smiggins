@@ -219,8 +219,8 @@ function getPost(post: post, updateOffset: boolean=true): HTMLDivElement {
     username: post.user.username,
 
     // unsafe items, includes a max replace in order to prevent unwanted injection
-    content: [postContent, 1],
-    display_name: [escapeHTML(post.user.display_name), 1],
+    content: [linkify(postContent, post.id), 1],
+    display_name: [escapeHTML(post.user.display_name), 1]
   });
 
   if (post.private) {

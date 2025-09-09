@@ -3,8 +3,11 @@ function urlToIntent(path: string): intent {
 
   if (loggedIn) {
     switch (path) {
-      case "/home/": history.pushState("home", "", "/");
+      case "/home/":
+      case "/login/":
+      case "/signup/": history.pushState("home", "", "/");
       case "/": return "home";
+
       case "/settings/": return "settings";
       case "/settings/profile/": return "settings/profile";
       case "/settings/cosmetic/": return "settings/cosmetic";

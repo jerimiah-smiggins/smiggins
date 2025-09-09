@@ -48,8 +48,10 @@ def signup(request, data: Account) -> tuple[int, dict] | dict:
     except User.DoesNotExist:
         ...
 
-    if len(username) > MAX_USERNAME_LENGTH or not username:
+    if len(username) > MAX_USERNAME_LENGTH or not username \
+       or len([i for i in username if i.lower() in "abcdefghijklmnopqrstuvwxyz0123456789_-"]) != len(username):
         return 400, { "success": False, "reason": "BAD_USERNAME" }
+
 
     if ENABLE_NEW_ACCOUNTS == "otp":
         otp.delete()
