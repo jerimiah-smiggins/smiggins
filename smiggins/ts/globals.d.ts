@@ -16,7 +16,7 @@ type snippet = "pages/index" | "pages/login" | "pages/signup"
 
 type snippetData = {
   content: string,
-  variables: string[],
+  variables: (string | [string, number])[],
   processing: string[]
 };
 

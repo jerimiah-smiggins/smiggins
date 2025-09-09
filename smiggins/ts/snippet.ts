@@ -40,7 +40,7 @@ let snippetProcessing: { [key: string]: (element: HTMLDivElement) => void } = {
 // @ts-expect-error
 let snippets: { [key in snippet]: snippetData} = {};
 
-function getSnippet(snippet: snippet, extraVariables?: { [key: string]: string }): HTMLDivElement {
+function getSnippet(snippet: snippet, extraVariables?: { [key: string]: string | [value: string, max_repl: number] }): HTMLDivElement {
   let s: snippetData = snippets[snippet];
   let content = s.content;
 
@@ -50,19 +50,42 @@ function getSnippet(snippet: snippet, extraVariables?: { [key: string]: string }
 
   for (const i of s.variables) {
     let replacementValue: string = "";
+    let replacementCount: number = 0;
 
-    if (i in snippetVariables) {
-      replacementValue = snippetVariables[i];
+    if (typeof i === "string") {
+      if (i in snippetVariables) {
+        replacementValue = snippetVariables[i];
+      } else {
+        console.log(`Unknown snippet variable "${i}"`);
+      }
     } else {
-      console.log(`Unknown snippet variable "${i}"`);
+      replacementCount = i[1];
+
+      if (i[0] in snippetVariables) {
+        replacementValue = i[0];
+      } else {
+        console.log(`Unknown snippet variable "${i}"`);
+      }
     }
 
-    content = content.replaceAll(`@{${i}}`, replacementValue);
+    if (replacementCount) {
+      for (let _: number = 0; _ < replacementCount; _++) {
+        content = content.replace(`@{${typeof i === "string" ? i : i[0]}}`, replacementValue);
+      }
+    } else {
+      content = content.replaceAll(`@{${typeof i === "string" ? i : i[0]}}`, replacementValue);
+    }
   }
 
   if (extraVariables) {
     for (const i of Object.keys(extraVariables)) {
-      content = content.replaceAll(`@{${i}}`, extraVariables[i]);
+      if (typeof extraVariables[i] === "string") {
+        content = content.replaceAll(`@{${i}}`, extraVariables[i]);
+      } else {
+        for (let _: number = 0; _ < extraVariables[i][1]; _++) {
+          content = content.replace(`@{${i}}`, extraVariables[i][0]);
+        }
+      }
     }
   }
 
@@ -95,7 +118,10 @@ function p_passwordToggle(element: HTMLDivElement): void {
 
 for (const snippet of document.querySelectorAll("[data-snippet]") as NodeListOf<HTMLDivElement>) {
   snippets[snippet.dataset.snippet as snippet] = {
-    variables: snippet.dataset.snippetVariables?.split(",").filter((a: string): string => a) || [],
+    variables: snippet.dataset.snippetVariables?.split(",").filter((a: string): string => a).map((a: string): string | [string, number] => {
+      if (a.includes(":")) { return [a.split(":")[0], +a.split(":")[1]]; }
+      return a;
+    }) || [],
     processing: snippet.dataset.snippetProcessing?.split(",").filter((a: string): string => a) || [],
     content: snippet.innerHTML
   };

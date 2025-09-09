@@ -81,6 +81,7 @@ function reloadTimeline(ignoreCache: boolean=false): void {
 function loadMorePosts(): void {
   let more: HTMLElement | null = document.getElementById("timeline-more");
   let currentTimeline: timelineConfig = currentTl;
+  let currentTimelineID: string = currentTlID;
   if (more) { more.hidden = true; }
 
   tlElement.insertAdjacentHTML("beforeend", LOADING_HTML);
@@ -91,6 +92,7 @@ function loadMorePosts(): void {
     .then((json: api_timeline): void => {
       if (currentTl.url !== currentTimeline.url) {
         console.log("timeline switched, discarding request");
+        if (json.success) { tlCache[currentTimelineID]?.posts.push(...json.posts); }
         return;
       }
 
@@ -215,8 +217,10 @@ function getPost(post: post, updateOffset: boolean=true): HTMLDivElement {
   let el: HTMLDivElement = getSnippet("post", {
     timestamp: getTimestamp(post.timestamp),
     username: post.user.username,
-    display_name: escapeHTML(post.user.display_name),
-    content: postContent
+
+    // unsafe items, includes a max replace in order to prevent unwanted injection
+    content: [postContent, 1],
+    display_name: [escapeHTML(post.user.display_name), 1],
   });
 
   if (post.private) {
@@ -255,6 +259,9 @@ function timelineShowNew(): void {
 
 // fetch new posts for a timeline
 function timelinePolling(forceEvent: boolean=false): void {
+  let currentTimeline: timelineConfig = currentTl;
+  let currentTimelineID: string = currentTlID;
+
   tlPollingPendingResponse = true;
   if (tlCache[currentTlID].pendingForward === false || !offset.upper) { return; }
 
@@ -265,6 +272,17 @@ function timelinePolling(forceEvent: boolean=false): void {
   fetch(`${currentTl.url}?offset=${offset.upper}&forwards=true`)
     .then((response: Response): Promise<api_timeline> => (response.json()))
     .then((json: api_timeline): void => {
+      if (currentTimeline.url !== currentTl.url) {
+        console.log("timeline switched, discarding request");
+
+        if (json.success) {
+          let cache = tlCache[currentTimelineID];
+
+          if (json.end) { cache.pendingForward = false; }
+          else if (cache.pendingForward !== false) { cache.pendingForward.push(...json.posts.reverse()); }
+        }
+      }
+
       if (currentTl.timelineCallback) {
         currentTl.timelineCallback(json);
       }

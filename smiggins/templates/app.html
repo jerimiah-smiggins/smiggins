@@ -43,6 +43,10 @@
 
     <div id="snippets">
       <!-- pages -->
+      {% comment %}
+        you can limit the number of replacements for a variable by adding a colon and the max number of replacements.
+        ex. vars="username:1,site_name" would autofill the variables for username and site_name, however the username variable is limited to a maximum of one insertion.
+      {% endcomment %}
       {% include "snippet.html" with id="pages/404" vars="site_name,home_page" %}
       {% include "snippet.html" with id="pages/logout" processing="logout" %}
       <!-- logged out pages -->
