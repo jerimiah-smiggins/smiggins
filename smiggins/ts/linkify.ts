@@ -26,6 +26,17 @@ function withinBounds(index: number, length: number, bounds: { index: number, le
   return false;
 }
 
+function urlReplacements(str: string, repl: replacement[]): string {
+  repl.sort((a: replacement, b: replacement): number => (b.index - a.index));
+
+  for (const r of repl) {
+    let linkTag: string = `<a href="${r.href}" ${r.hiddenLink ? "class=\"plain-link\"" : ""} ${r.internalIntent ? `data-internal-link="${r.internalIntent}"` : "target=\"_blank\""}>`;
+    str = str.slice(0, r.index) + linkTag + str.slice(r.index, r.index + r.length) + "</a>" + str.slice(r.index + r.length);
+  }
+
+  return str;
+}
+
 // takes in an ESCAPED string and adds any needed links to it.
 function linkify(str: string, postID?: number, postIsComment?: boolean): string {
   let urlReplacement: replacement[] = [];
@@ -114,15 +125,4 @@ function linkify(str: string, postID?: number, postIsComment?: boolean): string 
   }
 
   return urlReplacements(str, urlReplacement);;
-}
-
-function urlReplacements(str: string, repl: replacement[]): string {
-  repl.sort((a: replacement, b: replacement): number => (b.index - a.index));
-
-  for (const r of repl) {
-    let linkTag: string = `<a href="${r.href}" ${r.hiddenLink ? "class=\"plain-link\"" : ""} ${r.internalIntent ? `data-internal-link="${r.internalIntent}"` : ""}>`;
-    str = str.slice(0, r.index) + linkTag + str.slice(r.index, r.index + r.length) + "</a>" + str.slice(r.index + r.length);
-  }
-
-  return str;
 }
