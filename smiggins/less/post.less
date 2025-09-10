@@ -100,6 +100,37 @@
   .subtext {
     color: var(--subtext);
   }
+
+  .post-interactions {
+    display: flex;
+    flex-direction: row;
+    flex-wrap: nowrap;
+    padding-top: 0.25em;
+    text-align: center;
+    justify-content: center;
+
+    > div {
+      flex: 1;
+      max-width: 150px;
+
+      &[data-liked] {
+        svg:last-of-type { display: none; }
+
+        &[data-liked="true"] {
+          svg:last-of-type { display: inline; fill: var(--accent); }
+          svg:first-of-type { display: none; }
+        }
+      }
+    }
+
+    svg {
+      height: 1.2em;
+      fill: currentColor;
+      position: relative;
+      top: 0.2em;
+      padding-right: 0.1em;
+    }
+  }
 }
 
 [data-private-post] .post-private {

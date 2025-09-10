@@ -210,6 +210,15 @@ function getPost(post: post, updateOffset: boolean=true): HTMLDivElement {
   let el: HTMLDivElement = getSnippet("post", {
     timestamp: getTimestamp(post.timestamp),
     username: post.user.username,
+    post_interactions_hidden: localStorage.getItem("smiggins-hide-interactions") && "hidden" || "",
+
+    pc: "p", // TODO: distinguish between posts and comments somehow
+    pid: String(post.id),
+
+    comments: String(post.interactions.comments),
+    quotes: String(post.interactions.quotes),
+    likes: String(post.interactions.likes),
+    liked: String(post.interactions.liked),
 
     // unsafe items, includes a max replace in order to prevent unwanted injection
     content: [linkify(postContent, post.id), 1],

@@ -8,4 +8,10 @@
   </div>
 
   <div class="post-content">@{content}</div>
+
+  <div class="post-interactions" @{post_interactions_hidden}>
+    <div><a class="plain-link" data-internal-link="post" href="/@{pc}/@{pid}/">@{icon_comment} @{comments}</a></div>
+    <div data-interaction-quote="@{pc}@{pid}">@{icon_quote} @{quotes}</div>
+    <div data-interaction-like="@{pc}@{pid}" data-liked="@{liked}">@{icon_like}@{icon_like_active} @{likes}</div>
+  </div>
 </div>
