@@ -198,7 +198,7 @@ function switchTimeline(e: MouseEvent): void {
 
 // turns post data into an html element
 function getPost(post: post, updateOffset: boolean=true): HTMLDivElement {
-  let postContent: string = escapeHTML(post.content);
+  let postContent: string = linkify(escapeHTML(post.content), post.id);
 
   if (updateOffset && (!offset.lower || post.id < offset.lower)) { offset.lower = post.id; }
   if (updateOffset && (!offset.upper || post.id > offset.upper)) { offset.upper = post.id; }
@@ -221,7 +221,7 @@ function getPost(post: post, updateOffset: boolean=true): HTMLDivElement {
     liked: String(post.interactions.liked),
 
     // unsafe items, includes a max replace in order to prevent unwanted injection
-    content: [linkify(postContent, post.id), 1],
+    content: [postContent, 1],
     display_name: [escapeHTML(post.user.display_name), 1]
   });
 

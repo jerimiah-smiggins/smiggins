@@ -124,6 +124,11 @@ function escapeHTML(str: string): string {
   return str.replaceAll("&", "&amp;").replaceAll("<", "&lt;").replaceAll("\"", "&quot;").replaceAll("`", "&#96;");
 }
 
+function unescapeHTML(str: string): string {
+  if (str === undefined) { return "⚠️"; }
+  return str.replaceAll("&#96;", "`").replaceAll("&quot;", "\"").replaceAll("&lt;", "<").replaceAll("&amp;", "&");
+}
+
 function getTimestamp(timestamp: number, raw: boolean=false): string {
   let difference: number = Math.round(Date.now() / 1000 - timestamp);
   let future: boolean = difference < 0;
