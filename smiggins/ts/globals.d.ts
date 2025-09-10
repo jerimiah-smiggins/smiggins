@@ -52,6 +52,16 @@ type timelineConfig = {
   disablePolling?: true
 };
 
+type timelineCache = {
+  timestamp: number,
+  upperBound: number | null,
+  lowerBound: number | null,
+  posts: post[],
+  pendingForward: post[] | false,
+  extraData: { [key: string]: any },
+  end: boolean
+}
+
 type replacement = {
   index: number,
   length: number,

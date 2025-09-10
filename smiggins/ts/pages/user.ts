@@ -13,7 +13,7 @@ function p_user(element: HTMLDivElement): void {
 
   hookTimeline(element.querySelector("[id=\"timeline-posts\"]") as HTMLDivElement, {
     [tlId]: { url: `/api/timeline/user/${userUsername}`, prependPosts: username === userUsername, timelineCallback: userUpdateStats }
-  }, tlId);
+  }, tlId, element);
 }
 
 function userUpdateStats(json: api_timeline): void {
@@ -132,7 +132,6 @@ function toggleBlock(e: Event): void {
   }).then((response: Response): Promise<GENERIC_API_RESPONSE> => (response.json()))
     .then((json: GENERIC_API_RESPONSE) => {
       if (json.success) {
-        console.log(json, unblock, blockButton);
         if (unblock) {
           blockButton.innerText = "Block";
           delete blockButton.dataset.unblock;

@@ -6,15 +6,7 @@ let tlPollingIntervalID: number | null = null;
 let tlPollingPendingResponse: boolean = false;
 let prependedPosts: number = 0;
 
-let tlCache: { [key: string]: {
-  timestamp: number,
-  upperBound: number | null,
-  lowerBound: number | null,
-  posts: post[],
-  pendingForward: post[] | false,
-  extraData: { [key: string]: any },
-  end: boolean
-}} = {};
+let tlCache: { [key: string]: timelineCache } = {};
 
 let offset: { upper: number | null, lower: number | null } = {
   upper: null,
@@ -29,19 +21,20 @@ const TL_POLLING_INTERVAL: number = 10_000; // 10s
 function hookTimeline(
   element: HTMLDivElement,
   tls: { [key: string]: timelineConfig },
-  activeTimeline: string
+  activeTimeline: string,
+  fakeBodyElement?: HTMLDivElement
 ): void {
   timelines = tls;
   tlElement = element;
-  _setTimeline(activeTimeline);
+  _setTimeline(activeTimeline, fakeBodyElement);
 }
 
 // completely refreshes the posts, ex. when switching or reloading
-function reloadTimeline(ignoreCache: boolean=false): void {
+function reloadTimeline(ignoreCache: boolean=false, element?: HTMLDivElement): void {
   tlElement.innerHTML = LOADING_HTML;
   prependedPosts = 0;
 
-  let cache = tlCache[currentTlID];
+  let cache: timelineCache = tlCache[currentTlID];
   if (!ignoreCache && cache && Math.round(Date.now() / 1000) < cache.timestamp + TL_CACHE_TTL && cache.pendingForward !== false) {
     offset = {
       upper: cache.upperBound,
@@ -54,7 +47,7 @@ function reloadTimeline(ignoreCache: boolean=false): void {
       posts: cache.posts,
       end: cache.end,
       extraData: cache.extraData,
-    }, false);
+    }, false, element?.querySelector("#timeline-more"));
 
     timelinePolling(true);
     return;
@@ -115,7 +108,7 @@ function clearTimelineStatuses(): void {
 }
 
 // appends posts to a timeline
-function renderTimeline(json: api_timeline, updateCache: boolean=true): void {
+function renderTimeline(json: api_timeline, updateCache: boolean=true, moreElementOverride?: HTMLElement | null): void {
   if (currentTl.timelineCallback) {
     currentTl.timelineCallback(json);
   }
@@ -130,7 +123,7 @@ function renderTimeline(json: api_timeline, updateCache: boolean=true): void {
   clearTimelineStatuses();
 
   let frag: DocumentFragment = document.createDocumentFragment();
-  let more: HTMLElement | null = document.getElementById("timeline-more");
+  let more: HTMLElement | null = moreElementOverride || document.getElementById("timeline-more");
 
   if (more) {
     if (json.end) { more.hidden = true; }
@@ -166,7 +159,7 @@ function renderTimeline(json: api_timeline, updateCache: boolean=true): void {
 }
 
 // sets variables required when switching or setting a timeline
-function _setTimeline(timelineId: string): void {
+function _setTimeline(timelineId: string, element?: HTMLDivElement): void {
   if (tlCache[currentTlID]) {
     tlCache[currentTlID].upperBound = offset.upper;
     tlCache[currentTlID].lowerBound = offset.lower;
@@ -184,7 +177,7 @@ function _setTimeline(timelineId: string): void {
     tlPollingIntervalID = setInterval(timelinePolling, TL_POLLING_INTERVAL);
   }
 
-  reloadTimeline();
+  reloadTimeline(undefined, element);
 }
 
 // handles switching timelines from the tl-carousel

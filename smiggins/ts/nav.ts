@@ -62,6 +62,47 @@ function normalizePath(path: string): string {
   return path.toLowerCase();
 }
 
+function renderPage(intent: intent): void {
+  let extraVariables: { [key: string]: string } = {};
+
+  switch (intent) {
+    case "user":
+      let username: string = getUsernameFromPath();
+      let c: timelineCache = tlCache["user_" + username];
+      extraVariables = {
+        user_username: username,
+        display_name: c && c.extraData.display_name || username,
+        color_one: c && c.extraData.color_one || "var(--background-mid)",
+        color_two: c && c.extraData.color_two || "var(--background-mid)",
+        following: c && String(c.extraData.num_following) || "0",
+        followers: c && String(c.extraData.num_followers) || "0"
+      }; break;
+  }
+
+  let snippet: HTMLDivElement = getSnippet(`pages/${intent}`, extraVariables);
+  container.replaceChildren(snippet);
+  document.title = getPageTitle(intent);
+}
+
+function getPageTitle(intent: intent): string {
+  switch (intent) {
+    case "index":
+    case "home":
+      return pageTitle;
+    case "login": return "Log In - " + pageTitle;
+    case "signup": return "Sign Up - " + pageTitle;
+    case "logout": return "Log Out - " + pageTitle;
+    case "404": return "Page Not Found - " + pageTitle;
+    case "user": return getUsernameFromPath() + " - " + pageTitle;
+    case "settings":
+    case "settings/profile":
+    case "settings/cosmetic":
+    case "settings/account":
+      return "Settings - " + pageTitle;
+    default: return intent + " - " + pageTitle;
+  }
+}
+
 onpopstate = function(e: PopStateEvent): void {
   currentPage = e.state as intent;
   renderPage(currentPage);
