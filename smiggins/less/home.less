@@ -186,7 +186,7 @@
     width: 100vw;
     max-width: unset;
     border: none;
-    padding-bottom: calc(@navbar-item-height + 2em);
+    padding-bottom: calc(@navbar-item-height + 2 * @navbar-item-vertical-padding);
   }
 
   #navbar {
@@ -194,20 +194,20 @@
     gap: 0;
     align-items: center;
     left: 0;
-    top: calc(100vh - @navbar-item-height - 1em);
+    top: calc(100vh - @navbar-item-height - 2 * @navbar-item-vertical-padding);
     height: @navbar-item-height;
-    padding: 0.5em 0.25em;
-    width: calc(100vw - 0.5em);;
+    padding: @navbar-item-vertical-padding 0.25em;
+    width: calc(100vw - 0.5em);
     flex-direction: row;
     z-index: 999;
     backdrop-filter: blur(4px);
     background-color: rgba(var(--background-rgb) / 25%);
-    border-top: 2px solid var(--border-color);
+    box-shadow: 0 -2px 0 var(--border-color);
     text-align: center;
 
     > a {
       flex: 1;
-      padding: 0.5em 0;
+      padding: @navbar-item-vertical-padding 0;
     }
   }
 }

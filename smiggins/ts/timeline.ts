@@ -211,7 +211,7 @@ function getPost(post: post, updateOffset: boolean=true): HTMLDivElement {
   if (updateOffset && (!offset.upper || post.id > offset.upper)) { offset.upper = post.id; }
 
   if (post.content_warning) {
-    postContent = `<details class="content-warning"${localStorage.getItem("smiggins-expand-cws") ? " open" : "" }><summary><div>${escapeHTML(post.content_warning)}<div class="content-warning-stats"> (${post.content.length} char${post.content.length === 1 ? "" : "s"})</div></div></summary>${postContent}</details>`;
+    postContent = `<details class="content-warning"${localStorage.getItem("smiggins-expand-cws") ? " open" : "" }><summary><div>${escapeHTML(post.content_warning)} <div class="content-warning-stats">(${post.content.length} char${post.content.length === 1 ? "" : "s"})</div></div></summary>${postContent}</details>`;
   }
 
   let el: HTMLDivElement = getSnippet("post", {
