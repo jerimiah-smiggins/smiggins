@@ -6,7 +6,9 @@ let tlPollingIntervalID: number | null = null;
 let tlPollingPendingResponse: boolean = false;
 let prependedPosts: number = 0;
 
-let tlCache: { [key: string]: timelineCache } = {};
+let tlCache: { [key: string]: timelineCache | undefined } = {};
+let postCache: { [key: number]: post | undefined } = {};
+let userCache: { [key: string]: userData | undefined } = {};
 
 let offset: { upper: number | null, lower: number | null } = {
   upper: null,
@@ -34,7 +36,7 @@ function reloadTimeline(ignoreCache: boolean=false, element?: HTMLDivElement): v
   tlElement.innerHTML = LOADING_HTML;
   prependedPosts = 0;
 
-  let cache: timelineCache = tlCache[currentTlID];
+  let cache: timelineCache | undefined = tlCache[currentTlID];
   if (!ignoreCache && cache && Math.round(Date.now() / 1000) < cache.timestamp + TL_CACHE_TTL && cache.pendingForward !== false) {
     offset = {
       upper: cache.upperBound,
@@ -42,12 +44,12 @@ function reloadTimeline(ignoreCache: boolean=false, element?: HTMLDivElement): v
     };
 
     cache.posts = cache.pendingForward.reverse().concat(cache.posts);
-    renderTimeline({
-      success: true,
-      posts: cache.posts,
-      end: cache.end,
-      extraData: cache.extraData,
-    }, false, element?.querySelector("#timeline-more"));
+    renderTimeline(
+      cache.posts,
+      cache.end,
+      false,
+      element?.querySelector("#timeline-more")
+    );
 
     timelinePolling(true);
     return;
@@ -61,13 +63,23 @@ function reloadTimeline(ignoreCache: boolean=false, element?: HTMLDivElement): v
   fetch(currentTl.url, {
     headers: { Accept: "application/json" }
   }).then((response: Response): Promise<api_timeline> => (response.json()))
-    .then((json: api_timeline): void => {
-      renderTimeline(json);
-    })
+    .then(renderTimelineFromAPI)
     .catch((err: any): void => {
       createToast("Something went wrong!", String(err));
       throw err;
     });
+}
+
+// takes a list of posts and updates the post cache, returning a list of post ids
+function insertIntoPostCache(posts: post[]): number[] {
+  let postIds: number[] = [];
+
+  for (const post of posts) {
+    postCache[post.id] = post;
+    postIds.push(post.id);
+  }
+
+  return postIds;
 }
 
 // loads more older posts
@@ -85,11 +97,15 @@ function loadMorePosts(): void {
     .then((json: api_timeline): void => {
       if (currentTl.url !== currentTimeline.url) {
         console.log("timeline switched, discarding request");
-        if (json.success) { tlCache[currentTimelineID]?.posts.push(...json.posts); }
+
+        if (json.success) {
+          tlCache[currentTimelineID]?.posts.push(...insertIntoPostCache(json.posts));
+        }
+
         return;
       }
 
-      renderTimeline(json);
+      renderTimelineFromAPI(json);
     })
     .catch((err: any): void => {
       createToast("Something went wrong!", String(err));
@@ -103,12 +119,11 @@ function loadMorePosts(): void {
 
 // clear "Loading..." text and other
 function clearTimelineStatuses(): void {
-    let statuses: NodeListOf<HTMLDivElement> = tlElement.querySelectorAll(".timeline-status");
-    for (const el of statuses) { el.remove(); }
+  let statuses: NodeListOf<HTMLDivElement> = tlElement.querySelectorAll(".timeline-status");
+  for (const el of statuses) { el.remove(); }
 }
 
-// appends posts to a timeline
-function renderTimeline(json: api_timeline, updateCache: boolean=true, moreElementOverride?: HTMLElement | null): void {
+function renderTimelineFromAPI(json: api_timeline): void {
   if (currentTl.timelineCallback) {
     currentTl.timelineCallback(json);
   }
@@ -120,49 +135,61 @@ function renderTimeline(json: api_timeline, updateCache: boolean=true, moreEleme
     return;
   }
 
+  renderTimeline(
+    insertIntoPostCache(json.posts),
+    json.end
+  );
+}
+
+// appends posts to a timeline
+function renderTimeline(posts: number[], end: boolean, updateCache: boolean=true, moreElementOverride?: HTMLElement | null): void {
+
   clearTimelineStatuses();
 
   let frag: DocumentFragment = document.createDocumentFragment();
   let more: HTMLElement | null = moreElementOverride || document.getElementById("timeline-more");
 
   if (more) {
-    if (json.end) { more.hidden = true; }
+    if (end) { more.hidden = true; }
     else { more.hidden = false; }
   }
 
-  for (const post of json.posts) {
+  for (const post of posts) {
     frag.append(getPost(post));
   }
 
   tlElement.append(frag);
 
   if (updateCache) {
-    if (!tlCache[currentTlID]) {
-      tlCache[currentTlID] = {
+    let c: timelineCache | undefined = tlCache[currentTlID];
+
+    if (!c) {
+      c = {
         timestamp: 0,
         upperBound: null,
         lowerBound: null,
         posts: [],
         pendingForward: [],
-        extraData: {},
         end: false
       };
+
+      tlCache[currentTlID] = c;
     }
 
-    tlCache[currentTlID].timestamp = Math.round(Date.now() / 1000);
-    tlCache[currentTlID].posts.push(...json.posts);
-    tlCache[currentTlID].lowerBound = offset.lower;
-    tlCache[currentTlID].upperBound = offset.upper;
-    tlCache[currentTlID].end = json.end;
-    if (json.extraData) { tlCache[currentTlID].extraData = json.extraData; }
+    c.timestamp = Math.round(Date.now() / 1000);
+    c.posts.push(...posts);
+    c.lowerBound = offset.lower;
+    c.upperBound = offset.upper;
+    c.end = end;
   }
 }
 
 // sets variables required when switching or setting a timeline
 function _setTimeline(timelineId: string, element?: HTMLDivElement): void {
-  if (tlCache[currentTlID]) {
-    tlCache[currentTlID].upperBound = offset.upper;
-    tlCache[currentTlID].lowerBound = offset.lower;
+  let c: timelineCache | undefined = tlCache[currentTlID];
+  if (c) {
+    c.upperBound = offset.upper;
+    c.lowerBound = offset.lower;
   }
 
   currentTl = timelines[timelineId];
@@ -197,35 +224,43 @@ function switchTimeline(e: MouseEvent): void {
 }
 
 // turns post data into an html element
-function getPost(post: post, updateOffset: boolean=true): HTMLDivElement {
-  let postContent: string = linkify(escapeHTML(post.content), post.id);
+function getPost(post: number, updateOffset: boolean=true): HTMLDivElement {
+  let p: post | undefined = postCache[post];
 
-  if (updateOffset && (!offset.lower || post.id < offset.lower)) { offset.lower = post.id; }
-  if (updateOffset && (!offset.upper || post.id > offset.upper)) { offset.upper = post.id; }
+  if (!p) {
+    let el: HTMLDivElement = document.createElement("div");
+    el.innerText = "Post couldn't be loaded. Oops.";
+    return el;
+  }
 
-  if (post.content_warning) {
-    postContent = `<details class="content-warning"${localStorage.getItem("smiggins-expand-cws") ? " open" : "" }><summary><div>${escapeHTML(post.content_warning)} <div class="content-warning-stats">(${post.content.length} char${post.content.length === 1 ? "" : "s"})</div></div></summary>${postContent}</details>`;
+  let postContent: string = linkify(escapeHTML(p.content), post);
+
+  if (updateOffset && (!offset.lower || post < offset.lower)) { offset.lower = post; }
+  if (updateOffset && (!offset.upper || post > offset.upper)) { offset.upper = post; }
+
+  if (p.content_warning) {
+    postContent = `<details class="content-warning"${localStorage.getItem("smiggins-expand-cws") ? " open" : "" }><summary><div>${escapeHTML(p.content_warning)} <div class="content-warning-stats">(${p.content.length} char${p.content.length === 1 ? "" : "s"})</div></div></summary>${postContent}</details>`;
   }
 
   let el: HTMLDivElement = getSnippet("post", {
-    timestamp: getTimestamp(post.timestamp),
-    username: post.user.username,
+    timestamp: getTimestamp(p.timestamp),
+    username: p.user.username,
     post_interactions_hidden: localStorage.getItem("smiggins-hide-interactions") && "hidden" || "",
 
     pc: "p", // TODO: distinguish between posts and comments somehow
-    pid: String(post.id),
+    pid: String(post),
 
-    comments: String(post.interactions.comments),
-    quotes: String(post.interactions.quotes),
-    likes: String(post.interactions.likes),
-    liked: String(post.interactions.liked),
+    comments: String(p.interactions.comments),
+    quotes: String(p.interactions.quotes),
+    likes: String(p.interactions.likes),
+    liked: String(p.interactions.liked),
 
     // unsafe items, includes a max replace in order to prevent unwanted injection
     content: [postContent, 1],
-    display_name: [escapeHTML(post.user.display_name), 1]
+    display_name: [escapeHTML(p.user.display_name), 1]
   });
 
-  if (post.private) {
+  if (p.private) {
     el.dataset.privatePost = "";
   }
 
@@ -234,8 +269,11 @@ function getPost(post: post, updateOffset: boolean=true): HTMLDivElement {
 
 // show pending new posts on the timeline
 function timelineShowNew(): void {
-  let posts: false | post[] = tlCache[currentTlID].pendingForward;
-  tlCache[currentTlID].pendingForward = [];
+  let c: timelineCache | undefined = tlCache[currentTlID];
+  if (!c) { return; }
+
+  let posts: number[] | false = c.pendingForward;
+  c.pendingForward = [];
   document.getElementById("timeline-show-new")?.remove();
 
   if (posts === false) {
@@ -243,7 +281,7 @@ function timelineShowNew(): void {
     return;
   }
 
-  tlCache[currentTlID].posts = posts.reverse().concat(tlCache[currentTlID].posts);
+  c.posts = posts.reverse().concat(c.posts);
 
   let frag: DocumentFragment = document.createDocumentFragment();
 
@@ -262,10 +300,11 @@ function timelineShowNew(): void {
 // fetch new posts for a timeline
 function timelinePolling(forceEvent: boolean=false): void {
   let currentTimeline: timelineConfig = currentTl;
-  let currentTimelineID: string = currentTlID;
+  let c = tlCache[currentTlID];
 
   tlPollingPendingResponse = true;
-  if (tlCache[currentTlID].pendingForward === false || !offset.upper) { return; }
+
+  if (!c || c.pendingForward === false || !offset.upper) { return; }
 
   if (localStorage.getItem("smiggins-auto-show-posts")) {
     forceEvent = true;
@@ -278,10 +317,8 @@ function timelinePolling(forceEvent: boolean=false): void {
         console.log("timeline switched, discarding request");
 
         if (json.success) {
-          let cache = tlCache[currentTimelineID];
-
-          if (json.end) { cache.pendingForward = false; }
-          else if (cache.pendingForward !== false) { cache.pendingForward.push(...json.posts.reverse()); }
+          if (json.end) { c.pendingForward = false; }
+          else if (c.pendingForward !== false) { c.pendingForward.push(...insertIntoPostCache(json.posts).reverse()); }
         }
       }
 
@@ -292,12 +329,11 @@ function timelinePolling(forceEvent: boolean=false): void {
       if (json.success) {
         if (json.posts.length === 0) { return; }
 
-        let cache = tlCache[currentTlID];
-        if (cache.pendingForward === false) { return; }
+        if (c.pendingForward === false) { return; }
 
         let showNewElement: HTMLElement | null = document.getElementById("timeline-show-new");
 
-        if (!forceEvent && !showNewElement && (!json.end || (cache.pendingForward.length + json.posts.length - prependedPosts) > 0)) {
+        if (!forceEvent && !showNewElement && (!json.end || (c.pendingForward.length + json.posts.length - prependedPosts) > 0)) {
           showNewElement = document.createElement("button");
           showNewElement.id = "timeline-show-new";
           showNewElement.addEventListener("click", timelineShowNew);
@@ -306,13 +342,13 @@ function timelinePolling(forceEvent: boolean=false): void {
 
         if (json.end) {
           offset.upper = json.posts[0].id;
-          cache.pendingForward.push(...json.posts.reverse());
+          c.pendingForward.push(...insertIntoPostCache(json.posts).reverse());
 
           if (showNewElement) {
-            showNewElement.innerText = `Show new posts (${cache.pendingForward.length - prependedPosts})`;
+            showNewElement.innerText = `Show new posts (${c.pendingForward.length - prependedPosts})`;
           }
         } else {
-          cache.pendingForward = false;
+          c.pendingForward = false;
           if (showNewElement) { showNewElement.innerText = "Refresh"; }
         }
 
@@ -335,7 +371,7 @@ function timelinePolling(forceEvent: boolean=false): void {
 function prependPostToTimeline(post: post): void {
   if (currentTl.prependPosts) {
     let newButton: HTMLElement | null = document.getElementById("timeline-show-new");
-    let prependedPost: HTMLDivElement = getPost(post, false);
+    let prependedPost: HTMLDivElement = getPost(insertIntoPostCache([post])[0], false);
     prependedPost.dataset.prepended = "";
     prependedPosts++;
 

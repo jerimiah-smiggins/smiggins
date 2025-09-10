@@ -68,14 +68,14 @@ function renderPage(intent: intent): void {
   switch (intent) {
     case "user":
       let username: string = getUsernameFromPath();
-      let c: timelineCache = tlCache["user_" + username];
+      let c: userData | undefined = userCache[username];
       extraVariables = {
         user_username: username,
-        display_name: c && c.extraData.display_name || username,
-        color_one: c && c.extraData.color_one || "var(--background-mid)",
-        color_two: c && c.extraData.color_two || "var(--background-mid)",
-        following: c && String(c.extraData.num_following) || "0",
-        followers: c && String(c.extraData.num_followers) || "0"
+        display_name: c && c.display_name || username,
+        color_one: c && c.color_one || "var(--background-mid)",
+        color_two: c && c.color_two || "var(--background-mid)",
+        following: c && String(c.num_following) || "0",
+        followers: c && String(c.num_followers) || "0"
       }; break;
   }
 

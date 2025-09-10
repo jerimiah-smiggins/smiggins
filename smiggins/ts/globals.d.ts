@@ -52,13 +52,22 @@ type timelineConfig = {
   disablePolling?: true
 };
 
+type userData = {
+  display_name: string,
+  color_one: string,
+  color_two: string,
+  following: boolean,
+  blocking: boolean,
+  num_following: number,
+  num_followers: number
+}
+
 type timelineCache = {
   timestamp: number,
   upperBound: number | null,
   lowerBound: number | null,
-  posts: post[],
-  pendingForward: post[] | false,
-  extraData: { [key: string]: any },
+  posts: number[],
+  pendingForward: number[] | false,
   end: boolean
 }
 

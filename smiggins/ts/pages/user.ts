@@ -17,17 +17,43 @@ function p_user(element: HTMLDivElement): void {
 }
 
 function userUpdateStats(json: api_timeline): void {
+  let userUsername: string = getUsernameFromPath();
+  let c: userData | undefined = userCache[userUsername];
+
   if (!json.success && json.reason === "BAD_USERNAME") {
     let tlContainer: HTMLElement | null = document.getElementById("timeline-posts");
 
     if (tlContainer) {
-      tlContainer.innerHTML = `<i class="timeline-status">User '${escapeHTML(getUsernameFromPath())}' does not exist.</i>`;
+      tlContainer.innerHTML = `<i class="timeline-status">User '${escapeHTML(userUsername)}' does not exist.</i>`;
     }
   }
 
   if (!json.success || !json.extraData) { return; }
 
-  if (username !== getUsernameFromPath()) { // follow/block buttons
+  if (c) {
+    // there's probably a more elegant way to do this
+    c.display_name  = json.extraData.display_name  || c.display_name;
+    c.color_one     = json.extraData.color_one     || c.color_one;
+    c.color_two     = json.extraData.color_two     || c.color_two;
+    c.following     = json.extraData.following     || c.following;
+    c.blocking      = json.extraData.blocking      || c.blocking;
+    c.num_following = json.extraData.num_following || c.num_following;
+    c.num_followers = json.extraData.num_followers || c.num_followers;
+  } else {
+    c = {
+      display_name: json.extraData.display_name || username,
+      color_one: json.extraData.color_one || "var(--background-mid)",
+      color_two: json.extraData.color_two || "var(--background-mid)",
+      following: json.extraData.following || false,
+      blocking: json.extraData.blocking || false,
+      num_following: json.extraData.num_following || 0,
+      num_followers: json.extraData.num_followers || 0
+    };
+
+    userCache[userUsername] = c;
+  }
+
+  if (username !== userUsername) { // follow/block buttons
     document.getElementById("user-interactions")?.removeAttribute("hidden");
 
     let followElement: HTMLElement | null = document.getElementById("follow");
