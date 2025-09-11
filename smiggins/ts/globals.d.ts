@@ -2,6 +2,7 @@ declare const loggedIn: boolean;
 declare const username: string;
 declare const pageTitle: string;
 declare let currentPage: intent;
+declare let defaultPostPrivate: boolean;
 declare const limits: {
   username: number,
   post: number,
@@ -54,6 +55,7 @@ type timelineConfig = {
 
 type userData = {
   display_name: string,
+  bio: string,
   color_one: string,
   color_two: string,
   following: boolean,

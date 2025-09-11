@@ -18,8 +18,10 @@ from ..variables import (DEFAULT_BANNER_COLOR, DEFAULT_LANGUAGE,
                          MAX_MUTED_WORDS, MAX_USERNAME_LENGTH, THEMES,
                          VALID_LANGUAGES)
 from .schema import (Account, APIResponse, ChangePassword, MutedWords,
-                     Password, Settings, Theme, Username, _actions_user_tl)
+                     Password, Private, Profile, Settings, Theme, Username,
+                     _actions_user_tl)
 
+COLOR_REGEX = re.compile("^#[a-f0-9]{6}$")
 
 def signup(request, data: Account) -> tuple[int, dict] | dict:
     # if rl := check_ratelimit(request, "POST /api/user/signup"):
@@ -164,6 +166,57 @@ def _block(request, data: Username, unblock: bool):
 
     if not self_user.blocking.contains(user):
         self_user.blocking.add(user)
+
+    return { "success": True }
+
+def get_profile(request):
+    try:
+        user = User.objects.get(token=request.COOKIES.get("token"))
+    except User.DoesNotExist:
+        return 400, { "success": False, "reason": "NOT_AUTHENTICATED" }
+
+    return {
+        "success": True,
+        "display_name": user.display_name,
+        "bio": user.bio,
+        "gradient": user.gradient,
+        "color_one": user.color,
+        "color_two": user.color_two
+    }
+
+def save_profile(request, data: Profile):
+    try:
+        user = User.objects.get(token=request.COOKIES.get("token"))
+    except User.DoesNotExist:
+        return 400, { "success": False, "reason": "NOT_AUTHENTICATED" }
+
+    display_name = trim_whitespace(data.display_name[:MAX_DISPL_NAME_LENGTH], True)
+    bio = trim_whitespace(data.bio[:MAX_BIO_LENGTH])
+
+    if display_name[1]:
+        user.display_name = display_name[0]
+
+    user.bio = bio[0] if bio[1] else ""
+    user.gradient = data.gradient
+
+    if re.match(COLOR_REGEX, data.color_one):
+        user.color = data.color_one
+
+    if re.match(COLOR_REGEX, data.color_two):
+        user.color_two = data.color_two
+
+    user.save()
+
+    return { "success": True }
+
+def set_post_visibility(request, data: Private):
+    try:
+        user = User.objects.get(token=request.COOKIES.get("token"))
+    except User.DoesNotExist:
+        return 400, { "success": False, "reason": "NOT_AUTHENTICATED" }
+
+    user.default_post_private = data.private
+    user.save()
 
     return { "success": True }
 

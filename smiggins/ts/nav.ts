@@ -1,3 +1,5 @@
+const container = document.getElementById("container") as HTMLDivElement;
+
 function urlToIntent(path: string): intent {
   path = normalizePath(path);
 
@@ -64,19 +66,35 @@ function normalizePath(path: string): string {
 
 function renderPage(intent: intent): void {
   let extraVariables: { [key: string]: string } = {};
+  let c: userData | undefined;
 
   switch (intent) {
     case "user":
-      let username: string = getUsernameFromPath();
-      let c: userData | undefined = userCache[username];
+      let u: string = getUsernameFromPath();
+      c = userCache[u];
       extraVariables = {
-        user_username: username,
-        display_name: c && c.display_name || username,
+        user_username: u,
+        display_name: c && escapeHTML(c.display_name) || u,
         color_one: c && c.color_one || "var(--background-mid)",
         color_two: c && c.color_two || "var(--background-mid)",
         following: c && String(c.num_following) || "0",
         followers: c && String(c.num_followers) || "0"
       }; break;
+    case "settings/profile":
+      let defaultBanner: string = window.getComputedStyle(document.documentElement).getPropertyValue("--background-mid");
+      c = userCache[username];
+      extraVariables = {
+        color_one: c && c.color_one || defaultBanner,
+        color_two: c && c.color_two || defaultBanner,
+        checked_if_gradient: !c || !c.color_one || !c.color_two || c.color_one === c.color_two ? "" : "checked",
+        display_name: c && escapeHTML(c.display_name) || "",
+        bio: c && escapeHTML(c.bio) || ""
+      };
+  }
+
+  if (tlPollingIntervalID) {
+    clearInterval(tlPollingIntervalID);
+    tlPollingIntervalID = null;
   }
 
   let snippet: HTMLDivElement = getSnippet(`pages/${intent}`, extraVariables);

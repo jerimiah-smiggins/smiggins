@@ -42,6 +42,7 @@ function userUpdateStats(json: api_timeline): void {
   } else {
     c = {
       display_name: json.extraData.display_name || username,
+      bio: "", // TODO: bios
       color_one: json.extraData.color_one || "var(--background-mid)",
       color_two: json.extraData.color_two || "var(--background-mid)",
       following: json.extraData.following || false,

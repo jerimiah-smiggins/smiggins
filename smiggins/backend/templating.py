@@ -1,27 +1,15 @@
-import json
 import random
 
-from django.http import (HttpResponse, HttpResponseRedirect,
-                         HttpResponseServerError)
+from django.http import HttpResponse
 from django.template import loader
 from posts.backups import backup_db
 from posts.models import User
 
-from .helper import get_HTTP_response, get_strings
-from .lang import get_lang
-from .variables import (DEFAULT_DARK_THEME, DEFAULT_LIGHT_THEME,
-                        ENABLE_ACCOUNT_SWITCHER, ENABLE_BADGES,
-                        ENABLE_DYNAMIC_FAVICON, ENABLE_EMAIL,
-                        ENABLE_GRADIENT_BANNERS, ENABLE_HASHTAGS,
-                        ENABLE_NEW_ACCOUNTS, ENABLE_PINNED_POSTS, ENABLE_POLLS,
-                        ENABLE_POST_DELETION, ENABLE_PRIVATE_MESSAGES,
-                        ENABLE_PRONOUNS, ENABLE_QUOTES, ENABLE_USER_BIOS,
-                        FAVICON_DATA, GOOGLE_VERIFICATION_TAG, MAX_BIO_LENGTH,
-                        MAX_CONTENT_WARNING_LENGTH, MAX_DISPL_NAME_LENGTH,
-                        MAX_MUTED_WORD_LENGTH, MAX_MUTED_WORDS,
-                        MAX_POLL_OPTION_LENGTH, MAX_POLL_OPTIONS,
-                        MAX_POST_LENGTH, MAX_USERNAME_LENGTH, OWNER_USER_ID,
-                        SITE_NAME, THEMES, VERSION, MOTDs, error)
+from .helper import get_HTTP_response
+from .variables import (ENABLE_NEW_ACCOUNTS, GOOGLE_VERIFICATION_TAG,
+                        MAX_BIO_LENGTH, MAX_CONTENT_WARNING_LENGTH,
+                        MAX_DISPL_NAME_LENGTH, MAX_POST_LENGTH,
+                        MAX_USERNAME_LENGTH, SITE_NAME, VERSION, MOTDs)
 
 
 def webapp(request) -> HttpResponse:
@@ -31,14 +19,6 @@ def webapp(request) -> HttpResponse:
         user = User.objects.get(token=request.COOKIES.get("token"))
     except User.DoesNotExist:
         user = None
-        theme = "auto"
-
-    try:
-        user = User.objects.get(token=request.COOKIES.get("token"))
-        theme = user.theme
-    except User.DoesNotExist:
-        user = None
-        theme = "auto"
 
     # conf = {
     #     "max_post_length": MAX_POST_LENGTH,
@@ -96,6 +76,8 @@ def webapp(request) -> HttpResponse:
 
             "max_length": {
                 "username": MAX_USERNAME_LENGTH,
+                "display_name": MAX_DISPL_NAME_LENGTH,
+                "bio": MAX_BIO_LENGTH,
                 "post": MAX_POST_LENGTH,
                 "cw": MAX_CONTENT_WARNING_LENGTH
             }
@@ -103,6 +85,7 @@ def webapp(request) -> HttpResponse:
 
         "logged_in": user is not None,
         "username": user and user.username,
+        "default_post_private": user and user.default_post_private,
         "loading": random.choice(MOTDs) if MOTDs else "Loading...",
         "google_verification_tag": GOOGLE_VERIFICATION_TAG
     }
@@ -112,34 +95,6 @@ def webapp(request) -> HttpResponse:
             context, request
         )
     )
-
-generate_favicon = lambda request, a: HttpResponseRedirect("/static/img/old_favicon.png", status=308) # noqa: E731
-
-if ENABLE_DYNAMIC_FAVICON:
-    try:
-        from cairosvg import svg2png
-    except BaseException:
-        error("Something went wrong importing the cariosvg library!\n- Try turning 'enable_dynamic_favicon' off in settings?")
-
-    else:
-        del generate_favicon
-        def generate_favicon(request, a) -> HttpResponse | HttpResponseServerError:
-            colors: tuple[str, str, str] = a.split("-")
-
-            size = 32
-            if "large" in request.GET:
-                size = 128
-
-            png_data: bytes | None = svg2png(
-                FAVICON_DATA.replace("@{background}", f"#{colors[0]}").replace("@{background_alt}", f"#{colors[1]}").replace("@{accent}", f"#{colors[2]}"),
-                output_width=size,
-                output_height=size
-            )
-
-            if not isinstance(png_data, bytes):
-                return HttpResponseServerError("500 Internal Server Error")
-
-            return HttpResponse(png_data, content_type="image/png")
 
 # These two functions are referenced in smiggins/urls.py
 def _404(request, exception) -> HttpResponse:

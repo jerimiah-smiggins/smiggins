@@ -3,7 +3,7 @@
 
 <html>
   <head>
-    <title>{{ conf.site_name }} {{ conf.version }}</title>
+    <title>Loading - {{ conf.site_name }} {{ conf.version }}</title>
 
     <link rel="preload" href="{% static 'font/poppins-normal.woff' %}" as="font" type="font/woff" crossorigin>
     <link rel="preload" href="{% static 'font/poppins-bold.woff' %}" as="font" type="font/woff" crossorigin>
@@ -23,13 +23,14 @@
     <meta name="viewport" content="width=device-width,initial-scale=1">
 
     <script>
-      const loggedIn = "{{ logged_in }}" == "True";
+      const loggedIn = "{{ logged_in }}" === "True";
       const username = "{{ username }}";
       const pageTitle = "{{ conf.site_name }} {{ conf.version }}";
+      let defaultPostPrivate = "{{ default_post_private }}" === "True";
       const limits = {
         username: {{ conf.max_length.username }},
         post: {{ conf.max_length.post }},
-        cw: {{ conf.max_length.cw }},
+        cw: {{ conf.max_length.cw }}
       }
     </script>
 
@@ -59,10 +60,10 @@
       {% include "snippet.html" with id="pages/login" processing="input_enter,password_toggle,login" %}
       {% include "snippet.html" with id="pages/signup" processing="input_enter,password_toggle,signup" %}
       <!-- logged in pages -->
-      {% include "snippet.html" with id="pages/home" vars="username" processing="home,timeline_switch,timeline_more,input_enter" %}
+      {% include "snippet.html" with id="pages/home" vars="username,checked_if_default_private" processing="home,timeline_switch,timeline_more,input_enter" %}
       {% include "snippet.html" with id="pages/user" vars="username" processing="user,timeline_more" %}
       {% include "snippet.html" with id="pages/settings" vars="username" %}
-      {% include "snippet.html" with id="pages/settings/profile" vars="username" processing="settings_profile" %}
+      {% include "snippet.html" with id="pages/settings/profile" vars="username,selected_if_default_private" processing="settings_profile" %}
       {% include "snippet.html" with id="pages/settings/cosmetic" vars="username" processing="settings_cosmetic" %}
       {% include "snippet.html" with id="pages/settings/account" vars="username" processing="settings_account,password_toggle,input_enter" %}
 

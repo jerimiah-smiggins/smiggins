@@ -1,4 +1,85 @@
-function settingsThemeSelection(e: Event) {
+function updateBannerColors(): void {
+  let bannerDisplayElement: HTMLElement | null = document.getElementById("banner-example");
+  let gradientCheckElement: HTMLInputElement | null = document.getElementById("banner-gradient") as HTMLInputElement | null;
+  let c1Element: HTMLInputElement | null = document.getElementById("banner-one") as HTMLInputElement | null;
+  let c2Element: HTMLInputElement | null = document.getElementById("banner-two") as HTMLInputElement | null;
+
+  if (!bannerDisplayElement) { return; }
+
+  if (c1Element) {
+    bannerDisplayElement.style.setProperty("--color-one", c1Element.value);
+
+    if (gradientCheckElement && !gradientCheckElement.checked) {
+      bannerDisplayElement.style.setProperty("--color-two", c1Element.value);
+    }
+  }
+
+  if (c2Element && (!gradientCheckElement || gradientCheckElement.checked)) {
+    bannerDisplayElement.style.setProperty("--color-two", c2Element.value);
+  }
+}
+
+function saveProfile(e: Event): void {
+  let displayNameElement: HTMLInputElement | null = document.getElementById("display-name") as HTMLInputElement | null;
+  let bioElement: HTMLTextAreaElement | null = document.getElementById("bio") as HTMLTextAreaElement | null;
+  let gradientCheckElement: HTMLInputElement | null = document.getElementById("banner-gradient") as HTMLInputElement | null;
+  let c1Element: HTMLInputElement | null = document.getElementById("banner-one") as HTMLInputElement | null;
+  let c2Element: HTMLInputElement | null = document.getElementById("banner-two") as HTMLInputElement | null;
+  let c: userData | undefined = userCache[username];
+
+  if (!displayNameElement || !bioElement || !gradientCheckElement || !c1Element || !c2Element) { return; }
+
+  (e.target as HTMLButtonElement | null)?.setAttribute("disabled", "");
+
+  fetch("/api/user", {
+    method: "PATCH",
+    body: JSON.stringify({
+      display_name: displayNameElement.value,
+      bio: bioElement.value,
+      gradient: gradientCheckElement.checked,
+      color_one: c1Element.value,
+      color_two: c2Element.value
+    }),
+    headers: { Accept: "application/json" }
+  }).then((response: Response): Promise<GENERIC_API_RESPONSE> => (response.json()))
+    .then((json: GENERIC_API_RESPONSE): void => {
+      if (json.success) {
+        createToast("Success!", "Your profile has been saved.");
+
+        if (c) {
+          c.color_one = c1Element.value;
+          c.color_two = gradientCheckElement.checked ? c1Element.value : c2Element.value;
+          c.display_name = displayNameElement.value;
+          c.bio = bioElement.value;
+        }
+      } else {
+        createToast(...errorCodeStrings(json.reason));
+      }
+
+      (e.target as HTMLButtonElement | null)?.removeAttribute("disabled");
+    })
+    .catch((err: any): void => {
+      (e.target as HTMLButtonElement | null)?.removeAttribute("disabled");
+      createToast("Something went wrong!", String(err));
+      throw err;
+    });
+}
+
+function saveDefaultVisibility(): void {
+  defaultPostPrivate = (document.getElementById("default-private") as HTMLSelectElement | null)?.value === "true";
+  snippetVariables.selected_if_default_private = defaultPostPrivate ? "selected" : "";
+  snippetVariables.checked_if_default_private = defaultPostPrivate ? "checked" : "";
+
+  fetch("/api/user/default_post", {
+    method: "PATCH",
+    body: JSON.stringify({
+      "private": defaultPostPrivate
+    }),
+    headers: { Accept: "application/json" }
+  });
+}
+
+function settingsThemeSelection(): void {
   let themeElement: HTMLSelectElement | null = document.getElementById("theme") as HTMLSelectElement | null;
 
   if (themeElement) {
@@ -91,7 +172,50 @@ function deleteAccount(e: Event): void {
 }
 
 function p_settingsProfile(element: HTMLDivElement): void {
-  //
+  fetch("/api/user")
+    .then((response: Response): Promise<api_profile> => (response.json()))
+    .then((json: api_profile): void => {
+      if (json.success) {
+        let displayNameElement: HTMLInputElement | null = element.querySelector("#display-name");
+        let bioElement: HTMLTextAreaElement | null = element.querySelector("#bio");
+        let gradientCheckElement: HTMLInputElement | null = element.querySelector("#banner-gradient");
+        let c1Element: HTMLInputElement | null = element.querySelector("#banner-one");
+        let c2Element: HTMLInputElement | null = element.querySelector("#banner-two");
+
+        if (displayNameElement)   { displayNameElement.value = json.display_name; }
+        if (bioElement)           { bioElement.value = json.bio;                  }
+        if (gradientCheckElement) { gradientCheckElement.checked = json.gradient; }
+        if (c1Element)            { c1Element.value = json.color_one; c1Element.addEventListener("input", updateBannerColors); }
+        if (c2Element)            { c2Element.value = json.color_two; c2Element.addEventListener("input", updateBannerColors); }
+
+        element.querySelector("#profile-save")?.addEventListener("click", saveProfile);
+        element.querySelector("#default-private")?.addEventListener("input", saveDefaultVisibility);
+        element.querySelector("#banner-gradient")?.addEventListener("input", updateBannerColors);
+
+        let c: userData | undefined = userCache[username];
+
+        if (c) {
+          c.color_one = json.color_one;
+          c.color_two = json.gradient ? json.color_two : json.color_one;
+          c.display_name = json.display_name;
+          c.bio = json.bio;
+        }
+
+        updateBannerColors();
+
+        // TODO: manually approved followers setting
+
+        for (const el of element.querySelectorAll("[data-disabled-while-loading]")) {
+          el.removeAttribute("disabled");
+        }
+      } else {
+        createToast(...errorCodeStrings(json.reason));
+      }
+    })
+    .catch((err: any): void => {
+      createToast("Something went wrong!", String(err));
+      throw err;
+    });
 }
 
 function p_settingsCosmetic(element: HTMLDivElement): void {

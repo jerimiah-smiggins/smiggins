@@ -44,7 +44,7 @@ function reloadTimeline(ignoreCache: boolean=false, element?: HTMLDivElement): v
     };
 
     cache.posts = cache.pendingForward.reverse().concat(cache.posts);
-    renderTimeline(
+    renderTimeline( // TODO: don't show posts from users that have been blocked recently
       cache.posts,
       cache.end,
       false,

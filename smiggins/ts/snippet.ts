@@ -23,7 +23,9 @@ const icons: { [key: string]: string } = {
 let snippetVariables: { [key: string]: string } = {
   site_name: "Jerimiah Smiggins",
   home_page: loggedIn ? "home" : "index",
-  username: loggedIn ? username : ""
+  username: loggedIn ? username : "",
+  selected_if_default_private: defaultPostPrivate ? "selected" : "",
+  checked_if_default_private: defaultPostPrivate ? "checked" : ""
 };
 
 let snippetProcessing: { [key: string]: (element: HTMLDivElement) => void } = {

@@ -42,3 +42,15 @@
     padding-right: 0.2em
   }
 }
+
+#banner-example {
+  margin: 0.25em 0;
+  height: 50px;
+  max-width: 200px;
+  border-radius: 15px;
+  background: linear-gradient(90deg, var(--color-one), var(--color-two));
+}
+
+#banner-gradient:not(:checked) ~ div > #banner-two {
+  display: none;
+}

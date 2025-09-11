@@ -13,3 +13,12 @@ type api_timeline = {
   end: boolean,
   extraData?: { [key: string]: any }
 } | GENERIC_API_FAILURE;
+
+type api_profile = {
+  success: true,
+  display_name: string,
+  bio: string,
+  gradient: boolean,
+  color_one: string,
+  color_two: string
+} | GENERIC_API_FAILURE;

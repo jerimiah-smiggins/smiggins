@@ -116,7 +116,8 @@ a {
 }
 
 input:not([type="checkbox"]),
-select {
+select,
+textarea:not(#post-content) {
   font: inherit;
   font-size: 0.875rem;
   background-color: var(--background-mid);
@@ -130,9 +131,17 @@ select {
   border-radius: 999px;
 }
 
-input:not([type="checkbox"]) {
-  width: calc(100vw - 20px);
+input:not([type="checkbox"], [type="color"]) {
+  width: 100%;
   max-width: 250px;
+}
+
+textarea:not(#post-content) {
+  resize: vertical;
+  max-width: 250px;
+  min-height: 2em;
+  width: 100%;
+  border-radius: calc(6px + 0.5em);
 }
 
 input.invalid {
@@ -157,9 +166,9 @@ button {
   }
 }
 
-.no-margin-top    { margin-top:    0 !important; }
+.no-margin-top { margin-top: 0 !important; }
 .no-margin-bottom { margin-bottom: 0 !important; }
-.generic-margin-top    { margin-top:    1em !important; }
+.generic-margin-top { margin-top: 1em !important; }
 .generic-margin-bottom { margin-bottom: 1em !important; }
 
 .flex-spacer { flex: 1; }

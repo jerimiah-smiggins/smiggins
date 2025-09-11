@@ -122,6 +122,16 @@ class Account(Username):
     password: str
     otp: str | None = None
 
+class Profile(Schema):
+    display_name: str
+    bio: str
+    gradient: bool
+    color_one: str
+    color_two: str
+
+class Private(Schema):
+    private: bool
+
 class ChangePassword(Schema):
     current_password: str
     new_password: str
