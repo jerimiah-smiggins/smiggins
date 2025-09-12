@@ -8,15 +8,10 @@ from posts.models import (Comment, MutedWord, Notification, OneTimePassword,
                           Post, PrivateMessageContainer, User, UserPronouns)
 
 from ..helper import check_ratelimit, generate_token, trim_whitespace
-from ..lang import get_lang
 from ..timeline import get_timeline
-from ..variables import (DEFAULT_BANNER_COLOR, DEFAULT_LANGUAGE,
-                         ENABLE_GRADIENT_BANNERS, ENABLE_LOGGED_OUT_CONTENT,
-                         ENABLE_NEW_ACCOUNTS, ENABLE_PRONOUNS,
-                         ENABLE_USER_BIOS, MAX_BIO_LENGTH,
-                         MAX_DISPL_NAME_LENGTH, MAX_MUTED_WORD_LENGTH,
-                         MAX_MUTED_WORDS, MAX_USERNAME_LENGTH, THEMES,
-                         VALID_LANGUAGES)
+from ..variables import (DEFAULT_BANNER_COLOR, ENABLE_LOGGED_OUT_CONTENT,
+                         ENABLE_NEW_ACCOUNTS, MAX_BIO_LENGTH,
+                         MAX_DISPL_NAME_LENGTH, MAX_USERNAME_LENGTH)
 from .schema import (Account, APIResponse, ChangePassword, MutedWords,
                      Password, Private, Profile, Settings, Theme, Username,
                      _actions_user_tl)

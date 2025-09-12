@@ -1,0 +1,46 @@
+{% include "snippets/generic/page-start.html" with active_page="settings" %}
+
+<h1 class="no-margin-top">{{ conf.site_name }} {{ conf.version }}</h1>
+
+<hr class="no-margin-bottom">
+<a class="back-link plain-link" href="/settings/" data-internal-link="settings">@{icon_back} Settings</a>
+<hr class="no-margin-top no-margin-bottom">
+
+<div id="settings-sections">
+  <div>
+    <p class="no-margin-top">Credits</p>
+    <p>Lead Developer: <a target="_blank" href="https://trinkey.com/">trinkey</a></p>
+    <p class="no-margin-bottom">Other Contributors:</p>
+    <ul class="no-margin-top">
+      <li><a target="_blank" href="https://github.com/Subroutine7901/">Subroutine</a></li>
+      <li><a target="_blank" href="https://github.com/DiamondTaco/">Bread</a></li>
+      <li><a target="_blank" href="https://github.com/wrentmc/">Wren</a></li>
+    </ul>
+
+    <small><p class="no-margin-bottom">Some icons are from <a href="https://fontawesome.com/">Font Awesome</a></p></small>
+  </div>
+
+  <div>
+    <p class="no-margin-top">Found a bug? Have suggestions?</p>
+    <div>
+      <a target="_blank" href="https://github.com/jerimiah-smiggins/smiggins/issues">Create an issue</a>
+      on the Github repository! All suggestions and bug reports are greatly appreciated.
+    </div>
+  </div>
+
+  <div>
+    <p class="no-margin-top">Special Thanks</p>
+    <p>Thank you to everyone who has reported issues, suggested features, and been active in the community.</p>
+    <div>
+      This project is created and maintained completely for free. No one has made a single penny off of Smiggins.
+      This wouldn't exist today without your support. Thank you for using Smiggins, and we hope you enjoy it!
+    </div>
+  </div>
+
+  <a target="_blank" href="https://github.com/jerimiah-smiggins/smiggins/">Source Code</a>
+  <a target="_blank" href="https://discord.gg/tH7QnHApwu">Discord Server</a>
+</div>
+
+<hr class="no-margin-top">
+
+{% include "snippets/generic/page-end.html" %}

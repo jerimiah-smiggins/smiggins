@@ -1,9 +1,6 @@
 from typing import TYPE_CHECKING, Any, Literal
 
-from backend.lang import get_lang
-from backend.variables import (ENABLE_BADGES, ENABLE_EDITING_POSTS,
-                               ENABLE_GRADIENT_BANNERS, ENABLE_PINNED_POSTS,
-                               ENABLE_PRONOUNS, OWNER_USER_ID)
+from backend.variables import OWNER_USER_ID
 from django.contrib import admin as django_admin
 from django.contrib.admin.exceptions import AlreadyRegistered  # type: ignore
 from django.db import models

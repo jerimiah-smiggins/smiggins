@@ -14,22 +14,14 @@ from posts.models import (Badge, Comment, MutedWord, Notification, Post,
                           Ratelimit, User)
 
 from .api.schema import APIResponse
-from .lang import get_lang
-from .variables import (ALTERNATE_IPS, DEFAULT_DARK_THEME, DEFAULT_LIGHT_THEME,
-                        DISCORD, ENABLE_ACCOUNT_SWITCHER, ENABLE_BADGES,
-                        ENABLE_CONTACT_PAGE, ENABLE_CREDITS_PAGE,
-                        ENABLE_DYNAMIC_FAVICON, ENABLE_EMAIL,
-                        ENABLE_GRADIENT_BANNERS, ENABLE_HASHTAGS,
-                        ENABLE_NEW_ACCOUNTS, ENABLE_PINNED_POSTS, ENABLE_POLLS,
-                        ENABLE_POST_DELETION, ENABLE_PRIVATE_MESSAGES,
-                        ENABLE_PRONOUNS, ENABLE_QUOTES, ENABLE_RATELIMIT,
-                        ENABLE_USER_BIOS, GOOGLE_VERIFICATION_TAG,
+from .variables import (ALTERNATE_IPS,
+                        ENABLE_NEW_ACCOUNTS, GOOGLE_VERIFICATION_TAG,
                         MAX_BIO_LENGTH, MAX_CONTENT_WARNING_LENGTH,
                         MAX_DISPL_NAME_LENGTH, MAX_NOTIFICATIONS,
                         MAX_POLL_OPTION_LENGTH, MAX_POLL_OPTIONS,
                         MAX_POST_LENGTH, MAX_USERNAME_LENGTH,
-                        PRIVATE_AUTHENTICATOR_KEY, RATELIMITS, SITE_NAME,
-                        SOURCE_CODE, THEMES, VERSION, error)
+                        PRIVATE_AUTHENTICATOR_KEY, SITE_NAME,
+                        error)
 
 StringReturn = tuple[str | None, str | None, str | None, int]
 

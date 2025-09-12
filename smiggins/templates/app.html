@@ -3,7 +3,7 @@
 
 <html>
   <head>
-    <title>Loading - {{ conf.site_name }} {{ conf.version }}</title>
+    <title>Loading - {{ conf.site_name }}</title>
 
     <link rel="preload" href="{% static 'font/poppins-normal.woff' %}" as="font" type="font/woff" crossorigin>
     <link rel="preload" href="{% static 'font/poppins-bold.woff' %}" as="font" type="font/woff" crossorigin>
@@ -12,11 +12,12 @@
       <meta name="google-site-verification" content="{{ google_verification_tag }}">
     {% endif %}
 
-    <meta name="mobile-web-app-capable" content="yes">
-    <meta name="apple-mobile-web-app-capable" content="yes">
-    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-    <link rel="apple-touch-startup-image" href="{% static 'img/old_favicon.png' %}?v={{ conf.version }}">
-    <link rel="apple-touch-icon" href="{% static 'img/old_favicon.png' %}?v={{ conf.version }}">
+    <link rel="manifest" href="/manifest.json">
+    <!-- <meta name="mobile-web-app-capable" content="yes"> -->
+    <!-- <meta name="apple-mobile-web-app-capable" content="yes"> -->
+    <!-- <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent"> -->
+    <!-- <link rel="apple-touch-startup-image" href="{% static 'img/old_favicon.png' %}?v={{ conf.version }}"> -->
+    <!-- <link rel="apple-touch-icon" href="{% static 'img/old_favicon.png' %}?v={{ conf.version }}"> -->
     <link rel="icon" href="{% static 'img/old_favicon.png' %}?v={{ conf.version }}">
 
     <meta charset="utf-8">
@@ -25,7 +26,7 @@
     <script>
       const loggedIn = "{{ logged_in }}" === "True";
       const username = "{{ username }}";
-      const pageTitle = "{{ conf.site_name }} {{ conf.version }}";
+      const pageTitle = "{{ conf.site_name }}";
       let defaultPostPrivate = "{{ default_post_private }}" === "True";
       const limits = {
         username: {{ conf.max_length.username }},
@@ -66,6 +67,7 @@
       {% include "snippet.html" with id="pages/settings/profile" vars="username,selected_if_default_private" processing="settings_profile" %}
       {% include "snippet.html" with id="pages/settings/cosmetic" vars="username" processing="settings_cosmetic" %}
       {% include "snippet.html" with id="pages/settings/account" vars="username" processing="settings_account,password_toggle,input_enter" %}
+      {% include "snippet.html" with id="pages/settings/about" vars="username" %}
 
       <!-- other -->
       {% include "snippet.html" with id="post" processing="post" %}

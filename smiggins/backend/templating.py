@@ -96,6 +96,15 @@ def webapp(request) -> HttpResponse:
         )
     )
 
+def manifest_json(request):
+    return HttpResponse(
+        loader.get_template("manifest.json").render({
+            "site_name": SITE_NAME,
+            "version": VERSION
+        }, request),
+        content_type="application/manifest+json"
+    )
+
 # These two functions are referenced in smiggins/urls.py
 def _404(request, exception) -> HttpResponse:
     return get_HTTP_response(request, "404.html", status=404)

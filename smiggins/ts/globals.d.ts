@@ -12,12 +12,12 @@ declare const limits: {
 type intent = "index" | "login" | "signup"
             | "logout" | "404"
             | "home" | "user" | "hashtag" | "post"
-            | "settings" | "settings/profile" | "settings/cosmetic" | "settings/account";
+            | "settings" | "settings/profile" | "settings/cosmetic" | "settings/account" | "settings/about";
 
 type snippet = "pages/index" | "pages/login" | "pages/signup"
              | "pages/logout" | "pages/404"
              | "pages/home" | "pages/user" | "pages/hashtag" | "pages/post"
-             | "pages/settings" | "pages/settings/profile" | "pages/settings/cosmetic" | "pages/settings/account"
+             | "pages/settings" | "pages/settings/profile" | "pages/settings/cosmetic" | "pages/settings/account" | "pages/settings/about"
              | "post" | "toast" | "compose-modal";
 
 type snippetData = {

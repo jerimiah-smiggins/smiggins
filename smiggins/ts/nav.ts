@@ -14,6 +14,7 @@ function urlToIntent(path: string): intent {
       case "/settings/profile/": return "settings/profile";
       case "/settings/cosmetic/": return "settings/cosmetic";
       case "/settings/account/": return "settings/account";
+      case "/settings/about/": return "settings/about";
       case /^\/u\/[a-z0-9_\-]+\/$/.test(path) ? path : "": return "user";
     }
   } else {
@@ -116,6 +117,7 @@ function getPageTitle(intent: intent): string {
     case "settings/profile":
     case "settings/cosmetic":
     case "settings/account":
+    case "settings/about":
       return "Settings - " + pageTitle;
     default: return intent + " - " + pageTitle;
   }

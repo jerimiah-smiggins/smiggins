@@ -11,12 +11,10 @@ from posts.models import (Comment, Hashtag, M2MLike, M2MLikeC, Notification,
 from ..helper import (check_muted_words, check_ratelimit, create_notification,
                       delete_notification, find_hashtags, find_mentions,
                       trim_whitespace, validate_username)
-from ..lang import DEFAULT_LANG, get_lang
 from ..timeline import get_timeline
-from ..variables import (ENABLE_LOGGED_OUT_CONTENT, ENABLE_PINNED_POSTS,
-                         ENABLE_POLLS, ENABLE_POST_DELETION, ENABLE_USER_BIOS,
-                         MAX_CONTENT_WARNING_LENGTH, MAX_POLL_OPTION_LENGTH,
-                         MAX_POLL_OPTIONS, MAX_POST_LENGTH, OWNER_USER_ID)
+from ..variables import (ENABLE_LOGGED_OUT_CONTENT, MAX_CONTENT_WARNING_LENGTH,
+                         MAX_POLL_OPTION_LENGTH, MAX_POLL_OPTIONS,
+                         MAX_POST_LENGTH, OWNER_USER_ID)
 from .admin import BitMask, log_admin_action
 from .schema import (APIResponse, EditPost, NewPost, NewQuote, PollSchema,
                      PostID)
