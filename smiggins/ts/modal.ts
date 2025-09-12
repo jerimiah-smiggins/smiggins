@@ -1,6 +1,6 @@
 function createPostModal(): void;
-function createPostModal(type: "quote" | "comment", replyTo: { id: number, comment?: true }): void;
-function createPostModal(type?: "quote" | "comment", replyTo?: { id: number, comment?: true }): void {
+function createPostModal(type: "quote" | "comment", id: number, isComment: boolean): void;
+function createPostModal(type?: "quote" | "comment", id?: number, isComment?: boolean): void {
   if (document.getElementById("compose-modal")) { return; }
 
   let el: HTMLDivElement = getSnippet("compose-modal");
@@ -11,7 +11,7 @@ function createPostModal(type?: "quote" | "comment", replyTo?: { id: number, com
 
   document.addEventListener("keydown", clearPostModalOnEscape);
 
-  if (type && replyTo) {
+  if (type && id && isComment) {
     // TODO: add quotes replies to this
   }
 }

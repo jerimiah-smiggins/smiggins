@@ -38,7 +38,7 @@
     margin: -1em;
     border-bottom: 2px solid var(--border-color);
     backdrop-filter: blur(4px);
-    z-index: 999;
+    z-index: @carousel-z-index;
 
     > div {
       flex: 1;
@@ -200,7 +200,7 @@
     padding: @navbar-item-vertical-padding 0.25em;
     width: calc(100vw - 0.5em);
     flex-direction: row;
-    z-index: 999;
+    z-index: @navbar-z-index;
     backdrop-filter: blur(4px);
     background-color: rgba(var(--background-rgb) / 25%);
     box-shadow: 0 -2px 0 var(--border-color);

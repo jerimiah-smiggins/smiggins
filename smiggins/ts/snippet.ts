@@ -38,6 +38,7 @@ let snippetProcessing: { [key: string]: (element: HTMLDivElement) => void } = {
   logout: p_logout,
   home: p_home,
   user: p_user,
+  post: p_post,
 
   settings_profile: p_settingsProfile,
   settings_cosmetic: p_settingsCosmetic,

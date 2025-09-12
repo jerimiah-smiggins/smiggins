@@ -14,7 +14,7 @@
   position: fixed;
   top: 0;
   left: 0;
-  z-index: 1000;
+  z-index: @compose-modal-z-index;
   padding: 4em;
   box-sizing: border-box;
 
@@ -27,7 +27,6 @@
     margin: 0 auto;
     outline: 2px solid var(--background-bright);
   }
-
 }
 
 .post {
@@ -129,9 +128,13 @@
     display: flex;
     flex-direction: row;
     flex-wrap: nowrap;
-    padding-top: 0.25em;
     text-align: center;
     justify-content: center;
+
+    [data-interaction-like],
+    [data-interaction-quote] {
+      cursor: pointer;
+    }
 
     > div {
       flex: 1;

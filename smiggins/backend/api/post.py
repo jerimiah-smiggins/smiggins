@@ -5,8 +5,8 @@ from typing import Any
 
 from django.db.models import Count
 from django.db.utils import IntegrityError
-from posts.models import (Comment, Hashtag, M2MLike, Notification, Poll,
-                          PollChoice, PollVote, Post, User)
+from posts.models import (Comment, Hashtag, M2MLike, M2MLikeC, Notification,
+                          Poll, PollChoice, PollVote, Post, User)
 
 from ..helper import (check_muted_words, check_ratelimit, create_notification,
                       delete_notification, find_hashtags, find_mentions,
@@ -27,9 +27,8 @@ def post_create(request, data: NewPost) -> dict | tuple[int, dict]:
     # if rl := check_ratelimit(request, "POST /api/post"):
     #     return rl
 
-    token = request.COOKIES.get("token")
     try:
-        user = User.objects.get(token=token)
+        user = User.objects.get(token=request.COOKIES.get("token"))
     except User.DoesNotExist:
         return 400, { "success": False, "reason": "NOT_AUTHENTICATED" }
 
@@ -79,6 +78,62 @@ def post_create(request, data: NewPost) -> dict | tuple[int, dict]:
         "success": True,
         "post": get_post_json(post, user)
     }
+
+def add_like(request, post_type: str, post_id: int) -> dict | tuple[int, dict]:
+    if post_type != "post" and post_type != "comment":
+        return 404, { "success": False }
+
+    try:
+        user = User.objects.get(token=request.COOKIES.get("token"))
+    except User.DoesNotExist:
+        return 400, { "success": False, "reason": "NOT_AUTHENTICATED" }
+
+    if post_type == "comment":
+        try:
+            post = Comment.objects.get(comment_id=post_id)
+        except Comment.DoesNotExist:
+            return 400, { "success": False, "reason": "POST_NOT_FOUND" }
+    else:
+        try:
+            post = Post.objects.get(post_id=post_id)
+        except Post.DoesNotExist:
+            return 400, { "success": False, "reason": "POST_NOT_FOUND" }
+
+    creator = post.creator
+
+    if creator.blocking.contains(user) \
+    or creator.blockers.contains(user) \
+    or (post.private and creator.username != user.username and not creator.followers.contains(user)):
+        return 400, { "success": False, "reason": "CANT_INTERACT" }
+
+    try:
+        post.likes.add(user)
+    except IntegrityError:
+        ...
+
+    return { "success": True }
+
+def remove_like(request, post_type: str, post_id: int) -> dict | tuple[int, dict]:
+    if post_type != "post" and post_type != "comment":
+        return 404, { "success": False }
+
+    try:
+        user = User.objects.get(token=request.COOKIES.get("token"))
+    except User.DoesNotExist:
+        return 400, { "success": False, "reason": "NOT_AUTHENTICATED" }
+
+    if post_type == "comment":
+        try:
+            M2MLikeC.objects.get(user=user, post=post_id).delete()
+        except M2MLikeC.DoesNotExist:
+            ...
+    else:
+        try:
+            M2MLike.objects.get(user=user, post=post_id).delete()
+        except M2MLike.DoesNotExist:
+            ...
+
+    return { "success": True }
 
 def OLD_post_create(request, data: NewPost) -> APIResponse:
     if rl := check_ratelimit(request, "PUT /api/post/create"):

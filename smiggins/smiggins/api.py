@@ -1,7 +1,7 @@
 import json
 from typing import Any, Callable
 
-from backend.api.post import post_create
+from backend.api.post import add_like, post_create, remove_like
 from backend.api.timeline import tl_following, tl_global, tl_user
 from backend.api.user import (block_add, block_remove, change_password,
                               delete_account, follow_add, follow_remove,
@@ -138,6 +138,9 @@ api.get("timeline/following", **r)(tl_following)
 api.get("timeline/user/{str:username}", **r)(tl_user)
 
 api.post("post", **r)(post_create)
+
+api.post("{str:post_type}/like/{int:post_id}", **r)(add_like)
+api.delete("{str:post_type}/like/{int:post_id}", **r)(remove_like)
 
 urlpatterns = [
     path("", api.urls)

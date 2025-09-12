@@ -383,6 +383,56 @@ function prependPostToTimeline(post: post): void {
   }
 }
 
+function postButtonClick(e: Event): void {
+  let el: HTMLElement | null = e.currentTarget as HTMLElement | null;
+
+  if (!el) { return; }
+
+  if (el.dataset.interactionQuote) {
+    let iq: string = el.dataset.interactionQuote;
+    let isComment: boolean = iq[0] === "c";
+    let postId: number = +iq.slice(1);
+
+    createPostModal("quote", postId, isComment);
+  } else if (el.dataset.interactionLike) {
+    let il: string = el.dataset.interactionLike;
+    let isComment: boolean = il[0] === "c";
+    let postId: number = +il.slice(1);
+    let liked: boolean = el.dataset.liked === "true";
+    el.setAttribute("disabled", "");
+
+    fetch(`/api/${isComment ? "comment" : "post"}/like/${postId}`, {
+      method: liked ? "DELETE" : "POST",
+      headers: { Accept: "application/json" }
+    }).then((response: Response): Promise<GENERIC_API_RESPONSE> => (response.json()))
+      .then((json: GENERIC_API_RESPONSE): void => {
+        if (json.success) {
+          let number: HTMLElement | null = el.querySelector("[data-number]");
+          if (number) {
+            number.innerText = String(+number.innerText + (-liked + 0.5) * 2);
+          }
+
+          let c: post | undefined = postCache[postId];
+          if (c) {
+            c.interactions.liked = !liked;
+            c.interactions.likes += (-liked + 0.5) * 2;
+          }
+
+          el.dataset.liked = String(!liked);
+        } else {
+          createToast(...errorCodeStrings(json.reason));
+        }
+
+        el.removeAttribute("disabled");
+      })
+    .catch((err: any) => {
+      el.removeAttribute("disabled");
+      createToast("Something went wrong!", String(err));
+      throw err;
+    });
+  }
+}
+
 // (processing) timeline "show more" button
 function p_tlMore(element: HTMLDivElement): void {
   let el: Element | null = element.querySelector("[id=\"timeline-more\"]");
@@ -402,6 +452,12 @@ function p_tlSwitch(element: HTMLDivElement): void {
   for (const i of carouselItems) {
     i.addEventListener("click", switchTimeline);
   }
+}
+
+// (processing) adds the click events to posts
+function p_post(element: HTMLDivElement): void {
+  element.querySelector("[data-interaction-quote]")?.addEventListener("click", postButtonClick);
+  element.querySelector("[data-interaction-like]")?.addEventListener("click", postButtonClick);
 }
 
 setInterval(updateTimestamps, 1000);
