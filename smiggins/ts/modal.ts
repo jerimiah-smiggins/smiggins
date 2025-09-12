@@ -3,17 +3,43 @@ function createPostModal(type: "quote" | "comment", id: number, isComment: boole
 function createPostModal(type?: "quote" | "comment", id?: number, isComment?: boolean): void {
   if (document.getElementById("compose-modal")) { return; }
 
-  let el: HTMLDivElement = getSnippet("compose-modal");
+  let extraVars: { [key: string]: string | [string, number] } = {
+    "hidden_if_no_quote": "hidden",
+    "private_post": ""
+  };
+
+  if (type && id !== undefined && isComment !== undefined) {
+    if (type === "quote") {
+      let post;
+      if (isComment) {
+        // TODO: comments
+      } else {
+        post = postCache[id];
+      }
+
+      if (!post) { return; }
+
+      extraVars = {
+        "hidden_if_no_quote": "",
+        "private_post": post.private ? "data-private-post" : "",
+        "username": post.user.username,
+        "timestamp": getTimestamp(post.timestamp),
+        "content": [escapeHTML(post.content), 1],
+        "display_name": [escapeHTML(post.user.display_name), 1]
+      };
+    }
+
+    // TODO: add replies to this
+  }
+  console.log(extraVars, type, id, isComment);
+
+  let el: HTMLDivElement = getSnippet("compose-modal", extraVars);
   el.querySelector("#modal-post")?.addEventListener("click", postModalCreatePost);
   el.querySelector("#compose-modal")?.addEventListener("click", clearPostModalIfClicked);
   document.body.append(el);
   (el.querySelector("#modal-post-content") as HTMLElement | null)?.focus();
 
   document.addEventListener("keydown", clearPostModalOnEscape);
-
-  if (type && id && isComment) {
-    // TODO: add quotes replies to this
-  }
 }
 
 function postModalCreatePost(e: Event): void {
@@ -49,7 +75,7 @@ function clearPostModalOnEscape(e: KeyboardEvent): void {
 }
 
 function clearPostModalIfClicked(e: Event): void {
-  if ((e.target as HTMLElement | null)?.dataset.closeModal) {
+  if ((e.target as HTMLElement | null)?.dataset.closeModal !== undefined) {
     clearPostModal();
   }
 }

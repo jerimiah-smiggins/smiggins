@@ -26,7 +26,63 @@
     border-radius: 1em;
     margin: 0 auto;
     outline: 2px solid var(--background-bright);
+
+    .post-options {
+      border-bottom: none;
+    }
+
+    #compose-modal-post {
+      --border-color: var(--background-very-bright);
+      background-color: var(--background-mid);
+      outline: 2px solid var(--border-color);
+      border-radius: 0.5em;
+      margin: 0.5em -1em;
+      padding: 0.5em 1em;
+      text-align: left;
+    }
   }
+}
+
+.post-upper {
+  display: flex;
+  flex-direction: row;
+  flex-wrap: nowrap;
+  gap: 0.25em;
+  max-width: 100%;
+
+  .post-private {
+    display: none;
+  }
+
+  .post-user {
+    text-wrap: nowrap;
+    overflow-x: hidden;
+    text-overflow: ellipsis;
+    font-weight: 700;
+    flex-shrink: 1;
+    white-space: pre;
+  }
+
+  .post-username {
+    text-wrap: nowrap;
+    overflow-x: hidden;
+    text-overflow: ellipsis;
+    flex-shrink: 9999;
+  }
+
+  .post-timestamp {
+    padding-left: 0.5em;
+  }
+}
+
+.post-content {
+  white-space: pre-wrap;
+  word-wrap: break-word;
+  display: -webkit-box;
+  line-clamp: @post-lines-max;
+  -webkit-line-clamp: @post-lines-max;
+  -webkit-box-orient: vertical;
+  overflow-y: hidden;
 }
 
 .post {
@@ -34,48 +90,6 @@
   text-align: left;
   padding: 1em .5em;
   border-bottom: 1px solid var(--border-color);
-
-  .post-upper {
-    display: flex;
-    flex-direction: row;
-    flex-wrap: nowrap;
-    gap: 0.25em;
-    max-width: 100%;
-
-    .post-private {
-      display: none;
-    }
-
-    .post-user {
-      text-wrap: nowrap;
-      overflow-x: hidden;
-      text-overflow: ellipsis;
-      font-weight: 700;
-      flex-shrink: 1;
-      white-space: pre;
-    }
-
-    .post-username {
-      text-wrap: nowrap;
-      overflow-x: hidden;
-      text-overflow: ellipsis;
-      flex-shrink: 9999;
-    }
-
-    .post-timestamp {
-      padding-left: 0.5em;
-    }
-  }
-
-  .post-content {
-    white-space: pre-wrap;
-    word-wrap: break-word;
-    display: -webkit-box;
-    line-clamp: @post-lines-max;
-    -webkit-line-clamp: @post-lines-max;
-    -webkit-box-orient: vertical;
-    overflow-y: hidden;
-  }
 
   .content-warning {
     summary {
