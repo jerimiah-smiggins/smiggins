@@ -433,6 +433,43 @@ function postButtonClick(e: Event): void {
   }
 }
 
+function createPost(
+  content: string,
+  cw: string | null,
+  followersOnly: boolean,
+  callback?: (success: boolean) => void,
+  extra?: {
+    quote?: { id: number, isComment: boolean }
+  }
+): void {
+  fetch("/api/post", {
+    method: "POST",
+    body: JSON.stringify({
+      content: content,
+      cw: cw,
+      private: followersOnly,
+      poll: [], // TODO: posting polls
+      quote: extra && extra.quote && extra.quote.id || null,
+      quote_is_comment:  extra && extra.quote && extra.quote.isComment || null
+    }),
+    headers: { Accept: "application/json" }
+  }).then((response: Response): Promise<api_post> => (response.json()))
+    .then((json: api_post): void => {
+      if (json.success) {
+        prependPostToTimeline(json.post);
+      } else {
+        createToast(...errorCodeStrings(json.reason, "post"));
+      }
+
+      callback && callback(json.success);
+    })
+    .catch((err: any): void => {
+      callback && callback(false);
+      createToast("Something went wrong!", String(err));
+      throw err;
+    });
+}
+
 // (processing) timeline "show more" button
 function p_tlMore(element: HTMLDivElement): void {
   let el: Element | null = element.querySelector("[id=\"timeline-more\"]");

@@ -90,6 +90,8 @@ class NewPost(Schema):
     content: str
     poll: list[str]
     private: bool
+    quote: int | None
+    quote_is_comment: bool | None
 
 class EditPost(Schema):
     c_warning: str

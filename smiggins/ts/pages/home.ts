@@ -32,30 +32,3 @@ function homeCreatePost(e: Event): void {
     }
   });
 }
-
-function createPost(content: string, cw: string | null, followersOnly: boolean, callback?: (success: boolean) => void): void {
-  fetch("/api/post", {
-    method: "POST",
-    body: JSON.stringify({
-      content: content,
-      cw: cw,
-      private: followersOnly,
-      poll: [] // TODO: posting polls
-    }),
-    headers: { Accept: "application/json" }
-  }).then((response: Response): Promise<api_post> => (response.json()))
-    .then((json: api_post): void => {
-      if (json.success) {
-        prependPostToTimeline(json.post);
-      } else {
-        createToast(...errorCodeStrings(json.reason, "post"));
-      }
-
-      callback && callback(json.success);
-    })
-    .catch((err: any): void => {
-      callback && callback(false);
-      createToast("Something went wrong!", String(err));
-      throw err;
-    });
-}

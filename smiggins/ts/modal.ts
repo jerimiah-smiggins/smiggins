@@ -1,3 +1,9 @@
+let postModalFor: {
+  type: "quote" | "comment",
+  id: number,
+  isComment: boolean
+} | undefined = undefined;
+
 function createPostModal(): void;
 function createPostModal(type: "quote" | "comment", id: number, isComment: boolean): void;
 function createPostModal(type?: "quote" | "comment", id?: number, isComment?: boolean): void {
@@ -8,7 +14,15 @@ function createPostModal(type?: "quote" | "comment", id?: number, isComment?: bo
     "private_post": ""
   };
 
+  postModalFor = undefined;
+
   if (type && id !== undefined && isComment !== undefined) {
+    postModalFor = {
+      type: type,
+      id: id,
+      isComment: isComment
+    };
+
     if (type === "quote") {
       let post;
       if (isComment) {
@@ -62,6 +76,11 @@ function postModalCreatePost(e: Event): void {
     } else {
       contentElement.focus();
       (e.target as HTMLButtonElement | null)?.removeAttribute("disabled");
+    }
+  }, postModalFor && {
+    quote: {
+      id: postModalFor.id,
+      isComment: postModalFor.isComment
     }
   });
 }

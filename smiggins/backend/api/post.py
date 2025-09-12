@@ -46,7 +46,9 @@ def post_create(request, data: NewPost) -> dict | tuple[int, dict]:
         timestamp=ts,
         comments=[],
         quotes=[],
-        private=data.private
+        private=data.private,
+        quote=data.quote,
+        quote_is_comment=data.quote_is_comment
     )
 
     post = Post.objects.get(
@@ -56,6 +58,11 @@ def post_create(request, data: NewPost) -> dict | tuple[int, dict]:
         timestamp=ts,
         private=data.private
     )
+
+    if data.quote:
+        quoted_post = (Comment if data.quote_is_comment else Post).objects.get(pk=data.quote)
+        quoted_post.quotes.append(post.post_id)
+        quoted_post.save()
 
     # TODO: add poll
     # TODO: mention notifications and whatnot
