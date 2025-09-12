@@ -61,56 +61,6 @@
     }
   }
 
-  #compose-box {
-    margin: -1em 0;
-    margin-top: calc(1em + 2px);
-
-    > div:not(:last-child) {
-      border-bottom: 1px solid var(--border-color);
-    }
-
-    textarea {
-      font-family: @font-family;
-      background-color: transparent;
-      color: var(--text);
-      width: calc(100% + 2em);
-      margin: 0;
-      resize: none;
-      border: none;
-      padding: 0.5em 1.5em;
-      height: 10em;
-      box-sizing: border-box;
-      font-size: 1em;
-      margin: 0 -1em;
-
-      &:not(:focus) {
-        outline: none;
-      }
-    }
-
-    input:not([type="checkbox"]) {
-      background-color: transparent;
-      border-radius: 0;
-      width: calc(100% + 2em);
-      max-width: unset;
-      margin: 0;
-      resize: none;
-      padding: 0.5em 1.5em;
-      box-sizing: border-box;
-      font-size: 1em;
-      margin: 0 -1em;
-    }
-
-    .post-options {
-      text-wrap: nowrap;
-      padding: 0.5em;
-      display: flex;
-      flex-direction: row;
-      flex-wrap: nowrap;
-      gap: 0.5em;
-    }
-  }
-
   .timeline-status {
     display: block;
     padding: 1em 0;
@@ -168,6 +118,56 @@
     &.navbar-current > svg {
       filter: drop-shadow(0 0 3px var(--subtext));
     }
+  }
+}
+
+.compose-box {
+  margin: -1em 0;
+  margin-top: calc(1em + 2px);
+
+  > div:not(:last-child) {
+    border-bottom: 1px solid var(--border-color);
+  }
+
+  textarea {
+    font-family: @font-family;
+    background-color: transparent;
+    color: var(--text);
+    width: calc(100% + 2em);
+    margin: 0;
+    resize: none;
+    border: none;
+    padding: 0.5em 1.5em;
+    height: 10em;
+    box-sizing: border-box;
+    font-size: 1em;
+    margin: 0 -1em;
+
+    &:not(:focus) {
+      outline: none;
+    }
+  }
+
+  input:not([type="checkbox"]) {
+    background-color: transparent;
+    border-radius: 0;
+    width: calc(100% + 2em);
+    max-width: unset;
+    margin: 0;
+    resize: none;
+    padding: 0.5em 1.5em;
+    box-sizing: border-box;
+    font-size: 1em;
+    margin: 0 -1em;
+  }
+
+  .post-options {
+    text-wrap: nowrap;
+    padding: 0.5em;
+    display: flex;
+    flex-direction: row;
+    flex-wrap: nowrap;
+    gap: 0.5em;
   }
 }
 

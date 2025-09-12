@@ -1,0 +1,11 @@
+<div data-close-modal id="compose-modal">
+  <div class="compose-box">
+    <div><input data-enter-next="#modal-post-content" data-enter-submit="#modal-post" id="modal-post-cw" placeholder="Content warning (optional)" maxlength="{{ conf.max_length.cw }}"></div>
+    <div><textarea data-enter-next="!avoid" data-enter-submit="#modal-post" id="modal-post-content" placeholder="Cool post" maxlength="{{ conf.max_length.post }}"></textarea></div>
+    <div class="post-options">
+      <div><label><input type="checkbox" id="modal-post-private" @{checked_if_default_private}> Followers only</label></div>
+      <div class="flex-spacer"></div>
+      <div><button data-button-alt-colors id="modal-post">Post</button></div>
+    </div>
+  </div>
+</div>

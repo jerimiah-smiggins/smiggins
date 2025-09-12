@@ -6,6 +6,30 @@
   }
 }
 
+#compose-modal {
+  background-color: var(--modal-background);
+  content: "";
+  width: 100vw;
+  height: 100vh;
+  position: fixed;
+  top: 0;
+  left: 0;
+  z-index: 1000;
+  padding: 4em;
+  box-sizing: border-box;
+
+  .compose-box {
+    box-sizing: border-box;
+    background-color: var(--background);
+    max-width: @compose-modal-max-width;
+    padding: 0.5em 2em;
+    border-radius: 1em;
+    margin: 0 auto;
+    outline: 2px solid var(--background-bright);
+  }
+
+}
+
 .post {
   box-sizing: border-box;
   text-align: left;
@@ -145,5 +169,9 @@
 @media screen and (max-width: @mobile-scale-threshold) {
   .post > .post-user > .post-timestamp {
     display: none;
+  }
+
+  #compose-modal {
+    padding: 4em 1em;
   }
 }

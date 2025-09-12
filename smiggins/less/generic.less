@@ -9,6 +9,7 @@ html {
   --accent: #d8a4c6;
   --red: #d67677;
   --yellow: #d3d381;
+  --modal-background: #00000040;
 
   --border-color: var(--background-bright);
 
@@ -117,7 +118,7 @@ a {
 
 input:not([type="checkbox"]),
 select,
-textarea:not(#post-content) {
+textarea:not(#post-content, #modal-post-content) {
   font: inherit;
   font-size: 0.875rem;
   background-color: var(--background-mid);
@@ -136,7 +137,7 @@ input:not([type="checkbox"], [type="color"]) {
   max-width: 250px;
 }
 
-textarea:not(#post-content) {
+textarea:not(#post-content, #modal-post-content) {
   resize: vertical;
   max-width: 250px;
   min-height: 2em;
