@@ -161,93 +161,6 @@ def typecheck(obj: Any, expected_type: type | str | list | tuple | dict, allow_n
         if expected_type == "color":
             return isinstance(obj, str) and bool(re.match(r"^#[0-9a-f]{6}$", obj))
 
-        if expected_type == "theme":
-            return isinstance(obj, str) and obj.lower() in _THEMES_INTERNALS["map"]
-
-        if expected_type == "theme-object":
-            if not isinstance(obj, list):
-                return False
-
-            def keycheck(object: dict, type_dict: dict[str, type | Literal["color", "color_noop", "color_noa"]], prefix: str=""):
-                for key, expected in type_dict.items():
-                    if key not in object:
-                        error(f"{prefix}{key} should be in theme definition {object}, discarding")
-                        return False
-                    elif not (isinstance(object[key], str) and bool(re.match(f"^(?:#[0-9a-f]{{6}}{'' if expected == 'color_noop' or expected == 'color_noa' else '(?:[0-9a-f]{2})?'}{'' if expected == 'color_noa' else '|@accent(?:-50)?'})$", object[key])) if expected == "color" or expected == "color_noop" or expected == "color_noa" else isinstance(object[key], expected)):
-                        error(f"{prefix}{key} should be type {expected} in theme definition {object}, discarding")
-                        return False
-                return True
-
-            for i in obj:
-                if not isinstance(i, dict):
-                    error(f"{i} should be object in theme definition, discarding")
-                    continue
-
-                if "id" in i and i["id"] == "custom":
-                    continue
-
-                if not (keycheck(i, {
-                    "name": dict,
-                    "id": str,
-                    "light_theme": bool,
-                    "colors": dict,
-                }) and keycheck(i["name"], {
-                    "default": str
-                }, "name.") and keycheck(i["colors"], {
-                    "text": "color",
-                    "subtext": "color",
-                    "red": "color",
-                    "background": "color_noop",
-                    "post_background": "color",
-                    "poll_voted_background": "color",
-                    "poll_no_vote_background": "color",
-                    "content_warning_background": "color",
-                    "input_background": "color",
-                    "checkbox_background": "color",
-                    "button_background": "color",
-                    "button_hover_background": "color",
-                    "button_inverted_background": "color",
-                    "input_border": "color",
-                    "checkbox_border": "color",
-                    "button_border": "color",
-                    "table_border": "color",
-                    "modal_backdrop": "color",
-                    "modal_background": "color",
-                    "modal_border": "color",
-                    "gray": "color",
-                    "accent": dict
-                }, "colors.") and keycheck(i["colors"]["accent"], {
-                    "rosewater": "color_noa",
-                    "flamingo": "color_noa",
-                    "pink": "color_noa",
-                    "mauve": "color_noa",
-                    "red": "color_noa",
-                    "maroon": "color_noa",
-                    "peach": "color_noa",
-                    "yellow": "color_noa",
-                    "green": "color_noa",
-                    "teal": "color_noa",
-                    "sky": "color_noa",
-                    "sapphire": "color_noa",
-                    "blue": "color_noa",
-                    "lavender": "color_noa"
-                }, "colors.accent.")):
-                    continue
-
-                i["id"] = i["id"].lower()
-
-                if len(i["id"]) > 30:
-                    error(f"Theme id '{i['id']}' needs to be less than 30 characters. Truncating to {i['id'] := i['id'][:30]}")
-
-                if i["id"] in _THEMES_INTERNALS["taken"]:
-                    error(f"Theme with id '{i['id']}' already taken, discarding")
-                    continue
-
-                THEMES[i["id"]] = i
-                _THEMES_INTERNALS["taken"].append(i["id"])
-
-            return None
-
         if expected_type == "db":
             if not isinstance(obj, dict):
                 return False
@@ -265,21 +178,6 @@ def typecheck(obj: Any, expected_type: type | str | list | tuple | dict, allow_n
 
             if "$" not in obj["filename"]:
                 error("db_backup, '$' should be in filename")
-                return False
-
-            return True
-
-        if expected_type == "ratelimit-value":
-            if obj is None:
-                return True
-
-            if not isinstance(obj, list):
-                return False
-
-            if len(obj) != 2:
-                return False
-
-            if not all([isinstance(i, int) for i in obj]):
                 return False
 
             return True
@@ -387,75 +285,6 @@ DATABASE_BACKUPS["keep"] = clamp(DATABASE_BACKUPS["keep"], minimum=1)
 
 if isinstance(ENABLE_NEW_ACCOUNTS, str):
     ENABLE_NEW_ACCOUNTS = ENABLE_NEW_ACCOUNTS.lower()
-
-# for key, val in {
-  # "GET /api/init/context": (10, 5),
-  # "GET /api/init/lang": (10, 60),
-  # "GET /api/init/muted": (10, 60),
-  # "GET /api/init/badges": (10, 60),
-  # "POST /api/user/signup": (2, 10),
-  # "POST /api/user/login": (5, 10),
-  # "GET /api/user/notifications": (5, 10),
-  # "PATCH /api/user/notifications": (2, 10),
-  # "DELETE /api/user/notifications": (2, 10),
-  # "PATCH /api/user/settings/theme": (10, 5),
-  # "PATCH /api/user/settings": (5, 10),
-  # "POST /api/user/muted": (4, 20),
-  # "PATCH /api/user/password": (4, 60),
-  # "POST /api/user/follow": (10, 5),
-  # "DELETE /api/user/follow": (10, 5),
-  # "GET /api/user/pending": (5, 10),
-  # "POST /api/user/pending": (10, 5),
-  # "DELETE /api/user/pending": (10, 5),
-  # "POST /api/user/block": (10, 5),
-  # "DELETE /api/user/block": (10, 5),
-  # "PATCH /api/user/pin": (2, 10),
-  # "DELETE /api/user/pin": (2, 10),
-  # "GET /api/user/lists": (10, 5),
-  # "DELETE /api/user": (4, 120),
-  # "PUT /api/comment/create": (5, 30),
-  # "PUT /api/quote/create": (5, 30),
-  # "PUT /api/post/create": (5, 60),
-  # "GET /api/post/user/{str:username}": (20, 60),
-  # "GET /api/post/following": (20, 60),
-  # "GET /api/post/recent": (20, 60),
-  # "GET /api/comments": (5, 10),
-  # "GET /api/hashtag/{str:hashtag}": (10, 5),
-  # "DELETE /api/post": (10, 10),
-  # "DELETE /api/comment": (10, 10),
-  # "POST /api/post/like": (10, 5),
-  # "DELETE /api/post/like": (10, 5),
-  # "POST /api/comment/like": (10, 5),
-  # "DELETE /api/comment/like": (10, 5),
-  # "PATCH /api/post/edit": (2, 10),
-  # "PATCH /api/comment/edit": (2, 10),
-  # "POST /api/post/poll": (10, 5),
-  # "GET /api/post/poll": (5, 10),
-  # "GET /api/messages/list": (10, 5),
-  # "POST /api/messages/new": (3, 10),
-  # "GET /api/messages": (10, 5),
-  # "POST /api/messages": (10, 10),
-  # "DELETE /api/admin/user": (4, 60),
-  # "POST /api/admin/badge": (10, 5),
-  # "PATCH /api/admin/badge": (10, 5),
-  # "PUT /api/admin/badge": (2, 5),
-  # "DELETE /api/admin/badge": (5, 5),
-  # "GET /api/admin/info": (10, 30),
-  # "PATCH /api/admin/info": (5, 10),
-  # "GET /api/admin/level": (10, 5),
-  # "PATCH /api/admin/level": (5, 5),
-  # "GET /api/admin/logs": (5, 10),
-  # "POST /api/admin/otp": (5, 5),
-  # "DELETE /api/admin/otp": (10, 5),
-  # "GET /api/admin/otp": (10, 5),
-  # "POST /api/admin/muted": (2, 10),
-  # "POST /api/email/password": (3, 60),
-  # "POST /api/email/save": (4, 20),
-  # "GET /api/info/notifications": (5, 10),
-  # "GET /api/info/version": None
-# }.items():
-    # if key not in RATELIMITS:
-        # RATELIMITS[key] = val
 
 # Used when hashing user tokens
 PRIVATE_AUTHENTICATOR_KEY: str = hashlib.sha256(auth_key).hexdigest()

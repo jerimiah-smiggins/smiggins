@@ -1,5 +1,3 @@
-# For ninja api schemas
-
 import sys
 from typing import Any, Literal
 

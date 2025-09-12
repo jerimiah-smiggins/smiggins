@@ -5,7 +5,6 @@ from django.template import loader
 from posts.backups import backup_db
 from posts.models import User
 
-from .helper import get_HTTP_response
 from .variables import (ENABLE_NEW_ACCOUNTS, GOOGLE_VERIFICATION_TAG,
                         MAX_BIO_LENGTH, MAX_CONTENT_WARNING_LENGTH,
                         MAX_DISPL_NAME_LENGTH, MAX_POST_LENGTH,
@@ -104,10 +103,3 @@ def manifest_json(request):
         }, request),
         content_type="application/manifest+json"
     )
-
-# These two functions are referenced in smiggins/urls.py
-def _404(request, exception) -> HttpResponse:
-    return get_HTTP_response(request, "404.html", status=404)
-
-def _500(request) -> HttpResponse:
-    return get_HTTP_response(request, "500.html", status=500)

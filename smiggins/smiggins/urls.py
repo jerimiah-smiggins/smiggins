@@ -1,6 +1,6 @@
 from backend.helper import create_simple_return
-from backend.templating import webapp, manifest_json
-from backend.variables import DEBUG, GENERIC_CACHE_TIMEOUT, REAL_VERSION, ROBOTS
+from backend.templating import manifest_json, webapp
+from backend.variables import GENERIC_CACHE_TIMEOUT, REAL_VERSION, ROBOTS
 from django.contrib import admin as django_admin
 from django.http import HttpResponseRedirect
 from django.urls import include, path, re_path
@@ -10,7 +10,7 @@ cache_prefix = ".".join([str(i) for i in REAL_VERSION])
 
 # variables to reduce code duplication
 _favicon = lambda request: HttpResponseRedirect("/static/img/old_favicon.png", status=308) # noqa: E731
-_robots_txt = create_simple_return("", content_type="text/plain", content_override=ROBOTS)
+_robots_txt = create_simple_return(ROBOTS, content_type="text/plain")
 
 urlpatterns = list(filter(bool, [
     path("api/", include("smiggins.api")),
@@ -23,6 +23,3 @@ urlpatterns = list(filter(bool, [
 ]))
 
 del _favicon, _robots_txt
-
-handler500 = "backend.templating._500"
-handler404 = "backend.templating._404"
