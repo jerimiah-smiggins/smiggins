@@ -9,5 +9,6 @@ function createToast(
   });
 
   document.getElementById("toasts")?.append(toast);
+  toast.addEventListener("click", (): void => (toast.remove()));
   setTimeout((): void => (toast.remove()), timeout || 3000);
 }
