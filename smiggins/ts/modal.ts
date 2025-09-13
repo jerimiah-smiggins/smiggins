@@ -1,12 +1,11 @@
 let postModalFor: {
   type: "quote" | "comment",
-  id: number,
-  isComment: boolean
+  id: number
 } | undefined = undefined;
 
 function createPostModal(): void;
-function createPostModal(type: "quote" | "comment", id: number, isComment: boolean): void;
-function createPostModal(type?: "quote" | "comment", id?: number, isComment?: boolean): void {
+function createPostModal(type: "quote" | "comment", id: number): void;
+function createPostModal(type?: "quote" | "comment", id?: number): void {
   if (document.getElementById("compose-modal")) { return; }
 
   let extraVars: { [key: string]: string | [string, number] } = {
@@ -16,21 +15,14 @@ function createPostModal(type?: "quote" | "comment", id?: number, isComment?: bo
 
   postModalFor = undefined;
 
-  if (type && id !== undefined && isComment !== undefined) {
+  if (type && id !== undefined) {
     postModalFor = {
       type: type,
-      id: id,
-      isComment: isComment
+      id: id
     };
 
     if (type === "quote") {
-      let post;
-      if (isComment) {
-        // TODO: comments
-      } else {
-        post = postCache[id];
-      }
-
+      let post: post | undefined = postCache[id];
       if (!post) { return; }
 
       extraVars = {
@@ -45,7 +37,6 @@ function createPostModal(type?: "quote" | "comment", id?: number, isComment?: bo
 
     // TODO: add replies to this
   }
-  console.log(extraVars, type, id, isComment);
 
   let el: HTMLDivElement = getSnippet("compose-modal", extraVars);
   el.querySelector("#modal-post")?.addEventListener("click", postModalCreatePost);
@@ -70,19 +61,28 @@ function postModalCreatePost(e: Event): void {
   if (!content) { contentElement.focus(); return; }
 
   (e.target as HTMLButtonElement | null)?.setAttribute("disabled", "");
-  createPost(content, cw || null, privatePost, (success: boolean): void => {
-    if (success) {
-      clearPostModal();
-    } else {
-      contentElement.focus();
-      (e.target as HTMLButtonElement | null)?.removeAttribute("disabled");
-    }
-  }, postModalFor && {
-    quote: {
-      id: postModalFor.id,
-      isComment: postModalFor.isComment
-    }
-  });
+  createPost(
+    content,
+    cw || null,
+    privatePost,
+    (success: boolean): void => {
+      if (success) {
+        if (postModalFor && postModalFor.type === "quote") {
+          let el: HTMLElement | null = document.querySelector(`[data-interaction-quote="${postModalFor.id}"] [data-number]`);
+
+          if (el) {
+            el.innerText = String(+el.innerText + 1);
+          }
+        }
+
+        clearPostModal();
+      } else {
+        contentElement.focus();
+        (e.target as HTMLButtonElement | null)?.removeAttribute("disabled");
+      }
+    },
+    postModalFor && { quote: postModalFor.id }
+  );
 }
 
 function clearPostModalOnEscape(e: KeyboardEvent): void {

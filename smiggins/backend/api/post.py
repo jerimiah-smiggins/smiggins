@@ -1,9 +1,7 @@
 import time
-from typing import Any
 
-from django.db.models import Count
 from django.db.utils import IntegrityError
-from posts.models import Comment, M2MLike, M2MLikeC, Post, User
+from posts.models import M2MLike, Post, User
 
 from ..helper import trim_whitespace
 from ..variables import (MAX_CONTENT_WARNING_LENGTH, MAX_POLL_OPTION_LENGTH,
@@ -39,16 +37,20 @@ def post_create(request, data: NewPost) -> dict | tuple[int, dict]:
 
     ts = round(time.time())
 
+    quote = None
+    if data.quote:
+        try:
+            quote = Post.objects.get(post_id=data.quote)
+        except Post.DoesNotExist:
+            ...
+
     Post.objects.create(
         content=content[0],
         content_warning=cw[0] or None,
         creator=user,
         timestamp=ts,
-        comments=[],
-        quotes=[],
         private=data.private,
-        quote=data.quote,
-        quote_is_comment=data.quote_is_comment
+        quoted_post=quote
     )
 
     post = Post.objects.get(
@@ -59,11 +61,6 @@ def post_create(request, data: NewPost) -> dict | tuple[int, dict]:
         private=data.private
     )
 
-    if data.quote:
-        quoted_post = (Comment if data.quote_is_comment else Post).objects.get(pk=data.quote)
-        quoted_post.quotes.append(post.post_id)
-        quoted_post.save()
-
     # TODO: add poll
     # TODO: mention notifications and whatnot
 
@@ -72,25 +69,16 @@ def post_create(request, data: NewPost) -> dict | tuple[int, dict]:
         "post": get_post_json(post, user)
     }
 
-def add_like(request, post_type: str, post_id: int) -> dict | tuple[int, dict]:
-    if post_type != "post" and post_type != "comment":
-        return 404, { "success": False }
-
+def add_like(request, post_id: int) -> dict | tuple[int, dict]:
     try:
         user = User.objects.get(token=request.COOKIES.get("token"))
     except User.DoesNotExist:
         return 400, { "success": False, "reason": "NOT_AUTHENTICATED" }
 
-    if post_type == "comment":
-        try:
-            post = Comment.objects.get(comment_id=post_id)
-        except Comment.DoesNotExist:
-            return 400, { "success": False, "reason": "POST_NOT_FOUND" }
-    else:
-        try:
-            post = Post.objects.get(post_id=post_id)
-        except Post.DoesNotExist:
-            return 400, { "success": False, "reason": "POST_NOT_FOUND" }
+    try:
+        post = Post.objects.get(post_id=post_id)
+    except Post.DoesNotExist:
+        return 400, { "success": False, "reason": "POST_NOT_FOUND" }
 
     creator = post.creator
 
@@ -106,24 +94,15 @@ def add_like(request, post_type: str, post_id: int) -> dict | tuple[int, dict]:
 
     return { "success": True }
 
-def remove_like(request, post_type: str, post_id: int) -> dict | tuple[int, dict]:
-    if post_type != "post" and post_type != "comment":
-        return 404, { "success": False }
-
+def remove_like(request, post_id: int) -> dict | tuple[int, dict]:
     try:
         user = User.objects.get(token=request.COOKIES.get("token"))
     except User.DoesNotExist:
         return 400, { "success": False, "reason": "NOT_AUTHENTICATED" }
 
-    if post_type == "comment":
-        try:
-            M2MLikeC.objects.get(user=user, post=post_id).delete()
-        except M2MLikeC.DoesNotExist:
-            ...
-    else:
-        try:
-            M2MLike.objects.get(user=user, post=post_id).delete()
-        except M2MLike.DoesNotExist:
-            ...
+    try:
+        M2MLike.objects.get(user=user, post=post_id).delete()
+    except M2MLike.DoesNotExist:
+        ...
 
     return { "success": True }

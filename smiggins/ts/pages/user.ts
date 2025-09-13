@@ -12,7 +12,8 @@ function p_user(element: HTMLDivElement): void {
   element.querySelector("#block")?.addEventListener("click", toggleBlock);
 
   hookTimeline(element.querySelector("[id=\"timeline-posts\"]") as HTMLDivElement, {
-    [tlId]: { url: `/api/timeline/user/${userUsername}`, prependPosts: username === userUsername, timelineCallback: userUpdateStats }
+    [tlId]: { url: `/api/timeline/user/${userUsername}`, prependPosts: username === userUsername, timelineCallback: userUpdateStats },
+    [tlId + "_all"]: { url: `/api/timeline/user/${userUsername}?include_comments=true`, prependPosts: username === userUsername, timelineCallback: userUpdateStats }
   }, tlId, element);
 }
 

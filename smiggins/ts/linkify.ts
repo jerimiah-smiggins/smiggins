@@ -40,7 +40,7 @@ function urlReplacements(str: string, repl: replacement[]): string {
 }
 
 // takes in an ESCAPED string and adds any needed links to it.
-function linkify(str: string, postID?: number, postIsComment?: boolean): string {
+function linkify(str: string, postID?: number): string {
   let urlReplacement: replacement[] = [];
 
   for (const url of str.matchAll(urlRegex)) {
@@ -80,7 +80,7 @@ function linkify(str: string, postID?: number, postIsComment?: boolean): string 
   }
 
   if (postID) {
-    let href: string = `/${postIsComment ? "c" : "p"}/${postID}/`;
+    let href: string = `/p/${postID}/`;
     let newReplacements: replacement[] = [];
     let textIndex: number = 0;
 

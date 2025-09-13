@@ -1,4 +1,4 @@
-<div class="post" data-post-id="@{pc}@{pid}">
+<div class="post" data-post-id="@{pid}">
   <div class="post-upper">
     <div class="post-private">@{icon_private}</div>
     <div class="post-user"><a data-internal-link="user" href="/u/@{username}/" class="plain-link">@{display_name}</a></div>
@@ -10,8 +10,8 @@
   <div class="post-content">@{content}</div>
 
   <div class="post-interactions" @{post_interactions_hidden}>
-    <div><a class="plain-link" data-internal-link="post" href="/@{pc}/@{pid}/">@{icon_comment} <span data-number>@{comments}<span></a></div>
-    <div data-interaction-quote="@{pc}@{pid}">@{icon_quote} <span data-number>@{quotes}<span></div>
-    <div data-interaction-like="@{pc}@{pid}" data-liked="@{liked}">@{icon_like}@{icon_like_active} <span data-number>@{likes}<span></div>
+    <div><a class="plain-link" data-internal-link="post" href="/p/@{pid}/">@{icon_comment} <span data-number>@{comments}<span></a></div>
+    <div data-interaction-quote="@{pid}">@{icon_quote} <span data-number>@{quotes}<span></div>
+    <div data-interaction-like="@{pid}" data-liked="@{liked}">@{icon_like}@{icon_like_active} <span data-number>@{likes}<span></div>
   </div>
 </div>

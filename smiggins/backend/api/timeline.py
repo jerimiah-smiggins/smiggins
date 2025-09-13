@@ -1,13 +1,13 @@
 from django.db.models import Q
 from django.db.models.manager import BaseManager
-from posts.models import Comment, Post, User
+from posts.models import Post, User
 
 from ..variables import POSTS_PER_REQUEST
 
 
-def get_post_json(post: Post | Comment, user: User | None) -> dict:
+def get_post_json(post: Post, user: User | None) -> dict:
     return {
-        "id": post.post_id if isinstance(post, Post) else post.comment_id,
+        "id": post.post_id,
         "content": post.content,
         "content_warning": post.content_warning,
         "timestamp": post.timestamp,
@@ -16,8 +16,8 @@ def get_post_json(post: Post | Comment, user: User | None) -> dict:
         "interactions": {
             "likes": post.likes.count(),
             "liked": post.likes.contains(user) if user else False,
-            "quotes": len(post.quotes),
-            "comments": len(post.comments)
+            "quotes": post.quotes.count(),
+            "comments": post.comments.count()
         },
 
         "user": {
@@ -27,16 +27,19 @@ def get_post_json(post: Post | Comment, user: User | None) -> dict:
     }
 
 def get_timeline(
-    tl: BaseManager[Post] | BaseManager[Comment],
+    tl: BaseManager[Post],
     offset: int | None,
     user: User | None,
     forwards: bool=False, *,
     no_visibility_check: bool=False,
-    show_blocked: bool=False
+    show_blocked: bool=False,
+    order_by: list[str]=["-timestamp", "-pk"]
 ) -> tuple[bool, list[dict]]:
+    tl = tl.order_by(*order_by)
+
     if offset:
         tl = tl.filter(**{
-            f"pk__{'g' if forwards else 'l'}t": offset
+            f"timestamp__{'g' if forwards else 'l'}t": offset
         })
 
     if not no_visibility_check:
@@ -67,7 +70,7 @@ def tl_following(request, offset: int | None=None, forwards: bool=False):
         return 400, { "success": False, "reason": "NOT_AUTHENTICATED" }
 
     end, posts = get_timeline(
-        Post.objects.order_by("-pk").filter(
+        Post.objects.filter(comment_parent=None).filter(
             Q(creator=user) | Q(creator__followers=user)
         ),
         offset,
@@ -91,7 +94,7 @@ def tl_global(request, offset: int | None=None, forwards: bool=False) -> dict | 
         return 400, { "success": False, "reason": "NOT_AUTHENTICATED" }
 
     end, posts = get_timeline(
-        Post.objects.order_by("-pk"),
+        Post.objects.filter(comment_parent=None),
         offset,
         user,
         forwards
@@ -103,7 +106,7 @@ def tl_global(request, offset: int | None=None, forwards: bool=False) -> dict | 
         "end": end
     }
 
-def tl_user(request, username: str, offset: int | None=None, forwards: bool=False) -> dict | tuple[int, dict]:
+def tl_user(request, username: str, offset: int | None=None, forwards: bool=False, include_comments: bool=False) -> dict | tuple[int, dict]:
     # if rl := check_ratelimit(request, "GET /api/timeline/global"):
     #     return NEW_RL
 
@@ -117,8 +120,12 @@ def tl_user(request, username: str, offset: int | None=None, forwards: bool=Fals
     except User.DoesNotExist:
         return 400, { "success": False, "reason": "BAD_USERNAME" }
 
+    p = user.posts.all()
+    if not include_comments:
+        p = p.filter(comment_parent=None)
+
     end, posts = get_timeline(
-        user.posts.all().order_by("-pk"),
+        p,
         offset,
         self_user,
         forwards,

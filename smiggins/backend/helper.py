@@ -5,13 +5,11 @@ import re
 import time
 from typing import Callable
 
-from django.core.mail import send_mail
 from django.http import HttpResponse, HttpResponseRedirect
-from posts.models import MutedWord, Notification, Ratelimit, User
+from posts.models import Notification, User
 
-from .api.schema import APIResponse
 from .variables import (ALTERNATE_IPS, MAX_NOTIFICATIONS, MAX_USERNAME_LENGTH,
-                        PRIVATE_AUTHENTICATOR_KEY, error)
+                        PRIVATE_AUTHENTICATOR_KEY)
 
 StringReturn = tuple[str | None, str | None, str | None, int]
 

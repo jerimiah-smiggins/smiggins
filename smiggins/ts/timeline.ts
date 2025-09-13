@@ -91,7 +91,7 @@ function loadMorePosts(): void {
 
   tlElement.insertAdjacentHTML("beforeend", LOADING_HTML);
 
-  fetch(`${currentTl.url}?offset=${offset.lower}`, {
+  fetch(`${currentTl.url}${currentTl.url.includes("?") ? "&" : "?"}offset=${offset.lower}`, {
     headers: { Accept: "application/json" }
   }).then((response: Response): Promise<api_timeline> => (response.json()))
     .then((json: api_timeline): void => {
@@ -235,8 +235,8 @@ function getPost(post: number, updateOffset: boolean=true): HTMLDivElement {
 
   let postContent: string = linkify(escapeHTML(p.content), post);
 
-  if (updateOffset && (!offset.lower || post < offset.lower)) { offset.lower = post; }
-  if (updateOffset && (!offset.upper || post > offset.upper)) { offset.upper = post; }
+  if (updateOffset && (!offset.lower || p.timestamp < offset.lower)) { offset.lower = p.timestamp; }
+  if (updateOffset && (!offset.upper || p.timestamp > offset.upper)) { offset.upper = p.timestamp; }
 
   if (p.content_warning) {
     postContent = `<details class="content-warning"${localStorage.getItem("smiggins-expand-cws") ? " open" : "" }><summary><div>${escapeHTML(p.content_warning)} <div class="content-warning-stats">(${p.content.length} char${p.content.length === 1 ? "" : "s"})</div></div></summary>${postContent}</details>`;
@@ -247,7 +247,6 @@ function getPost(post: number, updateOffset: boolean=true): HTMLDivElement {
     username: p.user.username,
     post_interactions_hidden: localStorage.getItem("smiggins-hide-interactions") && "hidden" || "",
 
-    pc: "p", // TODO: distinguish between posts and comments somehow
     pid: String(post),
 
     comments: String(p.interactions.comments),
@@ -300,7 +299,9 @@ function timelineShowNew(): void {
 // fetch new posts for a timeline
 function timelinePolling(forceEvent: boolean=false): void {
   let currentTimeline: timelineConfig = currentTl;
-  let c = tlCache[currentTlID];
+  let c: timelineCache | undefined = tlCache[currentTlID];
+
+  if (tlPollingPendingResponse) { return; }
 
   tlPollingPendingResponse = true;
 
@@ -310,7 +311,7 @@ function timelinePolling(forceEvent: boolean=false): void {
     forceEvent = true;
   }
 
-  fetch(`${currentTl.url}?offset=${offset.upper}&forwards=true`)
+  fetch(`${currentTl.url}${currentTl.url.includes("?") ? "&" : "?"}offset=${offset.upper}&forwards=true`)
     .then((response: Response): Promise<api_timeline> => (response.json()))
     .then((json: api_timeline): void => {
       if (currentTimeline.url !== currentTl.url) {
@@ -341,7 +342,7 @@ function timelinePolling(forceEvent: boolean=false): void {
         }
 
         if (json.end) {
-          offset.upper = json.posts[0].id;
+          offset.upper = json.posts[0].timestamp;
           c.pendingForward.push(...insertIntoPostCache(json.posts).reverse());
 
           if (showNewElement) {
@@ -383,6 +384,7 @@ function prependPostToTimeline(post: post): void {
   }
 }
 
+// handles events when clicking the like and quote buttons on posts
 function postButtonClick(e: Event): void {
   let el: HTMLElement | null = e.currentTarget as HTMLElement | null;
 
@@ -390,18 +392,16 @@ function postButtonClick(e: Event): void {
 
   if (el.dataset.interactionQuote) {
     let iq: string = el.dataset.interactionQuote;
-    let isComment: boolean = iq[0] === "c";
     let postId: number = +iq.slice(1);
 
-    createPostModal("quote", postId, isComment);
+    createPostModal("quote", postId);
   } else if (el.dataset.interactionLike) {
     let il: string = el.dataset.interactionLike;
-    let isComment: boolean = il[0] === "c";
     let postId: number = +il.slice(1);
     let liked: boolean = el.dataset.liked === "true";
     el.setAttribute("disabled", "");
 
-    fetch(`/api/${isComment ? "comment" : "post"}/like/${postId}`, {
+    fetch(`/api/post/like/${postId}`, {
       method: liked ? "DELETE" : "POST",
       headers: { Accept: "application/json" }
     }).then((response: Response): Promise<GENERIC_API_RESPONSE> => (response.json()))
@@ -433,13 +433,14 @@ function postButtonClick(e: Event): void {
   }
 }
 
+// actually posts the post
 function createPost(
   content: string,
   cw: string | null,
   followersOnly: boolean,
   callback?: (success: boolean) => void,
   extra?: {
-    quote?: { id: number, isComment: boolean }
+    quote?: number
   }
 ): void {
   fetch("/api/post", {
@@ -449,8 +450,7 @@ function createPost(
       cw: cw,
       private: followersOnly,
       poll: [], // TODO: posting polls
-      quote: extra && extra.quote && extra.quote.id || null,
-      quote_is_comment:  extra && extra.quote && extra.quote.isComment || null
+      quote: extra && extra.quote || null
     }),
     headers: { Accept: "application/json" }
   }).then((response: Response): Promise<api_post> => (response.json()))

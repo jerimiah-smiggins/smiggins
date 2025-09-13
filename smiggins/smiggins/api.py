@@ -139,8 +139,8 @@ api.get("timeline/user/{str:username}", **r)(tl_user)
 
 api.post("post", **r)(post_create)
 
-api.post("{str:post_type}/like/{int:post_id}", **r)(add_like)
-api.delete("{str:post_type}/like/{int:post_id}", **r)(remove_like)
+api.post("post/like/{int:post_id}", **r)(add_like)
+api.delete("post/like/{int:post_id}", **r)(remove_like)
 
 urlpatterns = [
     path("", api.urls)
