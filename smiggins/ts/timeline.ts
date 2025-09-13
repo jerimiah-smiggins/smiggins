@@ -316,8 +316,7 @@ function timelinePolling(forceEvent: boolean=false): void {
   let currentTimeline: timelineConfig = currentTl;
   let c: timelineCache | undefined = tlCache[currentTlID];
 
-  if (tlPollingPendingResponse) { return; }
-
+  if (tlPollingPendingResponse && !forceEvent) { return; }
   tlPollingPendingResponse = true;
 
   if (!c || c.pendingForward === false || !offset.upper) { return; }
@@ -329,6 +328,8 @@ function timelinePolling(forceEvent: boolean=false): void {
   fetch(`${currentTl.url}${currentTl.url.includes("?") ? "&" : "?"}offset=${offset.upper}&forwards=true`)
     .then((response: Response): Promise<api_timeline> => (response.json()))
     .then((json: api_timeline): void => {
+      tlPollingPendingResponse = false;
+
       if (currentTimeline.url !== currentTl.url) {
         console.log("timeline switched, discarding request");
 
@@ -374,8 +375,6 @@ function timelinePolling(forceEvent: boolean=false): void {
       } else {
         console.log("Unsuccessful timeline polling, reason " + json.reason);
       }
-
-      tlPollingPendingResponse = false;
     })
     .catch((err: any): void => {
       console.log("Something went wrong polling", err)
