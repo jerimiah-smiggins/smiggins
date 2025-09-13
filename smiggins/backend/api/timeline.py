@@ -23,7 +23,20 @@ def get_post_json(post: Post, user: User | None) -> dict:
         "user": {
             "username": post.creator.username,
             "display_name": post.creator.display_name
-        }
+        },
+
+        "quote": { # TODO: don't show quotes you can't see (blocked, private, blocking...)
+            "id": post.quoted_post.post_id,
+            "content": post.quoted_post.content,
+            "content_warning": post.quoted_post.content_warning,
+            "timestamp": post.quoted_post.timestamp,
+            "private": post.quoted_post.private,
+
+            "user": {
+                "username": post.quoted_post.creator.username,
+                "display_name": post.quoted_post.creator.display_name
+            }
+        } if post.quoted_post else None
     }
 
 def get_timeline(

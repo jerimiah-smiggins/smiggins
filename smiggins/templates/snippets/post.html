@@ -1,6 +1,6 @@
 <div class="post" data-post-id="@{pid}">
   <div class="post-upper">
-    <div class="post-private">@{icon_private}</div>
+    <div class="post-private" @{private_post}>@{icon_private}</div>
     <div class="post-user"><a data-internal-link="user" href="/u/@{username}/" class="plain-link">@{display_name}</a></div>
     <div class="subtext post-username"><a data-internal-link="user" href="/u/@{username}/" class="plain-link">@@{username}</a></div>
 
@@ -8,6 +8,18 @@
   </div>
 
   <div class="post-content">@{content}</div>
+
+  <div class="post-quote" @{hidden_if_no_quote}>
+    <div class="post-upper">
+      <div class="post-private" @{quote_private_post}>@{icon_private}</div>
+      <div class="post-user"><a data-internal-link="user" href="/u/@{quote_username}/" class="plain-link">@{quote_display_name}</a></div>
+      <div class="subtext post-username"><a data-internal-link="user" href="/u/@{quote_username}/" class="plain-link">@@{quote_username}</a></div>
+
+      <div class="subtext post-timestamp">@{quote_timestamp}</div>
+    </div>
+
+    <div class="post-content">@{quote_content}</div>
+  </div>
 
   <div class="post-interactions" @{post_interactions_hidden}>
     <div><a class="plain-link" data-internal-link="post" href="/p/@{pid}/">@{icon_comment} <span data-number>@{comments}<span></a></div>

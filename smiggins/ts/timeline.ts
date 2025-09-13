@@ -242,6 +242,23 @@ function getPost(post: number, updateOffset: boolean=true): HTMLDivElement {
     postContent = `<details class="content-warning"${localStorage.getItem("smiggins-expand-cws") ? " open" : "" }><summary><div>${escapeHTML(p.content_warning)} <div class="content-warning-stats">(${p.content.length} char${p.content.length === 1 ? "" : "s"})</div></div></summary>${postContent}</details>`;
   }
 
+  let quoteData: { [key: string]: string | [string, number] } = { hidden_if_no_quote: "hidden" };
+  if (p.quote) {
+    let quoteContent: string = linkify(escapeHTML(p.quote.content), post);
+    if (p.quote.content_warning) {
+      quoteContent = `<details class="content-warning"${localStorage.getItem("smiggins-expand-cws") ? " open" : "" }><summary><div>${escapeHTML(p.quote.content_warning)} <div class="content-warning-stats">(${p.quote.content.length} char${p.quote.content.length === 1 ? "" : "s"})</div></div></summary>${quoteContent}</details>`;
+    }
+
+    quoteData = {
+      hidden_if_no_quote: "",
+      quote_timestamp: getTimestamp(p.quote.timestamp),
+      quote_username: p.quote.user.username,
+      quote_content: [quoteContent, 1],
+      quote_display_name: [escapeHTML(p.quote.user.display_name), 1],
+      quote_private_post: p.quote.private ? "data-private-post" : "",
+    };
+  }
+
   let el: HTMLDivElement = getSnippet("post", {
     timestamp: getTimestamp(p.timestamp),
     username: p.user.username,
@@ -256,12 +273,10 @@ function getPost(post: number, updateOffset: boolean=true): HTMLDivElement {
 
     // unsafe items, includes a max replace in order to prevent unwanted injection
     content: [postContent, 1],
-    display_name: [escapeHTML(p.user.display_name), 1]
+    display_name: [escapeHTML(p.user.display_name), 1],
+    private_post: p.private ? "data-private-post" : "",
+    ...quoteData
   });
-
-  if (p.private) {
-    el.dataset.privatePost = "";
-  }
 
   return el;
 }

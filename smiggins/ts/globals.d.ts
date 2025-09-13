@@ -43,7 +43,20 @@ type post = {
   user: {
     username: string,
     display_name: string
-  }
+  },
+
+  quote: {
+    id: number,
+    content: string,
+    content_warning: string | null,
+    timestamp: number,
+    private: boolean,
+
+    user: {
+      username: string,
+      display_name: string
+    },
+  } | null
 };
 
 type timelineConfig = {

@@ -30,17 +30,22 @@
     .post-options {
       border-bottom: none;
     }
-
-    #compose-modal-post {
-      --border-color: var(--background-very-bright);
-      background-color: var(--background-mid);
-      outline: 2px solid var(--border-color);
-      border-radius: 0.5em;
-      margin: 0.5em -1em;
-      padding: 0.5em 1em;
-      text-align: left;
-    }
   }
+}
+
+#compose-modal-post,
+.post-quote {
+  --border-color: var(--background-very-bright);
+  background-color: var(--background-mid);
+  outline: 2px solid var(--border-color);
+  border-radius: 0.5em;
+  margin: 0.5em 0;
+  padding: 0.5em 1em;
+  text-align: left;
+}
+
+#compose-modal-post {
+  margin: 0.5em -1em;
 }
 
 .post-upper {
