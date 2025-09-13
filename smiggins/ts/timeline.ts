@@ -391,13 +391,11 @@ function postButtonClick(e: Event): void {
   if (!el) { return; }
 
   if (el.dataset.interactionQuote) {
-    let iq: string = el.dataset.interactionQuote;
-    let postId: number = +iq.slice(1);
+    let postId: number = +el.dataset.interactionQuote;
 
     createPostModal("quote", postId);
   } else if (el.dataset.interactionLike) {
-    let il: string = el.dataset.interactionLike;
-    let postId: number = +il.slice(1);
+    let postId: number = +el.dataset.interactionLike;
     let liked: boolean = el.dataset.liked === "true";
     el.setAttribute("disabled", "");
 
