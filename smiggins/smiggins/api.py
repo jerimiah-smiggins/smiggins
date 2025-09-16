@@ -6,7 +6,7 @@ from backend.api.timeline import tl_following, tl_global, tl_user
 from backend.api.user import (block_add, block_remove, change_password,
                               delete_account, follow_add, follow_remove,
                               get_profile, login, save_profile,
-                              set_post_visibility, signup)
+                              set_post_visibility, set_verify_followers, signup)
 from backend.variables import DEBUG, SITE_NAME, VERSION
 from django.urls import path
 from ninja import NinjaAPI
@@ -132,6 +132,7 @@ api.delete("user", **r)(delete_account)
 api.patch("user/password", **r)(change_password)
 
 api.patch("user/default_post", **r)(set_post_visibility)
+api.patch("user/verify_followers", **r)(set_verify_followers)
 
 api.get("timeline/global", **r)(tl_global)
 api.get("timeline/following", **r)(tl_following)

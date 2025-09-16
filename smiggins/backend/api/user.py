@@ -7,7 +7,7 @@ from ..variables import (DEFAULT_BANNER_COLOR, ENABLE_NEW_ACCOUNTS,
                          MAX_BIO_LENGTH, MAX_DISPL_NAME_LENGTH,
                          MAX_USERNAME_LENGTH)
 from .schema import (Account, ChangePassword, Password, Private, Profile,
-                     Username)
+                     Username, Verify)
 
 COLOR_REGEX = re.compile("^#[a-f0-9]{6}$")
 
@@ -169,7 +169,8 @@ def get_profile(request):
         "bio": user.bio,
         "gradient": user.gradient,
         "color_one": user.color,
-        "color_two": user.color_two
+        "color_two": user.color_two,
+        "verify_followers": user.verify_followers
     }
 
 def save_profile(request, data: Profile):
@@ -204,6 +205,17 @@ def set_post_visibility(request, data: Private):
         return 400, { "success": False, "reason": "NOT_AUTHENTICATED" }
 
     user.default_post_private = data.private
+    user.save()
+
+    return { "success": True }
+
+def set_verify_followers(request, data: Verify):
+    try:
+        user = User.objects.get(token=request.COOKIES.get("token"))
+    except User.DoesNotExist:
+        return 400, { "success": False, "reason": "NOT_AUTHENTICATED" }
+
+    user.verify_followers = data.verify
     user.save()
 
     return { "success": True }

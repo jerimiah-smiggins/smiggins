@@ -28,6 +28,9 @@ class Profile(Schema):
 class Private(Schema):
     private: bool
 
+class Verify(Schema):
+    verify: bool
+
 class ChangePassword(Schema):
     current_password: str
     new_password: str

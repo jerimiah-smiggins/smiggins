@@ -20,5 +20,6 @@ type api_profile = {
   bio: string,
   gradient: boolean,
   color_one: string,
-  color_two: string
+  color_two: string,
+  verify_followers: boolean
 } | GENERIC_API_FAILURE;

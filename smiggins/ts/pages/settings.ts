@@ -79,6 +79,16 @@ function saveDefaultVisibility(): void {
   });
 }
 
+function saveVerifyFollowers(): void {
+  fetch("/api/user/verify_followers", {
+    method: "PATCH",
+    body: JSON.stringify({
+      verify: (document.getElementById("verify-followers") as HTMLInputElement | null)?.checked
+    }),
+    headers: { Accept: "application/json" }
+  });
+}
+
 function settingsThemeSelection(): void {
   let themeElement: HTMLSelectElement | null = document.getElementById("theme") as HTMLSelectElement | null;
 
@@ -181,12 +191,14 @@ function p_settingsProfile(element: HTMLDivElement): void {
         let gradientCheckElement: HTMLInputElement | null = element.querySelector("#banner-gradient");
         let c1Element: HTMLInputElement | null = element.querySelector("#banner-one");
         let c2Element: HTMLInputElement | null = element.querySelector("#banner-two");
+        let verifyElement: HTMLInputElement | null = element.querySelector("#verify-followers");
 
         if (displayNameElement)   { displayNameElement.value = json.display_name; }
         if (bioElement)           { bioElement.value = json.bio;                  }
         if (gradientCheckElement) { gradientCheckElement.checked = json.gradient; }
         if (c1Element)            { c1Element.value = json.color_one; c1Element.addEventListener("input", updateBannerColors); }
         if (c2Element)            { c2Element.value = json.color_two; c2Element.addEventListener("input", updateBannerColors); }
+        if (verifyElement)        { verifyElement.checked = json.verify_followers; verifyElement.addEventListener("input", saveVerifyFollowers); }
 
         element.querySelector("#profile-save")?.addEventListener("click", saveProfile);
         element.querySelector("#default-private")?.addEventListener("input", saveDefaultVisibility);
