@@ -153,7 +153,7 @@ def tl_user(request, username: str, offset: int | None=None, forwards: bool=Fals
             "display_name": user.display_name,
             "color_one": user.color,
             "color_two": user.color_two if user.gradient else user.color,
-            "following": self_user.following.contains(user),
+            "following": self_user.following.contains(user) or user.pending_followers.contains(self_user) and "pending",
             "blocking": self_user.blocking.contains(user),
             "num_followers": user.followers.count(),
             "num_following": user.following.count()

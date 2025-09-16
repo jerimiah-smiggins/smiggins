@@ -62,7 +62,10 @@ function userUpdateStats(json: api_timeline): void {
     let blockElement: HTMLElement | null = document.getElementById("block");
 
     if (followElement) {
-      if (json.extraData.following) {
+      if (json.extraData.following === "pending") {
+        followElement.innerText = "Pending";
+        followElement.dataset.unfollow = "";
+      } else if (json.extraData.following) {
         followElement.innerText = "Unfollow";
         followElement.dataset.unfollow = "";
       } else {
@@ -112,25 +115,30 @@ function toggleFollow(e: Event): void {
   if (!followButton) { return; }
 
   let unfollow: boolean = followButton.dataset.unfollow !== undefined;
-
+  let username: string = getUsernameFromPath();
   followButton.disabled = true;
 
   fetch("/api/user/follow", {
     method: unfollow ? "DELETE" : "POST",
-    body: JSON.stringify({ username: getUsernameFromPath() }),
+    body: JSON.stringify({ username: username }),
     headers: { Accept: "application/json" }
   }).then((response: Response): Promise<api_follow_add> => (response.json()))
     .then((json: api_follow_add) => {
       if (json.success) {
+        let c = userCache[username];
+
         if (unfollow) {
           followButton.innerText = "Follow";
           delete followButton.dataset.unfollow;
+          if (c) { c.following = false; }
         } else if (json.pending) {
           followButton.innerText = "Pending";
           followButton.dataset.unfollow = "";
+          if (c) { c.following = "pending"; }
         } else {
           followButton.innerText = "Unfollow";
           followButton.dataset.unfollow = "";
+          if (c) { c.following = true; }
         }
       } else {
         createToast(...errorCodeStrings(json.reason, "user"));

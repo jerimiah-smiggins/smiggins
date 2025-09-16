@@ -44,8 +44,18 @@ function reloadTimeline(ignoreCache: boolean=false, element?: HTMLDivElement): v
     };
 
     cache.posts = cache.pendingForward.reverse().concat(cache.posts);
-    renderTimeline( // TODO: don't show posts from users that have been blocked recently
-      cache.posts,
+
+    let posts: number[] = [];
+    for (const post of cache.posts) {
+      let p = postCache[post];
+      let u = p && userCache[p.user.username]; 
+      if (currentTl.url.startsWith("user_") || !u || !u.blocking) {
+        posts.push(post);
+      }
+    }
+
+    renderTimeline(
+      posts,
       cache.end,
       false,
       element?.querySelector("#timeline-more")

@@ -71,7 +71,7 @@ type userData = {
   bio: string,
   color_one: string,
   color_two: string,
-  following: boolean,
+  following: boolean | "pending",
   blocking: boolean,
   num_following: number,
   num_followers: number
