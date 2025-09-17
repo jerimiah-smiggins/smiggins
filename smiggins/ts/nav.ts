@@ -49,7 +49,9 @@ function internalLinkHandler(e: MouseEvent): void {
     let newPage: intent = el.dataset.internalLink as intent;
     let newURL: string | null = (el as HTMLAnchorElement).href || null;
 
-    if (newPage !== currentPage || (newURL && newPage === "user" && getUsernameFromPath(newURL) !== getUsernameFromPath()) || (newURL && newPage === "post" && getPostIDFromPath(newURL) !== getPostIDFromPath())) {
+    if (newPage !== currentPage
+     || (newURL && newPage === "user" && getUsernameFromPath(newURL) !== getUsernameFromPath())
+     || (newURL && newPage === "post" && getPostIDFromPath(newURL) !== getPostIDFromPath())) {
       history.pushState(newPage, "", newURL);
       renderPage(newPage);
       currentPage = newPage;

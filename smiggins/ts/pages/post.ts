@@ -13,12 +13,12 @@ function updateFocusedPost(json: api_timeline) {
   let p: post | undefined = json.extraData && json.extraData.focused_post;
   if (!p) { return; }
 
-  let pid = insertIntoPostCache([p])[0];
+  let pid: number = insertIntoPostCache([p])[0];
   document.getElementById("focused-post")?.replaceChildren(getPost(pid, false));
 
   if (p.comment) {
     document.getElementById("comment-parent")?.removeAttribute("hidden");
-    document.getElementById("comment-parent")?.setAttribute("href", `/p/${pid}/`);
+    document.getElementById("comment-parent")?.setAttribute("href", `/p/${p.comment}/`);
     document.getElementById("home-link")?.setAttribute("hidden", "");
   } else {
     document.getElementById("comment-parent")?.setAttribute("hidden", "");
