@@ -1,6 +1,7 @@
 from django.db.models import Q
 from django.db.models.manager import BaseManager
 from posts.models import Post, User
+from typing import Literal
 
 from ..variables import POSTS_PER_REQUEST
 
@@ -49,12 +50,12 @@ def get_timeline(
     show_blocked: bool=False,
     order_by: list[str]=["-timestamp", "-pk"]
 ) -> tuple[bool, list[dict]]:
-    tl = tl.order_by(*order_by)
-
     if offset:
         tl = tl.filter(**{
             f"timestamp__{'g' if forwards else 'l'}t": offset
         })
+
+    tl = tl.order_by(*order_by)
 
     if not no_visibility_check:
         if user:
@@ -160,3 +161,46 @@ def tl_user(request, username: str, offset: int | None=None, forwards: bool=Fals
             "num_following": user.following.count()
         }
     }
+
+def tl_comments(request, post_id: int, sort: Literal["recent", "oldest", "random"], offset: int | None=None, forwards: bool | None=None):
+    try:
+        user = User.objects.get(token=request.COOKIES.get("token"))
+    except User.DoesNotExist:
+        return 400, { "success": False, "reason": "NOT_AUTHENTICATED" }
+
+    try:
+        post = Post.objects.get(post_id=post_id)
+    except Post.DoesNotExist:
+        return 404, { "success": False, "reason": "POST_NOT_FOUND" }
+
+    kwargs = {}
+
+    if sort == "recent":
+        ...
+    elif sort == "oldest":
+        kwargs["order_by"] = ["timestamp", "pk"]
+        forwards = None
+    elif sort == "random": # TODO: random timeline has random duplication even though it should be .distinct()
+        kwargs["order_by"] = ["?"]
+        forwards = None
+        offset = None
+    else:
+        return 400, { "success": False }
+
+    end, posts = get_timeline(
+        Post.objects.filter(comment_parent=post_id),
+        offset,
+        user,
+        forwards,
+        **kwargs
+    )
+
+    return {
+        "success": True,
+        "posts": posts,
+        "end": end,
+        "extraData": {
+            "focused_post": get_post_json(post, user)
+        }
+    }
+

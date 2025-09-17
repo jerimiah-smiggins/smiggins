@@ -16,7 +16,6 @@ let offset: { upper: number | null, lower: number | null } = {
 };
 
 const LOADING_HTML: string = "<i class=\"timeline-status\">Loading...</i>";
-const TL_CACHE_TTL: number = 60 * 60; // 1h
 const TL_POLLING_INTERVAL: number = 10_000; // 10s
 
 // hooks onto an element for a timeline, initialization
@@ -37,7 +36,7 @@ function reloadTimeline(ignoreCache: boolean=false, element?: HTMLDivElement): v
   prependedPosts = 0;
 
   let cache: timelineCache | undefined = tlCache[currentTlID];
-  if (!ignoreCache && cache && Math.round(Date.now() / 1000) < cache.timestamp + TL_CACHE_TTL && cache.pendingForward !== false) {
+  if (!currentTl.disableCaching && !ignoreCache && cache && cache.pendingForward !== false) {
     offset = {
       upper: cache.upperBound,
       lower: cache.lowerBound
@@ -152,8 +151,12 @@ function renderTimelineFromAPI(json: api_timeline): void {
 }
 
 // appends posts to a timeline
-function renderTimeline(posts: number[], end: boolean, updateCache: boolean=true, moreElementOverride?: HTMLElement | null): void {
-
+function renderTimeline(
+  posts: number[],
+  end: boolean,
+  updateCache: boolean=true,
+  moreElementOverride?: HTMLElement | null
+): void {
   clearTimelineStatuses();
 
   let frag: DocumentFragment = document.createDocumentFragment();
@@ -170,12 +173,11 @@ function renderTimeline(posts: number[], end: boolean, updateCache: boolean=true
 
   tlElement.append(frag);
 
-  if (updateCache) {
+  if (updateCache && !currentTl.disableCaching) {
     let c: timelineCache | undefined = tlCache[currentTlID];
 
     if (!c) {
       c = {
-        timestamp: 0,
         upperBound: null,
         lowerBound: null,
         posts: [],
@@ -186,7 +188,6 @@ function renderTimeline(posts: number[], end: boolean, updateCache: boolean=true
       tlCache[currentTlID] = c;
     }
 
-    c.timestamp = Math.round(Date.now() / 1000);
     c.posts.push(...posts);
     c.lowerBound = offset.lower;
     c.upperBound = offset.upper;
@@ -323,6 +324,8 @@ function timelineShowNew(): void {
 
 // fetch new posts for a timeline
 function timelinePolling(forceEvent: boolean=false): void {
+  if (currentTl.disablePolling) { return; }
+
   let currentTimeline: timelineConfig = currentTl;
   let c: timelineCache | undefined = tlCache[currentTlID];
 

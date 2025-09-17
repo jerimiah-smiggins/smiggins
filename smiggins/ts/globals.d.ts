@@ -62,9 +62,10 @@ type post = {
 
 type timelineConfig = {
   url: string,
-  prependPosts: boolean,
+  prependPosts: boolean | number,
   timelineCallback?: (json: api_timeline) => void,
-  disablePolling?: true
+  disablePolling?: true,
+  disableCaching?: true
 };
 
 type userData = {
@@ -79,7 +80,6 @@ type userData = {
 }
 
 type timelineCache = {
-  timestamp: number,
   upperBound: number | null,
   lowerBound: number | null,
   posts: number[],

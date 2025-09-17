@@ -2,7 +2,7 @@ import json
 from typing import Any, Callable
 
 from backend.api.post import add_like, post_create, remove_like
-from backend.api.timeline import tl_following, tl_global, tl_user
+from backend.api.timeline import tl_comments, tl_following, tl_global, tl_user
 from backend.api.user import (block_add, block_remove, change_password,
                               delete_account, follow_add, follow_remove,
                               get_profile, login, save_profile,
@@ -137,6 +137,7 @@ api.patch("user/verify_followers", **r)(set_verify_followers)
 api.get("timeline/global", **r)(tl_global)
 api.get("timeline/following", **r)(tl_following)
 api.get("timeline/user/{str:username}", **r)(tl_user)
+api.get("timeline/post/{int:post_id}", **r)(tl_comments)
 
 api.post("post", **r)(post_create)
 
