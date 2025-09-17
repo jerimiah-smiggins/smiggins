@@ -254,7 +254,7 @@ function getPost(post: number, updateOffset: boolean=true): HTMLDivElement {
 
   let quoteData: { [key: string]: string | [string, number] } = { hidden_if_no_quote: "hidden" };
   if (p.quote) {
-    let quoteContent: string = linkify(escapeHTML(p.quote.content), post);
+    let quoteContent: string = linkify(escapeHTML(p.quote.content), p.quote.id);
     if (p.quote.content_warning) {
       quoteContent = `<details class="content-warning"${localStorage.getItem("smiggins-expand-cws") ? " open" : "" }><summary><div>${escapeHTML(p.quote.content_warning)} <div class="content-warning-stats">(${p.quote.content.length} char${p.quote.content.length === 1 ? "" : "s"})</div></div></summary>${quoteContent}</details>`;
     }

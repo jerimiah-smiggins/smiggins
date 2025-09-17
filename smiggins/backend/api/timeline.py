@@ -12,6 +12,7 @@ def get_post_json(post: Post, user: User | None) -> dict:
         "content_warning": post.content_warning,
         "timestamp": post.timestamp,
         "private": post.private,
+        "comment": post.comment_parent.post_id if post.comment_parent else None,
 
         "interactions": {
             "likes": post.likes.count(),

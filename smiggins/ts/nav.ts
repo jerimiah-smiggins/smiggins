@@ -16,6 +16,7 @@ function urlToIntent(path: string): intent {
       case "/settings/account/": return "settings/account";
       case "/settings/about/": return "settings/about";
       case /^\/u\/[a-z0-9_\-]+\/$/.test(path) ? path : "": return "user";
+      case /^\/p\/[0-9]+\/$/.test(path) ? path : "": return "post";
     }
   } else {
     switch (path) {
@@ -48,7 +49,7 @@ function internalLinkHandler(e: MouseEvent): void {
     let newPage: intent = el.dataset.internalLink as intent;
     let newURL: string | null = (el as HTMLAnchorElement).href || null;
 
-    if (newPage !== currentPage) {
+    if (newPage !== currentPage || (newURL && newPage === "user" && getUsernameFromPath(newURL) !== getUsernameFromPath()) || (newURL && newPage === "post" && getPostIDFromPath(newURL) !== getPostIDFromPath())) {
       history.pushState(newPage, "", newURL);
       renderPage(newPage);
       currentPage = newPage;
@@ -90,6 +91,16 @@ function renderPage(intent: intent): void {
         checked_if_gradient: !c || !c.color_one || !c.color_two || c.color_one === c.color_two ? "" : "checked",
         display_name: c && escapeHTML(c.display_name) || "",
         bio: c && escapeHTML(c.bio) || ""
+      };
+    case "post":
+      let pid: number = getPostIDFromPath();
+      let p: post | undefined = postCache[pid];
+
+      extraVariables = {
+        pid: String(pid),
+        parent: String(p && p.comment),
+        hidden_if_comment: !p || p.comment ? "hidden" : "",
+        hidden_if_not_comment: p && p.comment ? "" : "hidden"
       };
   }
 
