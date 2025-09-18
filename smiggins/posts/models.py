@@ -7,7 +7,7 @@ from django.db import models
 
 class User(models.Model):
     user_id = models.IntegerField(primary_key=True, unique=True)
-    username = models.CharField(max_length=300, unique=True)
+    username = models.CharField(max_length=2 ** 8 - 1, unique=True)
     token = models.CharField(max_length=64, unique=True)
 
     # Admin level
@@ -26,8 +26,8 @@ class User(models.Model):
     # 0000000000000000000000XXXXXXXXX
     admin_level = models.IntegerField(default=0)
 
-    display_name = models.CharField(max_length=300)
-    bio = models.CharField(max_length=65536, default="", blank=True)
+    display_name = models.CharField(max_length=2 ** 8 - 1)
+    bio = models.CharField(max_length=2 ** 16 - 1, default="", blank=True)
     color = models.CharField(max_length=7)
     color_two = models.CharField(max_length=7, default="#000000", blank=True)
     gradient = models.BooleanField(default=False)
@@ -59,8 +59,8 @@ class User(models.Model):
 
 class Post(models.Model):
     post_id = models.IntegerField(primary_key=True)
-    content = models.TextField(max_length=65536, blank=True)
-    content_warning = models.TextField(max_length=200, null=True, blank=True)
+    content = models.TextField(max_length=2 ** 16 - 1, blank=True)
+    content_warning = models.TextField(max_length=2 ** 8 - 1, null=True, blank=True)
     creator = models.ForeignKey(User, on_delete=models.CASCADE, related_name="posts")
     timestamp = models.IntegerField()
 
@@ -128,9 +128,9 @@ class Notification(models.Model):
         return f"({'' if self.read else 'un'}read) {self.event_type} ({self.event_id}) for {self.is_for.username if self.is_for else None}"
 
 class PrivateMessageContainer(models.Model):
-    # Essentially f"{user_one.username}-{user_two.username}" where user_one
+    # Essentially f"{user_one.username}:{user_two.username}" where user_one
     # is earlier in the alphabet than user_two
-    container_id = models.CharField(primary_key=True, unique=True, max_length=601)
+    container_id = models.CharField(primary_key=True, unique=True, max_length=(2 ** 8 - 1) * 2 + 1)
 
     user_one = models.ForeignKey(User, on_delete=models.CASCADE, related_name="container_reference_one")
     user_two = models.ForeignKey(User, on_delete=models.CASCADE, related_name="container_reference_two")
@@ -148,7 +148,7 @@ class PrivateMessage(models.Model):
     message_id = models.IntegerField(primary_key=True, unique=True)
     timestamp  = models.IntegerField()
 
-    content = models.CharField(max_length=65536)
+    content = models.CharField(max_length=2 ** 16 - 1)
 
     # If True, then the message was sent from user one, defined in
     # the PrivateMessageContainer. If False, then the message is from
@@ -161,7 +161,7 @@ class PrivateMessage(models.Model):
         return f"({self.message_id}) From {self.message_container.user_one.username if self.from_user_one else self.message_container.user_two.username} to {self.message_container.user_two.username if self.from_user_one else self.message_container.user_one.username} - {self.content}"
 
 class Hashtag(models.Model):
-    tag = models.CharField(max_length=64, unique=True, primary_key=True)
+    tag = models.CharField(max_length=2 ** 8 - 1, unique=True, primary_key=True)
     posts = models.ManyToManyField(Post, through="M2MHashtagPost", related_name="hashtags", blank=True)
 
     def __str__(self):

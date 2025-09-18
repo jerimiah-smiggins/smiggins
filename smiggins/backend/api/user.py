@@ -1,17 +1,19 @@
 import re
 
+from django.http import HttpResponse
 from posts.models import OneTimePassword, User
 
 from ..helper import generate_token, trim_whitespace
 from ..variables import (DEFAULT_BANNER_COLOR, ENABLE_NEW_ACCOUNTS,
                          MAX_BIO_LENGTH, MAX_DISPL_NAME_LENGTH,
                          MAX_USERNAME_LENGTH)
+from .builder import ErrorCodes, ResponseCodes, build_response
 from .schema import (Account, ChangePassword, Password, Private, Profile,
                      Username, Verify)
 
 COLOR_REGEX = re.compile("^#[a-f0-9]{6}$")
 
-def signup(request, data: Account) -> tuple[int, dict] | dict:
+def signup(request, data: Account) -> HttpResponse:
     # if rl := check_ratelimit(request, "POST /api/user/signup"):
     #     return NEW_RL
 
@@ -22,26 +24,25 @@ def signup(request, data: Account) -> tuple[int, dict] | dict:
         try:
             otp = OneTimePassword.objects.get(code=data.otp)
         except OneTimePassword.DoesNotExist:
-            return 400, { "success": False, "reason": "INVALID_OTP" }
+            return build_response(ResponseCodes.SIGN_UP, ErrorCodes.INVALID_OTP)
 
     # e3b0c44... is the sha256 hash for an empty string
     if len(password) != 64 or password == "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855":
-        return 400, { "success": False, "reason": "BAD_PASSWORD" }
+        return build_response(ResponseCodes.SIGN_UP, ErrorCodes.BAD_PASSWORD)
 
     for i in password:
         if i not in "abcdef0123456789":
-            return 400, { "success": False, "reason": "BAD_PASSWORD" }
+            return build_response(ResponseCodes.SIGN_UP, ErrorCodes.BAD_PASSWORD)
 
     try:
         User.objects.get(username=username)
-        return 400, { "success": False, "reason": "USERNAME_USED" }
+        return build_response(ResponseCodes.SIGN_UP, ErrorCodes.USERNAME_USED)
     except User.DoesNotExist:
         ...
 
     if len(username) > MAX_USERNAME_LENGTH or not username \
        or len([i for i in username if i.lower() in "abcdefghijklmnopqrstuvwxyz0123456789_-"]) != len(username):
-        return 400, { "success": False, "reason": "BAD_USERNAME" }
-
+        return build_response(ResponseCodes.SIGN_UP, ErrorCodes.BAD_USERNAME)
 
     if ENABLE_NEW_ACCOUNTS == "otp":
         otp.delete()
@@ -52,15 +53,16 @@ def signup(request, data: Account) -> tuple[int, dict] | dict:
         username=username,
         token=token,
         display_name=trim_whitespace(data.username, purge_newlines=True)[0][:MAX_DISPL_NAME_LENGTH],
-        theme="auto",
         color=DEFAULT_BANNER_COLOR,
-        color_two=DEFAULT_BANNER_COLOR,
-        language="en-US" # TODO: remove language
+        color_two=DEFAULT_BANNER_COLOR
     )
 
-    return { "success": True, "token": token }
+    return build_response(ResponseCodes.SIGN_UP, [
+        ("bytes", bytearray.fromhex(token))
+    ])
 
-def login(request, data: Account) -> tuple[int, dict] | dict:
+
+def login(request, data: Account) -> HttpResponse:
     # if rl := check_ratelimit(request, "POST /api/user/login"):
     #     return NEW_RL
 
@@ -71,12 +73,14 @@ def login(request, data: Account) -> tuple[int, dict] | dict:
         user = User.objects.get(username=username)
 
         if token == user.token:
-            return { "success": True, "token": token }
+            return build_response(ResponseCodes.LOG_IN, [
+                ("bytes", bytearray.fromhex(token))
+            ])
 
-        return 400, { "success": False, "reason": "BAD_PASSWORD" }
+        return build_response(ResponseCodes.LOG_IN, ErrorCodes.BAD_PASSWORD)
 
     except User.DoesNotExist:
-        return 400, { "success": False, "reason": "BAD_USERNAME" }
+        return build_response(ResponseCodes.LOG_IN, ErrorCodes.BAD_USERNAME)
 
 def follow_add(request, data: Username):
     return _follow(request, data, False)

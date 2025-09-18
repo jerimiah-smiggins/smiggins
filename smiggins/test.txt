@@ -1,0 +1,4 @@
+{
+  "username": "trinkey",
+  "password": "8f8ccdc82d014e17fccf9c34060a8ca5984696c7d5b3751c7d98c4fd123825e6"
+}
