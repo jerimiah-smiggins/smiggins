@@ -42,7 +42,7 @@ where:
 where:
 - `p` is whether or not it's pending approval (bool)
 ---
-**GET /api/profile**:  
+**GET /api/user**:  
 `20 DL DD... BL BL BB... R1 G1 B1 R2 G2 B2 gv000000`
 
 where:
