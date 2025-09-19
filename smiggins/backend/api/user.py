@@ -17,6 +17,9 @@ def signup(request, data: Account) -> HttpResponse:
     # if rl := check_ratelimit(request, "POST /api/user/signup"):
     #     return NEW_RL
 
+    if not ENABLE_NEW_ACCOUNTS:
+        return build_response(ResponseCodes.SIGN_UP, ErrorCodes.BAD_REQUEST)
+
     username = data.username.lower().replace(" ", "")
     password = data.password.lower()
 
