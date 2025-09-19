@@ -162,8 +162,8 @@ max_display_name_length: 32
 
 # The maximum length of a user bio. Must be between 1 and 65,536.
 # Aliases: max_bio_length, max_user_bio_length
-# Default: 280
-max_user_bio_length: 280
+# Default: 65535
+max_user_bio_length: 65535
 
 # The maximum length for content warnings on posts. Must be between 1 and
 # 200.

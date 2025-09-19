@@ -31,15 +31,44 @@ length of the field) to display the length of the text. Any number will be sent
 using **big endian**, meaning the number 0x123 would be sent in two bytes, those
 being 0x01 0x23, with the most significant bits coming first.
 
-## All response formats
-### **/api/user/login**:
-### **/api/user/signup**:
+## All successful response formats
+**POST /api/user/login**:  
+**POST /api/user/signup**:  
+**PATCH /api/user/password**:  
 `ID XX XX XX XX XX XX XX XX XX XX XX XX XX XX XX XX XX XX XX XX XX XX XX XX XX XX XX XX XX XX XX XX`
 
 where:
-* ID = the response code (0x01 for login, 0x02 for signup)
-* X = the user's token (32 bytes). Should be converted into the hexadecmial
+- ID = the response code (0x01 for login, 0x02 for signup, 0x23 for change
+  password)
+- X = the user's token (32 bytes). Should be converted into the hexadecmial
   representation when used for the "token" cookie.
+---
+**POST /api/user/follow**:  
+`10 p0000000`
+
+where:
+- p is whether or not it's pending approval (bool)
+``
+**GET /api/profile**:  
+`20 DL DD... BL BL BB... R1 G1 B1 R2 G2 B2 gv000000`
+
+where:
+- DL is the length of the display name (i8)
+- DD... is the display name
+- BL is the length of the bio (i16)
+- BB... is the bio
+- R1/G1/B1 is the RGB of your first banner color
+- R2/G2/B2 is the RGB of your second banner color
+- g is whether or not the banner is a gradient (bool)
+- v is whether or not you require followers to be verified (bool)
+---
+**DELETE /api/user/follow**: `11`  
+**POST /api/user/block**: `12`  
+**DELETE /api/user/block**: `13`  
+**PATCH /api/user**: `21`  
+**DELETE /api/user**: `22`  
+**PATCH /api/user/default_post**: `24`  
+**PATCH /api/user/verify_followers**: `25`
 
 ## Error codes
 Code|Description

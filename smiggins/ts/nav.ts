@@ -84,6 +84,7 @@ function renderPage(intent: intent): void {
         following: c && String(c.num_following) || "0",
         followers: c && String(c.num_followers) || "0"
       }; break;
+
     case "settings/profile":
       let defaultBanner: string = window.getComputedStyle(document.documentElement).getPropertyValue("--background-mid");
       c = userCache[username];
@@ -91,19 +92,19 @@ function renderPage(intent: intent): void {
         color_one: c && c.color_one || defaultBanner,
         color_two: c && c.color_two || defaultBanner,
         checked_if_gradient: !c || !c.color_one || !c.color_two || c.color_one === c.color_two ? "" : "checked",
-        display_name: c && escapeHTML(c.display_name) || "",
+        display_name: c && escapeHTML(c.display_name) || username,
         bio: c && escapeHTML(c.bio) || ""
-      };
+      }; break;
+
     case "post":
       let pid: number = getPostIDFromPath();
       let p: post | undefined = postCache[pid];
-
       extraVariables = {
         pid: String(pid),
         parent: String(p && p.comment),
         hidden_if_comment: !p || p.comment ? "hidden" : "",
         hidden_if_not_comment: p && p.comment ? "" : "hidden"
-      };
+      }; break;
   }
 
   if (tlPollingIntervalID) {

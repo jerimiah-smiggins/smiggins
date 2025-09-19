@@ -1,8 +1,3 @@
-function setToken(token: string): void {
-  setTokenCookie(token);
-  location.href = "/";
-}
-
 function loginSubmitEvent(e: MouseEvent): void {
   let usernameElement: HTMLElement | null = document.getElementById("username");
   let passwordElement: HTMLElement | null = document.getElementById("password");

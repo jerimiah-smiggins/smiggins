@@ -6,7 +6,8 @@ from backend.api.timeline import tl_comments, tl_following, tl_global, tl_user
 from backend.api.user import (block_add, block_remove, change_password,
                               delete_account, follow_add, follow_remove,
                               get_profile, login, save_profile,
-                              set_post_visibility, set_verify_followers, signup)
+                              set_post_visibility, set_verify_followers,
+                              signup)
 from backend.variables import DEBUG, SITE_NAME, VERSION
 from django.urls import path
 from ninja import NinjaAPI
@@ -108,31 +109,21 @@ routes: list[tuple[str, str, Callable, bool | None, str, str, str | list[str]]] 
     # ("info/version", "GET", ApiInfo.version, None, "Get version", "Returns the real version of the server. Isn't based on the configuration in settings", "Misc")
 ]
 
-# for route in routes:
-#     if route[3] is None or route[3]:
-#         getattr(api, route[1].lower())(
-#             route[0],
-#             response=RESPONSE_SCHEMA,
-#             summary=route[4],
-#             description=route[5],
-#             tags=[route[6]] if isinstance(route[6], str) else route[6]
-#         )(route[2])
+api.post("user/signup")(signup)
+api.post("user/login")(login)
 
-api.post("user/signup", **r)(signup)
-api.post("user/login", **r)(login)
+api.post("user/follow")(follow_add)
+api.delete("user/follow")(follow_remove)
+api.post("user/block")(block_add)
+api.delete("user/block")(block_remove)
 
-api.post("user/follow", **r)(follow_add)
-api.delete("user/follow", **r)(follow_remove)
-api.post("user/block", **r)(block_add)
-api.delete("user/block", **r)(block_remove)
+api.get("user")(get_profile)
+api.patch("user")(save_profile)
+api.delete("user")(delete_account)
+api.patch("user/password")(change_password)
 
-api.get("user", **r)(get_profile)
-api.patch("user", **r)(save_profile)
-api.delete("user", **r)(delete_account)
-api.patch("user/password", **r)(change_password)
-
-api.patch("user/default_post", **r)(set_post_visibility)
-api.patch("user/verify_followers", **r)(set_verify_followers)
+api.patch("user/default_post")(set_post_visibility)
+api.patch("user/verify_followers")(set_verify_followers)
 
 api.get("timeline/global", **r)(tl_global)
 api.get("timeline/following", **r)(tl_following)

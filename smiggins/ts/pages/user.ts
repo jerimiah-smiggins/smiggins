@@ -110,42 +110,62 @@ function userUpdateStats(json: api_timeline): void {
   if (followersElement && json.extraData.num_followers) { followersElement.innerText = json.extraData.num_followers };
 }
 
+function updateFollowButton(followed: false): void;
+function updateFollowButton(followed: true, pending: boolean): void;
+function updateFollowButton(followed: boolean, pending?: boolean): void {
+  let followButton: HTMLElement | null = document.getElementById("follow");
+  if (!followButton) { return; }
+
+  let c: userData | undefined = userCache[username];
+
+  if (!followed) {
+    followButton.innerText = "Follow";
+    delete followButton.dataset.unfollow;
+    if (c) { c.following = false; }
+  } else if (pending) {
+    followButton.innerText = "Pending";
+    followButton.dataset.unfollow = "";
+    if (c) { c.following = "pending"; }
+  } else {
+    followButton.innerText = "Unfollow";
+    followButton.dataset.unfollow = "";
+    if (c) { c.following = true; }
+  }
+}
+
+function updateBlockButton(blocked: boolean): void {
+  let blockButton: HTMLElement | null = document.getElementById("block");
+  if (!blockButton) { return; }
+
+  if (blocked) {
+    blockButton.innerText = "Unblock";
+    blockButton.dataset.unblock = "";
+
+    let followButton: HTMLElement | null = document.getElementById("follow");
+    if (followButton && followButton.dataset.unfollow !== undefined) {
+      delete followButton.dataset.unfollow;
+      followButton.innerText = "Follow";
+    }
+  } else {
+    blockButton.innerText = "Block";
+    delete blockButton.dataset.unblock;
+  }
+}
+
 function toggleFollow(e: Event): void {
   let followButton: HTMLButtonElement | null = e.target as HTMLButtonElement | null;
   if (!followButton) { return; }
 
   let unfollow: boolean = followButton.dataset.unfollow !== undefined;
-  let username: string = getUsernameFromPath();
   followButton.disabled = true;
 
   fetch("/api/user/follow", {
     method: unfollow ? "DELETE" : "POST",
-    body: JSON.stringify({ username: username }),
+    body: JSON.stringify({ username: getUsernameFromPath() }),
     headers: { Accept: "application/json" }
-  }).then((response: Response): Promise<api_follow_add> => (response.json()))
-    .then((json: api_follow_add) => {
-      if (json.success) {
-        let c = userCache[username];
-
-        if (unfollow) {
-          followButton.innerText = "Follow";
-          delete followButton.dataset.unfollow;
-          if (c) { c.following = false; }
-        } else if (json.pending) {
-          followButton.innerText = "Pending";
-          followButton.dataset.unfollow = "";
-          if (c) { c.following = "pending"; }
-        } else {
-          followButton.innerText = "Unfollow";
-          followButton.dataset.unfollow = "";
-          if (c) { c.following = true; }
-        }
-      } else {
-        createToast(...errorCodeStrings(json.reason, "user"));
-      }
-
-      followButton.disabled = false;
-    })
+  }).then((response: Response): Promise<ArrayBuffer> => (response.arrayBuffer()))
+    .then(parseResponse)
+    .then((): void => { followButton.disabled = false; })
     .catch((err: any) => {
       followButton.disabled = false;
       createToast("Something went wrong!", String(err));
@@ -158,35 +178,15 @@ function toggleBlock(e: Event): void {
   if (!blockButton) { return; }
 
   let unblock: boolean = blockButton.dataset.unblock !== undefined;
-
   blockButton.disabled = true;
 
   fetch("/api/user/block", {
     method: unblock ? "DELETE" : "POST",
     body: JSON.stringify({ username: getUsernameFromPath() }),
     headers: { Accept: "application/json" }
-  }).then((response: Response): Promise<GENERIC_API_RESPONSE> => (response.json()))
-    .then((json: GENERIC_API_RESPONSE) => {
-      if (json.success) {
-        if (unblock) {
-          blockButton.innerText = "Block";
-          delete blockButton.dataset.unblock;
-        } else {
-          blockButton.innerText = "Unblock";
-          blockButton.dataset.unblock = "";
-
-          let followButton: HTMLElement | null = document.getElementById("follow");
-          if (followButton && followButton.dataset.unfollow !== undefined) {
-            delete followButton.dataset.unfollow;
-            followButton.innerText = "Follow";
-          }
-        }
-      } else {
-        createToast(...errorCodeStrings(json.reason, "user"));
-      }
-
-      blockButton.disabled = false;
-    })
+  }).then((response: Response): Promise<ArrayBuffer> => (response.arrayBuffer()))
+    .then(parseResponse)
+    .then((): void => { blockButton.disabled = false; })
     .catch((err: any) => {
       blockButton.disabled = false;
       createToast("Something went wrong!", String(err));

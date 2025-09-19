@@ -1,8 +1,10 @@
 function createToast(
-  title: string,
+  title: string | null,
   content?: string,
   timeout?: number
 ): void {
+  if (!title) { return; }
+
   let toast: HTMLDivElement = getSnippet("toast", {
     title: title,
     content: content || ""
