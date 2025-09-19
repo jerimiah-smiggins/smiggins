@@ -33,7 +33,7 @@ class ErrorCodes:
     RATELIMIT = 0xff
 
 def b(i: int, length: int=1) -> bytes:
-    return i.to_bytes(length=length)
+    return i.to_bytes(length=length, byteorder="big")
 
 def build_response(
     response_code: int, #                            (number, # of bits)              (string, # length bits)
