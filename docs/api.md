@@ -1,10 +1,3 @@
-<style>
-  code {
-    overflow: scroll;
-    white-space: nowrap;
-  }
-</style>
-
 # API Formats
 The API for Smiggins uses a custom format for sending data instead of JSON or
 another format, in order to help reduce bandwidth. The format is explained
@@ -42,6 +35,7 @@ where:
   password)
 - X = the user's token (32 bytes). Should be converted into the hexadecmial
   representation when used for the "token" cookie.
+
 ---
 **POST /api/user/follow**:  
 `10 p0000000`
@@ -61,6 +55,7 @@ where:
 - R2/G2/B2 is the RGB of your second banner color
 - g is whether or not the banner is a gradient (bool)
 - v is whether or not you require followers to be verified (bool)
+
 ---
 **DELETE /api/user/follow**: `11`  
 **POST /api/user/block**: `12`  
