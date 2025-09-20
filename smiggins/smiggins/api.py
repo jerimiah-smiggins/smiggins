@@ -125,15 +125,15 @@ api.patch("user/password")(change_password)
 api.patch("user/default_post")(set_post_visibility)
 api.patch("user/verify_followers")(set_verify_followers)
 
-api.get("timeline/global", **r)(tl_global)
-api.get("timeline/following", **r)(tl_following)
-api.get("timeline/user/{str:username}", **r)(tl_user)
-api.get("timeline/post/{int:post_id}", **r)(tl_comments)
+api.get("timeline/global")(tl_global)
+api.get("timeline/following")(tl_following)
+api.get("timeline/user/{str:username}")(tl_user)
+api.get("timeline/post/{int:post_id}")(tl_comments)
 
-api.post("post", **r)(post_create)
+api.post("post")(post_create)
 
-api.post("post/like/{int:post_id}", **r)(add_like)
-api.delete("post/like/{int:post_id}", **r)(remove_like)
+api.post("post/like/{int:post_id}")(add_like)
+api.delete("post/like/{int:post_id}")(remove_like)
 
 urlpatterns = [
     path("", api.urls)

@@ -11,7 +11,13 @@ enum ResponseCodes {
   ChangePassword,
   DefaultVisibility,
   VerifyFollowers,
-  TimelineUser = 0xff // Not implemeneted
+  CreatePost = 0x30,
+  Like,
+  Unlike,
+  TimelineGlobal = 0x60,
+  TimelineFollowing,
+  TimelineUser,
+  TimelineComments
 };
 
 enum ErrorCodes {
@@ -29,13 +35,12 @@ enum ErrorCodes {
 };
 
 function _getErrorStrings(code: number, context: number): [title: string | null, content?: string] {
-  console.log(code, context);
   switch (code) {
     case ErrorCodes.BadRequest: return ["Something went wrong!"];
     case ErrorCodes.BadUsername: switch (context) {
       case ResponseCodes.LogIn: return ["Invalid username.", "No user has that username."];
       case ResponseCodes.SignUp: return ["Invalid username.", "Usernames can only include the characters a-z, 0-9, _, and -."];
-      case ResponseCodes.TimelineUser: return [null]; // TODO: update timeline to show user dne
+      case ResponseCodes.TimelineUser: userSetDNE(); return [null];
       default: return ["Invalid username."];
     }
     case ErrorCodes.UsernameUsed: return ["Username in use."];
@@ -43,7 +48,10 @@ function _getErrorStrings(code: number, context: number): [title: string | null,
     case ErrorCodes.InvalidOTP: return ["Invalid invite code.", "Make sure your invite code is correct and try again."];
     case ErrorCodes.CantInteract: return ["Can't interact.", "You can't interact with this user for some reason."];
     case ErrorCodes.Blocking: return ["You are blocking this person.", "You need to unblock them to do this."];
-    case ErrorCodes.PostNotFound: return ["Post not found."];
+    case ErrorCodes.PostNotFound: switch (context) {
+      case ResponseCodes.TimelineComments: postSetDNE(); return [null];
+      default: return ["Post not found."];
+    }
     case ErrorCodes.PollSingleOption: return ["Invalid poll.", "Must have more than one option."];
     case ErrorCodes.NotAuthenticated: return ["Not Authenticated.", "You need to be logged in to do this."];
     case ErrorCodes.Ratelimit: return ["Ratelimited.", "Try again in a few seconds."];
@@ -53,12 +61,7 @@ function _getErrorStrings(code: number, context: number): [title: string | null,
 }
 
 function _extractString(lengthBits: 8 | 16, data: Uint8Array): [string, leftoverData: Uint8Array] {
-  let length: number = 0;
-
-  for (let i: number = 0; i * 8 < lengthBits; i += 1) {
-    length <<= 8;
-    length += data[i];
-  }
+  let length: number = _extractInt(lengthBits, data);
 
   return [
     new TextDecoder().decode(data.slice(lengthBits / 8, lengthBits / 8 + length)),
@@ -66,16 +69,105 @@ function _extractString(lengthBits: 8 | 16, data: Uint8Array): [string, leftover
   ];
 }
 
+function _extractInt(lengthBits: 8 | 16 | 32 | 64, data: Uint8Array): number {
+  let output: number = 0;
+
+  for (let i: number = 0; i * 8 < lengthBits; i++) {
+    output <<= 8;
+    output += data[i];
+  }
+
+  return output;
+}
+
 function _extractBool(num: number, offset: number): boolean {
   return Boolean((num >> offset) & 1);
+}
+
+function _extractPost(data: Uint8Array): [post, leftoverData: Uint8Array] {
+  let postId: number = _extractInt(32, data);
+  let commentParentId: number | null = null;
+  let postTimestamp: number = _extractInt(64, data.slice(4));
+  let flags: number = data[12];
+
+  let newData: Uint8Array = data.slice(13);
+
+  console.log(newData);
+
+  if (_extractBool(flags, 6)) {
+    commentParentId = _extractInt(32, newData);
+    newData = newData.slice(4);
+  }
+
+  console.log(flags, _extractBool(flags, 6), commentParentId);
+
+  let interactions = {
+    likes: _extractInt(16, newData),
+    liked: _extractBool(flags, 3),
+    quotes: _extractInt(16, newData.slice(2)),
+    comments: _extractInt(16, newData.slice(4)),
+  };
+
+  let content: [string, leftoverData: Uint8Array] = _extractString(16, newData.slice(6));
+  let contentWarning: [string, leftoverData: Uint8Array] = _extractString(8, content[1]);
+  let username: [string, leftoverData: Uint8Array] = _extractString(8, contentWarning[1]);
+  let displayName: [string, leftoverData: Uint8Array] = _extractString(8, username[1]);
+
+  let quoteData = null;
+  newData = displayName[1];
+
+  if (_extractBool(flags, 5)) {
+    if (!_extractBool(flags, 4)) {
+      quoteData = undefined;
+    } else {
+      let quoteContent: [string, leftoverData: Uint8Array] = _extractString(16, newData.slice(12));
+      let quoteCW: [string, leftoverData: Uint8Array] = _extractString(8, quoteContent[1]);
+      let quoteUsername: [string, leftoverData: Uint8Array] = _extractString(8, quoteCW[1]);
+      let quoteDispName: [string, leftoverData: Uint8Array] = _extractString(8, quoteUsername[1]);
+
+      quoteData = {
+        id: _extractInt(32, newData),
+        content: quoteContent[0],
+        content_warning: quoteCW[0],
+        timestamp: _extractInt(64, newData.slice(4)),
+        private: _extractBool(flags, 2),
+
+        user: {
+          username: quoteUsername[0],
+          display_name: quoteDispName[0]
+        }
+      }
+
+      newData = quoteDispName[1];
+    }
+  }
+
+  return [{
+    id: postId,
+    content: content[0],
+    content_warning: contentWarning[0],
+    timestamp: postTimestamp,
+    private: _extractBool(flags, 7),
+    comment: commentParentId,
+
+    interactions: interactions,
+
+    user: {
+      username: username[0],
+      display_name: displayName[0]
+    },
+
+    quote: quoteData
+  }, newData];
 }
 
 function _toHex(data: Uint8Array): string {
   return [...data].map((i: number): string => i.toString(16).padStart(2, "0")).join("");
 }
 
-function parseResponse(data: ArrayBuffer): void {
+function parseResponse(data: ArrayBuffer, extraVariableSometimesUsed?: string): void {
   let u8arr: Uint8Array = new Uint8Array(data);
+  let displayName: [string, leftoverData: Uint8Array];
 
   if (u8arr[0] >> 7 & 1) {
     return createToast(..._getErrorStrings(u8arr[1], u8arr[0] ^ (1 << 7)));
@@ -94,7 +186,7 @@ function parseResponse(data: ArrayBuffer): void {
     case ResponseCodes.Unblock: updateBlockButton(false); break;
 
     case ResponseCodes.GetProfile:
-      let displayName: [string, leftoverData: Uint8Array] = _extractString(8, u8arr.slice(1));
+      displayName = _extractString(8, u8arr.slice(1));
       let bio: [string, leftoverData: Uint8Array] = _extractString(16, displayName[1]);
 
       profileSettingsSetUserData(
@@ -116,6 +208,62 @@ function parseResponse(data: ArrayBuffer): void {
     case ResponseCodes.ChangePassword: changePasswordSuccess(_toHex(u8arr.slice(1))); break;
     case ResponseCodes.DefaultVisibility: break;
     case ResponseCodes.VerifyFollowers: break;
+
+    case ResponseCodes.CreatePost: prependPostToTimeline(_extractPost(u8arr.slice(1))[0]); break;
+    case ResponseCodes.Like: break;
+    case ResponseCodes.Unlike: break;
+
+    case ResponseCodes.TimelineUser:
+      displayName = _extractString(8, u8arr.slice(1));
+      userUpdateStats(
+        displayName[0],
+        "#" + _toHex(displayName[1].slice(0, 3)),
+        "#" + _toHex(displayName[1].slice(3, 6)),
+        _extractBool(displayName[1][10], 5) && "pending" || _extractBool(displayName[1][10], 4),
+        _extractBool(displayName[1][10], 2),
+        _extractInt(16, displayName[1].slice(8)),
+        _extractInt(16, displayName[1].slice(6))
+      );
+
+      u8arr = displayName[1].slice(9);
+
+    case ResponseCodes.TimelineComments:
+      // Prevent accidentally running this code when on user timeline
+      if (u8arr[0] === ResponseCodes.TimelineComments) {
+        let postData: [post, leftoverData: Uint8Array] = _extractPost(u8arr.slice(1));
+        updateFocusedPost(postData[0]);
+        u8arr = postData[1];
+      }
+
+    case ResponseCodes.TimelineGlobal:
+    case ResponseCodes.TimelineFollowing:
+      let end: boolean = _extractBool(u8arr[1], 7);
+      let forwards: boolean = _extractBool(u8arr[1], 6);
+      let numPosts: number = u8arr[2];
+      let posts: post[] = [];
+      u8arr = u8arr.slice(3);
+
+      for (let i: number = 0; i < numPosts; i++) {
+        let postData: [post, Uint8Array] = _extractPost(u8arr);
+
+        posts.push(postData[0]);
+        u8arr = postData[1];
+      }
+
+      if (forwards) {
+        // Add posts directly to timeline instead of forward cache
+        if (extraVariableSometimesUsed?.startsWith("$")) {
+          handleForward(posts, end, extraVariableSometimesUsed.slice(1), true);
+        } else if (extraVariableSometimesUsed) {
+          handleForward(posts, end, extraVariableSometimesUsed);
+        } else {
+          console.log("uh uhhhh why isn't the url set for forwards tl ????");
+        }
+      } else {
+        renderTimeline(insertIntoPostCache(posts), end);
+      }
+
+      break;
 
     default: console.log("Unknown response code " + u8arr[0].toString(16));
   }

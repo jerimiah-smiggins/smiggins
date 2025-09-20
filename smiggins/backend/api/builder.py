@@ -17,6 +17,13 @@ class ResponseCodes:
     CHANGE_PASSWORD = 0x23
     DEFAULT_VISIBILITY = 0x24
     VERIFY_FOLLOWERS = 0x25
+    CREATE_POST = 0x30
+    LIKE = 0x31
+    UNLIKE = 0x32
+    TIMELINE_GLOBAL = 0x60
+    TIMELINE_FOLLOWING = 0x61
+    TIMELINE_USER = 0x62
+    TIMELINE_COMMENTS = 0x63
 
 class ErrorCodes:
     # Make sure to update the corresponding values in ts/parser.ts
@@ -44,7 +51,6 @@ def build_response(
         return _to_obj(http_response or 400, b(response_code | (1 << 7)) + b(data))
 
     response = b(response_code)
-    print(data)
 
     bool_pending_data = 0
     num_bools = 0
@@ -81,5 +87,4 @@ def build_response(
     return _to_obj(http_response or 200, response)
 
 def _to_obj(http_response: int, data: bytes) -> HttpResponse:
-    print(data, len(data))
     return HttpResponse(data, content_type="application/octet-stream", status=http_response)

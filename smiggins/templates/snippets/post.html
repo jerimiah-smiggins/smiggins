@@ -7,6 +7,8 @@
     <div class="subtext post-timestamp">@{timestamp}</div>
   </div>
 
+  @{cw_start}
+
   <div class="post-content">@{content}</div>
 
   <div class="post-quote" @{hidden_if_no_quote}>
@@ -20,6 +22,8 @@
 
     <div class="post-content">@{quote_content}</div>
   </div>
+
+  @{cw_end}
 
   <div class="post-interactions" @{post_interactions_hidden}>
     <div><a class="plain-link" data-internal-link="post" href="/p/@{pid}/">@{icon_comment} <span data-number>@{comments}<span></a></div>

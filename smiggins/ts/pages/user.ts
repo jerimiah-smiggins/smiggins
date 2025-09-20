@@ -12,44 +12,49 @@ function p_user(element: HTMLDivElement): void {
   element.querySelector("#block")?.addEventListener("click", toggleBlock);
 
   hookTimeline(element.querySelector("[id=\"timeline-posts\"]") as HTMLDivElement, {
-    [tlId]: { url: `/api/timeline/user/${userUsername}`, prependPosts: username === userUsername, timelineCallback: userUpdateStats },
-    [tlId + "_all"]: { url: `/api/timeline/user/${userUsername}?include_comments=true`, prependPosts: username === userUsername, timelineCallback: userUpdateStats }
+    [tlId]: { url: `/api/timeline/user/${userUsername}`, prependPosts: username === userUsername },
+    [tlId + "_all"]: { url: `/api/timeline/user/${userUsername}?include_comments=true`, prependPosts: username === userUsername }
   }, tlId, element);
 }
 
-function userUpdateStats(json: api_timeline): void {
+function userSetDNE(): void {
+  let tlContainer: HTMLElement | null = document.getElementById("timeline-posts");
+
+  if (tlContainer) {
+    tlContainer.innerHTML = `<i class="timeline-status">User '${escapeHTML(getUsernameFromPath())}' does not exist.</i>`;
+  }
+}
+
+function userUpdateStats(
+  displayName: string,
+  colorOne: string,
+  colorTwo: string,
+  following: boolean | "pending",
+  blocking: boolean,
+  numFollowing: number,
+  numFollowers: number
+): void {
   let userUsername: string = getUsernameFromPath();
   let c: userData | undefined = userCache[userUsername];
 
-  if (!json.success && json.reason === "BAD_USERNAME") {
-    let tlContainer: HTMLElement | null = document.getElementById("timeline-posts");
-
-    if (tlContainer) {
-      tlContainer.innerHTML = `<i class="timeline-status">User '${escapeHTML(userUsername)}' does not exist.</i>`;
-    }
-  }
-
-  if (!json.success || !json.extraData) { return; }
-
   if (c) {
-    // there's probably a more elegant way to do this
-    c.display_name  = json.extraData.display_name  || c.display_name;
-    c.color_one     = json.extraData.color_one     || c.color_one;
-    c.color_two     = json.extraData.color_two     || c.color_two;
-    c.following     = json.extraData.following     || c.following;
-    c.blocking      = json.extraData.blocking      || c.blocking;
-    c.num_following = json.extraData.num_following || c.num_following;
-    c.num_followers = json.extraData.num_followers || c.num_followers;
+    c.display_name  = displayName;
+    c.color_one     = colorOne;
+    c.color_two     = colorTwo;
+    c.following     = following;
+    c.blocking      = blocking;
+    c.num_following = numFollowing;
+    c.num_followers = numFollowers;
   } else {
     c = {
-      display_name: json.extraData.display_name || username,
+      display_name: displayName || username,
       bio: "", // TODO: bios
-      color_one: json.extraData.color_one || "var(--background-mid)",
-      color_two: json.extraData.color_two || "var(--background-mid)",
-      following: json.extraData.following || false,
-      blocking: json.extraData.blocking || false,
-      num_following: json.extraData.num_following || 0,
-      num_followers: json.extraData.num_followers || 0
+      color_one: colorOne || "var(--background-mid)",
+      color_two: colorTwo || "var(--background-mid)",
+      following: following || false,
+      blocking: blocking || false,
+      num_following: numFollowing || 0,
+      num_followers: numFollowers || 0
     };
 
     userCache[userUsername] = c;
@@ -62,10 +67,10 @@ function userUpdateStats(json: api_timeline): void {
     let blockElement: HTMLElement | null = document.getElementById("block");
 
     if (followElement) {
-      if (json.extraData.following === "pending") {
+      if (following === "pending") {
         followElement.innerText = "Pending";
         followElement.dataset.unfollow = "";
-      } else if (json.extraData.following) {
+      } else if (following) {
         followElement.innerText = "Unfollow";
         followElement.dataset.unfollow = "";
       } else {
@@ -75,7 +80,7 @@ function userUpdateStats(json: api_timeline): void {
     }
 
     if (blockElement) {
-      if (json.extraData.blocking) {
+      if (blocking) {
         blockElement.innerText = "Unblock";
         blockElement.dataset.unblock = "";
       } else {
@@ -85,29 +90,23 @@ function userUpdateStats(json: api_timeline): void {
     }
   }
 
-  let displayNameElement: HTMLElement | null = document.getElementById("display-name");
-  let displayName: string | undefined = json.extraData.display_name;
-  if (displayName) {
-    document.title = `${displayName} - ${pageTitle}`;
+  document.title = `${displayName} - ${pageTitle}`;
 
-    if (displayNameElement) {
-      displayNameElement.innerText = displayName;
-    }
+  let displayNameElement: HTMLElement | null = document.getElementById("display-name");
+  if (displayNameElement) {
+    displayNameElement.innerText = displayName;
   }
 
   let bannerElement: HTMLElement | null = document.getElementById("user-banner");
   if (bannerElement) {
-    let colorOne: string | undefined = json.extraData.color_one;
-    let colorTwo: string | undefined = json.extraData.color_two;
-
-    if (colorOne && colorRegex.test(colorOne)) { bannerElement.style.setProperty("--color-one", colorOne); }
-    if (colorTwo && colorRegex.test(colorTwo)) { bannerElement.style.setProperty("--color-two", colorTwo); }
+    if (colorRegex.test(colorOne)) { bannerElement.style.setProperty("--color-one", colorOne); }
+    if (colorRegex.test(colorTwo)) { bannerElement.style.setProperty("--color-two", colorTwo); }
   }
 
   let followingElement: HTMLElement | null = document.getElementById("following");
   let followersElement: HTMLElement | null = document.getElementById("followers");
-  if (followingElement && json.extraData.num_following) { followingElement.innerText = json.extraData.num_following };
-  if (followersElement && json.extraData.num_followers) { followersElement.innerText = json.extraData.num_followers };
+  if (followingElement) { followingElement.innerText = String(numFollowing); }
+  if (followersElement) { followersElement.innerText = String(numFollowers); }
 }
 
 function updateFollowButton(followed: false): void;

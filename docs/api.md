@@ -25,6 +25,44 @@ using **big endian**, meaning the number 0x123 would be sent in two bytes, those
 being 0x01 0x23, with the most significant bits coming first.
 
 ## All successful response formats
+**Posts**
+This isn't for a specific route, instead this is the format for a post.
+
+`PP PP PP PP TT TT TT TT TT TT TT TT pcqvlu00 CC CC CC CC LL LL QQ QQ MM MM CL CL CO... WL CW... UL UU... DL DD... QI QI QI QI QT QT QT QT QT QT QT QT QL QL QC... QWL QW... QUL QU... QDL QD...`
+
+where:
+- `P` is the post id (uint32)
+- `T` is the timestamp (uint64)
+- `p` is whether or not the post is private
+- `c` is whether or not this is a comment (bool)
+- `q` is whether or not there is a quote (bool)
+- `v` is whether or not you can view the quote (bool)
+- `l` is whether or not you've liked the post (bool)
+- `u` is whether or not the quote is private (assuming there is a quote)
+- `C` is the comment id (uint32), **only if c is true**
+- `L` is the number of likes (uint16)
+- `Q` is the number of quotes (uint16)
+- `M` is the number of comments (uint16)
+- `CL` is the length of the content (uint16)
+- `CO...` is the content
+- `WL` is the length of the content warning (uint8), 0 if there is none
+- `CW...` is the content warning
+- `UL` is the length of the username (uint8)
+- `UU...` is the username
+- `DL` is the length of the display name (uint8)
+- `DD...` is the display name
+- **if q and v are true:**
+  - `QI` is the quote id (uint32)
+  - `QT` is the quote timestamp (uint64)
+  - `QL` is the length of the quote content
+  - `QC...` is the quote content
+  - `QWL` is the quote content warning length (uint8), 0 if there is none
+  - `QW...` is the quote content warning
+  - `QUL` is the quote creator username length (uint8)
+  - `QU...` is the quote creator username
+  - `QDL` is the quote creator display name length (uint8)
+  - `QD...` is the quote creator display name
+---
 **POST /api/user/login**:  
 **POST /api/user/signup**:  
 **PATCH /api/user/password**:  
@@ -46,14 +84,50 @@ where:
 `20 DL DD... BL BL BB... R1 G1 B1 R2 G2 B2 gv000000`
 
 where:
-- `DL` is the length of the display name (i8)
+- `DL` is the length of the display name (uint8)
 - `DD...` is the display name
-- `BL` is the length of the bio (i16)
+- `BL` is the length of the bio (uint16)
 - `BB...` is the bio
 - `R1/G1/B1` is the RGB of your first banner color
 - `R2/G2/B2` is the RGB of your second banner color
 - `g` is whether or not the banner is a gradient (bool)
 - `v` is whether or not you require followers to be verified (bool)
+---
+**GET /api/timeline/global**:  
+**GET /api/timeline/following**:  
+`ID ef00000 PP posts...`
+
+where:
+- `ID` is the response code (0x60 for global, 0x61 for following)
+- `e` is whether or not it's the end of the timeline
+- `f` is whether or not the timeline was requested to be forward
+- `P` is the number of posts
+---
+**GET /api/timeline/user/{username}**:  
+`62 DL DD... R1 G1 B1 R2 G2 B2 FL FL FG FG erfbp00 PP posts...`
+
+where:
+- `ID` is the response code (0x60 for global, 0x61 for following)
+- `DL` is the length of the display name (uint8)
+- `DD...` is the display name
+- `R1/G1/B1` is the RGB of this user's first banner color
+- `R2/G2/B2` is the RGB of this user's second banner color
+- `FL` is the number of followers this user has (uint16)
+- `FG` is the number of people this user is following (uint16)
+- `e` is whether or not it's the end of the timeline
+- `r` is whether or not the timeline was requested to be forward
+- `f` is whether or not you are blocking this user
+- `f` is whether or not you have a pending follow request
+- `b` is whether or not you are following this user
+- `P` is the number of posts
+---
+**GET /api/timeline/post/{post_id}**:  
+`63 main_post 00 ef00000 PP posts...`
+
+where:
+- `e` is whether or not it's the end of the timeline
+- `f` is whether or not the timeline was requested to be forward
+- `P` is the number of posts
 ---
 **DELETE /api/user/follow**: `11`  
 **POST /api/user/block**: `12`  
@@ -62,7 +136,8 @@ where:
 **DELETE /api/user**: `22`  
 **PATCH /api/user/default_post**: `24`  
 **PATCH /api/user/verify_followers**: `25`
-
+**POST /api/post/like/{post_id}**: `31`
+**DELETE /api/post/like/{post_id}**: `32`
 ## Error codes
 Code|Description
 -:|-

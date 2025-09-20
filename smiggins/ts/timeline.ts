@@ -71,8 +71,8 @@ function reloadTimeline(ignoreCache: boolean=false, element?: HTMLDivElement): v
 
   fetch(currentTl.url, {
     headers: { Accept: "application/json" }
-  }).then((response: Response): Promise<api_timeline> => (response.json()))
-    .then(renderTimelineFromAPI)
+  }).then((response: Response): Promise<ArrayBuffer> => (response.arrayBuffer()))
+    .then(parseResponse)
     .catch((err: any): void => {
       createToast("Something went wrong!", String(err));
       throw err;
@@ -94,28 +94,14 @@ function insertIntoPostCache(posts: post[]): number[] {
 // loads more older posts
 function loadMorePosts(): void {
   let more: HTMLElement | null = document.getElementById("timeline-more");
-  let currentTimeline: timelineConfig = currentTl;
-  let currentTimelineID: string = currentTlID;
   if (more) { more.hidden = true; }
 
   tlElement.insertAdjacentHTML("beforeend", LOADING_HTML);
 
   fetch(`${currentTl.url}${currentTl.url.includes("?") ? "&" : "?"}offset=${offset.lower}`, {
     headers: { Accept: "application/json" }
-  }).then((response: Response): Promise<api_timeline> => (response.json()))
-    .then((json: api_timeline): void => {
-      if (currentTl.url !== currentTimeline.url) {
-        console.log("timeline switched, discarding request");
-
-        if (json.success) {
-          tlCache[currentTimelineID]?.posts.push(...insertIntoPostCache(json.posts));
-        }
-
-        return;
-      }
-
-      renderTimelineFromAPI(json);
-    })
+  }).then((response: Response): Promise<ArrayBuffer> => (response.arrayBuffer()))
+    .then(parseResponse)
     .catch((err: any): void => {
       createToast("Something went wrong!", String(err));
 
@@ -130,24 +116,6 @@ function loadMorePosts(): void {
 function clearTimelineStatuses(): void {
   let statuses: NodeListOf<HTMLDivElement> = tlElement.querySelectorAll(".timeline-status");
   for (const el of statuses) { el.remove(); }
-}
-
-function renderTimelineFromAPI(json: api_timeline): void {
-  if (currentTl.timelineCallback) {
-    currentTl.timelineCallback(json);
-  }
-
-  if (!json.success) {
-    createToast("Something went wrong!");
-    // TODO - better error handling
-    console.log(json);
-    return;
-  }
-
-  renderTimeline(
-    insertIntoPostCache(json.posts),
-    json.end
-  );
 }
 
 // appends posts to a timeline
@@ -249,15 +217,23 @@ function getPost(post: number, updateOffset: boolean=true): HTMLDivElement {
   if (updateOffset && (!offset.lower || p.timestamp < offset.lower)) { offset.lower = p.timestamp; }
   if (updateOffset && (!offset.upper || p.timestamp > offset.upper)) { offset.upper = p.timestamp; }
 
+  let contentWarningStart: string = "";
+  let contentWarningEnd: string = "";
+
   if (p.content_warning) {
-    postContent = `<details class="content-warning"${localStorage.getItem("smiggins-expand-cws") ? " open" : "" }><summary><div>${escapeHTML(p.content_warning)} <div class="content-warning-stats">(${p.content.length} char${p.content.length === 1 ? "" : "s"})</div></div></summary>${postContent}</details>`;
+    contentWarningStart = `<details class="content-warning"${localStorage.getItem("smiggins-expand-cws") ? " open" : "" }><summary><div>${escapeHTML(p.content_warning)} <div class="content-warning-stats">(${p.content.length} char${p.content.length === 1 ? "" : "s"}${p.quote ? ", quote" : ""})</div></div></summary>`;
+    contentWarningEnd = "</details>";
   }
 
   let quoteData: { [key: string]: string | [string, number] } = { hidden_if_no_quote: "hidden" };
   if (p.quote) {
     let quoteContent: string = linkify(escapeHTML(p.quote.content), p.quote.id);
+    let quoteCwStart: string = "";
+    let quoteCwEnd: string = "";
+
     if (p.quote.content_warning) {
-      quoteContent = `<details class="content-warning"${localStorage.getItem("smiggins-expand-cws") ? " open" : "" }><summary><div>${escapeHTML(p.quote.content_warning)} <div class="content-warning-stats">(${p.quote.content.length} char${p.quote.content.length === 1 ? "" : "s"})</div></div></summary>${quoteContent}</details>`;
+      quoteCwStart = `<details class="content-warning"${localStorage.getItem("smiggins-expand-cws") ? " open" : "" }><summary><div>${escapeHTML(p.quote.content_warning)} <div class="content-warning-stats">(${p.quote.content.length} char${p.quote.content.length === 1 ? "" : "s"})</div></div></summary>`;
+      quoteCwEnd = "</details>";
     }
 
     quoteData = {
@@ -267,6 +243,8 @@ function getPost(post: number, updateOffset: boolean=true): HTMLDivElement {
       quote_content: [quoteContent, 1],
       quote_display_name: [escapeHTML(p.quote.user.display_name), 1],
       quote_private_post: p.quote.private ? "data-private-post" : "",
+      quote_cw_start: quoteCwStart,
+      quote_cw_end: quoteCwEnd
     };
   }
 
@@ -286,6 +264,8 @@ function getPost(post: number, updateOffset: boolean=true): HTMLDivElement {
     content: [postContent, 1],
     display_name: [escapeHTML(p.user.display_name), 1],
     private_post: p.private ? "data-private-post" : "",
+    cw_start: contentWarningStart,
+    cw_end: contentWarningEnd,
     ...quoteData
   });
 
@@ -322,11 +302,54 @@ function timelineShowNew(): void {
   tlElement.prepend(frag);
 }
 
+// handles adding posts to forwards
+function handleForward(posts: post[], end: boolean, expectedTlID: string, forceEvent: boolean=false): void {
+  tlPollingPendingResponse = false;
+
+  let c: timelineCache | undefined = tlCache[expectedTlID];
+  if (!c) { return; }
+
+  if (expectedTlID !== currentTlID) {
+    console.log("timeline switched, discarding request");
+
+    if (end) { c.pendingForward = false; }
+    else if (c.pendingForward !== false) {
+      c.pendingForward.push(...insertIntoPostCache(posts).reverse());
+    }
+  }
+
+  if (posts.length === 0 || c.pendingForward === false) { return; }
+
+  let showNewElement: HTMLElement | null = document.getElementById("timeline-show-new");
+
+  if (!forceEvent && !showNewElement && (!end || (c.pendingForward.length + posts.length - prependedPosts) > 0)) {
+    showNewElement = document.createElement("button");
+    showNewElement.id = "timeline-show-new";
+    showNewElement.addEventListener("click", timelineShowNew);
+    tlElement.prepend(showNewElement);
+  }
+
+  if (end) {
+    offset.upper = posts[0].timestamp;
+    c.pendingForward.push(...insertIntoPostCache(posts).reverse());
+
+    if (showNewElement) {
+      showNewElement.innerText = `Show new posts (${c.pendingForward.length - prependedPosts})`;
+    }
+  } else {
+    c.pendingForward = false;
+    if (showNewElement) { showNewElement.innerText = "Refresh"; }
+  }
+
+  if (forceEvent) {
+    timelineShowNew();
+  }
+}
+
 // fetch new posts for a timeline
 function timelinePolling(forceEvent: boolean=false): void {
   if (currentTl.disablePolling) { return; }
 
-  let currentTimeline: timelineConfig = currentTl;
   let c: timelineCache | undefined = tlCache[currentTlID];
 
   if (tlPollingPendingResponse && !forceEvent) { return; }
@@ -339,56 +362,8 @@ function timelinePolling(forceEvent: boolean=false): void {
   }
 
   fetch(`${currentTl.url}${currentTl.url.includes("?") ? "&" : "?"}offset=${offset.upper}&forwards=true`)
-    .then((response: Response): Promise<api_timeline> => (response.json()))
-    .then((json: api_timeline): void => {
-      tlPollingPendingResponse = false;
-
-      if (currentTimeline.url !== currentTl.url) {
-        console.log("timeline switched, discarding request");
-
-        if (json.success) {
-          if (json.end) { c.pendingForward = false; }
-          else if (c.pendingForward !== false) { c.pendingForward.push(...insertIntoPostCache(json.posts).reverse()); }
-        }
-      }
-
-      if (currentTl.timelineCallback) {
-        currentTl.timelineCallback(json);
-      }
-
-      if (json.success) {
-        if (json.posts.length === 0) { return; }
-
-        if (c.pendingForward === false) { return; }
-
-        let showNewElement: HTMLElement | null = document.getElementById("timeline-show-new");
-
-        if (!forceEvent && !showNewElement && (!json.end || (c.pendingForward.length + json.posts.length - prependedPosts) > 0)) {
-          showNewElement = document.createElement("button");
-          showNewElement.id = "timeline-show-new";
-          showNewElement.addEventListener("click", timelineShowNew);
-          tlElement.prepend(showNewElement);
-        }
-
-        if (json.end) {
-          offset.upper = json.posts[0].timestamp;
-          c.pendingForward.push(...insertIntoPostCache(json.posts).reverse());
-
-          if (showNewElement) {
-            showNewElement.innerText = `Show new posts (${c.pendingForward.length - prependedPosts})`;
-          }
-        } else {
-          c.pendingForward = false;
-          if (showNewElement) { showNewElement.innerText = "Refresh"; }
-        }
-
-        if (forceEvent) {
-          timelineShowNew();
-        }
-      } else {
-        console.log("Unsuccessful timeline polling, reason " + json.reason);
-      }
-    })
+    .then((response: Response): Promise<ArrayBuffer> => (response.arrayBuffer()))
+    .then((ab: ArrayBuffer): void => (parseResponse(ab, (forceEvent ? "$" : "") + currentTlID)))
     .catch((err: any): void => {
       console.log("Something went wrong polling", err)
       tlPollingPendingResponse = false;
@@ -424,37 +399,29 @@ function postButtonClick(e: Event): void {
   } else if (el.dataset.interactionLike) {
     let postId: number = +el.dataset.interactionLike;
     let liked: boolean = el.dataset.liked === "true";
-    el.setAttribute("disabled", "");
+    let number: HTMLElement | null = el.querySelector("[data-number]");
+
+    if (number) {
+      number.innerText = String(+number.innerText + (-liked + 0.5) * 2);
+    }
+
+    let c: post | undefined = postCache[postId];
+    if (c) {
+      c.interactions.liked = !liked;
+      c.interactions.likes += (-liked + 0.5) * 2;
+    }
+
+    el.dataset.liked = String(!liked);
 
     fetch(`/api/post/like/${postId}`, {
       method: liked ? "DELETE" : "POST",
       headers: { Accept: "application/json" }
-    }).then((response: Response): Promise<GENERIC_API_RESPONSE> => (response.json()))
-      .then((json: GENERIC_API_RESPONSE): void => {
-        if (json.success) {
-          let number: HTMLElement | null = el.querySelector("[data-number]");
-          if (number) {
-            number.innerText = String(+number.innerText + (-liked + 0.5) * 2);
-          }
-
-          let c: post | undefined = postCache[postId];
-          if (c) {
-            c.interactions.liked = !liked;
-            c.interactions.likes += (-liked + 0.5) * 2;
-          }
-
-          el.dataset.liked = String(!liked);
-        } else {
-          createToast(...errorCodeStrings(json.reason));
-        }
-
-        el.removeAttribute("disabled");
-      })
-    .catch((err: any) => {
-      el.removeAttribute("disabled");
-      createToast("Something went wrong!", String(err));
-      throw err;
-    });
+    }).then((response: Response): Promise<ArrayBuffer> => (response.arrayBuffer()))
+      .then(parseResponse)
+      .catch((err: any) => {
+        createToast("Something went wrong!", String(err));
+        throw err;
+      });
   }
 }
 
@@ -478,16 +445,12 @@ function createPost(
       quote: extra && extra.quote || null
     }),
     headers: { Accept: "application/json" }
-  }).then((response: Response): Promise<api_post> => (response.json()))
-    .then((json: api_post): void => {
-      if (json.success) {
-        prependPostToTimeline(json.post);
-      } else {
-        createToast(...errorCodeStrings(json.reason, "post"));
-      }
-
-      callback && callback(json.success);
+  }).then((response: Response): Promise<ArrayBuffer> => (response.arrayBuffer()))
+    .then((ab: ArrayBuffer): ArrayBuffer => {
+      callback && callback(!((new Uint8Array(ab)[0] >> 7) & 1));
+      return ab;
     })
+    .then(parseResponse)
     .catch((err: any): void => {
       callback && callback(false);
       createToast("Something went wrong!", String(err));

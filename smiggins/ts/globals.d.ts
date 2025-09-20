@@ -57,13 +57,12 @@ type post = {
       username: string,
       display_name: string
     },
-  } | null
+  } | undefined | null
 };
 
 type timelineConfig = {
   url: string,
   prependPosts: boolean | number,
-  timelineCallback?: (json: api_timeline) => void,
   disablePolling?: true,
   disableCaching?: true
 };

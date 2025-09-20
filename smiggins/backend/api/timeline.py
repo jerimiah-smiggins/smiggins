@@ -1,45 +1,45 @@
-from django.db.models import Q
-from django.db.models.manager import BaseManager
-from posts.models import Post, User
 from typing import Literal
 
+from django.db.models import Q
+from django.db.models.manager import BaseManager
+from django.http import HttpResponse
+from posts.models import Post, User
+
 from ..variables import POSTS_PER_REQUEST
+from .builder import ErrorCodes, ResponseCodes, build_response
 
 
-def get_post_json(post: Post, user: User | None) -> dict:
-    return {
-        "id": post.post_id,
-        "content": post.content,
-        "content_warning": post.content_warning,
-        "timestamp": post.timestamp,
-        "private": post.private,
-        "comment": post.comment_parent.post_id if post.comment_parent else None,
+def get_post_data(post: Post, user: User | None) -> list:
+    can_view_quote = True
+    comment: Post | None = post.comment_parent
+    quote: Post | None = post.quoted_post
 
-        "interactions": {
-            "likes": post.likes.count(),
-            "liked": post.likes.contains(user) if user else False,
-            "quotes": post.quotes.count(),
-            "comments": post.comments.count()
-        },
-
-        "user": {
-            "username": post.creator.username,
-            "display_name": post.creator.display_name
-        },
-
-        "quote": { # TODO: don't show quotes you can't see (blocked, private, blocking...)
-            "id": post.quoted_post.post_id,
-            "content": post.quoted_post.content,
-            "content_warning": post.quoted_post.content_warning,
-            "timestamp": post.quoted_post.timestamp,
-            "private": post.quoted_post.private,
-
-            "user": {
-                "username": post.quoted_post.creator.username,
-                "display_name": post.quoted_post.creator.display_name
-            }
-        } if post.quoted_post else None
-    }
+    return [
+        (post.post_id, 32),
+        (post.timestamp, 64),
+        post.creator.verify_followers if post.private is None else post.private,
+        comment is not None,
+        quote is not None,
+        can_view_quote, # TODO: don't show quotes you can't see (blocked, private, blocking...)
+        post.likes.contains(user) if user else False,
+        can_view_quote and (quote or False) and quote.private,
+        *([] if comment is None else [(comment.post_id, 32)]),
+        (post.likes.count(), 16),
+        (post.quotes.count(), 16),
+        (post.comments.count(), 16),
+        (post.content, 16),
+        (post.content_warning or "", 8),
+        (post.creator.username, 8),
+        (post.creator.display_name, 8),
+        *([] if quote is None or not can_view_quote else [
+            (quote.post_id, 32),
+            (quote.timestamp, 64),
+            (quote.content, 16),
+            (quote.content_warning or "", 8),
+            (quote.creator.username, 8),
+            (quote.creator.display_name, 8),
+        ])
+    ]
 
 def get_timeline(
     tl: BaseManager[Post],
@@ -49,7 +49,7 @@ def get_timeline(
     no_visibility_check: bool=False,
     show_blocked: bool=False,
     order_by: list[str]=["-timestamp", "-pk"]
-) -> tuple[bool, list[dict]]:
+) -> tuple[bool, int, list]:
     if offset:
         tl = tl.filter(**{
             f"timestamp__{'g' if forwards else 'l'}t": offset
@@ -73,18 +73,18 @@ def get_timeline(
             tl = tl.filter(~Q(private=True))
 
     objs = list(tl[:POSTS_PER_REQUEST + 1])
-    return len(objs) <= POSTS_PER_REQUEST, [get_post_json(i, user) for i in objs[:POSTS_PER_REQUEST]]
+    return len(objs) <= POSTS_PER_REQUEST, min(POSTS_PER_REQUEST, len(objs)), sum([print(get_post_data(i, user)) or get_post_data(i, user) for i in objs[:POSTS_PER_REQUEST]], [])
 
-def tl_following(request, offset: int | None=None, forwards: bool=False):
+def tl_following(request, offset: int | None=None, forwards: bool=False) -> HttpResponse:
     # if rl := check_ratelimit(request, "GET /api/timeline/following"):
     #     return NEW_RL
 
     try:
         user = User.objects.get(token=request.COOKIES.get("token"))
     except User.DoesNotExist:
-        return 400, { "success": False, "reason": "NOT_AUTHENTICATED" }
+        return build_response(ResponseCodes.TIMELINE_FOLLOWING, ErrorCodes.NOT_AUTHENTICATED)
 
-    end, posts = get_timeline(
+    end, length, posts = get_timeline(
         Post.objects.filter(comment_parent=None).filter(
             Q(creator=user) | Q(creator__followers=user)
         ),
@@ -93,53 +93,49 @@ def tl_following(request, offset: int | None=None, forwards: bool=False):
         forwards
     )
 
-    return {
-        "success": True,
-        "posts": posts,
-        "end": end
-    }
+    return build_response(ResponseCodes.TIMELINE_FOLLOWING, [
+        end, forwards, (length, 8), *posts
+    ])
 
-def tl_global(request, offset: int | None=None, forwards: bool=False) -> dict | tuple[int, dict]:
+def tl_global(request, offset: int | None=None, forwards: bool=False) -> HttpResponse:
     # if rl := check_ratelimit(request, "GET /api/timeline/global"):
     #     return NEW_RL
 
     try:
         user = User.objects.get(token=request.COOKIES.get("token"))
     except User.DoesNotExist:
-        return 400, { "success": False, "reason": "NOT_AUTHENTICATED" }
+        return build_response(ResponseCodes.TIMELINE_GLOBAL, ErrorCodes.NOT_AUTHENTICATED)
 
-    end, posts = get_timeline(
+    end, length, posts = get_timeline(
         Post.objects.filter(comment_parent=None),
         offset,
         user,
         forwards
     )
 
-    return {
-        "success": True,
-        "posts": posts,
-        "end": end
-    }
+    return build_response(ResponseCodes.TIMELINE_GLOBAL, [
+        end, forwards, (length, 8), *posts
+    ])
 
-def tl_user(request, username: str, offset: int | None=None, forwards: bool=False, include_comments: bool=False) -> dict | tuple[int, dict]:
+def tl_user(request, username: str, offset: int | None=None, forwards: bool=False, include_comments: bool=False) -> HttpResponse:
     # if rl := check_ratelimit(request, "GET /api/timeline/global"):
     #     return NEW_RL
 
     try:
         self_user = User.objects.get(token=request.COOKIES.get("token"))
     except User.DoesNotExist:
-        return 400, { "success": False, "reason": "NOT_AUTHENTICATED" }
+        return build_response(ResponseCodes.TIMELINE_USER, ErrorCodes.NOT_AUTHENTICATED)
 
     try:
         user = User.objects.get(username=username)
     except User.DoesNotExist:
-        return 400, { "success": False, "reason": "BAD_USERNAME" }
+        return build_response(ResponseCodes.TIMELINE_USER, ErrorCodes.BAD_USERNAME)
 
     p = user.posts.all()
     if not include_comments:
         p = p.filter(comment_parent=None)
 
-    end, posts = get_timeline(
+    end, length, posts = get_timeline(
         p,
         offset,
         self_user,
@@ -147,31 +143,31 @@ def tl_user(request, username: str, offset: int | None=None, forwards: bool=Fals
         show_blocked=True
     )
 
-    return {
-        "success": True,
-        "posts": posts,
-        "end": end,
-        "extraData": {
-            "display_name": user.display_name,
-            "color_one": user.color,
-            "color_two": user.color_two if user.gradient else user.color,
-            "following": self_user.following.contains(user) or user.pending_followers.contains(self_user) and "pending",
-            "blocking": self_user.blocking.contains(user),
-            "num_followers": user.followers.count(),
-            "num_following": user.following.count()
-        }
-    }
+    return build_response(ResponseCodes.TIMELINE_USER, [
+        (user.display_name, 8),
+        bytearray.fromhex(user.color[1:]),
+        bytearray.fromhex((user.color_two if user.gradient else user.color)[1:]),
+        (user.followers.count(), 16),
+        (user.following.count(), 16),
+        end,
+        forwards,
+        self_user.following.contains(user),
+        self_user.blocking.contains(user),
+        user.pending_followers.contains(self_user),
+        (length, 8),
+        *posts
+    ])
 
-def tl_comments(request, post_id: int, sort: Literal["recent", "oldest", "random"], offset: int | None=None, forwards: bool | None=None):
+def tl_comments(request, post_id: int, sort: Literal["recent", "oldest", "random"], offset: int | None=None, forwards: bool=False) -> HttpResponse:
     try:
         user = User.objects.get(token=request.COOKIES.get("token"))
     except User.DoesNotExist:
-        return 400, { "success": False, "reason": "NOT_AUTHENTICATED" }
+        return build_response(ResponseCodes.TIMELINE_COMMENTS, ErrorCodes.NOT_AUTHENTICATED)
 
     try:
         post = Post.objects.get(post_id=post_id)
     except Post.DoesNotExist:
-        return 404, { "success": False, "reason": "POST_NOT_FOUND" }
+        return build_response(ResponseCodes.TIMELINE_COMMENTS, ErrorCodes.POST_NOT_FOUND)
 
     kwargs = {}
 
@@ -179,15 +175,15 @@ def tl_comments(request, post_id: int, sort: Literal["recent", "oldest", "random
         ...
     elif sort == "oldest":
         kwargs["order_by"] = ["timestamp", "pk"]
-        forwards = None
-    elif sort == "random": # TODO: random timeline has random duplication even though it should be .distinct()
-        kwargs["order_by"] = ["?"]
-        forwards = None
-        offset = None
+        forwards = False
+    # elif sort == "random": # TODO: random timeline has random duplication even though it should be .distinct()
+    #     kwargs["order_by"] = ["?"]
+    #     forwards = False
+    #     offset = None
     else:
-        return 400, { "success": False }
+        return build_response(ResponseCodes.TIMELINE_COMMENTS, ErrorCodes.BAD_REQUEST)
 
-    end, posts = get_timeline(
+    end, length, posts = get_timeline(
         Post.objects.filter(comment_parent=post_id),
         offset,
         user,
@@ -195,12 +191,7 @@ def tl_comments(request, post_id: int, sort: Literal["recent", "oldest", "random
         **kwargs
     )
 
-    return {
-        "success": True,
-        "posts": posts,
-        "end": end,
-        "extraData": {
-            "focused_post": get_post_json(post, user)
-        }
-    }
-
+    return build_response(ResponseCodes.TIMELINE_COMMENTS, [
+        *get_post_data(post, user), (0, 8),
+        end, forwards, (length, 8), *posts
+    ])

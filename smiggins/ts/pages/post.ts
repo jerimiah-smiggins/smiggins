@@ -2,23 +2,17 @@ function getPostIDFromPath(path?: string): number {
   return +(path || location.pathname).split("/").filter(Boolean)[1];
 }
 
-function updateFocusedPost(json: api_timeline) {
-  if (!json.success) {
-    if (json.reason === "POST_NOT_FOUND") {
-      // TODO: something about post not found
-    }
-    return;
-  }
+function postSetDNE(): void {
+  // TODO: something when post doesn't exist
+}
 
-  let p: post | undefined = json.extraData && json.extraData.focused_post;
-  if (!p) { return; }
-
-  let pid: number = insertIntoPostCache([p])[0];
+function updateFocusedPost(post: post): void {
+  let pid: number = insertIntoPostCache([post])[0];
   document.getElementById("focused-post")?.replaceChildren(getPost(pid, false));
 
-  if (p.comment) {
+  if (post.comment) {
     document.getElementById("comment-parent")?.removeAttribute("hidden");
-    document.getElementById("comment-parent")?.setAttribute("href", `/p/${p.comment}/`);
+    document.getElementById("comment-parent")?.setAttribute("href", `/p/${post.comment}/`);
     document.getElementById("home-link")?.setAttribute("hidden", "");
   } else {
     document.getElementById("comment-parent")?.setAttribute("hidden", "");
@@ -39,8 +33,8 @@ function p_postPage(element: HTMLDivElement): void {
   }
 
   hookTimeline(timelineElement, {
-    [`post_${pid}_recent`]: { url: `/api/timeline/post/${pid}?sort=recent`, prependPosts: pid, timelineCallback: updateFocusedPost },
-    [`post_${pid}_oldest`]: { url: `/api/timeline/post/${pid}?sort=oldest`, prependPosts: false, timelineCallback: updateFocusedPost, disablePolling: true },
-    [`post_${pid}_random`]: { url: `/api/timeline/post/${pid}?sort=random`, prependPosts: pid, timelineCallback: updateFocusedPost, disablePolling: true, disableCaching: true }
+    [`post_${pid}_recent`]: { url: `/api/timeline/post/${pid}?sort=recent`, prependPosts: pid },
+    [`post_${pid}_oldest`]: { url: `/api/timeline/post/${pid}?sort=oldest`, prependPosts: false, disablePolling: true },
+    // [`post_${pid}_random`]: { url: `/api/timeline/post/${pid}?sort=random`, prependPosts: pid, disablePolling: true, disableCaching: true }
   }, `post_${pid}_recent`, element);
 }

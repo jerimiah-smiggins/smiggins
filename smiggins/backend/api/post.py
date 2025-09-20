@@ -1,39 +1,39 @@
 import time
 
 from django.db.utils import IntegrityError
+from django.http import HttpResponse
 from posts.models import M2MLike, Post, User
 
 from ..helper import trim_whitespace
 from ..variables import (MAX_CONTENT_WARNING_LENGTH, MAX_POLL_OPTION_LENGTH,
                          MAX_POST_LENGTH)
+from .builder import ErrorCodes, ResponseCodes, build_response
 from .schema import NewPost
-from .timeline import get_post_json
+from .timeline import get_post_data
 
 
-def post_create(request, data: NewPost) -> dict | tuple[int, dict]:
+def post_create(request, data: NewPost) -> HttpResponse:
     try:
         user = User.objects.get(token=request.COOKIES.get("token"))
     except User.DoesNotExist:
-        return 400, { "success": False, "reason": "NOT_AUTHENTICATED" }
+        return build_response(ResponseCodes.CREATE_POST, ErrorCodes.NOT_AUTHENTICATED)
 
     poll: list[str] = []
     for i in data.poll:
         if (i := trim_whitespace(i, True))[0]:
             if not isinstance(i[0], str) or len(i[0]) > MAX_POLL_OPTION_LENGTH:
-                return 400, {
-                    "success": False
-                }
+                return build_response(ResponseCodes.CREATE_POST, ErrorCodes.BAD_REQUEST)
 
             poll.append(i[0])
 
     if len(poll) == 1:
-        return 400, { "success": False, "reason": "POLL_SINGLE_OPTION" }
+        return build_response(ResponseCodes.CREATE_POST, ErrorCodes.POLL_SINGLE_OPTION)
 
     content = trim_whitespace(data.content)
     cw = trim_whitespace(data.cw or "", True)
 
     if len(cw[0]) > MAX_CONTENT_WARNING_LENGTH or len(content[0]) > MAX_POST_LENGTH or not (content[1] or len(poll)):
-        return 400, { "success": False, "reason": "INVALID_LENGTH" }
+        return build_response(ResponseCodes.CREATE_POST, ErrorCodes.BAD_REQUEST)
 
     ts = round(time.time())
 
@@ -64,45 +64,42 @@ def post_create(request, data: NewPost) -> dict | tuple[int, dict]:
     # TODO: add poll
     # TODO: mention notifications and whatnot
 
-    return {
-        "success": True,
-        "post": get_post_json(post, user)
-    }
+    return build_response(ResponseCodes.CREATE_POST, get_post_data(post, user))
 
-def add_like(request, post_id: int) -> dict | tuple[int, dict]:
+def add_like(request, post_id: int) -> HttpResponse:
     try:
         user = User.objects.get(token=request.COOKIES.get("token"))
     except User.DoesNotExist:
-        return 400, { "success": False, "reason": "NOT_AUTHENTICATED" }
+        return build_response(ResponseCodes.LIKE, ErrorCodes.NOT_AUTHENTICATED)
 
     try:
         post = Post.objects.get(post_id=post_id)
     except Post.DoesNotExist:
-        return 400, { "success": False, "reason": "POST_NOT_FOUND" }
+        return build_response(ResponseCodes.LIKE, ErrorCodes.POST_NOT_FOUND)
 
     creator = post.creator
 
     if creator.blocking.contains(user) \
     or creator.blockers.contains(user) \
     or (post.private and creator.username != user.username and not creator.followers.contains(user)):
-        return 400, { "success": False, "reason": "CANT_INTERACT" }
+        return build_response(ResponseCodes.LIKE, ErrorCodes.CANT_INTERACT)
 
     try:
         post.likes.add(user)
     except IntegrityError:
         ...
 
-    return { "success": True }
+    return build_response(ResponseCodes.LIKE)
 
-def remove_like(request, post_id: int) -> dict | tuple[int, dict]:
+def remove_like(request, post_id: int) -> HttpResponse:
     try:
         user = User.objects.get(token=request.COOKIES.get("token"))
     except User.DoesNotExist:
-        return 400, { "success": False, "reason": "NOT_AUTHENTICATED" }
+        return build_response(ResponseCodes.UNLIKE, ErrorCodes.NOT_AUTHENTICATED)
 
     try:
         M2MLike.objects.get(user=user, post=post_id).delete()
     except M2MLike.DoesNotExist:
         ...
 
-    return { "success": True }
+    return build_response(ResponseCodes.UNLIKE)
