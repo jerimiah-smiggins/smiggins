@@ -69,9 +69,8 @@ function reloadTimeline(ignoreCache: boolean=false, element?: HTMLDivElement): v
   offset.upper = null;
   offset.lower = null;
 
-  fetch(currentTl.url, {
-    headers: { Accept: "application/json" }
-  }).then((response: Response): Promise<ArrayBuffer> => (response.arrayBuffer()))
+  fetch(currentTl.url)
+    .then((response: Response): Promise<ArrayBuffer> => (response.arrayBuffer()))
     .then(parseResponse)
     .catch((err: any): void => {
       createToast("Something went wrong!", String(err));
@@ -98,9 +97,8 @@ function loadMorePosts(): void {
 
   tlElement.insertAdjacentHTML("beforeend", LOADING_HTML);
 
-  fetch(`${currentTl.url}${currentTl.url.includes("?") ? "&" : "?"}offset=${offset.lower}`, {
-    headers: { Accept: "application/json" }
-  }).then((response: Response): Promise<ArrayBuffer> => (response.arrayBuffer()))
+  fetch(`${currentTl.url}${currentTl.url.includes("?") ? "&" : "?"}offset=${offset.lower}`)
+    .then((response: Response): Promise<ArrayBuffer> => (response.arrayBuffer()))
     .then(parseResponse)
     .catch((err: any): void => {
       createToast("Something went wrong!", String(err));
@@ -413,10 +411,8 @@ function postButtonClick(e: Event): void {
 
     el.dataset.liked = String(!liked);
 
-    fetch(`/api/post/like/${postId}`, {
-      method: liked ? "DELETE" : "POST",
-      headers: { Accept: "application/json" }
-    }).then((response: Response): Promise<ArrayBuffer> => (response.arrayBuffer()))
+    fetch(`/api/post/like/${postId}`)
+      .then((response: Response): Promise<ArrayBuffer> => (response.arrayBuffer()))
       .then(parseResponse)
       .catch((err: any) => {
         createToast("Something went wrong!", String(err));
@@ -443,8 +439,7 @@ function createPost(
       private: followersOnly,
       poll: [], // TODO: posting polls
       quote: extra && extra.quote || null
-    }),
-    headers: { Accept: "application/json" }
+    })
   }).then((response: Response): Promise<ArrayBuffer> => (response.arrayBuffer()))
     .then((ab: ArrayBuffer): ArrayBuffer => {
       callback && callback(!((new Uint8Array(ab)[0] >> 7) & 1));

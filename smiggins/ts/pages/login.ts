@@ -14,11 +14,10 @@ function loginSubmitEvent(e: MouseEvent): void {
 
   fetch("/api/user/login", {
     method: "POST",
-    body: JSON.stringify({
-      username: username,
-      password: sha256(password)
-    }),
-    headers: { Accept: "application/json" }
+    body: buildRequest([
+      [username, 8],
+      hexToBytes(sha256(password))
+    ])
   }).then((response: Response): Promise<ArrayBuffer> => (response.arrayBuffer()))
     .then(parseResponse)
     .then((): void => (e.target as HTMLButtonElement | null)?.removeAttribute("disabled"))
@@ -57,12 +56,11 @@ function signupSubmitEvent(e: MouseEvent): void {
 
   fetch("/api/user/signup", {
     method: "POST",
-    body: JSON.stringify({
-      username: username,
-      password: sha256(password),
-      otp: otp
-    }),
-    headers: { Accept: "application/json" }
+    body: buildRequest([
+      [username, 8],
+      hexToBytes(sha256(password)),
+      [otp || "", 8]
+    ])
   }).then((response: Response): Promise<ArrayBuffer> => (response.arrayBuffer()))
     .then(parseResponse)
     .then((): void => (e.target as HTMLButtonElement | null)?.removeAttribute("disabled"))

@@ -160,8 +160,7 @@ function toggleFollow(e: Event): void {
 
   fetch("/api/user/follow", {
     method: unfollow ? "DELETE" : "POST",
-    body: JSON.stringify({ username: getUsernameFromPath() }),
-    headers: { Accept: "application/json" }
+    body: getUsernameFromPath()
   }).then((response: Response): Promise<ArrayBuffer> => (response.arrayBuffer()))
     .then(parseResponse)
     .then((): void => { followButton.disabled = false; })
@@ -181,8 +180,7 @@ function toggleBlock(e: Event): void {
 
   fetch("/api/user/block", {
     method: unblock ? "DELETE" : "POST",
-    body: JSON.stringify({ username: getUsernameFromPath() }),
-    headers: { Accept: "application/json" }
+    body: getUsernameFromPath()
   }).then((response: Response): Promise<ArrayBuffer> => (response.arrayBuffer()))
     .then(parseResponse)
     .then((): void => { blockButton.disabled = false; })

@@ -56,8 +56,7 @@ function saveProfile(e: Event): void {
       gradient: gradientCheckElement.checked,
       color_one: c1Element.value,
       color_two: c2Element.value
-    }),
-    headers: { Accept: "application/json" }
+    })
   }).then((response: Response): Promise<ArrayBuffer> => (response.arrayBuffer()))
     .then(parseResponse)
     .then((): void => { (e.target as HTMLButtonElement | null)?.removeAttribute("disabled"); })
@@ -75,10 +74,7 @@ function saveDefaultVisibility(): void {
 
   fetch("/api/user/default_post", {
     method: "PATCH",
-    body: JSON.stringify({
-      "private": defaultPostPrivate
-    }),
-    headers: { Accept: "application/json" }
+    body: buildRequest([[+defaultPostPrivate, 8]])
   }).then((response: Response): Promise<ArrayBuffer> => (response.arrayBuffer()))
     .then(parseResponse);
 }
@@ -86,10 +82,7 @@ function saveDefaultVisibility(): void {
 function saveVerifyFollowers(): void {
   fetch("/api/user/verify_followers", {
     method: "PATCH",
-    body: JSON.stringify({
-      verify: (document.getElementById("verify-followers") as HTMLInputElement | null)?.checked
-    }),
-    headers: { Accept: "application/json" }
+    body: buildRequest([[+((document.getElementById("verify-followers") as HTMLInputElement | null)?.checked || false), 8]])
   }).then((response: Response): Promise<ArrayBuffer> => (response.arrayBuffer()))
     .then(parseResponse);
 }
@@ -140,11 +133,10 @@ function changePassword(e: Event): void {
 
   fetch("/api/user/password", {
     method: "PATCH",
-    body: JSON.stringify({
-      current_password: sha256(currentPw),
-      new_password: sha256(newPw)
-    }),
-    headers: { Accept: "application/json" }
+    body: buildRequest([
+      hexToBytes(sha256(currentPw)),
+      hexToBytes(sha256(newPw))
+    ])
   }).then((response: Response): Promise<ArrayBuffer> => (response.arrayBuffer()))
     .then(parseResponse)
     .then((): void => { (e.target as HTMLButtonElement | null)?.removeAttribute("disabled"); })
@@ -171,8 +163,7 @@ function deleteAccount(e: Event): void {
 
   fetch("/api/user", {
     method: "DELETE",
-    body: JSON.stringify({ password: sha256(password) }),
-    headers: { Accept: "application/json" }
+    body: buildRequest([hexToBytes(sha256(password))])
   }).then((response: Response): Promise<ArrayBuffer> => (response.arrayBuffer()))
     .then(parseResponse)
     .then((): void => { (e.target as HTMLButtonElement | null)?.removeAttribute("disabled"); })

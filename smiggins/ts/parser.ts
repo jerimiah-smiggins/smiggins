@@ -92,14 +92,10 @@ function _extractPost(data: Uint8Array): [post, leftoverData: Uint8Array] {
 
   let newData: Uint8Array = data.slice(13);
 
-  console.log(newData);
-
   if (_extractBool(flags, 6)) {
     commentParentId = _extractInt(32, newData);
     newData = newData.slice(4);
   }
-
-  console.log(flags, _extractBool(flags, 6), commentParentId);
 
   let interactions = {
     likes: _extractInt(16, newData),

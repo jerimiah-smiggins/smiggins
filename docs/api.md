@@ -24,7 +24,53 @@ length of the field) to display the length of the text. Any number will be sent
 using **big endian**, meaning the number 0x123 would be sent in two bytes, those
 being 0x01 0x23, with the most significant bits coming first.
 
-## All successful response formats
+## Request formats
+**POST /api/user/signup**:  
+`UL UU... PP PP PP PP PP PP PP PP PP PP PP PP PP PP PP PP PP PP PP PP PP PP PP PP PP PP PP PP PP PP PP PP IL IC...`
+
+where:
+- `UL` is the length of the username
+- `UU...` is the username
+- `P` is the sha256 hash of the password as bytes
+- `IL` is the length of the invite code (0 if disabled)
+- `IC...` is the invite code
+---
+**POST /api/user/login**:  
+`UL UU... PP PP PP PP PP PP PP PP PP PP PP PP PP PP PP PP PP PP PP PP PP PP PP PP PP PP PP PP PP PP PP PP`
+
+where:
+- `UL` is the length of the username
+- `UU...` is the username
+- `P` is the sha256 hash of the password as bytes
+---
+**PATCH /api/user/default_post**:  
+**PATCH /api/user/verify_followers**:  
+`0000000b`
+
+where:
+- `b` is whether or not default post is private or manually verify followers,
+  depending on the route.
+---
+**DELETE /api/user**:  
+`PP PP PP PP PP PP PP PP PP PP PP PP PP PP PP PP PP PP PP PP PP PP PP PP PP PP PP PP PP PP PP PP`
+---
+**PATCH /api/user/password**:  
+`PP PP PP PP PP PP PP PP PP PP PP PP PP PP PP PP PP PP PP PP PP PP PP PP PP PP PP PP PP PP PP PP NN NN NN NN NN NN NN NN NN NN NN NN NN NN NN NN NN NN NN NN NN NN NN NN NN NN NN NN NN NN NN NN`
+
+where:
+- `P` is the sha256 hash of the current password as bytes
+- `N` is the sha256 hash of the new password as bytes
+---
+**POST /api/user/follow**:  
+**DELETE /api/user/follow**:  
+**POST /api/user/block**:  
+**DELETE /api/user/block**:  
+`UU...`
+
+where:
+- `U` is the username
+
+## Successful response formats
 **Posts**
 This isn't for a specific route, instead this is the format for a post.
 

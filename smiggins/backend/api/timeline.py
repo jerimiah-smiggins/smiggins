@@ -73,7 +73,7 @@ def get_timeline(
             tl = tl.filter(~Q(private=True))
 
     objs = list(tl[:POSTS_PER_REQUEST + 1])
-    return len(objs) <= POSTS_PER_REQUEST, min(POSTS_PER_REQUEST, len(objs)), sum([print(get_post_data(i, user)) or get_post_data(i, user) for i in objs[:POSTS_PER_REQUEST]], [])
+    return len(objs) <= POSTS_PER_REQUEST, min(POSTS_PER_REQUEST, len(objs)), sum([get_post_data(i, user) for i in objs[:POSTS_PER_REQUEST]], [])
 
 def tl_following(request, offset: int | None=None, forwards: bool=False) -> HttpResponse:
     # if rl := check_ratelimit(request, "GET /api/timeline/following"):
