@@ -53,6 +53,7 @@ where:
 ---
 **DELETE /api/user**:  
 `PP PP PP PP PP PP PP PP PP PP PP PP PP PP PP PP PP PP PP PP PP PP PP PP PP PP PP PP PP PP PP PP`
+
 ---
 **PATCH /api/user/password**:  
 `PP PP PP PP PP PP PP PP PP PP PP PP PP PP PP PP PP PP PP PP PP PP PP PP PP PP PP PP PP PP PP PP NN NN NN NN NN NN NN NN NN NN NN NN NN NN NN NN NN NN NN NN NN NN NN NN NN NN NN NN NN NN NN NN`
@@ -211,8 +212,8 @@ where:
 **PATCH /api/user**: `21`  
 **DELETE /api/user**: `22`  
 **PATCH /api/user/default_post**: `24`  
-**PATCH /api/user/verify_followers**: `25`
-**POST /api/post/like/{post_id}**: `31`
+**PATCH /api/user/verify_followers**: `25`  
+**POST /api/post/like/{post_id}**: `31`  
 **DELETE /api/post/like/{post_id}**: `32`
 ## Error codes
 Code|Description
