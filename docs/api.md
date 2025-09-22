@@ -69,7 +69,37 @@ where:
 
 where:
 - `U` is the username
+---
+**POST /api/post**:  
+`fqpc0000 CL CL CC... WL CW... PL [IL PP...]... QI QI QI QI CI CI CI CI`
 
+where:
+- `f` is whether or not the post is followers only
+- `q` is whether or not there is a quote
+- `p` is whether or not there is a poll
+- `c` is whether or not there is a comment
+- `CL` is the content length (uint16)
+- `CC...` is the content
+- `WL` is the length of the content warning (uint8), 0 if there is no cw
+- `CW` is the content warning
+- **if p is true:**
+  - `PL` is the number of options in the poll
+  - `IL` is the length of each poll option (uint8)
+  - `PP...` is the content of each poll option
+- `QI` is the quote id (uint32), only if q is true
+- `CI` is the comment id (uint32), only if c is true
+---
+**PATCH /api/user**
+`g0000000 DL DN... BL BL BB... R1 G1 B1 R2 G2 B2`
+
+where:
+- `g` is whether or not the banner is gradient
+- `DL` is the length of the display name (uint8)
+- `DN...` is the display name
+- `BL` is the length of the bio (int16)
+- `BB...` is the bio
+- `R1/G1/B1` is the RGB of the first banner color
+- `R2/G2/B2` is the RGB of the second banner color
 ## Successful response formats
 **Posts**
 This isn't for a specific route, instead this is the format for a post.

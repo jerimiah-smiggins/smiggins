@@ -50,13 +50,14 @@ function saveProfile(e: Event): void {
 
   fetch("/api/user", {
     method: "PATCH",
-    body: JSON.stringify({
-      display_name: displayNameElement.value,
-      bio: bioElement.value,
-      gradient: gradientCheckElement.checked,
-      color_one: c1Element.value,
-      color_two: c2Element.value
-    })
+    body: buildRequest([
+      gradientCheckElement.checked,
+      [displayNameElement.value, 8],
+      [bioElement.value, 16],
+      hexToBytes(c1Element.value.slice(1)),
+      hexToBytes(c2Element.value.slice(1)),
+    ])
+
   }).then((response: Response): Promise<ArrayBuffer> => (response.arrayBuffer()))
     .then(parseResponse)
     .then((): void => { (e.target as HTMLButtonElement | null)?.removeAttribute("disabled"); })

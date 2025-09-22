@@ -8,7 +8,7 @@ from ..variables import (DEFAULT_BANNER_COLOR, ENABLE_NEW_ACCOUNTS,
                          MAX_BIO_LENGTH, MAX_DISPL_NAME_LENGTH,
                          MAX_USERNAME_LENGTH)
 from .builder import ErrorCodes, ResponseCodes, build_response
-from .parser import _toHex, parse_request
+from .parser import _to_hex, parse_request
 from .schema import Profile
 
 COLOR_REGEX = re.compile("^#[a-f0-9]{6}$")
@@ -184,36 +184,28 @@ def get_profile(request: HttpRequest) -> HttpResponse:
         user.verify_followers
     ])
 
-    {
-        "success": True,
-        "display_name": user.display_name,
-        "bio": user.bio,
-        "gradient": user.gradient,
-        "color_one": user.color,
-        "color_two": user.color_two,
-        "verify_followers": user.verify_followers
-    }
-
-def save_profile(request: HttpRequest, data: Profile) -> HttpResponse:
+def save_profile(request: HttpRequest) -> HttpResponse:
     try:
         user = User.objects.get(token=request.COOKIES.get("token"))
     except User.DoesNotExist:
         return build_response(ResponseCodes.SAVE_PROFILE, ErrorCodes.NOT_AUTHENTICATED)
 
-    display_name = trim_whitespace(data.display_name[:MAX_DISPL_NAME_LENGTH], True)
-    bio = trim_whitespace(data.bio[:MAX_BIO_LENGTH])
+    data = parse_request(request.body, ResponseCodes.SAVE_PROFILE)
+
+    display_name = trim_whitespace(data["display_name"][:MAX_DISPL_NAME_LENGTH], True)
+    bio = trim_whitespace(data["bio"][:MAX_BIO_LENGTH])
 
     if display_name[1]:
         user.display_name = display_name[0]
 
     user.bio = bio[0] if bio[1] else ""
-    user.gradient = data.gradient
+    user.gradient = data["gradient"]
 
-    if re.match(COLOR_REGEX, data.color_one):
-        user.color = data.color_one
+    if re.match(COLOR_REGEX, data["color_one"]):
+        user.color = data["color_one"]
 
-    if re.match(COLOR_REGEX, data.color_two):
-        user.color_two = data.color_two
+    if re.match(COLOR_REGEX, data["color_two"]):
+        user.color_two = data["color_two"]
 
     user.save()
 
@@ -247,8 +239,8 @@ def change_password(request: HttpRequest) -> HttpResponse:
 
     current_token = request.COOKIES.get("token")
 
-    current_pw = _toHex(request.body[:32])
-    new_pw = _toHex(request.body[32:64])
+    current_pw = _to_hex(request.body[:32])
+    new_pw = _to_hex(request.body[32:64])
 
     try:
         user = User.objects.get(token=current_token)
@@ -275,7 +267,7 @@ def delete_account(request: HttpRequest) -> HttpResponse:
     except User.DoesNotExist:
         return build_response(ResponseCodes.DELETE_ACCOUNT, ErrorCodes.NOT_AUTHENTICATED)
 
-    if user.token == generate_token(user.username, _toHex(request.body[:32])):
+    if user.token == generate_token(user.username, _to_hex(request.body[:32])):
         user.delete()
         return build_response(ResponseCodes.DELETE_ACCOUNT)
 

@@ -428,18 +428,36 @@ function createPost(
   followersOnly: boolean,
   callback?: (success: boolean) => void,
   extra?: {
-    quote?: number
+    quote?: number,
+    poll?: string[],
+    comment?: number
   }
 ): void {
+  console.log(...[
+      followersOnly,
+      Boolean(extra && extra.quote),
+      Boolean(extra && extra.poll && extra.poll.length),
+      Boolean(extra && extra.comment),
+      [content, 16],
+      [cw || "", 8],
+      ...(extra && extra.poll ? [[extra.poll.length, 8] as [number, 8], ...extra.poll.map((a: string): [string, 8] => ([a, 8]))] : []),
+      ...(extra && extra.quote ? [[extra.quote, 32] as [number, 32]] : []),
+      ...(extra && extra.comment ? [[extra.comment, 32] as [number, 32]] : [])
+    ]);
+
   fetch("/api/post", {
     method: "POST",
-    body: JSON.stringify({
-      content: content,
-      cw: cw,
-      private: followersOnly,
-      poll: [], // TODO: posting polls
-      quote: extra && extra.quote || null
-    })
+    body: buildRequest([
+      followersOnly,
+      Boolean(extra && extra.quote),
+      Boolean(extra && extra.poll && extra.poll.length),
+      Boolean(extra && extra.comment),
+      [content, 16],
+      [cw || "", 8],
+      ...(extra && extra.poll ? [[extra.poll.length, 8] as [number, 8], ...extra.poll.map((a: string): [string, 8] => ([a, 8]))] : []),
+      ...(extra && extra.quote ? [[extra.quote, 32] as [number, 32]] : []),
+      ...(extra && extra.comment ? [[extra.comment, 32] as [number, 32]] : [])
+    ])
   }).then((response: Response): Promise<ArrayBuffer> => (response.arrayBuffer()))
     .then((ab: ArrayBuffer): ArrayBuffer => {
       callback && callback(!((new Uint8Array(ab)[0] >> 7) & 1));
