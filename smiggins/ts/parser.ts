@@ -17,7 +17,8 @@ enum ResponseCodes {
   TimelineGlobal = 0x60,
   TimelineFollowing,
   TimelineUser,
-  TimelineComments
+  TimelineComments,
+  TimelineNotifications
 };
 
 enum ErrorCodes {
@@ -32,6 +33,13 @@ enum ErrorCodes {
   PollSingleOption,
   NotAuthenticated = 0xfe,
   Ratelimit
+};
+
+enum NotificationCodes {
+  Comment = 1,
+  Quote,
+  Ping,
+  Like
 };
 
 function _getErrorStrings(code: number, context: number): [title: string | null, content?: string] {
@@ -161,9 +169,17 @@ function _toHex(data: Uint8Array): string {
   return [...data].map((i: number): string => i.toString(16).padStart(2, "0")).join("");
 }
 
-function parseResponse(data: ArrayBuffer, extraVariableSometimesUsed?: string): void {
+function parseResponse(
+  data: ArrayBuffer,
+  extraVariableSometimesUsed?: string
+  // TODO: add an onerror callback (returns true/false depending on if it should use default toast)
+): void {
   let u8arr: Uint8Array = new Uint8Array(data);
   let displayName: [string, leftoverData: Uint8Array];
+  let end: boolean;
+  let forwards: boolean;
+  let numPosts: number;
+  let posts;
 
   if (u8arr[0] >> 7 & 1) {
     return createToast(..._getErrorStrings(u8arr[1], u8arr[0] ^ (1 << 7)));
@@ -209,6 +225,37 @@ function parseResponse(data: ArrayBuffer, extraVariableSometimesUsed?: string): 
     case ResponseCodes.Like: break;
     case ResponseCodes.Unlike: break;
 
+    case ResponseCodes.TimelineNotifications:
+      end = _extractBool(u8arr[1], 7);
+      forwards = _extractBool(u8arr[1], 6);
+      numPosts = u8arr[2];
+      posts = [] as [post, number][];
+      u8arr = u8arr.slice(3);
+
+      for (let i: number = 0; i < numPosts; i++) {
+        let notificationType = u8arr[0];
+        let postData: [post, Uint8Array] = _extractPost(u8arr.slice(1));
+
+        posts.push([postData[0], notificationType]);
+        u8arr = postData[1];
+      }
+
+      if (forwards) {
+        // TODO: forwards handling
+        // Add posts directly to timeline instead of forward cache
+        // if (extraVariableSometimesUsed?.startsWith("$")) {
+        //   handleForward(posts, end, extraVariableSometimesUsed.slice(1), true);
+        // } else if (extraVariableSometimesUsed) {
+        //   handleForward(posts, end, extraVariableSometimesUsed);
+        // } else {
+        //   console.log("uh uhhhh why isn't the url set for forwards tl ????");
+        // }
+      } else {
+        insertIntoPostCache(posts.map((a) => (a[0])));
+        renderTimeline(posts.map((a) => ([a[0].id, a[1]] as [number, number])), end, false);
+      }
+      break;
+
     case ResponseCodes.TimelineUser:
       displayName = _extractString(8, u8arr.slice(1));
       userUpdateStats(
@@ -226,6 +273,7 @@ function parseResponse(data: ArrayBuffer, extraVariableSometimesUsed?: string): 
     case ResponseCodes.TimelineComments:
       // Prevent accidentally running this code when on user timeline
       if (u8arr[0] === ResponseCodes.TimelineComments) {
+        // TODO: make a post with a cw not collapse when refreshing
         let postData: [post, leftoverData: Uint8Array] = _extractPost(u8arr.slice(1));
         updateFocusedPost(postData[0]);
         u8arr = postData[1];
@@ -233,10 +281,10 @@ function parseResponse(data: ArrayBuffer, extraVariableSometimesUsed?: string): 
 
     case ResponseCodes.TimelineGlobal:
     case ResponseCodes.TimelineFollowing:
-      let end: boolean = _extractBool(u8arr[1], 7);
-      let forwards: boolean = _extractBool(u8arr[1], 6);
-      let numPosts: number = u8arr[2];
-      let posts: post[] = [];
+      end = _extractBool(u8arr[1], 7);
+      forwards = _extractBool(u8arr[1], 6);
+      numPosts = u8arr[2];
+      posts = [];
       u8arr = u8arr.slice(3);
 
       for (let i: number = 0; i < numPosts; i++) {

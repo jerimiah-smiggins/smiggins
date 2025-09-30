@@ -1,9 +1,9 @@
-from typing import Literal
+from typing import Callable, Literal
 
 from django.db.models import Q
 from django.db.models.manager import BaseManager
 from django.http import HttpResponse
-from posts.models import Post, User
+from posts.models import Post, User, Notification
 
 from ..variables import POSTS_PER_REQUEST
 from .builder import ErrorCodes, ResponseCodes, build_response
@@ -41,14 +41,28 @@ def get_post_data(post: Post, user: User | None) -> list:
         ])
     ]
 
+def get_notification_data(notification: Notification, user: User | None) -> list:
+    quote_types = {
+        "comment": 1,
+        "quote": 2,
+        "ping": 3,
+        "like": 4
+    }
+
+    return [
+        ((not notification.read) << 7 | quote_types[notification.event_type], 8),
+        *get_post_data(notification.post, user)
+    ]
+
 def get_timeline(
-    tl: BaseManager[Post],
+    tl: BaseManager[Post] | BaseManager[Notification],
     offset: int | None,
     user: User | None,
     forwards: bool=False, *,
     no_visibility_check: bool=False,
     show_blocked: bool=False,
-    order_by: list[str]=["-timestamp", "-pk"]
+    order_by: list[str]=["-timestamp", "-pk"],
+    custom_build: Callable[[BaseManager[Post]], list] | Callable[[BaseManager[Notification]], list] | None=None
 ) -> tuple[bool, int, list]:
     if offset:
         tl = tl.filter(**{
@@ -73,7 +87,7 @@ def get_timeline(
             tl = tl.filter(~Q(private=True))
 
     objs = list(tl[:POSTS_PER_REQUEST + 1])
-    return len(objs) <= POSTS_PER_REQUEST, min(POSTS_PER_REQUEST, len(objs)), sum([get_post_data(i, user) for i in objs[:POSTS_PER_REQUEST]], [])
+    return len(objs) <= POSTS_PER_REQUEST, min(POSTS_PER_REQUEST, len(objs)), sum([(get_post_data if isinstance(i, Post) else get_notification_data)(i, user) for i in objs[:POSTS_PER_REQUEST]], [])
 
 def tl_following(request, offset: int | None=None, forwards: bool=False) -> HttpResponse:
     # if rl := check_ratelimit(request, "GET /api/timeline/following"):
@@ -194,4 +208,25 @@ def tl_comments(request, post_id: int, sort: Literal["recent", "oldest", "random
     return build_response(ResponseCodes.TIMELINE_COMMENTS, [
         *get_post_data(post, user), (0, 8),
         end, forwards, (length, 8), *posts
+    ])
+
+def tl_notifications(request, offset: int | None=None, forwards: bool=False):
+    try:
+        user = User.objects.get(token=request.COOKIES.get("token"))
+    except User.DoesNotExist:
+        return build_response(ResponseCodes.TIMELINE_COMMENTS, ErrorCodes.NOT_AUTHENTICATED)
+
+    end, length, posts = get_timeline(
+        user.notifications,
+        offset,
+        user,
+        forwards,
+        no_visibility_check=True
+    )
+
+    return build_response(ResponseCodes.TIMELINE_NOTIFICATIONS, [
+        end,
+        forwards,
+        (length, 8),
+        *posts
     ])

@@ -110,22 +110,21 @@ class Notification(models.Model):
     # The type of the event that caused the notification. Can be:
     # - comment (commenting on your post)
     # - quote (your post/comment being quoted)
-    # - ping_p (ping from a post)
-    # - ping_c (ping from a comment)
+    # - ping (get @mentioned)
+    # - like (your post got liked)
     event_type = models.CharField(max_length=7)
 
-    # The id for whatever happened.
-    # - comment: it would be a comment id
-    # - quote: the post id of the quote
-    # - ping_p: it would be the post the ping came from
-    # - ping_c: it would be the comment id from where the ping came from
-    event_id = models.IntegerField() #!# foreignkey
+    # Exists in order to automatically remove a notification if a like gets removed
+    linked_like = models.ForeignKey("M2MLike", on_delete=models.CASCADE)
+
+    # The post that caused the notification
+    post = models.ForeignKey(Post, on_delete=models.CASCADE)
 
     # The user object for who the notification is for
     is_for = models.ForeignKey(User, on_delete=models.CASCADE, related_name="notifications")
 
-    def __str__(self):
-        return f"({'' if self.read else 'un'}read) {self.event_type} ({self.event_id}) for {self.is_for.username if self.is_for else None}"
+    # def __str__(self):
+        # return f"({'' if self.read else 'un'}read) {self.event_type} ({self.event_id}) for {self.is_for.username if self.is_for else None}"
 
 class PrivateMessageContainer(models.Model):
     # Essentially f"{user_one.username}:{user_two.username}" where user_one
@@ -274,7 +273,7 @@ try:
     django_admin.site.register([
         User,
         Post,
-        Notification,
+        Notification        ,
         PrivateMessageContainer,
         PrivateMessage,
         Hashtag,

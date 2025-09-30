@@ -118,7 +118,7 @@ function clearTimelineStatuses(): void {
 
 // appends posts to a timeline
 function renderTimeline(
-  posts: number[],
+  posts: number[] | [postId: number, notificationType: number][],
   end: boolean,
   updateCache: boolean=true,
   moreElementOverride?: HTMLElement | null
@@ -134,7 +134,22 @@ function renderTimeline(
   }
 
   for (const post of posts) {
-    frag.append(getPost(post));
+    if (typeof post === "number") {
+      frag.append(getPost(post));
+    } else {
+      let title: HTMLDivElement = document.createElement("div");
+      title.classList.add("notification-title");
+
+      switch (post[1] & 0b01111111) {
+        case NotificationCodes.Comment: title.innerText = `${postCache[post[0]]?.user.display_name} commented on your post.`; break;
+        case NotificationCodes.Quote: title.innerText = `${postCache[post[0]]?.user.display_name} quoted your post.`; break;
+        case NotificationCodes.Ping: title.innerText = `${postCache[post[0]]?.user.display_name} mentioned you in their post.`; break;
+        case NotificationCodes.Like: title.innerText = `${postCache[post[0]]?.user.display_name} liked your post.`; break;
+        default: title.innerText = "Unknown notification type";
+      }
+
+      frag.append(title, getPost(post[0]));
+    }
   }
 
   tlElement.append(frag);
@@ -154,7 +169,14 @@ function renderTimeline(
       tlCache[currentTlID] = c;
     }
 
-    c.posts.push(...posts);
+    if (posts && typeof posts[0] === "number") {
+      // @ts-ignore
+      c.posts.push(...posts);
+    } else if (posts && typeof posts[0] === "object") {
+      // @ts-ignore
+      c.posts.push(...(posts.map((a) => (a[0]))));
+    }
+
     c.lowerBound = offset.lower;
     c.upperBound = offset.upper;
     c.end = end;

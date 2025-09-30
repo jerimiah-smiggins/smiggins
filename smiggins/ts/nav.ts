@@ -10,11 +10,14 @@ function urlToIntent(path: string): intent {
       case "/signup/": history.pushState("home", "", "/");
       case "/": return "home";
 
+      case "/notifications/": return "notifications";
+
       case "/settings/": return "settings";
       case "/settings/profile/": return "settings/profile";
       case "/settings/cosmetic/": return "settings/cosmetic";
       case "/settings/account/": return "settings/account";
       case "/settings/about/": return "settings/about";
+
       case /^\/u\/[a-z0-9_\-]+\/$/.test(path) ? path : "": return "user";
       case /^\/p\/[0-9]+\/$/.test(path) ? path : "": return "post";
     }
@@ -133,6 +136,8 @@ function getPageTitle(intent: intent): string {
     case "settings/account":
     case "settings/about":
       return "Settings - " + pageTitle;
+    case "notifications":
+      return "Notifications - " + pageTitle;
     default: return intent + " - " + pageTitle;
   }
 }
