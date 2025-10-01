@@ -11,7 +11,7 @@ def _extract_string(length_bits: Literal[8, 16], data: bytes) -> tuple[str, byte
     )
 
 def _extract_int(length_bits: Literal[8, 16, 32, 64], data: bytes) -> int:
-    return int.from_bytes(data[:length_bits // 8])
+    return int.from_bytes(data[:length_bits // 8], "big")
 
 def _extract_bool(num: int, offset: int) -> bool:
     return bool((num >> offset) & 1)
