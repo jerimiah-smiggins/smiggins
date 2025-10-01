@@ -4,7 +4,7 @@ function p_home(element: HTMLDivElement): void {
     global: { url: "/api/timeline/global", prependPosts: true }
   }, "global", element);
 
-  element.querySelector("#post")?.addEventListener("click", homeCreatePost)
+  element.querySelector("#post")?.addEventListener("click", homeCreatePost);
 }
 
 function homeCreatePost(e: Event): void {

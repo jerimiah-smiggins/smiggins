@@ -63,7 +63,7 @@
       <!-- logged in pages -->
       {% include "snippet.html" with id="pages/home" vars="username,checked_if_default_private" processing="home,timeline_switch,timeline_more,input_enter" %}
       {% include "snippet.html" with id="pages/user" vars="username" processing="user,timeline_switch,timeline_more" %}
-      {% include "snippet.html" with id="pages/post" vars="username" processing="post_page,timeline_switch,timeline_more" %}
+      {% include "snippet.html" with id="pages/post" vars="username" processing="post_page,timeline_switch,timeline_more,input_enter" %}
       {% include "snippet.html" with id="pages/settings" vars="username" %}
       {% include "snippet.html" with id="pages/settings/profile" vars="username,selected_if_default_private" processing="settings_profile" %}
       {% include "snippet.html" with id="pages/settings/cosmetic" vars="username" processing="settings_cosmetic" %}

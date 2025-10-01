@@ -241,7 +241,7 @@ function parseResponse(
       }
 
       if (forwards) {
-        // TODO: forwards handling
+        // TODO: forwards handling for notifs
         // Add posts directly to timeline instead of forward cache
         // if (extraVariableSometimesUsed?.startsWith("$")) {
         //   handleForward(posts, end, extraVariableSometimesUsed.slice(1), true);

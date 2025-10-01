@@ -141,10 +141,10 @@ function renderTimeline(
       title.classList.add("notification-title");
 
       switch (post[1] & 0b01111111) {
-        case NotificationCodes.Comment: title.innerText = `${postCache[post[0]]?.user.display_name} commented on your post.`; break;
-        case NotificationCodes.Quote: title.innerText = `${postCache[post[0]]?.user.display_name} quoted your post.`; break;
-        case NotificationCodes.Ping: title.innerText = `${postCache[post[0]]?.user.display_name} mentioned you in their post.`; break;
-        case NotificationCodes.Like: title.innerText = `${postCache[post[0]]?.user.display_name} liked your post.`; break;
+        case NotificationCodes.Comment: title.innerText = `${postCache[post[0]]?.user.display_name} commented on your post:`; break;
+        case NotificationCodes.Quote: title.innerText = `${postCache[post[0]]?.user.display_name} quoted your post:`; break;
+        case NotificationCodes.Ping: title.innerText = `${postCache[post[0]]?.user.display_name} mentioned you:`; break;
+        case NotificationCodes.Like: title.innerText = `${postCache[post[0]]?.user.display_name} liked your post:`; break;
         default: title.innerText = "Unknown notification type";
       }
 
@@ -393,6 +393,11 @@ function timelinePolling(forceEvent: boolean=false): void {
 // prepends a post to the current timeline (ex. when creating a post, shows it immediately instead of waiting for load)
 function prependPostToTimeline(post: post): void {
   if (currentTl.prependPosts) {
+    if (
+      typeof currentTl.prependPosts === "number" &&
+      post.comment !== currentTl.prependPosts
+    ) { return; }
+
     let newButton: HTMLElement | null = document.getElementById("timeline-show-new");
     let prependedPost: HTMLDivElement = getPost(insertIntoPostCache([post])[0], false);
     prependedPost.dataset.prepended = "";

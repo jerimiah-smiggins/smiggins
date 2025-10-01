@@ -4,6 +4,6 @@ function p_notifications(element: HTMLDivElement): void {
   if (!timelineElement) { return; }
 
   hookTimeline(timelineElement, {
-    "notifications": { url: "/api/timeline/notifications", prependPosts: false }
+    "notifications": { url: "/api/timeline/notifications", prependPosts: false, disableCaching: true }
   }, "notifications", element);
 }

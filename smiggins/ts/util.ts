@@ -205,3 +205,14 @@ function genericCheckbox(storageId: string): (e: Event) => void {
     } 
   };
 }
+
+function getMentionsFromPost(p: post): string[] {
+  let re: RegExp = /@([a-zA-Z0-9_\-])+/g;
+  let mentions: string[] = [...new Set([[null, p.user.username] as [null, string], ...p.content.matchAll(re)].map((a) => (a[1].toLowerCase())))].sort((a, b) => (a < b ? -1 : 1));
+
+  if (mentions.includes(username)) {
+    mentions.splice(mentions.indexOf(username), 1);
+  }
+
+  return mentions;
+}
