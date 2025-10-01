@@ -122,22 +122,25 @@ function renderPage(intent: intent): void {
 
 function getPageTitle(intent: intent): string {
   switch (intent) {
-    case "index":
-    case "home":
-      return pageTitle;
     case "login": return "Log In - " + pageTitle;
     case "signup": return "Sign Up - " + pageTitle;
     case "logout": return "Log Out - " + pageTitle;
     case "404": return "Page Not Found - " + pageTitle;
     case "user": return getUsernameFromPath() + " - " + pageTitle;
+    case "notifications": return "Notifications - " + pageTitle;
+
+    case "index":
+    case "home":
+    case "post":
+      return pageTitle;
+
     case "settings":
     case "settings/profile":
     case "settings/cosmetic":
     case "settings/account":
     case "settings/about":
       return "Settings - " + pageTitle;
-    case "notifications":
-      return "Notifications - " + pageTitle;
+
     default: return intent + " - " + pageTitle;
   }
 }
