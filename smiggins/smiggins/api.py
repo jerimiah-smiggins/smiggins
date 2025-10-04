@@ -1,3 +1,4 @@
+from backend.api.notifications import notifications
 from backend.api.post import add_like, post_create, remove_like
 from backend.api.timeline import (tl_comments, tl_following, tl_global,
                                   tl_notifications, tl_user)
@@ -43,6 +44,8 @@ api.post("post")(post_create)
 
 api.post("post/like/{int:post_id}")(add_like)
 api.delete("post/like/{int:post_id}")(remove_like)
+
+api.get("notifications")(notifications)
 
 urlpatterns = [
     path("", api.urls)

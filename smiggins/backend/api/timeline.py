@@ -227,6 +227,13 @@ def tl_notifications(request, offset: int | None=None, forwards: bool=False):
         no_visibility_check=True
     )
 
+    unread_notifications = user.notifications.filter(read=False)
+
+    for notif in unread_notifications:
+        notif.read = True
+
+    Notification.objects.bulk_update(unread_notifications, ["read"])
+
     return build_response(ResponseCodes.TIMELINE_NOTIFICATIONS, [
         end,
         forwards,

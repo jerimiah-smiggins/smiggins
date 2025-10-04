@@ -25,6 +25,7 @@ class ResponseCodes:
     TIMELINE_USER = 0x62
     TIMELINE_COMMENTS = 0x63
     TIMELINE_NOTIFICATIONS = 0x64
+    NOTIFICATIONS = 0x70
 
 class ErrorCodes:
     # Make sure to update the corresponding values in ts/parser.ts

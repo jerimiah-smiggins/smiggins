@@ -114,9 +114,21 @@
 
   > a {
     height: 1.5em;
+    position: relative;
 
     &.navbar-current > svg {
       filter: drop-shadow(0 0 3px var(--subtext));
+    }
+
+    &[data-notification]::after {
+      content: "";
+      width: calc(2 * @notification-dot-radius);
+      height: calc(2 * @notification-dot-radius);
+      border-radius: @notification-dot-radius;
+      background-color: var(--accent);
+      position: absolute;
+      top: -@notification-dot-radius;
+      right: -@notification-dot-radius;
     }
   }
 }

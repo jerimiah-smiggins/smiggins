@@ -18,7 +18,8 @@ enum ResponseCodes {
   TimelineFollowing,
   TimelineUser,
   TimelineComments,
-  TimelineNotifications
+  TimelineNotifications,
+  Notifications = 0x70
 };
 
 enum ErrorCodes {
@@ -307,6 +308,15 @@ function parseResponse(
         renderTimeline(insertIntoPostCache(posts), end);
       }
 
+      break;
+
+    case ResponseCodes.Notifications:
+      pendingNotifications = {
+        notifications: _extractBool(u8arr[1], 7),
+        messages: _extractBool(u8arr[1], 6),
+        follow_requests: _extractBool(u8arr[1], 5)
+      };
+      resetNotificationIndicators();
       break;
 
     default: console.log("Unknown response code " + u8arr[0].toString(16));

@@ -118,6 +118,8 @@ function renderPage(intent: intent): void {
   let snippet: HTMLDivElement = getSnippet(`pages/${intent}`, extraVariables);
   container.replaceChildren(snippet);
   document.title = getPageTitle(intent);
+
+  resetNotificationIndicators();
 }
 
 function getPageTitle(intent: intent): string {
