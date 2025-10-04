@@ -9,7 +9,6 @@ from ..variables import (DEFAULT_BANNER_COLOR, ENABLE_NEW_ACCOUNTS,
                          MAX_USERNAME_LENGTH)
 from .builder import ErrorCodes, ResponseCodes, build_response
 from .parser import _to_hex, parse_request
-from .schema import Profile
 
 COLOR_REGEX = re.compile("^#[a-f0-9]{6}$")
 

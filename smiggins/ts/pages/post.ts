@@ -3,7 +3,16 @@ function getPostIDFromPath(path?: string): number {
 }
 
 function postSetDNE(): void {
-  // TODO: something when post doesn't exist
+  let notFound: HTMLElement = document.createElement("div");
+  notFound.innerText = "This post doesn't exist.";
+  notFound.classList.add("generic-margin-top");
+  document.getElementById("focused-post")?.replaceChildren(notFound);
+  document.getElementById("comment-parent")?.setAttribute("hidden", "");
+  document.getElementById("home-link")?.removeAttribute("hidden");
+
+  for (const el of document.querySelectorAll("#focused-post + hr ~ *")) {
+    el.setAttribute("hidden", "");
+  }
 }
 
 function updateFocusedPost(post: post): void {

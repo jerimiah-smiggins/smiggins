@@ -2,13 +2,12 @@ import time
 
 from django.db.utils import IntegrityError
 from django.http import HttpRequest, HttpResponse
-from posts.models import M2MLike, Post, User
+from posts.models import M2MLike, Notification, Post, User
 
-from ..helper import trim_whitespace
+from ..helper import find_mentions, trim_whitespace
 from ..variables import (MAX_CONTENT_WARNING_LENGTH, MAX_POLL_OPTION_LENGTH,
                          MAX_POST_LENGTH)
 from .builder import ErrorCodes, ResponseCodes, build_response
-from .schema import NewPost
 from .parser import parse_request
 from .timeline import get_post_data
 
@@ -74,7 +73,42 @@ def post_create(request: HttpRequest) -> HttpResponse:
     )
 
     # TODO: add poll
-    # TODO: mention notifications and whatnot
+
+    pending_notification_objects = []
+
+    if comment_parent and comment_parent.creator.username != user.username:
+        pending_notification_objects.append(Notification(
+            is_for=comment_parent.creator,
+            post=post,
+            event_type="comment",
+            timestamp=ts
+        ))
+
+    if quote and quote.creator.username != user.username:
+        pending_notification_objects.append(Notification(
+            is_for=quote.creator,
+            post=post,
+            event_type="quote",
+            timestamp=ts
+        ))
+
+    mentions = find_mentions(content[0], [user.username, comment_parent.creator.username if comment_parent else "!", quote.creator.username if quote else "!"])
+    if mentions:
+        users: dict[str, User] = User.objects.in_bulk(mentions, field_name="username")
+
+        for notified_user in users.values():
+            pending_notification_objects.append(Notification(
+                is_for=notified_user,
+                post=post,
+                event_type="ping",
+                timestamp=ts
+            ))
+
+    if pending_notification_objects:
+        print(pending_notification_objects)
+        Notification.objects.bulk_create(pending_notification_objects, ignore_conflicts=True) # gives AssertionError without ignore_conficts for no reason
+
+    # TODO:? respect MAX_NOTIFS variable
 
     return build_response(ResponseCodes.CREATE_POST, get_post_data(post, user))
 
@@ -100,6 +134,8 @@ def add_like(request, post_id: int) -> HttpResponse:
         post.likes.add(user)
     except IntegrityError:
         ...
+
+    # TODO: like notifications
 
     return build_response(ResponseCodes.LIKE)
 

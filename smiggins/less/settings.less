@@ -54,3 +54,26 @@
 #banner-gradient:not(:checked) ~ div > #banner-two {
   display: none;
 }
+
+#font-size-selection {
+  display: flex;
+  flex-wrap: wrap;
+  flex-direction: row;
+
+  > div {
+    text-align: center;
+    box-sizing: border-box;
+    padding: 0 10px;
+    display: flex;
+    cursor: pointer;
+
+    > span {
+      align-self: flex-end;
+    }
+  }
+
+  #font-size-small { font-size: @font-size-small; }
+  #font-size-normal { font-size: @font-size-normal; }
+  #font-size-large { font-size: @font-size-large; }
+  #font-size-xl { font-size: @font-size-xl; }
+}

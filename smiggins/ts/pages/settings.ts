@@ -37,6 +37,14 @@ function updateUserCacheFromCosmeticSettings(): void {
   }
 }
 
+function setFontSize(e: Event): void {
+  let el: HTMLElement | null = e.currentTarget as HTMLElement | null;
+  if (!el) { return; }
+
+  localStorage.setItem("smiggins-font-size", el.id.slice(10));
+  document.body.dataset.fontSize = el.id.slice(10);
+}
+
 function saveProfile(e: Event): void {
   let displayNameElement: HTMLInputElement | null = document.getElementById("display-name") as HTMLInputElement | null;
   let bioElement: HTMLTextAreaElement | null = document.getElementById("bio") as HTMLTextAreaElement | null;
@@ -239,9 +247,15 @@ function p_settingsCosmetic(element: HTMLDivElement): void {
   element.querySelector("#expand-cws")        ?.addEventListener("change", genericCheckbox("smiggins-expand-cws"));
   element.querySelector("#hide-interactions") ?.addEventListener("change", genericCheckbox("smiggins-hide-interactions"));
   element.querySelector("#auto-show")         ?.addEventListener("change", genericCheckbox("smiggins-auto-show-posts"));
+
+  for (const el of element.querySelectorAll("#font-size-selection > div")) {
+    el.addEventListener("click", setFontSize);
+  }
 }
 
 function p_settingsAccount(element: HTMLDivElement): void {
   element.querySelector("#password-set")?.addEventListener("click", changePassword);
   element.querySelector("#delete-acc")?.addEventListener("click", deleteAccount);
 }
+
+document.body.dataset.fontSize = localStorage.getItem("smiggins-font-size") || "normal";

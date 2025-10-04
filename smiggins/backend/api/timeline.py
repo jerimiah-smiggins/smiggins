@@ -3,7 +3,7 @@ from typing import Callable, Literal
 from django.db.models import Q
 from django.db.models.manager import BaseManager
 from django.http import HttpResponse
-from posts.models import Post, User, Notification
+from posts.models import Notification, Post, User
 
 from ..variables import POSTS_PER_REQUEST
 from .builder import ErrorCodes, ResponseCodes, build_response
@@ -24,9 +24,12 @@ def get_post_data(post: Post, user: User | None) -> list:
         post.likes.contains(user) if user else False,
         can_view_quote and (quote or False) and quote.private,
         *([] if comment is None else [(comment.post_id, 32)]),
+
+        # TODO: custom format that supports larger less accurate numbers to avoid overflow (ex. 0-999, 1.0k-999k, 1.0m-999m, 1.0b-999b, infinity)
         (post.likes.count(), 16),
         (post.quotes.count(), 16),
         (post.comments.count(), 16),
+
         (post.content, 16),
         (post.content_warning or "", 8),
         (post.creator.username, 8),
@@ -87,7 +90,7 @@ def get_timeline(
             tl = tl.filter(~Q(private=True))
 
     objs = list(tl[:POSTS_PER_REQUEST + 1])
-    return len(objs) <= POSTS_PER_REQUEST, min(POSTS_PER_REQUEST, len(objs)), sum([(get_post_data if isinstance(i, Post) else get_notification_data)(i, user) for i in objs[:POSTS_PER_REQUEST]], [])
+    return len(objs) <= POSTS_PER_REQUEST, min(POSTS_PER_REQUEST, len(objs)), sum([(get_post_data(i, user) if isinstance(i, Post) else get_notification_data(i, user)) for i in objs[:POSTS_PER_REQUEST]], [])
 
 def tl_following(request, offset: int | None=None, forwards: bool=False) -> HttpResponse:
     # if rl := check_ratelimit(request, "GET /api/timeline/following"):

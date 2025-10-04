@@ -30,7 +30,7 @@ body {
   background-color: var(--background);
   color: var(--text);
   font-family: @font-family;
-  font-size: 16px; // 1em;
+  font-size: @font-size-normal; // 1em;
   text-align: center;
   margin: 0;
   padding: 1em;
@@ -41,6 +41,10 @@ body {
   overflow-x: hidden;
 
   transition: background-color 0.5s, color 0.5s;
+
+  &[data-font-size="small"] { font-size: @font-size-small; }
+  &[data-font-size="large"] { font-size: @font-size-large; }
+  &[data-font-size="xl"] { font-size: @font-size-xl; }
 }
 
 :focus {

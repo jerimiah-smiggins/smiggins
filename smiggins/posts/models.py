@@ -123,8 +123,8 @@ class Notification(models.Model):
     # The user object for who the notification is for
     is_for = models.ForeignKey(User, on_delete=models.CASCADE, related_name="notifications")
 
-    # def __str__(self):
-        # return f"({'' if self.read else 'un'}read) {self.event_type} ({self.event_id}) for {self.is_for.username if self.is_for else None}"
+    def __str__(self):
+        return f"({'' if self.read else 'un'}read) {self.event_type} ({self.notif_id}) for {self.is_for.username if self.is_for else None}"
 
 class PrivateMessageContainer(models.Model):
     # Essentially f"{user_one.username}:{user_two.username}" where user_one

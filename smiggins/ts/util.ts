@@ -165,32 +165,6 @@ function updateTimestamps(): void {
   }
 }
 
-function errorCodeStrings(
-  code: apiErrors | undefined,
-  context?: string,
-  data?: { [key: string]: string }
-): [title: string, content?: string] {
-  switch (code) {
-    case "BAD_PASSWORD": return ["Invalid password."];
-    case "BAD_USERNAME": switch (context) {
-      case "login": return ["Invalid username.", `User '${data?.username}' does not exist.`];
-      default: return ["Invalid username."];
-    }
-    case "INVALID_OTP": return ["Invalid invite code.", "Make sure your invite code is correct and try again."];
-    case "NOT_AUTHENTICATED": return ["Not authenticated."];
-    case "POLL_SINGLE_OPTION": return ["Invalid poll.", "Must have more than one option."];
-    case "RATELIMIT": return ["Ratelimited.", "Try again in a few seconds."];
-    case "USERNAME_USED": switch (context) {
-      case "login": return ["Username in use.", `User '${data?.username}' already exists.`];
-      default: return ["Username in use."];
-    }
-    case "CANT_INTERACT": return ["Can't interact.", "You can't interact with this user for some reason."];
-    case "BLOCKING": return ["You are blocking this person.", "You need to unblock them to do this."];
-  }
-
-  return [code || "Something went wrong!"];
-}
-
 function setTokenCookie(token: string): void {
   document.cookie = `token=${token};Path=/;SameSite=Lax;Expires=${new Date(Date.now() + (356 * 24 * 60 * 60 * 1000)).toUTCString()}`;
 }
@@ -202,13 +176,12 @@ function genericCheckbox(storageId: string): (e: Event) => void {
     if (el) {
       if (el.checked) { localStorage.setItem(storageId, "1"); }
       else { localStorage.removeItem(storageId); }
-    } 
+    }
   };
 }
 
 function getMentionsFromPost(p: post): string[] {
-  let re: RegExp = /@([a-zA-Z0-9_\-]+)/g;
-  let mentions: string[] = [...new Set([[null, p.user.username] as [null, string], ...p.content.matchAll(re)].map((a) => (a[1].toLowerCase())))].sort((a, b) => (a < b ? -1 : 1));
+  let mentions: string[] = [...new Set([[null, p.user.username] as [null, string], ...p.content.matchAll(mentionRegex)].map((a: [null, string] | RegExpExecArray): string => (a[1].toLowerCase())))].sort((a: string, b: string): 1 | -1 => (a < b ? -1 : 1));
 
   if (mentions.includes(username)) {
     mentions.splice(mentions.indexOf(username), 1);

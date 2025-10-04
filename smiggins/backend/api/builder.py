@@ -68,12 +68,11 @@ def build_response(
             bool_pending_data |= int(i)
             num_bools += 1
         elif isinstance(i, tuple) and isinstance(i[0], str):
-            bytes_representation = str.encode(i[0])
+            bytes_representation = str.encode(i[0])[: 1 << i[1] - 1]
             response += b(len(bytes_representation), i[1] // 8)
             response += bytes_representation
         elif isinstance(i, tuple) and isinstance(i[0], int):
             response += b(i[0], i[1] // 8)
-
         else:
             print(f"builder: type {type(i)} is not supported - rc {response_code} ({i})")
 

@@ -50,6 +50,7 @@ where:
 where:
 - `b` is whether or not default post is private or manually verify followers,
   depending on the route.
+
 ---
 **DELETE /api/user**:  
 `PP PP PP PP PP PP PP PP PP PP PP PP PP PP PP PP PP PP PP PP PP PP PP PP PP PP PP PP PP PP PP PP`

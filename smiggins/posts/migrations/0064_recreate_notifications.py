@@ -22,7 +22,7 @@ class Migration(migrations.Migration):
                 ('read', models.BooleanField(default=False)),
                 ('event_type', models.CharField(max_length=7)),
                 ('is_for', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, related_name='notifications', to='posts.user')),
-                ('linked_like', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, to='posts.m2mlike')),
+                ('linked_like', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, to='posts.m2mlike', null=True, blank=True)),
                 ('post', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, to='posts.post')),
             ],
         ),

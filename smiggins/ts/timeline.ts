@@ -125,6 +125,16 @@ function renderTimeline(
 ): void {
   clearTimelineStatuses();
 
+  if (offset.lower === null && posts.length === 0) {
+    let none: HTMLElement = document.createElement("i");
+    none.classList.add("timeline-status");
+    none.innerText = "None";
+
+    tlElement.append(none);
+
+    return;
+  }
+
   let frag: DocumentFragment = document.createDocumentFragment();
   let more: HTMLElement | null = moreElementOverride || document.getElementById("timeline-more");
 
