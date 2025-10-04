@@ -47,7 +47,7 @@ function resetNotificationIndicators(): void {
   }
 }
 
-if (username) {
+if (loggedIn) {
   fetchNotifications();
   setInterval(fetchNotifications, 60_000);
 }
