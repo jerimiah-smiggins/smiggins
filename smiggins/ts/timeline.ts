@@ -408,6 +408,8 @@ function prependPostToTimeline(post: post): void {
       post.comment !== currentTl.prependPosts
     ) { return; }
 
+    if (!tlElement.querySelector(".post")) { clearTimelineStatuses(); }
+
     let newButton: HTMLElement | null = document.getElementById("timeline-show-new");
     let prependedPost: HTMLDivElement = getPost(insertIntoPostCache([post])[0], false);
     prependedPost.dataset.prepended = "";
