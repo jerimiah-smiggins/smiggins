@@ -1,4 +1,5 @@
 declare const loggedIn: boolean;
+declare const isAdmin: boolean;
 declare const username: string;
 declare const pageTitle: string;
 declare let currentPage: intent;

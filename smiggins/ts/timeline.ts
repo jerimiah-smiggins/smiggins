@@ -282,6 +282,8 @@ function getPost(post: number, updateOffset: boolean=true): HTMLDivElement {
     timestamp: getTimestamp(p.timestamp),
     username: p.user.username,
     post_interactions_hidden: localStorage.getItem("smiggins-hide-interactions") && "hidden" || "",
+    edit_hidden: username === p.user.username ? "" : "hidden",
+    delete_hidden: isAdmin || username === p.user.username ? "" : "hidden",
 
     pid: String(post),
 

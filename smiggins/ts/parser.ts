@@ -174,6 +174,7 @@ function parseResponse(
   data: ArrayBuffer,
   extraVariableSometimesUsed?: string
   // TODO: add an onerror callback (returns true/false depending on if it should use default toast)
+  // should be used for likes and whatnot that assume success so they can unlike if it errors
 ): void {
   let u8arr: Uint8Array = new Uint8Array(data);
   let displayName: [string, leftoverData: Uint8Array];

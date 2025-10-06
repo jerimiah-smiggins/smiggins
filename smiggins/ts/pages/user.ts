@@ -34,6 +34,8 @@ function userUpdateStats(
   numFollowing: number,
   numFollowers: number
 ): void {
+  // TODO: pinned posts
+
   let userUsername: string = getUsernameFromPath();
   let c: userData | undefined = userCache[userUsername];
 

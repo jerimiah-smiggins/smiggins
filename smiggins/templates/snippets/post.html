@@ -29,5 +29,15 @@
     <div><a class="plain-link" data-internal-link="post" href="/p/@{pid}/">@{icon_comment} <span data-number>@{comments}<span></a></div>
     <div data-interaction-quote="@{pid}">@{icon_quote} <span data-number>@{quotes}<span></div>
     <div data-interaction-like="@{pid}" data-liked="@{liked}">@{icon_like}@{icon_like_active} <span data-number>@{likes}<span></div>
+    <div class="hamburger" tabindex="0">
+      @{icon_hamburger}
+      <div class="post-hamburger-container">
+        <div class="post-hamburger">
+          <div data-interaction-edit="@{pid}" tabindex="0" @{edit_hidden}>@{icon_edit} Edit</div>
+          <div data-interaction-pin="@{pid}" tabindex="0">@{icon_pin} Pin</div>
+          <div data-interaction-delete="@{pid}" tabindex="0" @{delete_hidden}>@{icon_delete} Delete</div>
+        </div>
+      </div>
+    </div>
   </div>
 </div>

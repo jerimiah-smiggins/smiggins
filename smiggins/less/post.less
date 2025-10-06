@@ -152,8 +152,16 @@
     justify-content: center;
 
     [data-interaction-like],
-    [data-interaction-quote] {
+    [data-interaction-quote],
+    [data-interaction-edit],
+    [data-interaction-pin],
+    [data-interaction-delete],
+    .hamburger {
       cursor: pointer;
+    }
+
+    [data-interaction-delete] {
+      color: var(--red);
     }
 
     > div {
@@ -176,6 +184,44 @@
       position: relative;
       top: 0.2em;
       padding-right: 0.1em;
+    }
+
+    .hamburger {
+      .post-hamburger-container {
+        position: absolute;
+      }
+
+      .post-hamburger {
+        display: inline-block;
+        opacity: 0;
+        user-select: none;
+        pointer-events: none;
+        padding: 0 10px;
+        background-color: var(--background);
+        outline: 2px solid var(--accent);
+        position: absolute;
+        bottom: calc(100% + 1.8em); // TODO: positioning broken on larger font sizes with smaller screens
+        white-space: nowrap;
+        text-align: left;
+        z-index: @post-hamburger-z-index;
+
+        > div {
+          padding: 5px 0;
+          border-bottom: 1px solid var(--border-color);
+
+          &:last-of-type {
+            border-bottom: none;
+          }
+        }
+      }
+
+      &:focus .post-hamburger,
+      .post-hamburger:focus-within,
+      .post-hamburger:hover {
+        opacity: 100%;
+        user-select: auto;
+        pointer-events: all;
+      }
     }
   }
 }

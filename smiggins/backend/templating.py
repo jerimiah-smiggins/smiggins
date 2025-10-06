@@ -84,6 +84,7 @@ def webapp(request) -> HttpResponse:
 
         "logged_in": user is not None,
         "username": user and user.username,
+        "is_admin": user and user.admin_level != 0,
         "default_post_private": user and user.default_post_private,
         "loading": random.choice(MOTDs) if MOTDs else "Loading...",
         "google_verification_tag": GOOGLE_VERIFICATION_TAG
