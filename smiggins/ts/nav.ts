@@ -105,7 +105,7 @@ function renderPage(intent: intent): void {
       extraVariables = {
         pid: String(pid),
         parent: String(p && p.comment),
-        hidden_if_comment: !p || p.comment ? "hidden" : "",
+        hidden_if_comment: p && p.comment ? "hidden" : "",
         hidden_if_not_comment: p && p.comment ? "" : "hidden"
       }; break;
   }

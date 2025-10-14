@@ -233,7 +233,7 @@ function switchTimeline(e: MouseEvent): void {
 }
 
 // turns post data into an html element
-function getPost(post: number, updateOffset: boolean=true): HTMLDivElement {
+function getPost(post: number, updateOffset: boolean=true, forceCwState: boolean | null=null): HTMLDivElement {
   let p: post | undefined = postCache[post];
 
   if (!p) {
@@ -251,7 +251,7 @@ function getPost(post: number, updateOffset: boolean=true): HTMLDivElement {
   let contentWarningEnd: string = "";
 
   if (p.content_warning) {
-    contentWarningStart = `<details class="content-warning"${localStorage.getItem("smiggins-expand-cws") ? " open" : "" }><summary><div>${escapeHTML(p.content_warning)} <div class="content-warning-stats">(${p.content.length} char${p.content.length === 1 ? "" : "s"}${p.quote ? ", quote" : ""})</div></div></summary>`;
+    contentWarningStart = `<details class="content-warning"${forceCwState !== false && (forceCwState === true || localStorage.getItem("smiggins-expand-cws")) ? " open" : "" }><summary><div>${escapeHTML(p.content_warning)} <div class="content-warning-stats">(${p.content.length} char${p.content.length === 1 ? "" : "s"}${p.quote ? ", quote" : ""})</div></div></summary>`;
     contentWarningEnd = "</details>";
   }
 
@@ -262,7 +262,7 @@ function getPost(post: number, updateOffset: boolean=true): HTMLDivElement {
     let quoteCwEnd: string = "";
 
     if (p.quote.content_warning) {
-      quoteCwStart = `<details class="content-warning"${localStorage.getItem("smiggins-expand-cws") ? " open" : "" }><summary><div>${escapeHTML(p.quote.content_warning)} <div class="content-warning-stats">(${p.quote.content.length} char${p.quote.content.length === 1 ? "" : "s"})</div></div></summary>`;
+      quoteCwStart = `<details class="content-warning"${forceCwState !== false && (forceCwState === true || localStorage.getItem("smiggins-expand-cws")) ? " open" : "" }><summary><div>${escapeHTML(p.quote.content_warning)} <div class="content-warning-stats">(${p.quote.content.length} char${p.quote.content.length === 1 ? "" : "s"})</div></div></summary>`;
       quoteCwEnd = "</details>";
     }
 
@@ -459,6 +459,12 @@ function postButtonClick(e: Event): void {
         createToast("Something went wrong!", String(err));
         throw err;
       });
+  } else if (el.dataset.interactionEdit) {
+    // TODO: editing posts
+  } else if (el.dataset.interactionPin) {
+    // TODO: pinning posts
+  } else if (el.dataset.interactionDelete) {
+    // TODO: deleting posts
   }
 }
 
@@ -537,6 +543,9 @@ function p_tlSwitch(element: HTMLDivElement): void {
 function p_post(element: HTMLDivElement): void {
   element.querySelector("[data-interaction-quote]")?.addEventListener("click", postButtonClick);
   element.querySelector("[data-interaction-like]")?.addEventListener("click", postButtonClick);
+  element.querySelector("[data-interaction-edit]")?.addEventListener("click", postButtonClick);
+  element.querySelector("[data-interaction-pin]")?.addEventListener("click", postButtonClick);
+  element.querySelector("[data-interaction-delete]")?.addEventListener("click", postButtonClick);
 }
 
 setInterval(updateTimestamps, 1000);

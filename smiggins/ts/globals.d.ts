@@ -19,7 +19,7 @@ type snippet = "pages/index" | "pages/login" | "pages/signup"
              | "pages/logout" | "pages/404"
              | "pages/home" | "pages/user" | "pages/hashtag" | "pages/post" | "pages/notifications"
              | "pages/settings" | "pages/settings/profile" | "pages/settings/cosmetic" | "pages/settings/account" | "pages/settings/about"
-             | "post" | "toast" | "compose-modal";
+             | "post" | "post-placeholder" | "toast" | "compose-modal";
 
 type snippetData = {
   content: string,

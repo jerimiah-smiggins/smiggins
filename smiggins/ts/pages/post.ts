@@ -1,3 +1,5 @@
+let commentBoxValueSet = false;
+
 function getPostIDFromPath(path?: string): number {
   return +(path || location.pathname).split("/").filter(Boolean)[1];
 }
@@ -17,7 +19,11 @@ function postSetDNE(): void {
 
 function updateFocusedPost(post: post): void {
   let pid: number = insertIntoPostCache([post])[0];
-  document.getElementById("focused-post")?.replaceChildren(getPost(pid, false));
+  let cwElement: HTMLDetailsElement | null = document.querySelector("#focused-post .content-warning");
+
+  document.getElementById("focused-post")?.replaceChildren(
+    getPost(pid, false, cwElement ? cwElement.open : null)
+  );
 
   if (post.comment) {
     document.getElementById("comment-parent")?.removeAttribute("hidden");
@@ -31,7 +37,8 @@ function updateFocusedPost(post: post): void {
   let commentElement: HTMLTextAreaElement | null = document.getElementById("post-content") as HTMLTextAreaElement | null;
 
   let p: post | undefined = postCache[pid];
-  if (commentElement && !commentElement.value && p) {
+  if (!commentBoxValueSet && commentElement && !commentElement.value && p) {
+    commentBoxValueSet = true;
     commentElement.value = getMentionsFromPost(p).map((a) => (`@${a} `)).join("");
   }
 }
@@ -57,7 +64,14 @@ function createComment(e: Event): void {
 
     if (success) {
       (cwElement as HTMLInputElement).value = "";
-      (contentElement as HTMLInputElement).value = "";
+
+      let p: post | undefined = postCache[getPostIDFromPath()];
+
+      if (p) {
+        (contentElement as HTMLInputElement).value = getMentionsFromPost(p).map((a) => (`@${a} `)).join("");
+      } else {
+        (contentElement as HTMLInputElement).value = "";
+      }
     }
   }, { comment: getPostIDFromPath() });
 }
@@ -67,6 +81,7 @@ function p_postPage(element: HTMLDivElement): void {
   let p: post | undefined = postCache[pid];
   let postElement: HTMLElement | null = element.querySelector("#focused-post");
   let timelineElement: HTMLDivElement | null = element.querySelector("#timeline-posts");
+  commentBoxValueSet = false;
 
   if (!timelineElement || !postElement) { return; }
 
@@ -77,6 +92,8 @@ function p_postPage(element: HTMLDivElement): void {
     }
 
     postElement.replaceChildren(getPost(pid, false));
+  } else {
+    postElement.replaceChildren(getSnippet("post-placeholder"));
   }
 
   hookTimeline(timelineElement, {
