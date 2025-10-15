@@ -220,7 +220,9 @@ function profileSettingsSetUserData(
       }
     });
 
-    if (["he/him", "she/her", "they/them", "it/its"].includes(pronouns)) {
+    if (pronouns === "") {
+      // do nothing, pronouns unset
+    } else if (["he/him", "she/her", "they/them", "it/its"].includes(pronouns)) {
       pronounsElement.value = pronouns;
       pronounsCustomElement.setAttribute("hidden", "");
     } else {
