@@ -44,7 +44,8 @@ type post = {
 
   user: {
     username: string,
-    display_name: string
+    display_name: string,
+    pronouns: string | null
   },
 
   quote: {
@@ -56,7 +57,8 @@ type post = {
 
     user: {
       username: string,
-      display_name: string
+      display_name: string,
+      pronouns: string | null
     },
   } | undefined | null
 };

@@ -34,6 +34,7 @@ def get_post_data(post: Post, user: User | None) -> list:
         (post.content_warning or "", 8),
         (post.creator.username, 8),
         (post.creator.display_name, 8),
+        (post.creator.pronouns, 8),
         *([] if quote is None or not can_view_quote else [
             (quote.post_id, 32),
             (quote.timestamp, 64),
@@ -41,6 +42,7 @@ def get_post_data(post: Post, user: User | None) -> list:
             (quote.content_warning or "", 8),
             (quote.creator.username, 8),
             (quote.creator.display_name, 8),
+            (quote.creator.pronouns, 8),
         ])
     ]
 

@@ -92,7 +92,7 @@ where:
 - `CI` is the comment id (uint32), only if c is true
 ---
 **PATCH /api/user**
-`g0000000 DL DN... BL BL BB... R1 G1 B1 R2 G2 B2`
+`g0000000 DL DN... BL BL BB... PL PP... R1 G1 B1 R2 G2 B2`
 
 where:
 - `g` is whether or not the banner is gradient
@@ -100,13 +100,15 @@ where:
 - `DN...` is the display name
 - `BL` is the length of the bio (int16)
 - `BB...` is the bio
+- `PL` is the length of the user's pronouns (uint8)
+- `PP...` is the user's pronouns
 - `R1/G1/B1` is the RGB of the first banner color
 - `R2/G2/B2` is the RGB of the second banner color
 ## Successful response formats
 **Posts**
 This isn't for a specific route, instead this is the format for a post.
 
-`PP PP PP PP TT TT TT TT TT TT TT TT pcqvlu00 CC CC CC CC LL LL QQ QQ MM MM CL CL CO... WL CW... UL UU... DL DD... QI QI QI QI QT QT QT QT QT QT QT QT QL QL QC... QWL QW... QUL QU... QDL QD...`
+`PP PP PP PP TT TT TT TT TT TT TT TT pcqvlu00 CC CC CC CC LL LL QQ QQ MM MM CL CL CO... WL CW... UL UU... DL DD... PL PP... QI QI QI QI QT QT QT QT QT QT QT QT QL QL QC... QWL QW... QUL QU... QDL QD... QPL QP...`
 
 where:
 - `P` is the post id (uint32)
@@ -129,6 +131,8 @@ where:
 - `UU...` is the username
 - `DL` is the length of the display name (uint8)
 - `DD...` is the display name
+- `PL` is the length of the user's pronouns (uint8)
+- `PP...` is the user's pronouns
 - **if q and v are true:**
   - `QI` is the quote id (uint32)
   - `QT` is the quote timestamp (uint64)
@@ -140,6 +144,8 @@ where:
   - `QU...` is the quote creator username
   - `QDL` is the quote creator display name length (uint8)
   - `QD...` is the quote creator display name
+  - `QPL` is the length of the quote creator's pronouns (uint8)
+  - `QP...` is the quote creator's pronouns
 ---
 **POST /api/user/login**:  
 **POST /api/user/signup**:  
@@ -159,13 +165,15 @@ where:
 - `p` is whether or not it's pending approval (bool)
 ---
 **GET /api/user**:  
-`20 DL DD... BL BL BB... R1 G1 B1 R2 G2 B2 gv000000`
+`20 DL DD... BL BL BB... PL PP... R1 G1 B1 R2 G2 B2 gv000000`
 
 where:
 - `DL` is the length of the display name (uint8)
 - `DD...` is the display name
 - `BL` is the length of the bio (uint16)
 - `BB...` is the bio
+- `PL` is the length of the user's pronouns (uint8)
+- `PP...` is the user's pronouns
 - `R1/G1/B1` is the RGB of your first banner color
 - `R2/G2/B2` is the RGB of your second banner color
 - `g` is whether or not the banner is a gradient (bool)
@@ -216,6 +224,7 @@ where:
 **PATCH /api/user/verify_followers**: `25`  
 **POST /api/post/like/{post_id}**: `31`  
 **DELETE /api/post/like/{post_id}**: `32`
+
 ## Error codes
 Code|Description
 -:|-

@@ -82,10 +82,12 @@ def parse_request(data: bytes, route: int) -> dict:
         gradient = _extract_bool(int(data[0]), 7)
         display_name, data = _extract_string(8, data[1:])
         bio, data = _extract_string(16, data)
+        pronouns, data = _extract_string(8, data)
 
         return {
             "display_name": display_name,
             "bio": bio,
+            "pronouns": pronouns,
             "gradient": gradient,
             "color_one": "#" + _to_hex(data[:3]),
             "color_two": "#" + _to_hex(data[3:6])

@@ -56,7 +56,7 @@ let snippets: { [key in snippet]: snippetData} = {};
 
 function getSnippet(snippet: snippet, extraVariables?: { [key: string]: string | [value: string, max_repl: number] }): HTMLDivElement {
   let s: snippetData = snippets[snippet];
-  let content = s.content;
+  let content: string = s.content;
 
   for (const i of Object.keys(icons)) {
     content = content.replaceAll(`@{icon_${i}}`, icons[i]);

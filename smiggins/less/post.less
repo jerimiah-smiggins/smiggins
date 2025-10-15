@@ -68,11 +68,16 @@
     white-space: pre;
   }
 
-  .post-username {
+  .post-username,
+  .post-pronouns {
     text-wrap: nowrap;
     overflow-x: hidden;
     text-overflow: ellipsis;
     flex-shrink: 9999;
+  }
+
+  .post-pronouns::before {
+    content: "- "
   }
 
   .post-timestamp {
@@ -235,16 +240,6 @@
   }
 }
 
-@media screen and (max-width: @mobile-scale-threshold) {
-  .post > .post-user > .post-timestamp {
-    display: none;
-  }
-
-  #compose-modal {
-    padding: 4em 1em;
-  }
-}
-
 #focused-post .post {
   border-bottom: none;
 
@@ -258,4 +253,10 @@
 .notification-title {
   padding-top: 0.5em;
   margin-bottom: -1em;
+}
+
+@media screen and (max-width: @mobile-scale-threshold) {
+  #compose-modal {
+    padding: 4em 1em;
+  }
 }

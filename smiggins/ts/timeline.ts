@@ -256,6 +256,7 @@ function getPost(post: number, updateOffset: boolean=true, forceCwState: boolean
   }
 
   let quoteData: { [key: string]: string | [string, number] } = { hidden_if_no_quote: "hidden" };
+  let quoteUnsafeData: { [key: string]: string | [string, number] } = {};
   if (p.quote) {
     let quoteContent: string = linkify(escapeHTML(p.quote.content), p.quote.id);
     let quoteCwStart: string = "";
@@ -270,11 +271,16 @@ function getPost(post: number, updateOffset: boolean=true, forceCwState: boolean
       hidden_if_no_quote: "",
       quote_timestamp: getTimestamp(p.quote.timestamp),
       quote_username: p.quote.user.username,
-      quote_content: [quoteContent, 1],
-      quote_display_name: [escapeHTML(p.quote.user.display_name), 1],
       quote_private_post: p.quote.private ? "data-private-post" : "",
-      quote_cw_start: quoteCwStart,
-      quote_cw_end: quoteCwEnd
+      quote_cw_end: quoteCwEnd,
+      hidden_if_no_quote_pronouns: p.quote.user.pronouns ? "" : "hidden"
+    };
+
+    quoteUnsafeData = {
+      quote_content: [quoteContent, 1],
+      quote_pronouns: p.quote.user.pronouns || "",
+      quote_display_name: [escapeHTML(p.quote.user.display_name), 1],
+      quote_cw_start: quoteCwStart
     };
   }
 
@@ -292,13 +298,17 @@ function getPost(post: number, updateOffset: boolean=true, forceCwState: boolean
     likes: String(p.interactions.likes),
     liked: String(p.interactions.liked),
 
+    private_post: p.private ? "data-private-post" : "",
+    cw_end: contentWarningEnd,
+    hidden_if_no_pronouns: p.user.pronouns ? "" : "hidden",
+    ...quoteData,
+
     // unsafe items, includes a max replace in order to prevent unwanted injection
     content: [postContent, 1],
+    pronouns: [p.user.pronouns || "", 1],
     display_name: [escapeHTML(p.user.display_name), 1],
-    private_post: p.private ? "data-private-post" : "",
-    cw_start: contentWarningStart,
-    cw_end: contentWarningEnd,
-    ...quoteData
+    cw_start: [contentWarningStart, 1],
+    ...quoteUnsafeData
   });
 
   return el;
@@ -480,18 +490,6 @@ function createPost(
     comment?: number
   }
 ): void {
-  console.log(...[
-      followersOnly,
-      Boolean(extra && extra.quote),
-      Boolean(extra && extra.poll && extra.poll.length),
-      Boolean(extra && extra.comment),
-      [content, 16],
-      [cw || "", 8],
-      ...(extra && extra.poll ? [[extra.poll.length, 8] as [number, 8], ...extra.poll.map((a: string): [string, 8] => ([a, 8]))] : []),
-      ...(extra && extra.quote ? [[extra.quote, 32] as [number, 32]] : []),
-      ...(extra && extra.comment ? [[extra.comment, 32] as [number, 32]] : [])
-    ]);
-
   fetch("/api/post", {
     method: "POST",
     body: buildRequest([

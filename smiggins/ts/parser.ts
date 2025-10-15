@@ -117,9 +117,10 @@ function _extractPost(data: Uint8Array): [post, leftoverData: Uint8Array] {
   let contentWarning: [string, leftoverData: Uint8Array] = _extractString(8, content[1]);
   let username: [string, leftoverData: Uint8Array] = _extractString(8, contentWarning[1]);
   let displayName: [string, leftoverData: Uint8Array] = _extractString(8, username[1]);
+  let pronouns: [string, leftoverData: Uint8Array] = _extractString(8, displayName[1]);
 
   let quoteData = null;
-  newData = displayName[1];
+  newData = pronouns[1];
 
   if (_extractBool(flags, 5)) {
     if (!_extractBool(flags, 4)) {
@@ -129,6 +130,7 @@ function _extractPost(data: Uint8Array): [post, leftoverData: Uint8Array] {
       let quoteCW: [string, leftoverData: Uint8Array] = _extractString(8, quoteContent[1]);
       let quoteUsername: [string, leftoverData: Uint8Array] = _extractString(8, quoteCW[1]);
       let quoteDispName: [string, leftoverData: Uint8Array] = _extractString(8, quoteUsername[1]);
+      let quotePronouns: [string, leftoverData: Uint8Array] = _extractString(8, quoteDispName[1]);
 
       quoteData = {
         id: _extractInt(32, newData),
@@ -139,11 +141,12 @@ function _extractPost(data: Uint8Array): [post, leftoverData: Uint8Array] {
 
         user: {
           username: quoteUsername[0],
-          display_name: quoteDispName[0]
+          display_name: quoteDispName[0],
+          pronouns: quotePronouns[0]
         }
       }
 
-      newData = quoteDispName[1];
+      newData = quotePronouns[1];
     }
   }
 
@@ -159,7 +162,8 @@ function _extractPost(data: Uint8Array): [post, leftoverData: Uint8Array] {
 
     user: {
       username: username[0],
-      display_name: displayName[0]
+      display_name: displayName[0],
+      pronouns: pronouns[0]
     },
 
     quote: quoteData
@@ -202,14 +206,16 @@ function parseResponse(
     case ResponseCodes.GetProfile:
       displayName = _extractString(8, u8arr.slice(1));
       let bio: [string, leftoverData: Uint8Array] = _extractString(16, displayName[1]);
+      let pronouns: [string, leftoverData: Uint8Array] = _extractString(8, bio[1]);
 
       profileSettingsSetUserData(
         displayName[0],
         bio[0],
-        "#" + _toHex(bio[1].slice(0, 3)),
-        "#" + _toHex(bio[1].slice(3, 6)),
-        _extractBool(bio[1][6], 7),
-        _extractBool(bio[1][6], 6)
+        pronouns[0],
+        "#" + _toHex(pronouns[1].slice(0, 3)),
+        "#" + _toHex(pronouns[1].slice(3, 6)),
+        _extractBool(pronouns[1][6], 7),
+        _extractBool(pronouns[1][6], 6)
       );
       break;
 
@@ -275,7 +281,6 @@ function parseResponse(
     case ResponseCodes.TimelineComments:
       // Prevent accidentally running this code when on user timeline
       if (u8arr[0] === ResponseCodes.TimelineComments) {
-        // TODO: make a post with a cw not collapse when refreshing
         let postData: [post, leftoverData: Uint8Array] = _extractPost(u8arr.slice(1));
         updateFocusedPost(postData[0]);
         u8arr = postData[1];

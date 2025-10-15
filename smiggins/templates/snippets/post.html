@@ -3,6 +3,7 @@
     <div class="post-private" @{private_post}>@{icon_private}</div>
     <div class="post-user"><a data-internal-link="user" href="/u/@{username}/" class="plain-link">@{display_name}</a></div>
     <div class="subtext post-username"><a data-internal-link="user" href="/u/@{username}/" class="plain-link">@@{username}</a></div>
+    <div class="subtext post-pronouns" @{hidden_if_no_pronouns}>@{pronouns}</div>
 
     <div class="subtext post-timestamp">@{timestamp}</div>
   </div>
@@ -16,10 +17,12 @@
       <div class="post-private" @{quote_private_post}>@{icon_private}</div>
       <div class="post-user"><a data-internal-link="user" href="/u/@{quote_username}/" class="plain-link">@{quote_display_name}</a></div>
       <div class="subtext post-username"><a data-internal-link="user" href="/u/@{quote_username}/" class="plain-link">@@{quote_username}</a></div>
+      <div class="subtext post-pronouns" @{hidden_if_no_quote_pronouns}>@{quote_pronouns}</div>
 
       <div class="subtext post-timestamp">@{quote_timestamp}</div>
     </div>
 
+    <!-- TODO: cws on quotes -->
     <div class="post-content">@{quote_content}</div>
   </div>
 

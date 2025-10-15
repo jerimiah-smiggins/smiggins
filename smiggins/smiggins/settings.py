@@ -29,10 +29,9 @@ ALLOWED_HOSTS = ["*"]
 INSTALLED_APPS = [
     'posts.apps.PostsConfig',
     'django.contrib.admin',
-    'django.contrib.auth',
+    'django.contrib.auth', # not used but required for dj-admin
     'django.contrib.contenttypes',
-    'django.contrib.sessions',
-    'django.contrib.messages',
+    'django.contrib.messages', # not used but required for dj-admin
     'django.contrib.staticfiles',
     'ninja',
 ]

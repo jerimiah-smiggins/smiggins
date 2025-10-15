@@ -66,7 +66,8 @@ body {
   background: transparent;
 }
 
-[hidden] {
+[hidden],
+.hidden {
   display: none !important;
 }
 
@@ -133,7 +134,7 @@ textarea:not(#post-content, #modal-post-content) {
   outline: none;
   border: none;
   box-sizing: border-box;
-  border-radius: 999px;
+  border-radius: @input-border-radius;
 }
 
 input:not([type="checkbox"], [type="color"]) {
@@ -160,7 +161,7 @@ button {
   color: var(--text);
   padding: 4px 9px;
   border: none;
-  border-radius: 999em;
+  border-radius: @button-border-radius;
   cursor: pointer;
   font-size: 0.8em;
   font-family: @font-family;
@@ -233,6 +234,7 @@ button {
   align-items: center;
   gap: 10px;
   z-index: @toast-z-index;
+  pointer-events: none;
 
   .toast {
     background-color: var(--background-mid);
@@ -242,6 +244,7 @@ button {
     max-width: calc(100vw - 20px);
     width: 290px;
     border-radius: 15px;
+    pointer-events: auto;
 
     > .toast-title {
       font-weight: 700;

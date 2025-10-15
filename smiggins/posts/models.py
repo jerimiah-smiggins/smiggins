@@ -32,6 +32,8 @@ class User(models.Model):
     color_two = models.CharField(max_length=7, default="#000000", blank=True)
     gradient = models.BooleanField(default=False)
 
+    pronouns = models.CharField(max_length=2 ** 8 - 1, default="", blank=True)
+
     default_post_private = models.BooleanField(default=False)
     verify_followers = models.BooleanField(default=False)
 
@@ -115,7 +117,7 @@ class Notification(models.Model):
     event_type = models.CharField(max_length=7)
 
     # Exists in order to automatically remove a notification if a like gets removed
-    linked_like = models.ForeignKey("M2MLike", on_delete=models.CASCADE)
+    linked_like = models.ForeignKey("M2MLike", on_delete=models.CASCADE, null=True, blank=True)
 
     # The post that caused the notification
     post = models.ForeignKey(Post, on_delete=models.CASCADE)

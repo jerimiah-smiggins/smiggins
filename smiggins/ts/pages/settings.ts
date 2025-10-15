@@ -51,8 +51,10 @@ function saveProfile(e: Event): void {
   let gradientCheckElement: HTMLInputElement | null = document.getElementById("banner-gradient") as HTMLInputElement | null;
   let c1Element: HTMLInputElement | null = document.getElementById("banner-one") as HTMLInputElement | null;
   let c2Element: HTMLInputElement | null = document.getElementById("banner-two") as HTMLInputElement | null;
+  let pronounsElement: HTMLSelectElement | null = document.getElementById("pronouns") as HTMLSelectElement | null;
+  let pronounsCustomElement: HTMLInputElement | null = document.getElementById("pronouns-custom") as HTMLInputElement | null;
 
-  if (!displayNameElement || !bioElement || !gradientCheckElement || !c1Element || !c2Element) { return; }
+  if (!displayNameElement || !bioElement || !gradientCheckElement || !c1Element || !c2Element || !pronounsElement || !pronounsCustomElement) { return; }
 
   (e.target as HTMLButtonElement | null)?.setAttribute("disabled", "");
 
@@ -62,6 +64,7 @@ function saveProfile(e: Event): void {
       gradientCheckElement.checked,
       [displayNameElement.value, 8],
       [bioElement.value, 16],
+      [pronounsElement.value === "custom" ? pronounsCustomElement.value : pronounsElement.value, 8],
       hexToBytes(c1Element.value.slice(1)),
       hexToBytes(c2Element.value.slice(1)),
     ])
@@ -186,6 +189,7 @@ function deleteAccount(e: Event): void {
 function profileSettingsSetUserData(
   displayName: string,
   bio: string,
+  pronouns: string,
   colorOne: string,
   colorTwo: string,
   gradient: boolean,
@@ -197,6 +201,8 @@ function profileSettingsSetUserData(
   let c1Element: HTMLInputElement | null = document.getElementById("banner-one") as HTMLInputElement | null;
   let c2Element: HTMLInputElement | null = document.getElementById("banner-two") as HTMLInputElement | null;
   let verifyElement: HTMLInputElement | null = document.getElementById("verify-followers") as HTMLInputElement | null;
+  let pronounsElement: HTMLSelectElement | null = document.getElementById("pronouns") as HTMLSelectElement | null;
+  let pronounsCustomElement: HTMLInputElement | null = document.getElementById("pronouns-custom") as HTMLInputElement | null;
 
   if (displayNameElement)   { displayNameElement.value = displayName; }
   if (bioElement)           { bioElement.value = bio;                  }
@@ -204,6 +210,25 @@ function profileSettingsSetUserData(
   if (c1Element)            { c1Element.value = colorOne; c1Element.addEventListener("input", updateBannerColors); }
   if (c2Element)            { c2Element.value = colorTwo; c2Element.addEventListener("input", updateBannerColors); }
   if (verifyElement)        { verifyElement.checked = verifyFollowers; verifyElement.addEventListener("input", saveVerifyFollowers); }
+
+  if (pronounsElement && pronounsCustomElement) {
+    pronounsElement.addEventListener("input", function(): void {
+      if (pronounsElement.value === "custom") {
+        pronounsCustomElement.removeAttribute("hidden");
+      } else {
+        pronounsCustomElement.setAttribute("hidden", "");
+      }
+    });
+
+    if (["he/him", "she/her", "they/them", "it/its"].includes(pronouns)) {
+      pronounsElement.value = pronouns;
+      pronounsCustomElement.setAttribute("hidden", "");
+    } else {
+      pronounsElement.value = "custom";
+      pronounsCustomElement.value = pronouns;
+      pronounsCustomElement.removeAttribute("hidden");
+    }
+  }
 
   document.getElementById("profile-save")?.addEventListener("click", saveProfile);
   document.getElementById("default-private")?.addEventListener("input", saveDefaultVisibility);

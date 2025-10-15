@@ -1,4 +1,4 @@
-let commentBoxValueSet = false;
+let commentBoxValueSet: boolean = false;
 
 function getPostIDFromPath(path?: string): number {
   return +(path || location.pathname).split("/").filter(Boolean)[1];

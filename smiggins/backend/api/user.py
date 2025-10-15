@@ -177,6 +177,7 @@ def get_profile(request: HttpRequest) -> HttpResponse:
     return build_response(ResponseCodes.GET_PROFILE, [
         (user.display_name, 8),
         (user.bio, 16),
+        (user.pronouns, 8),
         bytearray.fromhex(user.color[1:]),
         bytearray.fromhex(user.color_two[1:] or user.color[1:]),
         user.gradient,
@@ -205,6 +206,8 @@ def save_profile(request: HttpRequest) -> HttpResponse:
 
     if re.match(COLOR_REGEX, data["color_two"]):
         user.color_two = data["color_two"]
+
+    user.pronouns = data["pronouns"]
 
     user.save()
 

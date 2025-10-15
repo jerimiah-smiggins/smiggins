@@ -9,7 +9,23 @@
 <div id="settings-sections">
   <div>
     <p class="no-margin-top">Your Profile</p>
-    <label>Display name: <input data-disabled-while-loading disabled id="display-name" value="@{display_name}" maxlength="{{ conf.max_length.display_name }}"></label>
+    <label>
+      <div>Display name:</div>
+      <input data-disabled-while-loading disabled id="display-name" value="@{display_name}" maxlength="{{ conf.max_length.display_name }}">
+    </label>
+
+    <label>
+      <div class="generic-margin-top">Pronouns:</div>
+      <select data-disabled-while-loading disabled id="pronouns">
+        <option value="">Unset</option>
+        <option value="he/him">he/him</option>
+        <option value="she/her">she/her</option>
+        <option value="they/them">they/them</option>
+        <option value="it/its">it/its</option>
+        <option value="custom">Custom</option>
+      </select>
+      <div><input id="pronouns-custom" hidden placeholder="Custom pronouns..." maxlength="255"></div>
+    </label>
 
     <label>
       <div class="generic-margin-top">User bio:</div>
@@ -30,7 +46,7 @@
   <div>
     <p class="no-margin-top">Posts</p>
     <label>
-      Default post visibility:
+      <div>Default post visibility:</div>
       <select id="default-private">
         <option value="false">Public</option>
         <option value="true" @{selected_if_default_private}>Followers Only</option>
