@@ -22,25 +22,7 @@ def _to_hex(data: bytes) -> str:
 def parse_request(data: bytes, route: int) -> dict:
     # print(*[hex(i)[2:].zfill(2) for i in data])
 
-    if route == ResponseCodes.SIGN_UP:
-        username, data = _extract_string(8, data)
-        otp, _ = _extract_string(8, data[32:])
-
-        return {
-            "username": username,
-            "password": _to_hex(data[:32]),
-            "otp": otp
-        }
-
-    elif route == ResponseCodes.LOG_IN:
-        username, data = _extract_string(8, data)
-
-        return {
-            "username": username,
-            "password": _to_hex(data[:32])
-        }
-
-    elif route == ResponseCodes.CREATE_POST:
+    if route == ResponseCodes.CREATE_POST:
         flags = int(data[0])
         has_quote = _extract_bool(flags, 6)
         has_poll = _extract_bool(flags, 5)

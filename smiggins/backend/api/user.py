@@ -9,6 +9,7 @@ from ..variables import (DEFAULT_BANNER_COLOR, ENABLE_NEW_ACCOUNTS,
                          MAX_USERNAME_LENGTH)
 from .builder import ErrorCodes, ResponseCodes, build_response
 from .parser import _to_hex, parse_request
+from .format import LogIn, SignUp
 
 COLOR_REGEX = re.compile("^#[a-f0-9]{6}$")
 
@@ -16,11 +17,11 @@ def signup(request: HttpRequest) -> HttpResponse:
     # if rl := check_ratelimit(request, "POST /api/user/signup"):
     #     return NEW_RL
 
-    data = parse_request(request.body, ResponseCodes.SIGN_UP)
-    print(data)
+    api = SignUp()
+    data = api.parse_request(request.body)
 
     if not ENABLE_NEW_ACCOUNTS:
-        return build_response(ResponseCodes.SIGN_UP, ErrorCodes.BAD_REQUEST)
+        return api.error(ErrorCodes.BAD_REQUEST)
 
     username = data["username"].lower().replace(" ", "")
     password = data["password"].lower()
@@ -29,25 +30,25 @@ def signup(request: HttpRequest) -> HttpResponse:
         try:
             otp = OneTimePassword.objects.get(code=data["otp"])
         except OneTimePassword.DoesNotExist:
-            return build_response(ResponseCodes.SIGN_UP, ErrorCodes.INVALID_OTP)
+            return api.error(ErrorCodes.INVALID_OTP)
 
     # e3b0c44... is the sha256 hash for an empty string
     if len(password) != 64 or password == "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855":
-        return build_response(ResponseCodes.SIGN_UP, ErrorCodes.BAD_PASSWORD)
+        return api.error(ErrorCodes.BAD_PASSWORD)
 
     for i in password:
         if i not in "abcdef0123456789":
-            return build_response(ResponseCodes.SIGN_UP, ErrorCodes.BAD_PASSWORD)
+            return api.error(ErrorCodes.BAD_PASSWORD)
 
     try:
         User.objects.get(username=username)
-        return build_response(ResponseCodes.SIGN_UP, ErrorCodes.USERNAME_USED)
+        return api.error(ErrorCodes.USERNAME_USED)
     except User.DoesNotExist:
         ...
 
     if len(username) > MAX_USERNAME_LENGTH or not username \
        or len([i for i in username if i.lower() in "abcdefghijklmnopqrstuvwxyz0123456789_-"]) != len(username):
-        return build_response(ResponseCodes.SIGN_UP, ErrorCodes.BAD_USERNAME)
+        return api.error(ErrorCodes.BAD_USERNAME)
 
     if ENABLE_NEW_ACCOUNTS == "otp":
         otp.delete()
@@ -62,15 +63,14 @@ def signup(request: HttpRequest) -> HttpResponse:
         color_two=DEFAULT_BANNER_COLOR
     )
 
-    return build_response(ResponseCodes.SIGN_UP, [bytearray.fromhex(token)])
+    return api.response(token=token)
 
 def login(request: HttpRequest) -> HttpResponse:
     # if rl := check_ratelimit(request, "POST /api/user/login"):
     #     return NEW_RL
 
-    data = parse_request(request.body, ResponseCodes.LOG_IN)
-
-    print(data)
+    api = LogIn()
+    data = api.parse_request(request.body)
 
     username = data["username"].lower().replace(" ", "")
     token = generate_token(username, data["password"])
@@ -79,12 +79,12 @@ def login(request: HttpRequest) -> HttpResponse:
         user = User.objects.get(username=username)
 
         if token == user.token:
-            return build_response(ResponseCodes.LOG_IN, [bytearray.fromhex(token)])
+            return api.response(token=token)
 
-        return build_response(ResponseCodes.LOG_IN, ErrorCodes.BAD_PASSWORD)
+        return api.error(ErrorCodes.BAD_PASSWORD)
 
     except User.DoesNotExist:
-        return build_response(ResponseCodes.LOG_IN, ErrorCodes.BAD_USERNAME)
+        return api.error(ErrorCodes.BAD_USERNAME)
 
 def follow_add(request: HttpRequest) -> HttpResponse:
     return _follow(request, False)
