@@ -2,47 +2,8 @@ from typing import Literal
 
 from django.http import HttpResponse
 
+from .format import b
 
-class ResponseCodes:
-    # Make sure to update the corresponding values in ts/parser.ts
-    LOG_IN = 0x01
-    SIGN_UP = 0x02
-    FOLLOW = 0x10
-    UNFOLLOW = 0x11
-    BLOCK = 0x12
-    UNBLOCK = 0x13
-    GET_PROFILE = 0x20
-    SAVE_PROFILE = 0x21
-    DELETE_ACCOUNT = 0x22
-    CHANGE_PASSWORD = 0x23
-    DEFAULT_VISIBILITY = 0x24
-    VERIFY_FOLLOWERS = 0x25
-    CREATE_POST = 0x30
-    LIKE = 0x31
-    UNLIKE = 0x32
-    TIMELINE_GLOBAL = 0x60
-    TIMELINE_FOLLOWING = 0x61
-    TIMELINE_USER = 0x62
-    TIMELINE_COMMENTS = 0x63
-    TIMELINE_NOTIFICATIONS = 0x64
-    NOTIFICATIONS = 0x70
-
-class ErrorCodes:
-    # Make sure to update the corresponding values in ts/parser.ts
-    BAD_REQUEST = 0x00
-    BAD_USERNAME = 0x10
-    USERNAME_USED = 0x11
-    BAD_PASSWORD = 0x12
-    INVALID_OTP = 0x13
-    CANT_INTERACT = 0x20
-    BLOCKING = 0x21
-    POST_NOT_FOUND = 0x30
-    POLL_SINGLE_OPTION = 0x31
-    NOT_AUTHENTICATED = 0xfe
-    RATELIMIT = 0xff
-
-def b(i: int, length: int=1) -> bytes:
-    return i.to_bytes(length=length, byteorder="big")
 
 def build_response(
     response_code: int, #                            (number, # of bits)              (string, # length bits)

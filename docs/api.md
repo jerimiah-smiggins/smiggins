@@ -202,9 +202,9 @@ where:
 - `FG` is the number of people this user is following (uint16)
 - `e` is whether or not it's the end of the timeline
 - `r` is whether or not the timeline was requested to be forward
-- `f` is whether or not you are blocking this user
-- `f` is whether or not you have a pending follow request
-- `b` is whether or not you are following this user
+- `f` is whether or not you are following this user
+- `b` is whether or not you are blocking this user
+- `p` is whether or not you have a pending follow request
 - `P` is the number of posts
 ---
 **GET /api/timeline/post/{post_id}**:  

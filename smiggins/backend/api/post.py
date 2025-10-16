@@ -7,36 +7,36 @@ from posts.models import M2MLike, Notification, Post, User
 from ..helper import find_mentions, trim_whitespace
 from ..variables import (MAX_CONTENT_WARNING_LENGTH, MAX_POLL_OPTION_LENGTH,
                          MAX_POST_LENGTH)
-from .builder import ErrorCodes, ResponseCodes, build_response
-from .parser import parse_request
-from .timeline import get_post_data
+from .format import ErrorCodes, api_CreatePost, api_Like, api_Unlike
 
 
 def post_create(request: HttpRequest) -> HttpResponse:
+    api = api_CreatePost()
+
     try:
         user = User.objects.get(token=request.COOKIES.get("token"))
     except User.DoesNotExist:
-        return build_response(ResponseCodes.CREATE_POST, ErrorCodes.NOT_AUTHENTICATED)
+        return api.error(ErrorCodes.NOT_AUTHENTICATED)
 
-    data = parse_request(request.body, ResponseCodes.CREATE_POST)
+    data = api.parse_request(request.body)
 
     poll: list[str] = []
     if data["poll"]:
         for i in data["poll"]:
             if (i := trim_whitespace(i, True))[0]:
                 if not isinstance(i[0], str) or len(i[0]) > MAX_POLL_OPTION_LENGTH:
-                    return build_response(ResponseCodes.CREATE_POST, ErrorCodes.BAD_REQUEST)
+                    return api.error(ErrorCodes.BAD_REQUEST)
 
                 poll.append(i[0])
 
     if len(poll) == 1:
-        return build_response(ResponseCodes.CREATE_POST, ErrorCodes.POLL_SINGLE_OPTION)
+        return api.error(ErrorCodes.POLL_SINGLE_OPTION)
 
     content = trim_whitespace(data["content"])
     cw = trim_whitespace(data["cw"] or "", True)
 
     if len(cw[0]) > MAX_CONTENT_WARNING_LENGTH or len(content[0]) > MAX_POST_LENGTH or not (content[1] or len(poll)):
-        return build_response(ResponseCodes.CREATE_POST, ErrorCodes.BAD_REQUEST)
+        return api.error(ErrorCodes.BAD_REQUEST)
 
     ts = round(time.time())
 
@@ -110,25 +110,27 @@ def post_create(request: HttpRequest) -> HttpResponse:
 
     # TODO:? respect MAX_NOTIFS variable
 
-    return build_response(ResponseCodes.CREATE_POST, get_post_data(post, user))
+    return api.response(post=post, user=user)
 
 def add_like(request, post_id: int) -> HttpResponse:
+    api = api_Like()
+
     try:
         user = User.objects.get(token=request.COOKIES.get("token"))
     except User.DoesNotExist:
-        return build_response(ResponseCodes.LIKE, ErrorCodes.NOT_AUTHENTICATED)
+        return api.error(ErrorCodes.NOT_AUTHENTICATED)
 
     try:
         post = Post.objects.get(post_id=post_id)
     except Post.DoesNotExist:
-        return build_response(ResponseCodes.LIKE, ErrorCodes.POST_NOT_FOUND)
+        return api.error(ErrorCodes.POST_NOT_FOUND)
 
     creator = post.creator
 
     if creator.blocking.contains(user) \
     or creator.blockers.contains(user) \
     or (post.private and creator.username != user.username and not creator.followers.contains(user)):
-        return build_response(ResponseCodes.LIKE, ErrorCodes.CANT_INTERACT)
+        return api.error(ErrorCodes.CANT_INTERACT)
 
     try:
         post.likes.add(user)
@@ -137,17 +139,19 @@ def add_like(request, post_id: int) -> HttpResponse:
 
     # TODO: like notifications
 
-    return build_response(ResponseCodes.LIKE)
+    return api.response()
 
 def remove_like(request, post_id: int) -> HttpResponse:
+    api = api_Unlike()
+
     try:
         user = User.objects.get(token=request.COOKIES.get("token"))
     except User.DoesNotExist:
-        return build_response(ResponseCodes.UNLIKE, ErrorCodes.NOT_AUTHENTICATED)
+        return api.error(ErrorCodes.NOT_AUTHENTICATED)
 
     try:
         M2MLike.objects.get(user=user, post=post_id).delete()
     except M2MLike.DoesNotExist:
         ...
 
-    return build_response(ResponseCodes.UNLIKE)
+    return api.response()

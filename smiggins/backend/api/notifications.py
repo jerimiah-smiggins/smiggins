@@ -1,17 +1,19 @@
 from django.http import HttpResponse
 from posts.models import User
 
-from .builder import ErrorCodes, ResponseCodes, build_response
+from .format import ErrorCodes, api_PendingNotifications
 
 
 def notifications(request) -> HttpResponse:
+    api = api_PendingNotifications()
+
     try:
         user = User.objects.get(token=request.COOKIES.get("token"))
     except User.DoesNotExist:
-        return build_response(ResponseCodes.NOTIFICATIONS, ErrorCodes.NOT_AUTHENTICATED)
+        return api.error(ErrorCodes.NOT_AUTHENTICATED)
 
-    return build_response(ResponseCodes.NOTIFICATIONS, [
-        bool(user.notifications.filter(read=False).count()),
-        False, # TODO: Unread messages
-        False # TODO: Pending follow requests
-    ])
+    return api.response(
+        notifications=bool(user.notifications.filter(read=False).count()),
+        messages=False, # TODO: Unread messages
+        follow_requests=False # TODO: Pending follow requests
+    )

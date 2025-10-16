@@ -7,9 +7,10 @@ from ..helper import generate_token, trim_whitespace
 from ..variables import (DEFAULT_BANNER_COLOR, ENABLE_NEW_ACCOUNTS,
                          MAX_BIO_LENGTH, MAX_DISPL_NAME_LENGTH,
                          MAX_USERNAME_LENGTH)
-from .builder import ErrorCodes, ResponseCodes, build_response
-from .parser import _to_hex, parse_request
-from .format import LogIn, SignUp
+from .format import (ErrorCodes, api_Block, api_ChangePassword,
+                     api_DeleteAccount, api_Follow, api_GetProfile, api_LogIn,
+                     api_SaveProfile, api_SetDefaultVisibility, api_SignUp,
+                     api_Unblock, api_Unfollow)
 
 COLOR_REGEX = re.compile("^#[a-f0-9]{6}$")
 
@@ -17,7 +18,7 @@ def signup(request: HttpRequest) -> HttpResponse:
     # if rl := check_ratelimit(request, "POST /api/user/signup"):
     #     return NEW_RL
 
-    api = SignUp()
+    api = api_SignUp()
     data = api.parse_request(request.body)
 
     if not ENABLE_NEW_ACCOUNTS:
@@ -69,7 +70,7 @@ def login(request: HttpRequest) -> HttpResponse:
     # if rl := check_ratelimit(request, "POST /api/user/login"):
     #     return NEW_RL
 
-    api = LogIn()
+    api = api_LogIn()
     data = api.parse_request(request.body)
 
     username = data["username"].lower().replace(" ", "")
@@ -96,39 +97,42 @@ def _follow(request: HttpRequest, unfollow: bool) -> HttpResponse:
     # if rl := check_ratelimit(request, "POST /api/user/login"):
     #     return NEW_RL
 
-    rc = ResponseCodes.UNFOLLOW if unfollow else ResponseCodes.FOLLOW
+    api = (api_Unfollow if unfollow else api_Follow)()
 
     try:
         self_user = User.objects.get(token=request.COOKIES.get("token"))
     except User.DoesNotExist:
-        return build_response(rc, ErrorCodes.NOT_AUTHENTICATED)
+        return api.error(ErrorCodes.NOT_AUTHENTICATED)
 
     try:
-        user = User.objects.get(username=bytes.decode(request.body).lower())
+        user = User.objects.get(username=api.parse_request(request.body))
     except User.DoesNotExist:
-        return build_response(rc, ErrorCodes.BAD_USERNAME)
+        return api.error(ErrorCodes.BAD_USERNAME)
 
-    if unfollow:
+    if isinstance(api, api_Follow):
+        if user.blocking.contains(self_user):
+            return api.error(ErrorCodes.CANT_INTERACT)
+        elif self_user.blocking.contains(user):
+            return api.error(ErrorCodes.BLOCKING)
+
+        if user.verify_followers:
+            if not user.pending_followers.contains(self_user):
+                user.pending_followers.add(self_user)
+        elif not self_user.following.contains(user):
+            self_user.following.add(user)
+
+        api.set_response(is_pending=user.verify_followers)
+
+    else:
         if user.pending_followers.contains(self_user):
             user.pending_followers.remove(self_user)
 
         if self_user.following.contains(user):
             self_user.following.remove(user)
 
-        return build_response(rc)
+        api.set_response()
 
-    if user.blocking.contains(self_user):
-        return build_response(rc, ErrorCodes.CANT_INTERACT)
-    elif self_user.blocking.contains(user):
-        return build_response(rc, ErrorCodes.BLOCKING)
-
-    if user.verify_followers:
-        if not user.pending_followers.contains(self_user):
-            user.pending_followers.add(self_user)
-    elif not self_user.following.contains(user):
-        self_user.following.add(user)
-
-    return build_response(rc, [user.verify_followers])
+    return api.get_response()
 
 def block_add(request: HttpRequest) -> HttpResponse:
     return _block(request, False)
@@ -140,17 +144,17 @@ def _block(request: HttpRequest, unblock: bool) -> HttpResponse:
     # if rl := check_ratelimit(request, "POST /api/user/login"):
     #     return NEW_RL
 
-    rc = ResponseCodes.UNBLOCK if unblock else ResponseCodes.BLOCK
+    api = (api_Unblock if unblock else api_Block)()
 
     try:
         self_user = User.objects.get(token=request.COOKIES.get("token"))
     except User.DoesNotExist:
-        return build_response(rc, ErrorCodes.NOT_AUTHENTICATED)
+        return api.error(ErrorCodes.NOT_AUTHENTICATED)
 
     try:
-        user = User.objects.get(username=bytes.decode(request.body).lower())
+        user = User.objects.get(username=api.parse_request(request.body))
     except User.DoesNotExist:
-        return build_response(rc, ErrorCodes.BAD_USERNAME)
+        return api.error(ErrorCodes.BAD_USERNAME)
 
     if unblock:
         if self_user.blocking.contains(user):
@@ -166,31 +170,27 @@ def _block(request: HttpRequest, unblock: bool) -> HttpResponse:
         if not self_user.blocking.contains(user):
             self_user.blocking.add(user)
 
-    return build_response(rc)
+    return api.response()
 
 def get_profile(request: HttpRequest) -> HttpResponse:
+    api = api_GetProfile()
+
     try:
         user = User.objects.get(token=request.COOKIES.get("token"))
     except User.DoesNotExist:
-        return build_response(ResponseCodes.GET_PROFILE, ErrorCodes.NOT_AUTHENTICATED)
+        return api.error(ErrorCodes.NOT_AUTHENTICATED)
 
-    return build_response(ResponseCodes.GET_PROFILE, [
-        (user.display_name, 8),
-        (user.bio, 16),
-        (user.pronouns, 8),
-        bytearray.fromhex(user.color[1:]),
-        bytearray.fromhex(user.color_two[1:] or user.color[1:]),
-        user.gradient,
-        user.verify_followers
-    ])
+    return api.response(user=user)
 
 def save_profile(request: HttpRequest) -> HttpResponse:
+    api = api_SaveProfile()
+
     try:
         user = User.objects.get(token=request.COOKIES.get("token"))
     except User.DoesNotExist:
-        return build_response(ResponseCodes.SAVE_PROFILE, ErrorCodes.NOT_AUTHENTICATED)
+        return api.error(ErrorCodes.NOT_AUTHENTICATED)
 
-    data = parse_request(request.body, ResponseCodes.SAVE_PROFILE)
+    data = api.parse_request(request.body)
 
     display_name = trim_whitespace(data["display_name"][:MAX_DISPL_NAME_LENGTH], True)
     bio = trim_whitespace(data["bio"][:MAX_BIO_LENGTH])
@@ -211,66 +211,74 @@ def save_profile(request: HttpRequest) -> HttpResponse:
 
     user.save()
 
-    return build_response(ResponseCodes.SAVE_PROFILE)
+    return api.response()
 
 def set_post_visibility(request: HttpRequest) -> HttpResponse:
+    api = api_SetDefaultVisibility()
+
     try:
         user = User.objects.get(token=request.COOKIES.get("token"))
     except User.DoesNotExist:
-        return build_response(ResponseCodes.DEFAULT_VISIBILITY, ErrorCodes.NOT_AUTHENTICATED)
+        return api.error(ErrorCodes.NOT_AUTHENTICATED)
 
-    user.default_post_private = bool(int(request.body[0]))
+    user.default_post_private = api.parse_request(request.body)
     user.save()
 
-    return build_response(ResponseCodes.DEFAULT_VISIBILITY)
+    return api.response()
 
 def set_verify_followers(request: HttpRequest) -> HttpResponse:
+    api = api_SetDefaultVisibility()
+
     try:
         user = User.objects.get(token=request.COOKIES.get("token"))
     except User.DoesNotExist:
-        return build_response(ResponseCodes.VERIFY_FOLLOWERS, ErrorCodes.NOT_AUTHENTICATED)
+        return api.error(ErrorCodes.NOT_AUTHENTICATED)
 
-    user.verify_followers = bool(int(request.body[0]))
+    user.verify_followers = api.parse_request(request.body)
     user.save()
 
-    return build_response(ResponseCodes.VERIFY_FOLLOWERS)
+    return api.response()
 
 def change_password(request: HttpRequest) -> HttpResponse:
     # if rl := check_ratelimit(request, "PATCH /api/user/password"):
     #     return rl
 
     current_token = request.COOKIES.get("token")
+    api = api_ChangePassword()
 
-    current_pw = _to_hex(request.body[:32])
-    new_pw = _to_hex(request.body[32:64])
+    data = api.parse_request(request.body)
 
     try:
         user = User.objects.get(token=current_token)
     except User.DoesNotExist:
-        return build_response(ResponseCodes.CHANGE_PASSWORD, ErrorCodes.NOT_AUTHENTICATED)
+        return api.error(ErrorCodes.NOT_AUTHENTICATED)
 
-    if generate_token(user.username, current_pw) != current_token or len(new_pw) != 64 or new_pw == "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855":
-        return build_response(ResponseCodes.CHANGE_PASSWORD, ErrorCodes.BAD_PASSWORD)
+    if generate_token(user.username, data["current_password"]) != current_token or len(data["new_password"]) != 64 or data["new_password"] == "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855":
+        return api.error(ErrorCodes.BAD_PASSWORD)
 
-    for i in new_pw:
+    for i in data["new_password"]:
         if i not in "abcdef0123456789":
-            return build_response(ResponseCodes.CHANGE_PASSWORD, ErrorCodes.BAD_PASSWORD)
+            return api.error(ErrorCodes.BAD_PASSWORD)
 
-    new_token = generate_token(user.username, new_pw)
+    new_token = generate_token(user.username, data["new_password"])
 
     user.token = new_token
     user.save()
 
-    return build_response(ResponseCodes.CHANGE_PASSWORD, [bytearray.fromhex(new_token)])
+    return api.response(token=new_token)
 
 def delete_account(request: HttpRequest) -> HttpResponse:
+    api = api_DeleteAccount()
+
     try:
         user = User.objects.get(token=request.COOKIES.get("token"))
     except User.DoesNotExist:
-        return build_response(ResponseCodes.DELETE_ACCOUNT, ErrorCodes.NOT_AUTHENTICATED)
+        return api.error(ErrorCodes.NOT_AUTHENTICATED)
 
-    if user.token == generate_token(user.username, _to_hex(request.body[:32])):
+    data = api.parse_request(request.body)
+
+    if user.token == generate_token(user.username, data["password"]):
         user.delete()
-        return build_response(ResponseCodes.DELETE_ACCOUNT)
+        return api.response()
 
-    return build_response(ResponseCodes.DELETE_ACCOUNT, ErrorCodes.BAD_PASSWORD)
+    return api.error(ErrorCodes.BAD_PASSWORD)
