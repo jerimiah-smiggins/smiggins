@@ -25,7 +25,7 @@ const icons: { [key: string]: string } = {
 };
 
 let snippetVariables: { [key: string]: string } = {
-  site_name: "Jerimiah Smiggins",
+  site_name: pageTitle,
   home_page: loggedIn ? "home" : "index",
   username: loggedIn ? username : "",
   selected_if_default_private: defaultPostPrivate ? "selected" : "",
@@ -48,7 +48,8 @@ let snippetProcessing: { [key: string]: (element: HTMLDivElement) => void } = {
 
   settings_profile: p_settingsProfile,
   settings_cosmetic: p_settingsCosmetic,
-  settings_account: p_settingsAccount
+  settings_account: p_settingsAccount,
+  settings_keybinds: p_settingsKeybinds
 };
 
 // @ts-expect-error

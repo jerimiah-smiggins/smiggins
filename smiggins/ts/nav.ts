@@ -15,6 +15,7 @@ function urlToIntent(path: string): intent {
       case "/settings/": return "settings";
       case "/settings/profile/": return "settings/profile";
       case "/settings/cosmetic/": return "settings/cosmetic";
+      case "/settings/keybinds/": return "settings/keybinds";
       case "/settings/account/": return "settings/account";
       case "/settings/about/": return "settings/about";
 
@@ -52,9 +53,15 @@ function internalLinkHandler(e: MouseEvent): void {
     let newPage: intent = el.dataset.internalLink as intent;
     let newURL: string | null = (el as HTMLAnchorElement).href || null;
 
-    if (newPage !== currentPage
-     || (newURL && newPage === "user" && getUsernameFromPath(newURL) !== getUsernameFromPath())
-     || (newURL && newPage === "post" && getPostIDFromPath(newURL) !== getPostIDFromPath())) {
+    if (newURL?.includes("//")) {
+      newURL = "/" + newURL.split("//")[1].split("/").slice(1).join("/");
+    }
+
+    if (
+      newPage !== currentPage
+   || (newURL && newPage === "user" && getUsernameFromPath(newURL) !== getUsernameFromPath())
+   || (newURL && newPage === "post" && getPostIDFromPath(newURL) !== getPostIDFromPath())
+    ) {
       history.pushState(newPage, "", newURL);
       renderPage(newPage);
       currentPage = newPage;
@@ -118,6 +125,7 @@ function renderPage(intent: intent): void {
   let snippet: HTMLDivElement = getSnippet(`pages/${intent}`, extraVariables);
   container.replaceChildren(snippet);
   document.title = getPageTitle(intent);
+  currentPage = intent;
 
   resetNotificationIndicators();
 }
@@ -139,6 +147,7 @@ function getPageTitle(intent: intent): string {
     case "settings":
     case "settings/profile":
     case "settings/cosmetic":
+    case "settings/keybinds":
     case "settings/account":
     case "settings/about":
       return "Settings - " + pageTitle;

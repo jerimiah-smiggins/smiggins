@@ -252,6 +252,28 @@ function profileSettingsSetUserData(
   }
 }
 
+function setKeybindElementData(kbId: string, el: HTMLDivElement): void {
+  let kbData = keybinds[kbId];
+
+  let keyData: string = _kbGetKey(kbId);
+  let key: string = keyData[0] + keyData.slice(1).split(":")[0];
+  let modifiers: string = (keyData.slice(1).split(":")[1].split(",") as keybindModifiers[]).map((mod: keybindModifiers): string => ({
+    alt: "Alt + ",
+    ctrl: "Ctrl + ",
+    nav: _kbGetKey("navModifier")[0] + _kbGetKey("navModifier").slice(1).split(":")[0] + " + ",
+    shift: "Shift + "
+  }[mod])).join("");
+
+  let output: string = `<div class="generic-margin-top">${escapeHTML(kbData.name)}: <code class="kb-key">${escapeHTML(modifiers + key)}</code> <button data-kb-id="${kbId}">Change</button></div>`;
+
+  if (kbData.description) {
+    output += `<small><div>${escapeHTML(kbData.description)}</div></small>`;
+  }
+
+  el.innerHTML = output;
+  el.querySelector("button")?.addEventListener("click", (): void => { modifyKeybindModal(kbId); });
+}
+
 function p_settingsProfile(element: HTMLDivElement): void {
   fetch("/api/user")
     .then((response: Response): Promise<ArrayBuffer> => (response.arrayBuffer()))
@@ -283,6 +305,16 @@ function p_settingsCosmetic(element: HTMLDivElement): void {
 function p_settingsAccount(element: HTMLDivElement): void {
   element.querySelector("#password-set")?.addEventListener("click", changePassword);
   element.querySelector("#delete-acc")?.addEventListener("click", deleteAccount);
+}
+
+function p_settingsKeybinds(element: HTMLDivElement): void {
+  for (const kb of element.querySelectorAll(".kb-input") as NodeListOf<HTMLDivElement>) {
+    let kbId: string = kb.dataset.kbId || "";
+
+    if (kbId in keybinds) {
+      setKeybindElementData(kbId, kb);
+    }
+  }
 }
 
 document.body.dataset.fontSize = localStorage.getItem("smiggins-font-size") || "normal";

@@ -1,5 +1,5 @@
-<div data-close-modal id="compose-modal" @{private_post}>
-  <div class="compose-box">
+<div data-close-modal id="modal" @{private_post}>
+  <div class="compose-box modal-inner">
     <div><input data-enter-next="#modal-post-content" data-enter-submit="#modal-post" id="modal-post-cw" placeholder="Content warning (optional)" maxlength="{{ conf.max_length.cw }}"></div>
     <div><textarea data-enter-next="!avoid" data-enter-submit="#modal-post" id="modal-post-content" placeholder="Cool post" maxlength="{{ conf.max_length.post }}"></textarea></div>
     <div class="post-options">

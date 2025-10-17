@@ -1,0 +1,32 @@
+{% include "snippets/generic/page-start.html" with active_page="settings" %}
+
+<h1 class="no-margin-top">Keybinds</h1>
+
+<hr class="no-margin-bottom">
+<a class="back-link plain-link" href="/settings/" data-internal-link="settings">@{icon_back} Settings</a>
+<hr class="no-margin-top no-margin-bottom">
+
+<div id="settings-sections">
+  <div>
+    <p class="no-margin-top">Generic Keybinds</p>
+
+    <div class="kb-input" data-kb-id="newPost"></div>
+    <div class="kb-input" data-kb-id="loadNewPosts"></div>
+    <div class="kb-input" data-kb-id="topOfTimeline"></div>
+  </div>
+
+  <div>
+    <p class="no-margin-top">Navigation Keybinds</p>
+    <div class="kb-input" data-kb-id="navModifier"></div>
+    <div class="kb-input" data-kb-id="navAdmin"></div>
+    <div class="kb-input" data-kb-id="navHome"></div>
+    <div class="kb-input" data-kb-id="navMessages"></div>
+    <div class="kb-input" data-kb-id="navNotifications"></div>
+    <div class="kb-input" data-kb-id="navProfile"></div>
+    <div class="kb-input" data-kb-id="navSettings"></div>
+  </div>
+</div>
+
+<hr class="no-margin-top">
+
+{% include "snippets/generic/page-end.html" %}

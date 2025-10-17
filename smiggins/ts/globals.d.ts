@@ -13,13 +13,15 @@ declare const limits: {
 type intent = "index" | "login" | "signup"
             | "logout" | "404"
             | "home" | "user" | "hashtag" | "post" | "notifications"
-            | "settings" | "settings/profile" | "settings/cosmetic" | "settings/account" | "settings/about";
+            | "settings" | "settings/profile" | "settings/cosmetic" | "settings/account" | "settings/keybinds" | "settings/about";
 
 type snippet = "pages/index" | "pages/login" | "pages/signup"
              | "pages/logout" | "pages/404"
              | "pages/home" | "pages/user" | "pages/hashtag" | "pages/post" | "pages/notifications"
-             | "pages/settings" | "pages/settings/profile" | "pages/settings/cosmetic" | "pages/settings/account" | "pages/settings/about"
-             | "post" | "post-placeholder" | "toast" | "compose-modal";
+             | "pages/settings" | "pages/settings/profile" | "pages/settings/cosmetic" | "pages/settings/account" | "pages/settings/keybinds" | "pages/settings/about"
+             | "post" | "post-placeholder" | "toast" | "compose-modal" | "keybind-modal";
+
+type keybindModifiers = "ctrl" | "shift" | "alt" | "nav";
 
 type snippetData = {
   content: string,

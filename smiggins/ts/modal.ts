@@ -6,7 +6,7 @@ let postModalFor: {
 function createPostModal(): void;
 function createPostModal(type: "quote" | "comment", id: number): void;
 function createPostModal(type?: "quote" | "comment", id?: number): void {
-  if (document.getElementById("compose-modal")) { return; }
+  if (document.getElementById("modal")) { return; }
 
   let extraVars: { [key: string]: string | [string, number] } = {
     "hidden_if_no_quote": "hidden",
@@ -40,11 +40,52 @@ function createPostModal(type?: "quote" | "comment", id?: number): void {
 
   let el: HTMLDivElement = getSnippet("compose-modal", extraVars);
   el.querySelector("#modal-post")?.addEventListener("click", postModalCreatePost);
-  el.querySelector("#compose-modal")?.addEventListener("click", clearPostModalIfClicked);
+  el.querySelector("#modal")?.addEventListener("click", clearModalIfClicked);
   document.body.append(el);
   (el.querySelector("#modal-post-content") as HTMLElement | null)?.focus();
 
-  document.addEventListener("keydown", clearPostModalOnEscape);
+  document.addEventListener("keydown", clearModalOnEscape);
+}
+
+function modifyKeybindModal(kbId: string): void {
+  let kbData = keybinds[kbId];
+  let el: HTMLDivElement = getSnippet("keybind-modal", {
+    keybind_title: kbData.name
+  });
+
+  forceDisableKeybinds = true;
+
+  // @ts-ignore
+  el.querySelector("#kb-modal-input")?.addEventListener("keydown", (e: KeyboardEvent): void => {
+    if (["shift", "alt", "control", "meta", " "].includes(e.key.toLowerCase())) {
+      // Ignore modifier keys
+    } else if (setKeybindKey(kbId, e.key, {
+      alt: e.altKey,
+      ctrl: e.ctrlKey,
+      nav: kbData.modifiers && kbData.modifiers.includes("nav"),
+      shift: e.shiftKey
+    })) {
+      if (kbId === "navModifier") {
+        for (const el of document.querySelectorAll("[data-kb-id^=\"nav\"]") as NodeListOf<HTMLDivElement>) {
+          setKeybindElementData(el.dataset.kbId || kbId, el);
+        }
+      }
+
+      let kbEl: HTMLDivElement | null = document.querySelector(`[data-kb-id="${kbId}"]`) as HTMLDivElement | null;
+      if (kbEl) { setKeybindElementData(kbId, kbEl); }
+
+      clearModal();
+    } else {
+      createToast("Key already in use");
+    }
+
+    e.preventDefault();
+  });
+
+  document.body.append(el);
+  (el.querySelector("#kb-modal-input") as HTMLInputElement | null)?.focus();
+
+  document.addEventListener("keydown", clearModalOnEscape);
 }
 
 function postModalCreatePost(e: Event): void {
@@ -75,7 +116,7 @@ function postModalCreatePost(e: Event): void {
           }
         }
 
-        clearPostModal();
+        clearModal();
       } else {
         contentElement.focus();
         (e.target as HTMLButtonElement | null)?.removeAttribute("disabled");
@@ -85,20 +126,21 @@ function postModalCreatePost(e: Event): void {
   );
 }
 
-function clearPostModalOnEscape(e: KeyboardEvent): void {
+function clearModalOnEscape(e: KeyboardEvent): void {
   if (e.key === "Escape") {
-    clearPostModal();
-    document.removeEventListener("keydown", clearPostModalOnEscape);
+    clearModal();
+    document.removeEventListener("keydown", clearModalOnEscape);
     e.preventDefault();
   }
 }
 
-function clearPostModalIfClicked(e: Event): void {
+function clearModalIfClicked(e: Event): void {
   if ((e.target as HTMLElement | null)?.dataset.closeModal !== undefined) {
-    clearPostModal();
+    clearModal();
   }
 }
 
-function clearPostModal(): void {
-  document.getElementById("compose-modal")?.remove();
+function clearModal(): void {
+  document.getElementById("modal")?.remove();
+  forceDisableKeybinds = false;
 }

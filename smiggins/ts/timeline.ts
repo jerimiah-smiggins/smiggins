@@ -273,6 +273,7 @@ function getPost(post: number, updateOffset: boolean=true, forceCwState: boolean
       quote_username: p.quote.user.username,
       quote_private_post: p.quote.private ? "data-private-post" : "",
       quote_cw_end: quoteCwEnd,
+      quote_pid: String(p.quote.id),
       hidden_if_no_quote_pronouns: p.quote.user.pronouns ? "" : "hidden"
     };
 

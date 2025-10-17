@@ -6,7 +6,7 @@
   }
 }
 
-#compose-modal {
+#modal {
   background-color: var(--modal-background);
   content: "";
   width: 100vw;
@@ -18,7 +18,7 @@
   padding: 4em;
   box-sizing: border-box;
 
-  .compose-box {
+  .modal-inner {
     box-sizing: border-box;
     background-color: var(--background);
     max-width: @compose-modal-max-width;
@@ -256,7 +256,7 @@
 }
 
 @media screen and (max-width: @mobile-scale-threshold) {
-  #compose-modal {
+  #modal {
     padding: 4em 1em;
   }
 }
