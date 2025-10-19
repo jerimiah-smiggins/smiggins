@@ -73,7 +73,7 @@ function linkify(str: string, postID?: number): string {
       urlReplacement.push({
         index: hashtag.index,
         length: hashtag[0].length,
-        href: `/hashtag/${hashtag[1]}/`,
+        href: `/tag/${hashtag[1].toLowerCase()}/`,
         internalIntent: "hashtag"
       });
     }

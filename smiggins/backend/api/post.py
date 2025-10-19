@@ -2,9 +2,9 @@ import time
 
 from django.db.utils import IntegrityError
 from django.http import HttpRequest, HttpResponse
-from posts.models import M2MLike, Notification, Post, User
+from posts.models import M2MLike, Notification, Post, User, Hashtag, M2MHashtagPost
 
-from ..helper import find_mentions, trim_whitespace
+from ..helper import find_mentions, find_hashtags, trim_whitespace
 from ..variables import (MAX_CONTENT_WARNING_LENGTH, MAX_POLL_OPTION_LENGTH,
                          MAX_POST_LENGTH)
 from .format import ErrorCodes, api_CreatePost, api_Like, api_Unlike
@@ -105,8 +105,22 @@ def post_create(request: HttpRequest) -> HttpResponse:
             ))
 
     if pending_notification_objects:
-        print(pending_notification_objects)
         Notification.objects.bulk_create(pending_notification_objects, ignore_conflicts=True) # gives AssertionError without ignore_conficts for no reason
+
+    pending_hashtag_objects = []
+    for tag in find_hashtags(content[0]):
+        try:
+            hashtag = Hashtag.objects.get(tag=tag)
+        except Hashtag.DoesNotExist:
+            hashtag = Hashtag.objects.create(tag=tag)
+
+        pending_hashtag_objects.append(M2MHashtagPost(
+            post=post,
+            hashtag=hashtag
+        ))
+
+    if pending_hashtag_objects:
+        M2MHashtagPost.objects.bulk_create(pending_hashtag_objects, ignore_conflicts=True)
 
     # TODO:? respect MAX_NOTIFS variable
 

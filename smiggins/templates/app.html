@@ -72,6 +72,7 @@
       {% include "snippet.html" with id="pages/settings/keybinds" vars="username" processing="settings_keybinds" %}
       {% include "snippet.html" with id="pages/settings/about" vars="username" %}
       {% include "snippet.html" with id="pages/notifications" vars="username" processing="notifications,timeline_more" %}
+      {% include "snippet.html" with id="pages/hashtag" vars="username" processing="timeline_switch,timeline_more,hashtag" %}
 
       <!-- other -->
       {% include "snippet.html" with id="post" processing="post" %}

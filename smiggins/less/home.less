@@ -45,8 +45,13 @@
       height: 0;
     }
 
+    [data-timeline-toggle] {
+      border-left: 1px solid var(--border-color);
+    }
+
     > div:not(.timeline-carousel-break) {
       flex: 1;
+      white-space: nowrap;
       display: inline-block;
       box-sizing: border-box;
       padding: 1em;

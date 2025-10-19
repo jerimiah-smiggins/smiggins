@@ -21,6 +21,7 @@ function urlToIntent(path: string): intent {
 
       case /^\/u\/[a-z0-9_\-]+\/$/.test(path) ? path : "": return "user";
       case /^\/p\/[0-9]+\/$/.test(path) ? path : "": return "post";
+      case /^\/tag\/[a-z0-9_]+\/$/.test(path) ? path : "": return "hashtag";
     }
   } else {
     switch (path) {
@@ -79,7 +80,7 @@ function normalizePath(path: string): string {
 }
 
 function renderPage(intent: intent): void {
-  let extraVariables: { [key: string]: string } = {};
+  let extraVariables: { [key: string]: string | [string, number] } = {};
   let c: userData | undefined;
 
   switch (intent) {
@@ -88,11 +89,12 @@ function renderPage(intent: intent): void {
       c = userCache[u];
       extraVariables = {
         user_username: u,
-        display_name: c && escapeHTML(c.display_name) || u,
         color_one: c && c.color_one || "var(--background-mid)",
         color_two: c && c.color_two || "var(--background-mid)",
         following: c && String(c.num_following) || "0",
-        followers: c && String(c.num_followers) || "0"
+        followers: c && String(c.num_followers) || "0",
+        bio: c && [linkify(escapeHTML(c.bio)), 1] || "",
+        display_name: c && [escapeHTML(c.display_name), 1] || u
       }; break;
 
     case "settings/profile":
@@ -114,6 +116,11 @@ function renderPage(intent: intent): void {
         parent: String(p && p.comment),
         hidden_if_comment: p && p.comment ? "hidden" : "",
         hidden_if_not_comment: p && p.comment ? "" : "hidden"
+      }; break;
+
+    case "hashtag":
+      extraVariables = {
+        tag: getHashtagFromPath()
       }; break;
   }
 

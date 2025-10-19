@@ -19,6 +19,7 @@ enum ResponseCodes {
   TimelineUser,
   TimelineComments,
   TimelineNotifications,
+  TimelineHashtag,
   Notifications = 0x70
 };
 
@@ -190,6 +191,7 @@ function parseResponse(
 ): void {
   let u8arr: Uint8Array = new Uint8Array(data);
   let displayName: [string, leftoverData: Uint8Array];
+  let bio: [string, leftoverData: Uint8Array];
   let end: boolean;
   let forwards: boolean;
   let numPosts: number;
@@ -213,7 +215,7 @@ function parseResponse(
 
     case ResponseCodes.GetProfile:
       displayName = _extractString(8, u8arr.slice(1));
-      let bio: [string, leftoverData: Uint8Array] = _extractString(16, displayName[1]);
+      bio = _extractString(16, displayName[1]);
       let pronouns: [string, leftoverData: Uint8Array] = _extractString(8, bio[1]);
 
       profileSettingsSetUserData(
@@ -274,17 +276,20 @@ function parseResponse(
 
     case ResponseCodes.TimelineUser:
       displayName = _extractString(8, u8arr.slice(1));
+      bio = _extractString(16, displayName[1]);
+
       userUpdateStats(
         displayName[0],
-        "#" + _toHex(displayName[1].slice(0, 3)),
-        "#" + _toHex(displayName[1].slice(3, 6)),
-        _extractBool(displayName[1][10], 5) && "pending" || _extractBool(displayName[1][10], 4),
-        _extractBool(displayName[1][10], 2),
-        _extractInt(16, displayName[1].slice(8)),
-        _extractInt(16, displayName[1].slice(6))
+        bio[0],
+        "#" + _toHex(bio[1].slice(0, 3)),
+        "#" + _toHex(bio[1].slice(3, 6)),
+        _extractBool(bio[1][10], 5) && "pending" || _extractBool(bio[1][10], 4),
+        _extractBool(bio[1][10], 2),
+        _extractInt(16, bio[1].slice(8)),
+        _extractInt(16, bio[1].slice(6))
       );
 
-      u8arr = displayName[1].slice(9);
+      u8arr = bio[1].slice(9);
 
     case ResponseCodes.TimelineComments:
       // Prevent accidentally running this code when on user timeline
@@ -296,6 +301,7 @@ function parseResponse(
 
     case ResponseCodes.TimelineGlobal:
     case ResponseCodes.TimelineFollowing:
+    case ResponseCodes.TimelineHashtag:
       end = _extractBool(u8arr[1], 7);
       forwards = _extractBool(u8arr[1], 6);
       numPosts = u8arr[2];

@@ -3,12 +3,12 @@ from typing import Literal
 from django.db.models import Q
 from django.db.models.manager import BaseManager
 from django.http import HttpResponse
-from posts.models import Notification, Post, User
+from posts.models import Hashtag, Notification, Post, User
 
 from ..variables import POSTS_PER_REQUEST
 from .format import (ErrorCodes, api_TimelineComments, api_TimelineFollowing,
-                     api_TimelineGlobal, api_TimelineNotifications,
-                     api_TimelineUser)
+                     api_TimelineGlobal, api_TimelineHashtag,
+                     api_TimelineNotifications, api_TimelineUser)
 
 
 def get_timeline(
@@ -183,4 +183,38 @@ def tl_notifications(request, offset: int | None=None, forwards: bool=False):
 
     Notification.objects.bulk_update(unread_notifications, ["read"])
 
+    return api.get_response()
+
+def tl_hashtag(request, tag: str, sort: Literal["recent", "oldest", "random"], offset: int | None=None, forwards: bool=False) -> HttpResponse:
+    api = api_TimelineHashtag()
+
+    try:
+        user = User.objects.get(token=request.COOKIES.get("token"))
+    except User.DoesNotExist:
+        return api.error(ErrorCodes.NOT_AUTHENTICATED)
+
+    try:
+        hashtag = Hashtag.objects.get(tag=tag)
+    except Hashtag.DoesNotExist:
+        return api.error(ErrorCodes.POST_NOT_FOUND)
+
+    kwargs = {}
+
+    if sort == "recent":
+        ...
+    elif sort == "oldest":
+        kwargs["order_by"] = ["timestamp", "pk"]
+        forwards = False
+    else:
+        return api.error(ErrorCodes.BAD_REQUEST)
+
+    end, posts = get_timeline(
+        hashtag.posts,
+        offset,
+        user,
+        forwards,
+        **kwargs
+    )
+
+    api.set_response(end, forwards, posts, user)
     return api.get_response()

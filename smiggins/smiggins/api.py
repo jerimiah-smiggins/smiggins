@@ -1,7 +1,7 @@
 from backend.api.notifications import notifications
 from backend.api.post import add_like, post_create, remove_like
 from backend.api.timeline import (tl_comments, tl_following, tl_global,
-                                  tl_notifications, tl_user)
+                                  tl_hashtag, tl_notifications, tl_user)
 from backend.api.user import (block_add, block_remove, change_password,
                               delete_account, follow_add, follow_remove,
                               get_profile, login, save_profile,
@@ -39,6 +39,7 @@ api.get("timeline/following")(tl_following)
 api.get("timeline/user/{str:username}")(tl_user)
 api.get("timeline/post/{int:post_id}")(tl_comments)
 api.get("timeline/notifications")(tl_notifications)
+api.get("timeline/tag/{str:tag}")(tl_hashtag)
 
 api.post("post")(post_create)
 

@@ -27,6 +27,7 @@ function userSetDNE(): void {
 
 function userUpdateStats(
   displayName: string,
+  bio: string,
   colorOne: string,
   colorTwo: string,
   following: boolean | "pending",
@@ -41,6 +42,7 @@ function userUpdateStats(
 
   if (c) {
     c.display_name  = displayName;
+    c.bio           = bio
     c.color_one     = colorOne;
     c.color_two     = colorTwo;
     c.following     = following;
@@ -50,7 +52,7 @@ function userUpdateStats(
   } else {
     c = {
       display_name: displayName || username,
-      bio: "", // TODO: bios
+      bio: bio,
       color_one: colorOne || "var(--background-mid)",
       color_two: colorTwo || "var(--background-mid)",
       following: following || false,
@@ -91,6 +93,9 @@ function userUpdateStats(
       }
     }
   }
+
+  let bioElement: HTMLElement | null = document.getElementById("bio");
+  if (bioElement) { bioElement.innerHTML = linkify(escapeHTML(bio)); }
 
   document.title = `${displayName} - ${pageTitle}`;
 

@@ -88,7 +88,6 @@ ENABLE_LOGGED_OUT_CONTENT: bool = True
 ENABLE_NEW_ACCOUNTS: bool | Literal["otp"] = True
 GOOGLE_VERIFICATION_TAG: str | None = ""
 # DISCORD: str | None = "tH7QnHApwu"
-GENERIC_CACHE_TIMEOUT: int | None = 604800
 ALTERNATE_IPS: bool | str = False
 # ENABLE_RATELIMIT: bool = True
 # RATELIMITS: dict[str, tuple[int, int] | None] = {}
@@ -118,7 +117,6 @@ _VARIABLES: list[tuple[str | None, list[str], type | str | list | tuple | dict, 
     ("MAX_NOTIFICATIONS", ["max_notifs", "max_notifications"], int, False),
     ("ENABLE_NEW_ACCOUNTS", ["enable_signup", "enable_new_users", "enable_new_accounts"], (bool, "Literal_otp"), False),
     ("GOOGLE_VERIFICATION_TAG", ["google_verification_tag"], str, False),
-    ("GENERIC_CACHE_TIMEOUT", ["generic_cache_timeout"], int, True),
     ("ALTERNATE_IPS", ["alternate_ips"], (bool, str), False),
     # ("ENABLE_RATELIMIT", ["enable_ratelimit"], bool, False),
     # ("RATELIMITS", ["ratelimits"], {str: "ratelimit-value"}, False)
@@ -278,7 +276,6 @@ MAX_POLL_OPTION_LENGTH = clamp(MAX_POLL_OPTION_LENGTH, minimum=1, maximum=2 ** 1
 MAX_NOTIFICATIONS = clamp(MAX_NOTIFICATIONS, minimum=1)
 POSTS_PER_REQUEST = clamp(POSTS_PER_REQUEST, minimum=1, maximum=2 ** 8 - 1)
 MESSAGES_PER_REQUEST = clamp(MESSAGES_PER_REQUEST, minimum=1, maximum=2 ** 8 - 1)
-GENERIC_CACHE_TIMEOUT = clamp(GENERIC_CACHE_TIMEOUT, minimum=0)
 DATABASE_BACKUPS["frequency"] = clamp(DATABASE_BACKUPS["frequency"], minimum=1) # type: ignore
 DATABASE_BACKUPS["keep"] = clamp(DATABASE_BACKUPS["keep"], minimum=1)
 

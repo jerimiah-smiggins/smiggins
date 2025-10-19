@@ -26,6 +26,7 @@ class ResponseCodes:
     TIMELINE_USER = 0x62
     TIMELINE_COMMENTS = 0x63
     TIMELINE_NOTIFICATIONS = 0x64
+    TIMELINE_HASHTAG = 0x65
     NOTIFICATIONS = 0x70
 
 class ErrorCodes:
@@ -151,45 +152,6 @@ def _post_to_bytes(post: Post, user: User | None) -> bytes:
         output += b(len(quote_pronouns_bytes), 1) + quote_pronouns_bytes
 
     return output
-
-    # (quote.post_id, 32),
-    # (quote.timestamp, 64),
-    # (quote.content, 16),
-    # (quote.content_warning or "", 8),
-    # (quote.creator.username, 8),
-    # (quote.creator.display_name, 8),
-    # (quote.creator.pronouns, 8),
-
-    return [
-        post.creator.verify_followers if post.private is None else post.private,
-        comment is not None,
-        quote is not None,
-        can_view_quote, # TODO: don't show quotes you can't see (blocked, private, blocking...)
-        post.likes.contains(user) if user else False,
-        can_view_quote and (quote or False) and quote.private,
-        *([] if comment is None else [(comment.post_id, 32)]),
-
-        # TODO: custom format that supports larger less accurate numbers to avoid overflow (ex. 0-999, 1.0k-999k, 1.0m-999m, 1.0b-999b, infinity)
-        (post.likes.count(), 16),
-        (post.quotes.count(), 16),
-        (post.comments.count(), 16),
-
-        (post.content, 16),
-        (post.content_warning or "", 8),
-        (post.creator.username, 8),
-        (post.creator.display_name, 8),
-        (post.creator.pronouns, 8),
-
-        *([] if quote is None or not can_view_quote else [
-            (quote.post_id, 32),
-            (quote.timestamp, 64),
-            (quote.content, 16),
-            (quote.content_warning or "", 8),
-            (quote.creator.username, 8),
-            (quote.creator.display_name, 8),
-            (quote.creator.pronouns, 8),
-        ])
-    ]
 
 def _notification_to_bytes(notification: Notification, user: User | None) -> bytes:
     quote_types = {
@@ -410,7 +372,10 @@ class api_TimelineUser(_api_TimelineBase):
 
     def set_response(self, end: bool, forwards: bool, posts: list[Post] | list[Notification], user: User, self_user: User):
         display_name_bytes = str.encode(user.display_name)[: 1 << 8 - 1]
+        bio_bytes = str.encode(user.bio)[: 1 << 16 - 1]
+
         user_data = b(len(display_name_bytes)) + display_name_bytes
+        user_data += b(len(bio_bytes), 2) + bio_bytes
         user_data += bytes(bytearray.fromhex(user.color[1:] + (user.color_two if user.gradient else user.color)[1:]))
         user_data += b(user.followers.count(), 2) + b(user.following.count(), 2)
 
@@ -440,6 +405,9 @@ class api_TimelineComments(_api_TimelineBase):
 
 class api_TimelineNotifications(_api_TimelineBase):
     response_code = ResponseCodes.TIMELINE_NOTIFICATIONS
+
+class api_TimelineHashtag(_api_TimelineBase):
+    response_code = ResponseCodes.TIMELINE_HASHTAG
 
 # 7X - Statuses
 class api_PendingNotifications(_api_BaseResponse):

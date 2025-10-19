@@ -50,7 +50,9 @@ function createPostModal(type?: "quote" | "comment", id?: number): void {
 function modifyKeybindModal(kbId: string): void {
   let kbData = keybinds[kbId];
   let el: HTMLDivElement = getSnippet("keybind-modal", {
-    keybind_title: kbData.name
+    keybind_title: kbData.name,
+    keybind_description: kbData.description || "",
+    hidden_if_no_description: kbData.description ? "" : "hidden"
   });
 
   forceDisableKeybinds = true;
@@ -84,6 +86,7 @@ function modifyKeybindModal(kbId: string): void {
 
   document.body.append(el);
   (el.querySelector("#kb-modal-input") as HTMLInputElement | null)?.focus();
+  el.querySelector("#modal")?.addEventListener("click", clearModalIfClicked);
 
   document.addEventListener("keydown", clearModalOnEscape);
 }

@@ -4,7 +4,7 @@ function p_home(element: HTMLDivElement): void {
     global: { url: "/api/timeline/global", prependPosts: true },
     "following-comments": { url: "/api/timeline/following?comments=true", prependPosts: true },
     "global-comments": { url: "/api/timeline/global?comments=true", prependPosts: true }
-  }, "global", element);
+  }, "global-comments", element);
 
   element.querySelector("#post")?.addEventListener("click", homeCreatePost);
 }
