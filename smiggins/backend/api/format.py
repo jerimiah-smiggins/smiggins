@@ -111,6 +111,7 @@ def _post_to_bytes(post: Post, user: User | None) -> bytes:
       | can_view_quote << 4 # quote visible
       | (post.likes.contains(user) if user else False) << 3 # liked
       | (quote is not None and (quote.creator.verify_followers if quote.private is None else quote.private)) << 2 # quote is private
+      | (quote is not None and quote.comment_parent is not None) << 1 # quote has comment
     )
 
     if comment:
@@ -133,6 +134,9 @@ def _post_to_bytes(post: Post, user: User | None) -> bytes:
 
     if quote:
         output += b(quote.post_id, 4) + b(quote.timestamp, 8)
+
+        if quote.comment_parent:
+            output += b(quote.comment_parent.post_id, 4)
 
         quote_content_bytes = str.encode(quote.content)[: 1 << 16 - 1]
         quote_cw_bytes = str.encode(quote.content_warning or "")[: 1 << 8 - 1]

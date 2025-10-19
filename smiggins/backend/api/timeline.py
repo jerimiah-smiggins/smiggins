@@ -45,7 +45,7 @@ def get_timeline(
     objs: list[Post] | list[Notification] = list(tl[:POSTS_PER_REQUEST + 1]) # type: ignore
     return len(objs) <= POSTS_PER_REQUEST, objs[:POSTS_PER_REQUEST]
 
-def tl_following(request, offset: int | None=None, forwards: bool=False) -> HttpResponse:
+def tl_following(request, comments: bool | None=None, offset: int | None=None, forwards: bool=False) -> HttpResponse:
     # if rl := check_ratelimit(request, "GET /api/timeline/following"):
     #     return NEW_RL
 
@@ -57,7 +57,7 @@ def tl_following(request, offset: int | None=None, forwards: bool=False) -> Http
         return api.error(ErrorCodes.NOT_AUTHENTICATED)
 
     end, posts = get_timeline(
-        Post.objects.filter(comment_parent=None).filter(
+        (Post.objects if comments else Post.objects.filter(comment_parent=None)).filter(
             Q(creator=user) | Q(creator__followers=user)
         ),
         offset,
@@ -68,7 +68,7 @@ def tl_following(request, offset: int | None=None, forwards: bool=False) -> Http
     api.set_response(end, forwards, posts, user)
     return api.get_response()
 
-def tl_global(request, offset: int | None=None, forwards: bool=False) -> HttpResponse:
+def tl_global(request, comments: bool | None=None, offset: int | None=None, forwards: bool=False) -> HttpResponse:
     # if rl := check_ratelimit(request, "GET /api/timeline/global"):
     #     return NEW_RL
 
@@ -80,7 +80,7 @@ def tl_global(request, offset: int | None=None, forwards: bool=False) -> HttpRes
         return api.error(ErrorCodes.NOT_AUTHENTICATED)
 
     end, posts = get_timeline(
-        Post.objects.filter(comment_parent=None),
+        Post.objects if comments else Post.objects.filter(comment_parent=None),
         offset,
         user,
         forwards

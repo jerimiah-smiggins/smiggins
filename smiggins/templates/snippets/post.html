@@ -10,7 +10,7 @@
 
   @{cw_start}
 
-  <div class="post-content">@{content}</div>
+  <div class="post-content"><span @{hidden_if_no_comment}><a data-internal-link="post" href="/p/@{comment_id}">@{icon_comment_arrow}</a></span>@{content}</div>
 
   <div class="post-quote" @{hidden_if_no_quote}>
     <div class="post-upper">
@@ -23,7 +23,7 @@
     </div>
 
     <!-- TODO: cws on quotes -->
-    <div class="post-content">@{quote_content}</div>
+    <div class="post-content"><span @{hidden_if_no_quote_comment}><a data-internal-link="post" href="/p/@{quote_comment_id}">@{icon_comment_arrow}</a></span>@{quote_content}</div>
   </div>
 
   @{cw_end}

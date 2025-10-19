@@ -56,6 +56,7 @@ type post = {
     content_warning: string | null,
     timestamp: number,
     private: boolean,
+    comment: number | null,
 
     user: {
       username: string,

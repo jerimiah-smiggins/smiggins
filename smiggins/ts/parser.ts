@@ -126,7 +126,14 @@ function _extractPost(data: Uint8Array): [post, leftoverData: Uint8Array] {
     if (!_extractBool(flags, 4)) {
       quoteData = undefined;
     } else {
-      let quoteContent: [string, leftoverData: Uint8Array] = _extractString(16, newData.slice(12));
+      let quoteIsComment: boolean = _extractBool(flags, 1);
+      let quoteCommentId: null | number = null;
+
+      if (quoteIsComment) {
+        quoteCommentId = _extractInt(32, newData.slice(12));
+      }
+
+      let quoteContent: [string, leftoverData: Uint8Array] = _extractString(16, newData.slice(12 + (4 * +quoteIsComment)));
       let quoteCW: [string, leftoverData: Uint8Array] = _extractString(8, quoteContent[1]);
       let quoteUsername: [string, leftoverData: Uint8Array] = _extractString(8, quoteCW[1]);
       let quoteDispName: [string, leftoverData: Uint8Array] = _extractString(8, quoteUsername[1]);
@@ -138,6 +145,7 @@ function _extractPost(data: Uint8Array): [post, leftoverData: Uint8Array] {
         content_warning: quoteCW[0],
         timestamp: _extractInt(64, newData.slice(4)),
         private: _extractBool(flags, 2),
+        comment: quoteCommentId,
 
         user: {
           username: quoteUsername[0],

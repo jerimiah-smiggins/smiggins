@@ -269,12 +269,17 @@ function getPost(post: number, updateOffset: boolean=true, forceCwState: boolean
 
     quoteData = {
       hidden_if_no_quote: "",
+
       quote_timestamp: getTimestamp(p.quote.timestamp),
       quote_username: p.quote.user.username,
       quote_private_post: p.quote.private ? "data-private-post" : "",
       quote_cw_end: quoteCwEnd,
+
       quote_pid: String(p.quote.id),
-      hidden_if_no_quote_pronouns: p.quote.user.pronouns ? "" : "hidden"
+      quote_comment_id: String(p.quote.comment),
+
+      hidden_if_no_quote_pronouns: p.quote.user.pronouns ? "" : "hidden",
+      hidden_if_no_quote_comment: p.quote.comment ? "" : "hidden"
     };
 
     quoteUnsafeData = {
@@ -293,6 +298,7 @@ function getPost(post: number, updateOffset: boolean=true, forceCwState: boolean
     delete_hidden: isAdmin || username === p.user.username ? "" : "hidden",
 
     pid: String(post),
+    comment_id: String(p.comment),
 
     comments: String(p.interactions.comments),
     quotes: String(p.interactions.quotes),
@@ -302,6 +308,7 @@ function getPost(post: number, updateOffset: boolean=true, forceCwState: boolean
     private_post: p.private ? "data-private-post" : "",
     cw_end: contentWarningEnd,
     hidden_if_no_pronouns: p.user.pronouns ? "" : "hidden",
+    hidden_if_no_comment: p.comment ? "" : "hidden",
     ...quoteData,
 
     // unsafe items, includes a max replace in order to prevent unwanted injection

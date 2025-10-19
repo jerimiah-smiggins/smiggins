@@ -108,7 +108,7 @@ where:
 **Posts**
 This isn't for a specific route, instead this is the format for a post.
 
-`PP PP PP PP TT TT TT TT TT TT TT TT pcqvlu00 CC CC CC CC LL LL QQ QQ MM MM CL CL CO... WL CW... UL UU... DL DD... PL PP... QI QI QI QI QT QT QT QT QT QT QT QT QL QL QC... QWL QW... QUL QU... QDL QD... QPL QP...`
+`PP PP PP PP TT TT TT TT TT TT TT TT pcqvluo0 CC CC CC CC LL LL QQ QQ MM MM CL CL CO... WL CW... UL UU... DL DD... PL PP... QI QI QI QI QT QT QT QT QT QT QT QT QO QO QO QO QL QL QC... QWL QW... QUL QU... QDL QD... QPL QP...`
 
 where:
 - `P` is the post id (uint32)
@@ -119,6 +119,7 @@ where:
 - `v` is whether or not you can view the quote (bool)
 - `l` is whether or not you've liked the post (bool)
 - `u` is whether or not the quote is private (assuming there is a quote)
+- `o` is whether or not the quote is a comment
 - `C` is the comment id (uint32), **only if c is true**
 - `L` is the number of likes (uint16)
 - `Q` is the number of quotes (uint16)
@@ -136,6 +137,7 @@ where:
 - **if q and v are true:**
   - `QI` is the quote id (uint32)
   - `QT` is the quote timestamp (uint64)
+  - `QO` is the quote comment parent id (uint32), **only of o is true**
   - `QL` is the length of the quote content
   - `QC...` is the quote content
   - `QWL` is the quote content warning length (uint8), 0 if there is none
