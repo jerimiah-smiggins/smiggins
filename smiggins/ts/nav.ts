@@ -62,6 +62,7 @@ function internalLinkHandler(e: MouseEvent): void {
       newPage !== currentPage
    || (newURL && newPage === "user" && getUsernameFromPath(newURL) !== getUsernameFromPath())
    || (newURL && newPage === "post" && getPostIDFromPath(newURL) !== getPostIDFromPath())
+   || (newURL && newPage === "hashtag" && getHashtagFromPath(newURL) !== getHashtagFromPath())
     ) {
       history.pushState(newPage, "", newURL);
       renderPage(newPage);
