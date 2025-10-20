@@ -154,7 +154,9 @@ function renderNotificationTimeline(
   }
 
   if (pendingLikes.length) {
-    frag.append(_getLikeNotification(pendingLikes));
+    let el: HTMLDivElement = _getLikeNotification(pendingLikes);
+    if (previousRead) { el.dataset.notificationRead = ""; }
+    frag.append(el);
   }
 
   tlElement.append(frag);
