@@ -98,7 +98,7 @@ def _extract_bool(num: int, offset: int) -> bool:
 def _to_hex(data: bytes) -> str:
     return "".join([hex(i)[2:].zfill(2) for i in data])
 
-def _post_to_bytes(post: Post, user: User | None) -> bytes:
+def _post_to_bytes(post: Post, user: User | None, user_data_override: User | None=None) -> bytes:
     can_view_quote = True
     comment: Post | None = post.comment_parent
     quote: Post | None = post.quoted_post
@@ -123,9 +123,9 @@ def _post_to_bytes(post: Post, user: User | None) -> bytes:
 
     content_bytes = str.encode(post.content)[: 1 << 16 - 1]
     cw_bytes = str.encode(post.content_warning or "")[: 1 << 8 - 1]
-    username_bytes = str.encode(post.creator.username)[: 1 << 8 - 1]
-    display_name_bytes = str.encode(post.creator.display_name)[: 1 << 8 - 1]
-    pronouns_bytes = str.encode(post.creator.pronouns)[: 1 << 8 - 1]
+    username_bytes = str.encode((user_data_override or post.creator).username)[: 1 << 8 - 1]
+    display_name_bytes = str.encode((user_data_override or post.creator).display_name)[: 1 << 8 - 1]
+    pronouns_bytes = str.encode((user_data_override or post.creator).pronouns)[: 1 << 8 - 1]
 
     output += b(len(content_bytes), 2) + content_bytes
     output += b(len(cw_bytes), 1) + cw_bytes
@@ -161,7 +161,7 @@ def _notification_to_bytes(notification: Notification, user: User | None) -> byt
         "like": 4
     }
 
-    return b((not notification.read) << 7 | quote_types[notification.event_type]) + _post_to_bytes(notification.post, user)
+    return b((not notification.read) << 7 | quote_types[notification.event_type]) + _post_to_bytes(notification.post, user, notification.linked_like.user if notification.event_type == "like" and notification.linked_like else None)
 
 # 0X - Authentication
 class api_SignUp(_api_BaseResponse):

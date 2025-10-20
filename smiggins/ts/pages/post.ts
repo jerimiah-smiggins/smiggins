@@ -88,7 +88,7 @@ function p_postPage(element: HTMLDivElement): void {
   if (p) {
     let commentElement: HTMLTextAreaElement | null = element.querySelector("#post-content");
     if (commentElement) {
-      commentElement.value = getMentionsFromPost(p).map((a) => (`@${a} `)).join("");
+      commentElement.value = getMentionsFromPost(p).map((a: string): string => (`@${a} `)).join("");
     }
 
     postElement.replaceChildren(getPost(pid, false));

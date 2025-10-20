@@ -2,9 +2,10 @@ import time
 
 from django.db.utils import IntegrityError
 from django.http import HttpRequest, HttpResponse
-from posts.models import M2MLike, Notification, Post, User, Hashtag, M2MHashtagPost
+from posts.models import (Hashtag, M2MHashtagPost, M2MLike, Notification, Post,
+                          User)
 
-from ..helper import find_mentions, find_hashtags, trim_whitespace
+from ..helper import find_hashtags, find_mentions, trim_whitespace
 from ..variables import (MAX_CONTENT_WARNING_LENGTH, MAX_POLL_OPTION_LENGTH,
                          MAX_POST_LENGTH)
 from .format import ErrorCodes, api_CreatePost, api_Like, api_Unlike
@@ -149,9 +150,19 @@ def add_like(request, post_id: int) -> HttpResponse:
     try:
         post.likes.add(user)
     except IntegrityError:
-        ...
+        print("like already exists")
 
-    # TODO: like notifications
+    if post.creator != user:
+        try:
+            Notification.objects.create(
+                timestamp=round(time.time()),
+                event_type="like",
+                linked_like=M2MLike.objects.get(user=user, post=post),
+                post=post,
+                is_for=post.creator
+            )
+        except M2MLike.DoesNotExist:
+            print("couldn't make like notif object")
 
     return api.response()
 

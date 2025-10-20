@@ -47,13 +47,13 @@ function reloadTimeline(ignoreCache: boolean=false, element?: HTMLDivElement): v
     let posts: number[] = [];
     for (const post of cache.posts) {
       let p = postCache[post];
-      let u = p && userCache[p.user.username]; 
+      let u = p && userCache[p.user.username];
       if (currentTl.url.startsWith("user_") || !u || !u.blocking) {
         posts.push(post);
       }
     }
 
-    renderTimeline(
+    (currentTl.customRender || renderTimeline)(
       posts,
       cache.end,
       false,
@@ -118,7 +118,7 @@ function clearTimelineStatuses(): void {
 
 // appends posts to a timeline
 function renderTimeline(
-  posts: number[] | [postId: number, notificationType: number][],
+  posts: number[],
   end: boolean,
   updateCache: boolean=true,
   moreElementOverride?: HTMLElement | null
@@ -144,22 +144,7 @@ function renderTimeline(
   }
 
   for (const post of posts) {
-    if (typeof post === "number") {
-      frag.append(getPost(post));
-    } else {
-      let title: HTMLDivElement = document.createElement("div");
-      title.classList.add("notification-title");
-
-      switch (post[1] & 0b01111111) {
-        case NotificationCodes.Comment: title.innerText = `${postCache[post[0]]?.user.display_name} commented on your post:`; break;
-        case NotificationCodes.Quote: title.innerText = `${postCache[post[0]]?.user.display_name} quoted your post:`; break;
-        case NotificationCodes.Ping: title.innerText = `${postCache[post[0]]?.user.display_name} mentioned you:`; break;
-        case NotificationCodes.Like: title.innerText = `${postCache[post[0]]?.user.display_name} liked your post:`; break;
-        default: title.innerText = "Unknown notification type";
-      }
-
-      frag.append(title, getPost(post[0]));
-    }
+    frag.append(getPost(post));
   }
 
   tlElement.append(frag);
@@ -179,14 +164,7 @@ function renderTimeline(
       tlCache[currentTlID] = c;
     }
 
-    if (posts && typeof posts[0] === "number") {
-      // @ts-ignore
-      c.posts.push(...posts);
-    } else if (posts && typeof posts[0] === "object") {
-      // @ts-ignore
-      c.posts.push(...(posts.map((a) => (a[0]))));
-    }
-
+    c.posts.push(...posts);
     c.lowerBound = offset.lower;
     c.upperBound = offset.upper;
     c.end = end;
@@ -213,7 +191,7 @@ function _setTimeline(timelineId: string, element?: HTMLDivElement): void {
     tlPollingIntervalID = setInterval(timelinePolling, TL_POLLING_INTERVAL);
   }
 
-  reloadTimeline(undefined, element);
+  reloadTimeline(false, element);
 }
 
 // handles switching timelines from the tl-carousel
@@ -238,7 +216,7 @@ function getPost(post: number, updateOffset: boolean=true, forceCwState: boolean
 
   if (!p) {
     let el: HTMLDivElement = document.createElement("div");
-    el.innerText = "Post couldn't be loaded. Oops.";
+    el.innerText = "Post couldn't be loaded.";
     return el;
   }
 
@@ -470,8 +448,9 @@ function postButtonClick(e: Event): void {
 
     el.dataset.liked = String(!liked);
 
-    fetch(`/api/post/like/${postId}`)
-      .then((response: Response): Promise<ArrayBuffer> => (response.arrayBuffer()))
+    fetch(`/api/post/like/${postId}`, {
+      method: liked ? "DELETE" : "POST"
+    }).then((response: Response): Promise<ArrayBuffer> => (response.arrayBuffer()))
       .then(parseResponse)
       .catch((err: any) => {
         createToast("Something went wrong!", String(err));

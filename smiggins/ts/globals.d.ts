@@ -19,7 +19,7 @@ type snippet = "pages/index" | "pages/login" | "pages/signup"
              | "pages/logout" | "pages/404"
              | "pages/home" | "pages/user" | "pages/hashtag" | "pages/post" | "pages/notifications"
              | "pages/settings" | "pages/settings/profile" | "pages/settings/cosmetic" | "pages/settings/account" | "pages/settings/keybinds" | "pages/settings/about"
-             | "post" | "post-placeholder" | "toast" | "compose-modal" | "keybind-modal";
+             | "post" | "post-placeholder" | "toast" | "compose-modal" | "keybind-modal" | "notification-like";
 
 type keybindModifiers = "ctrl" | "shift" | "alt" | "nav";
 
@@ -70,7 +70,9 @@ type timelineConfig = {
   url: string,
   prependPosts: boolean | number,
   disablePolling?: true,
-  disableCaching?: true
+  disableCaching?: true,
+  customRender?: (posts: any[], end: boolean, updateCache: boolean, moreElementOverride?: HTMLElement | null) => void,
+  customForward?: (posts: any[], end: boolean, expectedTlID: string, forceEvent: boolean) => void
 };
 
 type userData = {

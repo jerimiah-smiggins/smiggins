@@ -37,13 +37,6 @@ enum ErrorCodes {
   Ratelimit
 };
 
-enum NotificationCodes {
-  Comment = 1,
-  Quote,
-  Ping,
-  Like
-};
-
 function _getErrorStrings(code: number, context: number): [title: string | null, content?: string] {
   switch (code) {
     case ErrorCodes.BadRequest: return ["Something went wrong!"];
@@ -243,37 +236,6 @@ function parseResponse(
     case ResponseCodes.Like: break;
     case ResponseCodes.Unlike: break;
 
-    case ResponseCodes.TimelineNotifications:
-      end = _extractBool(u8arr[1], 7);
-      forwards = _extractBool(u8arr[1], 6);
-      numPosts = u8arr[2];
-      posts = [] as [post, number][];
-      u8arr = u8arr.slice(3);
-
-      for (let i: number = 0; i < numPosts; i++) {
-        let notificationType = u8arr[0];
-        let postData: [post, Uint8Array] = _extractPost(u8arr.slice(1));
-
-        posts.push([postData[0], notificationType]);
-        u8arr = postData[1];
-      }
-
-      if (forwards) {
-        // TODO: forwards handling for notifs
-        // Add posts directly to timeline instead of forward cache
-        // if (extraVariableSometimesUsed?.startsWith("$")) {
-        //   handleForward(posts, end, extraVariableSometimesUsed.slice(1), true);
-        // } else if (extraVariableSometimesUsed) {
-        //   handleForward(posts, end, extraVariableSometimesUsed);
-        // } else {
-        //   console.log("uh uhhhh why isn't the url set for forwards tl ????");
-        // }
-      } else {
-        insertIntoPostCache(posts.map((a) => (a[0])));
-        renderTimeline(posts.map((a) => ([a[0].id, a[1]] as [number, number])), end, false);
-      }
-      break;
-
     case ResponseCodes.TimelineUser:
       displayName = _extractString(8, u8arr.slice(1));
       bio = _extractString(16, displayName[1]);
@@ -328,6 +290,36 @@ function parseResponse(
         renderTimeline(insertIntoPostCache(posts), end);
       }
 
+      break;
+
+    case ResponseCodes.TimelineNotifications:
+      end = _extractBool(u8arr[1], 7);
+      forwards = _extractBool(u8arr[1], 6);
+      numPosts = u8arr[2];
+      posts = [] as [post, number][];
+      u8arr = u8arr.slice(3);
+
+      for (let i: number = 0; i < numPosts; i++) {
+        let notificationType = u8arr[0];
+        let postData: [post, Uint8Array] = _extractPost(u8arr.slice(1));
+
+        posts.push([postData[0], notificationType]);
+        u8arr = postData[1];
+      }
+
+      if (forwards) {
+        // TODO: forwards handling for notifs
+        // Add posts directly to timeline instead of forward cache
+        if (extraVariableSometimesUsed?.startsWith("$")) {
+          handleNotificationForward(posts, end, extraVariableSometimesUsed.slice(1), true);
+        } else if (extraVariableSometimesUsed) {
+          handleNotificationForward(posts, end, extraVariableSometimesUsed);
+        } else {
+          console.log("uh uhhhh why isn't the url set for forwards tl ????");
+        }
+      } else {
+        renderNotificationTimeline(posts, end, false);
+      }
       break;
 
     case ResponseCodes.Notifications:
