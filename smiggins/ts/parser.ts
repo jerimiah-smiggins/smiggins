@@ -14,6 +14,9 @@ enum ResponseCodes {
   CreatePost = 0x30,
   Like,
   Unlike,
+  Pin,
+  Unpin,
+  DeletePost = 0x3f,
   TimelineGlobal = 0x60,
   TimelineFollowing,
   TimelineUser,
@@ -49,7 +52,10 @@ function _getErrorStrings(code: number, context: number): [title: string | null,
     case ErrorCodes.UsernameUsed: return ["Username in use."];
     case ErrorCodes.BadPassword: return ["Invalid password."];
     case ErrorCodes.InvalidOTP: return ["Invalid invite code.", "Make sure your invite code is correct and try again."];
-    case ErrorCodes.CantInteract: return ["Can't interact.", "You can't interact with this user for some reason."];
+    case ErrorCodes.CantInteract: switch (context) {
+      case ResponseCodes.DeletePost: return ["Can't delete.", "You don't have permissions to delete this post."];
+      default: return ["Can't interact.", "You can't interact with this user for some reason."];
+    }
     case ErrorCodes.Blocking: return ["You are blocking this person.", "You need to unblock them to do this."];
     case ErrorCodes.PostNotFound: switch (context) {
       case ResponseCodes.TimelineComments: postSetDNE(); return [null];
@@ -235,6 +241,9 @@ function parseResponse(
     case ResponseCodes.CreatePost: prependPostToTimeline(_extractPost(u8arr.slice(1))[0]); break;
     case ResponseCodes.Like: break;
     case ResponseCodes.Unlike: break;
+    case ResponseCodes.Pin: createToast("Success!", "Pinned to your profile."); break;
+    case ResponseCodes.Unpin: createToast("Success!", "This post is no Pinned to your profilelonger pinned to your profile."); break;
+    case ResponseCodes.DeletePost: handlePostDelete(_extractInt(32, u8arr.slice(1))); break;
 
     case ResponseCodes.TimelineUser:
       displayName = _extractString(8, u8arr.slice(1));

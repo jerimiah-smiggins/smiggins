@@ -1,11 +1,11 @@
 let postModalFor: {
-  type: "quote" | "comment",
+  type: "quote" | "comment" | "edit",
   id: number
 } | undefined = undefined;
 
 function createPostModal(): void;
-function createPostModal(type: "quote" | "comment", id: number): void;
-function createPostModal(type?: "quote" | "comment", id?: number): void {
+function createPostModal(type: "quote" | "comment" | "edit", id: number): void;
+function createPostModal(type?: "quote" | "comment" | "edit", id?: number): void {
   if (document.getElementById("modal")) { return; }
 
   let extraVars: { [key: string]: string | [string, number] } = {
@@ -33,9 +33,11 @@ function createPostModal(type?: "quote" | "comment", id?: number): void {
         "content": [escapeHTML(post.content), 1],
         "display_name": [escapeHTML(post.user.display_name), 1]
       };
+    } else if (type === "comment") {
+      // TODO: comment modal
+    } else if (type === "edit") {
+      // TODO: edit modal
     }
-
-    // TODO: add replies to this
   }
 
   let el: HTMLDivElement = getSnippet("compose-modal", extraVars);

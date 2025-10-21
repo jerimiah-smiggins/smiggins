@@ -1,5 +1,6 @@
 from backend.api.notifications import notifications
-from backend.api.post import add_like, post_create, remove_like
+from backend.api.post import (add_like, pin_post, post_create, post_delete,
+                              remove_like, unpin_post)
 from backend.api.timeline import (tl_comments, tl_following, tl_global,
                                   tl_hashtag, tl_notifications, tl_user)
 from backend.api.user import (block_add, block_remove, change_password,
@@ -42,9 +43,13 @@ api.get("timeline/notifications")(tl_notifications)
 api.get("timeline/tag/{str:tag}")(tl_hashtag)
 
 api.post("post")(post_create)
+api.delete("post")(post_delete)
 
 api.post("post/like/{int:post_id}")(add_like)
 api.delete("post/like/{int:post_id}")(remove_like)
+
+api.post("post/pin/{int:post_id}")(pin_post)
+api.delete("post/pin")(unpin_post)
 
 api.get("notifications")(notifications)
 

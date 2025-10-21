@@ -421,32 +421,34 @@ function prependPostToTimeline(post: post): void {
   }
 }
 
-// handles events when clicking the like and quote buttons on posts
+// handles events when clicking the like, quote, etc. buttons on posts
 function postButtonClick(e: Event): void {
   let el: HTMLElement | null = e.currentTarget as HTMLElement | null;
 
   if (!el) { return; }
 
-  if (el.dataset.interactionQuote) {
-    let postId: number = +el.dataset.interactionQuote;
-
-    createPostModal("quote", postId);
+  if (el.dataset.interactionComment) {
+    createPostModal("comment", +el.dataset.interactionComment);
+  } else if (el.dataset.interactionQuote) {
+    createPostModal("quote", +el.dataset.interactionQuote);
   } else if (el.dataset.interactionLike) {
     let postId: number = +el.dataset.interactionLike;
     let liked: boolean = el.dataset.liked === "true";
-    let number: HTMLElement | null = el.querySelector("[data-number]");
-
-    if (number) {
-      number.innerText = String(+number.innerText + (-liked + 0.5) * 2);
-    }
-
     let c: post | undefined = postCache[postId];
     if (c) {
       c.interactions.liked = !liked;
       c.interactions.likes += (-liked + 0.5) * 2;
     }
 
-    el.dataset.liked = String(!liked);
+    for (const element of document.querySelectorAll(`[data-interaction-like="${postId}"]`) as NodeListOf<HTMLElement>) {
+      element.dataset.liked = String(!liked);
+
+      let number: HTMLElement | null = element.querySelector("[data-number]");
+
+      if (number) {
+        number.innerText = String(+number.innerText + (-liked + 0.5) * 2);
+      }
+    }
 
     fetch(`/api/post/like/${postId}`, {
       method: liked ? "DELETE" : "POST"
@@ -457,12 +459,35 @@ function postButtonClick(e: Event): void {
         throw err;
       });
   } else if (el.dataset.interactionEdit) {
-    // TODO: editing posts
+    createPostModal("edit", +el.dataset.interactionEdit);
   } else if (el.dataset.interactionPin) {
-    // TODO: pinning posts
+    let postId: number = +el.dataset.interactionPin;
+
+    fetch(`/api/post/pin/${postId}`, {
+      method: "POST"
+    }).then((response: Response): Promise<ArrayBuffer> => (response.arrayBuffer()))
+      .then(parseResponse)
+      .catch((err: any) => {
+        createToast("Something went wrong!", String(err));
+        throw err;
+      });
   } else if (el.dataset.interactionDelete) {
-    // TODO: deleting posts
+    let postId: number = +el.dataset.interactionDelete;
+
+    fetch("/api/post", {
+      method: "DELETE",
+      body: buildRequest([[postId, 32]])
+    }).then((response: Response): Promise<ArrayBuffer> => (response.arrayBuffer()))
+      .then(parseResponse)
+      .catch((err: any) => {
+        createToast("Something went wrong!", String(err));
+        throw err;
+      });
+  } else {
+    console.log("Unknown interaction type for post button", e);
   }
+
+  e.preventDefault();
 }
 
 // actually posts the post
@@ -503,6 +528,35 @@ function createPost(
     });
 }
 
+// handles deleting posts, removing from tls, caches, etc.
+function handlePostDelete(pid: number): void {
+  for (const tlData of Object.values(tlCache)) {
+    while (tlData?.posts.includes(pid)) {
+      tlData.posts.splice(tlData.posts.indexOf(pid), 1);
+    }
+  }
+
+  for (const el of document.querySelectorAll(`[data-post-id="${pid}"]`)) {
+    el.remove();
+  }
+
+  delete tlCache[`post_${pid}_recent`];
+  delete tlCache[`post_${pid}_oldest`];
+
+  if (getPostIDFromPath() === pid) {
+    currentPage = "home";
+    history.pushState("home", "", "/");
+    renderPage("home");
+  }
+
+  for (const [newPid, data] of Object.entries(postCache)) {
+    if (data?.comment === pid) {
+      delete postCache[+newPid];
+      handlePostDelete(+newPid);
+    }
+  }
+}
+
 // (processing) timeline "show more" button
 function p_tlMore(element: HTMLDivElement): void {
   let el: Element | null = element.querySelector("[id=\"timeline-more\"]");
@@ -526,6 +580,7 @@ function p_tlSwitch(element: HTMLDivElement): void {
 
 // (processing) adds the click events to posts
 function p_post(element: HTMLDivElement): void {
+  element.querySelector("[data-interaction-comment]")?.addEventListener("click", postButtonClick);
   element.querySelector("[data-interaction-quote]")?.addEventListener("click", postButtonClick);
   element.querySelector("[data-interaction-like]")?.addEventListener("click", postButtonClick);
   element.querySelector("[data-interaction-edit]")?.addEventListener("click", postButtonClick);

@@ -29,7 +29,7 @@
   @{cw_end}
 
   <div class="post-interactions" @{post_interactions_hidden}>
-    <div><a class="plain-link" data-internal-link="post" href="/p/@{pid}/">@{icon_comment} <span data-number>@{comments}<span></a></div>
+    <div data-interaction-comment="@{pid}">@{icon_comment} <span data-number>@{comments}<span></div>
     <div data-interaction-quote="@{pid}">@{icon_quote} <span data-number>@{quotes}<span></div>
     <div data-interaction-like="@{pid}" data-liked="@{liked}">@{icon_like}@{icon_like_active} <span data-number>@{likes}<span></div>
     <div class="hamburger" tabindex="0">

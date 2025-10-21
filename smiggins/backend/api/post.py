@@ -8,7 +8,8 @@ from posts.models import (Hashtag, M2MHashtagPost, M2MLike, Notification, Post,
 from ..helper import find_hashtags, find_mentions, trim_whitespace
 from ..variables import (MAX_CONTENT_WARNING_LENGTH, MAX_POLL_OPTION_LENGTH,
                          MAX_POST_LENGTH)
-from .format import ErrorCodes, api_CreatePost, api_Like, api_Unlike
+from .format import (ErrorCodes, api_CreatePost, api_DeletePost, api_Like,
+                     api_Pin, api_Unlike, api_Unpin)
 
 
 def post_create(request: HttpRequest) -> HttpResponse:
@@ -127,7 +128,7 @@ def post_create(request: HttpRequest) -> HttpResponse:
 
     return api.response(post=post, user=user)
 
-def add_like(request, post_id: int) -> HttpResponse:
+def add_like(request: HttpRequest, post_id: int) -> HttpResponse:
     api = api_Like()
 
     try:
@@ -166,7 +167,7 @@ def add_like(request, post_id: int) -> HttpResponse:
 
     return api.response()
 
-def remove_like(request, post_id: int) -> HttpResponse:
+def remove_like(request: HttpRequest, post_id: int) -> HttpResponse:
     api = api_Unlike()
 
     try:
@@ -180,3 +181,56 @@ def remove_like(request, post_id: int) -> HttpResponse:
         ...
 
     return api.response()
+
+def post_delete(request: HttpRequest) -> HttpResponse:
+    api = api_DeletePost()
+
+    try:
+        user = User.objects.get(token=request.COOKIES.get("token"))
+    except User.DoesNotExist:
+        return api.error(ErrorCodes.NOT_AUTHENTICATED)
+
+    pid = api.parse_request(request.body)
+
+    try:
+        post = Post.objects.get(post_id=pid)
+    except Post.DoesNotExist:
+        return api.error(ErrorCodes.POST_NOT_FOUND)
+
+    if user.admin_level & 1 or user == post.creator:
+        post.delete()
+        return api.response(pid=pid)
+
+    return api.error(ErrorCodes.CANT_INTERACT)
+
+def pin_post(request: HttpRequest, post_id: int) -> HttpResponse:
+    api = api_Pin()
+
+    try:
+        user = User.objects.get(token=request.COOKIES.get("token"))
+    except User.DoesNotExist:
+        return api.error(ErrorCodes.NOT_AUTHENTICATED)
+
+    try:
+        post = Post.objects.get(post_id=post_id)
+    except Post.DoesNotExist:
+        return api.error(ErrorCodes.POST_NOT_FOUND)
+
+    user.pinned = post
+    user.save()
+
+    return api.response()
+
+def unpin_post(request: HttpRequest) -> HttpResponse:
+    api = api_Unpin()
+
+    try:
+        user = User.objects.get(token=request.COOKIES.get("token"))
+    except User.DoesNotExist:
+        return api.error(ErrorCodes.NOT_AUTHENTICATED)
+
+    user.pinned = None
+    user.save()
+
+    return api.response()
+

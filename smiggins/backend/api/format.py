@@ -21,6 +21,9 @@ class ResponseCodes:
     CREATE_POST = 0x30
     LIKE = 0x31
     UNLIKE = 0x32
+    PIN = 0x33
+    UNPIN = 0x34
+    DELETE_POST = 0x3f
     TIMELINE_GLOBAL = 0x60
     TIMELINE_FOLLOWING = 0x61
     TIMELINE_USER = 0x62
@@ -343,6 +346,21 @@ class api_Like(_api_BaseResponse):
 
 class api_Unlike(api_Like):
     response_code = ResponseCodes.UNLIKE
+
+class api_Pin(api_Like):
+    response_code = ResponseCodes.PIN
+
+class api_Unpin(api_Like):
+    response_code = ResponseCodes.UNPIN
+
+class api_DeletePost(_api_BaseResponse):
+    response_code = ResponseCodes.DELETE_POST
+
+    def parse_request(self, data: bytes) -> int:
+        return _extract_int(32, data)
+
+    def set_response(self, pid: int):
+        self.response_data = b(pid, 4)
 
 # 6X - Timelines
 class _api_TimelineBase(_api_BaseResponse):
