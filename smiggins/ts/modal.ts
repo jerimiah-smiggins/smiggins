@@ -9,36 +9,67 @@ function createPostModal(type?: "quote" | "comment" | "edit", id?: number): void
   if (document.getElementById("modal")) { return; }
 
   let extraVars: { [key: string]: string | [string, number] } = {
-    "hidden_if_no_quote": "hidden",
-    "private_post": ""
+    hidden_if_no_quote: "hidden",
+    hidden_if_no_comment: "hidden",
+    private_post: "",
+    placeholder: "Cool post",
+    action: "Post"
   };
 
   postModalFor = undefined;
 
   if (type && id !== undefined) {
+    let post: post | undefined = postCache[id];
+    if (!post) { console.log("post modal post not found", id); return; }
+
     postModalFor = {
       type: type,
       id: id
     };
 
-    if (type === "quote") {
-      let post: post | undefined = postCache[id];
-      if (!post) { return; }
+    extraVars = {
+      placeholder: "Cool post",
+      action: "Post",
 
-      extraVars = {
-        "hidden_if_no_quote": "",
-        "private_post": post.private ? "data-private-post" : "",
-        "username": post.user.username,
-        "timestamp": getTimestamp(post.timestamp),
-        "content": [escapeHTML(post.content), 1],
-        "display_name": [escapeHTML(post.user.display_name), 1]
-      };
+      hidden_if_no_quote: "hidden",
+      hidden_if_no_comment: "hidden",
+
+      private_post: post.private ? "data-private-post" : "",
+      username: post.user.username,
+      timestamp: getTimestamp(post.timestamp),
+
+      content: [escapeHTML(post.content), 1],
+      display_name: [escapeHTML(post.user.display_name), 1],
+      // duplicated to prevent possible injection
+      content_2: [escapeHTML(post.content), 1],
+      display_name_2: [escapeHTML(post.user.display_name), 1]
+    };
+
+    if (type === "quote") {
+      extraVars.hidden_if_no_quote = "";
+      extraVars.action = "Quote";
+      extraVars.placeholder = [
+        "Cool quote",
+        "What did they say this time?",
+        "Yet another mistake to point out?",
+        "Ugh... not again..."
+      ][Math.floor(Math.random() * 4)];
     } else if (type === "comment") {
-      // TODO: comment modal
+      extraVars.hidden_if_no_comment = "";
+      extraVars.action = "Reply";
+      extraVars.placeholder = [
+        "Cool comment",
+        "Got something to say about this?",
+        "Let them know how you feel",
+        "Go spread your opinions, little one"
+      ][Math.floor(Math.random() * 4)];
     } else if (type === "edit") {
-      // TODO: edit modal
+      extraVars.placeholder = "Cool post but edited";
+      extraVars.action = "Save";
     }
   }
+
+  console.log(extraVars);
 
   let el: HTMLDivElement = getSnippet("compose-modal", extraVars);
   el.querySelector("#modal-post")?.addEventListener("click", postModalCreatePost);
@@ -47,6 +78,22 @@ function createPostModal(type?: "quote" | "comment" | "edit", id?: number): void
   (el.querySelector("#modal-post-content") as HTMLElement | null)?.focus();
 
   document.addEventListener("keydown", clearModalOnEscape);
+
+  if (type === "edit" && id !== undefined) {
+    let post: post | undefined = postCache[id];
+    if (!post) { return; }
+
+    if (post.content_warning) {
+      let cwEl: HTMLInputElement | null = el.querySelector("#modal-post-cw");
+      if (cwEl) { cwEl.value = post.content_warning; }
+    }
+
+    let contentEl: HTMLInputElement | null = el.querySelector("#modal-post-content");
+    if (contentEl) { contentEl.value = post.content; }
+
+    let privEl: HTMLInputElement | null = el.querySelector("#modal-post-private");
+    if (privEl) { privEl.checked = post.private; }
+  }
 }
 
 function modifyKeybindModal(kbId: string): void {
@@ -107,28 +154,69 @@ function postModalCreatePost(e: Event): void {
   if (!content) { contentElement.focus(); return; }
 
   (e.target as HTMLButtonElement | null)?.setAttribute("disabled", "");
-  createPost(
-    content,
-    cw || null,
-    privatePost,
-    (success: boolean): void => {
-      if (success) {
-        if (postModalFor && postModalFor.type === "quote") {
-          let el: HTMLElement | null = document.querySelector(`[data-interaction-quote="${postModalFor.id}"] [data-number]`);
+  if (postModalFor && postModalFor.type === "edit") {
+    fetch("/api/post", {
+      method: "PATCH",
+      body: buildRequest([
+        [postModalFor.id, 32],
+        privatePost,
+        [content, 16],
+        [cw, 8]
+      ])
+    }).then((response: Response): Promise<ArrayBuffer> => (response.arrayBuffer()))
+      .then((ab: ArrayBuffer): ArrayBuffer => {
+        let success: boolean = !((new Uint8Array(ab)[0] >> 7) & 1);
+        if (success && postModalFor) {
+          let p: post | undefined = postCache[postModalFor.id];
+          clearModal();
 
-          if (el) {
-            el.innerText = String(+el.innerText + 1);
+          if (p) {
+            p.content = content;
+            p.content_warning = cw;
+            p.private = privatePost
+
+            for (const el of document.querySelectorAll(`[data-edit-replace="${postModalFor.id}"]`)) {
+              el.replaceWith(getPost(p.id, false));
+            }
           }
+        } else {
+          contentElement.focus();
+          (e.target as HTMLButtonElement | null)?.removeAttribute("disabled");
         }
 
-        clearModal();
-      } else {
+        return ab;
+      })
+      .then(parseResponse)
+      .catch((err: any): void => {
         contentElement.focus();
         (e.target as HTMLButtonElement | null)?.removeAttribute("disabled");
-      }
-    },
-    postModalFor && { quote: postModalFor.id }
-  );
+
+        throw err;
+      });
+  } else {
+    createPost(
+      content,
+      cw || null,
+      privatePost,
+      (success: boolean): void => {
+        if (success) {
+          if (postModalFor && postModalFor.type === "quote") {
+            let el: HTMLElement | null = document.querySelector(`[data-interaction-quote="${postModalFor.id}"] [data-number]`);
+            if (el) { el.innerText = String(+el.innerText + 1); }
+          } else if (postModalFor && postModalFor.type === "comment") {
+            let el: HTMLElement | null = document.querySelector(`[data-interaction-comment="${postModalFor.id}"] [data-number]`);
+            if (el) { el.innerText = String(+el.innerText + 1); }
+          }
+
+          clearModal();
+        } else {
+          contentElement.focus();
+          (e.target as HTMLButtonElement | null)?.removeAttribute("disabled");
+        }
+      },
+      postModalFor && { [postModalFor.type]: postModalFor.id }
+    );
+  }
 }
 
 function clearModalOnEscape(e: KeyboardEvent): void {

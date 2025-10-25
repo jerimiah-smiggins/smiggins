@@ -297,6 +297,8 @@ function getPost(post: number, updateOffset: boolean=true, forceCwState: boolean
     ...quoteUnsafeData
   });
 
+  el.dataset.editReplace = String(post);
+
   return el;
 }
 
@@ -427,9 +429,7 @@ function postButtonClick(e: Event): void {
 
   if (!el) { return; }
 
-  if (el.dataset.interactionComment) {
-    createPostModal("comment", +el.dataset.interactionComment);
-  } else if (el.dataset.interactionQuote) {
+  if (el.dataset.interactionQuote) {
     createPostModal("quote", +el.dataset.interactionQuote);
   } else if (el.dataset.interactionLike) {
     let postId: number = +el.dataset.interactionLike;

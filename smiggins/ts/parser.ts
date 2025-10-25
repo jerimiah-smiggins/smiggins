@@ -16,7 +16,8 @@ enum ResponseCodes {
   Unlike,
   Pin,
   Unpin,
-  DeletePost = 0x3f,
+  EditPost = 0x3e,
+  DeletePost,
   TimelineGlobal = 0x60,
   TimelineFollowing,
   TimelineUser,
@@ -243,6 +244,7 @@ function parseResponse(
     case ResponseCodes.Unlike: break;
     case ResponseCodes.Pin: createToast("Success!", "Pinned to your profile."); break;
     case ResponseCodes.Unpin: createToast("Success!", "This post is no Pinned to your profilelonger pinned to your profile."); break;
+    case ResponseCodes.EditPost: break;
     case ResponseCodes.DeletePost: handlePostDelete(_extractInt(32, u8arr.slice(1))); break;
 
     case ResponseCodes.TimelineUser:

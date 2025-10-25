@@ -23,6 +23,7 @@ class ResponseCodes:
     UNLIKE = 0x32
     PIN = 0x33
     UNPIN = 0x34
+    EDIT_POST = 0x3e
     DELETE_POST = 0x3f
     TIMELINE_GLOBAL = 0x60
     TIMELINE_FOLLOWING = 0x61
@@ -352,6 +353,22 @@ class api_Pin(api_Like):
 
 class api_Unpin(api_Like):
     response_code = ResponseCodes.UNPIN
+
+class api_EditPost(_api_BaseResponse):
+    response_code = ResponseCodes.EDIT_POST
+
+    def parse_request(self, data: bytes) -> dict:
+        content = _extract_string(16, data[5:])
+
+        return {
+            "post_id": _extract_int(32, data),
+            "private": _extract_bool(data[4], 7),
+            "content": content[0],
+            "cw": _extract_string(8, content[1])[0]
+        }
+
+    def set_response(self):
+        self.response_data = b""
 
 class api_DeletePost(_api_BaseResponse):
     response_code = ResponseCodes.DELETE_POST

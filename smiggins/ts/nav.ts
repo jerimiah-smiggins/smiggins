@@ -58,10 +58,11 @@ function internalLinkHandler(e: MouseEvent): void {
       newURL = "/" + newURL.split("//")[1].split("/").slice(1).join("/");
     }
 
-    if (
+    if (newURL && newPage === "post" && getPostIDFromPath(newURL) === getPostIDFromPath()) {
+      createPostModal("comment", getPostIDFromPath());
+    } else if (
       newPage !== currentPage
    || (newURL && newPage === "user" && getUsernameFromPath(newURL) !== getUsernameFromPath())
-   || (newURL && newPage === "post" && getPostIDFromPath(newURL) !== getPostIDFromPath())
    || (newURL && newPage === "hashtag" && getHashtagFromPath(newURL) !== getHashtagFromPath())
     ) {
       history.pushState(newPage, "", newURL);

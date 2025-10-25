@@ -231,7 +231,8 @@
   }
 }
 
-[data-private-post] .post-private {
+[data-private-post] .post-private,
+.post-private[data-private-post] {
   display: inline-block !important;
 
   svg {
@@ -283,6 +284,13 @@
   //     color: rgba(var(--accent-rgb) / 50%);
   //   }
   // }
+}
+
+a#home-link,
+a#comment-parent {
+  margin: -1em;
+  padding: 1em;
+  display: block;
 }
 
 @media screen and (max-width: @mobile-scale-threshold) {

@@ -8,8 +8,8 @@ from posts.models import (Hashtag, M2MHashtagPost, M2MLike, Notification, Post,
 from ..helper import find_hashtags, find_mentions, trim_whitespace
 from ..variables import (MAX_CONTENT_WARNING_LENGTH, MAX_POLL_OPTION_LENGTH,
                          MAX_POST_LENGTH)
-from .format import (ErrorCodes, api_CreatePost, api_DeletePost, api_Like,
-                     api_Pin, api_Unlike, api_Unpin)
+from .format import (ErrorCodes, api_CreatePost, api_DeletePost, api_EditPost,
+                     api_Like, api_Pin, api_Unlike, api_Unpin)
 
 
 def post_create(request: HttpRequest) -> HttpResponse:
@@ -128,6 +128,52 @@ def post_create(request: HttpRequest) -> HttpResponse:
 
     return api.response(post=post, user=user)
 
+def post_edit(request: HttpRequest) -> HttpResponse:
+    api = api_EditPost()
+
+    try:
+        user = User.objects.get(token=request.COOKIES.get("token"))
+    except User.DoesNotExist:
+        return api.error(ErrorCodes.NOT_AUTHENTICATED)
+
+    data = api.parse_request(request.body)
+
+    try:
+        post = Post.objects.get(post_id=data["post_id"])
+    except Post.DoesNotExist:
+        return api.error(ErrorCodes.POST_NOT_FOUND)
+
+    if user != post.creator:
+        return api.error(ErrorCodes.BAD_REQUEST)
+
+    post.content = data["content"]
+    post.content_warning = data["cw"]
+    post.private = data["private"]
+    post.save()
+
+    return api.response()
+
+def post_delete(request: HttpRequest) -> HttpResponse:
+    api = api_DeletePost()
+
+    try:
+        user = User.objects.get(token=request.COOKIES.get("token"))
+    except User.DoesNotExist:
+        return api.error(ErrorCodes.NOT_AUTHENTICATED)
+
+    pid = api.parse_request(request.body)
+
+    try:
+        post = Post.objects.get(post_id=pid)
+    except Post.DoesNotExist:
+        return api.error(ErrorCodes.POST_NOT_FOUND)
+
+    if user.admin_level & 1 or user == post.creator:
+        post.delete()
+        return api.response(pid=pid)
+
+    return api.error(ErrorCodes.CANT_INTERACT)
+
 def add_like(request: HttpRequest, post_id: int) -> HttpResponse:
     api = api_Like()
 
@@ -181,27 +227,6 @@ def remove_like(request: HttpRequest, post_id: int) -> HttpResponse:
         ...
 
     return api.response()
-
-def post_delete(request: HttpRequest) -> HttpResponse:
-    api = api_DeletePost()
-
-    try:
-        user = User.objects.get(token=request.COOKIES.get("token"))
-    except User.DoesNotExist:
-        return api.error(ErrorCodes.NOT_AUTHENTICATED)
-
-    pid = api.parse_request(request.body)
-
-    try:
-        post = Post.objects.get(post_id=pid)
-    except Post.DoesNotExist:
-        return api.error(ErrorCodes.POST_NOT_FOUND)
-
-    if user.admin_level & 1 or user == post.creator:
-        post.delete()
-        return api.response(pid=pid)
-
-    return api.error(ErrorCodes.CANT_INTERACT)
 
 def pin_post(request: HttpRequest, post_id: int) -> HttpResponse:
     api = api_Pin()
