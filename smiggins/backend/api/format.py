@@ -8,16 +8,19 @@ class ResponseCodes:
     # Make sure to update the corresponding values in ts/parser.ts
     LOG_IN = 0x01
     SIGN_UP = 0x02
+
     FOLLOW = 0x10
     UNFOLLOW = 0x11
     BLOCK = 0x12
     UNBLOCK = 0x13
+
     GET_PROFILE = 0x20
     SAVE_PROFILE = 0x21
     DELETE_ACCOUNT = 0x22
     CHANGE_PASSWORD = 0x23
     DEFAULT_VISIBILITY = 0x24
     VERIFY_FOLLOWERS = 0x25
+
     CREATE_POST = 0x30
     LIKE = 0x31
     UNLIKE = 0x32
@@ -25,12 +28,14 @@ class ResponseCodes:
     UNPIN = 0x34
     EDIT_POST = 0x3e
     DELETE_POST = 0x3f
+
     TIMELINE_GLOBAL = 0x60
     TIMELINE_FOLLOWING = 0x61
     TIMELINE_USER = 0x62
     TIMELINE_COMMENTS = 0x63
     TIMELINE_NOTIFICATIONS = 0x64
     TIMELINE_HASHTAG = 0x65
+
     NOTIFICATIONS = 0x70
 
 class ErrorCodes:
@@ -432,7 +437,7 @@ class api_TimelineComments(_api_TimelineBase):
 
     def set_response(self, end: bool, forwards: bool, posts: list[Post] | list[Notification], user: User, focused_post: Post):
         super().set_response(end, forwards, posts, user)
-        
+
         if isinstance(self.response_data, int):
             return
 

@@ -149,6 +149,8 @@ def post_edit(request: HttpRequest) -> HttpResponse:
     post.content = data["content"]
     post.content_warning = data["cw"]
     post.private = data["private"]
+    post.edited = True
+    post.edited_at = round(time.time())
     post.save()
 
     return api.response()

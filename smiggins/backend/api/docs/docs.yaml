@@ -1,0 +1,216 @@
+# yaml-language-server: $schema=docs.schema.json
+
+POST /api/user/login:
+  description: Handles logging into accounts
+  id: 0x01
+  body:
+  - { type: str8, name: "Username" }
+  - { type: hex32, name: "Password hash (sha256)" }
+  response:
+  - { type: hex32, name: "Token" }
+
+POST /api/user/signup:
+  description: Handles creating new accounts
+  id: 0x02
+  body:
+  - { type: str8, name: "Username" }
+  - { type: hex32, name: "Password hash (sha256)" }
+  - { type: str8, name: "Invite code" }
+  response:
+  - { type: hex32, name: "Token" }
+
+POST /api/user/follow:
+  description: "Follows the specificed user"
+  id: 0x10
+  body:
+  - { type: str0, name: "Username" }
+  response:
+  - { type: bool7, name: "Is pending approval" }
+
+DELETE /api/user/follow:
+  description: "Unfollows the specificed user"
+  id: 0x11
+  body:
+  - { type: str0, name: "Username" }
+
+POST /api/user/block:
+  description: "Blocks the specificed user"
+  id: 0x12
+  body:
+  - { type: str0, name: "Username" }
+
+DELETE /api/user/block:
+  description: "Unblocks the specificed user"
+  id: 0x13
+  body:
+  - { type: str0, name: "Username" }
+
+GET /api/user:
+  description: "Gets your profile information"
+  id: 0x20
+  response:
+  - { type: str8, name: "Display name" }
+  - { type: str16, name: "User bio" }
+  - { type: str8, name: "Pronouns" }
+  - { type: hex3, name: "Banner color 1" }
+  - { type: hex3, name: "Banner color 2" }
+  - { type: bool7, name: "Banner is gradient" }
+  - { type: bool6, name: "Verify followers" }
+
+PATCH /api/user:
+  description: "Saves your profile information"
+  id: 0x21
+  body:
+  - { type: bool7, name: "Banner is gradient" }
+  - { type: str8, name: "Display name" }
+  - { type: str16, name: "User bio" }
+  - { type: str8, name: "Pronouns" }
+  - { type: hex3, name: "Banner color 1" }
+  - { type: hex3, name: "Banner color 2" }
+
+DELETE /api/user:
+  description: "Deletes your account"
+  id: 0x22
+  body:
+  - { type: hex32, name: "Password hash (sha256)" }
+
+PATCH /api/user/password:
+  description: "Changes your password"
+  id: 0x23
+  body:
+  - { type: hex32, name: "Current password hash (sha256)" }
+  - { type: hex32, name: "New password hash (sha256)" }
+  response:
+  - { type: hex32, name: "Token" }
+
+PATCH /api/user/default_post:
+  description: "Sets the default post visibility setting"
+  id: 0x24
+  body:
+  - { type: bool0, name: "Default visibility is private" }
+
+PATCH /api/user/verify_followers:
+  description: "Sets the verify followers setting"
+  id: 0x25
+  body:
+  - { type: bool0, name: "Verify followers" }
+
+POST /api/post:
+  description: "Creates a post"
+  id: 0x30
+  body:
+  - { type: bool7, name: "Followers only" }
+  - { type: bool6, name: "Is quote", id: has_quote }
+  - { type: bool5, name: "Has poll", id: has_poll }
+  - { type: bool4, name: "Is comment", id: has_comment }
+  - { type: str16, name: "Content" }
+  - { type: str8, name: "Content warning" }
+  - { type: uint8, name: "Poll items", condition: has_poll, id: poll_count }
+  - { type: str8, name: "Poll option", condition: has_poll, loop: poll_count }
+  - { type: uint32, name: "Quote ID", condition: has_quote }
+  - { type: uint32, name: "Comment ID", condition: has_comment }
+
+POST /api/post/like/{post_id}:
+  description: "Likes a post"
+  id: 0x31
+
+DELETE /api/post/like/{post_id}:
+  description: "Removes a like from a post"
+  id: 0x32
+
+POST /api/post/pin/{post_id}:
+  description: "Pins a post"
+  id: 0x33
+
+DELETE /api/post/pin:
+  description: "Unpins the pinned post"
+  id: 0x34
+
+PATCH /api/post:
+  description: "Edits a post"
+  id: 0x3e
+  body:
+  - { type: uint32, name: "Post id" }
+  - { type: bool7, name: "Followers only" }
+  - { type: str16, name: "Content" }
+  - { type: str8, name: "Content warning" }
+
+DELETE /api/post:
+  description: "Deletes a post"
+  id: 0x3f
+  body:
+  - { type: uint32, name: "Post id" }
+  response:
+  - { type: uint32, name: "Post id" }
+
+GET /api/timeline/global:
+  description: "Global timeline"
+  id: 0x60
+  response:
+  - { type: bool7, name: "End of timeline" }
+  - { type: bool6, name: "Forwards" }
+  - { type: uint8, name: "Post count", id: post_count }
+  - { type: post, name: "Post", loop: post_count }
+
+GET /api/timeline/following:
+  description: "Following timeline"
+  id: 0x61
+  response:
+  - { type: bool7, name: "End of timeline" }
+  - { type: bool6, name: "Forwards" }
+  - { type: uint8, name: "Post count", id: post_count }
+  - { type: post, name: "Post", loop: post_count }
+
+GET /api/timeline/user/{username}:
+  description: "User timeline"
+  id: 0x62
+  response:
+  - { type: str8, name: "Display name" }
+  - { type: str16, name: "User bio" }
+  - { type: hex3, name: "Banner color 1" }
+  - { type: hex3, name: "Banner color 2" }
+  - { type: uint16, name: "Followers count" }
+  - { type: uint16, name: "Following count" }
+  - { type: bool7, name: "End of timeline" }
+  - { type: bool6, name: "Forwards" }
+  - { type: bool5, name: "Is following" }
+  - { type: bool4, name: "Is blocking" }
+  - { type: bool3, name: "Has pending follow request" }
+  - { type: uint8, name: "Post count", id: post_count }
+  - { type: post, name: "Post", loop: post_count }
+
+GET /api/timeline/post/{post_id}:
+  description: "Post comments timeline"
+  id: 0x63
+  response:
+  - { type: post, name: "Focused post" }
+  - { type: uint8, name: "Padding byte" }
+  - { type: uint8, name: "Comment count", id: comment_count }
+  - { type: post, name: "Comment", loop: comment_count }
+
+GET /api/timeline/notifications:
+  description: "Notification timeline"
+  id: 0x64
+  response:
+  - { type: bool7, name: "End of timeline" }
+  - { type: bool6, name: "Forwards" }
+  - { type: uint8, name: "Post count", id: post_count }
+  - { type: post, name: "Post", loop: post_count }
+
+
+GET /api/timeline/tag/{tag}:
+  description: "Hashtag timeline"
+  id: 0x65
+  response:
+  - { type: bool7, name: "End of timeline" }
+  - { type: bool6, name: "Forwards" }
+  - { type: uint8, name: "Notification count", id: notif_count }
+  - { type: notif, name: "Notification", loop: notif_count }
+
+GET /api/notifications:
+  description: "Checks for unread notifications"
+  id: 0x70
+  response:
+  - { type: bool7, name: "Unread notifications" }
+  - { type: bool6, name: "Unread private messages" }
+  - { type: bool5, name: "Pending follow requests" }
