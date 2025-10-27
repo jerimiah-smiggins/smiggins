@@ -61,7 +61,7 @@ function internalLinkHandler(e: MouseEvent): void {
     if (newURL && newPage === "post" && getPostIDFromPath(newURL) === getPostIDFromPath()) {
       createPostModal("comment", getPostIDFromPath());
     } else if (
-      newPage !== currentPage
+      newPage !== currentPage || newPage === "post"
    || (newURL && newPage === "user" && getUsernameFromPath(newURL) !== getUsernameFromPath())
    || (newURL && newPage === "hashtag" && getHashtagFromPath(newURL) !== getHashtagFromPath())
     ) {

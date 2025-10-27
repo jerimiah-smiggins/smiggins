@@ -1,6 +1,6 @@
 from backend.helper import create_simple_return
-from backend.templating import manifest_json, webapp
-from backend.variables import ROBOTS
+from backend.templating import api_docs, manifest_json, webapp
+from backend.variables import DEBUG, ROBOTS
 from django.contrib import admin as django_admin
 from django.http import HttpResponseRedirect
 from django.urls import include, path, re_path
@@ -10,6 +10,7 @@ _favicon = lambda request: HttpResponseRedirect("/static/img/old_favicon.png", s
 _robots_txt = create_simple_return(ROBOTS, content_type="text/plain")
 
 urlpatterns = list(filter(bool, [
+    DEBUG and path("api/docs", api_docs),
     path("api/", include("smiggins.api")),
     path("manifest.json", manifest_json),
     path("django-admin/", django_admin.site.urls),

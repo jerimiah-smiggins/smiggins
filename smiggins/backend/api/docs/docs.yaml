@@ -146,6 +146,10 @@ DELETE /api/post:
 GET /api/timeline/global:
   description: "Global timeline"
   id: 0x60
+  params:
+    comments: { type: bool }
+    offset: { type: int }
+    forwards: { type: bool }
   response:
   - { type: bool7, name: "End of timeline" }
   - { type: bool6, name: "Forwards" }
@@ -155,6 +159,10 @@ GET /api/timeline/global:
 GET /api/timeline/following:
   description: "Following timeline"
   id: 0x61
+  params:
+    comments: { type: bool }
+    offset: { type: int }
+    forwards: { type: bool }
   response:
   - { type: bool7, name: "End of timeline" }
   - { type: bool6, name: "Forwards" }
@@ -164,6 +172,10 @@ GET /api/timeline/following:
 GET /api/timeline/user/{username}:
   description: "User timeline"
   id: 0x62
+  params:
+    offset: { type: int }
+    forwards: { type: bool }
+    include_comments: { type: bool }
   response:
   - { type: str8, name: "Display name" }
   - { type: str16, name: "User bio" }
@@ -182,6 +194,10 @@ GET /api/timeline/user/{username}:
 GET /api/timeline/post/{post_id}:
   description: "Post comments timeline"
   id: 0x63
+  params:
+    sort: { type: str, required: true }
+    offset: { type: int }
+    forwards: { type: bool }
   response:
   - { type: post, name: "Focused post" }
   - { type: uint8, name: "Padding byte" }
@@ -191,6 +207,9 @@ GET /api/timeline/post/{post_id}:
 GET /api/timeline/notifications:
   description: "Notification timeline"
   id: 0x64
+  params:
+    offset: { type: int }
+    forwards: { type: bool }
   response:
   - { type: bool7, name: "End of timeline" }
   - { type: bool6, name: "Forwards" }
@@ -201,6 +220,10 @@ GET /api/timeline/notifications:
 GET /api/timeline/tag/{tag}:
   description: "Hashtag timeline"
   id: 0x65
+  params:
+    sort: { type: str, required: true }
+    offset: { type: int }
+    forwards: { type: bool }
   response:
   - { type: bool7, name: "End of timeline" }
   - { type: bool6, name: "Forwards" }

@@ -1,11 +1,12 @@
 import random
 
+import yaml
 from django.http import HttpResponse
 from django.template import loader
 from posts.backups import backup_db
 from posts.models import User
 
-from .variables import (ENABLE_NEW_ACCOUNTS, GOOGLE_VERIFICATION_TAG,
+from .variables import (BASE_DIR, ENABLE_NEW_ACCOUNTS, GOOGLE_VERIFICATION_TAG,
                         MAX_BIO_LENGTH, MAX_CONTENT_WARNING_LENGTH,
                         MAX_DISPL_NAME_LENGTH, MAX_POST_LENGTH,
                         MAX_USERNAME_LENGTH, SITE_NAME, VERSION, MOTDs)
@@ -92,6 +93,29 @@ def webapp(request) -> HttpResponse:
 
     return HttpResponse(
         loader.get_template("app.html").render(
+            context, request
+        )
+    )
+
+def _api_docs_map(data):
+    data[1]["id_hex"] = hex(data[1]["id"])[2:].zfill(2)
+    if "params" in data[1]:
+        data[1]["params"] = data[1]["params"].items()
+
+    return data
+
+def api_docs(request) -> HttpResponse:
+    context = {
+        "conf": {
+            "site_name": SITE_NAME,
+            "version": VERSION
+        },
+
+        "api": map(_api_docs_map, yaml.safe_load(open(BASE_DIR / "backend/api/docs/docs.yaml")).items())
+    }
+
+    return HttpResponse(
+        loader.get_template("api.html").render(
             context, request
         )
     )

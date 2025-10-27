@@ -22,7 +22,8 @@
                   "type": "string",
                   "enum": ["str", "int", "float", "bool"]
                 },
-                "name": { "type": "string" }
+                "name": { "type": "string" },
+                "required": { "type": "boolean", "enum": [true] }
               }
             }
           }

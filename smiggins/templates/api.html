@@ -1,0 +1,235 @@
+{% load static %}
+<!DOCTYPE html>
+
+<html>
+  <head>
+    <title>API Documentation - {{ conf.site_name }}</title>
+
+    <link rel="preload" href="{% static 'font/poppins-normal.woff' %}" as="font" type="font/woff" crossorigin>
+    <link rel="preload" href="{% static 'font/poppins-bold.woff' %}" as="font" type="font/woff" crossorigin>
+
+    <link rel="icon" href="{% static 'img/old_favicon.png' %}?v={{ conf.version }}">
+
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width,initial-scale=1">
+
+    <link rel="stylesheet" href="{% static 'base.css' %}?v={{ conf.version }}">
+  </head>
+
+  <body>
+    <div id="api-container">
+      {% for route, data in api %}
+        <h1 class="api-title">{{ route }}</h1>
+        {% if data.description %}
+          <div class="api-description">{{ data.description }}</div>
+        {% endif %}
+
+        {% if data.params %}
+          <h2 class="api-bytes-title">URL Parameters</h2>
+          <ul>
+            {% for param, info in data.params %}
+              <li>{{ param }}{% if info.required %} (required){% endif %}: {{ info.type }} {{ info.description }}
+            {% endfor %}
+          </ul>
+        {% endif %}
+
+        {% if data.body %}
+          <h2 class="api-bytes-title">Request Body</h2>
+          <div class="api-bytes">
+            {% firstof " " as prev %}
+            {% for item in data.body %}
+              {% if prev == "bool7" and item.type != "bool6" %}
+                <div data-api-type="bool-extra">0000000</div>
+              {% elif prev == "bool6" and item.type != "bool5" %}
+                <div data-api-type="bool-extra">000000</div>
+              {% elif prev == "bool5" and item.type != "bool4" %}
+                <div data-api-type="bool-extra">00000</div>
+              {% elif prev == "bool4" and item.type != "bool3" %}
+                <div data-api-type="bool-extra">0000</div>
+              {% elif prev == "bool3" and item.type != "bool2" %}
+                <div data-api-type="bool-extra">000</div>
+              {% elif prev == "bool2" and item.type != "bool1" %}
+                <div data-api-type="bool-extra">00</div>
+              {% elif prev == "bool1" and item.type != "bool0" %}
+                <div data-api-type="bool-extra">0</div>
+              {% endif %}
+
+              {% if item.type == "bool0" and prev != "bool1" %}
+                <div data-api-type="bool-extra">0000000</div>
+              {% elif item.type == "bool1" and prev != "bool2" %}
+                <div data-api-type="bool-extra">000000</div>
+              {% elif item.type == "bool2" and prev != "bool3" %}
+                <div data-api-type="bool-extra">00000</div>
+              {% elif item.type == "bool3" and prev != "bool4" %}
+                <div data-api-type="bool-extra">0000</div>
+              {% elif item.type == "bool4" and prev != "bool5" %}
+                <div data-api-type="bool-extra">000</div>
+              {% elif item.type == "bool5" and prev != "bool6" %}
+                <div data-api-type="bool-extra">00</div>
+              {% elif item.type == "bool6" and prev != "bool7" %}
+                <div data-api-type="bool-extra">0</div>
+              {% endif %}
+
+              {% firstof item.type " " as prev %}
+
+              {% if item.type == "str0" %}
+                <div data-api-type="{{ item.type }}">73 74 72 69 6e 67</div>
+              {% elif item.type == "str8" %}
+                <div data-api-type="{{ item.type }}"><div data-api-type="str8-header">06</div> 73 74 72 69 6e 67</div>
+              {% elif item.type == "str16" %}
+                <div data-api-type="{{ item.type }}"><div data-api-type="str16-header">00 06</div> 73 74 72 69 6e 67</div>
+              {% elif item.type == "uint8" %}
+                <div data-api-type="{{ item.type }}">12</div>
+              {% elif item.type == "uint16" %}
+                <div data-api-type="{{ item.type }}">12 34</div>
+              {% elif item.type == "uint32" %}
+                <div data-api-type="{{ item.type }}">12 34 56 78</div>
+              {% elif item.type == "uint64" %}
+                <div data-api-type="{{ item.type }}">12 34 56 78 9a bc de f0</div>
+              {% elif item.type == "hex3" %}
+                <div data-api-type="{{ item.type }}">ab cd ef</div>
+              {% elif item.type == "hex32" %}
+                <div data-api-type="{{ item.type }}">12 34 56 78 9a bc de f0 12 34 56 78 9a bc de f0 12 34 56 78 9a bc de f0 12 34 56 78 9a bc de f0</div>
+              {% elif item.type == "post" %}
+                <div data-api-type="{{ item.type }}">post</div>
+              {% elif item.type == "notif" %}
+                <div data-api-type="{{ item.type }}">01 post</div>
+              {% elif item.type == "bool7" %}
+                <div data-api-type="{{ item.type }}">1</div>
+              {% elif item.type == "bool6" %}
+                <div data-api-type="{{ item.type }}">1</div>
+              {% elif item.type == "bool5" %}
+                <div data-api-type="{{ item.type }}">1</div>
+              {% elif item.type == "bool4" %}
+                <div data-api-type="{{ item.type }}">1</div>
+              {% elif item.type == "bool3" %}
+                <div data-api-type="{{ item.type }}">1</div>
+              {% elif item.type == "bool2" %}
+                <div data-api-type="{{ item.type }}">1</div>
+              {% elif item.type == "bool1" %}
+                <div data-api-type="{{ item.type }}">1</div>
+              {% elif item.type == "bool0" %}
+                <div data-api-type="{{ item.type }}">1</div>
+              {% endif %}
+            {% endfor %}
+
+            {% if prev == "bool7" %}
+              <div data-api-type="bool-extra">0000000</div>
+            {% elif prev == "bool6" %}
+              <div data-api-type="bool-extra">000000</div>
+            {% elif prev == "bool5" %}
+              <div data-api-type="bool-extra">00000</div>
+            {% elif prev == "bool4" %}
+              <div data-api-type="bool-extra">0000</div>
+            {% elif prev == "bool3" %}
+              <div data-api-type="bool-extra">000</div>
+            {% elif prev == "bool2" %}
+              <div data-api-type="bool-extra">00</div>
+            {% elif prev == "bool1" %}
+              <div data-api-type="bool-extra">0</div>
+            {% endif %}
+          </div>
+        {% endif %}
+
+        <h2 class="api-bytes-title">Response</h2>
+        <div class="api-bytes">
+          <div data-api-type="id">{{ data.id_hex }}</div>
+          {% if data.response %}
+            {% firstof "p" as prev %}
+            {% for item in data.response %}
+              {% if prev == "bool7" and item.type != "bool6" %}
+                <div data-api-type="bool-extra">0000000</div>
+              {% elif prev == "bool6" and item.type != "bool5" %}
+                <div data-api-type="bool-extra">000000</div>
+              {% elif prev == "bool5" and item.type != "bool4" %}
+                <div data-api-type="bool-extra">00000</div>
+              {% elif prev == "bool4" and item.type != "bool3" %}
+                <div data-api-type="bool-extra">0000</div>
+              {% elif prev == "bool3" and item.type != "bool2" %}
+                <div data-api-type="bool-extra">000</div>
+              {% elif prev == "bool2" and item.type != "bool1" %}
+                <div data-api-type="bool-extra">00</div>
+              {% elif prev == "bool1" and item.type != "bool0" %}
+                <div data-api-type="bool-extra">0</div>
+              {% endif %}
+
+              {% if item.type == "bool0" and prev != "bool1" %}
+                <div data-api-type="bool-extra">0000000</div>
+              {% elif item.type == "bool1" and prev != "bool2" %}
+                <div data-api-type="bool-extra">000000</div>
+              {% elif item.type == "bool2" and prev != "bool3" %}
+                <div data-api-type="bool-extra">00000</div>
+              {% elif item.type == "bool3" and prev != "bool4" %}
+                <div data-api-type="bool-extra">0000</div>
+              {% elif item.type == "bool4" and prev != "bool5" %}
+                <div data-api-type="bool-extra">000</div>
+              {% elif item.type == "bool5" and prev != "bool6" %}
+                <div data-api-type="bool-extra">00</div>
+              {% elif item.type == "bool6" and prev != "bool7" %}
+                <div data-api-type="bool-extra">0</div>
+              {% endif %}
+
+              {% firstof item.type "p" as prev %}
+
+              {% if item.type == "str0" %}
+                <div data-api-type="{{ item.type }}">73 74 72 69 6e 67</div>
+              {% elif item.type == "str8" %}
+                <div data-api-type="{{ item.type }}"><div data-api-type="str8-header">06</div> 73 74 72 69 6e 67</div>
+              {% elif item.type == "str16" %}
+                <div data-api-type="{{ item.type }}"><div data-api-type="str16-header">00 06</div> 73 74 72 69 6e 67</div>
+              {% elif item.type == "uint8" %}
+                <div data-api-type="{{ item.type }}">12</div>
+              {% elif item.type == "uint16" %}
+                <div data-api-type="{{ item.type }}">12 34</div>
+              {% elif item.type == "uint32" %}
+                <div data-api-type="{{ item.type }}">12 34 56 78</div>
+              {% elif item.type == "uint64" %}
+                <div data-api-type="{{ item.type }}">12 34 56 78 9a bc de f0</div>
+              {% elif item.type == "hex3" %}
+                <div data-api-type="{{ item.type }}">ab cd ef</div>
+              {% elif item.type == "hex32" %}
+                <div data-api-type="{{ item.type }}">12 34 56 78 9a bc de f0 12 34 56 78 9a bc de f0 12 34 56 78 9a bc de f0 12 34 56 78 9a bc de f0</div>
+              {% elif item.type == "post" %}
+                <div data-api-type="{{ item.type }}">post</div>
+              {% elif item.type == "notif" %}
+                <div data-api-type="{{ item.type }}">01 post</div>
+              {% elif item.type == "bool7" %}
+                <div data-api-type="{{ item.type }}">1</div>
+              {% elif item.type == "bool6" %}
+                <div data-api-type="{{ item.type }}">1</div>
+              {% elif item.type == "bool5" %}
+                <div data-api-type="{{ item.type }}">1</div>
+              {% elif item.type == "bool4" %}
+                <div data-api-type="{{ item.type }}">1</div>
+              {% elif item.type == "bool3" %}
+                <div data-api-type="{{ item.type }}">1</div>
+              {% elif item.type == "bool2" %}
+                <div data-api-type="{{ item.type }}">1</div>
+              {% elif item.type == "bool1" %}
+                <div data-api-type="{{ item.type }}">1</div>
+              {% elif item.type == "bool0" %}
+                <div data-api-type="{{ item.type }}">1</div>
+              {% endif %}
+            {% endfor %}
+
+            {% if prev == "bool7" %}
+              <div data-api-type="bool-extra">0000000</div>
+            {% elif prev == "bool6" %}
+              <div data-api-type="bool-extra">000000</div>
+            {% elif prev == "bool5" %}
+              <div data-api-type="bool-extra">00000</div>
+            {% elif prev == "bool4" %}
+              <div data-api-type="bool-extra">0000</div>
+            {% elif prev == "bool3" %}
+              <div data-api-type="bool-extra">000</div>
+            {% elif prev == "bool2" %}
+              <div data-api-type="bool-extra">00</div>
+            {% elif prev == "bool1" %}
+              <div data-api-type="bool-extra">0</div>
+            {% endif %}
+          {% endif %}
+        </div>
+      {% endfor %}
+    </div>
+  </body>
+</html>
