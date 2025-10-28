@@ -202,10 +202,10 @@ function postModalCreatePost(e: Event): void {
         if (success) {
           if (postModalFor && postModalFor.type === "quote") {
             let el: HTMLElement | null = document.querySelector(`[data-interaction-quote="${postModalFor.id}"] [data-number]`);
-            if (el) { el.innerText = String(+el.innerText + 1); }
+            if (el && !isNaN(+el.innerText)) { el.innerText = String(+el.innerText + 1); }
           } else if (postModalFor && postModalFor.type === "comment") {
             let el: HTMLElement | null = document.querySelector(`[data-interaction-comment="${postModalFor.id}"] [data-number]`);
-            if (el) { el.innerText = String(+el.innerText + 1); }
+            if (el && !isNaN(+el.innerText)) { el.innerText = String(+el.innerText + 1); }
           }
 
           clearModal();

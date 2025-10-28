@@ -278,9 +278,9 @@ function getPost(post: number, updateOffset: boolean=true, forceCwState: boolean
     pid: String(post),
     comment_id: String(p.comment),
 
-    comments: String(p.interactions.comments),
-    quotes: String(p.interactions.quotes),
-    likes: String(p.interactions.likes),
+    comments: floatintToStr(p.interactions.comments),
+    quotes: floatintToStr(p.interactions.quotes),
+    likes: floatintToStr(p.interactions.likes),
     liked: String(p.interactions.liked),
 
     private_post: p.private ? "data-private-post" : "",
@@ -445,7 +445,7 @@ function postButtonClick(e: Event): void {
 
       let number: HTMLElement | null = element.querySelector("[data-number]");
 
-      if (number) {
+      if (number && !isNaN(+number.innerText)) {
         number.innerText = String(+number.innerText + (-liked + 0.5) * 2);
       }
     }

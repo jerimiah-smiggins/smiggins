@@ -41,6 +41,52 @@ enum ErrorCodes {
   Ratelimit
 };
 
+function floatintToStr(num: number): string {
+  if (num >> 14 & 1) {
+    return "Infinity";
+  }
+
+  let negative: number = 1;
+  if (num >> 13 & 1) {
+    negative = -1;
+  }
+
+  let output: number = (num >> 3 & 0b1111111111) * negative;
+  let power: number = num & 0b11;
+  let d10: boolean = Boolean(num >> 2 & 1);
+
+  if (d10) { output /= 10; }
+
+  let powerLetter: string = "";
+  switch (power) {
+    case 0: powerLetter = ""; break;
+    case 1: powerLetter = "k"; break;
+    case 2: powerLetter = "m"; break;
+    case 3: powerLetter = "b"; break;
+  }
+
+  return String(output) + powerLetter;
+}
+
+function floatintToNum(num: number): number {
+  if (num >> 14 & 1) {
+    return Infinity;
+  }
+
+  let negative: number = 1;
+  if (num >> 13 & 1) {
+    negative = -1;
+  }
+
+  let output: number = (num >> 3 & 0b1111111111) * negative;
+  let power: number = num & 0b11;
+  let d10: boolean = Boolean(num >> 2 & 1);
+
+  if (d10) { output /= 10; }
+
+  return output * (1000 ** power);
+}
+
 function _getErrorStrings(code: number, context: number): [title: string | null, content?: string] {
   switch (code) {
     case ErrorCodes.BadRequest: return ["Something went wrong!"];
@@ -256,7 +302,7 @@ function parseResponse(
         bio[0],
         "#" + _toHex(bio[1].slice(0, 3)),
         "#" + _toHex(bio[1].slice(3, 6)),
-        _extractBool(bio[1][10], 5) && "pending" || _extractBool(bio[1][10], 4),
+        _extractBool(bio[1][10], 4) && "pending" || _extractBool(bio[1][10], 5),
         _extractBool(bio[1][10], 2),
         _extractInt(16, bio[1].slice(8)),
         _extractInt(16, bio[1].slice(6))

@@ -107,6 +107,38 @@ def _extract_bool(num: int, offset: int) -> bool:
 def _to_hex(data: bytes) -> str:
     return "".join([hex(i)[2:].zfill(2) for i in data])
 
+def _to_floatint(num: int | float, *, is_infinity: bool=False) -> bytes:
+    # 0isnnnnn nnnnndpp
+    #  ^^^----------^^- pwr - 0: none, 1: k, 2: m, 3: b
+    #  |||-num 0-1k |-divide by 10 (y/n)
+    #  ||-sign
+    #  |-infinity
+
+    if is_infinity:
+        return b(1 << 14, 2)
+
+    output = 0
+
+    if num < 0:
+        num = -num  
+        output |= 1 << 13
+
+    c = 0
+    while num >= 1000:
+        num /= 1000
+        c += 1
+
+    if c > 4:
+        return _to_floatint(0, is_infinity=True)
+
+    if c and num < 10:
+        num *= 10
+        output |= 1 << 2
+
+    output |= (int(num) << 3) | (c & 0b11)
+
+    return b(output, 2)
+
 def _post_to_bytes(post: Post, user: User | None, user_data_override: User | None=None) -> bytes:
     can_view_quote = True
     comment: Post | None = post.comment_parent
@@ -128,7 +160,7 @@ def _post_to_bytes(post: Post, user: User | None, user_data_override: User | Non
         output += b(comment.post_id, 4)
 
     # interactions
-    output += b(post.likes.count(), 2) + b(post.quotes.count(), 2) + b(post.comments.count(), 2)
+    output += _to_floatint(post.likes.count()) + _to_floatint(post.quotes.count()) + _to_floatint(post.comments.count())
 
     content_bytes = str.encode(post.content)[: 1 << 16 - 1]
     cw_bytes = str.encode(post.content_warning or "")[: 1 << 8 - 1]
@@ -417,7 +449,7 @@ class api_TimelineUser(_api_TimelineBase):
         user_data = b(len(display_name_bytes)) + display_name_bytes
         user_data += b(len(bio_bytes), 2) + bio_bytes
         user_data += bytes(bytearray.fromhex(user.color[1:] + (user.color_two if user.gradient else user.color)[1:]))
-        user_data += b(user.followers.count(), 2) + b(user.following.count(), 2)
+        user_data += _to_floatint(user.followers.count()) + _to_floatint(user.following.count())
 
         super().set_response(end, forwards, posts, user)
 

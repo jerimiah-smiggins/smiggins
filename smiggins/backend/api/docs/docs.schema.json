@@ -40,7 +40,7 @@
                 "type": "string",
                 "enum": [
                   "str0", "str8", "str16",
-                  "uint8", "uint16", "uint32", "uint64",
+                  "uint8", "uint16", "uint32", "uint64", "floatint",
                   "hex3", "hex32",
                   "post", "notif",
                   "bool7", "bool6", "bool5", "bool4", "bool3", "bool2", "bool1", "bool0"

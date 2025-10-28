@@ -112,8 +112,8 @@ function userUpdateStats(
 
   let followingElement: HTMLElement | null = document.getElementById("following");
   let followersElement: HTMLElement | null = document.getElementById("followers");
-  if (followingElement) { followingElement.innerText = String(numFollowing); }
-  if (followersElement) { followersElement.innerText = String(numFollowers); }
+  if (followingElement) { followingElement.innerText = floatintToStr(numFollowing); }
+  if (followersElement) { followersElement.innerText = floatintToStr(numFollowers); }
 }
 
 function updateFollowButton(followed: false): void;

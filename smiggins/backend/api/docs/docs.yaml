@@ -181,8 +181,8 @@ GET /api/timeline/user/{username}:
   - { type: str16, name: "User bio" }
   - { type: hex3, name: "Banner color 1" }
   - { type: hex3, name: "Banner color 2" }
-  - { type: uint16, name: "Followers count" }
-  - { type: uint16, name: "Following count" }
+  - { type: floatint, name: "Followers count" }
+  - { type: floatint, name: "Following count" }
   - { type: bool7, name: "End of timeline" }
   - { type: bool6, name: "Forwards" }
   - { type: bool5, name: "Is following" }
