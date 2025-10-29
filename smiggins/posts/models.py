@@ -59,6 +59,9 @@ class User(models.Model):
         blockers: models.Manager["User"]
         pending_following: models.Manager["User"]
 
+    def __str__(self):
+        return f"({self.user_id}) @{self.username}"
+
 class Post(models.Model):
     post_id = models.IntegerField(primary_key=True)
     content = models.TextField(max_length=2 ** 16 - 1, blank=True)

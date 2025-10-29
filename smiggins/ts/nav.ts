@@ -11,6 +11,7 @@ function urlToIntent(path: string): intent {
       case "/": return "home";
 
       case "/notifications/": return "notifications";
+      case "/follow-requests/": return "follow-requests";
 
       case "/settings/": return "settings";
       case "/settings/profile/": return "settings/profile";
@@ -93,8 +94,8 @@ function renderPage(intent: intent): void {
         user_username: u,
         color_one: c && c.color_one || "var(--background-mid)",
         color_two: c && c.color_two || "var(--background-mid)",
-        following: c && String(c.num_following) || "0",
-        followers: c && String(c.num_followers) || "0",
+        following: c && floatintToStr(c.num_following) || "0",
+        followers: c && floatintToStr(c.num_followers) || "0",
         bio: c && [linkify(escapeHTML(c.bio)), 1] || "",
         display_name: c && [escapeHTML(c.display_name), 1] || u
       }; break;
@@ -147,6 +148,7 @@ function getPageTitle(intent: intent): string {
     case "404": return "Page Not Found - " + pageTitle;
     case "user": return getUsernameFromPath() + " - " + pageTitle;
     case "notifications": return "Notifications - " + pageTitle;
+    case "follow-requests": return "Follow Requests - " + pageTitle;
 
     case "index":
     case "home":

@@ -426,7 +426,6 @@ function prependPostToTimeline(post: post): void {
 // handles events when clicking the like, quote, etc. buttons on posts
 function postButtonClick(e: Event): void {
   let el: HTMLElement | null = e.currentTarget as HTMLElement | null;
-
   if (!el) { return; }
 
   if (el.dataset.interactionQuote) {

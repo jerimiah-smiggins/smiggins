@@ -12,14 +12,14 @@ declare const limits: {
 
 type intent = "index" | "login" | "signup"
             | "logout" | "404"
-            | "home" | "user" | "hashtag" | "post" | "notifications"
+            | "home" | "user" | "hashtag" | "post" | "notifications" | "follow-requests"
             | "settings" | "settings/profile" | "settings/cosmetic" | "settings/account" | "settings/keybinds" | "settings/about";
 
 type snippet = "pages/index" | "pages/login" | "pages/signup"
              | "pages/logout" | "pages/404"
-             | "pages/home" | "pages/user" | "pages/hashtag" | "pages/post" | "pages/notifications"
+             | "pages/home" | "pages/user" | "pages/hashtag" | "pages/post" | "pages/notifications" | "pages/follow-requests"
              | "pages/settings" | "pages/settings/profile" | "pages/settings/cosmetic" | "pages/settings/account" | "pages/settings/keybinds" | "pages/settings/about"
-             | "post" | "post-placeholder" | "toast" | "compose-modal" | "keybind-modal" | "notification-like";
+             | "post" | "post-placeholder" | "toast" | "compose-modal" | "keybind-modal" | "notification-like" | "folreq-user";
 
 type keybindModifiers = "ctrl" | "shift" | "alt" | "nav";
 
@@ -84,7 +84,14 @@ type userData = {
   blocking: boolean,
   num_following: number,
   num_followers: number
-}
+};
+
+type folreqUserData = {
+  username: string,
+  display_name: string,
+  bio: string,
+  id: number
+};
 
 type timelineCache = {
   upperBound: number | null,
@@ -92,7 +99,7 @@ type timelineCache = {
   posts: number[],
   pendingForward: number[] | false,
   end: boolean
-}
+};
 
 type replacement = {
   index: number,
@@ -100,4 +107,4 @@ type replacement = {
   href: string,
   internalIntent?: intent,
   hiddenLink?: true
-}
+};

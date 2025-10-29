@@ -185,14 +185,22 @@ function toggleBlock(e: Event): void {
   let unblock: boolean = blockButton.dataset.unblock !== undefined;
   blockButton.disabled = true;
 
+  blockUser(
+    getUsernameFromPath(),
+    !unblock,
+    blockButton
+  );
+}
+
+function blockUser(username: string, toBlock: boolean, disable?: HTMLButtonElement): void {
   fetch("/api/user/block", {
-    method: unblock ? "DELETE" : "POST",
-    body: getUsernameFromPath()
+    method: toBlock ? "POST" : "DELETE",
+    body: username
   }).then((response: Response): Promise<ArrayBuffer> => (response.arrayBuffer()))
     .then(parseResponse)
-    .then((): void => { blockButton.disabled = false; })
-    .catch((err: any) => {
-      blockButton.disabled = false;
+    .then((): void => { if (disable) { disable.disabled = false; }})
+    .catch((err: any): void => {
+      if (disable) { disable.disabled = false; }
       createToast("Something went wrong!", String(err));
       throw err;
     });

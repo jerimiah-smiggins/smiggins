@@ -1,7 +1,7 @@
 from typing import Literal
 
 from django.http import HttpResponse
-from posts.models import Notification, Post, User
+from posts.models import M2MPending, Notification, Post, User
 
 
 class ResponseCodes:
@@ -13,6 +13,8 @@ class ResponseCodes:
     UNFOLLOW = 0x11
     BLOCK = 0x12
     UNBLOCK = 0x13
+    ACCEPT_FOLREQ = 0x14
+    DENY_FOLREQ = 0x15
 
     GET_PROFILE = 0x20
     SAVE_PROFILE = 0x21
@@ -35,6 +37,7 @@ class ResponseCodes:
     TIMELINE_COMMENTS = 0x63
     TIMELINE_NOTIFICATIONS = 0x64
     TIMELINE_HASHTAG = 0x65
+    TIMELINE_FOLREQ = 0x66
 
     NOTIFICATIONS = 0x70
 
@@ -255,6 +258,12 @@ class api_Unblock(api_Unfollow):
 
 class api_Block(api_Unfollow):
     response_code = ResponseCodes.BLOCK
+
+class api_AcceptFolreq(api_Unfollow):
+    response_code = ResponseCodes.ACCEPT_FOLREQ
+
+class api_DenyFolreq(api_Unfollow):
+    response_code = ResponseCodes.DENY_FOLREQ
 
 # 2X - Settings and Account Management
 class api_GetProfile(_api_BaseResponse):
@@ -480,6 +489,22 @@ class api_TimelineNotifications(_api_TimelineBase):
 
 class api_TimelineHashtag(_api_TimelineBase):
     response_code = ResponseCodes.TIMELINE_HASHTAG
+
+class api_TimelineFolreq(_api_BaseResponse):
+    response_code = ResponseCodes.TIMELINE_FOLREQ
+
+    def set_response(self, end: bool, users: list[M2MPending]):
+        self.response_data = b(end << 7) + b(len(users))
+
+        for user in users:
+            username_bytes = str.encode(user.following.username)
+            display_name_bytes = str.encode(user.following.display_name)
+            bio_bytes = str.encode(user.following.bio)
+
+            self.response_data += b(user.pk, 4)
+            self.response_data += b(len(username_bytes)) + username_bytes
+            self.response_data += b(len(display_name_bytes)) + display_name_bytes
+            self.response_data += b(len(bio_bytes), 2) + bio_bytes
 
 # 7X - Statuses
 class api_PendingNotifications(_api_BaseResponse):

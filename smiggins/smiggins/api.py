@@ -1,13 +1,14 @@
 from backend.api.notifications import notifications
 from backend.api.post import (add_like, pin_post, post_create, post_delete,
                               post_edit, remove_like, unpin_post)
-from backend.api.timeline import (tl_comments, tl_following, tl_global,
-                                  tl_hashtag, tl_notifications, tl_user)
+from backend.api.timeline import (tl_comments, tl_following, tl_folreq,
+                                  tl_global, tl_hashtag, tl_notifications,
+                                  tl_user)
 from backend.api.user import (block_add, block_remove, change_password,
                               delete_account, follow_add, follow_remove,
-                              get_profile, login, save_profile,
-                              set_post_visibility, set_verify_followers,
-                              signup)
+                              folreq_accept, folreq_deny, get_profile, login,
+                              save_profile, set_post_visibility,
+                              set_verify_followers, signup)
 from backend.variables import DEBUG, SITE_NAME, VERSION
 from django.urls import path
 from ninja import NinjaAPI
@@ -26,6 +27,8 @@ api.post("user/follow")(follow_add)
 api.delete("user/follow")(follow_remove)
 api.post("user/block")(block_add)
 api.delete("user/block")(block_remove)
+api.post("user/follow-request")(folreq_accept)
+api.delete("user/follow-request")(folreq_deny)
 
 api.get("user")(get_profile)
 api.patch("user")(save_profile)
@@ -41,6 +44,7 @@ api.get("timeline/user/{str:username}")(tl_user)
 api.get("timeline/post/{int:post_id}")(tl_comments)
 api.get("timeline/notifications")(tl_notifications)
 api.get("timeline/tag/{str:tag}")(tl_hashtag)
+api.get("timeline/follow-requests")(tl_folreq)
 
 api.post("post")(post_create)
 api.patch("post")(post_edit)

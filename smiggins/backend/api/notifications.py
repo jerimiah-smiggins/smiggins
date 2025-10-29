@@ -15,5 +15,5 @@ def notifications(request) -> HttpResponse:
     return api.response(
         notifications=bool(user.notifications.filter(read=False).count()),
         messages=False, # TODO: Unread messages
-        follow_requests=False # TODO: Pending follow requests
+        follow_requests=bool(user.pending_followers.count())
     )

@@ -20,7 +20,7 @@ function fetchNotifications(): void {
 function resetNotificationIndicators(): void {
   let notif: HTMLElement | null = document.querySelector("#navbar a[data-internal-link=\"notifications\"]");
   let msg: HTMLElement | null = document.querySelector("#navbar a[data-internal-link=\"messages\"]");
-  let folreq: HTMLElement | null = document.querySelector("#navbar a[data-internal-link=\"TODO: follow requests\"]");
+  let folreq: HTMLElement | null = document.querySelector("#navbar a[data-internal-link=\"follow-requests\"]");
 
   if (notif) {
     if (pendingNotifications.notifications) {
@@ -41,6 +41,7 @@ function resetNotificationIndicators(): void {
   if (folreq) {
     if (pendingNotifications.follow_requests) {
       folreq.dataset.notification = "";
+      folreq.removeAttribute("hidden");
     } else {
       delete folreq.dataset.notification;
     }

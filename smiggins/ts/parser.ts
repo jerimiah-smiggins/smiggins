@@ -5,6 +5,8 @@ enum ResponseCodes {
   Unfollow,
   Block,
   Unblock,
+  AcceptFolreq,
+  DenyFolreq,
   GetProfile = 0x20,
   SaveProfile,
   DeleteAccount,
@@ -24,6 +26,7 @@ enum ResponseCodes {
   TimelineComments,
   TimelineNotifications,
   TimelineHashtag,
+  TimelineFolreq,
   Notifications = 0x70
 };
 
@@ -258,6 +261,8 @@ function parseResponse(
     case ResponseCodes.Unfollow: updateFollowButton(false); break;
     case ResponseCodes.Block: updateBlockButton(true); break;
     case ResponseCodes.Unblock: updateBlockButton(false); break;
+    case ResponseCodes.AcceptFolreq: break;
+    case ResponseCodes.DenyFolreq: break;
 
     case ResponseCodes.GetProfile:
       displayName = _extractString(8, u8arr.slice(1));
@@ -302,8 +307,8 @@ function parseResponse(
         bio[0],
         "#" + _toHex(bio[1].slice(0, 3)),
         "#" + _toHex(bio[1].slice(3, 6)),
-        _extractBool(bio[1][10], 4) && "pending" || _extractBool(bio[1][10], 5),
-        _extractBool(bio[1][10], 2),
+        _extractBool(bio[1][10], 3) && "pending" || _extractBool(bio[1][10], 5),
+        _extractBool(bio[1][10], 4),
         _extractInt(16, bio[1].slice(8)),
         _extractInt(16, bio[1].slice(6))
       );
@@ -357,10 +362,8 @@ function parseResponse(
       u8arr = u8arr.slice(3);
 
       for (let i: number = 0; i < numPosts; i++) {
-        let notificationType = u8arr[0];
         let postData: [post, Uint8Array] = _extractPost(u8arr.slice(1));
-
-        posts.push([postData[0], notificationType]);
+        posts.push([postData[0], u8arr[0]]);
         u8arr = postData[1];
       }
 
@@ -377,6 +380,31 @@ function parseResponse(
       } else {
         renderNotificationTimeline(posts, end, false);
       }
+      break;
+
+    case ResponseCodes.TimelineFolreq:
+      end = _extractBool(u8arr[1], 7);
+      let numUsers: number = u8arr[2];
+      let users: folreqUserData[] = [];
+      u8arr = u8arr.slice(3);
+
+      for (let i: number = 0; i < numUsers; i++) {
+        let id: number = _extractInt(32, u8arr);
+        let username: [string, Uint8Array] = _extractString(8, u8arr.slice(4));
+        let displayName: [string, Uint8Array] = _extractString(8, username[1]);
+        let bio: [string, Uint8Array] = _extractString(16, displayName[1]);
+
+        u8arr = bio[1];
+
+        users.push({
+          username: username[0],
+          display_name: displayName[0],
+          bio: bio[0],
+          id: id
+        });
+      }
+
+      renderFolreqTimeline(users, end, false);
       break;
 
     case ResponseCodes.Notifications:

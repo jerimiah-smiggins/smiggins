@@ -37,8 +37,6 @@ function p_notifications(element: HTMLDivElement): void {
 }
 
 function _getLikeNotification(posts: post[]): HTMLDivElement {
-  console.log(posts);
-
   let users: string[] = posts.map((a: post, index: number): [string | null, string] | null => {
     if (index > NUM_USERS_LIKE_NOTIF) {
       return null;
@@ -105,12 +103,12 @@ function renderNotificationTimeline(
   }
 
   let frag: DocumentFragment = document.createDocumentFragment();
-  let more: HTMLElement | null = moreElementOverride || document.getElementById("timeline-more");
-
-  if (more) {
-    if (end) { more.hidden = true; }
-    else { more.hidden = false; }
-  }
+  
+  // let more: HTMLElement | null = moreElementOverride || document.getElementById("timeline-more");
+  // if (more) {
+  //   if (end) { more.hidden = true; }
+  //   else { more.hidden = false; }
+  // }
 
   let pendingLikes: post[] = [];
   let previousRead: boolean = false;

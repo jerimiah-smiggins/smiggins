@@ -18,4 +18,8 @@
   <a data-internal-link="settings" href="/settings/" class="plain-link{% if active_page == "settings" %} navbar-current{% endif %}">
     {% if active_page == "settings" %}@{icon_settings_active}{% else %}@{icon_settings}{% endif %}
   </a>
+
+  <a data-internal-link="follow-requests" href="/follow-requests/" class="plain-link{% if active_page == "follow-requests" %} navbar-current"{% else %}" hidden{% endif %}>
+    {% if active_page == "follow-requests" %}@{icon_folreq_active}{% else %}@{icon_folreq}{% endif %}
+  </a>
 </div>

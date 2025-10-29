@@ -3,12 +3,13 @@ from typing import Literal
 from django.db.models import Q
 from django.db.models.manager import BaseManager
 from django.http import HttpResponse
-from posts.models import Hashtag, Notification, Post, User
+from posts.models import Hashtag, M2MPending, Notification, Post, User
 
 from ..variables import POSTS_PER_REQUEST
 from .format import (ErrorCodes, api_TimelineComments, api_TimelineFollowing,
-                     api_TimelineGlobal, api_TimelineHashtag,
-                     api_TimelineNotifications, api_TimelineUser)
+                     api_TimelineFolreq, api_TimelineGlobal,
+                     api_TimelineHashtag, api_TimelineNotifications,
+                     api_TimelineUser)
 
 
 def get_timeline(
@@ -217,4 +218,31 @@ def tl_hashtag(request, tag: str, sort: Literal["recent", "oldest", "random"], o
     )
 
     api.set_response(end, forwards, posts, user)
+    return api.get_response()
+
+def tl_folreq(request, offset: int | None=None):
+    api = api_TimelineFolreq()
+
+    try:
+        user = User.objects.get(token=request.COOKIES.get("token"))
+    except User.DoesNotExist:
+        return api.error(ErrorCodes.NOT_AUTHENTICATED)
+
+    tl: BaseManager[M2MPending] = M2MPending.objects.filter(user=user).order_by("-pk")
+
+    if offset:
+        tl = tl.filter(pk__lt=offset)
+
+    users: list[M2MPending] = list(tl[:POSTS_PER_REQUEST + 1])
+    end = len(users) <= POSTS_PER_REQUEST
+
+    api.set_response(end, users[:POSTS_PER_REQUEST])
+
+    unread_notifications = user.notifications.filter(read=False)
+
+    for notif in unread_notifications:
+        notif.read = True
+
+    Notification.objects.bulk_update(unread_notifications, ["read"])
+
     return api.get_response()

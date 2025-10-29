@@ -7,12 +7,13 @@ from ..helper import generate_token, trim_whitespace
 from ..variables import (DEFAULT_BANNER_COLOR, ENABLE_NEW_ACCOUNTS,
                          MAX_BIO_LENGTH, MAX_DISPL_NAME_LENGTH,
                          MAX_USERNAME_LENGTH)
-from .format import (ErrorCodes, api_Block, api_ChangePassword,
-                     api_DeleteAccount, api_Follow, api_GetProfile, api_LogIn,
-                     api_SaveProfile, api_SetDefaultVisibility, api_SignUp,
-                     api_Unblock, api_Unfollow)
+from .format import (ErrorCodes, api_AcceptFolreq, api_Block,
+                     api_ChangePassword, api_DeleteAccount, api_DenyFolreq,
+                     api_Follow, api_GetProfile, api_LogIn, api_SaveProfile,
+                     api_SetDefaultVisibility, api_SignUp, api_Unblock,
+                     api_Unfollow)
 
-COLOR_REGEX = re.compile("^#[a-f0-9]{6}$")
+COLOR_REGEX = re.compile(r"^#[a-f0-9]{6}$")
 
 def signup(request: HttpRequest) -> HttpResponse:
     # if rl := check_ratelimit(request, "POST /api/user/signup"):
@@ -167,9 +168,43 @@ def _block(request: HttpRequest, unblock: bool) -> HttpResponse:
         if user.pending_followers.contains(self_user):
             user.pending_followers.remove(self_user)
 
+        if self_user.pending_followers.contains(user):
+            self_user.pending_followers.remove(user)
+
         if not self_user.blocking.contains(user):
             self_user.blocking.add(user)
 
+    return api.response()
+
+def folreq_accept(request: HttpRequest) -> HttpResponse:
+    return _folreq(request, True)
+
+def folreq_deny(request: HttpRequest) -> HttpResponse:
+    return _folreq(request, False)
+
+def _folreq(request: HttpRequest, accepted: bool) -> HttpResponse:
+    api = (api_AcceptFolreq if accepted else api_DenyFolreq)()
+
+    try:
+        self_user = User.objects.get(token=request.COOKIES.get("token"))
+    except User.DoesNotExist:
+        return api.error(ErrorCodes.NOT_AUTHENTICATED)
+
+    if not self_user.verify_followers:
+        return api.error(ErrorCodes.BAD_REQUEST)
+
+    try:
+        user = User.objects.get(username=api.parse_request(request.body))
+    except User.DoesNotExist:
+        return api.error(ErrorCodes.BAD_USERNAME)
+
+    if user.user_id not in self_user.pending_followers.values_list("user_id", flat=True):
+        return api.response()
+
+    if accepted:
+        user.following.add(self_user)
+
+    self_user.pending_followers.remove(user)
     return api.response()
 
 def get_profile(request: HttpRequest) -> HttpResponse:
@@ -201,11 +236,8 @@ def save_profile(request: HttpRequest) -> HttpResponse:
     user.bio = bio[0] if bio[1] else ""
     user.gradient = data["gradient"]
 
-    if re.match(COLOR_REGEX, data["color_one"]):
-        user.color = data["color_one"]
-
-    if re.match(COLOR_REGEX, data["color_two"]):
-        user.color_two = data["color_two"]
+    user.color = data["color_one"]
+    user.color_two = data["color_two"]
 
     user.pronouns = data["pronouns"]
 
