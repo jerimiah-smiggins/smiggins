@@ -262,9 +262,9 @@ function getPost(post: number, updateOffset: boolean=true, forceCwState: boolean
 
     quoteUnsafeData = {
       quote_content: [quoteContent, 1],
-      quote_pronouns: p.quote.user.pronouns || "",
-      quote_display_name: [escapeHTML(p.quote.user.display_name), 1],
-      quote_cw_start: quoteCwStart
+      quote_cw_start: [quoteCwStart, 1],
+      quote_pronouns: [p.quote.user.pronouns || "", 1],
+      quote_display_name: [escapeHTML(p.quote.user.display_name), 1]
     };
   }
 
@@ -470,6 +470,15 @@ function postButtonClick(e: Event): void {
         createToast("Something went wrong!", String(err));
         throw err;
       });
+  } else if (el.dataset.interactionUnpin) {
+    fetch("/api/post/pin", {
+      method: "DELETE"
+    }).then((response: Response): Promise<ArrayBuffer> => (response.arrayBuffer()))
+      .then(parseResponse)
+      .catch((err: any) => {
+        createToast("Something went wrong!", String(err));
+        throw err;
+      });
   } else if (el.dataset.interactionDelete) {
     let postId: number = +el.dataset.interactionDelete;
 
@@ -536,7 +545,7 @@ function handlePostDelete(pid: number): void {
   }
 
   for (const el of document.querySelectorAll(`[data-post-id="${pid}"]`)) {
-    el.remove();
+    el.innerHTML = "<i>This post has been deleted.</i>";
   }
 
   delete tlCache[`post_${pid}_recent`];

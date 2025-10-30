@@ -200,18 +200,18 @@ def add_like(request: HttpRequest, post_id: int) -> HttpResponse:
         post.likes.add(user)
     except IntegrityError:
         print("like already exists")
-
-    if post.creator != user:
-        try:
-            Notification.objects.create(
-                timestamp=round(time.time()),
-                event_type="like",
-                linked_like=M2MLike.objects.get(user=user, post=post),
-                post=post,
-                is_for=post.creator
-            )
-        except M2MLike.DoesNotExist:
-            print("couldn't make like notif object")
+    else:
+        if post.creator != user:
+            try:
+                Notification.objects.create(
+                    timestamp=round(time.time()),
+                    event_type="like",
+                    linked_like=M2MLike.objects.get(user=user, post=post),
+                    post=post,
+                    is_for=post.creator
+                )
+            except M2MLike.DoesNotExist:
+                print("couldn't make like notif object")
 
     return api.response()
 

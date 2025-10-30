@@ -190,6 +190,7 @@ GET /api/timeline/user/{username}:
     include_comments: { type: bool }
   response:
   - { type: str8, name: "Display name" }
+  - { type: str8, name: "Pronouns" }
   - { type: str16, name: "User bio" }
   - { type: hex3, name: "Banner color 1" }
   - { type: hex3, name: "Banner color 2" }
@@ -200,6 +201,8 @@ GET /api/timeline/user/{username}:
   - { type: bool5, name: "Is following" }
   - { type: bool4, name: "Is blocking" }
   - { type: bool3, name: "Has pending follow request" }
+  - { type: bool2, name: "Has pinned post", id: has_pinned }
+  - { type: post, name: "Pinned post", condition: has_pinned }
   - { type: uint8, name: "Post count", id: post_count }
   - { type: post, name: "Post", loop: post_count }
 
@@ -228,7 +231,6 @@ GET /api/timeline/notifications:
   - { type: uint8, name: "Post count", id: post_count }
   - { type: post, name: "Post", loop: post_count }
 
-
 GET /api/timeline/tag/{tag}:
   description: "Hashtag timeline"
   id: 0x65
@@ -254,7 +256,6 @@ GET /api/timeline/follow-requests:
   - { type: str8, name: "Username", loop: post_count }
   - { type: str8, name: "Display name", loop: post_count }
   - { type: str16, name: "User bio", loop: post_count }
-
 
 GET /api/notifications:
   description: "Checks for unread notifications"

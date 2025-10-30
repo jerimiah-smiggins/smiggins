@@ -27,13 +27,15 @@ function userSetDNE(): void {
 
 function userUpdateStats(
   displayName: string,
+  pronouns: string,
   bio: string,
   colorOne: string,
   colorTwo: string,
   following: boolean | "pending",
   blocking: boolean,
   numFollowing: number,
-  numFollowers: number
+  numFollowers: number,
+  pinned: number | null
 ): void {
   // TODO: pinned posts
 
@@ -42,23 +44,27 @@ function userUpdateStats(
 
   if (c) {
     c.display_name  = displayName;
-    c.bio           = bio
+    c.pronouns      = pronouns || null;
+    c.bio           = bio;
     c.color_one     = colorOne;
     c.color_two     = colorTwo;
     c.following     = following;
     c.blocking      = blocking;
     c.num_following = numFollowing;
     c.num_followers = numFollowers;
+    c.pinned        = pinned;
   } else {
     c = {
       display_name: displayName || username,
+      pronouns: pronouns || null,
       bio: bio,
       color_one: colorOne || "var(--background-mid)",
       color_two: colorTwo || "var(--background-mid)",
       following: following || false,
       blocking: blocking || false,
       num_following: numFollowing || 0,
-      num_followers: numFollowers || 0
+      num_followers: numFollowers || 0,
+      pinned: pinned
     };
 
     userCache[userUsername] = c;
@@ -110,10 +116,40 @@ function userUpdateStats(
     displayNameElement.innerText = displayName;
   }
 
+  let usernameElement: HTMLElement | null = document.getElementById("username");
+  if (usernameElement) {
+    usernameElement.innerText = "@" + userUsername + (pronouns && " - ") + pronouns
+  }
+
   let bannerElement: HTMLElement | null = document.getElementById("user-banner");
   if (bannerElement) {
     if (colorRegex.test(colorOne)) { bannerElement.style.setProperty("--color-one", colorOne); }
     if (colorRegex.test(colorTwo)) { bannerElement.style.setProperty("--color-two", colorTwo); }
+  }
+
+  let pinnedContainer: HTMLElement | null = document.getElementById("user-pinned-container");
+  if (pinnedContainer) {
+    if (pinned) {
+      pinnedContainer.removeAttribute("hidden");
+      let pinnedElement: HTMLElement | null = document.getElementById("user-pinned");
+      if (pinnedElement && !pinnedElement.querySelector(`[data-post-id="${pinned}"]`)) {
+        let postElement: HTMLDivElement = getPost(pinned, false);
+
+        if (userUsername === username) {
+          let pinElement: HTMLElement | null = postElement.querySelector("[data-interaction-pin]");
+
+          if (pinElement) {
+            delete pinElement.dataset.interactionPin;
+            pinElement.dataset.interactionUnpin = String(pinned);
+            pinElement.innerHTML = icons.unpin + " Unpin";
+          }
+        }
+
+        pinnedElement.replaceChildren(postElement);
+      }
+    } else {
+      pinnedContainer.setAttribute("hidden", "");
+    }
   }
 
   let followingElement: HTMLElement | null = document.getElementById("following");

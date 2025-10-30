@@ -91,12 +91,12 @@ function renderPage(intent: intent): void {
       let u: string = getUsernameFromPath();
       c = userCache[u];
       extraVariables = {
-        user_username: u,
         color_one: c && c.color_one || "var(--background-mid)",
         color_two: c && c.color_two || "var(--background-mid)",
         following: c && floatintToStr(c.num_following) || "0",
         followers: c && floatintToStr(c.num_followers) || "0",
         bio: c && [linkify(escapeHTML(c.bio)), 1] || "",
+        user_username: c && [escapeHTML(u + (c.pronouns && " - ") + c.pronouns), 1] || u,
         display_name: c && [escapeHTML(c.display_name), 1] || u
       }; break;
 

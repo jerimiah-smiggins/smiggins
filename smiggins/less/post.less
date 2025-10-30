@@ -177,12 +177,14 @@
     [data-interaction-quote],
     [data-interaction-edit],
     [data-interaction-pin],
+    [data-interaction-unpin],
     [data-interaction-delete],
     .hamburger {
       cursor: pointer;
     }
 
-    [data-interaction-delete] {
+    [data-interaction-delete],
+    [data-interaction-unpin] {
       color: var(--red);
     }
 
@@ -250,14 +252,17 @@
   }
 }
 
-#focused-post .post {
-  border-bottom: none;
-
-  .post-content {
-    display: inline;
-    line-clamp: none;
-    -webkit-line-clamp: none;
+#focused-post,
+#user-pinned {
+  .post {
+    border-bottom: none;
   }
+}
+
+#focused-post .post .post-content {
+  display: inline;
+  line-clamp: none;
+  -webkit-line-clamp: none;
 }
 
 .notification-like,

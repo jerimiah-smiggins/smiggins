@@ -77,13 +77,15 @@ type timelineConfig = {
 
 type userData = {
   display_name: string,
+  pronouns: string | null,
   bio: string,
   color_one: string,
   color_two: string,
   following: boolean | "pending",
   blocking: boolean,
   num_following: number,
-  num_followers: number
+  num_followers: number,
+  pinned: number | null
 };
 
 type folreqUserData = {

@@ -201,11 +201,11 @@ function postModalCreatePost(e: Event): void {
       (success: boolean): void => {
         if (success) {
           if (postModalFor && postModalFor.type === "quote") {
-            let el: HTMLElement | null = document.querySelector(`[data-interaction-quote="${postModalFor.id}"] [data-number]`);
-            if (el && !isNaN(+el.innerText)) { el.innerText = String(+el.innerText + 1); }
+            let els: NodeListOf<HTMLElement> = document.querySelectorAll(`[data-interaction-quote="${postModalFor.id}"] [data-number]`);
+            for (const el of els) { if (!isNaN(+el.innerText)) { el.innerText = String(+el.innerText + 1); }}
           } else if (postModalFor && postModalFor.type === "comment") {
-            let el: HTMLElement | null = document.querySelector(`[data-interaction-comment="${postModalFor.id}"] [data-number]`);
-            if (el && !isNaN(+el.innerText)) { el.innerText = String(+el.innerText + 1); }
+            let els: NodeListOf<HTMLElement> = document.querySelectorAll(`[data-interaction-comment="${postModalFor.id}"] [data-number]`);
+            for (const el of els) { if (!isNaN(+el.innerText)) { el.innerText = String(+el.innerText + 1); }}
           }
 
           clearModal();

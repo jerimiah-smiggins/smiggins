@@ -90,6 +90,9 @@ class _api_BaseResponse:
         self.set_response(**data)
         return self.get_response()
 
+MAX_STR8 = 1 << 8 - 1
+MAX_STR16 = 1 << 16 - 1
+
 def b(i: int, length: int=1) -> bytes:
     # converts an int to bytes of a certain length
     return i.to_bytes(length=length, byteorder="big")
@@ -165,11 +168,11 @@ def _post_to_bytes(post: Post, user: User | None, user_data_override: User | Non
     # interactions
     output += _to_floatint(post.likes.count()) + _to_floatint(post.quotes.count()) + _to_floatint(post.comments.count())
 
-    content_bytes = str.encode(post.content)[: 1 << 16 - 1]
-    cw_bytes = str.encode(post.content_warning or "")[: 1 << 8 - 1]
-    username_bytes = str.encode((user_data_override or post.creator).username)[: 1 << 8 - 1]
-    display_name_bytes = str.encode((user_data_override or post.creator).display_name)[: 1 << 8 - 1]
-    pronouns_bytes = str.encode((user_data_override or post.creator).pronouns)[: 1 << 8 - 1]
+    content_bytes = str.encode(post.content)[:MAX_STR16]
+    cw_bytes = str.encode(post.content_warning or "")[:MAX_STR8]
+    username_bytes = str.encode((user_data_override or post.creator).username)[:MAX_STR8]
+    display_name_bytes = str.encode((user_data_override or post.creator).display_name)[:MAX_STR8]
+    pronouns_bytes = str.encode((user_data_override or post.creator).pronouns)[:MAX_STR8]
 
     output += b(len(content_bytes), 2) + content_bytes
     output += b(len(cw_bytes), 1) + cw_bytes
@@ -183,11 +186,11 @@ def _post_to_bytes(post: Post, user: User | None, user_data_override: User | Non
         if quote.comment_parent:
             output += b(quote.comment_parent.post_id, 4)
 
-        quote_content_bytes = str.encode(quote.content)[: 1 << 16 - 1]
-        quote_cw_bytes = str.encode(quote.content_warning or "")[: 1 << 8 - 1]
-        quote_username_bytes = str.encode(quote.creator.username)[: 1 << 8 - 1]
-        quote_display_name_bytes = str.encode(quote.creator.display_name)[: 1 << 8 - 1]
-        quote_pronouns_bytes = str.encode(quote.creator.pronouns)[: 1 << 8 - 1]
+        quote_content_bytes = str.encode(quote.content)[:MAX_STR16]
+        quote_cw_bytes = str.encode(quote.content_warning or "")[:MAX_STR8]
+        quote_username_bytes = str.encode(quote.creator.username)[:MAX_STR8]
+        quote_display_name_bytes = str.encode(quote.creator.display_name)[:MAX_STR8]
+        quote_pronouns_bytes = str.encode(quote.creator.pronouns)[:MAX_STR8]
 
         output += b(len(quote_content_bytes), 2) + quote_content_bytes
         output += b(len(quote_cw_bytes), 1) + quote_cw_bytes
@@ -273,9 +276,9 @@ class api_GetProfile(_api_BaseResponse):
         self,
         user: User
     ):
-        display_name_bytes = str.encode(user.display_name)[: 1 << 8 - 1]
-        bio_bytes = str.encode(user.bio)[: 1 << 16 - 1]
-        pronouns_bytes = str.encode(user.pronouns)[: 1 << 8 - 1]
+        display_name_bytes = str.encode(user.display_name)[:MAX_STR8]
+        bio_bytes = str.encode(user.bio)[:MAX_STR16]
+        pronouns_bytes = str.encode(user.pronouns)[:MAX_STR8]
 
         self.response_data = b""
         self.response_data += b(len(display_name_bytes)) + display_name_bytes
@@ -452,10 +455,12 @@ class api_TimelineUser(_api_TimelineBase):
     response_code = ResponseCodes.TIMELINE_USER
 
     def set_response(self, end: bool, forwards: bool, posts: list[Post] | list[Notification], user: User, self_user: User):
-        display_name_bytes = str.encode(user.display_name)[: 1 << 8 - 1]
-        bio_bytes = str.encode(user.bio)[: 1 << 16 - 1]
+        display_name_bytes = str.encode(user.display_name)[:MAX_STR8]
+        pronouns_bytes = str.encode(user.pronouns)[:MAX_STR8]
+        bio_bytes = str.encode(user.bio)[:MAX_STR16]
 
         user_data = b(len(display_name_bytes)) + display_name_bytes
+        user_data += b(len(pronouns_bytes)) + pronouns_bytes
         user_data += b(len(bio_bytes), 2) + bio_bytes
         user_data += bytes(bytearray.fromhex(user.color[1:] + (user.color_two if user.gradient else user.color)[1:]))
         user_data += _to_floatint(user.followers.count()) + _to_floatint(user.following.count())
@@ -470,8 +475,11 @@ class api_TimelineUser(_api_TimelineBase):
         if not isinstance(flags, int):
             return
 
-        flags |= self_user.following.contains(user) << 5 | self_user.blocking.contains(user) << 4 | user.pending_followers.contains(self_user) << 3
-        self.response_data = user_data + b(flags) + self.response_data[1:]
+        flags |= self_user.following.contains(user) << 5 \
+               | self_user.blocking.contains(user) << 4 \
+               | user.pending_followers.contains(self_user) << 3 \
+               | (user.pinned is not None) << 2
+        self.response_data = user_data + b(flags) + (_post_to_bytes(user.pinned, self_user) if user.pinned else b"") + self.response_data[1:]
 
 class api_TimelineComments(_api_TimelineBase):
     response_code = ResponseCodes.TIMELINE_COMMENTS
@@ -497,9 +505,9 @@ class api_TimelineFolreq(_api_BaseResponse):
         self.response_data = b(end << 7) + b(len(users))
 
         for user in users:
-            username_bytes = str.encode(user.following.username)
-            display_name_bytes = str.encode(user.following.display_name)
-            bio_bytes = str.encode(user.following.bio)
+            username_bytes = str.encode(user.following.username)[:MAX_STR8]
+            display_name_bytes = str.encode(user.following.display_name)[:MAX_STR8]
+            bio_bytes = str.encode(user.following.bio)[:MAX_STR16]
 
             self.response_data += b(user.pk, 4)
             self.response_data += b(len(username_bytes)) + username_bytes

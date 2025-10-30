@@ -245,6 +245,7 @@ function parseResponse(
   let forwards: boolean;
   let numPosts: number;
   let posts;
+  let pronouns: [string, leftoverData: Uint8Array];
 
   if (u8arr[0] >> 7 & 1) {
     return createToast(..._getErrorStrings(u8arr[1], u8arr[0] ^ (1 << 7)));
@@ -267,7 +268,7 @@ function parseResponse(
     case ResponseCodes.GetProfile:
       displayName = _extractString(8, u8arr.slice(1));
       bio = _extractString(16, displayName[1]);
-      let pronouns: [string, leftoverData: Uint8Array] = _extractString(8, bio[1]);
+      pronouns = _extractString(8, bio[1]);
 
       profileSettingsSetUserData(
         displayName[0],
@@ -291,29 +292,47 @@ function parseResponse(
     case ResponseCodes.VerifyFollowers: break;
 
     case ResponseCodes.CreatePost: prependPostToTimeline(_extractPost(u8arr.slice(1))[0]); break;
+
     case ResponseCodes.Like: break;
     case ResponseCodes.Unlike: break;
+
     case ResponseCodes.Pin: createToast("Success!", "Pinned to your profile."); break;
-    case ResponseCodes.Unpin: createToast("Success!", "This post is no Pinned to your profilelonger pinned to your profile."); break;
+    case ResponseCodes.Unpin:
+      createToast("Success!", "This post is no longer pinned to your profile.");
+      document.getElementById("user-pinned-container")?.setAttribute("hidden", "");
+      break;
+
     case ResponseCodes.EditPost: break;
     case ResponseCodes.DeletePost: handlePostDelete(_extractInt(32, u8arr.slice(1))); break;
 
     case ResponseCodes.TimelineUser:
       displayName = _extractString(8, u8arr.slice(1));
-      bio = _extractString(16, displayName[1]);
+      pronouns = _extractString(8, displayName[1]);
+      bio = _extractString(16, pronouns[1]);
+      let flags: number = bio[1][10];
+      let pinned: number | null = null;
+      let pinnedPostData: [post, Uint8Array] | undefined;
+
+      // has pinned post
+      if (_extractBool(flags, 2)) {
+        pinnedPostData = _extractPost(bio[1].slice(11));
+        pinned = insertIntoPostCache([pinnedPostData[0]])[0];
+      }
 
       userUpdateStats(
         displayName[0],
+        pronouns[0],
         bio[0],
         "#" + _toHex(bio[1].slice(0, 3)),
         "#" + _toHex(bio[1].slice(3, 6)),
         _extractBool(bio[1][10], 3) && "pending" || _extractBool(bio[1][10], 5),
         _extractBool(bio[1][10], 4),
         _extractInt(16, bio[1].slice(8)),
-        _extractInt(16, bio[1].slice(6))
+        _extractInt(16, bio[1].slice(6)),
+        pinned
       );
 
-      u8arr = bio[1].slice(9);
+      u8arr = new Uint8Array([0, flags].concat(Array.from(pinnedPostData ? pinnedPostData[1] : bio[1].slice(11))));
 
     case ResponseCodes.TimelineComments:
       // Prevent accidentally running this code when on user timeline
