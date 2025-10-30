@@ -5,6 +5,7 @@ let timelines: { [key: string]: timelineConfig } = {};
 let tlPollingIntervalID: number | null = null;
 let tlPollingPendingResponse: boolean = false;
 let prependedPosts: number = 0;
+let timelineToggles: string[] = [];
 
 let tlCache: { [key: string]: timelineCache | undefined } = {};
 let postCache: { [key: number]: post | undefined } = {};
@@ -25,6 +26,7 @@ function hookTimeline(
   activeTimeline: string,
   fakeBodyElement?: HTMLDivElement
 ): void {
+  timelineToggles = [];
   timelines = tls;
   tlElement = element;
   _setTimeline(activeTimeline, fakeBodyElement);
@@ -179,8 +181,8 @@ function _setTimeline(timelineId: string, element?: HTMLDivElement): void {
     c.lowerBound = offset.lower;
   }
 
-  currentTl = timelines[timelineId];
-  currentTlID = timelineId;
+  currentTlID = timelineId.split("__")[0] + timelineToggles.map((a: string): string => ("__" + a)).join("");
+  currentTl = timelines[currentTlID];
 
   if (tlPollingIntervalID) {
     clearInterval(tlPollingIntervalID);
@@ -203,11 +205,32 @@ function switchTimeline(e: MouseEvent): void {
     _setTimeline(el.dataset.timelineId);
   }
 
-  for (const el of document.querySelectorAll("[data-timeline-active]")) {
+  for (const el of document.querySelectorAll("[data-timeline-active]:not([data-timeline-toggle])")) {
     delete (el as HTMLDivElement).dataset.timelineActive;
   }
 
   (e.target as HTMLDivElement).dataset.timelineActive = "";
+}
+
+// handles clicking a toggle on the tl-carousel
+function toggleTimeline(e: MouseEvent): void {
+  let el: HTMLDivElement | null = e.target as HTMLDivElement | null;
+  if (!el) { return; }
+
+  let t: string | undefined = el.dataset.timelineToggle;
+  if (!t) { return; }
+
+  if (typeof el.dataset.timelineActive === "string") {
+    delete el.dataset.timelineActive;
+    if (timelineToggles.includes(t)) {
+      timelineToggles.splice(timelineToggles.indexOf(t), 1);
+    }
+  } else {
+    el.dataset.timelineActive = "";
+    timelineToggles.push(t);
+  }
+
+  _setTimeline(currentTlID);
 }
 
 // turns post data into an html element
@@ -574,6 +597,11 @@ function handlePostDelete(pid: number): void {
   }
 }
 
+// returns an escaped string containing the post content, or a content warning if there is one
+function simplePostContent(post: post): string {
+  return escapeHTML(post.content_warning ? "CW: " + post.content_warning : post.content);
+}
+
 // (processing) timeline "show more" button
 function p_tlMore(element: HTMLDivElement): void {
   let el: Element | null = element.querySelector("[id=\"timeline-more\"]");
@@ -589,10 +617,10 @@ function p_tlMore(element: HTMLDivElement): void {
 // (processing) timeline carousel switching
 function p_tlSwitch(element: HTMLDivElement): void {
   let carouselItems: NodeListOf<HTMLDivElement> = element.querySelectorAll("[data-timeline-id]");
+  let carouselToggles: NodeListOf<HTMLDivElement> = element.querySelectorAll("[data-timeline-toggle]");
 
-  for (const i of carouselItems) {
-    i.addEventListener("click", switchTimeline);
-  }
+  for (const i of carouselItems) { i.addEventListener("click", switchTimeline); }
+  for (const i of carouselToggles) { i.addEventListener("click", toggleTimeline); }
 }
 
 // (processing) adds the click events to posts

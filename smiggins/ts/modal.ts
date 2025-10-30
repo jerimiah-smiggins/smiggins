@@ -38,10 +38,10 @@ function createPostModal(type?: "quote" | "comment" | "edit", id?: number): void
       username: post.user.username,
       timestamp: getTimestamp(post.timestamp),
 
-      content: [escapeHTML(post.content), 1],
+      content: [simplePostContent(post), 1],
       display_name: [escapeHTML(post.user.display_name), 1],
-      // duplicated to prevent possible injection
-      content_2: [escapeHTML(post.content), 1],
+      // duplicated to prevent possible issues with unescaped strings in the content
+      content_2: [simplePostContent(post), 1],
       display_name_2: [escapeHTML(post.user.display_name), 1]
     };
 

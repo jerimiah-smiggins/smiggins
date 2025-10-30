@@ -66,7 +66,7 @@ function _getLikeNotification(posts: post[]): HTMLDivElement {
 
   return getSnippet("notification-like", {
     pid: String(posts[0].id),
-    content: [escapeHTML(posts[0].content_warning ? "CW: " + posts[0].content_warning : posts[0].content), 1],
+    content: [simplePostContent(posts[0]), 1],
     names: [userFull, 1]
   });
 }
