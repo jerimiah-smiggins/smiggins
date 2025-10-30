@@ -326,6 +326,15 @@ function getPost(
 
   el.dataset.editReplace = String(post);
 
+  if (p.quote === false) {
+    let quoteElement: HTMLElement | null = el.querySelector(".post-quote");
+
+    if (quoteElement) {
+      quoteElement.removeAttribute("hidden");
+      quoteElement.innerHTML = "<i>You can't view this quote.</i>";
+    }
+  }
+
   return el;
 }
 

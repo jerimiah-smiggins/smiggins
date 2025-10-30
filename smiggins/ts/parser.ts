@@ -174,7 +174,7 @@ function _extractPost(data: Uint8Array): [post, leftoverData: Uint8Array] {
 
   if (_extractBool(flags, 5)) {
     if (!_extractBool(flags, 4)) {
-      quoteData = undefined;
+      quoteData = false as false;
     } else {
       let quoteIsComment: boolean = _extractBool(flags, 1);
       let quoteCommentId: null | number = null;

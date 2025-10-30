@@ -48,6 +48,10 @@ def post_create(request: HttpRequest) -> HttpResponse:
             quote = Post.objects.get(post_id=data["quote"])
         except Post.DoesNotExist:
             ...
+        else:
+            if quote.creator.verify_followers and not user.following.contains(quote.creator) \
+            or quote.creator.blocking.contains(user):
+                quote = None
 
     comment_parent = None
     if data["comment"]:
@@ -55,6 +59,10 @@ def post_create(request: HttpRequest) -> HttpResponse:
             comment_parent = Post.objects.get(post_id=data["comment"])
         except Post.DoesNotExist:
             ...
+        else:
+            if comment_parent.creator.verify_followers and not user.following.contains(comment_parent.creator) \
+            or comment_parent.creator.blocking.contains(user):
+                comment_parent = None
 
     Post.objects.create(
         content=content[0],

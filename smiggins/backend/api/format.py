@@ -150,6 +150,18 @@ def _post_to_bytes(post: Post, user: User | None, user_data_override: User | Non
     comment: Post | None = post.comment_parent
     quote: Post | None = post.quoted_post
 
+    if quote:
+        print(quote.private, user, quote.creator)
+        print((not quote.private or (user == quote.creator) or (user and user.following.contains(quote.creator))))
+        print((not (user and quote.creator.blocking.contains(user))))
+        print((not (user and user.blocking.contains(quote.creator))))
+
+        can_view_quote = bool(
+            (not quote.private or (user == quote.creator) or (user and user.following.contains(quote.creator))) # private, not following
+        and (not (user and quote.creator.blocking.contains(user))) # blocked by creator
+        and (not (user and user.blocking.contains(quote.creator))) # blocking creator
+        )
+
     output = b(post.post_id, 4) + b(timestamp_override or post.timestamp, 8)
 
     output += b( # flags
@@ -158,8 +170,8 @@ def _post_to_bytes(post: Post, user: User | None, user_data_override: User | Non
       | (quote is not None) << 5 # has quote
       | can_view_quote << 4 # quote visible
       | (post.likes.contains(user) if user else False) << 3 # liked
-      | (quote is not None and (quote.creator.verify_followers if quote.private is None else quote.private)) << 2 # quote is private
-      | (quote is not None and quote.comment_parent is not None) << 1 # quote has comment
+      | (can_view_quote and quote is not None and (quote.creator.verify_followers if quote.private is None else quote.private)) << 2 # quote is private
+      | (can_view_quote and quote is not None and quote.comment_parent is not None) << 1 # quote has comment
     )
 
     if comment:
@@ -180,7 +192,7 @@ def _post_to_bytes(post: Post, user: User | None, user_data_override: User | Non
     output += b(len(display_name_bytes), 1) + display_name_bytes
     output += b(len(pronouns_bytes), 1) + pronouns_bytes
 
-    if quote:
+    if can_view_quote and quote:
         output += b(quote.post_id, 4) + b(quote.timestamp, 8)
 
         if quote.comment_parent:
@@ -470,7 +482,7 @@ class api_TimelineUser(_api_TimelineBase):
         user_data += bytes(bytearray.fromhex(user.color[1:] + (user.color_two if user.gradient else user.color)[1:]))
         user_data += _to_floatint(user.followers.count()) + _to_floatint(user.following.count())
 
-        super().set_response(end, forwards, posts, user)
+        super().set_response(end, forwards, posts, self_user)
 
         if isinstance(self.response_data, int):
             return

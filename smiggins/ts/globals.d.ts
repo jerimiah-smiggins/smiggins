@@ -63,7 +63,7 @@ type post = {
       display_name: string,
       pronouns: string | null
     },
-  } | undefined | null
+  } | false | null
 };
 
 type timelineConfig = {
