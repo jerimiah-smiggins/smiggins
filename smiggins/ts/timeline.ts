@@ -211,7 +211,11 @@ function switchTimeline(e: MouseEvent): void {
 }
 
 // turns post data into an html element
-function getPost(post: number, updateOffset: boolean=true, forceCwState: boolean | null=null): HTMLDivElement {
+function getPost(
+  post: number,
+  updateOffset: boolean=true,
+  forceCwState: boolean | null=null
+): HTMLDivElement {
   let p: post | undefined = postCache[post];
 
   if (!p) {
@@ -333,7 +337,12 @@ function timelineShowNew(): void {
 }
 
 // handles adding posts to forwards
-function handleForward(posts: post[], end: boolean, expectedTlID: string, forceEvent: boolean=false): void {
+function handleForward(
+  posts: post[],
+  end: boolean,
+  expectedTlID: string,
+  forceEvent: boolean=false
+): void {
   tlPollingPendingResponse = false;
 
   let c: timelineCache | undefined = tlCache[expectedTlID];
@@ -346,6 +355,8 @@ function handleForward(posts: post[], end: boolean, expectedTlID: string, forceE
     else if (c.pendingForward !== false) {
       c.pendingForward.push(...insertIntoPostCache(posts).reverse());
     }
+
+    return;
   }
 
   if (posts.length === 0 || c.pendingForward === false) { return; }
@@ -378,14 +389,12 @@ function handleForward(posts: post[], end: boolean, expectedTlID: string, forceE
 
 // fetch new posts for a timeline
 function timelinePolling(forceEvent: boolean=false): void {
-  if (currentTl.disablePolling) { return; }
+  if (currentTl.disablePolling || !offset.upper || (tlPollingPendingResponse && !forceEvent)) { return; }
 
   let c: timelineCache | undefined = tlCache[currentTlID];
-
-  if (tlPollingPendingResponse && !forceEvent) { return; }
   tlPollingPendingResponse = true;
 
-  if (!c || c.pendingForward === false || !offset.upper) { return; }
+  if (c && c.pendingForward === false) { return; }
 
   if (localStorage.getItem("smiggins-auto-show-posts")) {
     forceEvent = true;

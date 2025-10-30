@@ -3,21 +3,6 @@
 // a, b, c, d, and n other(s) liked your post
 const NUM_USERS_LIKE_NOTIF: number = 4;
 
-// TODO: notification cache
-// let notificationCache: {
-//   posts: [post, notificationType: number][],
-//   pendingForward: [post, notificationType: number][],
-//   upperBound: number | null,
-//   lowerBound: number | null,
-//   end: boolean
-// } = {
-//   posts: [],
-//   pendingForward: [],
-//   upperBound: null,
-//   lowerBound: null,
-//   end: false
-// };
-
 enum NotificationCodes {
   Comment = 1,
   Quote,
@@ -38,18 +23,21 @@ function p_notifications(element: HTMLDivElement): void {
 
 function _getLikeNotification(posts: post[]): HTMLDivElement {
   let users: string[] = posts.map((a: post, index: number): [string | null, string] | null => {
+    if (!offset.lower || a.timestamp < offset.lower) { offset.lower = a.timestamp; }
+    if (!offset.upper || a.timestamp > offset.upper) { offset.upper = a.timestamp; }
+
     if (index > NUM_USERS_LIKE_NOTIF) {
       return null;
     }
 
     return [a.user.username, a.user.display_name];
-  }).filter(Boolean).map((a: [username: string | null, displayName: string] | null): string => {
-    let htmlStart: string = "<b>";
-    let htmlEnd: string = "</b>";
-
+  }).map((a: [username: string | null, displayName: string] | null): string => {
     if (a === null) {
       return "";
     }
+
+    let htmlStart: string = "<b>";
+    let htmlEnd: string = "</b>";
 
     if (a[0]) {
       htmlStart += `<a class="plain-link" data-internal-link="user" href="/u/${a[0]}/">`;
@@ -87,7 +75,8 @@ function renderNotificationTimeline(
   posts: [post, notificationType: number][],
   end: boolean,
   updateCache: boolean,
-  moreElementOverride?: HTMLElement | null
+  moreElementOverride?: HTMLElement | null,
+  prepend: boolean=false
 ): void {
   console.log(posts);
   clearTimelineStatuses();
@@ -103,12 +92,6 @@ function renderNotificationTimeline(
   }
 
   let frag: DocumentFragment = document.createDocumentFragment();
-  
-  // let more: HTMLElement | null = moreElementOverride || document.getElementById("timeline-more");
-  // if (more) {
-  //   if (end) { more.hidden = true; }
-  //   else { more.hidden = false; }
-  // }
 
   let pendingLikes: post[] = [];
   let previousRead: boolean = false;
@@ -157,25 +140,38 @@ function renderNotificationTimeline(
     frag.append(el);
   }
 
-  tlElement.append(frag);
+  if (prepend) {
+    tlElement.prepend(frag);
+  } else {
+    tlElement.append(frag);
 
-  // if (updateCache && !currentTl.disableCaching) {
-  //   notificationCache.posts.push(...posts);
-  //   notificationCache.lowerBound = offset.lower;
-  //   notificationCache.upperBound = offset.upper;
-  //   notificationCache.end = end;
-  // }
+    let more: HTMLElement | null = moreElementOverride || document.getElementById("timeline-more");
+    if (more) {
+      if (end) { more.hidden = true; }
+      else { more.hidden = false; }
+    }
+  }
 }
 
 function handleNotificationForward(
-  posts: any[],
+  posts: [post, notificationType: number][],
   end: boolean,
-  expectedTlID: string = "notifications",
-  forceEvent: boolean = false
+  expectedTlID: string="notifications",
+  forceEvent: boolean=false
 ): void {
-  if (currentTlID !== expectedTlID) {
+  tlPollingPendingResponse = false;
+
+  if (expectedTlID !== currentTlID) {
+    console.log("timeline switched, discarding request");
     return;
   }
 
-  // TODO: forward notifications
+  if (posts.length === 0) { return; }
+
+  if (!end) {
+    reloadTimeline(true);
+    return;
+  }
+
+  renderNotificationTimeline(posts.reverse(), false, false, null, true)
 }

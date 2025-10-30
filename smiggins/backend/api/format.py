@@ -145,12 +145,12 @@ def _to_floatint(num: int | float, *, is_infinity: bool=False) -> bytes:
 
     return b(output, 2)
 
-def _post_to_bytes(post: Post, user: User | None, user_data_override: User | None=None) -> bytes:
+def _post_to_bytes(post: Post, user: User | None, user_data_override: User | None=None, timestamp_override: int | None=None) -> bytes:
     can_view_quote = True
     comment: Post | None = post.comment_parent
     quote: Post | None = post.quoted_post
 
-    output = b(post.post_id, 4) + b(post.timestamp, 8)
+    output = b(post.post_id, 4) + b(timestamp_override or post.timestamp, 8)
 
     output += b( # flags
         (post.creator.verify_followers if post.private is None else post.private) << 7 # private
@@ -208,7 +208,12 @@ def _notification_to_bytes(notification: Notification, user: User | None) -> byt
         "like": 4
     }
 
-    return b((not notification.read) << 7 | quote_types[notification.event_type]) + _post_to_bytes(notification.post, user, notification.linked_like.user if notification.event_type == "like" and notification.linked_like else None)
+    return b((not notification.read) << 7 | quote_types[notification.event_type]) + _post_to_bytes(
+        notification.post,
+        user,
+        notification.linked_like.user if notification.event_type == "like" and notification.linked_like else None,
+        notification.timestamp
+    )
 
 # 0X - Authentication
 class api_SignUp(_api_BaseResponse):
