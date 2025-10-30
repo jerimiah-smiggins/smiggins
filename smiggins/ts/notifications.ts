@@ -46,6 +46,8 @@ function resetNotificationIndicators(): void {
       delete folreq.dataset.notification;
     }
   }
+
+  document.title = getPageTitle(currentPage);
 }
 
 if (loggedIn) {

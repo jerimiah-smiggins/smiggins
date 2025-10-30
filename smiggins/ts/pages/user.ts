@@ -97,7 +97,13 @@ function userUpdateStats(
   let bioElement: HTMLElement | null = document.getElementById("bio");
   if (bioElement) { bioElement.innerHTML = linkify(escapeHTML(bio)); }
 
-  document.title = `${displayName} - ${pageTitle}`;
+  let notificationString: String = "";
+
+  if (Object.values(pendingNotifications).some(Boolean)) {
+    notificationString = "\u2022 ";
+  }
+
+  document.title = `${notificationString}${displayName} - ${pageTitle}`;
 
   let displayNameElement: HTMLElement | null = document.getElementById("display-name");
   if (displayNameElement) {

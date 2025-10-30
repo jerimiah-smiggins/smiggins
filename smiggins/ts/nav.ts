@@ -141,19 +141,27 @@ function renderPage(intent: intent): void {
 }
 
 function getPageTitle(intent: intent): string {
+  let notificationString: String = "";
+
+  if (Object.values(pendingNotifications).some(Boolean)) {
+    notificationString = "\u2022 ";
+  }
+
+  let val: null | string = intent;
+
   switch (intent) {
-    case "login": return "Log In - " + pageTitle;
-    case "signup": return "Sign Up - " + pageTitle;
-    case "logout": return "Log Out - " + pageTitle;
-    case "404": return "Page Not Found - " + pageTitle;
-    case "user": return getUsernameFromPath() + " - " + pageTitle;
-    case "notifications": return "Notifications - " + pageTitle;
-    case "follow-requests": return "Follow Requests - " + pageTitle;
+    case "login": val = "Log In - "; break;
+    case "signup": val = "Sign Up - "; break;
+    case "logout": val = "Log Out - "; break;
+    case "404": val = "Page Not Found - "; break;
+    case "user": val = getUsernameFromPath() + " - "; break;
+    case "notifications": val = "Notifications - "; break;
+    case "follow-requests": val = "Follow Requests - "; break;
 
     case "index":
     case "home":
     case "post":
-      return pageTitle;
+      val = null; break;
 
     case "settings":
     case "settings/profile":
@@ -161,10 +169,14 @@ function getPageTitle(intent: intent): string {
     case "settings/keybinds":
     case "settings/account":
     case "settings/about":
-      return "Settings - " + pageTitle;
-
-    default: return intent + " - " + pageTitle;
+      val = "Settings - "; break;
   }
+
+  if (val) {
+    return notificationString + val + pageTitle;
+  }
+
+  return notificationString + pageTitle;
 }
 
 onpopstate = function(e: PopStateEvent): void {
