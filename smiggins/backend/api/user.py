@@ -270,6 +270,13 @@ def set_verify_followers(request: HttpRequest) -> HttpResponse:
     user.verify_followers = api.parse_request(request.body)
     user.save()
 
+    if not user.verify_followers:
+        pending = user.pending_followers.all()
+        for f in pending:
+            f.following.add(user)
+
+        user.pending_followers.clear()
+
     return api.response()
 
 def change_password(request: HttpRequest) -> HttpResponse:
