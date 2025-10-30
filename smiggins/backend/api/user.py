@@ -239,7 +239,8 @@ def save_profile(request: HttpRequest) -> HttpResponse:
     user.color = data["color_one"]
     user.color_two = data["color_two"]
 
-    user.pronouns = data["pronouns"]
+    pronouns = trim_whitespace(data["pronouns"])
+    user.pronouns = pronouns[0] if pronouns[1] else ""
 
     user.save()
 
