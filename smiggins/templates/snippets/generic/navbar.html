@@ -7,9 +7,9 @@
     {% if active_page == "notifications" %}@{icon_notifications_active}{% else %}@{icon_notifications}{% endif %}
   </a>
 
-  <a data-internal-link="messages" href="/messages/" class="plain-link{% if active_page == "messages" %} navbar-current{% endif %}">
+  {% comment %} <a data-internal-link="messages" href="/messages/" class="plain-link{% if active_page == "messages" %} navbar-current{% endif %}">
     {% if active_page == "messages" %}@{icon_messages_active}{% else %}@{icon_messages}{% endif %}
-  </a>
+  </a> {% endcomment %}
 
   <a data-internal-link="user" href="/u/@{username}/" class="plain-link{% if active_page == "user" %} navbar-current{% endif %}">
     {% if active_page == "user" %}@{icon_user_active}{% else %}@{icon_user}{% endif %}

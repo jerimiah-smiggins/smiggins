@@ -147,7 +147,7 @@ function getPageTitle(intent: intent): string {
     notificationString = "\u2022 ";
   }
 
-  let val: null | string = intent;
+  let val: null | string = intent + " - ";
 
   switch (intent) {
     case "login": val = "Log In - "; break;

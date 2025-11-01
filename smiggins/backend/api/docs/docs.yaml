@@ -251,11 +251,11 @@ GET /api/timeline/follow-requests:
     offset: { type: int }
   response:
   - { type: bool7, name: "End of timeline" }
-  - { type: uint8, name: "User count", id: post_count }
-  - { type: uint32, name: "Offset ID", loop: post_count }
-  - { type: str8, name: "Username", loop: post_count }
-  - { type: str8, name: "Display name", loop: post_count }
-  - { type: str16, name: "User bio", loop: post_count }
+  - { type: uint8, name: "User count", id: user_count }
+  - { type: uint32, name: "Offset ID", loop: user_count }
+  - { type: str8, name: "Username", loop: user_count }
+  - { type: str8, name: "Display name", loop: user_count }
+  - { type: str16, name: "User bio", loop: user_count }
 
 GET /api/notifications:
   description: "Checks for unread notifications"

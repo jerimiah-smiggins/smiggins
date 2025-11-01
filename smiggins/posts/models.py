@@ -17,13 +17,11 @@ class User(models.Model):
     #                       ||+- Change admin levels for self and others
     #                       |||+- Add any account to account switcher - requires modify info
     #                       ||||+- Modify account info
-    #                       |||||+- Add/remove badges from profiles (OBSOLETE)
-    #                       ||||||+- Delete badges (OBSOLETE)
-    #                       |||||||+- Create/modify badges (OBSOLETE)
+    #                       |||||+++- Unused (kept for compatability)
     #                       ||||||||+- Delete accounts
-    #          unused       |||||||||+- Delete posts
+    #          Unused       |||||||||+- Delete posts
     #            |          ||||||||||
-    # 0000000000000000000000XXXXXXXXX
+    # 0000000000000000000000XXXXX000XX
     admin_level = models.IntegerField(default=0)
 
     display_name = models.CharField(max_length=2 ** 8 - 1)
