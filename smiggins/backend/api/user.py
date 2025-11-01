@@ -1,7 +1,7 @@
 import re
 
 from django.http import HttpRequest, HttpResponse
-from posts.models import OneTimePassword, User
+from posts.models import InviteCode, User
 
 from ..helper import generate_token, trim_whitespace
 from ..variables import (DEFAULT_BANNER_COLOR, ENABLE_NEW_ACCOUNTS,
@@ -16,9 +16,6 @@ from .format import (ErrorCodes, api_AcceptFolreq, api_Block,
 COLOR_REGEX = re.compile(r"^#[a-f0-9]{6}$")
 
 def signup(request: HttpRequest) -> HttpResponse:
-    # if rl := check_ratelimit(request, "POST /api/user/signup"):
-    #     return NEW_RL
-
     api = api_SignUp()
     data = api.parse_request(request.body)
 
@@ -30,8 +27,8 @@ def signup(request: HttpRequest) -> HttpResponse:
 
     if ENABLE_NEW_ACCOUNTS == "otp":
         try:
-            otp = OneTimePassword.objects.get(code=data["otp"])
-        except OneTimePassword.DoesNotExist:
+            otp = InviteCode.objects.get(id=data["otp"])
+        except InviteCode.DoesNotExist:
             return api.error(ErrorCodes.INVALID_OTP)
 
     # e3b0c44... is the sha256 hash for an empty string
@@ -68,9 +65,6 @@ def signup(request: HttpRequest) -> HttpResponse:
     return api.response(token=token)
 
 def login(request: HttpRequest) -> HttpResponse:
-    # if rl := check_ratelimit(request, "POST /api/user/login"):
-    #     return NEW_RL
-
     api = api_LogIn()
     data = api.parse_request(request.body)
 
@@ -95,9 +89,6 @@ def follow_remove(request: HttpRequest) -> HttpResponse:
     return _follow(request, True)
 
 def _follow(request: HttpRequest, unfollow: bool) -> HttpResponse:
-    # if rl := check_ratelimit(request, "POST /api/user/login"):
-    #     return NEW_RL
-
     api = (api_Unfollow if unfollow else api_Follow)()
 
     try:
@@ -142,9 +133,6 @@ def block_remove(request: HttpRequest) -> HttpResponse:
     return _block(request, True)
 
 def _block(request: HttpRequest, unblock: bool) -> HttpResponse:
-    # if rl := check_ratelimit(request, "POST /api/user/login"):
-    #     return NEW_RL
-
     api = (api_Unblock if unblock else api_Block)()
 
     try:
@@ -280,9 +268,6 @@ def set_verify_followers(request: HttpRequest) -> HttpResponse:
     return api.response()
 
 def change_password(request: HttpRequest) -> HttpResponse:
-    # if rl := check_ratelimit(request, "PATCH /api/user/password"):
-    #     return rl
-
     current_token = request.COOKIES.get("token")
     api = api_ChangePassword()
 

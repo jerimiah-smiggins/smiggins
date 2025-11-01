@@ -303,14 +303,17 @@ User-agent: AddSearchBot
 User-agent: AI2Bot
 User-agent: Ai2Bot-Dolma
 User-agent: aiHitBot
+User-agent: amazon-kendra-
 User-agent: Amazonbot
 User-agent: Andibot
+User-agent: Anomura
 User-agent: anthropic-ai
 User-agent: Applebot
 User-agent: Applebot-Extended
 User-agent: Awario
 User-agent: bedrockbot
 User-agent: bigsur.ai
+User-agent: Bravebot
 User-agent: Brightbot 1.0
 User-agent: Bytespider
 User-agent: CCBot
@@ -320,12 +323,14 @@ User-agent: Claude-SearchBot
 User-agent: Claude-User
 User-agent: Claude-Web
 User-agent: ClaudeBot
+User-agent: Cloudflare-AutoRAG
 User-agent: CloudVertexBot
 User-agent: cohere-ai
 User-agent: cohere-training-data-crawler
 User-agent: Cotoyogi
 User-agent: Crawlspace
 User-agent: Datenbank Crawler
+User-agent: DeepSeekBot
 User-agent: Devin
 User-agent: Diffbot
 User-agent: DuckAssistBot
@@ -340,18 +345,21 @@ User-agent: Gemini-Deep-Research
 User-agent: Google-CloudVertexBot
 User-agent: Google-Extended
 User-agent: Google-Firebase
+User-agent: Google-NotebookLM
 User-agent: GoogleAgent-Mariner
 User-agent: GoogleOther
 User-agent: GoogleOther-Image
 User-agent: GoogleOther-Video
 User-agent: GPTBot
 User-agent: iaskspider/2.0
+User-agent: IbouBot
 User-agent: ICC-Crawler
 User-agent: ImagesiftBot
 User-agent: img2dataset
 User-agent: ISSCyberRiskCrawler
 User-agent: Kangaroo Bot
 User-agent: LinerBot
+User-agent: Linguee Bot
 User-agent: meta-externalagent
 User-agent: Meta-ExternalAgent
 User-agent: meta-externalfetcher

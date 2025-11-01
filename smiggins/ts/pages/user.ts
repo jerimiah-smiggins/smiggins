@@ -4,21 +4,21 @@ function getUsernameFromPath(path?: string): string {
   return (path || location.pathname).toLowerCase().split("/").filter(Boolean)[1];
 }
 
-function p_user(element: HTMLDivElement): void {
+function p_user(element: D): void {
   let userUsername: string = getUsernameFromPath();
   let tlId: string = `user_${userUsername}`;
 
   element.querySelector("#follow")?.addEventListener("click", toggleFollow);
   element.querySelector("#block")?.addEventListener("click", toggleBlock);
 
-  hookTimeline(element.querySelector("[id=\"timeline-posts\"]") as HTMLDivElement, {
+  hookTimeline(element.querySelector("[id=\"timeline-posts\"]") as D, {
     [tlId]: { url: `/api/timeline/user/${userUsername}`, prependPosts: username === userUsername },
     [tlId + "_all"]: { url: `/api/timeline/user/${userUsername}?include_comments=true`, prependPosts: username === userUsername }
   }, tlId, element);
 }
 
 function userSetDNE(): void {
-  let tlContainer: HTMLElement | null = document.getElementById("timeline-posts");
+  let tlContainer: el = document.getElementById("timeline-posts");
 
   if (tlContainer) {
     tlContainer.innerHTML = `<i class="timeline-status">User '${escapeHTML(getUsernameFromPath())}' does not exist.</i>`;
@@ -73,8 +73,8 @@ function userUpdateStats(
   if (username !== userUsername) { // follow/block buttons
     document.getElementById("user-interactions")?.removeAttribute("hidden");
 
-    let followElement: HTMLElement | null = document.getElementById("follow");
-    let blockElement: HTMLElement | null = document.getElementById("block");
+    let followElement: el = document.getElementById("follow");
+    let blockElement: el = document.getElementById("block");
 
     if (followElement) {
       if (following === "pending") {
@@ -100,7 +100,7 @@ function userUpdateStats(
     }
   }
 
-  let bioElement: HTMLElement | null = document.getElementById("bio");
+  let bioElement: el = document.getElementById("bio");
   if (bioElement) { bioElement.innerHTML = linkify(escapeHTML(bio)); }
 
   let notificationString: String = "";
@@ -111,32 +111,32 @@ function userUpdateStats(
 
   document.title = `${notificationString}${displayName} - ${pageTitle}`;
 
-  let displayNameElement: HTMLElement | null = document.getElementById("display-name");
+  let displayNameElement: el = document.getElementById("display-name");
   if (displayNameElement) {
     displayNameElement.innerText = displayName;
   }
 
-  let usernameElement: HTMLElement | null = document.getElementById("username");
+  let usernameElement: el = document.getElementById("username");
   if (usernameElement) {
     usernameElement.innerText = "@" + userUsername + (pronouns && " - ") + pronouns
   }
 
-  let bannerElement: HTMLElement | null = document.getElementById("user-banner");
+  let bannerElement: el = document.getElementById("user-banner");
   if (bannerElement) {
     if (colorRegex.test(colorOne)) { bannerElement.style.setProperty("--color-one", colorOne); }
     if (colorRegex.test(colorTwo)) { bannerElement.style.setProperty("--color-two", colorTwo); }
   }
 
-  let pinnedContainer: HTMLElement | null = document.getElementById("user-pinned-container");
+  let pinnedContainer: el = document.getElementById("user-pinned-container");
   if (pinnedContainer) {
     if (pinned) {
       pinnedContainer.removeAttribute("hidden");
-      let pinnedElement: HTMLElement | null = document.getElementById("user-pinned");
+      let pinnedElement: el = document.getElementById("user-pinned");
       if (pinnedElement && !pinnedElement.querySelector(`[data-post-id="${pinned}"]`)) {
-        let postElement: HTMLDivElement = getPost(pinned, false);
+        let postElement: D = getPost(pinned, false);
 
         if (userUsername === username) {
-          let pinElement: HTMLElement | null = postElement.querySelector("[data-interaction-pin]");
+          let pinElement: el = postElement.querySelector("[data-interaction-pin]");
 
           if (pinElement) {
             delete pinElement.dataset.interactionPin;
@@ -152,8 +152,8 @@ function userUpdateStats(
     }
   }
 
-  let followingElement: HTMLElement | null = document.getElementById("following");
-  let followersElement: HTMLElement | null = document.getElementById("followers");
+  let followingElement: el = document.getElementById("following");
+  let followersElement: el = document.getElementById("followers");
   if (followingElement) { followingElement.innerText = floatintToStr(numFollowing); }
   if (followersElement) { followersElement.innerText = floatintToStr(numFollowers); }
 }
@@ -161,7 +161,7 @@ function userUpdateStats(
 function updateFollowButton(followed: false): void;
 function updateFollowButton(followed: true, pending: boolean): void;
 function updateFollowButton(followed: boolean, pending?: boolean): void {
-  let followButton: HTMLElement | null = document.getElementById("follow");
+  let followButton: el = document.getElementById("follow");
   if (!followButton) { return; }
 
   let c: userData | undefined = userCache[username];
@@ -182,14 +182,14 @@ function updateFollowButton(followed: boolean, pending?: boolean): void {
 }
 
 function updateBlockButton(blocked: boolean): void {
-  let blockButton: HTMLElement | null = document.getElementById("block");
+  let blockButton: el = document.getElementById("block");
   if (!blockButton) { return; }
 
   if (blocked) {
     blockButton.innerText = "Unblock";
     blockButton.dataset.unblock = "";
 
-    let followButton: HTMLElement | null = document.getElementById("follow");
+    let followButton: el = document.getElementById("follow");
     if (followButton && followButton.dataset.unfollow !== undefined) {
       delete followButton.dataset.unfollow;
       followButton.innerText = "Follow";
@@ -201,7 +201,7 @@ function updateBlockButton(blocked: boolean): void {
 }
 
 function toggleFollow(e: Event): void {
-  let followButton: HTMLButtonElement | null = e.target as HTMLButtonElement | null;
+  let followButton: Bel = e.target as Bel;
   if (!followButton) { return; }
 
   let unfollow: boolean = followButton.dataset.unfollow !== undefined;
@@ -221,7 +221,7 @@ function toggleFollow(e: Event): void {
 }
 
 function toggleBlock(e: Event): void {
-  let blockButton: HTMLButtonElement | null = e.target as HTMLButtonElement | null;
+  let blockButton: Bel = e.target as Bel;
   if (!blockButton) { return; }
 
   let unblock: boolean = blockButton.dataset.unblock !== undefined;
@@ -234,7 +234,7 @@ function toggleBlock(e: Event): void {
   );
 }
 
-function blockUser(username: string, toBlock: boolean, disable?: HTMLButtonElement): void {
+function blockUser(username: string, toBlock: boolean, disable?: B): void {
   fetch("/api/user/block", {
     method: toBlock ? "POST" : "DELETE",
     body: username

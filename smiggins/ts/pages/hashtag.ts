@@ -2,8 +2,8 @@ function getHashtagFromPath(path?: string): string {
   return (path || location.pathname).toLowerCase().split("/").filter(Boolean)[1];
 }
 
-function p_hashtag(element: HTMLDivElement): void {
-  let timelineElement: HTMLDivElement | null = element.querySelector("#timeline-posts");
+function p_hashtag(element: D): void {
+  let timelineElement: Del = element.querySelector("#timeline-posts");
   let tag: string = getHashtagFromPath();
 
   if (!timelineElement || !tag) { return; }

@@ -69,6 +69,7 @@
       {% include "snippet.html" with id="pages/notifications" vars="username" processing="notifications,timeline_more" %}
       {% include "snippet.html" with id="pages/hashtag" vars="username" processing="timeline_switch,timeline_more,hashtag" %}
       {% include "snippet.html" with id="pages/follow-requests" vars="username" processing="follow_requests,timeline_more" %}
+      {% if is_admin %}{% include "snippet.html" with id="pages/admin" vars="username" processing="admin,input_enter" %}{% endif %}
 
       <!-- other -->
       {% include "snippet.html" with id="post" processing="post" %}

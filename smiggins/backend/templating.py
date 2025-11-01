@@ -5,6 +5,7 @@ from django.http import HttpResponse
 from django.template import loader
 from posts.backups import backup_db
 from posts.models import User
+from .api.admin import AdminPermissions
 
 from .variables import (BASE_DIR, ENABLE_NEW_ACCOUNTS, GOOGLE_VERIFICATION_TAG,
                         MAX_BIO_LENGTH, MAX_CONTENT_WARNING_LENGTH,
@@ -83,9 +84,11 @@ def webapp(request) -> HttpResponse:
             }
         },
 
+        "admin": dict([(key, AdminPermissions.can_use(user, val)) for key, val in AdminPermissions.ALL.items()]) if user else {},
+
         "logged_in": user is not None,
         "username": user and user.username,
-        "is_admin": user and user.admin_level != 0,
+        "is_admin": user is not None and AdminPermissions.has_any(user),
         "default_post_private": user and user.default_post_private,
         "loading": random.choice(MOTDs) if MOTDs else "Loading...",
         "google_verification_tag": GOOGLE_VERIFICATION_TAG

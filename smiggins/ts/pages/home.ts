@@ -1,5 +1,5 @@
-function p_home(element: HTMLDivElement): void {
-  hookTimeline(element.querySelector("[id=\"timeline-posts\"]") as HTMLDivElement, {
+function p_home(element: D): void {
+  hookTimeline(element.querySelector("[id=\"timeline-posts\"]") as D, {
     following: { url: "/api/timeline/following", prependPosts: true },
     global: { url: "/api/timeline/global", prependPosts: true },
     following__comments: { url: "/api/timeline/following?comments=true", prependPosts: true },
@@ -10,27 +10,27 @@ function p_home(element: HTMLDivElement): void {
 }
 
 function homeCreatePost(e: Event): void {
-  let cwElement: HTMLElement | null = document.getElementById("post-cw");
-  let contentElement: HTMLElement | null = document.getElementById("post-content");
-  let privatePostElement: HTMLElement | null = document.getElementById("post-private");
+  let cwElement: el = document.getElementById("post-cw");
+  let contentElement: el = document.getElementById("post-content");
+  let privatePostElement: el = document.getElementById("post-private");
 
   if (!cwElement || !contentElement || !privatePostElement) { return; }
 
-  let cw: string = (cwElement as HTMLInputElement).value;
-  let content: string = (contentElement as HTMLInputElement).value;
-  let privatePost: boolean = (privatePostElement as HTMLInputElement).checked;
+  let cw: string = (cwElement as I).value;
+  let content: string = (contentElement as I).value;
+  let privatePost: boolean = (privatePostElement as I).checked;
 
   if (!content) { contentElement.focus(); return; }
 
-  (e.target as HTMLButtonElement | null)?.setAttribute("disabled", "");
+  (e.target as Bel)?.setAttribute("disabled", "");
   createPost(content, cw || null, privatePost, (success: boolean): void => {
-    (e.target as HTMLButtonElement | null)?.removeAttribute("disabled");
+    (e.target as Bel)?.removeAttribute("disabled");
 
     contentElement.focus();
 
     if (success) {
-      (cwElement as HTMLInputElement).value = "";
-      (contentElement as HTMLInputElement).value = "";
+      (cwElement as I).value = "";
+      (contentElement as I).value = "";
     }
   });
 }

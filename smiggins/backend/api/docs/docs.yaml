@@ -155,6 +155,49 @@ DELETE /api/post:
   response:
   - { type: uint32, name: "Post id" }
 
+DELETE /api/admin/user:
+  description: "Deletes an account"
+  id: 0x40
+  response:
+  - { type: str0, name: "Username" }
+
+POST /api/admin/invite:
+  description: "Generates an invite code"
+  id: 0x41
+  response:
+  - { type: hex32, name: "Invite code" }
+
+DELETE /api/admin/invite:
+  description: "Deletes an invite code"
+  id: 0x42
+  body:
+  - { type: hex32, name: "Invite code" }
+
+GET /api/admin/invite:
+  description: "Lists all invite codes"
+  id: 0x43
+  response:
+  - { type: hex32, name: "Invite code", loop: until_end }
+
+GET /api/admin/permissions/{username}:
+  description: "Gets admin permissions"
+  id: 0x44
+  response:
+  - { type: bool1, name: "Can create invite codes" }
+  - { type: bool7, name: "Can set admin permissions" }
+  - { type: bool1, name: "Can delete users" }
+  - { type: bool0, name: "Can delete posts" }
+
+POST /api/admin/permissions:
+  description: "Sets admin permissions"
+  id: 0x45
+  body:
+  - { type: bool1, name: "Can create invite codes" }
+  - { type: bool7, name: "Can set admin permissions" }
+  - { type: bool1, name: "Can delete users" }
+  - { type: bool0, name: "Can delete posts" }
+  - { type: str8, name: "Username" }
+
 GET /api/timeline/global:
   description: "Global timeline"
   id: 0x60

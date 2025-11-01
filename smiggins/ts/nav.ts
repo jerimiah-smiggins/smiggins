@@ -1,4 +1,4 @@
-const container = document.getElementById("container") as HTMLDivElement;
+const container = document.getElementById("container") as D;
 
 function urlToIntent(path: string): intent {
   path = normalizePath(path);
@@ -19,6 +19,8 @@ function urlToIntent(path: string): intent {
       case "/settings/keybinds/": return "settings/keybinds";
       case "/settings/account/": return "settings/account";
       case "/settings/about/": return "settings/about";
+
+      case isAdmin && "/admin/": return "admin";
 
       case /^\/u\/[a-z0-9_\-]+\/$/.test(path) ? path : "": return "user";
       case /^\/p\/[0-9]+\/$/.test(path) ? path : "": return "post";
@@ -132,7 +134,7 @@ function renderPage(intent: intent): void {
     tlPollingIntervalID = null;
   }
 
-  let snippet: HTMLDivElement = getSnippet(`pages/${intent}`, extraVariables);
+  let snippet: D = getSnippet(`pages/${intent}`, extraVariables);
   container.replaceChildren(snippet);
   document.title = getPageTitle(intent);
   currentPage = intent;
@@ -157,6 +159,8 @@ function getPageTitle(intent: intent): string {
     case "user": val = getUsernameFromPath() + " - "; break;
     case "notifications": val = "Notifications - "; break;
     case "follow-requests": val = "Follow Requests - "; break;
+
+    case "admin": val = "Administration - "; break;
 
     case "index":
     case "home":

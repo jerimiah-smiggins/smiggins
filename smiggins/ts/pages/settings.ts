@@ -1,8 +1,8 @@
 function updateBannerColors(): void {
-  let bannerDisplayElement: HTMLElement | null = document.getElementById("banner-example");
-  let gradientCheckElement: HTMLInputElement | null = document.getElementById("banner-gradient") as HTMLInputElement | null;
-  let c1Element: HTMLInputElement | null = document.getElementById("banner-one") as HTMLInputElement | null;
-  let c2Element: HTMLInputElement | null = document.getElementById("banner-two") as HTMLInputElement | null;
+  let bannerDisplayElement: el = document.getElementById("banner-example");
+  let gradientCheckElement: Iel = document.getElementById("banner-gradient") as Iel;
+  let c1Element: Iel = document.getElementById("banner-one") as Iel;
+  let c2Element: Iel = document.getElementById("banner-two") as Iel;
 
   if (!bannerDisplayElement) { return; }
 
@@ -21,11 +21,11 @@ function updateBannerColors(): void {
 
 function updateUserCacheFromCosmeticSettings(): void {
   let c: userData | undefined = userCache[username];
-  let displayNameElement: HTMLInputElement | null = document.getElementById("display-name") as HTMLInputElement | null;
+  let displayNameElement: Iel = document.getElementById("display-name") as Iel;
   let bioElement: HTMLTextAreaElement | null = document.getElementById("bio") as HTMLTextAreaElement | null;
-  let gradientCheckElement: HTMLInputElement | null = document.getElementById("banner-gradient") as HTMLInputElement | null;
-  let c1Element: HTMLInputElement | null = document.getElementById("banner-one") as HTMLInputElement | null;
-  let c2Element: HTMLInputElement | null = document.getElementById("banner-two") as HTMLInputElement | null;
+  let gradientCheckElement: Iel = document.getElementById("banner-gradient") as Iel;
+  let c1Element: Iel = document.getElementById("banner-one") as Iel;
+  let c2Element: Iel = document.getElementById("banner-two") as Iel;
 
   if (!displayNameElement || !bioElement || !gradientCheckElement || !c1Element || !c2Element) { return; }
 
@@ -38,7 +38,7 @@ function updateUserCacheFromCosmeticSettings(): void {
 }
 
 function setFontSize(e: Event): void {
-  let el: HTMLElement | null = e.currentTarget as HTMLElement | null;
+  let el: el = e.currentTarget as el;
   if (!el) { return; }
 
   localStorage.setItem("smiggins-font-size", el.id.slice(10));
@@ -46,17 +46,17 @@ function setFontSize(e: Event): void {
 }
 
 function saveProfile(e: Event): void {
-  let displayNameElement: HTMLInputElement | null = document.getElementById("display-name") as HTMLInputElement | null;
+  let displayNameElement: Iel = document.getElementById("display-name") as Iel;
   let bioElement: HTMLTextAreaElement | null = document.getElementById("bio") as HTMLTextAreaElement | null;
-  let gradientCheckElement: HTMLInputElement | null = document.getElementById("banner-gradient") as HTMLInputElement | null;
-  let c1Element: HTMLInputElement | null = document.getElementById("banner-one") as HTMLInputElement | null;
-  let c2Element: HTMLInputElement | null = document.getElementById("banner-two") as HTMLInputElement | null;
+  let gradientCheckElement: Iel = document.getElementById("banner-gradient") as Iel;
+  let c1Element: Iel = document.getElementById("banner-one") as Iel;
+  let c2Element: Iel = document.getElementById("banner-two") as Iel;
   let pronounsElement: HTMLSelectElement | null = document.getElementById("pronouns") as HTMLSelectElement | null;
-  let pronounsCustomElement: HTMLInputElement | null = document.getElementById("pronouns-custom") as HTMLInputElement | null;
+  let pronounsCustomElement: Iel = document.getElementById("pronouns-custom") as Iel;
 
   if (!displayNameElement || !bioElement || !gradientCheckElement || !c1Element || !c2Element || !pronounsElement || !pronounsCustomElement) { return; }
 
-  (e.target as HTMLButtonElement | null)?.setAttribute("disabled", "");
+  (e.target as Bel)?.setAttribute("disabled", "");
 
   fetch("/api/user", {
     method: "PATCH",
@@ -71,9 +71,9 @@ function saveProfile(e: Event): void {
 
   }).then((response: Response): Promise<ArrayBuffer> => (response.arrayBuffer()))
     .then(parseResponse)
-    .then((): void => { (e.target as HTMLButtonElement | null)?.removeAttribute("disabled"); })
+    .then((): void => { (e.target as Bel)?.removeAttribute("disabled"); })
     .catch((err: any): void => {
-      (e.target as HTMLButtonElement | null)?.removeAttribute("disabled");
+      (e.target as Bel)?.removeAttribute("disabled");
       createToast("Something went wrong!", String(err));
       throw err;
     });
@@ -94,7 +94,7 @@ function saveDefaultVisibility(): void {
 function saveVerifyFollowers(): void {
   fetch("/api/user/verify_followers", {
     method: "PATCH",
-    body: buildRequest([[+((document.getElementById("verify-followers") as HTMLInputElement | null)?.checked || false), 8]])
+    body: buildRequest([[+((document.getElementById("verify-followers") as Iel)?.checked || false), 8]])
   }).then((response: Response): Promise<ArrayBuffer> => (response.arrayBuffer()))
     .then(parseResponse);
 }
@@ -115,33 +115,33 @@ function changePasswordSuccess(token: string): void {
   setTokenCookie(token);
   createToast("Success!", "Your password has been changed.");
 
-  let currentPwElement: HTMLElement | null = document.getElementById("password-current");
-  let newPwElement: HTMLElement | null = document.getElementById("password-new");
-  let confirmPwElement: HTMLElement | null = document.getElementById("password-confirm");
+  let currentPwElement: el = document.getElementById("password-current");
+  let newPwElement: el = document.getElementById("password-new");
+  let confirmPwElement: el = document.getElementById("password-confirm");
 
   if (!currentPwElement || !newPwElement || !confirmPwElement) { return; }
 
-  (currentPwElement as HTMLInputElement).value = "";
-  (newPwElement as HTMLInputElement).value = "";
-  (confirmPwElement as HTMLInputElement).value = "";
+  (currentPwElement as I).value = "";
+  (newPwElement as I).value = "";
+  (confirmPwElement as I).value = "";
 }
 
 function changePassword(e: Event): void {
-  let currentPwElement: HTMLElement | null = document.getElementById("password-current");
-  let newPwElement: HTMLElement | null = document.getElementById("password-new");
-  let confirmPwElement: HTMLElement | null = document.getElementById("password-confirm");
+  let currentPwElement: el = document.getElementById("password-current");
+  let newPwElement: el = document.getElementById("password-new");
+  let confirmPwElement: el = document.getElementById("password-confirm");
 
   if (!currentPwElement || !newPwElement || !confirmPwElement) { return; }
 
-  let currentPw: string = (currentPwElement as HTMLInputElement).value;
-  let newPw: string = (newPwElement as HTMLInputElement).value;
-  let confirmPw: string = (confirmPwElement as HTMLInputElement).value;
+  let currentPw: string = (currentPwElement as I).value;
+  let newPw: string = (newPwElement as I).value;
+  let confirmPw: string = (confirmPwElement as I).value;
 
   if (!currentPw) { currentPwElement.focus(); return; }
   if (!newPw) { newPwElement.focus(); return; }
   if (confirmPw !== newPw) { confirmPwElement.focus(); return; }
 
-  (e.target as HTMLButtonElement | null)?.setAttribute("disabled", "");
+  (e.target as Bel)?.setAttribute("disabled", "");
 
   fetch("/api/user/password", {
     method: "PATCH",
@@ -151,36 +151,36 @@ function changePassword(e: Event): void {
     ])
   }).then((response: Response): Promise<ArrayBuffer> => (response.arrayBuffer()))
     .then(parseResponse)
-    .then((): void => { (e.target as HTMLButtonElement | null)?.removeAttribute("disabled"); })
+    .then((): void => { (e.target as Bel)?.removeAttribute("disabled"); })
     .catch((err: any): void => {
-      (e.target as HTMLButtonElement | null)?.removeAttribute("disabled");
+      (e.target as Bel)?.removeAttribute("disabled");
       createToast("Something went wrong!", String(err));
       throw err;
     });
 }
 
 function deleteAccount(e: Event): void {
-  let pwElement: HTMLElement | null = document.getElementById("delete-acc-password");
-  let confirmElement: HTMLElement | null = document.getElementById("delete-acc-confirm");
+  let pwElement: el = document.getElementById("delete-acc-password");
+  let confirmElement: el = document.getElementById("delete-acc-confirm");
 
   if (!pwElement || !confirmElement) { return; }
 
-  let password: string = (pwElement as HTMLInputElement).value;
-  let confirmed: boolean = (confirmElement as HTMLInputElement).checked;
+  let password: string = (pwElement as I).value;
+  let confirmed: boolean = (confirmElement as I).checked;
 
   if (!password) { pwElement.focus(); return; }
   if (!confirmed) { confirmElement.focus(); return; }
 
-  (e.target as HTMLButtonElement | null)?.setAttribute("disabled", "");
+  (e.target as Bel)?.setAttribute("disabled", "");
 
   fetch("/api/user", {
     method: "DELETE",
     body: buildRequest([hexToBytes(sha256(password))])
   }).then((response: Response): Promise<ArrayBuffer> => (response.arrayBuffer()))
     .then(parseResponse)
-    .then((): void => { (e.target as HTMLButtonElement | null)?.removeAttribute("disabled"); })
+    .then((): void => { (e.target as Bel)?.removeAttribute("disabled"); })
     .catch((err: any): void => {
-      (e.target as HTMLButtonElement | null)?.removeAttribute("disabled");
+      (e.target as Bel)?.removeAttribute("disabled");
       createToast("Something went wrong!", String(err));
       throw err;
     });
@@ -195,14 +195,14 @@ function profileSettingsSetUserData(
   gradient: boolean,
   verifyFollowers: boolean
 ) {
-  let displayNameElement: HTMLInputElement | null = document.getElementById("display-name") as HTMLInputElement | null;
+  let displayNameElement: Iel = document.getElementById("display-name") as Iel;
   let bioElement: HTMLTextAreaElement | null = document.getElementById("bio") as HTMLTextAreaElement | null;
-  let gradientCheckElement: HTMLInputElement | null = document.getElementById("banner-gradient") as HTMLInputElement | null;
-  let c1Element: HTMLInputElement | null = document.getElementById("banner-one") as HTMLInputElement | null;
-  let c2Element: HTMLInputElement | null = document.getElementById("banner-two") as HTMLInputElement | null;
-  let verifyElement: HTMLInputElement | null = document.getElementById("verify-followers") as HTMLInputElement | null;
+  let gradientCheckElement: Iel = document.getElementById("banner-gradient") as Iel;
+  let c1Element: Iel = document.getElementById("banner-one") as Iel;
+  let c2Element: Iel = document.getElementById("banner-two") as Iel;
+  let verifyElement: Iel = document.getElementById("verify-followers") as Iel;
   let pronounsElement: HTMLSelectElement | null = document.getElementById("pronouns") as HTMLSelectElement | null;
-  let pronounsCustomElement: HTMLInputElement | null = document.getElementById("pronouns-custom") as HTMLInputElement | null;
+  let pronounsCustomElement: Iel = document.getElementById("pronouns-custom") as Iel;
 
   if (displayNameElement)   { displayNameElement.value = displayName; }
   if (bioElement)           { bioElement.value = bio;                  }
@@ -252,7 +252,7 @@ function profileSettingsSetUserData(
   }
 }
 
-function setKeybindElementData(kbId: string, el: HTMLDivElement): void {
+function setKeybindElementData(kbId: string, el: D): void {
   let kbData = keybinds[kbId];
 
   let keyData: string = _kbGetKey(kbId);
@@ -274,7 +274,7 @@ function setKeybindElementData(kbId: string, el: HTMLDivElement): void {
   el.querySelector("button")?.addEventListener("click", (): void => { modifyKeybindModal(kbId); });
 }
 
-function p_settingsProfile(element: HTMLDivElement): void {
+function p_settingsProfile(element: D): void {
   fetch("/api/user")
     .then((response: Response): Promise<ArrayBuffer> => (response.arrayBuffer()))
     .then(parseResponse)
@@ -284,7 +284,7 @@ function p_settingsProfile(element: HTMLDivElement): void {
     });
 }
 
-function p_settingsCosmetic(element: HTMLDivElement): void {
+function p_settingsCosmetic(element: D): void {
   element.querySelector(`#theme > option[value="${theme}"]`)?.setAttribute("selected", "");
   if (localStorage.getItem("smiggins-complex-timestamps")) { element.querySelector("#complex-timestamps")?.setAttribute("checked", ""); }
   if (localStorage.getItem("smiggins-expand-cws"))         { element.querySelector("#expand-cws")        ?.setAttribute("checked", ""); }
@@ -302,13 +302,13 @@ function p_settingsCosmetic(element: HTMLDivElement): void {
   }
 }
 
-function p_settingsAccount(element: HTMLDivElement): void {
+function p_settingsAccount(element: D): void {
   element.querySelector("#password-set")?.addEventListener("click", changePassword);
   element.querySelector("#delete-acc")?.addEventListener("click", deleteAccount);
 }
 
-function p_settingsKeybinds(element: HTMLDivElement): void {
-  for (const kb of element.querySelectorAll(".kb-input") as NodeListOf<HTMLDivElement>) {
+function p_settingsKeybinds(element: D): void {
+  for (const kb of element.querySelectorAll(".kb-input") as NodeListOf<D>) {
     let kbId: string = kb.dataset.kbId || "";
 
     if (kbId in keybinds) {

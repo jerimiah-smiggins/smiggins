@@ -1,6 +1,6 @@
 let currentTl: timelineConfig;
 let currentTlID: string;
-let tlElement: HTMLDivElement;
+let tlElement: D;
 let timelines: { [key: string]: timelineConfig } = {};
 let tlPollingIntervalID: number | null = null;
 let tlPollingPendingResponse: boolean = false;
@@ -21,10 +21,10 @@ const TL_POLLING_INTERVAL: number = 10_000; // 10s
 
 // hooks onto an element for a timeline, initialization
 function hookTimeline(
-  element: HTMLDivElement,
+  element: D,
   tls: { [key: string]: timelineConfig },
   activeTimeline: string,
-  fakeBodyElement?: HTMLDivElement
+  fakeBodyElement?: D
 ): void {
   timelineToggles = [];
   timelines = tls;
@@ -33,7 +33,7 @@ function hookTimeline(
 }
 
 // completely refreshes the posts, ex. when switching or reloading
-function reloadTimeline(ignoreCache: boolean=false, element?: HTMLDivElement): void {
+function reloadTimeline(ignoreCache: boolean=false, element?: D): void {
   tlElement.innerHTML = LOADING_HTML;
   prependedPosts = 0;
 
@@ -94,7 +94,7 @@ function insertIntoPostCache(posts: post[]): number[] {
 
 // loads more older posts
 function loadMorePosts(): void {
-  let more: HTMLElement | null = document.getElementById("timeline-more");
+  let more: el = document.getElementById("timeline-more");
   if (more) { more.hidden = true; }
 
   tlElement.insertAdjacentHTML("beforeend", LOADING_HTML);
@@ -114,7 +114,7 @@ function loadMorePosts(): void {
 
 // clear "Loading..." text and other
 function clearTimelineStatuses(): void {
-  let statuses: NodeListOf<HTMLDivElement> = tlElement.querySelectorAll(".timeline-status");
+  let statuses: NodeListOf<D> = tlElement.querySelectorAll(".timeline-status");
   for (const el of statuses) { el.remove(); }
 }
 
@@ -123,7 +123,7 @@ function renderTimeline(
   posts: number[],
   end: boolean,
   updateCache: boolean=true,
-  moreElementOverride?: HTMLElement | null
+  moreElementOverride?: el
 ): void {
   clearTimelineStatuses();
 
@@ -138,7 +138,7 @@ function renderTimeline(
   }
 
   let frag: DocumentFragment = document.createDocumentFragment();
-  let more: HTMLElement | null = moreElementOverride || document.getElementById("timeline-more");
+  let more: el = moreElementOverride || document.getElementById("timeline-more");
 
   if (more) {
     if (end) { more.hidden = true; }
@@ -174,7 +174,7 @@ function renderTimeline(
 }
 
 // sets variables required when switching or setting a timeline
-function _setTimeline(timelineId: string, element?: HTMLDivElement): void {
+function _setTimeline(timelineId: string, element?: D): void {
   let c: timelineCache | undefined = tlCache[currentTlID];
   if (c) {
     c.upperBound = offset.upper;
@@ -198,7 +198,7 @@ function _setTimeline(timelineId: string, element?: HTMLDivElement): void {
 
 // handles switching timelines from the tl-carousel
 function switchTimeline(e: MouseEvent): void {
-  let el: HTMLDivElement | null = e.target as HTMLDivElement | null;
+  let el: Del = e.target as Del;
   if (!el) { return; }
 
   if (el.dataset.timelineId && el.dataset.timelineId in timelines && timelines[el.dataset.timelineId].url !== currentTl.url) {
@@ -206,15 +206,15 @@ function switchTimeline(e: MouseEvent): void {
   }
 
   for (const el of document.querySelectorAll("[data-timeline-active]:not([data-timeline-toggle])")) {
-    delete (el as HTMLDivElement).dataset.timelineActive;
+    delete (el as D).dataset.timelineActive;
   }
 
-  (e.target as HTMLDivElement).dataset.timelineActive = "";
+  (e.target as D).dataset.timelineActive = "";
 }
 
 // handles clicking a toggle on the tl-carousel
 function toggleTimeline(e: MouseEvent): void {
-  let el: HTMLDivElement | null = e.target as HTMLDivElement | null;
+  let el: Del = e.target as Del;
   if (!el) { return; }
 
   let t: string | undefined = el.dataset.timelineToggle;
@@ -238,11 +238,11 @@ function getPost(
   post: number,
   updateOffset: boolean=true,
   forceCwState: boolean | null=null
-): HTMLDivElement {
+): D {
   let p: post | undefined = postCache[post];
 
   if (!p) {
-    let el: HTMLDivElement = document.createElement("div");
+    let el: D = document.createElement("div");
     el.innerText = "Post couldn't be loaded.";
     return el;
   }
@@ -295,7 +295,7 @@ function getPost(
     };
   }
 
-  let el: HTMLDivElement = getSnippet("post", {
+  let el: D = getSnippet("post", {
     timestamp: getTimestamp(p.timestamp),
     username: p.user.username,
     post_interactions_hidden: localStorage.getItem("smiggins-hide-interactions") && "hidden" || "",
@@ -327,7 +327,7 @@ function getPost(
   el.dataset.editReplace = String(post);
 
   if (p.quote === false) {
-    let quoteElement: HTMLElement | null = el.querySelector(".post-quote");
+    let quoteElement: el = el.querySelector(".post-quote");
 
     if (quoteElement) {
       quoteElement.removeAttribute("hidden");
@@ -393,7 +393,7 @@ function handleForward(
 
   if (posts.length === 0 || c.pendingForward === false) { return; }
 
-  let showNewElement: HTMLElement | null = document.getElementById("timeline-show-new");
+  let showNewElement: el = document.getElementById("timeline-show-new");
 
   if (!forceEvent && !showNewElement && (!end || (c.pendingForward.length + posts.length - prependedPosts) > 0)) {
     showNewElement = document.createElement("button");
@@ -451,8 +451,8 @@ function prependPostToTimeline(post: post): void {
 
     if (!tlElement.querySelector(".post")) { clearTimelineStatuses(); }
 
-    let newButton: HTMLElement | null = document.getElementById("timeline-show-new");
-    let prependedPost: HTMLDivElement = getPost(insertIntoPostCache([post])[0], false);
+    let newButton: el = document.getElementById("timeline-show-new");
+    let prependedPost: D = getPost(insertIntoPostCache([post])[0], false);
     prependedPost.dataset.prepended = "";
     prependedPosts++;
 
@@ -466,7 +466,7 @@ function prependPostToTimeline(post: post): void {
 
 // handles events when clicking the like, quote, etc. buttons on posts
 function postButtonClick(e: Event): void {
-  let el: HTMLElement | null = e.currentTarget as HTMLElement | null;
+  let el: el = e.currentTarget as el;
   if (!el) { return; }
 
   if (el.dataset.interactionQuote) {
@@ -483,7 +483,7 @@ function postButtonClick(e: Event): void {
     for (const element of document.querySelectorAll(`[data-interaction-like="${postId}"]`) as NodeListOf<HTMLElement>) {
       element.dataset.liked = String(!liked);
 
-      let number: HTMLElement | null = element.querySelector("[data-number]");
+      let number: el = element.querySelector("[data-number]");
 
       if (number && !isNaN(+number.innerText)) {
         number.innerText = String(+number.innerText + (-liked + 0.5) * 2);
@@ -612,7 +612,7 @@ function simplePostContent(post: post): string {
 }
 
 // (processing) timeline "show more" button
-function p_tlMore(element: HTMLDivElement): void {
+function p_tlMore(element: D): void {
   let el: Element | null = element.querySelector("[id=\"timeline-more\"]");
 
   if (el) {
@@ -624,16 +624,16 @@ function p_tlMore(element: HTMLDivElement): void {
 }
 
 // (processing) timeline carousel switching
-function p_tlSwitch(element: HTMLDivElement): void {
-  let carouselItems: NodeListOf<HTMLDivElement> = element.querySelectorAll("[data-timeline-id]");
-  let carouselToggles: NodeListOf<HTMLDivElement> = element.querySelectorAll("[data-timeline-toggle]");
+function p_tlSwitch(element: D): void {
+  let carouselItems: NodeListOf<D> = element.querySelectorAll("[data-timeline-id]");
+  let carouselToggles: NodeListOf<D> = element.querySelectorAll("[data-timeline-toggle]");
 
   for (const i of carouselItems) { i.addEventListener("click", switchTimeline); }
   for (const i of carouselToggles) { i.addEventListener("click", toggleTimeline); }
 }
 
 // (processing) adds the click events to posts
-function p_post(element: HTMLDivElement): void {
+function p_post(element: D): void {
   element.querySelector("[data-interaction-comment]")?.addEventListener("click", postButtonClick);
   element.querySelector("[data-interaction-quote]")?.addEventListener("click", postButtonClick);
   element.querySelector("[data-interaction-like]")?.addEventListener("click", postButtonClick);

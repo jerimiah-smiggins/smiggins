@@ -19,9 +19,9 @@ const keybinds: { [key: string]: {
   topOfTimeline: { defaultKey: "/", name: "Jump to Top", description: "Jumps to the top of the current page", callback: (): void => { window.scrollTo(0, 0); }},
 
   navModifier: { defaultKey: "g", name: "Navigation Modifier", description: "The key that needs to be pressed in order to use the other navigation keybinds", callback: (): void => { navModKeyPressed = true; }, releaseCallback: (): void => { navModKeyPressed = false; }},
-  navAdmin: { defaultKey: "a", modifiers: ["nav"], name: "Admin Page", callback: (): void => { /* TODO: admin page */ }},
+  navAdmin: { defaultKey: "a", modifiers: ["nav"], name: "Admin Page", callback: (): void => { if (!isAdmin || currentPage === "admin") { return; } history.pushState("admin", "", "/admin/"); renderPage("admin"); }},
   navHome: { defaultKey: "h", modifiers: ["nav"], name: "Home", callback: (): void => { if (currentPage === "home") { return; } history.pushState("home", "", "/"); renderPage("home"); }},
-  navMessages: { defaultKey: "m", modifiers: ["nav"], name: "Messages", callback: (): void => { /* TODO: messages page */ }},
+  // navMessages: { defaultKey: "m", modifiers: ["nav"], name: "Messages", callback: (): void => { /* TODO: messages page */ }},
   navNotifications: { defaultKey: "n", modifiers: ["nav"], name: "Notifications", callback: (): void => { if (currentPage === "notifications") { return; } history.pushState("notifications", "", "/notifications/"); renderPage("notifications"); }},
   navProfile: { defaultKey: "p", modifiers: ["nav"], name: "Your Profile", callback: (): void => { if (currentPage === "user" && getUsernameFromPath() === username) { return; } history.pushState("user", "", `/u/${username}/`); renderPage("user"); }},
   navSettings: { defaultKey: "s", modifiers: ["nav"], name: "Settings", callback: (): void => { if (currentPage === "settings") { return; } history.pushState("settings", "", "/settings/"); renderPage("settings"); }},
@@ -129,7 +129,7 @@ function _kbRefreshReverse(): void {
 function keyHandler(e: KeyboardEvent): void {
   if (forceDisableKeybinds) { return; }
 
-  let el: HTMLElement | null = e.target as HTMLElement | null;
+  let el: el = e.target as el;
 
   if (el && (el.tagName === "INPUT" || el.tagName === "TEXTAREA")) { return; }
 

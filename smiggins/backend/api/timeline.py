@@ -2,7 +2,7 @@ from typing import Literal
 
 from django.db.models import Q
 from django.db.models.manager import BaseManager
-from django.http import HttpResponse
+from django.http import HttpRequest, HttpResponse
 from posts.models import Hashtag, M2MPending, Notification, Post, User
 
 from ..variables import POSTS_PER_REQUEST
@@ -46,10 +46,7 @@ def get_timeline(
     objs: list[Post] | list[Notification] = list(tl[:POSTS_PER_REQUEST + 1]) # type: ignore
     return len(objs) <= POSTS_PER_REQUEST, objs[:POSTS_PER_REQUEST]
 
-def tl_following(request, comments: bool | None=None, offset: int | None=None, forwards: bool=False) -> HttpResponse:
-    # if rl := check_ratelimit(request, "GET /api/timeline/following"):
-    #     return NEW_RL
-
+def tl_following(request: HttpRequest, comments: bool | None=None, offset: int | None=None, forwards: bool=False) -> HttpResponse:
     api = api_TimelineFollowing()
 
     try:
@@ -69,10 +66,7 @@ def tl_following(request, comments: bool | None=None, offset: int | None=None, f
     api.set_response(end, forwards, posts, user)
     return api.get_response()
 
-def tl_global(request, comments: bool | None=None, offset: int | None=None, forwards: bool=False) -> HttpResponse:
-    # if rl := check_ratelimit(request, "GET /api/timeline/global"):
-    #     return NEW_RL
-
+def tl_global(request: HttpRequest, comments: bool | None=None, offset: int | None=None, forwards: bool=False) -> HttpResponse:
     api = api_TimelineGlobal()
 
     try:
@@ -90,10 +84,7 @@ def tl_global(request, comments: bool | None=None, offset: int | None=None, forw
     api.set_response(end, forwards, posts, user)
     return api.get_response()
 
-def tl_user(request, username: str, offset: int | None=None, forwards: bool=False, include_comments: bool=False) -> HttpResponse:
-    # if rl := check_ratelimit(request, "GET /api/timeline/global"):
-    #     return NEW_RL
-
+def tl_user(request: HttpRequest, username: str, offset: int | None=None, forwards: bool=False, include_comments: bool=False) -> HttpResponse:
     api = api_TimelineUser()
 
     try:
@@ -121,7 +112,7 @@ def tl_user(request, username: str, offset: int | None=None, forwards: bool=Fals
     api.set_response(end, forwards, posts, user, self_user)
     return api.get_response()
 
-def tl_comments(request, post_id: int, sort: Literal["recent", "oldest", "random"], offset: int | None=None, forwards: bool=False) -> HttpResponse:
+def tl_comments(request: HttpRequest, post_id: int, sort: Literal["recent", "oldest", "random"], offset: int | None=None, forwards: bool=False) -> HttpResponse:
     api = api_TimelineComments()
 
     try:
@@ -159,7 +150,7 @@ def tl_comments(request, post_id: int, sort: Literal["recent", "oldest", "random
     api.set_response(end, forwards, posts, user, post)
     return api.get_response()
 
-def tl_notifications(request, offset: int | None=None, forwards: bool=False):
+def tl_notifications(request: HttpRequest, offset: int | None=None, forwards: bool=False):
     api = api_TimelineNotifications()
 
     try:
@@ -186,7 +177,7 @@ def tl_notifications(request, offset: int | None=None, forwards: bool=False):
 
     return api.get_response()
 
-def tl_hashtag(request, tag: str, sort: Literal["recent", "oldest", "random"], offset: int | None=None, forwards: bool=False) -> HttpResponse:
+def tl_hashtag(request: HttpRequest, tag: str, sort: Literal["recent", "oldest", "random"], offset: int | None=None, forwards: bool=False) -> HttpResponse:
     api = api_TimelineHashtag()
 
     try:
@@ -220,7 +211,7 @@ def tl_hashtag(request, tag: str, sort: Literal["recent", "oldest", "random"], o
     api.set_response(end, forwards, posts, user)
     return api.get_response()
 
-def tl_folreq(request, offset: int | None=None):
+def tl_folreq(request: HttpRequest, offset: int | None=None):
     api = api_TimelineFolreq()
 
     try:

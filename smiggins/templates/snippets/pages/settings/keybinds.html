@@ -18,9 +18,9 @@
   <div>
     <p class="no-margin-top">Navigation Keybinds</p>
     <div class="kb-input" data-kb-id="navModifier"></div>
-    <div class="kb-input" data-kb-id="navAdmin"></div>
+    {% if is_admin %}<div class="kb-input" data-kb-id="navAdmin"></div>{% endif %}
     <div class="kb-input" data-kb-id="navHome"></div>
-    <div class="kb-input" data-kb-id="navMessages"></div>
+    {% comment %} <div class="kb-input" data-kb-id="navMessages"></div> {% endcomment %}
     <div class="kb-input" data-kb-id="navNotifications"></div>
     <div class="kb-input" data-kb-id="navProfile"></div>
     <div class="kb-input" data-kb-id="navSettings"></div>

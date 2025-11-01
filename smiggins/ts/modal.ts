@@ -71,11 +71,11 @@ function createPostModal(type?: "quote" | "comment" | "edit", id?: number): void
 
   console.log(extraVars);
 
-  let el: HTMLDivElement = getSnippet("compose-modal", extraVars);
+  let el: D = getSnippet("compose-modal", extraVars);
   el.querySelector("#modal-post")?.addEventListener("click", postModalCreatePost);
   el.querySelector("#modal")?.addEventListener("click", clearModalIfClicked);
   document.body.append(el);
-  (el.querySelector("#modal-post-content") as HTMLElement | null)?.focus();
+  (el.querySelector("#modal-post-content") as el)?.focus();
 
   document.addEventListener("keydown", clearModalOnEscape);
 
@@ -84,21 +84,21 @@ function createPostModal(type?: "quote" | "comment" | "edit", id?: number): void
     if (!post) { return; }
 
     if (post.content_warning) {
-      let cwEl: HTMLInputElement | null = el.querySelector("#modal-post-cw");
+      let cwEl: Iel = el.querySelector("#modal-post-cw");
       if (cwEl) { cwEl.value = post.content_warning; }
     }
 
-    let contentEl: HTMLInputElement | null = el.querySelector("#modal-post-content");
+    let contentEl: Iel = el.querySelector("#modal-post-content");
     if (contentEl) { contentEl.value = post.content; }
 
-    let privEl: HTMLInputElement | null = el.querySelector("#modal-post-private");
+    let privEl: Iel = el.querySelector("#modal-post-private");
     if (privEl) { privEl.checked = post.private; }
   }
 }
 
 function modifyKeybindModal(kbId: string): void {
   let kbData = keybinds[kbId];
-  let el: HTMLDivElement = getSnippet("keybind-modal", {
+  let el: D = getSnippet("keybind-modal", {
     keybind_title: kbData.name,
     keybind_description: kbData.description || "",
     hidden_if_no_description: kbData.description ? "" : "hidden"
@@ -117,12 +117,12 @@ function modifyKeybindModal(kbId: string): void {
       shift: e.shiftKey
     })) {
       if (kbId === "navModifier") {
-        for (const el of document.querySelectorAll("[data-kb-id^=\"nav\"]") as NodeListOf<HTMLDivElement>) {
+        for (const el of document.querySelectorAll("[data-kb-id^=\"nav\"]") as NodeListOf<D>) {
           setKeybindElementData(el.dataset.kbId || kbId, el);
         }
       }
 
-      let kbEl: HTMLDivElement | null = document.querySelector(`[data-kb-id="${kbId}"]`) as HTMLDivElement | null;
+      let kbEl: Del = document.querySelector(`[data-kb-id="${kbId}"]`) as Del;
       if (kbEl) { setKeybindElementData(kbId, kbEl); }
 
       clearModal();
@@ -134,26 +134,26 @@ function modifyKeybindModal(kbId: string): void {
   });
 
   document.body.append(el);
-  (el.querySelector("#kb-modal-input") as HTMLInputElement | null)?.focus();
+  (el.querySelector("#kb-modal-input") as Iel)?.focus();
   el.querySelector("#modal")?.addEventListener("click", clearModalIfClicked);
 
   document.addEventListener("keydown", clearModalOnEscape);
 }
 
 function postModalCreatePost(e: Event): void {
-  let cwElement: HTMLElement | null = document.getElementById("modal-post-cw");
-  let contentElement: HTMLElement | null = document.getElementById("modal-post-content");
-  let privatePostElement: HTMLElement | null = document.getElementById("modal-post-private");
+  let cwElement: el = document.getElementById("modal-post-cw");
+  let contentElement: el = document.getElementById("modal-post-content");
+  let privatePostElement: el = document.getElementById("modal-post-private");
 
   if (!cwElement || !contentElement || !privatePostElement) { return; }
 
-  let cw: string = (cwElement as HTMLInputElement).value;
-  let content: string = (contentElement as HTMLInputElement).value;
-  let privatePost: boolean = (privatePostElement as HTMLInputElement).checked;
+  let cw: string = (cwElement as I).value;
+  let content: string = (contentElement as I).value;
+  let privatePost: boolean = (privatePostElement as I).checked;
 
   if (!content) { contentElement.focus(); return; }
 
-  (e.target as HTMLButtonElement | null)?.setAttribute("disabled", "");
+  (e.target as Bel)?.setAttribute("disabled", "");
   if (postModalFor && postModalFor.type === "edit") {
     fetch("/api/post", {
       method: "PATCH",
@@ -181,7 +181,7 @@ function postModalCreatePost(e: Event): void {
           }
         } else {
           contentElement.focus();
-          (e.target as HTMLButtonElement | null)?.removeAttribute("disabled");
+          (e.target as Bel)?.removeAttribute("disabled");
         }
 
         return ab;
@@ -189,7 +189,7 @@ function postModalCreatePost(e: Event): void {
       .then(parseResponse)
       .catch((err: any): void => {
         contentElement.focus();
-        (e.target as HTMLButtonElement | null)?.removeAttribute("disabled");
+        (e.target as Bel)?.removeAttribute("disabled");
 
         throw err;
       });
@@ -211,7 +211,7 @@ function postModalCreatePost(e: Event): void {
           clearModal();
         } else {
           contentElement.focus();
-          (e.target as HTMLButtonElement | null)?.removeAttribute("disabled");
+          (e.target as Bel)?.removeAttribute("disabled");
         }
       },
       postModalFor && { [postModalFor.type]: postModalFor.id }
@@ -228,7 +228,7 @@ function clearModalOnEscape(e: KeyboardEvent): void {
 }
 
 function clearModalIfClicked(e: Event): void {
-  if ((e.target as HTMLElement | null)?.dataset.closeModal !== undefined) {
+  if ((e.target as el)?.dataset.closeModal !== undefined) {
     clearModal();
   }
 }

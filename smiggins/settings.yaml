@@ -282,7 +282,7 @@ enable_logged_out_content: true # Last tested: v0.13.6
 # "otp" (one-time password) to require users to input a one time invite code
 # when signing up. Those can be found in the admin page.
 # Aliases: enable_signup, enable_new_users, enable_new_accounts
-enable_new_accounts: true # Last tested: v0.13.8
+enable_new_accounts: "otp" # Last tested: v0.13.8
 
 # Any custom themes added to your website. Format is as follows:
 # {

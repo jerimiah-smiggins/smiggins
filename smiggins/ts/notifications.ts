@@ -18,9 +18,9 @@ function fetchNotifications(): void {
 }
 
 function resetNotificationIndicators(): void {
-  let notif: HTMLElement | null = document.querySelector("#navbar a[data-internal-link=\"notifications\"]");
-  let msg: HTMLElement | null = document.querySelector("#navbar a[data-internal-link=\"messages\"]");
-  let folreq: HTMLElement | null = document.querySelector("#navbar a[data-internal-link=\"follow-requests\"]");
+  let notif: el = document.querySelector("#navbar a[data-internal-link=\"notifications\"]");
+  let msg: el = document.querySelector("#navbar a[data-internal-link=\"messages\"]");
+  let folreq: el = document.querySelector("#navbar a[data-internal-link=\"follow-requests\"]");
 
   if (notif) {
     if (pendingNotifications.notifications) {

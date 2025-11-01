@@ -1,3 +1,5 @@
+from backend.api.admin import (admin_delete_user, delete_otp, generate_otp,
+                               get_admin_lvl, list_otps, set_admin_lvl)
 from backend.api.notifications import notifications
 from backend.api.post import (add_like, pin_post, post_create, post_delete,
                               post_edit, remove_like, unpin_post)
@@ -37,6 +39,13 @@ api.patch("user/password")(change_password)
 
 api.patch("user/default_post")(set_post_visibility)
 api.patch("user/verify_followers")(set_verify_followers)
+
+api.delete("admin/user")(admin_delete_user)
+api.get("admin/invite")(list_otps)
+api.post("admin/invite")(generate_otp)
+api.delete("admin/invite")(delete_otp)
+api.get("admin/permissions/{str:username}")(get_admin_lvl)
+api.post("admin/permissions")(set_admin_lvl)
 
 api.get("timeline/global")(tl_global)
 api.get("timeline/following")(tl_following)

@@ -1,5 +1,5 @@
-function p_folreq(element: HTMLDivElement): void {
-  let timelineElement: HTMLDivElement | null = element.querySelector("#timeline-posts");
+function p_folreq(element: D): void {
+  let timelineElement: Del = element.querySelector("#timeline-posts");
 
   if (!timelineElement) { return; }
 
@@ -12,7 +12,7 @@ function renderFolreqTimeline(
   users: folreqUserData[],
   end: boolean,
   updateCache: boolean,
-  moreElementOverride?: HTMLElement | null
+  moreElementOverride?: el
 ): void {
   clearTimelineStatuses();
 
@@ -27,7 +27,7 @@ function renderFolreqTimeline(
   }
 
   let frag: DocumentFragment = document.createDocumentFragment();
-  let more: HTMLElement | null = moreElementOverride || document.getElementById("timeline-more");
+  let more: el = moreElementOverride || document.getElementById("timeline-more");
 
   if (more) {
     if (end) { more.hidden = true; }
@@ -35,7 +35,7 @@ function renderFolreqTimeline(
   }
 
   for (const user of users) {
-    let el: HTMLDivElement = getSnippet("folreq-user", {
+    let el: D = getSnippet("folreq-user", {
       username: user.username,
       bio: [linkify(escapeHTML(user.bio)), 1],
       display_name: [linkify(escapeHTML(user.display_name)), 1]
@@ -54,7 +54,7 @@ function renderFolreqTimeline(
 }
 
 function folreqInteraction(e: Event): void {
-  let el: HTMLElement | null = e.currentTarget as HTMLElement | null;
+  let el: el = e.currentTarget as el;
   if (!el) { return; }
 
   if (el.dataset.folreqInteractionAccept || el.dataset.folreqInteractionDeny) {

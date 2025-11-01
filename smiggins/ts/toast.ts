@@ -5,7 +5,7 @@ function createToast(
 ): void {
   if (!title) { return; }
 
-  let toast: HTMLDivElement = getSnippet("toast", {
+  let toast: D = getSnippet("toast", {
     title: title,
     content: content || ""
   });

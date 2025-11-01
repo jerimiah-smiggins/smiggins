@@ -38,7 +38,7 @@ let snippetVariables: { [key: string]: string } = {
   checked_if_default_private: defaultPostPrivate ? "checked" : ""
 };
 
-let snippetProcessing: { [key: string]: (element: HTMLDivElement) => void } = {
+let snippetProcessing: { [key: string]: (element: D) => void } = {
   input_enter: p_inputEnter,
   password_toggle: p_passwordToggle,
   timeline_switch: p_tlSwitch,
@@ -53,6 +53,7 @@ let snippetProcessing: { [key: string]: (element: HTMLDivElement) => void } = {
   notifications: p_notifications,
   hashtag: p_hashtag,
   follow_requests: p_folreq,
+  admin: p_admin,
 
   settings_profile: p_settingsProfile,
   settings_cosmetic: p_settingsCosmetic,
@@ -63,7 +64,7 @@ let snippetProcessing: { [key: string]: (element: HTMLDivElement) => void } = {
 // @ts-expect-error
 let snippets: { [key in snippet]: snippetData} = {};
 
-function getSnippet(snippet: snippet, extraVariables?: { [key: string]: string | [value: string, max_repl: number] }): HTMLDivElement {
+function getSnippet(snippet: snippet, extraVariables?: { [key: string]: string | [value: string, max_repl: number] }): D {
   let s: snippetData = snippets[snippet];
   let content: string = s.content;
 
@@ -112,7 +113,7 @@ function getSnippet(snippet: snippet, extraVariables?: { [key: string]: string |
     }
   }
 
-  let element: HTMLDivElement = document.createElement("div");
+  let element: D = document.createElement("div");
   element.innerHTML = content;
 
   for (const i of s.processing) {
@@ -127,19 +128,19 @@ function getSnippet(snippet: snippet, extraVariables?: { [key: string]: string |
   return element;
 }
 
-function p_inputEnter(element: HTMLDivElement): void {
+function p_inputEnter(element: D): void {
   for (const el of element.querySelectorAll("[data-enter-submit]")) {
     (el as HTMLElement).onkeydown = inputEnterEvent;
   }
 }
 
-function p_passwordToggle(element: HTMLDivElement): void {
+function p_passwordToggle(element: D): void {
   for (const el of element.querySelectorAll("[data-password-toggle]")) {
     (el as HTMLElement).onclick = togglePasswords;
   }
 }
 
-for (const snippet of document.querySelectorAll("[data-snippet]") as NodeListOf<HTMLDivElement>) {
+for (const snippet of document.querySelectorAll("[data-snippet]") as NodeListOf<D>) {
   snippets[snippet.dataset.snippet as snippet] = {
     variables: snippet.dataset.snippetVariables?.split(",").filter((a: string): string => a).map((a: string): string | [string, number] => {
       if (a.includes(":")) { return [a.split(":")[0], +a.split(":")[1]]; }

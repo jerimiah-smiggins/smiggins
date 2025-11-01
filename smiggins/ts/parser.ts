@@ -20,6 +20,12 @@ enum ResponseCodes {
   Unpin,
   EditPost = 0x3e,
   DeletePost,
+  AdminDeleteUser = 0x40,
+  GenerateOTP,
+  DeleteOTP,
+  ListOTP,
+  GetAdminPermissions,
+  SetAdminPermissions,
   TimelineGlobal = 0x60,
   TimelineFollowing,
   TimelineUser,
@@ -94,7 +100,11 @@ function _getErrorStrings(code: number, context: number): [title: string | null,
   switch (code) {
     case ErrorCodes.BadRequest: return ["Something went wrong!"];
     case ErrorCodes.BadUsername: switch (context) {
-      case ResponseCodes.LogIn: return ["Invalid username.", "No user has that username."];
+      case ResponseCodes.LogIn:
+      case ResponseCodes.AdminDeleteUser:
+      case ResponseCodes.GetAdminPermissions:
+      case ResponseCodes.SetAdminPermissions:
+        return ["Invalid username.", "No user has that username."];
       case ResponseCodes.SignUp: return ["Invalid username.", "Usernames can only include the characters a-z, 0-9, _, and -."];
       case ResponseCodes.TimelineUser: userSetDNE(); return [null];
       default: return ["Invalid username."];
@@ -244,6 +254,7 @@ function parseResponse(
   let end: boolean;
   let forwards: boolean;
   let numPosts: number;
+  let el: el;
   let posts;
   let pronouns: [string, leftoverData: Uint8Array];
 
@@ -304,6 +315,39 @@ function parseResponse(
 
     case ResponseCodes.EditPost: break;
     case ResponseCodes.DeletePost: handlePostDelete(_extractInt(32, u8arr.slice(1))); break;
+
+    case ResponseCodes.AdminDeleteUser: createToast("Success!", "The user has been deleted."); break;
+
+    case ResponseCodes.GenerateOTP:
+      let otp: string = _toHex(u8arr.slice(1));
+      el = document.getElementById("generate-otp-output");
+      if (el) { el.classList.add("otp"); el.innerText = otp; }
+      el?.removeAttribute("hidden");
+      navigator.clipboard.writeText(otp)
+        .then((): void => createToast("Copied!", "The invite code has been copied to your clipboard."));
+      break;
+
+    case ResponseCodes.DeleteOTP: break;
+
+    case ResponseCodes.ListOTP:
+      el = document.getElementById("otp-list");
+      if (!el) { break; }
+
+      let otps: RegExpMatchArray[] = [..._toHex(u8arr.slice(1)).matchAll(/.{64}/g)];
+      if (!otps.length) { el.innerHTML = "<i>None</i>"; break; }
+
+      el.innerHTML = otps.map((a: RegExpMatchArray): string => `<div data-otp-container="${a[0]}"><code class="otp">${a[0]}</code> <button data-otp="${a}">Delete</button></div>`).join("");
+
+      for (const button of el.querySelectorAll("button")) {
+        button.addEventListener("click", adminDeleteOTP);
+      }
+      break;
+
+    case ResponseCodes.GetAdminPermissions:
+      adminSetPermissionCheckboxes(_extractInt(16, u8arr.slice(1)));
+      break;
+
+    case ResponseCodes.SetAdminPermissions: createToast("Success!", "Permissions saved."); break;
 
     case ResponseCodes.TimelineUser:
       displayName = _extractString(8, u8arr.slice(1));

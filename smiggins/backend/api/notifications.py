@@ -1,10 +1,10 @@
-from django.http import HttpResponse
+from django.http import HttpRequest, HttpResponse
 from posts.models import User
 
 from .format import ErrorCodes, api_PendingNotifications
 
 
-def notifications(request) -> HttpResponse:
+def notifications(request: HttpRequest) -> HttpResponse:
     api = api_PendingNotifications()
 
     try:

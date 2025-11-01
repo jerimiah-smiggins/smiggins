@@ -12,12 +12,12 @@ declare const limits: {
 
 type intent = "index" | "login" | "signup"
             | "logout" | "404"
-            | "home" | "user" | "hashtag" | "post" | "notifications" | "follow-requests"
+            | "home" | "user" | "hashtag" | "post" | "notifications" | "follow-requests" | "admin"
             | "settings" | "settings/profile" | "settings/cosmetic" | "settings/account" | "settings/keybinds" | "settings/about";
 
 type snippet = "pages/index" | "pages/login" | "pages/signup"
              | "pages/logout" | "pages/404"
-             | "pages/home" | "pages/user" | "pages/hashtag" | "pages/post" | "pages/notifications" | "pages/follow-requests"
+             | "pages/home" | "pages/user" | "pages/hashtag" | "pages/post" | "pages/notifications" | "pages/follow-requests" | "pages/admin"
              | "pages/settings" | "pages/settings/profile" | "pages/settings/cosmetic" | "pages/settings/account" | "pages/settings/keybinds" | "pages/settings/about"
              | "post" | "post-placeholder" | "toast" | "compose-modal" | "keybind-modal" | "notification-like" | "folreq-user";
 
@@ -110,3 +110,12 @@ type replacement = {
   internalIntent?: intent,
   hiddenLink?: true
 };
+
+type I = HTMLInputElement;
+type D = HTMLDivElement;
+type B = HTMLButtonElement;
+
+type el = HTMLElement | null;
+type Iel = I | null;
+type Del = D | null;
+type Bel = B | null;

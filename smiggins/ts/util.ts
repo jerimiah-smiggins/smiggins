@@ -5,7 +5,7 @@ function inputEnterEvent(e: KeyboardEvent): void {
   let eventQuery: string | undefined = (e.ctrlKey && el.dataset.enterSubmit) || el.dataset.enterNext || el.dataset.enterSubmit;
   if (!eventQuery || eventQuery === "!avoid") { return; }
 
-  let newElement: HTMLElement | null = document.querySelector(eventQuery);
+  let newElement: el = document.querySelector(eventQuery);
   if (!newElement) { return; }
 
   newElement.focus();
@@ -15,14 +15,14 @@ function inputEnterEvent(e: KeyboardEvent): void {
 }
 
 function togglePasswords(e: Event): void {
-  let toText: HTMLInputElement[];
-  let toPassword: HTMLInputElement[];
+  let toText: I[];
+  let toPassword: I[];
 
   let queries: string = "";
 
   let baseElement: EventTarget | null = e.target;
   if (baseElement) {
-    queries = (baseElement as HTMLButtonElement).dataset.passwordToggle || "";
+    queries = (baseElement as B).dataset.passwordToggle || "";
   }
 
   if (queries) {
@@ -30,15 +30,15 @@ function togglePasswords(e: Event): void {
     toPassword = [];
 
     for (const q of queries.split(",")) {
-      let el: HTMLInputElement | null = document.querySelector(q.trim());
+      let el: Iel = document.querySelector(q.trim());
       if (el) {
         if (el.type === "password") { toText.push(el); }
         else { toPassword.push(el); }
       }
     }
   } else {
-    toText = [...(document.querySelectorAll("input[type=\"password\"]") as NodeListOf<HTMLInputElement>)];
-    toPassword = [...(document.querySelectorAll("input[data-toggle-password]") as NodeListOf<HTMLInputElement>)];
+    toText = [...(document.querySelectorAll("input[type=\"password\"]") as NodeListOf<I>)];
+    toPassword = [...(document.querySelectorAll("input[data-toggle-password]") as NodeListOf<I>)];
   }
 
   for (const el of toText) {
@@ -171,7 +171,7 @@ function setTokenCookie(token: string): void {
 
 function genericCheckbox(storageId: string): (e: Event) => void {
   return function(e: Event): void {
-    let el: HTMLInputElement | null = e.target as HTMLInputElement | null;
+    let el: Iel = e.target as Iel;
 
     if (el) {
       if (el.checked) { localStorage.setItem(storageId, "1"); }

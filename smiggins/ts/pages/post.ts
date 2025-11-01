@@ -44,43 +44,43 @@ function updateFocusedPost(post: post): void {
 }
 
 function createComment(e: Event): void {
-  let cwElement: HTMLElement | null = document.getElementById("post-cw");
-  let contentElement: HTMLElement | null = document.getElementById("post-content");
-  let privatePostElement: HTMLElement | null = document.getElementById("post-private");
+  let cwElement: el = document.getElementById("post-cw");
+  let contentElement: el = document.getElementById("post-content");
+  let privatePostElement: el = document.getElementById("post-private");
 
   if (!cwElement || !contentElement || !privatePostElement) { return; }
 
-  let cw: string = (cwElement as HTMLInputElement).value;
-  let content: string = (contentElement as HTMLInputElement).value;
-  let privatePost: boolean = (privatePostElement as HTMLInputElement).checked;
+  let cw: string = (cwElement as I).value;
+  let content: string = (contentElement as I).value;
+  let privatePost: boolean = (privatePostElement as I).checked;
 
   if (!content) { contentElement.focus(); return; }
 
-  (e.target as HTMLButtonElement | null)?.setAttribute("disabled", "");
+  (e.target as Bel)?.setAttribute("disabled", "");
   createPost(content, cw || null, privatePost, (success: boolean): void => {
-    (e.target as HTMLButtonElement | null)?.removeAttribute("disabled");
+    (e.target as Bel)?.removeAttribute("disabled");
 
     contentElement.focus();
 
     if (success) {
-      (cwElement as HTMLInputElement).value = "";
+      (cwElement as I).value = "";
 
       let p: post | undefined = postCache[getPostIDFromPath()];
 
       if (p) {
-        (contentElement as HTMLInputElement).value = getMentionsFromPost(p).map((a) => (`@${a} `)).join("");
+        (contentElement as I).value = getMentionsFromPost(p).map((a) => (`@${a} `)).join("");
       } else {
-        (contentElement as HTMLInputElement).value = "";
+        (contentElement as I).value = "";
       }
     }
   }, { comment: getPostIDFromPath() });
 }
 
-function p_postPage(element: HTMLDivElement): void {
+function p_postPage(element: D): void {
   let pid: number = getPostIDFromPath();
   let p: post | undefined = postCache[pid];
-  let postElement: HTMLElement | null = element.querySelector("#focused-post");
-  let timelineElement: HTMLDivElement | null = element.querySelector("#timeline-posts");
+  let postElement: el = element.querySelector("#focused-post");
+  let timelineElement: Del = element.querySelector("#timeline-posts");
   commentBoxValueSet = false;
 
   if (!timelineElement || !postElement) { return; }

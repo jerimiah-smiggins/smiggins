@@ -31,6 +31,13 @@ class ResponseCodes:
     EDIT_POST = 0x3e
     DELETE_POST = 0x3f
 
+    ADMIN_DELETE_USER = 0x40
+    GENERATE_OTP = 0x41
+    DELETE_OTP = 0x42
+    LIST_OTP = 0x43
+    GET_ADMIN_PERMISSIONS = 0x44
+    SET_ADMIN_PERMISSIONS = 0x45
+
     TIMELINE_GLOBAL = 0x60
     TIMELINE_FOLLOWING = 0x61
     TIMELINE_USER = 0x62
@@ -126,7 +133,7 @@ def _to_floatint(num: int | float, *, is_infinity: bool=False) -> bytes:
     output = 0
 
     if num < 0:
-        num = -num  
+        num = -num
         output |= 1 << 13
 
     c = 0
@@ -151,11 +158,6 @@ def _post_to_bytes(post: Post, user: User | None, user_data_override: User | Non
     quote: Post | None = post.quoted_post
 
     if quote:
-        print(quote.private, user, quote.creator)
-        print((not quote.private or (user == quote.creator) or (user and user.following.contains(quote.creator))))
-        print((not (user and quote.creator.blocking.contains(user))))
-        print((not (user and user.blocking.contains(quote.creator))))
-
         can_view_quote = bool(
             (not quote.private or (user == quote.creator) or (user and user.following.contains(quote.creator))) # private, not following
         and (not (user and quote.creator.blocking.contains(user))) # blocked by creator
@@ -444,6 +446,55 @@ class api_DeletePost(_api_BaseResponse):
 
     def set_response(self, pid: int):
         self.response_data = b(pid, 4)
+
+# 4X - Administration
+class api_AdminDeleteUser(_api_BaseResponse):
+    response_code = ResponseCodes.ADMIN_DELETE_USER
+
+    def parse_request(self, data: bytes) -> str:
+        return bytes.decode(data).lower()
+
+    def set_response(self):
+        self.response_data = b""
+
+class api_GenerateOTP(_api_BaseResponse):
+    response_code = ResponseCodes.GENERATE_OTP
+
+    def set_response(self, otp: str):
+        self.response_data = bytes(bytearray.fromhex(otp))
+
+class api_DeleteOTP(_api_BaseResponse):
+    response_code = ResponseCodes.DELETE_OTP
+
+    def parse_request(self, data: bytes) -> str:
+        return _to_hex(data[:32])
+
+    def set_response(self):
+        self.response_data = b""
+
+class api_ListOTPs(_api_BaseResponse):
+    response_code = ResponseCodes.LIST_OTP
+
+    def set_response(self, otps: list[str]):
+        self.response_data = bytearray.fromhex("".join(otps))
+
+class api_GetAdminPermissions(_api_BaseResponse):
+    response_code = ResponseCodes.GET_ADMIN_PERMISSIONS
+
+    def set_response(self, user: User):
+        self.response_data = b(user.admin_level & 0b1010000011, 2)
+
+class api_SetAdminPermissions(_api_BaseResponse):
+    response_code = ResponseCodes.SET_ADMIN_PERMISSIONS
+
+    def parse_request(self, data: bytes) -> dict:
+        return {
+            "username": _extract_string(8, data[2:])[0].lower(),
+            "permissions": _extract_int(16, data)
+        }
+
+    def set_response(self):
+        self.response_data = b""
 
 # 6X - Timelines
 class _api_TimelineBase(_api_BaseResponse):

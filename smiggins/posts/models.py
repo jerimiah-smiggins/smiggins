@@ -13,15 +13,13 @@ class User(models.Model):
     # Admin level
     # Functions as a binary mask. Definitions (32 bit compatible):
     #                       +- Generate OTPs
-    #                       |+- Read admin logs
+    #                       |+- Unused (kept for compatability)
     #                       ||+- Change admin levels for self and others
-    #                       |||+- Add any account to account switcher - requires modify info
-    #                       ||||+- Modify account info
-    #                       |||||+++- Unused (kept for compatability)
+    #                       |||+++++- Unused (kept for compatability)
     #                       ||||||||+- Delete accounts
     #          Unused       |||||||||+- Delete posts
     #            |          ||||||||||
-    # 0000000000000000000000XXXXX000XX
+    # 0000000000000000000000X0X00000XX
     admin_level = models.IntegerField(default=0)
 
     display_name = models.CharField(max_length=2 ** 8 - 1)
@@ -180,12 +178,6 @@ class AdminLog(models.Model):
     def __str__(self):
         return f"{self.type} - {self.u_by.username} -> {self.uname_for or (self.u_for.username if isinstance(self.u_for, User) else self.u_for)} - {self.info}"
 
-class OneTimePassword(models.Model):
-    code = models.CharField(max_length=32, primary_key=True)
-
-    def __str__(self):
-        return self.code
-
 class Poll(models.Model):
     target = models.OneToOneField(Post, on_delete=models.CASCADE, related_name="poll")
 
@@ -217,6 +209,9 @@ class PollVote(models.Model):
 
     def __str__(self):
         return f"post {self.poll.target.post_id} - {self.user.username} voted '{self.choice.content}'"
+
+class InviteCode(models.Model):
+    id = models.CharField(primary_key=True, unique=True, max_length=64)
 
 class M2MLike(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE)
@@ -276,15 +271,15 @@ try:
     django_admin.site.register([
         User,
         Post,
-        Notification        ,
+        Notification,
         PrivateMessageContainer,
         PrivateMessage,
         Hashtag,
         AdminLog,
-        OneTimePassword,
         Poll,
         PollChoice,
         PollVote,
+        InviteCode,
         M2MLike,
         M2MFollow,
         M2MBlock,

@@ -10,9 +10,9 @@ enum NotificationCodes {
   Like
 };
 
-function p_notifications(element: HTMLDivElement): void {
+function p_notifications(element: D): void {
   pendingNotifications.notifications = false;
-  let timelineElement: HTMLDivElement | null = element.querySelector("#timeline-posts");
+  let timelineElement: Del = element.querySelector("#timeline-posts");
 
   if (!timelineElement) { return; }
 
@@ -21,7 +21,7 @@ function p_notifications(element: HTMLDivElement): void {
   }, "notifications", element);
 }
 
-function _getLikeNotification(posts: post[]): HTMLDivElement {
+function _getLikeNotification(posts: post[]): D {
   let users: string[] = posts.map((a: post, index: number): [string | null, string] | null => {
     if (!offset.lower || a.timestamp < offset.lower) { offset.lower = a.timestamp; }
     if (!offset.upper || a.timestamp > offset.upper) { offset.upper = a.timestamp; }
@@ -75,7 +75,7 @@ function renderNotificationTimeline(
   posts: [post, notificationType: number][],
   end: boolean,
   updateCache: boolean,
-  moreElementOverride?: HTMLElement | null,
+  moreElementOverride?: el,
   prepend: boolean=false
 ): void {
   console.log(posts);
@@ -112,7 +112,7 @@ function renderNotificationTimeline(
     if (nc === NotificationCodes.Like) {
       // check if targetted liked post has changed
       if (pendingLikes.length && pendingLikes[0].id !== post[0].id) {
-        let el: HTMLDivElement = _getLikeNotification(pendingLikes);
+        let el: D = _getLikeNotification(pendingLikes);
         if (read) { el.dataset.notificationRead = ""; }
         frag.append(el);
         pendingLikes = [];
@@ -121,21 +121,21 @@ function renderNotificationTimeline(
       pendingLikes.push(post[0]);
     } else {
       if (pendingLikes.length) {
-        let el: HTMLDivElement = _getLikeNotification(pendingLikes);
+        let el: D = _getLikeNotification(pendingLikes);
         if (read) { el.dataset.notificationRead = ""; }
         frag.append(el);
 
         pendingLikes = [];
       }
 
-      let el: HTMLDivElement = getPost(insertIntoPostCache([post[0]])[0]);
+      let el: D = getPost(insertIntoPostCache([post[0]])[0]);
       if (read) { el.dataset.notificationRead = ""; }
       frag.append(el);
     }
   }
 
   if (pendingLikes.length) {
-    let el: HTMLDivElement = _getLikeNotification(pendingLikes);
+    let el: D = _getLikeNotification(pendingLikes);
     if (previousRead) { el.dataset.notificationRead = ""; }
     frag.append(el);
   }
@@ -145,7 +145,7 @@ function renderNotificationTimeline(
   } else {
     tlElement.append(frag);
 
-    let more: HTMLElement | null = moreElementOverride || document.getElementById("timeline-more");
+    let more: el = moreElementOverride || document.getElementById("timeline-more");
     if (more) {
       if (end) { more.hidden = true; }
       else { more.hidden = false; }
