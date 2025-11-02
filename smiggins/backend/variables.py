@@ -47,15 +47,6 @@ class DatabaseBackupsSchema(TypedDict):
 
 BASE_DIR = pathlib.Path(__file__).resolve().parent.parent
 
-CREDITS: dict[str, list[str]] = {
-    "lead": ["trinkey"],
-    "contributors": [
-        "Subroutine7901",
-        "DiamondTaco",
-        "TheMineCommander"
-    ]
-}
-
 # Set default variable states
 REAL_VERSION: tuple[int, int, int] = (1, 0, 0)
 VERSION: str = ".".join([str(i) for i in REAL_VERSION])
@@ -71,26 +62,20 @@ DATABASE_BACKUPS: DatabaseBackupsSchema = {
     "filename": "db-$.sqlite3"
 }
 OWNER_USER_ID: int = 1
-MAX_ADMIN_LOG_LINES: int = 1000
 ALLOW_INDEXING: bool = True
 MAX_USERNAME_LENGTH: int = 18
 MAX_DISPL_NAME_LENGTH: int = 32
 MAX_CONTENT_WARNING_LENGTH: int = 100
-MAX_POST_LENGTH: int = 280
-MAX_BIO_LENGTH: int = 280
+MAX_POST_LENGTH: int = 2000
+MAX_BIO_LENGTH: int = 2000
 MAX_POLL_OPTION_LENGTH: int = 64
 MAX_POLL_OPTIONS: int = 8
 DEFAULT_BANNER_COLOR: str = "#3a1e93"
 POSTS_PER_REQUEST: int = 20
-MESSAGES_PER_REQUEST: int = 40
-MAX_NOTIFICATIONS: int = 150
-ENABLE_LOGGED_OUT_CONTENT: bool = True
 ENABLE_NEW_ACCOUNTS: bool | Literal["otp"] = True
 GOOGLE_VERIFICATION_TAG: str | None = ""
 # DISCORD: str | None = "tH7QnHApwu"
 ALTERNATE_IPS: bool | str = False
-# ENABLE_RATELIMIT: bool = True
-# RATELIMITS: dict[str, tuple[int, int] | None] = {}
 
 # stores variable metadata
 _VARIABLES: list[tuple[str | None, list[str], type | str | list | tuple | dict, bool]] = [
@@ -102,24 +87,19 @@ _VARIABLES: list[tuple[str | None, list[str], type | str | list | tuple | dict, 
     ("DEBUG", ["debug"], bool, False),
     ("DATABASE_BACKUPS",  ["db_backups", "db_backup"], "db",  False),
     ("OWNER_USER_ID", ["owner_user_id"], int, False),
-    ("MAX_ADMIN_LOG_LINES", ["max_admin_log_lines"], int, False),
     ("ALLOW_INDEXING", ["allow_indexing"], bool, False),
     ("MAX_USERNAME_LENGTH", ["max_username_length"], int, False),
     ("MAX_DISPL_NAME_LENGTH", ["max_display_name_length"], int, False),
-    ("MAX_BIO_LENGTH", ["max_bio_length", "max_user_bio_length"], int, False),
     ("MAX_CONTENT_WARNING_LENGTH", ["max_cw_length", "max_warning_length", "max_content_warning_length"], int, False),
     ("MAX_POST_LENGTH", ["max_post_length"], int, False),
-    ("MAX_POLL_OPTIONS", ["max_poll_options"], int, False),
+    ("MAX_BIO_LENGTH", ["max_bio_length", "max_user_bio_length"], int, False),
     ("MAX_POLL_OPTION_LENGTH", ["max_poll_option_length"], int, False),
+    ("MAX_POLL_OPTIONS", ["max_poll_options"], int, False),
     ("DEFAULT_BANNER_COLOR", ["default_banner_color"], "color", False),
     ("POSTS_PER_REQUEST", ["posts_per_request"], int, False),
-    ("MESSAGES_PER_REQUEST", ["messages_per_request"], int, False),
-    ("MAX_NOTIFICATIONS", ["max_notifs", "max_notifications"], int, False),
     ("ENABLE_NEW_ACCOUNTS", ["enable_signup", "enable_new_users", "enable_new_accounts"], (bool, "Literal_otp"), False),
     ("GOOGLE_VERIFICATION_TAG", ["google_verification_tag"], str, False),
     ("ALTERNATE_IPS", ["alternate_ips"], (bool, str), False),
-    # ("ENABLE_RATELIMIT", ["enable_ratelimit"], bool, False),
-    # ("RATELIMITS", ["ratelimits"], {str: "ratelimit-value"}, False)
 ]
 
 f = {}
@@ -265,7 +245,6 @@ for i in _themes_check:
 
 del _VARIABLES, _var_dict, _themes_check
 
-MAX_ADMIN_LOG_LINES = clamp(MAX_ADMIN_LOG_LINES, minimum=1)
 MAX_USERNAME_LENGTH = clamp(MAX_USERNAME_LENGTH, minimum=1, maximum=2 ** 8 - 1)
 MAX_DISPL_NAME_LENGTH = clamp(MAX_DISPL_NAME_LENGTH, minimum=MAX_USERNAME_LENGTH, maximum=2 ** 8 - 1)
 MAX_BIO_LENGTH = clamp(MAX_BIO_LENGTH, minimum=1, maximum=2 ** 16 - 1)
@@ -273,9 +252,7 @@ MAX_CONTENT_WARNING_LENGTH = clamp(MAX_CONTENT_WARNING_LENGTH, minimum=1, maximu
 MAX_POST_LENGTH = clamp(MAX_POST_LENGTH, minimum=1, maximum=2 ** 16 - 1)
 MAX_POLL_OPTIONS = clamp(MAX_POLL_OPTIONS, minimum=2, maximum=2 ** 8 - 1)
 MAX_POLL_OPTION_LENGTH = clamp(MAX_POLL_OPTION_LENGTH, minimum=1, maximum=2 ** 16 - 1)
-MAX_NOTIFICATIONS = clamp(MAX_NOTIFICATIONS, minimum=1)
 POSTS_PER_REQUEST = clamp(POSTS_PER_REQUEST, minimum=1, maximum=2 ** 8 - 1)
-MESSAGES_PER_REQUEST = clamp(MESSAGES_PER_REQUEST, minimum=1, maximum=2 ** 8 - 1)
 DATABASE_BACKUPS["frequency"] = clamp(DATABASE_BACKUPS["frequency"], minimum=1) # type: ignore
 DATABASE_BACKUPS["keep"] = clamp(DATABASE_BACKUPS["keep"], minimum=1)
 
