@@ -31,6 +31,10 @@ function urlToIntent(path: string): intent {
       case "/": return "index";
       case "/login/": return "login";
       case "/signup/": return "signup";
+
+      case /^\/u\/[a-z0-9_\-]+\/$/.test(path) ? path : "":
+      case /^\/p\/[0-9]+\/$/.test(path) ? path : "":
+        return "404-noauth";
     }
   }
 
@@ -132,6 +136,11 @@ function renderPage(intent: intent): void {
       extraVariables = {
         tag: getHashtagFromPath()
       }; break;
+
+    case "404-noauth":
+      extraVariables = {
+        item: location.pathname.startsWith("/u/") ? "profile" : location.pathname.startsWith("/p/") ? "post" : "thing"
+      };
   }
 
   if (tlPollingIntervalID) {
@@ -161,6 +170,7 @@ function getPageTitle(intent: intent): string {
     case "signup": val = "Sign Up - "; break;
     case "logout": val = "Log Out - "; break;
     case "404": val = "Page Not Found - "; break;
+    case "404-noauth": val = "Not Logged In - "; break;
     case "user": val = getUsernameFromPath() + " - "; break;
     case "notifications": val = "Notifications - "; break;
     case "follow-requests": val = "Follow Requests - "; break;

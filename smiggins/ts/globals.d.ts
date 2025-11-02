@@ -11,12 +11,12 @@ declare const limits: {
 };
 
 type intent = "index" | "login" | "signup"
-            | "logout" | "404"
+            | "logout" | "404" | "404-noauth"
             | "home" | "user" | "hashtag" | "post" | "notifications" | "follow-requests" | "admin"
             | "settings" | "settings/profile" | "settings/cosmetic" | "settings/account" | "settings/keybinds" | "settings/about";
 
 type snippet = "pages/index" | "pages/login" | "pages/signup"
-             | "pages/logout" | "pages/404"
+             | "pages/logout" | "pages/404" | "pages/404-noauth"
              | "pages/home" | "pages/user" | "pages/hashtag" | "pages/post" | "pages/notifications" | "pages/follow-requests" | "pages/admin"
              | "pages/settings" | "pages/settings/profile" | "pages/settings/cosmetic" | "pages/settings/account" | "pages/settings/keybinds" | "pages/settings/about"
              | "post" | "post-placeholder" | "toast" | "compose-modal" | "keybind-modal" | "notification-like" | "folreq-user";
