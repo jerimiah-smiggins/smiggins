@@ -1,9 +1,9 @@
 # Jerimiah Smiggins
-A small, lightweight social networking platform
+A small, social networking platform
 
 ---
 
-[Official instance](https://trinkey.pythonanywhere.com) - [Discord server](https://discord.gg/tH7QnHApwu)
+[Official instance](https://smiggins.trinkey.com) - [Discord server](https://discord.gg/tH7QnHApwu)
 
 ## Notice
 here at smiggins incorporated (real company trust), we like to promote a kind
@@ -17,6 +17,5 @@ doesn't exist.
 
 ## [Documentation](/docs):
 - [How to run the server](/docs/running-the-server.md)
-- [Help with translating](/docs/contributing.md#translating)
 - [How to contribute](/docs/contributing.md)
 - [Report an issue](https://github.com/jerimiah-smiggins/smiggins/issues)

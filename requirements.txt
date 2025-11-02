@@ -1,9 +1,6 @@
 django # Web server backend
 django-ninja # Handles API requests
-# (UNUSED) requests # For auto post webhooks
-# (UNUSED) json5 # For loading language files
 pyyaml # For loading the settings.yaml file
-# (UNUSED) cairosvg # For generating dynamic favicons
 python-dotenv # For more private settings
 
 pydantic==2.11.7 # Used by ninja for validation
