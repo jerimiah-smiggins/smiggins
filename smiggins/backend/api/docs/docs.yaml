@@ -16,6 +16,9 @@ post:
   - { type: bool1, name: "Quote is comment", id: quote_is_comment }
   - { type: bool0, name: "Has poll", id: has_poll }
 
+  - { type: bool7, name: "Edited" }
+  - { type: bool6, name: "Quote edited" }
+
   - { type: uint32, name: "Comment parent ID", condition: is_comment }
 
   - { type: floatint, name: "Likes" }

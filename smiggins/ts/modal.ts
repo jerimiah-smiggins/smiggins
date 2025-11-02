@@ -196,6 +196,7 @@ function postModalCreatePost(e: Event): void {
             p.content = content;
             p.content_warning = cw;
             p.private = privatePost
+            p.edited = true;
 
             for (const el of document.querySelectorAll(`[data-edit-replace="${postModalFor.id}"]`)) {
               el.replaceWith(getPost(p.id, false));

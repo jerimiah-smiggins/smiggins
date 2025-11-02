@@ -160,8 +160,9 @@ function _extractPost(data: Uint8Array): [post, leftoverData: Uint8Array] {
   let commentParentId: number | null = null;
   let postTimestamp: number = _extractInt(64, data.slice(4));
   let flags: number = data[12];
+  let edited: [post: boolean, quote: boolean] = [_extractBool(data[13], 7), _extractBool(data[13], 6)]
 
-  let newData: Uint8Array = data.slice(13);
+  let newData: Uint8Array = data.slice(14);
 
   if (_extractBool(flags, 6)) {
     commentParentId = _extractInt(32, newData);
@@ -215,6 +216,7 @@ function _extractPost(data: Uint8Array): [post, leftoverData: Uint8Array] {
         timestamp: _extractInt(64, newData.slice(4)),
         private: _extractBool(flags, 2),
         comment: quoteCommentId,
+        edited: edited[1],
 
         user: {
           username: quoteUsername[0],
@@ -234,6 +236,7 @@ function _extractPost(data: Uint8Array): [post, leftoverData: Uint8Array] {
     timestamp: postTimestamp,
     private: _extractBool(flags, 7),
     comment: commentParentId,
+    edited: edited[0],
 
     interactions: interactions,
 

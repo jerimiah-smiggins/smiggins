@@ -368,7 +368,8 @@ function getPost(
       quote_comment_id: String(p.quote.comment),
 
       hidden_if_no_quote_pronouns: p.quote.user.pronouns ? "" : "hidden",
-      hidden_if_no_quote_comment: p.quote.comment ? "" : "hidden"
+      hidden_if_no_quote_comment: p.quote.comment ? "" : "hidden",
+      hidden_if_no_quote_edit: p.quote.edited ? "" : "hidden"
     };
 
     quoteUnsafeData = {
@@ -399,6 +400,7 @@ function getPost(
     hidden_if_no_pronouns: p.user.pronouns ? "" : "hidden",
     hidden_if_no_comment: p.comment ? "" : "hidden",
     hidden_if_no_poll: p.poll ? "" : "hidden",
+    hidden_if_no_edit: p.edited ? "" : "hidden",
     ...quoteData,
 
     // unsafe items, includes a max replace in order to prevent unwanted injection

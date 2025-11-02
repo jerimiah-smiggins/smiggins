@@ -143,6 +143,9 @@ def _post_to_bytes(post: Post, user: User | None, user_data_override: User | Non
       | (can_view_quote and quote is not None and (quote.creator.verify_followers if quote.private is None else quote.private)) << 2 # quote is private
       | (can_view_quote and quote is not None and quote.comment_parent is not None) << 1 # quote is comment
       | int(poll is not None) # has poll
+    ) + b(
+        post.edited << 7 # post edited
+      | (quote is not None and quote.edited) << 6 # poll edited
     )
 
     if comment:

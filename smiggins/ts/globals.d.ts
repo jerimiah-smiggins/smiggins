@@ -36,6 +36,7 @@ type post = {
   timestamp: number,
   private: boolean,
   comment: number | null,
+  edited: boolean,
 
   poll: {
     votes: number,
@@ -67,6 +68,7 @@ type post = {
     timestamp: number,
     private: boolean,
     comment: number | null,
+    edited: boolean,
 
     user: {
       username: string,

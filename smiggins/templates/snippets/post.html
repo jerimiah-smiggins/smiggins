@@ -6,6 +6,8 @@
     <div class="subtext post-pronouns" @{hidden_if_no_pronouns}>@{pronouns}</div>
 
     <div class="subtext post-timestamp"><a data-internal-link="post" href="/p/@{pid}/" class="plain-link">@{timestamp}</a></div>
+
+    <div class="post-edited" @{hidden_if_no_edit}>@{icon_edit}</div>
   </div>
 
   @{cw_start}
@@ -22,6 +24,8 @@
       <div class="subtext post-pronouns" @{hidden_if_no_quote_pronouns}>@{quote_pronouns}</div>
 
       <div class="subtext post-timestamp"><a data-internal-link="post" href="/p/@{quote_pid}/" class="plain-link">@{quote_timestamp}</a></div>
+
+      <div class="post-edited" @{hidden_if_no_quote_edit}>@{icon_edit}</div>
     </div>
 
     @{quote_cw_start}
