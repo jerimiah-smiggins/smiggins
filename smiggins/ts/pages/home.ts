@@ -1,5 +1,5 @@
 function p_home(element: D): void {
-  hookTimeline(element.querySelector("[id=\"timeline-posts\"]") as D, {
+  hookTimeline(element.querySelector("[id=\"timeline-posts\"]") as D, element.querySelector("#timeline-carousel") as Del, {
     following: { url: "/api/timeline/following", prependPosts: true },
     global: { url: "/api/timeline/global", prependPosts: true },
     following__comments: { url: "/api/timeline/following?comments=true", prependPosts: true },

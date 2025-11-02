@@ -22,11 +22,24 @@ const TL_POLLING_INTERVAL: number = 10_000; // 10s
 // hooks onto an element for a timeline, initialization
 function hookTimeline(
   element: D,
+  carousel: Del,
   tls: { [key: string]: timelineConfig },
   activeTimeline: string,
   fakeBodyElement?: D
 ): void {
   timelineToggles = [];
+
+  for (const el of carousel?.querySelectorAll("[data-timeline-toggle][data-timeline-toggle-store]") as NodeListOf<D>) {
+    if (
+      el.dataset.timelineToggle
+   && el.dataset.timelineToggleStore
+   && localStorage.getItem("smiggins-" + el.dataset.timelineToggleStore)
+    ) {
+      timelineToggles.push(el.dataset.timelineToggle);
+      el.dataset.timelineActive = "";
+    }
+  }
+
   timelines = tls;
   tlElement = element;
   _setTimeline(activeTimeline, fakeBodyElement);
@@ -222,12 +235,21 @@ function toggleTimeline(e: MouseEvent): void {
 
   if (typeof el.dataset.timelineActive === "string") {
     delete el.dataset.timelineActive;
+
+    if (el.dataset.timelineToggleStore) {
+      localStorage.removeItem("smiggins-" + el.dataset.timelineToggleStore);
+    }
+
     if (timelineToggles.includes(t)) {
       timelineToggles.splice(timelineToggles.indexOf(t), 1);
     }
   } else {
     el.dataset.timelineActive = "";
     timelineToggles.push(t);
+
+    if (el.dataset.timelineToggleStore) {
+      localStorage.setItem("smiggins-" + el.dataset.timelineToggleStore, "1");
+    }
   }
 
   _setTimeline(currentTlID);

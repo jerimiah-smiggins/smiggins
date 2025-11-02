@@ -13,14 +13,14 @@ from .format import (ErrorCodes, api_CreatePost, api_DeletePost, api_EditPost,
 
 
 def post_create(request: HttpRequest) -> HttpResponse:
-    api = api_CreatePost()
+    api = api_CreatePost(request)
 
     try:
         user = User.objects.get(token=request.COOKIES.get("token"))
     except User.DoesNotExist:
         return api.error(ErrorCodes.NOT_AUTHENTICATED)
 
-    data = api.parse_request(request.body)
+    data = api.parse_data()
 
     poll: list[str] = []
     if data["poll"]:
@@ -137,14 +137,14 @@ def post_create(request: HttpRequest) -> HttpResponse:
     return api.response(post=post, user=user)
 
 def post_edit(request: HttpRequest) -> HttpResponse:
-    api = api_EditPost()
+    api = api_EditPost(request)
 
     try:
         user = User.objects.get(token=request.COOKIES.get("token"))
     except User.DoesNotExist:
         return api.error(ErrorCodes.NOT_AUTHENTICATED)
 
-    data = api.parse_request(request.body)
+    data = api.parse_data()
 
     try:
         post = Post.objects.get(post_id=data["post_id"])
@@ -164,14 +164,14 @@ def post_edit(request: HttpRequest) -> HttpResponse:
     return api.response()
 
 def post_delete(request: HttpRequest) -> HttpResponse:
-    api = api_DeletePost()
+    api = api_DeletePost(request)
 
     try:
         user = User.objects.get(token=request.COOKIES.get("token"))
     except User.DoesNotExist:
         return api.error(ErrorCodes.NOT_AUTHENTICATED)
 
-    pid = api.parse_request(request.body)
+    pid = api.parse_data()
 
     try:
         post = Post.objects.get(post_id=pid)
@@ -185,7 +185,7 @@ def post_delete(request: HttpRequest) -> HttpResponse:
     return api.error(ErrorCodes.CANT_INTERACT)
 
 def add_like(request: HttpRequest, post_id: int) -> HttpResponse:
-    api = api_Like()
+    api = api_Like(request)
 
     try:
         user = User.objects.get(token=request.COOKIES.get("token"))
@@ -224,7 +224,7 @@ def add_like(request: HttpRequest, post_id: int) -> HttpResponse:
     return api.response()
 
 def remove_like(request: HttpRequest, post_id: int) -> HttpResponse:
-    api = api_Unlike()
+    api = api_Unlike(request)
 
     try:
         user = User.objects.get(token=request.COOKIES.get("token"))
@@ -239,7 +239,7 @@ def remove_like(request: HttpRequest, post_id: int) -> HttpResponse:
     return api.response()
 
 def pin_post(request: HttpRequest, post_id: int) -> HttpResponse:
-    api = api_Pin()
+    api = api_Pin(request)
 
     try:
         user = User.objects.get(token=request.COOKIES.get("token"))
@@ -257,7 +257,7 @@ def pin_post(request: HttpRequest, post_id: int) -> HttpResponse:
     return api.response()
 
 def unpin_post(request: HttpRequest) -> HttpResponse:
-    api = api_Unpin()
+    api = api_Unpin(request)
 
     try:
         user = User.objects.get(token=request.COOKIES.get("token"))

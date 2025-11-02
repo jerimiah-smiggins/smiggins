@@ -11,7 +11,7 @@ function p_user(element: D): void {
   element.querySelector("#follow")?.addEventListener("click", toggleFollow);
   element.querySelector("#block")?.addEventListener("click", toggleBlock);
 
-  hookTimeline(element.querySelector("[id=\"timeline-posts\"]") as D, {
+  hookTimeline(element.querySelector("[id=\"timeline-posts\"]") as D, element.querySelector("#timeline-carousel") as Del, {
     [tlId]: { url: `/api/timeline/user/${userUsername}`, prependPosts: username === userUsername },
     [tlId + "_all"]: { url: `/api/timeline/user/${userUsername}?include_comments=true`, prependPosts: username === userUsername }
   }, tlId, element);

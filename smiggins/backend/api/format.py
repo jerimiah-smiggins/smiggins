@@ -1,6 +1,6 @@
 from typing import Literal
 
-from django.http import HttpResponse
+from django.http import HttpRequest, HttpResponse
 from posts.models import M2MPending, Notification, Post, User
 
 
@@ -61,41 +61,6 @@ class ErrorCodes:
     POLL_SINGLE_OPTION = 0x31
     NOT_AUTHENTICATED = 0xfe
     RATELIMIT = 0xff
-
-class _api_BaseResponse:
-    response_code = 0
-
-    def __init__(self):
-        self.response_data: bytes | int = 0
-
-    def parse_request(self, data: bytes) -> dict: raise NotImplementedError("This request format doesn't have a body.")
-    def set_response(self, **data):  raise NotImplementedError("This request format doesn't have a response.")
-
-    def set_error(self, error_code: int):
-        self.response_data = error_code
-
-    def get_response(self, http_code_override: int | None=None) -> HttpResponse:
-        http_code = http_code_override or (400 if isinstance(self.response_data, int) else 200)
-
-        if isinstance(self.response_data, int):
-            # error code
-            response = bytes([self.response_code | 0x80, self.response_data])
-        else:
-            response = bytes([self.response_code]) + self.response_data
-
-        return HttpResponse(
-            response,
-            content_type="application/octet-stream",
-            status=http_code
-        )
-
-    def error(self, error_code: int) -> HttpResponse:
-        self.set_error(error_code)
-        return self.get_response()
-
-    def response(self, **data) -> HttpResponse:
-        self.set_response(**data)
-        return self.get_response()
 
 MAX_STR8 = 1 << 8 - 1
 MAX_STR16 = 1 << 16 - 1
@@ -229,12 +194,47 @@ def _notification_to_bytes(notification: Notification, user: User | None) -> byt
         notification.timestamp
     )
 
+class _api_BaseResponse:
+    response_code = 0
+
+    def __init__(self, request: HttpRequest):
+        self.response_data: bytes | int = 0
+        self.request = request
+
+    def parse_data(self) -> dict: raise NotImplementedError("This request format doesn't have a body.")
+    def set_response(self, **data): raise NotImplementedError("This request format doesn't have a response.")
+
+    def set_error(self, error_code: int):
+        self.response_data = error_code
+
+    def get_response(self, http_code_override: int | None=None) -> HttpResponse:
+        http_code = http_code_override or (400 if isinstance(self.response_data, int) else 200)
+
+        if isinstance(self.response_data, int): # error code
+            response = bytes([self.response_code | 0x80, self.response_data])
+        else:
+            response = bytes([self.response_code]) + self.response_data
+
+        return HttpResponse(
+            response,
+            content_type="application/octet-stream",
+            status=http_code
+        )
+
+    def error(self, error_code: int) -> HttpResponse:
+        self.set_error(error_code)
+        return self.get_response()
+
+    def response(self, **data) -> HttpResponse:
+        self.set_response(**data)
+        return self.get_response()
+
 # 0X - Authentication
 class api_SignUp(_api_BaseResponse):
     response_code = ResponseCodes.SIGN_UP
 
-    def parse_request(self, data: bytes) -> dict:
-        username, data = _extract_string(8, data)
+    def parse_data(self) -> dict:
+        username, data = _extract_string(8, self.request.body)
         otp, _ = _extract_string(8, data[32:])
 
         return {
@@ -249,8 +249,8 @@ class api_SignUp(_api_BaseResponse):
 class api_LogIn(_api_BaseResponse):
     response_code = ResponseCodes.LOG_IN
 
-    def parse_request(self, data: bytes) -> dict:
-        username, data = _extract_string(8, data)
+    def parse_data(self) -> dict:
+        username, data = _extract_string(8, self.request.body)
         return {
             "username": username,
             "password": _to_hex(data[:32])
@@ -263,8 +263,8 @@ class api_LogIn(_api_BaseResponse):
 class api_Unfollow(_api_BaseResponse):
     response_code = ResponseCodes.UNFOLLOW
 
-    def parse_request(self, data: bytes) -> str:
-        return bytes.decode(data).lower()
+    def parse_data(self) -> str:
+        return bytes.decode(self.request.body).lower()
 
     def set_response(self):
         self.response_data = b""
@@ -309,7 +309,8 @@ class api_GetProfile(_api_BaseResponse):
 class api_SaveProfile(_api_BaseResponse):
     response_code = ResponseCodes.SAVE_PROFILE
 
-    def parse_request(self, data: bytes) -> dict:
+    def parse_data(self) -> dict:
+        data = self.request.body
         gradient = _extract_bool(int(data[0]), 7)
         display_name, data = _extract_string(8, data[1:])
         bio, data = _extract_string(16, data)
@@ -330,9 +331,9 @@ class api_SaveProfile(_api_BaseResponse):
 class api_DeleteAccount(_api_BaseResponse):
     response_code = ResponseCodes.DELETE_ACCOUNT
 
-    def parse_request(self, data: bytes) -> dict:
+    def parse_data(self) -> dict:
         return {
-            "password": _to_hex(data[:32])
+            "password": _to_hex(self.request.body[:32])
         }
 
     def set_response(self):
@@ -341,7 +342,8 @@ class api_DeleteAccount(_api_BaseResponse):
 class api_ChangePassword(_api_BaseResponse):
     response_code = ResponseCodes.CHANGE_PASSWORD
 
-    def parse_request(self, data: bytes) -> dict:
+    def parse_data(self) -> dict:
+        data = self.request.body
         return {
             "current_password": _to_hex(data[:32]),
             "new_password": _to_hex(data[32:64])
@@ -353,8 +355,8 @@ class api_ChangePassword(_api_BaseResponse):
 class api_SetDefaultVisibility(_api_BaseResponse):
     response_code = ResponseCodes.DEFAULT_VISIBILITY
 
-    def parse_request(self, data: bytes) -> bool:
-        return bool(data[0] & 1)
+    def parse_data(self) -> bool:
+        return bool(self.request.body[0] & 1)
 
     def set_response(self):
         self.response_data = b""
@@ -366,7 +368,8 @@ class api_SetVerifyFollowers(api_SetDefaultVisibility):
 class api_CreatePost(_api_BaseResponse):
     response_code = ResponseCodes.CREATE_POST
 
-    def parse_request(self, data: bytes) -> dict:
+    def parse_data(self) -> dict:
+        data = self.request.body
         flags = int(data[0])
         has_quote = _extract_bool(flags, 6)
         has_poll = _extract_bool(flags, 5)
@@ -425,7 +428,8 @@ class api_Unpin(api_Like):
 class api_EditPost(_api_BaseResponse):
     response_code = ResponseCodes.EDIT_POST
 
-    def parse_request(self, data: bytes) -> dict:
+    def parse_data(self) -> dict:
+        data = self.request.body
         content = _extract_string(16, data[5:])
 
         return {
@@ -441,8 +445,8 @@ class api_EditPost(_api_BaseResponse):
 class api_DeletePost(_api_BaseResponse):
     response_code = ResponseCodes.DELETE_POST
 
-    def parse_request(self, data: bytes) -> int:
-        return _extract_int(32, data)
+    def parse_data(self) -> int:
+        return _extract_int(32, self.request.body)
 
     def set_response(self, pid: int):
         self.response_data = b(pid, 4)
@@ -451,8 +455,8 @@ class api_DeletePost(_api_BaseResponse):
 class api_AdminDeleteUser(_api_BaseResponse):
     response_code = ResponseCodes.ADMIN_DELETE_USER
 
-    def parse_request(self, data: bytes) -> str:
-        return bytes.decode(data).lower()
+    def parse_data(self) -> str:
+        return bytes.decode(self.request.body).lower()
 
     def set_response(self):
         self.response_data = b""
@@ -466,8 +470,8 @@ class api_GenerateOTP(_api_BaseResponse):
 class api_DeleteOTP(_api_BaseResponse):
     response_code = ResponseCodes.DELETE_OTP
 
-    def parse_request(self, data: bytes) -> str:
-        return _to_hex(data[:32])
+    def parse_data(self) -> str:
+        return _to_hex(self.request.body[:32])
 
     def set_response(self):
         self.response_data = b""
@@ -487,7 +491,8 @@ class api_GetAdminPermissions(_api_BaseResponse):
 class api_SetAdminPermissions(_api_BaseResponse):
     response_code = ResponseCodes.SET_ADMIN_PERMISSIONS
 
-    def parse_request(self, data: bytes) -> dict:
+    def parse_data(self) -> dict:
+        data = self.request.body
         return {
             "username": _extract_string(8, data[2:])[0].lower(),
             "permissions": _extract_int(16, data)

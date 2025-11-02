@@ -47,7 +47,7 @@ def get_timeline(
     return len(objs) <= POSTS_PER_REQUEST, objs[:POSTS_PER_REQUEST]
 
 def tl_following(request: HttpRequest, comments: bool | None=None, offset: int | None=None, forwards: bool=False) -> HttpResponse:
-    api = api_TimelineFollowing()
+    api = api_TimelineFollowing(request)
 
     try:
         user = User.objects.get(token=request.COOKIES.get("token"))
@@ -67,7 +67,7 @@ def tl_following(request: HttpRequest, comments: bool | None=None, offset: int |
     return api.get_response()
 
 def tl_global(request: HttpRequest, comments: bool | None=None, offset: int | None=None, forwards: bool=False) -> HttpResponse:
-    api = api_TimelineGlobal()
+    api = api_TimelineGlobal(request)
 
     try:
         user = User.objects.get(token=request.COOKIES.get("token"))
@@ -85,7 +85,7 @@ def tl_global(request: HttpRequest, comments: bool | None=None, offset: int | No
     return api.get_response()
 
 def tl_user(request: HttpRequest, username: str, offset: int | None=None, forwards: bool=False, include_comments: bool=False) -> HttpResponse:
-    api = api_TimelineUser()
+    api = api_TimelineUser(request)
 
     try:
         self_user = User.objects.get(token=request.COOKIES.get("token"))
@@ -113,7 +113,7 @@ def tl_user(request: HttpRequest, username: str, offset: int | None=None, forwar
     return api.get_response()
 
 def tl_comments(request: HttpRequest, post_id: int, sort: Literal["recent", "oldest", "random"], offset: int | None=None, forwards: bool=False) -> HttpResponse:
-    api = api_TimelineComments()
+    api = api_TimelineComments(request)
 
     try:
         user = User.objects.get(token=request.COOKIES.get("token"))
@@ -151,7 +151,7 @@ def tl_comments(request: HttpRequest, post_id: int, sort: Literal["recent", "old
     return api.get_response()
 
 def tl_notifications(request: HttpRequest, offset: int | None=None, forwards: bool=False):
-    api = api_TimelineNotifications()
+    api = api_TimelineNotifications(request)
 
     try:
         user = User.objects.get(token=request.COOKIES.get("token"))
@@ -178,7 +178,7 @@ def tl_notifications(request: HttpRequest, offset: int | None=None, forwards: bo
     return api.get_response()
 
 def tl_hashtag(request: HttpRequest, tag: str, sort: Literal["recent", "oldest", "random"], offset: int | None=None, forwards: bool=False) -> HttpResponse:
-    api = api_TimelineHashtag()
+    api = api_TimelineHashtag(request)
 
     try:
         user = User.objects.get(token=request.COOKIES.get("token"))
@@ -212,7 +212,7 @@ def tl_hashtag(request: HttpRequest, tag: str, sort: Literal["recent", "oldest",
     return api.get_response()
 
 def tl_folreq(request: HttpRequest, offset: int | None=None):
-    api = api_TimelineFolreq()
+    api = api_TimelineFolreq(request)
 
     try:
         user = User.objects.get(token=request.COOKIES.get("token"))

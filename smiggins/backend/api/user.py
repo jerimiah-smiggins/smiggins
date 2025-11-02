@@ -16,8 +16,8 @@ from .format import (ErrorCodes, api_AcceptFolreq, api_Block,
 COLOR_REGEX = re.compile(r"^#[a-f0-9]{6}$")
 
 def signup(request: HttpRequest) -> HttpResponse:
-    api = api_SignUp()
-    data = api.parse_request(request.body)
+    api = api_SignUp(request)
+    data = api.parse_data()
 
     if not ENABLE_NEW_ACCOUNTS:
         return api.error(ErrorCodes.BAD_REQUEST)
@@ -65,8 +65,8 @@ def signup(request: HttpRequest) -> HttpResponse:
     return api.response(token=token)
 
 def login(request: HttpRequest) -> HttpResponse:
-    api = api_LogIn()
-    data = api.parse_request(request.body)
+    api = api_LogIn(request)
+    data = api.parse_data()
 
     username = data["username"].lower().replace(" ", "")
     token = generate_token(username, data["password"])
@@ -89,7 +89,7 @@ def follow_remove(request: HttpRequest) -> HttpResponse:
     return _follow(request, True)
 
 def _follow(request: HttpRequest, unfollow: bool) -> HttpResponse:
-    api = (api_Unfollow if unfollow else api_Follow)()
+    api = (api_Unfollow if unfollow else api_Follow)(request)
 
     try:
         self_user = User.objects.get(token=request.COOKIES.get("token"))
@@ -97,7 +97,7 @@ def _follow(request: HttpRequest, unfollow: bool) -> HttpResponse:
         return api.error(ErrorCodes.NOT_AUTHENTICATED)
 
     try:
-        user = User.objects.get(username=api.parse_request(request.body))
+        user = User.objects.get(username=api.parse_data())
     except User.DoesNotExist:
         return api.error(ErrorCodes.BAD_USERNAME)
 
@@ -133,7 +133,7 @@ def block_remove(request: HttpRequest) -> HttpResponse:
     return _block(request, True)
 
 def _block(request: HttpRequest, unblock: bool) -> HttpResponse:
-    api = (api_Unblock if unblock else api_Block)()
+    api = (api_Unblock if unblock else api_Block)(request)
 
     try:
         self_user = User.objects.get(token=request.COOKIES.get("token"))
@@ -141,7 +141,7 @@ def _block(request: HttpRequest, unblock: bool) -> HttpResponse:
         return api.error(ErrorCodes.NOT_AUTHENTICATED)
 
     try:
-        user = User.objects.get(username=api.parse_request(request.body))
+        user = User.objects.get(username=api.parse_data())
     except User.DoesNotExist:
         return api.error(ErrorCodes.BAD_USERNAME)
 
@@ -171,7 +171,7 @@ def folreq_deny(request: HttpRequest) -> HttpResponse:
     return _folreq(request, False)
 
 def _folreq(request: HttpRequest, accepted: bool) -> HttpResponse:
-    api = (api_AcceptFolreq if accepted else api_DenyFolreq)()
+    api = (api_AcceptFolreq if accepted else api_DenyFolreq)(request)
 
     try:
         self_user = User.objects.get(token=request.COOKIES.get("token"))
@@ -182,7 +182,7 @@ def _folreq(request: HttpRequest, accepted: bool) -> HttpResponse:
         return api.error(ErrorCodes.BAD_REQUEST)
 
     try:
-        user = User.objects.get(username=api.parse_request(request.body))
+        user = User.objects.get(username=api.parse_data())
     except User.DoesNotExist:
         return api.error(ErrorCodes.BAD_USERNAME)
 
@@ -196,7 +196,7 @@ def _folreq(request: HttpRequest, accepted: bool) -> HttpResponse:
     return api.response()
 
 def get_profile(request: HttpRequest) -> HttpResponse:
-    api = api_GetProfile()
+    api = api_GetProfile(request)
 
     try:
         user = User.objects.get(token=request.COOKIES.get("token"))
@@ -206,14 +206,14 @@ def get_profile(request: HttpRequest) -> HttpResponse:
     return api.response(user=user)
 
 def save_profile(request: HttpRequest) -> HttpResponse:
-    api = api_SaveProfile()
+    api = api_SaveProfile(request)
 
     try:
         user = User.objects.get(token=request.COOKIES.get("token"))
     except User.DoesNotExist:
         return api.error(ErrorCodes.NOT_AUTHENTICATED)
 
-    data = api.parse_request(request.body)
+    data = api.parse_data()
 
     display_name = trim_whitespace(data["display_name"][:MAX_DISPL_NAME_LENGTH], True)
     bio = trim_whitespace(data["bio"][:MAX_BIO_LENGTH])
@@ -235,27 +235,27 @@ def save_profile(request: HttpRequest) -> HttpResponse:
     return api.response()
 
 def set_post_visibility(request: HttpRequest) -> HttpResponse:
-    api = api_SetDefaultVisibility()
+    api = api_SetDefaultVisibility(request)
 
     try:
         user = User.objects.get(token=request.COOKIES.get("token"))
     except User.DoesNotExist:
         return api.error(ErrorCodes.NOT_AUTHENTICATED)
 
-    user.default_post_private = api.parse_request(request.body)
+    user.default_post_private = api.parse_data()
     user.save()
 
     return api.response()
 
 def set_verify_followers(request: HttpRequest) -> HttpResponse:
-    api = api_SetDefaultVisibility()
+    api = api_SetDefaultVisibility(request)
 
     try:
         user = User.objects.get(token=request.COOKIES.get("token"))
     except User.DoesNotExist:
         return api.error(ErrorCodes.NOT_AUTHENTICATED)
 
-    user.verify_followers = api.parse_request(request.body)
+    user.verify_followers = api.parse_data()
     user.save()
 
     if not user.verify_followers:
@@ -269,9 +269,9 @@ def set_verify_followers(request: HttpRequest) -> HttpResponse:
 
 def change_password(request: HttpRequest) -> HttpResponse:
     current_token = request.COOKIES.get("token")
-    api = api_ChangePassword()
+    api = api_ChangePassword(request)
 
-    data = api.parse_request(request.body)
+    data = api.parse_data()
 
     try:
         user = User.objects.get(token=current_token)
@@ -293,14 +293,14 @@ def change_password(request: HttpRequest) -> HttpResponse:
     return api.response(token=new_token)
 
 def delete_account(request: HttpRequest) -> HttpResponse:
-    api = api_DeleteAccount()
+    api = api_DeleteAccount(request)
 
     try:
         user = User.objects.get(token=request.COOKIES.get("token"))
     except User.DoesNotExist:
         return api.error(ErrorCodes.NOT_AUTHENTICATED)
 
-    data = api.parse_request(request.body)
+    data = api.parse_data()
 
     if user.token == generate_token(user.username, data["password"]):
         user.delete()

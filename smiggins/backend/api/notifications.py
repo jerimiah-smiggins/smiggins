@@ -5,7 +5,7 @@ from .format import ErrorCodes, api_PendingNotifications
 
 
 def notifications(request: HttpRequest) -> HttpResponse:
-    api = api_PendingNotifications()
+    api = api_PendingNotifications(request)
 
     try:
         user = User.objects.get(token=request.COOKIES.get("token"))

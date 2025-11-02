@@ -38,7 +38,7 @@ class AdminPermissions:
         return False
 
 def admin_delete_user(request: HttpRequest) -> HttpResponse:
-    api = api_AdminDeleteUser()
+    api = api_AdminDeleteUser(request)
 
     try:
         self_user = User.objects.get(token=request.COOKIES.get("token"))
@@ -49,7 +49,7 @@ def admin_delete_user(request: HttpRequest) -> HttpResponse:
         return api.error(ErrorCodes.NOT_AUTHENTICATED)
 
     try:
-        user = User.objects.get(username=api.parse_request(request.body))
+        user = User.objects.get(username=api.parse_data())
     except User.DoesNotExist:
         return api.error(ErrorCodes.BAD_USERNAME)
 
@@ -58,7 +58,7 @@ def admin_delete_user(request: HttpRequest) -> HttpResponse:
     return api.response()
 
 def delete_otp(request: HttpRequest) -> HttpResponse:
-    api = api_DeleteOTP()
+    api = api_DeleteOTP(request)
 
     try:
         user = User.objects.get(token=request.COOKIES.get("token"))
@@ -69,7 +69,7 @@ def delete_otp(request: HttpRequest) -> HttpResponse:
         return api.error(ErrorCodes.NOT_AUTHENTICATED)
 
     try:
-        otp = InviteCode.objects.get(id=api.parse_request(request.body))
+        otp = InviteCode.objects.get(id=api.parse_data())
     except InviteCode.DoesNotExist:
         ...
     else:
@@ -78,7 +78,7 @@ def delete_otp(request: HttpRequest) -> HttpResponse:
     return api.response()
 
 def generate_otp(request: HttpRequest) -> HttpResponse:
-    api = api_GenerateOTP()
+    api = api_GenerateOTP(request)
 
     try:
         user = User.objects.get(token=request.COOKIES.get("token"))
@@ -93,7 +93,7 @@ def generate_otp(request: HttpRequest) -> HttpResponse:
     return api.response(otp=code)
 
 def list_otps(request: HttpRequest) -> HttpResponse:
-    api = api_ListOTPs()
+    api = api_ListOTPs(request)
 
     try:
         user = User.objects.get(token=request.COOKIES.get("token"))
@@ -108,7 +108,7 @@ def list_otps(request: HttpRequest) -> HttpResponse:
     ))
 
 def set_admin_lvl(request: HttpRequest) -> HttpResponse:
-    api = api_SetAdminPermissions()
+    api = api_SetAdminPermissions(request)
 
     try:
         self_user = User.objects.get(token=request.COOKIES.get("token"))
@@ -118,7 +118,7 @@ def set_admin_lvl(request: HttpRequest) -> HttpResponse:
     if not AdminPermissions.can_use(self_user, AdminPermissions.SET_ADMIN_LVL):
         return api.error(ErrorCodes.NOT_AUTHENTICATED)
 
-    data = api.parse_request(request.body)
+    data = api.parse_data()
 
     try:
         user = User.objects.get(username=data["username"])
@@ -131,7 +131,7 @@ def set_admin_lvl(request: HttpRequest) -> HttpResponse:
     return api.response()
 
 def get_admin_lvl(request: HttpRequest, username: str) -> HttpResponse:
-    api = api_GetAdminPermissions()
+    api = api_GetAdminPermissions(request)
 
     try:
         self_user = User.objects.get(token=request.COOKIES.get("token"))

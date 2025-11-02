@@ -3,9 +3,9 @@ function p_folreq(element: D): void {
 
   if (!timelineElement) { return; }
 
-  hookTimeline(timelineElement, {
-    "notifications": { url: "/api/timeline/follow-requests", disableCaching: true, disablePolling: true, prependPosts: false, customRender: renderFolreqTimeline }
-  }, "notifications", element);
+  hookTimeline(timelineElement, null, {
+    "follow-requests": { url: "/api/timeline/follow-requests", disableCaching: true, disablePolling: true, prependPosts: false, customRender: renderFolreqTimeline }
+  }, "follow-requests", element);
 }
 
 function renderFolreqTimeline(

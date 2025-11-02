@@ -205,6 +205,7 @@
     .hamburger {
       .post-hamburger-container {
         position: absolute;
+        display: inline;
       }
 
       .post-hamburger {
@@ -216,7 +217,8 @@
         background-color: var(--background);
         outline: 2px solid var(--accent);
         position: absolute;
-        bottom: calc(100% + 1.8em); // TODO: positioning broken on larger font sizes with smaller screens
+        bottom: -1em;
+        right: 1.5em;
         white-space: nowrap;
         text-align: left;
         z-index: @post-hamburger-z-index;
@@ -228,6 +230,18 @@
           &:last-of-type {
             border-bottom: none;
           }
+        }
+      }
+
+      > svg {
+        padding: 0 0.1em;
+      }
+
+      &:focus {
+        outline: none !important;
+
+        > svg {
+          outline: 2px solid var(--accent);
         }
       }
 
