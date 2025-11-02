@@ -29,14 +29,16 @@ function hookTimeline(
 ): void {
   timelineToggles = [];
 
-  for (const el of carousel?.querySelectorAll("[data-timeline-toggle][data-timeline-toggle-store]") as NodeListOf<D>) {
-    if (
-      el.dataset.timelineToggle
-   && el.dataset.timelineToggleStore
-   && localStorage.getItem("smiggins-" + el.dataset.timelineToggleStore)
-    ) {
-      timelineToggles.push(el.dataset.timelineToggle);
-      el.dataset.timelineActive = "";
+  if (carousel) {
+    for (const el of carousel.querySelectorAll("[data-timeline-toggle][data-timeline-toggle-store]") as NodeListOf<D>) {
+      if (
+        el.dataset.timelineToggle
+    && el.dataset.timelineToggleStore
+    && localStorage.getItem("smiggins-" + el.dataset.timelineToggleStore)
+      ) {
+        timelineToggles.push(el.dataset.timelineToggle);
+        el.dataset.timelineActive = "";
+      }
     }
   }
 
