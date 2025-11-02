@@ -1,5 +1,48 @@
 # yaml-language-server: $schema=docs.schema.json
 
+post:
+  description: "The format for a post. Not a real API endpoint."
+  id: 0x00
+  response:
+  - { type: uint32, name: "Post ID" }
+  - { type: uint64, name: "Timestamp" }
+
+  - { type: bool7, name: "Private" }
+  - { type: bool6, name: "Is comment", id: is_comment }
+  - { type: bool5, name: "Is quote" }
+  - { type: bool4, name: "Quote is visible", id: quote_visible }
+  - { type: bool3, name: "Liked" }
+  - { type: bool2, name: "Quote is private" }
+  - { type: bool1, name: "Quote is comment", id: quote_is_comment }
+  - { type: bool0, name: "Has poll", id: has_poll }
+
+  - { type: uint32, name: "Comment parent ID", condition: is_comment }
+
+  - { type: floatint, name: "Likes" }
+  - { type: floatint, name: "Quotes" }
+  - { type: floatint, name: "Comments" }
+
+  - { type: str16, name: "Content" }
+  - { type: str8, name: "Content warning" }
+  - { type: str8, name: "Creator username" }
+  - { type: str8, name: "Creator display name" }
+  - { type: str8, name: "Creator pronouns" }
+
+  - { type: floatint, name: "Total votes", condition: has_poll }
+  - { type: uint8, name: "Poll options", id: poll_count, condition: has_poll }
+  - { type: str8, name: "Poll option", loop: poll_count, condition: has_poll }
+  - { type: uint16, name: "Percentage + 1 decimal (0.0-100.0)", loop: poll_count, condition: has_poll }
+  - { type: bool7, name: "Is voted for by self", loop: poll_count, condition: has_poll }
+
+  - { type: uint32, name: "Quote ID", condition: quote,quote_visible }
+  - { type: uint64, name: "Quote Timestamp", condition: quote,quote_visible }
+  - { type: uint32, name: "Quote comment parent ID", condition: quote,quote_visible,quote_is_comment }
+  - { type: str16, name: "Quote content" }
+  - { type: str8, name: "Quote content warning" }
+  - { type: str8, name: "Quote creator username" }
+  - { type: str8, name: "Quote creator display name" }
+  - { type: str8, name: "Quote creator pronouns" }
+
 POST /api/user/login:
   description: Handles logging into accounts
   id: 0x01
@@ -138,6 +181,31 @@ DELETE /api/post/pin:
   description: "Unpins the pinned post"
   id: 0x34
 
+POST /api/post/poll:
+  description: "Votes on a poll"
+  id: 0x44
+  body:
+  - { type: uint32, name: "Post ID" }
+  - { type: uint8, name: "Option number" }
+  response:
+  - { type: uint32, name: "Post ID" }
+  - { type: floatint, name: "Total votes", condition: has_poll }
+  - { type: uint8, name: "Poll options", id: poll_count, condition: has_poll }
+  - { type: str8, name: "Poll option", loop: poll_count, condition: has_poll }
+  - { type: uint16, name: "Percentage + 1 decimal (0.0-100.0)", loop: poll_count, condition: has_poll }
+  - { type: bool7, name: "Is voted for by self", loop: poll_count, condition: has_poll }
+
+GET /api/post/poll/{post_id}:
+  description: "Fetches poll data"
+  id: 0x45
+  response:
+  - { type: uint32, name: "Post ID" }
+  - { type: floatint, name: "Total votes", condition: has_poll }
+  - { type: uint8, name: "Poll options", id: poll_count, condition: has_poll }
+  - { type: str8, name: "Poll option", loop: poll_count, condition: has_poll }
+  - { type: uint16, name: "Percentage + 1 decimal (0.0-100.0)", loop: poll_count, condition: has_poll }
+  - { type: bool7, name: "Is voted for by self", loop: poll_count, condition: has_poll }
+
 PATCH /api/post:
   description: "Edits a post"
   id: 0x3e
@@ -271,8 +339,8 @@ GET /api/timeline/notifications:
   response:
   - { type: bool7, name: "End of timeline" }
   - { type: bool6, name: "Forwards" }
-  - { type: uint8, name: "Post count", id: post_count }
-  - { type: post, name: "Post", loop: post_count }
+  - { type: uint8, name: "Notification count", id: notif_count }
+  - { type: notif, name: "Notification", loop: notif_count }
 
 GET /api/timeline/tag/{tag}:
   description: "Hashtag timeline"
@@ -284,8 +352,8 @@ GET /api/timeline/tag/{tag}:
   response:
   - { type: bool7, name: "End of timeline" }
   - { type: bool6, name: "Forwards" }
-  - { type: uint8, name: "Notification count", id: notif_count }
-  - { type: notif, name: "Notification", loop: notif_count }
+  - { type: uint8, name: "Post count", id: post_count }
+  - { type: post, name: "Post", loop: post_count }
 
 GET /api/timeline/follow-requests:
   description: "Notification timeline"

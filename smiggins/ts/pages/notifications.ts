@@ -78,7 +78,6 @@ function renderNotificationTimeline(
   moreElementOverride?: el,
   prepend: boolean=false
 ): void {
-  console.log(posts);
   clearTimelineStatuses();
 
   if (offset.lower === null && posts.length === 0) {

@@ -73,43 +73,45 @@
               {% firstof item.type " " as prev %}
 
               {% if item.type == "str0" %}
-                <div data-api-type="{{ item.type }}">73 74 72 69 6e 67</div>
+                <div title="{{ item.name }}" data-api-type="{{ item.type }}">73 74 72 69 6e 67</div>
               {% elif item.type == "str8" %}
-                <div data-api-type="{{ item.type }}"><div data-api-type="str8-header">06</div> 73 74 72 69 6e 67</div>
+                <div title="{{ item.name }}" data-api-type="{{ item.type }}"><div title="{{ item.name }}" data-api-type="str8-header">06</div> 73 74 72 69 6e 67</div>
               {% elif item.type == "str16" %}
-                <div data-api-type="{{ item.type }}"><div data-api-type="str16-header">00 06</div> 73 74 72 69 6e 67</div>
+                <div title="{{ item.name }}" data-api-type="{{ item.type }}"><div title="{{ item.name }}" data-api-type="str16-header">00 06</div> 73 74 72 69 6e 67</div>
               {% elif item.type == "uint8" %}
-                <div data-api-type="{{ item.type }}">12</div>
+                <div title="{{ item.name }}" data-api-type="{{ item.type }}">12</div>
               {% elif item.type == "uint16" %}
-                <div data-api-type="{{ item.type }}">12 34</div>
+                <div title="{{ item.name }}" data-api-type="{{ item.type }}">12 34</div>
               {% elif item.type == "uint32" %}
-                <div data-api-type="{{ item.type }}">12 34 56 78</div>
+                <div title="{{ item.name }}" data-api-type="{{ item.type }}">12 34 56 78</div>
               {% elif item.type == "uint64" %}
-                <div data-api-type="{{ item.type }}">12 34 56 78 9a bc de f0</div>
+                <div title="{{ item.name }}" data-api-type="{{ item.type }}">12 34 56 78 9a bc de f0</div>
+              {% elif item.type == "floatint" %}
+                <div title="{{ item.name }}" data-api-type="{{ item.type }}">12 34</div>
               {% elif item.type == "hex3" %}
-                <div data-api-type="{{ item.type }}">ab cd ef</div>
+                <div title="{{ item.name }}" data-api-type="{{ item.type }}">ab cd ef</div>
               {% elif item.type == "hex32" %}
-                <div data-api-type="{{ item.type }}">12 34 56 78 9a bc de f0 12 34 56 78 9a bc de f0 12 34 56 78 9a bc de f0 12 34 56 78 9a bc de f0</div>
+                <div title="{{ item.name }}" data-api-type="{{ item.type }}">12 34 56 78 9a bc de f0 12 34 56 78 9a bc de f0 12 34 56 78 9a bc de f0 12 34 56 78 9a bc de f0</div>
               {% elif item.type == "post" %}
-                <div data-api-type="{{ item.type }}">post</div>
+                <div title="{{ item.name }}" data-api-type="{{ item.type }}">post</div>
               {% elif item.type == "notif" %}
-                <div data-api-type="{{ item.type }}">01 post</div>
+                <div title="{{ item.name }}" data-api-type="{{ item.type }}">01 post</div>
               {% elif item.type == "bool7" %}
-                <div data-api-type="{{ item.type }}">1</div>
+                <div title="{{ item.name }}" data-api-type="{{ item.type }}">1</div>
               {% elif item.type == "bool6" %}
-                <div data-api-type="{{ item.type }}">1</div>
+                <div title="{{ item.name }}" data-api-type="{{ item.type }}">1</div>
               {% elif item.type == "bool5" %}
-                <div data-api-type="{{ item.type }}">1</div>
+                <div title="{{ item.name }}" data-api-type="{{ item.type }}">1</div>
               {% elif item.type == "bool4" %}
-                <div data-api-type="{{ item.type }}">1</div>
+                <div title="{{ item.name }}" data-api-type="{{ item.type }}">1</div>
               {% elif item.type == "bool3" %}
-                <div data-api-type="{{ item.type }}">1</div>
+                <div title="{{ item.name }}" data-api-type="{{ item.type }}">1</div>
               {% elif item.type == "bool2" %}
-                <div data-api-type="{{ item.type }}">1</div>
+                <div title="{{ item.name }}" data-api-type="{{ item.type }}">1</div>
               {% elif item.type == "bool1" %}
-                <div data-api-type="{{ item.type }}">1</div>
+                <div title="{{ item.name }}" data-api-type="{{ item.type }}">1</div>
               {% elif item.type == "bool0" %}
-                <div data-api-type="{{ item.type }}">1</div>
+                <div title="{{ item.name }}" data-api-type="{{ item.type }}">1</div>
               {% endif %}
             {% endfor %}
 
@@ -133,7 +135,7 @@
 
         <h2 class="api-bytes-title">Response</h2>
         <div class="api-bytes">
-          <div data-api-type="id">{{ data.id_hex }}</div>
+          <div title="{{ item.name }}" data-api-type="id">{{ data.id_hex }}</div>
           {% if data.response %}
             {% firstof "p" as prev %}
             {% for item in data.response %}
@@ -172,43 +174,45 @@
               {% firstof item.type "p" as prev %}
 
               {% if item.type == "str0" %}
-                <div data-api-type="{{ item.type }}">73 74 72 69 6e 67</div>
+                <div title="{{ item.name }}" data-api-type="{{ item.type }}">73 74 72 69 6e 67</div>
               {% elif item.type == "str8" %}
-                <div data-api-type="{{ item.type }}"><div data-api-type="str8-header">06</div> 73 74 72 69 6e 67</div>
+                <div title="{{ item.name }}" data-api-type="{{ item.type }}"><div title="{{ item.name }}" data-api-type="str8-header">06</div> 73 74 72 69 6e 67</div>
               {% elif item.type == "str16" %}
-                <div data-api-type="{{ item.type }}"><div data-api-type="str16-header">00 06</div> 73 74 72 69 6e 67</div>
+                <div title="{{ item.name }}" data-api-type="{{ item.type }}"><div title="{{ item.name }}" data-api-type="str16-header">00 06</div> 73 74 72 69 6e 67</div>
               {% elif item.type == "uint8" %}
-                <div data-api-type="{{ item.type }}">12</div>
+                <div title="{{ item.name }}" data-api-type="{{ item.type }}">12</div>
               {% elif item.type == "uint16" %}
-                <div data-api-type="{{ item.type }}">12 34</div>
+                <div title="{{ item.name }}" data-api-type="{{ item.type }}">12 34</div>
               {% elif item.type == "uint32" %}
-                <div data-api-type="{{ item.type }}">12 34 56 78</div>
+                <div title="{{ item.name }}" data-api-type="{{ item.type }}">12 34 56 78</div>
               {% elif item.type == "uint64" %}
-                <div data-api-type="{{ item.type }}">12 34 56 78 9a bc de f0</div>
+                <div title="{{ item.name }}" data-api-type="{{ item.type }}">12 34 56 78 9a bc de f0</div>
+              {% elif item.type == "floatint" %}
+                <div title="{{ item.name }}" data-api-type="{{ item.type }}">12 34</div>
               {% elif item.type == "hex3" %}
-                <div data-api-type="{{ item.type }}">ab cd ef</div>
+                <div title="{{ item.name }}" data-api-type="{{ item.type }}">ab cd ef</div>
               {% elif item.type == "hex32" %}
-                <div data-api-type="{{ item.type }}">12 34 56 78 9a bc de f0 12 34 56 78 9a bc de f0 12 34 56 78 9a bc de f0 12 34 56 78 9a bc de f0</div>
+                <div title="{{ item.name }}" data-api-type="{{ item.type }}">12 34 56 78 9a bc de f0 12 34 56 78 9a bc de f0 12 34 56 78 9a bc de f0 12 34 56 78 9a bc de f0</div>
               {% elif item.type == "post" %}
-                <div data-api-type="{{ item.type }}">post</div>
+                <div title="{{ item.name }}" data-api-type="{{ item.type }}">post</div>
               {% elif item.type == "notif" %}
-                <div data-api-type="{{ item.type }}">01 post</div>
+                <div title="{{ item.name }}" data-api-type="{{ item.type }}">01 post</div>
               {% elif item.type == "bool7" %}
-                <div data-api-type="{{ item.type }}">1</div>
+                <div title="{{ item.name }}" data-api-type="{{ item.type }}">1</div>
               {% elif item.type == "bool6" %}
-                <div data-api-type="{{ item.type }}">1</div>
+                <div title="{{ item.name }}" data-api-type="{{ item.type }}">1</div>
               {% elif item.type == "bool5" %}
-                <div data-api-type="{{ item.type }}">1</div>
+                <div title="{{ item.name }}" data-api-type="{{ item.type }}">1</div>
               {% elif item.type == "bool4" %}
-                <div data-api-type="{{ item.type }}">1</div>
+                <div title="{{ item.name }}" data-api-type="{{ item.type }}">1</div>
               {% elif item.type == "bool3" %}
-                <div data-api-type="{{ item.type }}">1</div>
+                <div title="{{ item.name }}" data-api-type="{{ item.type }}">1</div>
               {% elif item.type == "bool2" %}
-                <div data-api-type="{{ item.type }}">1</div>
+                <div title="{{ item.name }}" data-api-type="{{ item.type }}">1</div>
               {% elif item.type == "bool1" %}
-                <div data-api-type="{{ item.type }}">1</div>
+                <div title="{{ item.name }}" data-api-type="{{ item.type }}">1</div>
               {% elif item.type == "bool0" %}
-                <div data-api-type="{{ item.type }}">1</div>
+                <div title="{{ item.name }}" data-api-type="{{ item.type }}">1</div>
               {% endif %}
             {% endfor %}
 

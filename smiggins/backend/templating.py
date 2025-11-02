@@ -5,12 +5,13 @@ from django.http import HttpResponse
 from django.template import loader
 from posts.backups import backup_db
 from posts.models import User
-from .api.admin import AdminPermissions
 
+from .api.admin import AdminPermissions
 from .variables import (BASE_DIR, ENABLE_NEW_ACCOUNTS, GOOGLE_VERIFICATION_TAG,
                         MAX_BIO_LENGTH, MAX_CONTENT_WARNING_LENGTH,
-                        MAX_DISPL_NAME_LENGTH, MAX_POST_LENGTH,
-                        MAX_USERNAME_LENGTH, SITE_NAME, VERSION, MOTDs)
+                        MAX_DISPL_NAME_LENGTH, MAX_POLL_OPTION_LENGTH,
+                        MAX_POLL_OPTIONS, MAX_POST_LENGTH, MAX_USERNAME_LENGTH,
+                        SITE_NAME, VERSION, MOTDs)
 
 
 def webapp(request) -> HttpResponse:
@@ -80,7 +81,9 @@ def webapp(request) -> HttpResponse:
                 "display_name": MAX_DISPL_NAME_LENGTH,
                 "bio": MAX_BIO_LENGTH,
                 "post": MAX_POST_LENGTH,
-                "cw": MAX_CONTENT_WARNING_LENGTH
+                "cw": MAX_CONTENT_WARNING_LENGTH,
+                "poll_count": MAX_POLL_OPTIONS,
+                "poll_item": MAX_POLL_OPTION_LENGTH
             }
         },
 

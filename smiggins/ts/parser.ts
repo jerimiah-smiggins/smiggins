@@ -18,6 +18,8 @@ enum ResponseCodes {
   Unlike,
   Pin,
   Unpin,
+  PollVote,
+  PollRefresh,
   EditPost = 0x3e,
   DeletePost,
   AdminDeleteUser = 0x40,
@@ -173,15 +175,22 @@ function _extractPost(data: Uint8Array): [post, leftoverData: Uint8Array] {
     comments: _extractInt(16, newData.slice(4)),
   };
 
-  let content: [string, leftoverData: Uint8Array] = _extractString(16, newData.slice(6));
-  let contentWarning: [string, leftoverData: Uint8Array] = _extractString(8, content[1]);
-  let username: [string, leftoverData: Uint8Array] = _extractString(8, contentWarning[1]);
-  let displayName: [string, leftoverData: Uint8Array] = _extractString(8, username[1]);
-  let pronouns: [string, leftoverData: Uint8Array] = _extractString(8, displayName[1]);
+  let content: [string, Uint8Array] = _extractString(16, newData.slice(6));
+  let contentWarning: [string, Uint8Array] = _extractString(8, content[1]);
+  let username: [string, Uint8Array] = _extractString(8, contentWarning[1]);
+  let displayName: [string, Uint8Array] = _extractString(8, username[1]);
+  let pronouns: [string, Uint8Array] = _extractString(8, displayName[1]);
 
-  let quoteData = null;
   newData = pronouns[1];
 
+  let pollData = null
+  if (_extractBool(flags, 0)) {
+    let d = _extractPoll(newData)
+    pollData = d[0];
+    newData = d[1];
+  }
+
+  let quoteData = null;
   if (_extractBool(flags, 5)) {
     if (!_extractBool(flags, 4)) {
       quoteData = false as false;
@@ -228,6 +237,8 @@ function _extractPost(data: Uint8Array): [post, leftoverData: Uint8Array] {
 
     interactions: interactions,
 
+    poll: pollData,
+
     user: {
       username: username[0],
       display_name: displayName[0],
@@ -236,6 +247,38 @@ function _extractPost(data: Uint8Array): [post, leftoverData: Uint8Array] {
 
     quote: quoteData
   }, newData];
+}
+
+function _extractPoll(data: Uint8Array): [post["poll"], leftoverData: Uint8Array] {
+  let pollData: post["poll"] = {
+    votes: _extractInt(16, data),
+    has_voted: false,
+    items: [] as {
+      content: string,
+      percentage: number,
+      voted: boolean
+    }[]
+  };
+
+  let optionCount: number = _extractInt(8, data.slice(2));
+  data = data.slice(3);
+
+  for (let i: number = 0; i < optionCount; i++) {
+    let content: [string, Uint8Array] = _extractString(8, data);
+    let pct: number = _extractInt(16, content[1]);
+    let voted: boolean = _extractBool(content[1][2], 7);
+    data = content[1].slice(3);
+
+    if (voted) { pollData.has_voted = true; }
+
+    pollData.items.push({
+      content: content[0],
+      percentage: pct / 10,
+      voted: voted
+    });
+  }
+
+  return [pollData, data];
 }
 
 function _toHex(data: Uint8Array): string {
@@ -311,6 +354,18 @@ function parseResponse(
     case ResponseCodes.Unpin:
       createToast("Success!", "This post is no longer pinned to your profile.");
       document.getElementById("user-pinned-container")?.setAttribute("hidden", "");
+      break;
+
+    case ResponseCodes.PollVote:
+    case ResponseCodes.PollRefresh:
+      let pid: number = _extractInt(32, u8arr.slice(1));
+      let pollData: post["poll"] = _extractPoll(u8arr.slice(5))[0];
+
+      let c: post | undefined = postCache[pid];
+      if (c) { c.poll = pollData; }
+
+      refreshPollDisplay(pid, true);
+
       break;
 
     case ResponseCodes.EditPost: break;

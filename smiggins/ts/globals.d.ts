@@ -6,8 +6,8 @@ declare let currentPage: intent;
 declare let defaultPostPrivate: boolean;
 declare const limits: {
   username: number,
-  post: number,
-  cw: number
+  poll_count: number,
+  poll_item: number
 };
 
 type intent = "index" | "login" | "signup"
@@ -36,6 +36,16 @@ type post = {
   timestamp: number,
   private: boolean,
   comment: number | null,
+
+  poll: {
+    votes: number,
+    has_voted: boolean,
+    items: {
+      content: string,
+      percentage: number,
+      voted: boolean
+    }[]
+  } | null,
 
   interactions: {
     likes: number,

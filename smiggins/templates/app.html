@@ -25,9 +25,10 @@
       const pageTitle = "{{ conf.site_name }}";
       let defaultPostPrivate = "{{ default_post_private }}" === "True";
       const limits = {
+        // more limits can be added as needed. most aren't used by the js, just the templates
         username: {{ conf.max_length.username }},
-        post: {{ conf.max_length.post }},
-        cw: {{ conf.max_length.cw }}
+        poll_count: {{ conf.max_length.poll_count }},
+        poll_item: {{ conf.max_length.poll_item }}
       }
     </script>
 

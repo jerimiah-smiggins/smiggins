@@ -81,7 +81,7 @@ class Post(models.Model):
         hashtags: models.Manager["Hashtag"]
         comments: models.Manager["Post"]
         quotes: models.Manager["Post"]
-        poll: "Poll"
+        poll: "Poll | None"
 
     # def get_poll(self: "Post", user: User | None) -> dict | None:
     #     if hasattr(self, "poll"):

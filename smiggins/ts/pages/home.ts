@@ -7,6 +7,30 @@ function p_home(element: D): void {
   }, "global", element);
 
   element.querySelector("#post")?.addEventListener("click", homeCreatePost);
+  element.querySelector("#poll-toggle")?.addEventListener("click", function(): void {
+    let pollElement: Del = (element.querySelector("#poll-area") as Del);
+
+    if (pollElement) {
+      pollElement.hidden = !pollElement.hidden;
+    }
+  });
+}
+
+function getPollInputsHTML(id: string, submit: string): string {
+  let output: string = "";
+
+  for (let i: number = 0; i < limits.poll_count; i++) {
+    output += `<div>
+      <input data-poll-input="${id}"
+             data-poll-num="${i}"
+             ${i + 1 < limits.poll_count ? `data-enter-next="[data-poll-input='${id}'][data-poll-num='${i + 1}']"` : ""}
+             data-enter-submit="${submit}"
+             placeholder="Option ${i + 1}${i >= 2 ? " (optional)" : ""}"
+             maxlength="${limits.poll_item}">
+    </div>`;
+  }
+
+  return output;
 }
 
 function homeCreatePost(e: Event): void {
@@ -20,7 +44,17 @@ function homeCreatePost(e: Event): void {
   let content: string = (contentElement as I).value;
   let privatePost: boolean = (privatePostElement as I).checked;
 
-  if (!content) { contentElement.focus(); return; }
+  let poll: string[] = [];
+
+  if (!postModalFor || postModalFor.type !== "edit") {
+    for (const el of document.querySelectorAll(":not([hidden]) > div > [data-poll-input=\"home\"]") as NodeListOf<I>) {
+      if (el.value) {
+        poll.push(el.value);
+      }
+    }
+  }
+
+  if (!content && poll.length === 0) { contentElement.focus(); return; }
 
   (e.target as Bel)?.setAttribute("disabled", "");
   createPost(content, cw || null, privatePost, (success: boolean): void => {
@@ -31,6 +65,14 @@ function homeCreatePost(e: Event): void {
     if (success) {
       (cwElement as I).value = "";
       (contentElement as I).value = "";
+
+      document.getElementById("poll-area")?.setAttribute("hidden", "");
+
+      for (const el of document.querySelectorAll("[data-poll-input]") as NodeListOf<I>) {
+        el.value = "";
+      }
     }
+  }, {
+    poll: poll.length ? poll : undefined
   });
 }

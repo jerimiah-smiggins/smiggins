@@ -22,6 +22,8 @@
     box-sizing: border-box;
     background-color: var(--background);
     max-width: @compose-modal-max-width;
+    max-height: calc(100vh - 8em);
+    overflow-y: scroll;
     padding: 0.5em 2em;
     border-radius: 1em;
     margin: 0 auto;
@@ -263,6 +265,51 @@
   svg {
     height: 1.2em;
     fill: currentColor;
+  }
+}
+
+.poll-container {
+  padding: 0.5em 0;
+  display: flex;
+  flex-direction: column;
+  flex-wrap: nowrap;
+  gap: 0.25em;
+
+  a {
+    color: var(--subtext) !important;
+    cursor: pointer;
+  }
+
+  .poll-bar {
+    padding: 0.25em;
+    border-radius: 0.5em;
+    cursor: pointer;
+    background-color: var(--background-mid);
+
+    &:hover {
+      background-color: var(--background-bright);
+    }
+  }
+
+  .poll-bar-text {
+    padding: 0.25em 0.5em;
+    border-radius: 0.5em;
+    display: inline-block;
+  }
+
+  .poll-bar.poll-voted {
+    --poll-accent-color: rgba(var(--accent-rgb) / 50%);
+
+    background: linear-gradient(to right, var(--poll-accent-color) var(--poll-width), var(--background-mid) var(--poll-width));
+    cursor: default;
+
+    &[data-vote] {
+      --poll-accent-color: var(--accent);
+    }
+
+    .poll-bar-text {
+      background-color: var(--background);
+    }
   }
 }
 

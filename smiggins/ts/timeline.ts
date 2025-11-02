@@ -255,6 +255,66 @@ function toggleTimeline(e: MouseEvent): void {
   _setTimeline(currentTlID);
 }
 
+function pollVote(pid: number, option: number): void {
+  fetch("/api/post/poll", {
+    method: "POST",
+    body: buildRequest([[pid, 32], [option, 8]])
+  }).then((response: Response): Promise<ArrayBuffer> => (response.arrayBuffer()))
+    .then(parseResponse)
+    .catch((err: any) => {
+      createToast("Something went wrong!", String(err));
+      throw err;
+    });
+}
+
+function refreshPollData(pid: number): void {
+  fetch(`/api/post/poll/${pid}`)
+    .then((response: Response): Promise<ArrayBuffer> => (response.arrayBuffer()))
+    .then(parseResponse)
+    .catch((err: any) => {
+      createToast("Something went wrong!", String(err));
+      throw err;
+    });
+}
+
+function refreshPollDisplay(pid: number, forceVotedView: boolean=false): void {
+  let c: post | undefined = postCache[pid];
+  if (!c) { return; }
+
+  for (const el of document.querySelectorAll(`[data-post-id="${pid}"] .poll-container`)) {
+    el.innerHTML = getPollHTML(c.poll, pid, forceVotedView);
+  }
+}
+
+function getPollHTML(poll: post["poll"], pid: number, forceVotedView: boolean=false): string {
+  if (!poll) { return ""; }
+
+  let output: string = "";
+  let pollButtons: string = "";
+  let voted: boolean = poll.has_voted || forceVotedView;
+  let votedClass: string = voted ? "poll-voted" : "";
+  let c: number = 0;
+
+  for (const item of poll.items) {
+    output += `<div ${voted ? "" : `onclick="pollVote(${pid}, ${c})"`} class="poll-bar ${votedClass}" style="--poll-width: ${item.percentage}%;" ${item.voted ? "data-vote" : ""}>
+      <div class="poll-bar-text">${voted ? `${item.percentage}% - ` : ""}${escapeHTML(item.content)}</div>
+    </div>`;
+    c++;
+  }
+
+  if (voted) {
+    pollButtons = `<a onclick="refreshPollData(${pid})">Refresh</a>`;
+
+    if (!poll.has_voted && forceVotedView) {
+      pollButtons += ` - <a onclick="refreshPollDisplay(${pid})">Return to voting</a>`;
+    }
+  } else {
+    pollButtons = `<a onclick="refreshPollDisplay(${pid}, true)">View results</a>`;
+  }
+
+  return output + `<small><div>${floatintToStr(poll.votes)} vote${floatintToNum(poll.votes) !== 1 ? "s" : ""} - ${pollButtons}</div></small>`;
+}
+
 // turns post data into an html element
 function getPost(
   post: number,
@@ -278,9 +338,11 @@ function getPost(
   let contentWarningEnd: string = "";
 
   if (p.content_warning) {
-    contentWarningStart = `<details class="content-warning"${forceCwState !== false && (forceCwState === true || localStorage.getItem("smiggins-expand-cws")) ? " open" : "" }><summary><div>${escapeHTML(p.content_warning)} <div class="content-warning-stats">(${p.content.length} char${p.content.length === 1 ? "" : "s"}${p.quote ? ", quote" : ""})</div></div></summary>`;
+    contentWarningStart = `<details class="content-warning"${forceCwState !== false && (forceCwState === true || localStorage.getItem("smiggins-expand-cws")) ? " open" : "" }><summary><div>${escapeHTML(p.content_warning)} <div class="content-warning-stats">(${p.content.length} char${p.content.length === 1 ? "" : "s"}${p.quote ? ", quote" : ""}${p.poll ? ", poll" : ""})</div></div></summary>`;
     contentWarningEnd = "</details>";
   }
+
+  let pollContent: string = getPollHTML(p.poll, p.id);
 
   let quoteData: { [key: string]: string | [string, number] } = { hidden_if_no_quote: "hidden" };
   let quoteUnsafeData: { [key: string]: string | [string, number] } = {};
@@ -336,14 +398,16 @@ function getPost(
     cw_end: contentWarningEnd,
     hidden_if_no_pronouns: p.user.pronouns ? "" : "hidden",
     hidden_if_no_comment: p.comment ? "" : "hidden",
+    hidden_if_no_poll: p.poll ? "" : "hidden",
     ...quoteData,
 
     // unsafe items, includes a max replace in order to prevent unwanted injection
+    ...quoteUnsafeData,
+    poll: [pollContent, 1],
     content: [postContent, 1],
     pronouns: [p.user.pronouns || "", 1],
     display_name: [escapeHTML(p.user.display_name), 1],
     cw_start: [contentWarningStart, 1],
-    ...quoteUnsafeData
   });
 
   el.dataset.editReplace = String(post);
@@ -630,7 +694,7 @@ function handlePostDelete(pid: number): void {
 
 // returns an escaped string containing the post content, or a content warning if there is one
 function simplePostContent(post: post): string {
-  return escapeHTML(post.content_warning ? "CW: " + post.content_warning : post.content);
+  return escapeHTML(post.content_warning ? "CW: " + post.content_warning : post.content) || (post.poll ? "Poll" : "");
 }
 
 // (processing) timeline "show more" button

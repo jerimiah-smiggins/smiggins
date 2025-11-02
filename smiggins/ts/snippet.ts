@@ -114,7 +114,7 @@ function getSnippet(snippet: snippet, extraVariables?: { [key: string]: string |
   }
 
   let element: D = document.createElement("div");
-  element.innerHTML = content;
+  element.innerHTML = content.replaceAll(" =\"\"", "");
 
   for (const i of s.processing) {
     if (i in snippetProcessing) {

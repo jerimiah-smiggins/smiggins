@@ -3,7 +3,7 @@
   "type": "object",
   "additionalProperties": false,
   "patternProperties": {
-    "(?:POST|PATCH|PUT|GET|DELETE) /api/": {
+    "(?:POST|PATCH|PUT|GET|DELETE) /api/|post": {
       "type": "object",
       "additionalProperties": false,
       "required": ["id"],

@@ -2,14 +2,15 @@ import time
 
 from django.db.utils import IntegrityError
 from django.http import HttpRequest, HttpResponse
-from posts.models import (Hashtag, M2MHashtagPost, M2MLike, Notification, Post,
-                          User)
+from posts.models import (Hashtag, M2MHashtagPost, M2MLike, Notification, Poll,
+                          PollChoice, PollVote, Post, User)
 
 from ..helper import find_hashtags, find_mentions, trim_whitespace
 from ..variables import (MAX_CONTENT_WARNING_LENGTH, MAX_POLL_OPTION_LENGTH,
                          MAX_POST_LENGTH)
 from .format import (ErrorCodes, api_CreatePost, api_DeletePost, api_EditPost,
-                     api_Like, api_Pin, api_Unlike, api_Unpin)
+                     api_Like, api_Pin, api_PollRefresh, api_PollVote,
+                     api_Unlike, api_Unpin)
 
 
 def post_create(request: HttpRequest) -> HttpResponse:
@@ -82,7 +83,17 @@ def post_create(request: HttpRequest) -> HttpResponse:
         private=data["private"]
     )
 
-    # TODO: add poll
+    if len(poll) >= 2:
+        p = Poll.objects.create(target=post)
+        choices: list[PollChoice] = []
+
+        for choice in poll:
+            choices.append(PollChoice(
+                poll=p,
+                content=choice
+            ))
+
+        PollChoice.objects.bulk_create(choices)
 
     pending_notification_objects = []
 
@@ -269,3 +280,54 @@ def unpin_post(request: HttpRequest) -> HttpResponse:
 
     return api.response()
 
+def poll_vote(request: HttpRequest) -> HttpResponse:
+    api = api_PollVote(request)
+
+    try:
+        user = User.objects.get(token=request.COOKIES.get("token"))
+    except User.DoesNotExist:
+        return api.error(ErrorCodes.NOT_AUTHENTICATED)
+
+    data = api.parse_data()
+
+    try:
+        post = Post.objects.get(post_id=data["post_id"])
+    except Post.DoesNotExist:
+        return api.error(ErrorCodes.POST_NOT_FOUND)
+
+    if not post.poll:
+        return api.error(ErrorCodes.POST_NOT_FOUND)
+
+    try:
+        obj = post.poll.choices.order_by("pk")[data["option"]]
+    except IndexError:
+        return api.error(ErrorCodes.BAD_REQUEST)
+
+    try:
+        PollVote.objects.create(
+            poll=post.poll,
+            choice=obj,
+            user=user
+        )
+    except IntegrityError:
+        ...
+
+    return api.response(pid=post.post_id, poll=post.poll, user=user)
+
+def poll_refresh(request: HttpRequest, post_id: int) -> HttpResponse:
+    api = api_PollRefresh(request)
+
+    try:
+        user = User.objects.get(token=request.COOKIES.get("token"))
+    except User.DoesNotExist:
+        return api.error(ErrorCodes.NOT_AUTHENTICATED)
+
+    try:
+        post = Post.objects.get(post_id=post_id)
+    except Post.DoesNotExist:
+        return api.error(ErrorCodes.POST_NOT_FOUND)
+
+    if not post.poll:
+        return api.error(ErrorCodes.POST_NOT_FOUND)
+
+    return api.response(pid=post.post_id, poll=post.poll, user=user)

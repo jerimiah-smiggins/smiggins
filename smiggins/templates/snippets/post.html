@@ -12,6 +12,8 @@
 
   <div class="post-content"><span @{hidden_if_no_comment}><a data-internal-link="post" href="/p/@{comment_id}">@{icon_comment_arrow}</a></span>@{content}</div>
 
+  <div class="poll-container" @{hidden_if_no_poll}>@{poll}</div>
+
   <div class="post-quote" @{hidden_if_no_quote}>
     <div class="post-upper">
       <div class="post-private" @{quote_private_post}>@{icon_private}</div>

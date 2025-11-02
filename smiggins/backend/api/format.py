@@ -1,7 +1,7 @@
 from typing import Literal
 
 from django.http import HttpRequest, HttpResponse
-from posts.models import M2MPending, Notification, Post, User
+from posts.models import M2MPending, Notification, Poll, Post, User
 
 
 class ResponseCodes:
@@ -28,6 +28,8 @@ class ResponseCodes:
     UNLIKE = 0x32
     PIN = 0x33
     UNPIN = 0x34
+    POLL_VOTE = 0x35
+    POLL_REFRESH = 0x36
     EDIT_POST = 0x3e
     DELETE_POST = 0x3f
 
@@ -121,6 +123,7 @@ def _post_to_bytes(post: Post, user: User | None, user_data_override: User | Non
     can_view_quote = True
     comment: Post | None = post.comment_parent
     quote: Post | None = post.quoted_post
+    poll = post.poll if hasattr(post, "poll") else None
 
     if quote:
         can_view_quote = bool(
@@ -134,11 +137,12 @@ def _post_to_bytes(post: Post, user: User | None, user_data_override: User | Non
     output += b( # flags
         (post.creator.verify_followers if post.private is None else post.private) << 7 # private
       | (comment is not None) << 6 # has comment
-      | (quote is not None) << 5 # has quote
+      | (quote is not None) << 5 # is quote
       | can_view_quote << 4 # quote visible
       | (post.likes.contains(user) if user else False) << 3 # liked
       | (can_view_quote and quote is not None and (quote.creator.verify_followers if quote.private is None else quote.private)) << 2 # quote is private
-      | (can_view_quote and quote is not None and quote.comment_parent is not None) << 1 # quote has comment
+      | (can_view_quote and quote is not None and quote.comment_parent is not None) << 1 # quote is comment
+      | int(poll is not None) # has poll
     )
 
     if comment:
@@ -159,6 +163,9 @@ def _post_to_bytes(post: Post, user: User | None, user_data_override: User | Non
     output += b(len(display_name_bytes), 1) + display_name_bytes
     output += b(len(pronouns_bytes), 1) + pronouns_bytes
 
+    if poll:
+        output += _poll_to_bytes(poll, user)
+
     if can_view_quote and quote:
         output += b(quote.post_id, 4) + b(quote.timestamp, 8)
 
@@ -176,6 +183,18 @@ def _post_to_bytes(post: Post, user: User | None, user_data_override: User | Non
         output += b(len(quote_username_bytes), 1) + quote_username_bytes
         output += b(len(quote_display_name_bytes), 1) + quote_display_name_bytes
         output += b(len(quote_pronouns_bytes), 1) + quote_pronouns_bytes
+
+    return output
+
+def _poll_to_bytes(poll: Poll, user: User | None) -> bytes:
+    total_votes = poll.votes.count()
+    choices = [*poll.choices.order_by("pk")]
+
+    output = _to_floatint(total_votes) + b(len(choices))
+
+    for choice in choices:
+        content_bytes = str.encode(choice.content)
+        output += b(len(content_bytes)) + content_bytes + b(int(choice.votes.count() / total_votes * 1000) if total_votes else 0, 2) + b(choice.votes.filter(user=user).exists() << 7)
 
     return output
 
@@ -382,17 +401,17 @@ class api_CreatePost(_api_BaseResponse):
         polls = None
         comment_id = None
 
-        if has_quote:
-            quote_id = _extract_int(32, data)
-            data = data[4:]
-
         if has_poll:
-            poll_items = int(data, 8)
+            poll_items = _extract_int(8, data)
             polls = []
             data = data[1:]
             for _ in range(poll_items):
                 p, data = _extract_string(8, data)
                 polls.append(p)
+
+        if has_quote:
+            quote_id = _extract_int(32, data)
+            data = data[4:]
 
         if has_comment:
             comment_id = _extract_int(32, data)
@@ -424,6 +443,22 @@ class api_Pin(api_Like):
 
 class api_Unpin(api_Like):
     response_code = ResponseCodes.UNPIN
+
+class api_PollRefresh(_api_BaseResponse):
+    response_code = ResponseCodes.POLL_REFRESH
+
+    def set_response(self, pid: int, poll: Poll, user: User):
+        self.response_data = b(pid, 4) + _poll_to_bytes(poll, user)
+
+class api_PollVote(api_PollRefresh):
+    response_code = ResponseCodes.POLL_VOTE
+
+    def parse_data(self) -> dict:
+        data = self.request.body
+        return {
+            "post_id": _extract_int(32, data),
+            "option": data[4]
+        }
 
 class api_EditPost(_api_BaseResponse):
     response_code = ResponseCodes.EDIT_POST

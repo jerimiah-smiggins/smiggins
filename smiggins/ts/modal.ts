@@ -11,6 +11,8 @@ function createPostModal(type?: "quote" | "comment" | "edit", id?: number): void
   let extraVars: { [key: string]: string | [string, number] } = {
     hidden_if_no_quote: "hidden",
     hidden_if_no_comment: "hidden",
+    hidden_if_no_poll: "",
+    poll_items: getPollInputsHTML("modal", "#modal-post"),
     private_post: "",
     placeholder: "Cool post",
     action: "Post"
@@ -33,6 +35,9 @@ function createPostModal(type?: "quote" | "comment" | "edit", id?: number): void
 
       hidden_if_no_quote: "hidden",
       hidden_if_no_comment: "hidden",
+      hidden_if_no_poll: "",
+
+      poll_items: getPollInputsHTML("modal", "#modal-post"),
 
       private_post: post.private ? "data-private-post" : "",
       username: post.user.username,
@@ -66,16 +71,23 @@ function createPostModal(type?: "quote" | "comment" | "edit", id?: number): void
     } else if (type === "edit") {
       extraVars.placeholder = "Cool post but edited";
       extraVars.action = "Save";
+      extraVars.hidden_if_no_poll = "hidden";
     }
   }
-
-  console.log(extraVars);
 
   let el: D = getSnippet("compose-modal", extraVars);
   el.querySelector("#modal-post")?.addEventListener("click", postModalCreatePost);
   el.querySelector("#modal")?.addEventListener("click", clearModalIfClicked);
   document.body.append(el);
   (el.querySelector("#modal-post-content") as el)?.focus();
+
+  el.querySelector("#modal-poll-toggle")?.addEventListener("click", function(): void {
+    let pollElement: Del = (el.querySelector("#modal-poll-area") as Del);
+
+    if (pollElement) {
+      pollElement.hidden = !pollElement.hidden;
+    }
+  });
 
   document.addEventListener("keydown", clearModalOnEscape);
 
@@ -151,7 +163,17 @@ function postModalCreatePost(e: Event): void {
   let content: string = (contentElement as I).value;
   let privatePost: boolean = (privatePostElement as I).checked;
 
-  if (!content) { contentElement.focus(); return; }
+  let poll: string[] = [];
+
+  if (!postModalFor || postModalFor.type !== "edit") {
+    for (const el of document.querySelectorAll(":not([hidden]) > div > [data-poll-input=\"modal\"]") as NodeListOf<I>) {
+      if (el.value) {
+        poll.push(el.value);
+      }
+    }
+  }
+
+  if (!content && poll.length === 0) { contentElement.focus(); return; }
 
   (e.target as Bel)?.setAttribute("disabled", "");
   if (postModalFor && postModalFor.type === "edit") {
@@ -194,6 +216,20 @@ function postModalCreatePost(e: Event): void {
         throw err;
       });
   } else {
+    let extra: {
+      quote?: number,
+      poll?: string[],
+      comment?: number
+    } = {};
+
+    if (postModalFor) {
+      extra[postModalFor.type as "quote" | "comment"] = postModalFor.id;
+    }
+
+    if (poll.length !== 0) {
+      extra.poll = poll;
+    }
+
     createPost(
       content,
       cw || null,
@@ -214,7 +250,7 @@ function postModalCreatePost(e: Event): void {
           (e.target as Bel)?.removeAttribute("disabled");
         }
       },
-      postModalFor && { [postModalFor.type]: postModalFor.id }
+      extra
     );
   }
 }

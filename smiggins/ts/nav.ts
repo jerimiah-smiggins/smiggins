@@ -89,6 +89,11 @@ function renderPage(intent: intent): void {
   let c: userData | undefined;
 
   switch (intent) {
+    case "home":
+      extraVariables = {
+        poll_items: getPollInputsHTML("home", "#post")
+      }; break;
+
     case "user":
       let u: string = getUsernameFromPath();
       c = userCache[u];
