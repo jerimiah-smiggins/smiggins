@@ -15,12 +15,6 @@
     "editor.rulers": [80]
   },
 
-  "files.associations": {
-    "*.json": "jsonc",
-    "**/css/**/*.css": "css",
-    "**/js/**/*.js": "javascript"
-  },
-
   "typescript.inlayHints.propertyDeclarationTypes.enabled": true,
   "typescript.inlayHints.variableTypes.enabled": true,
   "typescript.inlayHints.parameterTypes.enabled": true,
@@ -33,14 +27,19 @@
 
   "search.exclude": {
     ".vscode/*": true,
-    "smiggins/templates/js/*": true,
-    "smiggins/templates/css/*": true,
-    "smiggins/posts/migrations/*": true
+    "smiggins/static/app.js": true,
+    "smiggins/static/base.css": true,
+    "smiggins/posts/migrations/*": true,
+    "**/__pycache__": true,
+    "**/.venv/": true,
+    "**/venv/": true
   },
 
   "files.exclude": {
-    "smiggins/templates/js": true,
-    "smiggins/templates/css": true,
-    "**/__pycache__": true
+    "smiggins/static/app.js": true,
+    "smiggins/static/base.css": true,
+    "**/__pycache__": true,
+    "**/.venv/": true,
+    "**/venv/": true
   }
 }

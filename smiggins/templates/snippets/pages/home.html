@@ -1,0 +1,30 @@
+{% include "snippets/generic/page-start.html" with active_page="home" %}
+
+<div id="timeline-carousel">
+  <div data-timeline-id="following">Following</div>
+  <div data-timeline-id="global" data-timeline-active>Global</div>
+  <div data-timeline-toggle="comments" data-timeline-toggle-store="home-comments">Comments</div>
+  <!-- TODO: don't comments option -->
+</div>
+
+<div class="compose-box">
+  <div><input data-enter-next="#post-content" data-enter-submit="#post" id="post-cw" placeholder="Content warning (optional)" maxlength="{{ conf.max_length.cw }}"></div>
+  <div><textarea data-enter-next="!avoid" data-enter-submit="#post" id="post-content" placeholder="Cool post" maxlength="{{ conf.max_length.post }}"></textarea></div>
+
+  <div id="poll-area" hidden>@{poll_items}</div>
+
+  <div class="post-options">
+    <div><label><input type="checkbox" id="post-private" @{checked_if_default_private}> Followers only</label></div>
+    <div class="flex-spacer"></div>
+    <div><button data-button-alt-colors id="poll-toggle">Poll</button></div>
+    <div><button data-button-alt-colors id="post">Post</button></div>
+  </div>
+</div>
+
+<hr>
+
+<div id="timeline-posts"></div>
+
+<button id="timeline-more" hidden>Load More</button>
+
+{% include "snippets/generic/page-end.html" %}

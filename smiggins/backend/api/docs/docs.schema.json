@@ -1,0 +1,59 @@
+{
+  "$schema": "https://json-schema.org/draft-07/schema#",
+  "type": "object",
+  "additionalProperties": false,
+  "patternProperties": {
+    "(?:POST|PATCH|PUT|GET|DELETE) /api/|post": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["id"],
+      "patternProperties": {
+        "description": { "type": "string" },
+        "id": { "type": "integer", "minimum": 0, "maximum": 255 },
+
+        "params": {
+          "type": "object",
+          "patternProperties": {
+            ".*": {
+              "type": "object",
+              "required": ["type"],
+              "properties": {
+                "type": {
+                  "type": "string",
+                  "enum": ["str", "int", "float", "bool"]
+                },
+                "name": { "type": "string" },
+                "required": { "type": "boolean", "enum": [true] }
+              }
+            }
+          }
+        },
+
+        "response|body": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": ["type", "name"],
+            "properties": {
+              "type": {
+                "type": "string",
+                "enum": [
+                  "str0", "str8", "str16",
+                  "uint8", "uint16", "uint32", "uint64", "floatint",
+                  "hex3", "hex32",
+                  "post", "notif",
+                  "bool7", "bool6", "bool5", "bool4", "bool3", "bool2", "bool1", "bool0"
+                ]
+              },
+              "name": { "type": "string" },
+              "id": { "type": "string" },
+              "condition": { "type": "string" },
+              "loop": { "type": "string" }
+            }
+          }
+        }
+      }
+    }
+  }
+}

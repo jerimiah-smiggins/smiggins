@@ -1,0 +1,33 @@
+{% include "snippets/generic/page-start.html" %}
+
+<a id="comment-parent" href="/p/@{parent}/" @{hidden_if_not_comment} data-internal-link="post"><div>Comment Parent</div></a>
+<a id="home-link" href="/" @{hidden_if_comment} data-internal-link="home"><div>Home</div></a>
+
+<hr class="no-margin-bottom">
+
+<div id="focused-post"></div>
+
+<hr class="no-margin-bottom">
+
+<div class="compose-box no-margin-top">
+  <div><input data-enter-next="#post-content" data-enter-submit="#post" id="post-cw" placeholder="Content warning (optional)" maxlength="{{ conf.max_length.cw }}"></div>
+  <div><textarea data-enter-next="!avoid" data-enter-submit="#post" id="post-content" placeholder="Cool comment" maxlength="{{ conf.max_length.post }}"></textarea></div>
+  <div class="post-options">
+    <div><label><input type="checkbox" id="post-private" @{checked_if_default_private}> Followers only</label></div>
+    <div class="flex-spacer"></div>
+    <div><button data-button-alt-colors id="post">Reply</button></div>
+  </div>
+</div>
+
+<hr>
+
+<div id="timeline-carousel" class="generic-margin-bottom">
+  <div data-timeline-id="post_@{pid}_recent" data-timeline-active>Newest</div>
+  <div data-timeline-id="post_@{pid}_oldest">Oldest</div>
+  <!-- <div data-timeline-id="post_@{pid}_random">Random</div> -->
+</div>
+
+<div id="timeline-posts"></div>
+<button id="timeline-more" hidden>Load More</button>
+
+{% include "snippets/generic/page-end.html" %}

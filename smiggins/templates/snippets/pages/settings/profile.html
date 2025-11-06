@@ -1,0 +1,67 @@
+{% include "snippets/generic/page-start.html" with active_page="settings" %}
+
+<h1 class="no-margin-top no-margin-bottom">Profile Settings</h1>
+
+<hr class="no-margin-bottom">
+<a class="back-link plain-link" href="/settings/" data-internal-link="settings">@{icon_back} Settings</a>
+<hr class="no-margin-top no-margin-bottom">
+
+<div id="settings-sections">
+  <div>
+    <p class="no-margin-top">Your Profile</p>
+    <label>
+      <div>Display name:</div>
+      <input data-disabled-while-loading disabled id="display-name" value="@{display_name}" maxlength="{{ conf.max_length.display_name }}">
+    </label>
+
+    <label>
+      <div class="generic-margin-top">Pronouns:</div>
+      <select data-disabled-while-loading disabled id="pronouns">
+        <option value="">Unset</option>
+        <option value="he/him">he/him</option>
+        <option value="she/her">she/her</option>
+        <option value="they/them">they/them</option>
+        <option value="it/its">it/its</option>
+        <option value="custom">Custom</option>
+      </select>
+      <div><input id="pronouns-custom" hidden placeholder="Custom pronouns..." maxlength="255"></div>
+    </label>
+
+    <label>
+      <div class="generic-margin-top">User bio:</div>
+      <textarea data-disabled-while-loading disabled id="bio" maxlength="{{ conf.max_length.bio }}">@{bio}</textarea>
+    </label>
+
+    <div class="generic-margin-top">Banner:</div>
+    <input data-disabled-while-loading disabled type="checkbox" id="banner-gradient" @{checked_if_gradient}>
+    <label for="banner-gradient">Enable gradient banner?</label>
+    <div>
+      <input data-disabled-while-loading disabled type="color" value="@{color_one}" id="banner-one">
+      <input data-disabled-while-loading disabled type="color" value="@{color_two}" id="banner-two">
+    </div>
+    <div id="banner-example" style="--color-one: @{color_one}; --color-two: @{color_two}"></div>
+    <p class="no-margin-bottom"><button id="profile-save" data-button-alt-colors>Save</button>
+  </div>
+
+  <div>
+    <p class="no-margin-top">Posts</p>
+    <label>
+      <div>Default post visibility:</div>
+      <select id="default-private">
+        <option value="false">Public</option>
+        <option value="true" @{selected_if_default_private}>Followers Only</option>
+      </select>
+    </label>
+  </div>
+
+  <div>
+    <p class="no-margin-top">Followers</p>
+    <label><input data-disabled-while-loading disabled type="checkbox" id="verify-followers"> Manually approve followers?</label>
+  </div>
+</div>
+<hr class="no-margin-top">
+
+{% comment %}
+<div>manually approve</div> {% endcomment %}
+
+{% include "snippets/generic/page-end.html" %}

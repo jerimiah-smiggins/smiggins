@@ -1,0 +1,19 @@
+{% load static %}
+{
+  "background_color": "#190b14",
+  "categories": ["social"],
+  "description": "{{ version }}",
+  "display": "standalone",
+  "display_override": ["fullscreen", "minimal-ui"],
+  "name": "{{ site_name }}",
+  "orientation": "natural",
+  "short_name": "Smiggins",
+  "start_url": "/",
+  "theme_color": "#190b14",
+
+  "icons": [{
+    "src": "{% static 'img/old_favicon.png' %}",
+    "type": "image/png",
+    "sizes": "64x64"
+  }]
+}

@@ -1,0 +1,93 @@
+{% load static %}
+<!DOCTYPE html>
+
+<html>
+  <head>
+    <title>Loading - {{ conf.site_name }}</title>
+
+    <link rel="preload" href="{% static 'font/poppins-normal.woff' %}" as="font" type="font/woff" crossorigin>
+    <link rel="preload" href="{% static 'font/poppins-bold.woff' %}" as="font" type="font/woff" crossorigin>
+
+    {% if google_verification_tag %}
+      <meta name="google-site-verification" content="{{ google_verification_tag }}">
+    {% endif %}
+
+    <link rel="manifest" href="/manifest.json">
+    <link rel="icon" href="{% static 'img/old_favicon.png' %}?v={{ conf.version }}">
+
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width,initial-scale=1">
+
+    <script>
+      const loggedIn = "{{ logged_in }}" === "True";
+      const isAdmin = "{{ is_admin }}" === "True";
+      const username = "{{ username }}";
+      const pageTitle = "{{ conf.site_name }}";
+      let defaultPostPrivate = "{{ default_post_private }}" === "True";
+      const limits = {
+        // more limits can be added as needed. most aren't used by the js, just the templates
+        username: {{ conf.max_length.username }},
+        poll_count: {{ conf.max_length.poll_count }},
+        poll_item: {{ conf.max_length.poll_item }}
+      }
+    </script>
+
+    <link rel="stylesheet" href="{% static 'base.css' %}?v={{ conf.version }}">
+  </head>
+
+  <body>
+    <div id="container">
+      <div id="loading">
+        <img id="loading-icon" src="{% static 'img/old_favicon.png' %}?v={{ conf.version }}">
+        <div>{{ loading }}</div>
+      </div>
+    </div>
+
+    <div id="toasts"></div>
+
+    <div id="snippets">
+      <!-- pages -->
+      {% comment %}
+        you can limit the number of replacements for a variable by adding a colon and the max number of replacements.
+        ex. vars="username:1,site_name" would autofill the variables for username and site_name, however the username variable is limited to a maximum of one insertion.
+      {% endcomment %}
+      {% include "snippet.html" with id="pages/404" vars="home_page" %}
+      {% include "snippet.html" with id="pages/404-noauth" %}
+      {% include "snippet.html" with id="pages/logout" processing="logout" %}
+      <!-- logged out pages -->
+      {% include "snippet.html" with id="pages/index" vars="site_name" %}
+      {% include "snippet.html" with id="pages/login" processing="input_enter,password_toggle,login" %}
+      {% include "snippet.html" with id="pages/signup" processing="input_enter,password_toggle,signup" %}
+      <!-- logged in pages -->
+      {% include "snippet.html" with id="pages/home" vars="username,checked_if_default_private" processing="home,timeline_switch,timeline_more,input_enter" %}
+      {% include "snippet.html" with id="pages/user" vars="username" processing="user,timeline_switch,timeline_more" %}
+      {% include "snippet.html" with id="pages/post" vars="username" processing="post_page,timeline_switch,timeline_more,input_enter" %}
+      {% include "snippet.html" with id="pages/settings" vars="username" %}
+      {% include "snippet.html" with id="pages/settings/profile" vars="username,selected_if_default_private" processing="settings_profile" %}
+      {% include "snippet.html" with id="pages/settings/cosmetic" vars="username" processing="settings_cosmetic" %}
+      {% include "snippet.html" with id="pages/settings/account" vars="username" processing="settings_account,password_toggle,input_enter" %}
+      {% include "snippet.html" with id="pages/settings/keybinds" vars="username" processing="settings_keybinds" %}
+      {% include "snippet.html" with id="pages/settings/about" vars="username" %}
+      {% include "snippet.html" with id="pages/notifications" vars="username" processing="notifications,timeline_more" %}
+      {% include "snippet.html" with id="pages/hashtag" vars="username" processing="timeline_switch,timeline_more,hashtag" %}
+      {% include "snippet.html" with id="pages/follow-requests" vars="username" processing="follow_requests,timeline_more" %}
+      {% if is_admin %}{% include "snippet.html" with id="pages/admin" vars="username" processing="admin,input_enter" %}{% endif %}
+
+      <!-- other -->
+      {% include "snippet.html" with id="post" processing="post" %}
+      {% include "snippet.html" with id="post-placeholder" %}
+      {% include "snippet.html" with id="toast" %}
+      {% include "snippet.html" with id="compose-modal" vars="checked_if_default_private" processing="input_enter" %}
+      {% include "snippet.html" with id="keybind-modal" %}
+      {% include "snippet.html" with id="notification-like" %}
+      {% include "snippet.html" with id="folreq-user" %}
+    </div>
+
+    <script src="{% static 'app.js' %}"></script>
+    <script>
+      let currentPage = urlToIntent(location.pathname);
+      history.replaceState(currentPage, "", normalizePath(location.pathname));
+      renderPage(currentPage);
+    </script>
+  </body>
+</html>

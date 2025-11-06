@@ -1,49 +1,86 @@
-.thin {
-  max-width: 24em;
-  margin: 0 auto;
-}
-
-.settings-container {
+#settings-sections {
   display: flex;
-  flex-direction: row;
-  flex-wrap: wrap;
-  justify-content: center;
-  gap: 4em;
-  margin-bottom: 4em;
-}
+  flex-direction: column;
+  flex-wrap: nowrap;
+  gap: 0;
 
-#content[data-page="settings"] {
-  .post {
-    margin: 0px;
+  > div,
+  > a {
+    text-align: left;
+    border-bottom: 1px solid var(--border-color);
+    display: block;
+    padding: 1em;
+    box-sizing: border-box;
+
+    &:last-child {
+      border-bottom: none;
+    }
   }
 
-  #banner {
-    width: 200px;
-    background-color: var(--banner);
-    height: 50px;
-    display: inline-block;
-    border-radius: 0.2em;
+  > div > :first-child {
+    font-weight: 700;
+  }
 
-    &.gradient {
-      background: linear-gradient(90deg, var(--banner), var(--banner-two));
+  > a {
+    font-weight: 700;
+
+    small {
+      font-weight: 400;
     }
   }
 }
 
-.settings-side {
-  display: inline-block;
-  width: 20em;
-}
+.back-link {
+  display: block;
+  padding: 1em;
+  text-align: left;
 
-.big-button {
-  font-size: 1.5em;
-  width: 6em;
-  height: 2em;
-  border-radius: 1em;
-}
-
-@media screen and (max-width: 565px) {
-  #content[data-page="settings"] .post {
-    width: calc(94vw - 3.5em - (3em / 7));
+  svg {
+    fill: currentColor;
+    height: 1em;
+    translate: 0 0.125em;
+    padding-right: 0.2em
   }
+}
+
+.kb-key,
+.otp {
+  background-color: var(--background-mid);
+  border-radius: 3px;
+  padding: 0.1em 0.25em;
+}
+
+#banner-example {
+  margin: 0.25em 0;
+  height: 50px;
+  max-width: 200px;
+  border-radius: @input-border-radius;
+  background: linear-gradient(90deg, var(--color-one), var(--color-two));
+}
+
+#banner-gradient:not(:checked) ~ div > #banner-two {
+  display: none;
+}
+
+#font-size-selection {
+  display: flex;
+  flex-wrap: wrap;
+  flex-direction: row;
+
+  > div {
+    text-align: center;
+    box-sizing: border-box;
+    padding: 0 10px;
+    display: flex;
+    cursor: pointer;
+
+    > span {
+      align-self: flex-end;
+    }
+  }
+
+  #font-size-small { font-size: @font-size-small; }
+  #font-size-normal { font-size: @font-size-normal; }
+  #font-size-large { font-size: @font-size-large; }
+  #font-size-xl { font-size: @font-size-xl; }
 }

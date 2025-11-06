@@ -5,9 +5,9 @@ on:
     branches:
       - main
       - dev
+      - fe-rewrite
 
 jobs:
-
   build:
     permissions:
       contents: write
@@ -25,16 +25,15 @@ jobs:
 
     - name: Compile
       run: |
-        npm i -g typescript less less-plugin-clean-css
-        tsc
-        python3 compile-less.py
+        npm i -g typescript less uglify-js uglifycss
+        ./compile.sh
 
     - name: Commit
       run: |
         git config --global user.name 'github-actions[bot]'
         git config --global user.email 'github-actions[bot]@users.noreply.github.com'
-        git add smiggins/templates/js
-        git add smiggins/templates/css
+        git add smiggins/static/app.js
+        git add smiggins/static/base.css
         git diff --cached --quiet || (git commit -m 'Compile TS/LESS' && git push)
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

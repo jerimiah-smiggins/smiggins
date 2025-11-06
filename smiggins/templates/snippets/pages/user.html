@@ -1,0 +1,34 @@
+{% include "snippets/generic/page-start.html" with active_page="user" %}
+
+<div id="user-container" class="generic-margin-bottom">
+  <div id="user-banner" style="--color-one: @{color_one}; --color-two: @{color_two}"></div>
+
+  <div id="display-name">@{display_name}</div>
+  <div id="username">@@{user_username}</div>
+
+  <small>
+    following <span id="following">@{following}</span> -
+    followed by <span id="followers">@{followers}</span>
+  </small>
+
+  <p id="user-interactions" hidden>
+    <button id="follow">Follow</button>
+    <button id="block">Block</button>
+  </p>
+
+  <p id="bio">@{bio}</p>
+</div>
+
+<div id="user-pinned-container" hidden><hr class="no-margin-bottom"><div id="user-pinned"></div></div>
+
+<hr class="no-margin-top">
+
+<div id="timeline-carousel" class="generic-margin-bottom">
+  <div data-timeline-id="user_@{user_username}" data-timeline-active>Posts</div>
+  <div data-timeline-id="user_@{user_username}_all">Include Comments</div>
+</div>
+
+<div id="timeline-posts"></div>
+<button id="timeline-more" hidden>Load More</button>
+
+{% include "snippets/generic/page-end.html" %}

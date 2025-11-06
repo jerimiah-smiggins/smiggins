@@ -1,0 +1,53 @@
+<div class="post" data-post-id="@{pid}">
+  <div class="post-upper">
+    <div class="post-private" @{private_post}>@{icon_private}</div>
+    <div class="post-user"><a data-internal-link="user" href="/u/@{username}/" class="plain-link">@{display_name}</a></div>
+    <div class="subtext post-username"><a data-internal-link="user" href="/u/@{username}/" class="plain-link">@@{username}</a></div>
+    <div class="subtext post-pronouns" @{hidden_if_no_pronouns}>@{pronouns}</div>
+
+    <div class="subtext post-timestamp"><a data-internal-link="post" href="/p/@{pid}/" class="plain-link">@{timestamp}</a></div>
+
+    <div class="post-edited" @{hidden_if_no_edit}>@{icon_edit}</div>
+  </div>
+
+  @{cw_start}
+
+  <div class="post-content"><span @{hidden_if_no_comment}><a data-internal-link="post" href="/p/@{comment_id}">@{icon_comment_arrow}</a></span>@{content}</div>
+
+  <div class="poll-container" @{hidden_if_no_poll}>@{poll}</div>
+
+  <div class="post-quote" @{hidden_if_no_quote}>
+    <div class="post-upper">
+      <div class="post-private" @{quote_private_post}>@{icon_private}</div>
+      <div class="post-user"><a data-internal-link="user" href="/u/@{quote_username}/" class="plain-link">@{quote_display_name}</a></div>
+      <div class="subtext post-username"><a data-internal-link="user" href="/u/@{quote_username}/" class="plain-link">@@{quote_username}</a></div>
+      <div class="subtext post-pronouns" @{hidden_if_no_quote_pronouns}>@{quote_pronouns}</div>
+
+      <div class="subtext post-timestamp"><a data-internal-link="post" href="/p/@{quote_pid}/" class="plain-link">@{quote_timestamp}</a></div>
+
+      <div class="post-edited" @{hidden_if_no_quote_edit}>@{icon_edit}</div>
+    </div>
+
+    @{quote_cw_start}
+    <div class="post-content"><span @{hidden_if_no_quote_comment}><a data-internal-link="post" href="/p/@{quote_comment_id}">@{icon_comment_arrow}</a></span>@{quote_content}</div>
+    @{quote_cw_end}
+  </div>
+
+  @{cw_end}
+
+  <div class="post-interactions" @{post_interactions_hidden}>
+    <div data-interaction-comment="@{pid}"><a class="plain-link" data-internal-link="post" href="/p/@{pid}/">@{icon_comment} <span data-number>@{comments}<span></a></div>
+    <div data-interaction-quote="@{pid}">@{icon_quote} <span data-number>@{quotes}<span></div>
+    <div data-interaction-like="@{pid}" data-liked="@{liked}">@{icon_like}@{icon_like_active} <span data-number>@{likes}<span></div>
+    <div class="hamburger" tabindex="0">
+      @{icon_hamburger}
+      <div class="post-hamburger-container">
+        <div class="post-hamburger">
+          <div data-interaction-edit="@{pid}" tabindex="0" @{edit_hidden}>@{icon_edit} Edit</div>
+          <div data-interaction-pin="@{pid}" tabindex="0">@{icon_pin} Pin</div>
+          <div data-interaction-delete="@{pid}" tabindex="0" @{delete_hidden}>@{icon_delete} Delete</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

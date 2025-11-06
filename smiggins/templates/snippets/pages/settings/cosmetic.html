@@ -1,0 +1,52 @@
+{% include "snippets/generic/page-start.html" with active_page="settings" %}
+
+<h1 class="no-margin-top no-margin-bottom">Cosmetic Settings</h1>
+
+<hr class="no-margin-bottom">
+<a class="back-link plain-link" href="/settings/" data-internal-link="settings">@{icon_back} Settings</a>
+<hr class="no-margin-top no-margin-bottom">
+
+<div id="settings-sections">
+  <div>
+    <p class="no-margin-top">Colors</p>
+    <label>
+      <div>Theme:</div>
+      <select id="theme">
+        <option value="system">Automatic</option>
+        <option value="light">Light</option>
+        <option value="dark">Dark</option>
+      </select>
+    </label>
+  </div>
+
+  <div>
+    <p class="no-margin-top">Timestamps</p>
+    <label><input type="checkbox" id="complex-timestamps"> Enable complex timestamps</label>
+    <small><div>(1h becomes 1h32m, 5m becomes 5m48s)</div></small>
+  </div>
+
+  <div>
+    <p class="no-margin-top">Content Warnings</p>
+    <label><input type="checkbox" id="expand-cws"> Always expand content warnings</label>
+  </div>
+
+  <div>
+    <p class="no-margin-top">Font Size</p>
+    <div id="font-size-selection">
+      <div id="font-size-small"><span>Aa</span></div>
+      <div id="font-size-normal"><span>Aa</span></div>
+      <div id="font-size-large"><span>Aa</span></div>
+      <div id="font-size-xl"><span>Aa</span></div>
+    </div>
+  </div>
+
+  <div>
+    <p class="no-margin-top">Posts</p>
+    <p><label><input type="checkbox" id="hide-interactions"> Hide interaction counts on posts</label></p>
+    <label><input type="checkbox" id="auto-show"> Automatically show new posts on the timeline</label>
+    <small><div>When disabled, there will instead be a button to show new posts.</div></small>
+  </div>
+</div>
+<hr class="no-margin-top">
+
+{% include "snippets/generic/page-end.html" %}

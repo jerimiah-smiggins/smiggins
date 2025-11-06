@@ -1,0 +1,25 @@
+<div id="navbar">
+  <a data-internal-link="home" href="/" class="plain-link{% if active_page == "home" %} navbar-current{% endif %}">
+    <div>{% if active_page == "home" %}@{icon_home_active}{% else %}@{icon_home}{% endif %}</div>
+  </a>
+
+  <a data-internal-link="notifications" href="/notifications/" class="plain-link{% if active_page == "notifications" %} navbar-current{% endif %}">
+    <div>{% if active_page == "notifications" %}@{icon_notifications_active}{% else %}@{icon_notifications}{% endif %}</div>
+  </a>
+
+  {% comment %} <a data-internal-link="messages" href="/messages/" class="plain-link{% if active_page == "messages" %} navbar-current{% endif %}">
+    <div>{% if active_page == "messages" %}@{icon_messages_active}{% else %}@{icon_messages}{% endif %}</div>
+  </a> {% endcomment %}
+
+  <a data-internal-link="user" href="/u/@{username}/" class="plain-link{% if active_page == "user" %} navbar-current{% endif %}">
+    <div>{% if active_page == "user" %}@{icon_user_active}{% else %}@{icon_user}{% endif %}</div>
+  </a>
+
+  <a data-internal-link="settings" href="/settings/" class="plain-link{% if active_page == "settings" %} navbar-current{% endif %}">
+    <div>{% if active_page == "settings" %}@{icon_settings_active}{% else %}@{icon_settings}{% endif %}</div>
+  </a>
+
+  <a data-internal-link="follow-requests" href="/follow-requests/" class="plain-link{% if active_page == "follow-requests" %} navbar-current"{% else %}" hidden{% endif %}>
+    <div>{% if active_page == "follow-requests" %}@{icon_folreq_active}{% else %}@{icon_folreq}{% endif %}</div>
+  </a>
+</div>
