@@ -22,6 +22,7 @@ type snippet = "pages/index" | "pages/login" | "pages/signup"
              | "post" | "post-placeholder" | "toast" | "compose-modal" | "keybind-modal" | "notification-like" | "folreq-user";
 
 type keybindModifiers = "ctrl" | "shift" | "alt" | "nav";
+type themes = "light" | "dark" | "warm" | "gray" | "darker" | "oled" | "system";
 
 type snippetData = {
   content: string,

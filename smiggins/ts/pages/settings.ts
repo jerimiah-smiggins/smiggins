@@ -103,11 +103,8 @@ function settingsThemeSelection(): void {
   let themeElement: HTMLSelectElement | null = document.getElementById("theme") as HTMLSelectElement | null;
 
   if (themeElement) {
-    let th = themeElement.value;
-
-    if (th === "light" || th === "dark" || th === "system") {
-      setTheme(th);
-    }
+    let th: themes = themeElement.value as themes;
+    setTheme(th);
   }
 }
 

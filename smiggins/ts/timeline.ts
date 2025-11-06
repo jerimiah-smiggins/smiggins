@@ -567,7 +567,7 @@ function postButtonClick(e: Event): void {
     let c: post | undefined = postCache[postId];
     if (c) {
       c.interactions.liked = !liked;
-      c.interactions.likes += (-liked + 0.5) * 2;
+      c.interactions.likes += (-liked + 0.5) * 2 * (1 << 3); // floatint, must increase/decrease by int 8 to change floatint by one (div10 bit, kmb 2 bits)
     }
 
     for (const element of document.querySelectorAll(`[data-interaction-like="${postId}"]`) as NodeListOf<HTMLElement>) {
