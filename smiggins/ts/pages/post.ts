@@ -39,8 +39,12 @@ function updateFocusedPost(post: post): void {
   let p: post | undefined = postCache[pid];
   if (!commentBoxValueSet && commentElement && !commentElement.value && p) {
     commentBoxValueSet = true;
-    commentElement.value = getMentionsFromPost(p).map((a) => (`@${a} `)).join("");
+    commentElement.value = getPostMentionsString(p);
   }
+}
+
+function getPostMentionsString(p: post): string {
+  return getMentionsFromPost(p).map((a: string): string => (`@${a} `)).join("")
 }
 
 function createComment(e: Event): void {
@@ -59,7 +63,6 @@ function createComment(e: Event): void {
   (e.target as Bel)?.setAttribute("disabled", "");
   createPost(content, cw || null, privatePost, (success: boolean): void => {
     (e.target as Bel)?.removeAttribute("disabled");
-
     contentElement.focus();
 
     if (success) {
@@ -68,7 +71,7 @@ function createComment(e: Event): void {
       let p: post | undefined = postCache[getPostIDFromPath()];
 
       if (p) {
-        (contentElement as I).value = getMentionsFromPost(p).map((a) => (`@${a} `)).join("");
+        (contentElement as I).value = getMentionsFromPost(p).map((a: string): string => (`@${a} `)).join("");
       } else {
         (contentElement as I).value = "";
       }
@@ -88,7 +91,7 @@ function p_postPage(element: D): void {
   if (p) {
     let commentElement: HTMLTextAreaElement | null = element.querySelector("#post-content");
     if (commentElement) {
-      commentElement.value = getMentionsFromPost(p).map((a: string): string => (`@${a} `)).join("");
+      commentElement.value = getPostMentionsString(p);
     }
 
     postElement.replaceChildren(getPost(pid, false));

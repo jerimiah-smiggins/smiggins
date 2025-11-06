@@ -105,6 +105,12 @@ function createPostModal(type?: "quote" | "comment" | "edit", id?: number): void
 
     let privEl: Iel = el.querySelector("#modal-post-private");
     if (privEl) { privEl.checked = post.private; }
+  } else if (type === "comment" && id !== undefined) {
+    let post: post | undefined = postCache[id];
+    if (!post) { return; }
+
+    let contentEl: Iel = el.querySelector("#modal-post-content");
+    if (contentEl) { contentEl.value = getPostMentionsString(post); }
   }
 }
 

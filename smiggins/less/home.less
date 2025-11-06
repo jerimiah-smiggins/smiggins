@@ -130,15 +130,20 @@
       filter: drop-shadow(0 0 3px var(--subtext));
     }
 
-    &[data-notification]::after {
-      content: "";
-      width: calc(2 * @notification-dot-radius);
-      height: calc(2 * @notification-dot-radius);
-      border-radius: @notification-dot-radius;
-      background-color: var(--accent);
-      position: absolute;
-      top: -@notification-dot-radius;
-      right: -@notification-dot-radius;
+    &[data-notification] > div {
+      position: relative;
+      display: inline-block;
+
+      &::after {
+        content: "";
+        width: calc(2 * @notification-dot-radius);
+        height: calc(2 * @notification-dot-radius);
+        border-radius: @notification-dot-radius;
+        background-color: var(--accent);
+        position: absolute;
+        top: -@notification-dot-radius;
+        right: -@notification-dot-radius;
+      }
     }
   }
 }

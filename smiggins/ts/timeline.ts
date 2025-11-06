@@ -574,7 +574,6 @@ function postButtonClick(e: Event): void {
       element.dataset.liked = String(!liked);
 
       let number: el = element.querySelector("[data-number]");
-
       if (number && !isNaN(+number.innerText)) {
         number.innerText = String(+number.innerText + (-liked + 0.5) * 2);
       }
