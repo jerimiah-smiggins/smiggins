@@ -1,6 +1,6 @@
 from pathlib import Path
 
-from backend.variables import DEBUG  # noqa: F401
+from backend.variables import DEBUG, WEBSITE_URL  # noqa: F401
 
 BASE_DIR = Path(__file__).resolve().parent.parent
 
@@ -8,6 +8,7 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 SECRET_KEY = 'django-insecure-y$sfjl+rlc(gbdjm4h@-!zxn8$z@nkcdd_9g^^yq&-=!b(8d43'
 
 ALLOWED_HOSTS = ["*"]
+CSRF_TRUSTED_ORIGINS = [WEBSITE_URL]
 
 INSTALLED_APPS = [
     'posts.apps.PostsConfig',
@@ -73,10 +74,8 @@ AUTH_PASSWORD_VALIDATORS = [
     },
 ]
 
-LANGUAGE_CODE = 'en-us'
-TIME_ZONE = 'EST'
-USE_I18N = True
-USE_TZ = True
+USE_I18N = False
+USE_TZ = False
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
 STATIC_ROOT = BASE_DIR / "collected-static"
