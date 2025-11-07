@@ -392,6 +392,9 @@ class api_CreatePost(_api_BaseResponse):
 
     def parse_data(self) -> dict:
         data = self.request.body
+
+        print(" ".join(list(map(lambda i: hex(i)[2:].zfill(2), [i for i in data]))))
+
         flags = int(data[0])
         has_quote = _extract_bool(flags, 6)
         has_poll = _extract_bool(flags, 5)
@@ -419,6 +422,8 @@ class api_CreatePost(_api_BaseResponse):
         if has_comment:
             comment_id = _extract_int(32, data)
             data = data[4:]
+
+        print(bin(flags), has_quote, has_poll, has_comment, quote_id, comment_id)
 
         return {
             "content": content,
