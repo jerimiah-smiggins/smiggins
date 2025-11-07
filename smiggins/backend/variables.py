@@ -44,7 +44,6 @@ class DatabaseBackupsSchema(TypedDict):
     path: str
     filename: str
 
-
 BASE_DIR = pathlib.Path(__file__).resolve().parent.parent
 
 # Set default variable states
