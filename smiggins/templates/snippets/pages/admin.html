@@ -43,7 +43,7 @@
       <div><label><input type="checkbox" data-admin-permissions="1"> Delete Users</label></div>
       {% if conf.new_accounts == "otp" %}<div><label><input type="checkbox" data-admin-permissions="9"> Generate Invite Codes</label></div>{% endif %}
       <div><label><input type="checkbox" data-admin-permissions="7"> Set Admin Permissions</label></div>
-      <small><div>Allows setting permissions for <b>both self and others</b></div></small>
+      <small><div>Allows setting permissions for <b>both self and others</b>, including permissions they don't have</div></small>
 
       <p class="no-margin-bottom">
         <button id="permissions-load">Load Current Permissions</button>

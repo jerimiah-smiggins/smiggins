@@ -50,7 +50,7 @@ def post_create(request: HttpRequest) -> HttpResponse:
         except Post.DoesNotExist:
             ...
         else:
-            if quote.creator.verify_followers and not user.following.contains(quote.creator) \
+            if quote.private and not (user == quote.creator or user.following.contains(quote.creator)) \
             or quote.creator.blocking.contains(user):
                 quote = None
 
@@ -61,7 +61,7 @@ def post_create(request: HttpRequest) -> HttpResponse:
         except Post.DoesNotExist:
             ...
         else:
-            if comment_parent.creator.verify_followers and not user.following.contains(comment_parent.creator) \
+            if comment_parent.private and not (user == comment_parent.creator or user.following.contains(comment_parent.creator)) \
             or comment_parent.creator.blocking.contains(user):
                 comment_parent = None
 

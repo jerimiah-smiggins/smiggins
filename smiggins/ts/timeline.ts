@@ -649,9 +649,9 @@ function createPost(
       Boolean(extra && extra.comment),
       [content, 16],
       [cw || "", 8],
-      ...(extra && extra.poll ? [[extra.poll.length, 8] as [number, 8], ...extra.poll.map((a: string): [string, 8] => ([a, 8]))] : []),
-      ...(extra && extra.quote ? [[extra.quote, 32] as [number, 32]] : []),
-      ...(extra && extra.comment ? [[extra.comment, 32] as [number, 32]] : [])
+      ...((extra && extra.poll && extra.poll.length) ? [[extra.poll.length, 8] as [number, 8], ...extra.poll.map((a: string): [string, 8] => ([a, 8]))] : []),
+      ...((extra && extra.quote) ? [[extra.quote, 32] as [number, 32]] : []),
+      ...((extra && extra.comment) ? [[extra.comment, 32] as [number, 32]] : [])
     ])
   }).then((response: Response): Promise<ArrayBuffer> => (response.arrayBuffer()))
     .then((ab: ArrayBuffer): ArrayBuffer => {
