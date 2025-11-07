@@ -17,7 +17,6 @@ let offset: { upper: number | null, lower: number | null } = {
 };
 
 const LOADING_HTML: string = "<i class=\"timeline-status\">Loading...</i>";
-const TL_POLLING_INTERVAL: number = 10_000; // 10s
 
 // hooks onto an element for a timeline, initialization
 function hookTimeline(

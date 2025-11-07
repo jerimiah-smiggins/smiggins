@@ -85,7 +85,7 @@ function normalizePath(path: string): string {
   if (!path.endsWith("/"))  { path += "/"; }
   if (!path.startsWith("/")) { path = "/" + path; }
 
-  return path.toLowerCase();
+  return path.toLowerCase().split("?")[0];
 }
 
 function renderPage(intent: intent): void {
