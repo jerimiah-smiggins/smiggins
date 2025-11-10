@@ -63,7 +63,7 @@ def find_mentions(message: str, exclude_users: list[str]=[]) -> list[str]:
     return list(set([i for i in re.findall(r"@([a-z0-9\-_]{1," + str(MAX_USERNAME_LENGTH) + r"})\b", message.lower()) if i not in exclude_users]))
 
 def find_hashtags(message: str) -> list[str]:
-    return list(set(re.findall(r"#([a-z0-9_]{1,64})(?:\b|[^a-z0-9_])", message.lower())))
+    return list(set(re.findall(r"#([a-z_][a-z0-9_]{0,63})(?:\b|[^a-z0-9_])", message.lower())))
 
 def get_container_id(user_one: str, user_two: str) -> str:
     return f"{user_one}:{user_two}" if user_two > user_one else f"{user_two}:{user_one}"
