@@ -39,6 +39,20 @@ function hookTimeline(
         el.dataset.timelineActive = "";
       }
     }
+
+    if (carousel.dataset.timelineStore) {
+      let id: string = localStorage.getItem("smiggins-" + carousel.dataset.timelineStore) || "";
+      let el: Del = carousel.querySelector(`[data-timeline-id="${id}"]`) as Del
+
+      if (el) {
+        for (const el of carousel.querySelectorAll(`[data-timeline-active]`) as NodeListOf<D>) {
+          delete el.dataset.timelineActive;
+        }
+
+        el.dataset.timelineActive = "";
+        activeTimeline = id;
+      }
+    }
   }
 
   timelines = tls;
@@ -217,6 +231,11 @@ function switchTimeline(e: MouseEvent): void {
 
   if (el.dataset.timelineId && el.dataset.timelineId in timelines && timelines[el.dataset.timelineId].url !== currentTl.url) {
     _setTimeline(el.dataset.timelineId);
+
+    let carousel: Del = document.querySelector("[data-timeline-store]");
+    if (carousel && carousel.dataset.timelineStore) {
+      localStorage.setItem("smiggins-" + carousel.dataset.timelineStore, el.dataset.timelineId);
+    }
   }
 
   for (const el of document.querySelectorAll("[data-timeline-active]:not([data-timeline-toggle])")) {
