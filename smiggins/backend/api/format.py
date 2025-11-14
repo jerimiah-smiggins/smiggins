@@ -146,6 +146,8 @@ def _post_to_bytes(post: Post, user: User | None, user_data_override: User | Non
     ) + b(
         post.edited << 7 # post edited
       | (quote is not None and quote.edited) << 6 # poll edited
+      | (quote is not None and hasattr(quote, "poll")) << 5 # quote has poll
+      | (quote is not None and quote.quoted_post is not None) << 4 # quote has quote
     )
 
     if comment:

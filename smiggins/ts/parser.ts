@@ -159,19 +159,19 @@ function _extractPost(data: Uint8Array): [post, leftoverData: Uint8Array] {
   let postId: number = _extractInt(32, data);
   let commentParentId: number | null = null;
   let postTimestamp: number = _extractInt(64, data.slice(4));
-  let flags: number = data[12];
-  let edited: [post: boolean, quote: boolean] = [_extractBool(data[13], 7), _extractBool(data[13], 6)]
+  let flags: [number, number] = [data[12], data[13]];
+  let edited: [post: boolean, quote: boolean] = [_extractBool(flags[1], 7), _extractBool(flags[1], 6)]
 
   let newData: Uint8Array = data.slice(14);
 
-  if (_extractBool(flags, 6)) {
+  if (_extractBool(flags[0], 6)) {
     commentParentId = _extractInt(32, newData);
     newData = newData.slice(4);
   }
 
   let interactions = {
     likes: _extractInt(16, newData),
-    liked: _extractBool(flags, 3),
+    liked: _extractBool(flags[0], 3),
     quotes: _extractInt(16, newData.slice(2)),
     comments: _extractInt(16, newData.slice(4)),
   };
@@ -185,18 +185,18 @@ function _extractPost(data: Uint8Array): [post, leftoverData: Uint8Array] {
   newData = pronouns[1];
 
   let pollData = null
-  if (_extractBool(flags, 0)) {
+  if (_extractBool(flags[0], 0)) {
     let d = _extractPoll(newData)
     pollData = d[0];
     newData = d[1];
   }
 
-  let quoteData = null;
-  if (_extractBool(flags, 5)) {
-    if (!_extractBool(flags, 4)) {
+  let quoteData: post["quote"] = null;
+  if (_extractBool(flags[0], 5)) {
+    if (!_extractBool(flags[0], 4)) {
       quoteData = false as false;
     } else {
-      let quoteIsComment: boolean = _extractBool(flags, 1);
+      let quoteIsComment: boolean = _extractBool(flags[0], 1);
       let quoteCommentId: null | number = null;
 
       if (quoteIsComment) {
@@ -214,16 +214,18 @@ function _extractPost(data: Uint8Array): [post, leftoverData: Uint8Array] {
         content: quoteContent[0],
         content_warning: quoteCW[0],
         timestamp: _extractInt(64, newData.slice(4)),
-        private: _extractBool(flags, 2),
+        private: _extractBool(flags[0], 2),
         comment: quoteCommentId,
         edited: edited[1],
+        has_poll: _extractBool(flags[1], 5),
+        has_quote: _extractBool(flags[1], 4),
 
         user: {
           username: quoteUsername[0],
           display_name: quoteDispName[0],
           pronouns: quotePronouns[0]
         }
-      }
+      };
 
       newData = quotePronouns[1];
     }
@@ -234,7 +236,7 @@ function _extractPost(data: Uint8Array): [post, leftoverData: Uint8Array] {
     content: content[0],
     content_warning: contentWarning[0],
     timestamp: postTimestamp,
-    private: _extractBool(flags, 7),
+    private: _extractBool(flags[0], 7),
     comment: commentParentId,
     edited: edited[0],
 

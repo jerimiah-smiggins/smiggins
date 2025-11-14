@@ -18,6 +18,8 @@ post:
 
   - { type: bool7, name: "Edited" }
   - { type: bool6, name: "Quote edited" }
+  - { type: bool5, name: "Quote has poll" }
+  - { type: bool4, name: "Quote has quote" }
 
   - { type: uint32, name: "Comment parent ID", condition: is_comment }
 

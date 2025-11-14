@@ -1,3 +1,5 @@
+declare const NOTIFICATION_POLLING_INTERVAL: number;
+declare const TL_POLLING_INTERVAL: number;
 declare const loggedIn: boolean;
 declare const isAdmin: boolean;
 declare const username: string;
@@ -70,6 +72,8 @@ type post = {
     private: boolean,
     comment: number | null,
     edited: boolean,
+    has_poll: boolean,
+    has_quote: boolean,
 
     user: {
       username: string,
