@@ -72,6 +72,8 @@ type post = {
     private: boolean,
     comment: number | null,
     edited: boolean,
+    has_poll: boolean,
+    has_quote: boolean,
 
     user: {
       username: string,

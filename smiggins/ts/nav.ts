@@ -107,7 +107,7 @@ function renderPage(intent: intent): void {
         following: c && floatintToStr(c.num_following) || "0",
         followers: c && floatintToStr(c.num_followers) || "0",
         bio: c && [linkify(escapeHTML(c.bio)), 1] || "",
-        user_username: c && [escapeHTML(u + (c.pronouns && " - ") + (c.pronouns || "")), 1] || u,
+        user_username: c && [escapeHTML(u + (c.pronouns ? " - " + c.pronouns : "")), 1] || u,
         display_name: c && [escapeHTML(c.display_name), 1] || u
       }; break;
 

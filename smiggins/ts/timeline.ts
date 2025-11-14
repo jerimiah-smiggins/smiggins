@@ -353,7 +353,7 @@ function getPost(
     let quoteCwEnd: string = "";
 
     if (p.quote.content_warning) {
-      quoteCwStart = `<details class="content-warning"${forceCwState !== false && (forceCwState === true || localStorage.getItem("smiggins-expand-cws")) ? " open" : "" }><summary><div>${escapeHTML(p.quote.content_warning)} <div class="content-warning-stats">(${p.quote.content.length} char${p.quote.content.length === 1 ? "" : "s"})</div></div></summary>`;
+      quoteCwStart = `<details class="content-warning"${forceCwState !== false && (forceCwState === true || localStorage.getItem("smiggins-expand-cws")) ? " open" : "" }><summary><div>${escapeHTML(p.quote.content_warning)} <div class="content-warning-stats">(${p.quote.content.length} char${p.quote.content.length === 1 ? "" : "s"}${p.quote.has_quote ? ", quote" : ""}${p.quote.has_poll ? ", poll" : ""})</div></div></summary>`;
       quoteCwEnd = "</details>";
     }
 
@@ -374,7 +374,7 @@ function getPost(
     };
 
     quoteUnsafeData = {
-      quote_content: [quoteContent, 1],
+      quote_content: [quoteContent + (p.quote.has_poll ? (p.quote.content ? "\n" : "") + "<i>Includes a poll</i>" : "") + (p.quote.has_quote || p.quote.has_poll ? (p.quote.content ? "\n" : "") + "<i>Includes a quote</i>" : ""), 1],
       quote_cw_start: [quoteCwStart, 1],
       quote_pronouns: [p.quote.user.pronouns || "", 1],
       quote_display_name: [escapeHTML(p.quote.user.display_name), 1]
