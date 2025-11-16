@@ -4,6 +4,7 @@ declare const loggedIn: boolean;
 declare const isAdmin: boolean;
 declare const username: string;
 declare const pageTitle: string;
+declare const version: string;
 declare let currentPage: intent;
 declare let defaultPostPrivate: boolean;
 declare const limits: {
@@ -13,18 +14,26 @@ declare const limits: {
 };
 
 type intent = "index" | "login" | "signup"
-            | "logout" | "404" | "404-noauth"
+            | "logout" | "404" | "404-noauth" | "changelog"
             | "home" | "user" | "hashtag" | "post" | "notifications" | "follow-requests" | "admin"
             | "settings" | "settings/profile" | "settings/cosmetic" | "settings/account" | "settings/keybinds" | "settings/about";
 
 type snippet = "pages/index" | "pages/login" | "pages/signup"
-             | "pages/logout" | "pages/404" | "pages/404-noauth"
+             | "pages/logout" | "pages/404" | "pages/404-noauth" | "pages/changelog"
              | "pages/home" | "pages/user" | "pages/hashtag" | "pages/post" | "pages/notifications" | "pages/follow-requests" | "pages/admin"
              | "pages/settings" | "pages/settings/profile" | "pages/settings/cosmetic" | "pages/settings/account" | "pages/settings/keybinds" | "pages/settings/about"
-             | "post" | "post-placeholder" | "toast" | "compose-modal" | "keybind-modal" | "notification-like" | "folreq-user";
+             | "post" | "post-placeholder" | "toast" | "compose-modal" | "keybind-modal" | "update-modal" | "notification-like" | "folreq-user";
+
+type icons = "back" | "private" | "comment_arrow" | "comment" | "quote" | "like" | "like_active" | "hamburger" | "edit" | "pin" | "unpin" | "delete" | "home_active" | "home" | "notifications_active" | "notifications" | "messages_active" | "messages" | "user_active" | "user" | "settings_active" | "settings" | "folreq" | "folreq_active";
 
 type keybindModifiers = "ctrl" | "shift" | "alt" | "nav";
 type themes = "light" | "dark" | "warm" | "gray" | "darker" | "oled" | "system";
+
+type versionData = {
+  description: string,
+  major_changes?: { icon?: icons, info: string }[],
+  changes: string[]
+};
 
 type snippetData = {
   content: string,

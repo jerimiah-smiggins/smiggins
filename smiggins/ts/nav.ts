@@ -40,6 +40,11 @@ function urlToIntent(path: string): intent {
 
   switch (path) {
     case "/logout/": return "logout";
+
+    case "/changes/all/":
+    case /^\/changes\/[0-9]+\.[0-9]+\.[0-9]\/$/.test(path) ? path : "":
+      return "changelog";
+
     default: return "404";
   }
 }
@@ -137,10 +142,15 @@ function renderPage(intent: intent): void {
         tag: getHashtagFromPath()
       }; break;
 
+    case "changelog":
+      extraVariables = {
+        changes: generateChangesHTML(location.pathname.split("/").filter(Boolean)[1])
+      }; break;
+
     case "404-noauth":
       extraVariables = {
         item: location.pathname.startsWith("/u/") ? "profile" : location.pathname.startsWith("/p/") ? "post" : "thing"
-      };
+      }; break;
   }
 
   if (tlPollingIntervalID) {
@@ -174,7 +184,7 @@ function getPageTitle(intent: intent): string {
     case "user": val = getUsernameFromPath() + " - "; break;
     case "notifications": val = "Notifications - "; break;
     case "follow-requests": val = "Follow Requests - "; break;
-
+    case "changelog": val = "Changes - "; break;
     case "admin": val = "Administration - "; break;
 
     case "index":

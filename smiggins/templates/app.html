@@ -23,6 +23,7 @@
       const isAdmin = "{{ is_admin }}" === "True";
       const username = "{{ username }}";
       const pageTitle = "{{ conf.site_name }}";
+      const version = "{{ conf.version }}";
       const TL_POLLING_INTERVAL = {{ conf.polling.timeline }} * 1000;
       const NOTIFICATION_POLLING_INTERVAL = {{ conf.polling.notifications }} * 1000;
       let defaultPostPrivate = "{{ default_post_private }}" === "True";
@@ -56,6 +57,7 @@
       {% include "snippet.html" with id="pages/404" vars="home_page" %}
       {% include "snippet.html" with id="pages/404-noauth" %}
       {% include "snippet.html" with id="pages/logout" processing="logout" %}
+      {% include "snippet.html" with id="pages/changelog" vars="home_page" %}
       <!-- logged out pages -->
       {% include "snippet.html" with id="pages/index" vars="site_name" %}
       {% include "snippet.html" with id="pages/login" processing="input_enter,password_toggle,login" %}
@@ -81,6 +83,7 @@
       {% include "snippet.html" with id="toast" %}
       {% include "snippet.html" with id="compose-modal" vars="checked_if_default_private" processing="input_enter" %}
       {% include "snippet.html" with id="keybind-modal" %}
+      {% include "snippet.html" with id="update-modal" %}
       {% include "snippet.html" with id="notification-like" %}
       {% include "snippet.html" with id="folreq-user" %}
     </div>
