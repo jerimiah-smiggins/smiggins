@@ -3,7 +3,7 @@ const changes: { [key: string]: versionData } = {
     description: "Changelog page and bug fixes",
     major_changes: [{
       info: "Added a page that shows changes from previous versions. It can be accessed <a href=\"/changes/all/\" data-internal-link=\"changelog\">here</a>!",
-      icon: "comment_arrow"
+      icon: "quote"
     }],
     changes: [
       "Added the changelogs page",
