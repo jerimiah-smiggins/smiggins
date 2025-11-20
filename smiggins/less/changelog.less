@@ -1,19 +1,21 @@
 #changelog {
   width: calc(100vw - 32px);
   max-width: 800px;
-  text-align: left;
+  text-align: center;
   margin: 0 auto;
 
   h2 {
     font-size: 1.5em;
     margin-bottom: 0;
+    display: inline-block;
   }
 
   .version-spotlight {
     display: flex;
-    flex-wrap: wrap;
+    flex-direction: column;
     gap: 20px 30px;
     justify-content: center;
+    align-items: center;
     padding: 1em 0;
 
     > div {
@@ -22,6 +24,14 @@
       outline: 2px solid var(--subtext);
       border-radius: 16px;
     }
+  }
+
+  .changelog-description {
+    display: inline-block;
+  }
+
+  ul {
+    text-align: left;
   }
 
   svg {

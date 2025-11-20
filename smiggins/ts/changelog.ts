@@ -2,7 +2,7 @@ const changes: { [key: string]: versionData } = {
   "1.1.0": {
     description: "Changelog page and bug fixes",
     major_changes: [{
-      info: "Added a page that shows changes from previous versions. It can be accessed <a href=\"/changes/all/\" data-internal-link=\"changelog\">here</a>!",
+      info: "Added a page that shows changes from previous versions. You're looking at it now!",
       icon: "quote"
     }],
     changes: [

@@ -52,7 +52,7 @@ function generateChangesHTML(since: "all" | string): string {
     // all format - [header, spotlight, all changes]
     for (const ver of queuedVersions) {
       let data: versionData = changes[ver];
-      output += `<h2>v${ver}</h2><div class="changelog-description">${data.description}</div>${_getVersionSpotlight(data.major_changes)}${_getChanges(ver, data.changes)}`;
+      output += `<h2>v${ver}</h2> <div class="changelog-description">- ${data.description}</div>${_getVersionSpotlight(data.major_changes)}${_getChanges(ver, data.changes)}`;
     }
   } else {
     // since format - all spotlight, [header, all changes]
@@ -62,7 +62,7 @@ function generateChangesHTML(since: "all" | string): string {
 
     for (const ver of queuedVersions) {
       let data: versionData = changes[ver];
-      output += `<h2>v${ver}</h2><div class="changelog-description">${data.description}</div>${_getChanges(ver, data.changes)}`;
+      output += `<h2>v${ver}</h2> <div class="changelog-description">- ${data.description}</div>${_getChanges(ver, data.changes)}`;
     }
   }
 
