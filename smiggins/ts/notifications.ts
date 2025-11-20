@@ -52,5 +52,5 @@ function resetNotificationIndicators(): void {
 
 if (loggedIn) {
   fetchNotifications();
-  setInterval(fetchNotifications, 60_000);
+  setInterval(fetchNotifications, NOTIFICATION_POLLING_INTERVAL);
 }

@@ -120,3 +120,7 @@ posts_per_request: 20
 # when signing up. Those can be found in the admin page.
 # Aliases: enable_signup, enable_new_users, enable_new_accounts
 enable_new_accounts: true # Last tested: v0.13.8
+
+# Intervals (seconds) for polling requests in the frontend.
+timeline_polling_interval: 15
+notifications_polling_interval: 60

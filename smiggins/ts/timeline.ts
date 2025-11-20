@@ -17,7 +17,6 @@ let offset: { upper: number | null, lower: number | null } = {
 };
 
 const LOADING_HTML: string = "<i class=\"timeline-status\">Loading...</i>";
-const TL_POLLING_INTERVAL: number = 10_000; // 10s
 
 // hooks onto an element for a timeline, initialization
 function hookTimeline(
@@ -38,6 +37,20 @@ function hookTimeline(
       ) {
         timelineToggles.push(el.dataset.timelineToggle);
         el.dataset.timelineActive = "";
+      }
+    }
+
+    if (carousel.dataset.timelineStore) {
+      let id: string = localStorage.getItem("smiggins-" + carousel.dataset.timelineStore) || "";
+      let el: Del = carousel.querySelector(`[data-timeline-id="${id}"]`) as Del
+
+      if (el) {
+        for (const el of carousel.querySelectorAll(`[data-timeline-active]`) as NodeListOf<D>) {
+          delete el.dataset.timelineActive;
+        }
+
+        el.dataset.timelineActive = "";
+        activeTimeline = id;
       }
     }
   }
@@ -218,6 +231,11 @@ function switchTimeline(e: MouseEvent): void {
 
   if (el.dataset.timelineId && el.dataset.timelineId in timelines && timelines[el.dataset.timelineId].url !== currentTl.url) {
     _setTimeline(el.dataset.timelineId);
+
+    let carousel: Del = document.querySelector("[data-timeline-store]");
+    if (carousel && carousel.dataset.timelineStore) {
+      localStorage.setItem("smiggins-" + carousel.dataset.timelineStore, el.dataset.timelineId);
+    }
   }
 
   for (const el of document.querySelectorAll("[data-timeline-active]:not([data-timeline-toggle])")) {
@@ -354,7 +372,7 @@ function getPost(
     let quoteCwEnd: string = "";
 
     if (p.quote.content_warning) {
-      quoteCwStart = `<details class="content-warning"${forceCwState !== false && (forceCwState === true || localStorage.getItem("smiggins-expand-cws")) ? " open" : "" }><summary><div>${escapeHTML(p.quote.content_warning)} <div class="content-warning-stats">(${p.quote.content.length} char${p.quote.content.length === 1 ? "" : "s"})</div></div></summary>`;
+      quoteCwStart = `<details class="content-warning"${forceCwState !== false && (forceCwState === true || localStorage.getItem("smiggins-expand-cws")) ? " open" : "" }><summary><div>${escapeHTML(p.quote.content_warning)} <div class="content-warning-stats">(${p.quote.content.length} char${p.quote.content.length === 1 ? "" : "s"}${p.quote.has_quote ? ", quote" : ""}${p.quote.has_poll ? ", poll" : ""})</div></div></summary>`;
       quoteCwEnd = "</details>";
     }
 
@@ -375,7 +393,7 @@ function getPost(
     };
 
     quoteUnsafeData = {
-      quote_content: [quoteContent, 1],
+      quote_content: [quoteContent + (p.quote.has_poll ? (p.quote.content ? "\n" : "") + "<i>Includes a poll</i>" : "") + (p.quote.has_quote || p.quote.has_poll ? (p.quote.content ? "\n" : "") + "<i>Includes a quote</i>" : ""), 1],
       quote_cw_start: [quoteCwStart, 1],
       quote_pronouns: [p.quote.user.pronouns || "", 1],
       quote_display_name: [escapeHTML(p.quote.user.display_name), 1]

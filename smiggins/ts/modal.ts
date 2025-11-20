@@ -114,6 +114,18 @@ function createPostModal(type?: "quote" | "comment" | "edit", id?: number): void
   }
 }
 
+function createUpdateModal(since: string): void {
+  console.log(since);
+  if (document.getElementById("modal")) { return; }
+
+  document.body.append(getSnippet("update-modal", {
+    since: since
+  }));
+
+  document.getElementById("modal")?.addEventListener("click", clearModalIfClicked);
+  document.addEventListener("keydown", clearModalOnEscape);
+}
+
 function modifyKeybindModal(kbId: string): void {
   let kbData = keybinds[kbId];
   let el: D = getSnippet("keybind-modal", {

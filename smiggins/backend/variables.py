@@ -47,7 +47,7 @@ class DatabaseBackupsSchema(TypedDict):
 BASE_DIR = pathlib.Path(__file__).resolve().parent.parent
 
 # Set default variable states
-REAL_VERSION: tuple[int, int, int] = (1, 0, 2)
+REAL_VERSION: tuple[int, int, int] = (1, 1, 0)
 VERSION: str = ".".join([str(i) for i in REAL_VERSION])
 SITE_NAME: str = "Jerimiah Smiggins"
 WEBSITE_URL: str | None = None
@@ -75,6 +75,8 @@ ENABLE_NEW_ACCOUNTS: bool | Literal["otp"] = True
 GOOGLE_VERIFICATION_TAG: str | None = ""
 # DISCORD: str | None = "tH7QnHApwu"
 ALTERNATE_IPS: bool | str = False
+TIMELINE_POLLING_INTERVAL: int = 15
+NOTIFICATION_POLLING_INTERVAL: int = 60
 
 # stores variable metadata
 _VARIABLES: list[tuple[str | None, list[str], type | str | list | tuple | dict, bool]] = [
@@ -99,6 +101,8 @@ _VARIABLES: list[tuple[str | None, list[str], type | str | list | tuple | dict, 
     ("ENABLE_NEW_ACCOUNTS", ["enable_signup", "enable_new_users", "enable_new_accounts"], (bool, "Literal_otp"), False),
     ("GOOGLE_VERIFICATION_TAG", ["google_verification_tag"], str, False),
     ("ALTERNATE_IPS", ["alternate_ips"], (bool, str), False),
+    ("TIMELINE_POLLING_INTERVAL", ["timeline_polling_interval"], int, False),
+    ("NOTIFICATION_POLLING_INTERVAL", ["notifications_polling_interval"], int, False)
 ]
 
 f = {}
@@ -252,6 +256,8 @@ MAX_POST_LENGTH = clamp(MAX_POST_LENGTH, minimum=1, maximum=2 ** 16 - 1)
 MAX_POLL_OPTIONS = clamp(MAX_POLL_OPTIONS, minimum=2, maximum=2 ** 8 - 1)
 MAX_POLL_OPTION_LENGTH = clamp(MAX_POLL_OPTION_LENGTH, minimum=1, maximum=2 ** 16 - 1)
 POSTS_PER_REQUEST = clamp(POSTS_PER_REQUEST, minimum=1, maximum=2 ** 8 - 1)
+TIMELINE_POLLING_INTERVAL = clamp(TIMELINE_POLLING_INTERVAL, minimum=1)
+NOTIFICATION_POLLING_INTERVAL = clamp(NOTIFICATION_POLLING_INTERVAL, minimum=1)
 DATABASE_BACKUPS["frequency"] = clamp(DATABASE_BACKUPS["frequency"], minimum=1) # type: ignore
 DATABASE_BACKUPS["keep"] = clamp(DATABASE_BACKUPS["keep"], minimum=1)
 
