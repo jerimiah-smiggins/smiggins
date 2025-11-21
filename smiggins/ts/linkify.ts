@@ -10,7 +10,7 @@ const RE_TLDs: string = "aaa|aarp|abb|abbott|abbvie|abc|able|abogado|abudhabi|ac
 const RE_IP_NUM: string = "25[0-5]|2[0-4][0-9]|1?[0-9]{1,2}";
 const RE_PORTS: string = ":(?:6553[0-5]|655[0-2][0-9]|65[0-4][0-9]{2}|6[0-4][0-9]{3}|[0-5][0-9]{4}|[1-9][0-9]{0,3})";
 
-let urlRegex: RegExp = new RegExp(`(?:https?:\\/\\/)?(?:(?:${RE_IP_NUM}.){3}(?:${RE_IP_NUM})|(?:[-a-z0-9]+\\.){1,}(?:${RE_TLDs}))\\b(?:${RE_PORTS}\\b)?(?:/(?:&amp;|[-a-zA-Z0-9@:%_\\+.~#?\\/=])*)?`, "g");
+let urlRegex: RegExp = new RegExp(`(?:https?:\\/\\/)?(?:(?:${RE_IP_NUM}\\.){3}(?:${RE_IP_NUM})|(?:[\\-a-z0-9]+\\.){1,}(?:${RE_TLDs}))\\b(?:${RE_PORTS}\\b)?(?:/(?:&amp;|[\\-a-zA-Z0-9@:%_\\+.~#?\\/=])*)?`, "g");
 let mentionRegex: RegExp = new RegExp(`@([a-zA-Z0-9_\\-]{1,${limits.username}})\\b`, "g");
 let hashtagRegex: RegExp = /#([a-zA-Z_][a-zA-Z0-9_]{0,63})\b/g;
 

@@ -32,6 +32,8 @@ post:
   - { type: str8, name: "Creator username" }
   - { type: str8, name: "Creator display name" }
   - { type: str8, name: "Creator pronouns" }
+  - { type: hex3, name: "Creator banner color 1" }
+  - { type: hex3, name: "Creator banner color 2" }
 
   - { type: floatint, name: "Total votes", condition: has_poll }
   - { type: uint8, name: "Poll options", id: poll_count, condition: has_poll }
@@ -39,14 +41,16 @@ post:
   - { type: uint16, name: "Percentage + 1 decimal (0.0-100.0)", loop: poll_count, condition: has_poll }
   - { type: bool7, name: "Is voted for by self", loop: poll_count, condition: has_poll }
 
-  - { type: uint32, name: "Quote ID", condition: quote,quote_visible }
-  - { type: uint64, name: "Quote Timestamp", condition: quote,quote_visible }
-  - { type: uint32, name: "Quote comment parent ID", condition: quote,quote_visible,quote_is_comment }
-  - { type: str16, name: "Quote content" }
-  - { type: str8, name: "Quote content warning" }
-  - { type: str8, name: "Quote creator username" }
-  - { type: str8, name: "Quote creator display name" }
-  - { type: str8, name: "Quote creator pronouns" }
+  - { type: uint32, name: "Quote ID", condition: quote;quote_visible }
+  - { type: uint64, name: "Quote Timestamp", condition: quote;quote_visible }
+  - { type: uint32, name: "Quote comment parent ID", condition: quote;quote_visible;quote_is_comment }
+  - { type: str16, name: "Quote content" condition: quote;quote_visible }
+  - { type: str8, name: "Quote content warning" condition: quote;quote_visible }
+  - { type: str8, name: "Quote creator username" condition: quote;quote_visible }
+  - { type: str8, name: "Quote creator display name" condition: quote;quote_visible }
+  - { type: str8, name: "Quote creator pronouns" condition: quote;quote_visible }
+  - { type: hex3, name: "Quote creator banner color 1" condition: quote;quote_visible }
+  - { type: hex3, name: "Quote creator banner color 2" condition: quote;quote_visible }
 
 POST /api/user/login:
   description: Handles logging into accounts

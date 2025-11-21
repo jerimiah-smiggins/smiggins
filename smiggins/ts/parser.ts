@@ -181,8 +181,9 @@ function _extractPost(data: Uint8Array): [post, leftoverData: Uint8Array] {
   let username: [string, Uint8Array] = _extractString(8, contentWarning[1]);
   let displayName: [string, Uint8Array] = _extractString(8, username[1]);
   let pronouns: [string, Uint8Array] = _extractString(8, displayName[1]);
+  let banner: [string, string] = ["#" + _toHex(pronouns[1].slice(0, 3)), "#" + _toHex(pronouns[1].slice(3, 6))];
 
-  newData = pronouns[1];
+  newData = pronouns[1].slice(6);
 
   let pollData = null
   if (_extractBool(flags[0], 0)) {
@@ -208,6 +209,7 @@ function _extractPost(data: Uint8Array): [post, leftoverData: Uint8Array] {
       let quoteUsername: [string, leftoverData: Uint8Array] = _extractString(8, quoteCW[1]);
       let quoteDispName: [string, leftoverData: Uint8Array] = _extractString(8, quoteUsername[1]);
       let quotePronouns: [string, leftoverData: Uint8Array] = _extractString(8, quoteDispName[1]);
+      let quoteBanner: [string, string] = ["#" + _toHex(quotePronouns[1].slice(0, 3)), "#" + _toHex(quotePronouns[1].slice(3, 6))];
 
       quoteData = {
         id: _extractInt(32, newData),
@@ -223,11 +225,12 @@ function _extractPost(data: Uint8Array): [post, leftoverData: Uint8Array] {
         user: {
           username: quoteUsername[0],
           display_name: quoteDispName[0],
-          pronouns: quotePronouns[0]
+          pronouns: quotePronouns[0],
+          banner: quoteBanner
         }
       };
 
-      newData = quotePronouns[1];
+      newData = quotePronouns[1].slice(6);
     }
   }
 
@@ -247,7 +250,8 @@ function _extractPost(data: Uint8Array): [post, leftoverData: Uint8Array] {
     user: {
       username: username[0],
       display_name: displayName[0],
-      pronouns: pronouns[0]
+      pronouns: pronouns[0],
+      banner: banner
     },
 
     quote: quoteData

@@ -127,7 +127,7 @@ function _kbRefreshReverse(): void {
 }
 
 function keyHandler(e: KeyboardEvent): void {
-  if (forceDisableKeybinds) { return; }
+  if (forceDisableKeybinds || !loggedIn) { return; }
 
   let el: el = e.target as el;
 

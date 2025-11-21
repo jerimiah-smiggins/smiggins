@@ -384,6 +384,9 @@ function getPost(
       quote_private_post: p.quote.private ? "data-private-post" : "",
       quote_cw_end: quoteCwEnd,
 
+      quote_banner_one: p.quote.user.banner[0],
+      quote_banner_two: p.quote.user.banner[1],
+
       quote_pid: String(p.quote.id),
       quote_comment_id: String(p.quote.comment),
 
@@ -393,7 +396,7 @@ function getPost(
     };
 
     quoteUnsafeData = {
-      quote_content: [quoteContent + (p.quote.has_poll ? (p.quote.content ? "\n" : "") + "<i>Includes a poll</i>" : "") + (p.quote.has_quote || p.quote.has_poll ? (p.quote.content ? "\n" : "") + "<i>Includes a quote</i>" : ""), 1],
+      quote_content: [quoteContent + (p.quote.has_poll ? (p.quote.content ? "\n" : "") + "<i>Includes a poll</i>" : "") + (p.quote.has_quote ? (p.quote.content || p.quote.has_poll ? "\n" : "") + "<i>Includes a quote</i>" : ""), 1],
       quote_cw_start: [quoteCwStart, 1],
       quote_pronouns: [p.quote.user.pronouns || "", 1],
       quote_display_name: [escapeHTML(p.quote.user.display_name), 1]
@@ -414,6 +417,9 @@ function getPost(
     quotes: floatintToStr(p.interactions.quotes),
     likes: floatintToStr(p.interactions.likes),
     liked: String(p.interactions.liked),
+
+    banner_one: p.user.banner[0],
+    banner_two: p.user.banner[1],
 
     private_post: p.private ? "data-private-post" : "",
     cw_end: contentWarningEnd,

@@ -14,5 +14,14 @@ const changes: { [key: string]: versionData } = {
       "The timeline selection (global/following) on the home timeline is saved across sessions",
       "Added backend configuration for the frequency of frontend polling requests (timelines, notifications)"
     ]
+  },
+  "1.1.1": {
+    description: "Banner PFPs and bug fixes",
+    changes: [
+      "User sections on posts now have a little \"profile picture\" using banner colors",
+      "Fixed line wrapping for long words in most places",
+      "Fixed a bug with links in numbers",
+      "Fixed a bug that caused the \"Includes a quote\" text to show up when it shouldn't"
+    ]
   }
 };
