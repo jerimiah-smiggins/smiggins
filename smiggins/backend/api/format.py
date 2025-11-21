@@ -167,6 +167,7 @@ def _post_to_bytes(post: Post, user: User | None, user_data_override: User | Non
     output += b(len(username_bytes), 1) + username_bytes
     output += b(len(display_name_bytes), 1) + display_name_bytes
     output += b(len(pronouns_bytes), 1) + pronouns_bytes
+    output += bytearray.fromhex((user_data_override or post.creator).color[1:7] + ((user_data_override or post.creator).color_two if (user_data_override or post.creator).gradient else (user_data_override or post.creator).color)[1:7])
 
     if poll:
         output += _poll_to_bytes(poll, user)
@@ -188,6 +189,7 @@ def _post_to_bytes(post: Post, user: User | None, user_data_override: User | Non
         output += b(len(quote_username_bytes), 1) + quote_username_bytes
         output += b(len(quote_display_name_bytes), 1) + quote_display_name_bytes
         output += b(len(quote_pronouns_bytes), 1) + quote_pronouns_bytes
+        output += bytearray.fromhex(quote.creator.color[1:7] + (quote.creator.color_two if quote.creator.gradient else quote.creator.color)[1:7])
 
     return output
 

@@ -61,6 +61,15 @@
     display: none;
   }
 
+  .post-user-pfp {
+    width: 1.2em;
+    height: 1.2em;
+    border-radius: 0.4em;
+    background: linear-gradient(to right, var(--color-one), var(--color-two));
+    flex-shrink: 0;
+    translate: 0 0.1em;
+  }
+
   .post-user {
     text-wrap: nowrap;
     overflow-x: hidden;
@@ -110,7 +119,7 @@
   border-bottom: 1px solid var(--border-color);
 
   .content-warning {
-    > summary {
+    >summary {
       list-style: none;
       cursor: pointer;
 
@@ -118,7 +127,7 @@
         display: none;
       }
 
-      > div {
+      >div {
         padding: 0 0.5em;
         margin-top: 0.25em;
         display: inline-block;
@@ -147,7 +156,7 @@
       white-space: nowrap;
     }
 
-    &[open] > summary::after {
+    &[open]>summary::after {
       display: none;
     }
   }
@@ -195,16 +204,24 @@
       color: var(--red);
     }
 
-    > div {
+    >div {
       flex: 1;
       max-width: 150px;
 
       &[data-liked] {
-        svg:last-of-type { display: none; }
+        svg:last-of-type {
+          display: none;
+        }
 
         &[data-liked="true"] {
-          svg:last-of-type { display: inline; fill: var(--accent); }
-          svg:first-of-type { display: none; }
+          svg:last-of-type {
+            display: inline;
+            fill: var(--accent);
+          }
+
+          svg:first-of-type {
+            display: none;
+          }
         }
       }
     }
@@ -230,7 +247,7 @@
         text-align: left;
         z-index: @post-hamburger-z-index;
 
-        > div {
+        >div {
           padding: 5px 0;
           border-bottom: 1px solid var(--border-color);
 
@@ -240,14 +257,14 @@
         }
       }
 
-      > svg {
+      >svg {
         padding: 0 0.1em;
       }
 
       &:focus {
         outline: none !important;
 
-        > svg {
+        >svg {
           outline: 2px solid var(--accent);
         }
       }
@@ -351,7 +368,7 @@
 }
 
 .notification-timeline {
-  > div:not([data-notification-read]) {
+  >div:not([data-notification-read]) {
     background-color: var(--background-mid);
     --border-color: var(--background-bright);
     margin: 0 -1em;

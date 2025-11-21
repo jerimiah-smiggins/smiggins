@@ -70,7 +70,8 @@ type post = {
   user: {
     username: string,
     display_name: string,
-    pronouns: string | null
+    pronouns: string | null,
+    banner: [string, string]
   },
 
   quote: {
@@ -87,7 +88,8 @@ type post = {
     user: {
       username: string,
       display_name: string,
-      pronouns: string | null
+      pronouns: string | null,
+      banner: [string, string]
     },
   } | false | null
 };

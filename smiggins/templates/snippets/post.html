@@ -1,6 +1,7 @@
 <div class="post" data-post-id="@{pid}">
   <div class="post-upper">
     <div class="post-private" @{private_post}>@{icon_private}</div>
+    <div class="post-user-pfp" style="--color-one: @{banner_one}; --color-two: @{banner_two}"></div>
     <div class="post-user"><a data-internal-link="user" href="/u/@{username}/" class="plain-link">@{display_name}</a></div>
     <div class="subtext post-username"><a data-internal-link="user" href="/u/@{username}/" class="plain-link">@@{username}</a></div>
     <div class="subtext post-pronouns" @{hidden_if_no_pronouns}>@{pronouns}</div>
@@ -19,6 +20,7 @@
   <div class="post-quote" @{hidden_if_no_quote}>
     <div class="post-upper">
       <div class="post-private" @{quote_private_post}>@{icon_private}</div>
+      <div class="post-user-pfp" style="--color-one: @{quote_banner_one}; --color-two: @{quote_banner_two}"></div>
       <div class="post-user"><a data-internal-link="user" href="/u/@{quote_username}/" class="plain-link">@{quote_display_name}</a></div>
       <div class="subtext post-username"><a data-internal-link="user" href="/u/@{quote_username}/" class="plain-link">@@{quote_username}</a></div>
       <div class="subtext post-pronouns" @{hidden_if_no_quote_pronouns}>@{quote_pronouns}</div>
