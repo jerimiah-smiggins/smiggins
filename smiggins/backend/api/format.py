@@ -425,8 +425,6 @@ class api_CreatePost(_api_BaseResponse):
             comment_id = _extract_int(32, data)
             data = data[4:]
 
-        print(bin(flags), has_quote, has_poll, has_comment, quote_id, comment_id)
-
         return {
             "content": content,
             "cw": cw,

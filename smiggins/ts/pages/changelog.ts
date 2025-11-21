@@ -71,7 +71,7 @@ function generateChangesHTML(since: "all" | string): string {
 
 setTimeout((): void => { // give js time to load the rest of the file + snippets to prevent conflicts
   let expectedVersion: string | null = localStorage.getItem("smiggins-last-version");
-  console.log(expectedVersion);
+
   if (loggedIn && expectedVersion && checkVersionNewer(expectedVersion, version)) {
     createUpdateModal(expectedVersion);
   }
