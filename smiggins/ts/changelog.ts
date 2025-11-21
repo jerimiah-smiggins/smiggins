@@ -18,9 +18,10 @@ const changes: { [key: string]: versionData } = {
   "1.1.1": {
     description: "Banner PFPs and bug fixes",
     changes: [
-      "User sections on posts now have a little \"profile picture\" using banner colors.",
+      "User sections on posts now have a little \"profile picture\" using banner colors",
       "Fixed line wrapping for long words in most places",
-      "Fixed a bug with links in numbers"
+      "Fixed a bug with links in numbers",
+      "Fixed a bug that caused the \"Includes a quote\" text to show up when it shouldn't"
     ]
   }
 };
