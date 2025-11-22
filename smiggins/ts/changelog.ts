@@ -25,12 +25,14 @@ const changes: { [key: string]: versionData } = {
     ]
   },
   "1.1.2": {
-    description: "Bug fixes",
+    description: "Bug fixes and small improvements",
     changes: [
       "The changelog page loads properly again",
       "Added an option that lets you change the shape of the banner icons, or disable them all together",
       "Added a versioning system to APIs to prevent an outdated client from interpreting data as garbage",
       "Added a post counter to profiles",
+      "Added a share button on posts",
+      "Clicking the \"<i>Includes a poll/quote</i>\" on quotes brings you to the quote"
     ]
   }
 };

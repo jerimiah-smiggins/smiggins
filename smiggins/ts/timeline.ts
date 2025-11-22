@@ -396,7 +396,7 @@ function getPost(
     };
 
     quoteUnsafeData = {
-      quote_content: [quoteContent + (p.quote.has_poll ? (p.quote.content ? "\n" : "") + "<i>Includes a poll</i>" : "") + (p.quote.has_quote ? (p.quote.content || p.quote.has_poll ? "\n" : "") + "<i>Includes a quote</i>" : ""), 1],
+      quote_content: [quoteContent + (p.quote.has_poll ? (p.quote.content ? "\n" : "") + `<a data-internal-link="post" href="/p/${p.quote.id}/" class="plain-link"><i>Includes a poll</i></a>` : "") + (p.quote.has_quote ? (p.quote.content || p.quote.has_poll ? "\n" : "") + `<a data-internal-link="post" href="/p/${p.quote.id}/" class="plain-link"><i>Includes a quote</i></a>` : ""), 1],
       quote_cw_start: [quoteCwStart, 1],
       quote_pronouns: [p.quote.user.pronouns || "", 1],
       quote_display_name: [escapeHTML(p.quote.user.display_name), 1]

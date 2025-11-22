@@ -47,7 +47,7 @@ class DatabaseBackupsSchema(TypedDict):
 BASE_DIR = pathlib.Path(__file__).resolve().parent.parent
 
 # Set default variable states
-REAL_VERSION: tuple[int, int, int] = (1, 1, 1)
+REAL_VERSION: tuple[int, int, int] = (1, 1, 2)
 VERSION: str = ".".join([str(i) for i in REAL_VERSION])
 SITE_NAME: str = "Jerimiah Smiggins"
 WEBSITE_URL: str | None = None
