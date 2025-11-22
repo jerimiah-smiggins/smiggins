@@ -10,7 +10,8 @@ declare let defaultPostPrivate: boolean;
 declare const limits: {
   username: number,
   poll_count: number,
-  poll_item: number
+  poll_item: number,
+  content_warning: number
 };
 
 type intent = "index" | "login" | "signup"

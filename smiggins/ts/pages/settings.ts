@@ -118,6 +118,15 @@ function settingsPFPShapeSelection(): void {
   }
 }
 
+function settingsCWCascadingSelection(): void {
+  let cwElement: HTMLSelectElement | null = document.getElementById("cw-cascading") as HTMLSelectElement | null;
+
+  if (cwElement) {
+    let type: string = cwElement.value;
+    localStorage.setItem("smiggins-cw-cascading", type);
+  }
+}
+
 function changePasswordSuccess(token: string): void {
   setTokenCookie(token);
   createToast("Success!", "Your password has been changed.");
@@ -294,6 +303,7 @@ function p_settingsProfile(element: D): void {
 function p_settingsCosmetic(element: D): void {
   element.querySelector(`#theme > option[value="${theme}"]`)?.setAttribute("selected", "");
   element.querySelector(`#pfp-shape > option[value="${localStorage.getItem("smiggins-pfp-shape") || "round"}"]`)?.setAttribute("selected", "");
+  element.querySelector(`#cw-cascading > option[value="${localStorage.getItem("smiggins-cw-cascading") || "email"}"]`)?.setAttribute("selected", "");
   if (localStorage.getItem("smiggins-complex-timestamps")) { element.querySelector("#complex-timestamps")?.setAttribute("checked", ""); }
   if (localStorage.getItem("smiggins-expand-cws"))         { element.querySelector("#expand-cws")        ?.setAttribute("checked", ""); }
   if (localStorage.getItem("smiggins-hide-interactions"))  { element.querySelector("#hide-interactions") ?.setAttribute("checked", ""); }
@@ -301,6 +311,7 @@ function p_settingsCosmetic(element: D): void {
 
   element.querySelector("#theme")             ?.addEventListener("change", settingsThemeSelection);
   element.querySelector("#pfp-shape")         ?.addEventListener("change", settingsPFPShapeSelection);
+  element.querySelector("#cw-cascading")      ?.addEventListener("change", settingsCWCascadingSelection);
   element.querySelector("#complex-timestamps")?.addEventListener("change", genericCheckbox("smiggins-complex-timestamps"));
   element.querySelector("#expand-cws")        ?.addEventListener("change", genericCheckbox("smiggins-expand-cws"));
   element.querySelector("#hide-interactions") ?.addEventListener("change", genericCheckbox("smiggins-hide-interactions"));

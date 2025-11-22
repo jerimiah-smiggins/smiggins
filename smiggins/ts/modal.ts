@@ -112,6 +112,14 @@ function createPostModal(type?: "quote" | "comment" | "edit", id?: number): void
     let contentEl: Iel = el.querySelector("#modal-post-content");
     if (contentEl) { contentEl.value = getPostMentionsString(post); }
   }
+
+  if ((type === "comment" || type === "quote") && id !== undefined) {
+    let post: post | undefined = postCache[id];
+    if (!post) { return; }
+
+    let cwEl: Iel = el.querySelector("#modal-post-cw");
+    if (cwEl) { cwEl.value = getPostTemplatedCW(post); }
+  }
 }
 
 function createUpdateModal(since: string): void {
