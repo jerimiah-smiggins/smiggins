@@ -467,13 +467,13 @@ function parseResponse(
       displayName = _extractString(8, u8arr.slice(2));
       pronouns = _extractString(8, displayName[1]);
       bio = _extractString(16, pronouns[1]);
-      let flags: number = bio[1][10];
+      let flags: number = bio[1][12];
       let pinned: number | null = null;
       let pinnedPostData: [post, Uint8Array] | undefined;
 
       // has pinned post
       if (_extractBool(flags, 2)) {
-        pinnedPostData = _extractPost(bio[1].slice(11));
+        pinnedPostData = _extractPost(bio[1].slice(13));
         pinned = insertIntoPostCache([pinnedPostData[0]])[0];
       }
 
@@ -483,14 +483,16 @@ function parseResponse(
         bio[0],
         "#" + _toHex(bio[1].slice(0, 3)),
         "#" + _toHex(bio[1].slice(3, 6)),
-        _extractBool(bio[1][10], 3) && "pending" || _extractBool(bio[1][10], 5),
-        _extractBool(bio[1][10], 4),
+        _extractBool(flags, 3) && "pending" || _extractBool(flags, 5),
+        _extractBool(flags, 4),
         _extractInt(16, bio[1].slice(8)),
         _extractInt(16, bio[1].slice(6)),
+        _extractInt(16, bio[1].slice(10)),
         pinned
       );
 
-      u8arr = new Uint8Array([0, 0, flags].concat(Array.from(pinnedPostData ? pinnedPostData[1] : bio[1].slice(11))));
+      u8arr = new Uint8Array([0, 0, flags].concat(Array.from(pinnedPostData ? pinnedPostData[1] : bio[1].slice(13))));
+      console.log(u8arr, bio, pinnedPostData, flags)
 
     case ResponseCodes.TimelineComments:
       // Prevent accidentally running this code when on user timeline

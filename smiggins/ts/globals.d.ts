@@ -113,6 +113,7 @@ type userData = {
   blocking: boolean,
   num_following: number,
   num_followers: number,
+  num_posts: number,
   pinned: number | null
 };
 

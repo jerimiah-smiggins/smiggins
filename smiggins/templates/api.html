@@ -135,8 +135,10 @@
 
         <h2 class="api-bytes-title">Response</h2>
         <div class="api-bytes">
-          <div title="{{ item.name }}" data-api-type="id">{{ data.id_hex }}</div>
-          <div title="Version" data-api-type="id">{{ data.version_hex }}</div>
+          {% if route != "post" %}
+            <div title="{{ item.name }}" data-api-type="id">{{ data.id_hex }}</div>
+            <div title="Version" data-api-type="id">{{ data.version_hex }}</div>
+          {% endif %}
           {% if data.response %}
             {% firstof "p" as prev %}
             {% for item in data.response %}
