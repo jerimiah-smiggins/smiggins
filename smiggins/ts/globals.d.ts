@@ -24,7 +24,7 @@ type snippet = "pages/index" | "pages/login" | "pages/signup"
              | "pages/settings" | "pages/settings/profile" | "pages/settings/cosmetic" | "pages/settings/account" | "pages/settings/keybinds" | "pages/settings/about"
              | "post" | "post-placeholder" | "toast" | "compose-modal" | "keybind-modal" | "update-modal" | "notification-like" | "folreq-user";
 
-type icons = "back" | "private" | "comment_arrow" | "comment" | "quote" | "like" | "like_active" | "hamburger" | "edit" | "pin" | "unpin" | "delete" | "home_active" | "home" | "notifications_active" | "notifications" | "messages_active" | "messages" | "user_active" | "user" | "settings_active" | "settings" | "folreq" | "folreq_active";
+type icons = "back" | "private" | "comment_arrow" | "comment" | "quote" | "like" | "like_active" | "hamburger" | "edit" | "pin" | "unpin" | "delete" | "home_active" | "home" | "notifications_active" | "notifications" | "messages_active" | "messages" | "user_active" | "user" | "settings_active" | "settings" | "folreq" | "folreq_active" | "share";
 
 type keybindModifiers = "ctrl" | "shift" | "alt" | "nav";
 type themes = "light" | "dark" | "warm" | "gray" | "darker" | "oled" | "system";
