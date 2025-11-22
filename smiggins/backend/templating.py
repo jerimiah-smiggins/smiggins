@@ -63,6 +63,8 @@ def webapp(request) -> HttpResponse:
 
 def _api_docs_map(data):
     data[1]["id_hex"] = hex(data[1]["id"])[2:].zfill(2)
+    data[1]["version_hex"] = hex(data[1]["version"])[2:].zfill(2)
+
     if "params" in data[1]:
         data[1]["params"] = data[1]["params"].items()
 

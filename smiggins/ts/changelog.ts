@@ -23,5 +23,12 @@ const changes: { [key: string]: versionData } = {
       "Fixed a bug with links in numbers",
       "Fixed a bug that caused the \"Includes a quote\" text to show up when it shouldn't"
     ]
+  },
+  "1.1.2": {
+    description: "Bug fixes",
+    changes: [
+      "The changelog page loads properly again",
+      "Added an option that lets you change the shape of the banner icons, or disable them all together",
+    ]
   }
 };

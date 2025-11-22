@@ -52,6 +52,51 @@ enum ErrorCodes {
   Ratelimit
 };
 
+const EXPECTED_VERSIONS: {
+  [key in ResponseCodes]: number
+} = {
+  // Checks versions on every api request to make sure that the format is correct.
+  // If the version does NOT match the expected value, it will prompt the user to reload.
+  // This only shows up on SUCCESSFUL responses.
+  [ResponseCodes.LogIn]: 0,
+  [ResponseCodes.SignUp]: 0,
+  [ResponseCodes.Follow]: 0,
+  [ResponseCodes.Unfollow]: 0,
+  [ResponseCodes.Block]: 0,
+  [ResponseCodes.Unblock]: 0,
+  [ResponseCodes.AcceptFolreq]: 0,
+  [ResponseCodes.DenyFolreq]: 0,
+  [ResponseCodes.GetProfile]: 0,
+  [ResponseCodes.SaveProfile]: 0,
+  [ResponseCodes.DeleteAccount]: 0,
+  [ResponseCodes.ChangePassword]: 0,
+  [ResponseCodes.DefaultVisibility]: 0,
+  [ResponseCodes.VerifyFollowers]: 0,
+  [ResponseCodes.CreatePost]: 0,
+  [ResponseCodes.Like]: 0,
+  [ResponseCodes.Unlike]: 0,
+  [ResponseCodes.Pin]: 0,
+  [ResponseCodes.Unpin]: 0,
+  [ResponseCodes.PollVote]: 0,
+  [ResponseCodes.PollRefresh]: 0,
+  [ResponseCodes.EditPost]: 0,
+  [ResponseCodes.DeletePost]: 0,
+  [ResponseCodes.AdminDeleteUser]: 0,
+  [ResponseCodes.GenerateOTP]: 0,
+  [ResponseCodes.DeleteOTP]: 0,
+  [ResponseCodes.ListOTP]: 0,
+  [ResponseCodes.GetAdminPermissions]: 0,
+  [ResponseCodes.SetAdminPermissions]: 0,
+  [ResponseCodes.TimelineGlobal]: 0,
+  [ResponseCodes.TimelineFollowing]: 0,
+  [ResponseCodes.TimelineUser]: 0,
+  [ResponseCodes.TimelineComments]: 0,
+  [ResponseCodes.TimelineNotifications]: 0,
+  [ResponseCodes.TimelineHashtag]: 0,
+  [ResponseCodes.TimelineFolreq]: 0,
+  [ResponseCodes.Notifications]: 0
+}
+
 function floatintToStr(num: number): string {
   if (num >> 14 & 1) {
     return "Infinity";
@@ -314,14 +359,19 @@ function parseResponse(
     return createToast(..._getErrorStrings(u8arr[1], u8arr[0] ^ (1 << 7)));
   }
 
+  if (u8arr[1] !== EXPECTED_VERSIONS[u8arr[0] as ResponseCodes]) {
+    alert(`It seems that ${pageTitle} has been updated. Please reload the page for updates to take effect.\n\nIf this popup continues to show up after you reload, please contact your instance administrator.\nCode: r${u8arr[0].toString(16)}v${u8arr[1]}t${Math.round(Date.now() / 1000)}`);
+    return;
+  }
+
   switch (u8arr[0]) {
     case ResponseCodes.LogIn:
     case ResponseCodes.SignUp:
-      setTokenCookie(_toHex(u8arr.slice(1)));
+      setTokenCookie(_toHex(u8arr.slice(2)));
       location.href = "/";
       break;
 
-    case ResponseCodes.Follow: updateFollowButton(true, Boolean(u8arr[1] & (1 << 7))); break;
+    case ResponseCodes.Follow: updateFollowButton(true, Boolean(u8arr[2] & (1 << 7))); break;
     case ResponseCodes.Unfollow: updateFollowButton(false); break;
     case ResponseCodes.Block: updateBlockButton(true); break;
     case ResponseCodes.Unblock: updateBlockButton(false); break;
@@ -329,7 +379,7 @@ function parseResponse(
     case ResponseCodes.DenyFolreq: break;
 
     case ResponseCodes.GetProfile:
-      displayName = _extractString(8, u8arr.slice(1));
+      displayName = _extractString(8, u8arr.slice(2));
       bio = _extractString(16, displayName[1]);
       pronouns = _extractString(8, bio[1]);
 
@@ -350,11 +400,11 @@ function parseResponse(
       break;
 
     case ResponseCodes.DeleteAccount: renderPage("logout"); break;
-    case ResponseCodes.ChangePassword: changePasswordSuccess(_toHex(u8arr.slice(1))); break;
+    case ResponseCodes.ChangePassword: changePasswordSuccess(_toHex(u8arr.slice(2))); break;
     case ResponseCodes.DefaultVisibility: break;
     case ResponseCodes.VerifyFollowers: break;
 
-    case ResponseCodes.CreatePost: prependPostToTimeline(_extractPost(u8arr.slice(1))[0]); break;
+    case ResponseCodes.CreatePost: prependPostToTimeline(_extractPost(u8arr.slice(2))[0]); break;
 
     case ResponseCodes.Like: break;
     case ResponseCodes.Unlike: break;
@@ -367,8 +417,8 @@ function parseResponse(
 
     case ResponseCodes.PollVote:
     case ResponseCodes.PollRefresh:
-      let pid: number = _extractInt(32, u8arr.slice(1));
-      let pollData: post["poll"] = _extractPoll(u8arr.slice(5))[0];
+      let pid: number = _extractInt(32, u8arr.slice(2));
+      let pollData: post["poll"] = _extractPoll(u8arr.slice(6))[0];
 
       let c: post | undefined = postCache[pid];
       if (c) { c.poll = pollData; }
@@ -378,12 +428,12 @@ function parseResponse(
       break;
 
     case ResponseCodes.EditPost: break;
-    case ResponseCodes.DeletePost: handlePostDelete(_extractInt(32, u8arr.slice(1))); break;
+    case ResponseCodes.DeletePost: handlePostDelete(_extractInt(32, u8arr.slice(2))); break;
 
     case ResponseCodes.AdminDeleteUser: createToast("Success!", "The user has been deleted."); break;
 
     case ResponseCodes.GenerateOTP:
-      let otp: string = _toHex(u8arr.slice(1));
+      let otp: string = _toHex(u8arr.slice(2));
       el = document.getElementById("generate-otp-output");
       if (el) { el.classList.add("otp"); el.innerText = otp; }
       el?.removeAttribute("hidden");
@@ -397,7 +447,7 @@ function parseResponse(
       el = document.getElementById("otp-list");
       if (!el) { break; }
 
-      let otps: RegExpMatchArray[] = [..._toHex(u8arr.slice(1)).matchAll(/.{64}/g)];
+      let otps: RegExpMatchArray[] = [..._toHex(u8arr.slice(2)).matchAll(/.{64}/g)];
       if (!otps.length) { el.innerHTML = "<i>None</i>"; break; }
 
       el.innerHTML = otps.map((a: RegExpMatchArray): string => `<div data-otp-container="${a[0]}"><code class="otp">${a[0]}</code> <button data-otp="${a}">Delete</button></div>`).join("");
@@ -408,13 +458,13 @@ function parseResponse(
       break;
 
     case ResponseCodes.GetAdminPermissions:
-      adminSetPermissionCheckboxes(_extractInt(16, u8arr.slice(1)));
+      adminSetPermissionCheckboxes(_extractInt(16, u8arr.slice(2)));
       break;
 
     case ResponseCodes.SetAdminPermissions: createToast("Success!", "Permissions saved."); break;
 
     case ResponseCodes.TimelineUser:
-      displayName = _extractString(8, u8arr.slice(1));
+      displayName = _extractString(8, u8arr.slice(2));
       pronouns = _extractString(8, displayName[1]);
       bio = _extractString(16, pronouns[1]);
       let flags: number = bio[1][10];
@@ -440,24 +490,24 @@ function parseResponse(
         pinned
       );
 
-      u8arr = new Uint8Array([0, flags].concat(Array.from(pinnedPostData ? pinnedPostData[1] : bio[1].slice(11))));
+      u8arr = new Uint8Array([0, 0, flags].concat(Array.from(pinnedPostData ? pinnedPostData[1] : bio[1].slice(11))));
 
     case ResponseCodes.TimelineComments:
       // Prevent accidentally running this code when on user timeline
       if (u8arr[0] === ResponseCodes.TimelineComments) {
-        let postData: [post, leftoverData: Uint8Array] = _extractPost(u8arr.slice(1));
+        let postData: [post, leftoverData: Uint8Array] = _extractPost(u8arr.slice(2));
         updateFocusedPost(postData[0]);
-        u8arr = postData[1];
+        u8arr = new Uint8Array([0].concat(Array.from(postData[1])));
       }
 
     case ResponseCodes.TimelineGlobal:
     case ResponseCodes.TimelineFollowing:
     case ResponseCodes.TimelineHashtag:
-      end = _extractBool(u8arr[1], 7);
-      forwards = _extractBool(u8arr[1], 6);
-      numPosts = u8arr[2];
+      end = _extractBool(u8arr[2], 7);
+      forwards = _extractBool(u8arr[2], 6);
+      numPosts = u8arr[3];
       posts = [];
-      u8arr = u8arr.slice(3);
+      u8arr = u8arr.slice(4);
 
       for (let i: number = 0; i < numPosts; i++) {
         let postData: [post, Uint8Array] = _extractPost(u8arr);
@@ -482,11 +532,11 @@ function parseResponse(
       break;
 
     case ResponseCodes.TimelineNotifications:
-      end = _extractBool(u8arr[1], 7);
-      forwards = _extractBool(u8arr[1], 6);
-      numPosts = u8arr[2];
+      end = _extractBool(u8arr[2], 7);
+      forwards = _extractBool(u8arr[2], 6);
+      numPosts = u8arr[3];
       posts = [] as [post, number][];
-      u8arr = u8arr.slice(3);
+      u8arr = u8arr.slice(4);
 
       for (let i: number = 0; i < numPosts; i++) {
         let postData: [post, Uint8Array] = _extractPost(u8arr.slice(1));
@@ -510,10 +560,10 @@ function parseResponse(
       break;
 
     case ResponseCodes.TimelineFolreq:
-      end = _extractBool(u8arr[1], 7);
-      let numUsers: number = u8arr[2];
+      end = _extractBool(u8arr[2], 7);
+      let numUsers: number = u8arr[3];
       let users: folreqUserData[] = [];
-      u8arr = u8arr.slice(3);
+      u8arr = u8arr.slice(4);
 
       for (let i: number = 0; i < numUsers; i++) {
         let id: number = _extractInt(32, u8arr);
@@ -536,9 +586,9 @@ function parseResponse(
 
     case ResponseCodes.Notifications:
       pendingNotifications = {
-        notifications: _extractBool(u8arr[1], 7),
-        messages: _extractBool(u8arr[1], 6),
-        follow_requests: _extractBool(u8arr[1], 5)
+        notifications: _extractBool(u8arr[2], 7),
+        messages: _extractBool(u8arr[2], 6),
+        follow_requests: _extractBool(u8arr[2], 5)
       };
       resetNotificationIndicators();
       break;
