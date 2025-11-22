@@ -645,6 +645,10 @@ function postButtonClick(e: Event): void {
         createToast("Something went wrong!", String(err));
         throw err;
       });
+  } else if (el.dataset.interactionShare) {
+    let postId: number = +el.dataset.interactionShare;
+    navigator.clipboard.writeText(`Check out this post on ${pageTitle}! ${location.origin}/p/${postId}/`);
+    createToast("Copied!", "A link to this post has been added to your clipboard.");
   } else {
     console.log("Unknown interaction type for post button", e);
   }
@@ -753,6 +757,7 @@ function p_post(element: D): void {
   element.querySelector("[data-interaction-edit]")?.addEventListener("click", postButtonClick);
   element.querySelector("[data-interaction-pin]")?.addEventListener("click", postButtonClick);
   element.querySelector("[data-interaction-delete]")?.addEventListener("click", postButtonClick);
+  element.querySelector("[data-interaction-share]")?.addEventListener("click", postButtonClick);
 }
 
 setInterval(updateTimestamps, 1000);
