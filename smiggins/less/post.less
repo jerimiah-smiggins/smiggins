@@ -1,3 +1,19 @@
+body {
+  --pfp-border-radius: 0.4em;
+
+  &[data-pfp-shape="none"] .post-user-pfp {
+    display: none;
+  }
+
+  &[data-pfp-shape="square"] {
+    --pfp-border-radius: 0;
+  }
+
+  &[data-pfp-shape="circle"] {
+    --pfp-border-radius: 0.6em;
+  }
+}
+
 #timeline-posts {
   margin: -1em 0;
 
@@ -68,7 +84,7 @@
   .post-user-pfp {
     width: 1.2em;
     height: 1.2em;
-    border-radius: 0.4em;
+    border-radius: var(--pfp-border-radius);
     background: linear-gradient(to right, var(--color-one), var(--color-two));
     flex-shrink: 0;
     translate: 0 0.1em;

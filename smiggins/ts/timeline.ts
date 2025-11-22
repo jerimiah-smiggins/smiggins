@@ -45,7 +45,7 @@ function hookTimeline(
       let el: Del = carousel.querySelector(`[data-timeline-id="${id}"]`) as Del
 
       if (el) {
-        for (const el of carousel.querySelectorAll(`[data-timeline-active]`) as NodeListOf<D>) {
+        for (const el of carousel.querySelectorAll(`[data-timeline-active][data-timeline-id]`) as NodeListOf<D>) {
           delete el.dataset.timelineActive;
         }
 

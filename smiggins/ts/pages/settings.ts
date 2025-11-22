@@ -108,6 +108,16 @@ function settingsThemeSelection(): void {
   }
 }
 
+function settingsPFPShapeSelection(): void {
+  let pfpElement: HTMLSelectElement | null = document.getElementById("pfp-shape") as HTMLSelectElement | null;
+
+  if (pfpElement) {
+    let shape: string = pfpElement.value;
+    localStorage.setItem("smiggins-pfp-shape", shape);
+    document.body.dataset.pfpShape = shape;
+  }
+}
+
 function changePasswordSuccess(token: string): void {
   setTokenCookie(token);
   createToast("Success!", "Your password has been changed.");
@@ -283,12 +293,14 @@ function p_settingsProfile(element: D): void {
 
 function p_settingsCosmetic(element: D): void {
   element.querySelector(`#theme > option[value="${theme}"]`)?.setAttribute("selected", "");
+  element.querySelector(`#pfp-shape > option[value="${localStorage.getItem("smiggins-pfp-shape") || "round"}"]`)?.setAttribute("selected", "");
   if (localStorage.getItem("smiggins-complex-timestamps")) { element.querySelector("#complex-timestamps")?.setAttribute("checked", ""); }
   if (localStorage.getItem("smiggins-expand-cws"))         { element.querySelector("#expand-cws")        ?.setAttribute("checked", ""); }
   if (localStorage.getItem("smiggins-hide-interactions"))  { element.querySelector("#hide-interactions") ?.setAttribute("checked", ""); }
   if (localStorage.getItem("smiggins-auto-show-posts"))    { element.querySelector("#auto-show")         ?.setAttribute("checked", ""); }
 
   element.querySelector("#theme")             ?.addEventListener("change", settingsThemeSelection);
+  element.querySelector("#pfp-shape")         ?.addEventListener("change", settingsPFPShapeSelection);
   element.querySelector("#complex-timestamps")?.addEventListener("change", genericCheckbox("smiggins-complex-timestamps"));
   element.querySelector("#expand-cws")        ?.addEventListener("change", genericCheckbox("smiggins-expand-cws"));
   element.querySelector("#hide-interactions") ?.addEventListener("change", genericCheckbox("smiggins-hide-interactions"));
@@ -315,3 +327,4 @@ function p_settingsKeybinds(element: D): void {
 }
 
 document.body.dataset.fontSize = localStorage.getItem("smiggins-font-size") || "normal";
+document.body.dataset.pfpShape = localStorage.getItem("smiggins-pfp-shape") || "round";
