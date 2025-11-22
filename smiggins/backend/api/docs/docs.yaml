@@ -44,17 +44,18 @@ post:
   - { type: uint32, name: "Quote ID", condition: quote;quote_visible }
   - { type: uint64, name: "Quote Timestamp", condition: quote;quote_visible }
   - { type: uint32, name: "Quote comment parent ID", condition: quote;quote_visible;quote_is_comment }
-  - { type: str16, name: "Quote content" condition: quote;quote_visible }
-  - { type: str8, name: "Quote content warning" condition: quote;quote_visible }
-  - { type: str8, name: "Quote creator username" condition: quote;quote_visible }
-  - { type: str8, name: "Quote creator display name" condition: quote;quote_visible }
-  - { type: str8, name: "Quote creator pronouns" condition: quote;quote_visible }
-  - { type: hex3, name: "Quote creator banner color 1" condition: quote;quote_visible }
-  - { type: hex3, name: "Quote creator banner color 2" condition: quote;quote_visible }
+  - { type: str16, name: "Quote content", condition: quote;quote_visible }
+  - { type: str8, name: "Quote content warning", condition: quote;quote_visible }
+  - { type: str8, name: "Quote creator username", condition: quote;quote_visible }
+  - { type: str8, name: "Quote creator display name", condition: quote;quote_visible }
+  - { type: str8, name: "Quote creator pronouns", condition: quote;quote_visible }
+  - { type: hex3, name: "Quote creator banner color 1", condition: quote;quote_visible }
+  - { type: hex3, name: "Quote creator banner color 2", condition: quote;quote_visible }
 
 POST /api/user/login:
   description: Handles logging into accounts
   id: 0x01
+  version: 0
   body:
   - { type: str8, name: "Username" }
   - { type: hex32, name: "Password hash (sha256)" }
@@ -64,6 +65,7 @@ POST /api/user/login:
 POST /api/user/signup:
   description: Handles creating new accounts
   id: 0x02
+  version: 0
   body:
   - { type: str8, name: "Username" }
   - { type: hex32, name: "Password hash (sha256)" }
@@ -74,6 +76,7 @@ POST /api/user/signup:
 POST /api/user/follow:
   description: "Follows the specificed user"
   id: 0x10
+  version: 0
   body:
   - { type: str0, name: "Username" }
   response:
@@ -82,36 +85,42 @@ POST /api/user/follow:
 DELETE /api/user/follow:
   description: "Unfollows the specificed user"
   id: 0x11
+  version: 0
   body:
   - { type: str0, name: "Username" }
 
 POST /api/user/block:
   description: "Blocks the specificed user"
   id: 0x12
+  version: 0
   body:
   - { type: str0, name: "Username" }
 
 DELETE /api/user/block:
   description: "Unblocks the specificed user"
   id: 0x13
+  version: 0
   body:
   - { type: str0, name: "Username" }
 
 POST /api/user/follow-request:
   description: "Accepts a follow request from the specificed user"
   id: 0x14
+  version: 0
   body:
   - { type: str0, name: "Username" }
 
 DELETE /api/user/follow-request:
   description: "Denies a follow request from the specificed user"
   id: 0x15
+  version: 0
   body:
   - { type: str0, name: "Username" }
 
 GET /api/user:
   description: "Gets your profile information"
   id: 0x20
+  version: 0
   response:
   - { type: str8, name: "Display name" }
   - { type: str16, name: "User bio" }
@@ -124,6 +133,7 @@ GET /api/user:
 PATCH /api/user:
   description: "Saves your profile information"
   id: 0x21
+  version: 0
   body:
   - { type: bool7, name: "Banner is gradient" }
   - { type: str8, name: "Display name" }
@@ -135,12 +145,14 @@ PATCH /api/user:
 DELETE /api/user:
   description: "Deletes your account"
   id: 0x22
+  version: 0
   body:
   - { type: hex32, name: "Password hash (sha256)" }
 
 PATCH /api/user/password:
   description: "Changes your password"
   id: 0x23
+  version: 0
   body:
   - { type: hex32, name: "Current password hash (sha256)" }
   - { type: hex32, name: "New password hash (sha256)" }
@@ -150,18 +162,21 @@ PATCH /api/user/password:
 PATCH /api/user/default_post:
   description: "Sets the default post visibility setting"
   id: 0x24
+  version: 0
   body:
   - { type: bool0, name: "Default visibility is private" }
 
 PATCH /api/user/verify_followers:
   description: "Sets the verify followers setting"
   id: 0x25
+  version: 0
   body:
   - { type: bool0, name: "Verify followers" }
 
 POST /api/post:
   description: "Creates a post"
   id: 0x30
+  version: 0
   body:
   - { type: bool7, name: "Followers only" }
   - { type: bool6, name: "Is quote", id: has_quote }
@@ -177,22 +192,27 @@ POST /api/post:
 POST /api/post/like/{post_id}:
   description: "Likes a post"
   id: 0x31
+  version: 0
 
 DELETE /api/post/like/{post_id}:
   description: "Removes a like from a post"
   id: 0x32
+  version: 0
 
 POST /api/post/pin/{post_id}:
   description: "Pins a post"
   id: 0x33
+  version: 0
 
 DELETE /api/post/pin:
   description: "Unpins the pinned post"
   id: 0x34
+  version: 0
 
 POST /api/post/poll:
   description: "Votes on a poll"
   id: 0x44
+  version: 0
   body:
   - { type: uint32, name: "Post ID" }
   - { type: uint8, name: "Option number" }
@@ -207,6 +227,7 @@ POST /api/post/poll:
 GET /api/post/poll/{post_id}:
   description: "Fetches poll data"
   id: 0x45
+  version: 0
   response:
   - { type: uint32, name: "Post ID" }
   - { type: floatint, name: "Total votes", condition: has_poll }
@@ -218,6 +239,7 @@ GET /api/post/poll/{post_id}:
 PATCH /api/post:
   description: "Edits a post"
   id: 0x3e
+  version: 0
   body:
   - { type: uint32, name: "Post id" }
   - { type: bool7, name: "Followers only" }
@@ -227,6 +249,7 @@ PATCH /api/post:
 DELETE /api/post:
   description: "Deletes a post"
   id: 0x3f
+  version: 0
   body:
   - { type: uint32, name: "Post id" }
   response:
@@ -235,30 +258,35 @@ DELETE /api/post:
 DELETE /api/admin/user:
   description: "Deletes an account"
   id: 0x40
+  version: 0
   response:
   - { type: str0, name: "Username" }
 
 POST /api/admin/invite:
   description: "Generates an invite code"
   id: 0x41
+  version: 0
   response:
   - { type: hex32, name: "Invite code" }
 
 DELETE /api/admin/invite:
   description: "Deletes an invite code"
   id: 0x42
+  version: 0
   body:
   - { type: hex32, name: "Invite code" }
 
 GET /api/admin/invite:
   description: "Lists all invite codes"
   id: 0x43
+  version: 0
   response:
   - { type: hex32, name: "Invite code", loop: until_end }
 
 GET /api/admin/permissions/{username}:
   description: "Gets admin permissions"
   id: 0x44
+  version: 0
   response:
   - { type: bool1, name: "Can create invite codes" }
   - { type: bool7, name: "Can set admin permissions" }
@@ -268,6 +296,7 @@ GET /api/admin/permissions/{username}:
 POST /api/admin/permissions:
   description: "Sets admin permissions"
   id: 0x45
+  version: 0
   body:
   - { type: bool1, name: "Can create invite codes" }
   - { type: bool7, name: "Can set admin permissions" }
@@ -278,6 +307,7 @@ POST /api/admin/permissions:
 GET /api/timeline/global:
   description: "Global timeline"
   id: 0x60
+  version: 0
   params:
     comments: { type: bool }
     offset: { type: int }
@@ -291,6 +321,7 @@ GET /api/timeline/global:
 GET /api/timeline/following:
   description: "Following timeline"
   id: 0x61
+  version: 0
   params:
     comments: { type: bool }
     offset: { type: int }
@@ -304,6 +335,7 @@ GET /api/timeline/following:
 GET /api/timeline/user/{username}:
   description: "User timeline"
   id: 0x62
+  version: 0
   params:
     offset: { type: int }
     forwards: { type: bool }
@@ -329,6 +361,7 @@ GET /api/timeline/user/{username}:
 GET /api/timeline/post/{post_id}:
   description: "Post comments timeline"
   id: 0x63
+  version: 0
   params:
     sort: { type: str, required: true }
     offset: { type: int }
@@ -342,6 +375,7 @@ GET /api/timeline/post/{post_id}:
 GET /api/timeline/notifications:
   description: "Notification timeline"
   id: 0x64
+  version: 0
   params:
     offset: { type: int }
     forwards: { type: bool }
@@ -354,6 +388,7 @@ GET /api/timeline/notifications:
 GET /api/timeline/tag/{tag}:
   description: "Hashtag timeline"
   id: 0x65
+  version: 0
   params:
     sort: { type: str, required: true }
     offset: { type: int }
@@ -367,6 +402,7 @@ GET /api/timeline/tag/{tag}:
 GET /api/timeline/follow-requests:
   description: "Notification timeline"
   id: 0x66
+  version: 0
   params:
     offset: { type: int }
   response:
@@ -380,6 +416,7 @@ GET /api/timeline/follow-requests:
 GET /api/notifications:
   description: "Checks for unread notifications"
   id: 0x70
+  version: 0
   response:
   - { type: bool7, name: "Unread notifications" }
   - { type: bool6, name: "Unread private messages" }

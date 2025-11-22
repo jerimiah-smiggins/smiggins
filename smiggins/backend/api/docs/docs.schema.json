@@ -10,6 +10,7 @@
       "patternProperties": {
         "description": { "type": "string" },
         "id": { "type": "integer", "minimum": 0, "maximum": 255 },
+        "version": { "type": "integer", "minimum": 0, "maximum": 255 },
 
         "params": {
           "type": "object",

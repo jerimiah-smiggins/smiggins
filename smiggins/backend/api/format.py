@@ -222,6 +222,7 @@ def _notification_to_bytes(notification: Notification, user: User | None) -> byt
 
 class _api_BaseResponse:
     response_code = 0
+    version = 0
 
     def __init__(self, request: HttpRequest):
         self.response_data: bytes | int = 0
@@ -239,7 +240,7 @@ class _api_BaseResponse:
         if isinstance(self.response_data, int): # error code
             response = bytes([self.response_code | 0x80, self.response_data])
         else:
-            response = bytes([self.response_code]) + self.response_data
+            response = bytes([self.response_code, self.version]) + self.response_data
 
         return HttpResponse(
             response,
@@ -258,6 +259,7 @@ class _api_BaseResponse:
 # 0X - Authentication
 class api_SignUp(_api_BaseResponse):
     response_code = ResponseCodes.SIGN_UP
+    version = 0
 
     def parse_data(self) -> dict:
         username, data = _extract_string(8, self.request.body)
@@ -274,6 +276,7 @@ class api_SignUp(_api_BaseResponse):
 
 class api_LogIn(_api_BaseResponse):
     response_code = ResponseCodes.LOG_IN
+    version = 0
 
     def parse_data(self) -> dict:
         username, data = _extract_string(8, self.request.body)
@@ -288,6 +291,7 @@ class api_LogIn(_api_BaseResponse):
 # 1X - Relationships
 class api_Unfollow(_api_BaseResponse):
     response_code = ResponseCodes.UNFOLLOW
+    version = 0
 
     def parse_data(self) -> str:
         return bytes.decode(self.request.body).lower()
@@ -297,25 +301,31 @@ class api_Unfollow(_api_BaseResponse):
 
 class api_Follow(api_Unfollow):
     response_code = ResponseCodes.FOLLOW
+    version = 0
 
     def set_response(self, is_pending: bool):
         self.response_data = bytes([is_pending << 7])
 
 class api_Unblock(api_Unfollow):
     response_code = ResponseCodes.UNBLOCK
+    version = 0
 
 class api_Block(api_Unfollow):
     response_code = ResponseCodes.BLOCK
+    version = 0
 
 class api_AcceptFolreq(api_Unfollow):
     response_code = ResponseCodes.ACCEPT_FOLREQ
+    version = 0
 
 class api_DenyFolreq(api_Unfollow):
     response_code = ResponseCodes.DENY_FOLREQ
+    version = 0
 
 # 2X - Settings and Account Management
 class api_GetProfile(_api_BaseResponse):
     response_code = ResponseCodes.GET_PROFILE
+    version = 0
 
     def set_response(
         self,
@@ -334,6 +344,7 @@ class api_GetProfile(_api_BaseResponse):
 
 class api_SaveProfile(_api_BaseResponse):
     response_code = ResponseCodes.SAVE_PROFILE
+    version = 0
 
     def parse_data(self) -> dict:
         data = self.request.body
@@ -356,6 +367,7 @@ class api_SaveProfile(_api_BaseResponse):
 
 class api_DeleteAccount(_api_BaseResponse):
     response_code = ResponseCodes.DELETE_ACCOUNT
+    version = 0
 
     def parse_data(self) -> dict:
         return {
@@ -367,6 +379,7 @@ class api_DeleteAccount(_api_BaseResponse):
 
 class api_ChangePassword(_api_BaseResponse):
     response_code = ResponseCodes.CHANGE_PASSWORD
+    version = 0
 
     def parse_data(self) -> dict:
         data = self.request.body
@@ -380,6 +393,7 @@ class api_ChangePassword(_api_BaseResponse):
 
 class api_SetDefaultVisibility(_api_BaseResponse):
     response_code = ResponseCodes.DEFAULT_VISIBILITY
+    version = 0
 
     def parse_data(self) -> bool:
         return bool(self.request.body[0] & 1)
@@ -389,10 +403,12 @@ class api_SetDefaultVisibility(_api_BaseResponse):
 
 class api_SetVerifyFollowers(api_SetDefaultVisibility):
     response_code = ResponseCodes.VERIFY_FOLLOWERS
+    version = 0
 
 # 3X - Posts and Interactions
 class api_CreatePost(_api_BaseResponse):
     response_code = ResponseCodes.CREATE_POST
+    version = 0
 
     def parse_data(self) -> dict:
         data = self.request.body
@@ -439,27 +455,33 @@ class api_CreatePost(_api_BaseResponse):
 
 class api_Like(_api_BaseResponse):
     response_code = ResponseCodes.LIKE
+    version = 0
 
     def set_response(self):
         self.response_data = b""
 
 class api_Unlike(api_Like):
     response_code = ResponseCodes.UNLIKE
+    version = 0
 
 class api_Pin(api_Like):
     response_code = ResponseCodes.PIN
+    version = 0
 
 class api_Unpin(api_Like):
     response_code = ResponseCodes.UNPIN
+    version = 0
 
 class api_PollRefresh(_api_BaseResponse):
     response_code = ResponseCodes.POLL_REFRESH
+    version = 0
 
     def set_response(self, pid: int, poll: Poll, user: User):
         self.response_data = b(pid, 4) + _poll_to_bytes(poll, user)
 
 class api_PollVote(api_PollRefresh):
     response_code = ResponseCodes.POLL_VOTE
+    version = 0
 
     def parse_data(self) -> dict:
         data = self.request.body
@@ -470,6 +492,7 @@ class api_PollVote(api_PollRefresh):
 
 class api_EditPost(_api_BaseResponse):
     response_code = ResponseCodes.EDIT_POST
+    version = 0
 
     def parse_data(self) -> dict:
         data = self.request.body
@@ -487,6 +510,7 @@ class api_EditPost(_api_BaseResponse):
 
 class api_DeletePost(_api_BaseResponse):
     response_code = ResponseCodes.DELETE_POST
+    version = 0
 
     def parse_data(self) -> int:
         return _extract_int(32, self.request.body)
@@ -497,6 +521,7 @@ class api_DeletePost(_api_BaseResponse):
 # 4X - Administration
 class api_AdminDeleteUser(_api_BaseResponse):
     response_code = ResponseCodes.ADMIN_DELETE_USER
+    version = 0
 
     def parse_data(self) -> str:
         return bytes.decode(self.request.body).lower()
@@ -506,12 +531,14 @@ class api_AdminDeleteUser(_api_BaseResponse):
 
 class api_GenerateOTP(_api_BaseResponse):
     response_code = ResponseCodes.GENERATE_OTP
+    version = 0
 
     def set_response(self, otp: str):
         self.response_data = bytes(bytearray.fromhex(otp))
 
 class api_DeleteOTP(_api_BaseResponse):
     response_code = ResponseCodes.DELETE_OTP
+    version = 0
 
     def parse_data(self) -> str:
         return _to_hex(self.request.body[:32])
@@ -521,18 +548,21 @@ class api_DeleteOTP(_api_BaseResponse):
 
 class api_ListOTPs(_api_BaseResponse):
     response_code = ResponseCodes.LIST_OTP
+    version = 0
 
     def set_response(self, otps: list[str]):
         self.response_data = bytearray.fromhex("".join(otps))
 
 class api_GetAdminPermissions(_api_BaseResponse):
     response_code = ResponseCodes.GET_ADMIN_PERMISSIONS
+    version = 0
 
     def set_response(self, user: User):
         self.response_data = b(user.admin_level & 0b1010000011, 2)
 
 class api_SetAdminPermissions(_api_BaseResponse):
     response_code = ResponseCodes.SET_ADMIN_PERMISSIONS
+    version = 0
 
     def parse_data(self) -> dict:
         data = self.request.body
@@ -563,12 +593,15 @@ class _api_TimelineBase(_api_BaseResponse):
 
 class api_TimelineGlobal(_api_TimelineBase):
     response_code = ResponseCodes.TIMELINE_GLOBAL
+    version = 0
 
 class api_TimelineFollowing(_api_TimelineBase):
     response_code = ResponseCodes.TIMELINE_FOLLOWING
+    version = 0
 
 class api_TimelineUser(_api_TimelineBase):
     response_code = ResponseCodes.TIMELINE_USER
+    version = 0
 
     def set_response(self, end: bool, forwards: bool, posts: list[Post] | list[Notification], user: User, self_user: User):
         display_name_bytes = str.encode(user.display_name)[:MAX_STR8]
@@ -599,6 +632,7 @@ class api_TimelineUser(_api_TimelineBase):
 
 class api_TimelineComments(_api_TimelineBase):
     response_code = ResponseCodes.TIMELINE_COMMENTS
+    version = 0
 
     def set_response(self, end: bool, forwards: bool, posts: list[Post] | list[Notification], user: User, focused_post: Post):
         super().set_response(end, forwards, posts, user)
@@ -610,12 +644,15 @@ class api_TimelineComments(_api_TimelineBase):
 
 class api_TimelineNotifications(_api_TimelineBase):
     response_code = ResponseCodes.TIMELINE_NOTIFICATIONS
+    version = 0
 
 class api_TimelineHashtag(_api_TimelineBase):
     response_code = ResponseCodes.TIMELINE_HASHTAG
+    version = 0
 
 class api_TimelineFolreq(_api_BaseResponse):
     response_code = ResponseCodes.TIMELINE_FOLREQ
+    version = 0
 
     def set_response(self, end: bool, users: list[M2MPending]):
         self.response_data = b(end << 7) + b(len(users))
@@ -633,6 +670,7 @@ class api_TimelineFolreq(_api_BaseResponse):
 # 7X - Statuses
 class api_PendingNotifications(_api_BaseResponse):
     response_code = ResponseCodes.NOTIFICATIONS
+    version = 0
 
     def set_response(self, notifications: bool, messages: bool, follow_requests: bool):
         self.response_data = b(notifications << 7 | messages << 6 | follow_requests << 5)
