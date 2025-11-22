@@ -30,11 +30,6 @@
   </div>
 
   <div>
-    <p class="no-margin-top">Content Warnings</p>
-    <label><input type="checkbox" id="expand-cws"> Always expand content warnings</label>
-  </div>
-
-  <div>
     <p class="no-margin-top">Font Size</p>
     <div id="font-size-selection">
       <div id="font-size-small"><span>Aa</span></div>
@@ -46,11 +41,25 @@
 
   <div>
     <p class="no-margin-top">Posts</p>
-    <p><label><input type="checkbox" id="hide-interactions"> Hide interaction counts on posts</label></p>
-    <label><input type="checkbox" id="auto-show"> Automatically show new posts on the timeline</label>
+    <div><label><input type="checkbox" id="hide-interactions"> Hide interaction counts on posts</label></div>
+    <div><label><input type="checkbox" id="expand-cws"> Always expand content warnings</label></div>
+    <div><label><input type="checkbox" id="auto-show"> Automatically show new posts on the timeline</label></div>
     <small><div>When disabled, there will instead be a button to show new posts.</div></small>
+
+    <div class="generic-margin-top generic-margin-bottom">
+      <label>
+        <div>User banner icon shape:</div>
+        <select id="pfp-shape">
+          <option value="none">Hidden</option>
+          <option value="square">Square</option>
+          <option value="round">Rounded Square</option>
+          <option value="circle">Circle</option>
+        </select>
+      </label>
+    </div>
   </div>
 </div>
+
 <hr class="no-margin-top">
 
 {% include "snippets/generic/page-end.html" %}

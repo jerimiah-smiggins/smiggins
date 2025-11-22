@@ -57,9 +57,9 @@ function generateChangesHTML(since: "all" | string): string {
     }
   } else {
     // since format - all spotlight, [header, all changes]
-    let allMajorChanges: versionData["major_changes"] = ([] as any[]).concat(...queuedVersions.map((a: string) => (changes[a].major_changes)));
+    let allMajorChanges: versionData["major_changes"] = ([] as any[]).concat(...queuedVersions.map((a: string) => (changes[a].major_changes || [])));
 
-    output += "<h2>What's new?</h2>" + _getVersionSpotlight(allMajorChanges);
+    output += "<h2>What's new?</h2><br>" + _getVersionSpotlight(allMajorChanges);
 
     for (const ver of queuedVersions) {
       let data: versionData = changes[ver];
