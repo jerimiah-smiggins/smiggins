@@ -29,6 +29,8 @@ const changes: { [key: string]: versionData } = {
     changes: [
       "The changelog page loads properly again",
       "Added an option that lets you change the shape of the banner icons, or disable them all together",
+      "Added a versioning system to APIs to prevent an outdated client from interpreting data as garbage",
+      "Added a post counter to profiles",
     ]
   }
 };

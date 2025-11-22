@@ -13,7 +13,7 @@ function p_user(element: D): void {
 
   hookTimeline(element.querySelector("[id=\"timeline-posts\"]") as D, element.querySelector("#timeline-carousel") as Del, {
     [tlId]: { url: `/api/timeline/user/${userUsername}`, prependPosts: username === userUsername },
-    [tlId + "_all"]: { url: `/api/timeline/user/${userUsername}?include_comments=true`, prependPosts: username === userUsername }
+    [tlId + "+all"]: { url: `/api/timeline/user/${userUsername}?include_comments=true`, prependPosts: username === userUsername }
   }, tlId, element);
 }
 
@@ -35,6 +35,7 @@ function userUpdateStats(
   blocking: boolean,
   numFollowing: number,
   numFollowers: number,
+  numPosts: number,
   pinned: number | null
 ): void {
   // TODO: pinned posts
@@ -52,6 +53,7 @@ function userUpdateStats(
     c.blocking      = blocking;
     c.num_following = numFollowing;
     c.num_followers = numFollowers;
+    c.num_posts     = numPosts;
     c.pinned        = pinned;
   } else {
     c = {
@@ -64,6 +66,7 @@ function userUpdateStats(
       blocking: blocking || false,
       num_following: numFollowing || 0,
       num_followers: numFollowers || 0,
+      num_posts: numPosts || 0,
       pinned: pinned
     };
 
@@ -154,8 +157,10 @@ function userUpdateStats(
 
   let followingElement: el = document.getElementById("following");
   let followersElement: el = document.getElementById("followers");
+  let postsElement: el = document.getElementById("post-count");
   if (followingElement) { followingElement.innerText = floatintToStr(numFollowing); }
   if (followersElement) { followersElement.innerText = floatintToStr(numFollowers); }
+  if (postsElement) { postsElement.innerText = floatintToStr(numPosts); }
 }
 
 function updateFollowButton(followed: false): void;

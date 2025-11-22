@@ -111,6 +111,7 @@ function renderPage(intent: intent): void {
         color_two: c && c.color_two || "var(--background-mid)",
         following: c && floatintToStr(c.num_following) || "0",
         followers: c && floatintToStr(c.num_followers) || "0",
+        post_count: c && floatintToStr(c.num_posts) || "0",
         bio: c && [linkify(escapeHTML(c.bio)), 1] || "",
         user_username: c && [escapeHTML(u + (c.pronouns ? " - " + c.pronouns : "")), 1] || u,
         display_name: c && [escapeHTML(c.display_name), 1] || u

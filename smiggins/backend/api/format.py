@@ -612,7 +612,7 @@ class api_TimelineUser(_api_TimelineBase):
         user_data += b(len(pronouns_bytes)) + pronouns_bytes
         user_data += b(len(bio_bytes), 2) + bio_bytes
         user_data += bytes(bytearray.fromhex(user.color[1:] + (user.color_two if user.gradient else user.color)[1:]))
-        user_data += _to_floatint(user.followers.count()) + _to_floatint(user.following.count())
+        user_data += _to_floatint(user.followers.count()) + _to_floatint(user.following.count()) + _to_floatint(user.posts.count())
 
         super().set_response(end, forwards, posts, self_user)
 

@@ -7,8 +7,9 @@
   <div id="username">@@{user_username}</div>
 
   <small>
-    following <span id="following">@{following}</span> -
-    followed by <span id="followers">@{followers}</span>
+      following <span id="following">@{following}</span> -
+      followed by <span id="followers">@{followers}</span> -
+      <span id="post-count">@{post_count}</span> posts
   </small>
 
   <p id="user-interactions" hidden>
@@ -25,7 +26,7 @@
 
 <div id="timeline-carousel" class="generic-margin-bottom">
   <div data-timeline-id="user_@{user_username}" data-timeline-active>Posts</div>
-  <div data-timeline-id="user_@{user_username}_all">Include Comments</div>
+  <div data-timeline-id="user_@{user_username}+all">Include Comments</div>
 </div>
 
 <div id="timeline-posts"></div>
