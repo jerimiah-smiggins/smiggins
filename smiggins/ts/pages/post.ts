@@ -35,16 +35,39 @@ function updateFocusedPost(post: post): void {
   }
 
   let commentElement: HTMLTextAreaElement | null = document.getElementById("post-content") as HTMLTextAreaElement | null;
+  let cwInputElement: Iel = document.getElementById("post-cw") as Iel;
 
   let p: post | undefined = postCache[pid];
-  if (!commentBoxValueSet && commentElement && !commentElement.value && p) {
+  if (!commentBoxValueSet && commentElement && !commentElement.value && cwInputElement && !cwInputElement.value && p) {
     commentBoxValueSet = true;
     commentElement.value = getPostMentionsString(p);
+    cwInputElement.value = getPostTemplatedCW(p);
   }
 }
 
 function getPostMentionsString(p: post): string {
   return getMentionsFromPost(p).map((a: string): string => (`@${a} `)).join("")
+}
+
+function getPostTemplatedCW(p: post): string {
+  let cw: string | null = p.content_warning;
+
+  if (cw) {
+    let style: string | null = localStorage.getItem("smiggins-cw-cascading");
+
+    switch (style) {
+      case "email":
+      case null:
+        if (!cw.toLowerCase().startsWith("re:")) {
+          return "RE: " + cw.slice(0, limits.content_warning - 4);
+        }
+
+      case "copy":
+        return cw;
+    }
+  }
+
+  return "";
 }
 
 function createComment(e: Event): void {
@@ -90,9 +113,9 @@ function p_postPage(element: D): void {
 
   if (p) {
     let commentElement: HTMLTextAreaElement | null = element.querySelector("#post-content");
-    if (commentElement) {
-      commentElement.value = getPostMentionsString(p);
-    }
+    let cwElement: HTMLTextAreaElement | null = element.querySelector("#post-cw");
+    if (commentElement) { commentElement.value = getPostMentionsString(p); }
+    if (cwElement) { cwElement.value = getPostTemplatedCW(p); }
 
     postElement.replaceChildren(getPost(pid, false));
   } else {
