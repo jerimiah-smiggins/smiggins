@@ -44,7 +44,8 @@ const changes: { [key: string]: versionData } = {
     }],
     changes: [
       "People who aren't logged in can view users and post pages",
-      "Data is now embedded into the base document for embeds on other platforms, ex. discord"
+      "Data is now embedded into the base document for embeds on other platforms, ex. discord",
+      "Like notifications now have a timestamp attached to them"
     ]
   }
 };
