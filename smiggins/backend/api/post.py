@@ -320,7 +320,7 @@ def poll_refresh(request: HttpRequest, post_id: int) -> HttpResponse:
     try:
         user = User.objects.get(token=request.COOKIES.get("token"))
     except User.DoesNotExist:
-        return api.error(ErrorCodes.NOT_AUTHENTICATED)
+        user = None
 
     try:
         post = Post.objects.get(post_id=post_id)

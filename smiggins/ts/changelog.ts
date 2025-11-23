@@ -35,5 +35,16 @@ const changes: { [key: string]: versionData } = {
       "Added a share button on posts",
       "Clicking the \"<i>Includes a poll/quote</i>\" on quotes brings you to the quote"
     ]
+  },
+  "1.2.0": {
+    description: "Logged out content and embeds",
+    major_changes: [{
+      info: "People who aren't logged in can view users and posts! This helps with ease of use for people who aren't sure if they want to make an account.",
+      icon: "user"
+    }],
+    changes: [
+      "People who aren't logged in can view users and post pages",
+      "Data is now embedded into the base document for embeds on other platforms, ex. discord"
+    ]
   }
 };

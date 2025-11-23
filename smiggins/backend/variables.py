@@ -46,10 +46,12 @@ class DatabaseBackupsSchema(TypedDict):
 
 BASE_DIR = pathlib.Path(__file__).resolve().parent.parent
 
-# Set default variable states
-REAL_VERSION: tuple[int, int, int] = (1, 1, 2)
+REAL_VERSION: tuple[int, int, int] = (1, 2, 0)
 VERSION: str = ".".join([str(i) for i in REAL_VERSION])
+
+# Set default variable states
 SITE_NAME: str = "Jerimiah Smiggins"
+SITE_DESCRIPTION: str = None # type: ignore - gets properly set after conf is loaded
 WEBSITE_URL: str | None = None
 MOTDs: list[str] | None = None
 DEBUG: bool = True
@@ -81,8 +83,8 @@ NOTIFICATION_POLLING_INTERVAL: int = 60
 # stores variable metadata
 _VARIABLES: list[tuple[str | None, list[str], type | str | list | tuple | dict, bool]] = [
 #   ["VAR_NAME", keys, type, allow_null]
-    ("VERSION", ["version"], str, False),
     ("SITE_NAME", ["site_name"], str, False),
+    ("SITE_DESCRIPTION", ["site_description"], str, True),
     ("WEBSITE_URL", ["website_url"], str, False),
     ("MOTDs", ["motd", "motds"], [str], True),
     ("DEBUG", ["debug"], bool, False),
@@ -261,131 +263,23 @@ NOTIFICATION_POLLING_INTERVAL = clamp(NOTIFICATION_POLLING_INTERVAL, minimum=1)
 DATABASE_BACKUPS["frequency"] = clamp(DATABASE_BACKUPS["frequency"], minimum=1) # type: ignore
 DATABASE_BACKUPS["keep"] = clamp(DATABASE_BACKUPS["keep"], minimum=1)
 
+if SITE_DESCRIPTION is None:
+    SITE_DESCRIPTION = f"{SITE_NAME} is a small social media platform running Smiggins. On {SITE_NAME}, you can talk to others in a fun and inclusive environment."
+
 if isinstance(ENABLE_NEW_ACCOUNTS, str):
     ENABLE_NEW_ACCOUNTS = ENABLE_NEW_ACCOUNTS.lower()
 
 # Used when hashing user tokens
 PRIVATE_AUTHENTICATOR_KEY: str = hashlib.sha256(auth_key).hexdigest()
 
-ROBOTS: str = """\
+ROBOTS: str = f"""\
 User-agent: *
 Disallow: /logout/
-Disallow: /settings/
-Disallow: /notifications/
-Disallow: /messages/
-Disallow: /pending/
-Disallow: /m/
-Disallow: /email/
-Disallow: /admin/
 Disallow: /django-admin/
 Disallow: /api/
 
 # https://github.com/ai-robots-txt/ai.robots.txt/blob/main/robots.txt
-User-agent: AddSearchBot
-User-agent: AI2Bot
-User-agent: Ai2Bot-Dolma
-User-agent: aiHitBot
-User-agent: amazon-kendra-
-User-agent: Amazonbot
-User-agent: Andibot
-User-agent: Anomura
-User-agent: anthropic-ai
-User-agent: Applebot
-User-agent: Applebot-Extended
-User-agent: Awario
-User-agent: bedrockbot
-User-agent: bigsur.ai
-User-agent: Bravebot
-User-agent: Brightbot 1.0
-User-agent: Bytespider
-User-agent: CCBot
-User-agent: ChatGPT Agent
-User-agent: ChatGPT-User
-User-agent: Claude-SearchBot
-User-agent: Claude-User
-User-agent: Claude-Web
-User-agent: ClaudeBot
-User-agent: Cloudflare-AutoRAG
-User-agent: CloudVertexBot
-User-agent: cohere-ai
-User-agent: cohere-training-data-crawler
-User-agent: Cotoyogi
-User-agent: Crawlspace
-User-agent: Datenbank Crawler
-User-agent: DeepSeekBot
-User-agent: Devin
-User-agent: Diffbot
-User-agent: DuckAssistBot
-User-agent: Echobot Bot
-User-agent: EchoboxBot
-User-agent: FacebookBot
-User-agent: facebookexternalhit
-User-agent: Factset_spyderbot
-User-agent: FirecrawlAgent
-User-agent: FriendlyCrawler
-User-agent: Gemini-Deep-Research
-User-agent: Google-CloudVertexBot
-User-agent: Google-Extended
-User-agent: Google-Firebase
-User-agent: Google-NotebookLM
-User-agent: GoogleAgent-Mariner
-User-agent: GoogleOther
-User-agent: GoogleOther-Image
-User-agent: GoogleOther-Video
-User-agent: GPTBot
-User-agent: iaskspider/2.0
-User-agent: IbouBot
-User-agent: ICC-Crawler
-User-agent: ImagesiftBot
-User-agent: img2dataset
-User-agent: ISSCyberRiskCrawler
-User-agent: Kangaroo Bot
-User-agent: LinerBot
-User-agent: Linguee Bot
-User-agent: meta-externalagent
-User-agent: Meta-ExternalAgent
-User-agent: meta-externalfetcher
-User-agent: Meta-ExternalFetcher
-User-agent: meta-webindexer
-User-agent: MistralAI-User
-User-agent: MistralAI-User/1.0
-User-agent: MyCentralAIScraperBot
-User-agent: netEstate Imprint Crawler
-User-agent: NovaAct
-User-agent: OAI-SearchBot
-User-agent: omgili
-User-agent: omgilibot
-User-agent: OpenAI
-User-agent: Operator
-User-agent: PanguBot
-User-agent: Panscient
-User-agent: panscient.com
-User-agent: Perplexity-User
-User-agent: PerplexityBot
-User-agent: PetalBot
-User-agent: PhindBot
-User-agent: Poseidon Research Crawler
-User-agent: QualifiedBot
-User-agent: QuillBot
-User-agent: quillbot.com
-User-agent: SBIntuitionsBot
-User-agent: Scrapy
-User-agent: SemrushBot-OCOB
-User-agent: SemrushBot-SWA
-User-agent: ShapBot
-User-agent: Sidetrade indexer bot
-User-agent: TerraCotta
-User-agent: Thinkbot
-User-agent: TikTokSpider
-User-agent: Timpibot
-User-agent: VelenPublicWebCrawler
-User-agent: WARDBot
-User-agent: Webzio-Extended
-User-agent: wpbot
-User-agent: YaK
-User-agent: YandexAdditional
-User-agent: YandexAdditionalBot
-User-agent: YouBot
+{"User-agent: AddSearchBot|User-agent: AI2Bot|User-agent: Ai2Bot-Dolma|User-agent: aiHitBot|User-agent: AmazonBuyForMe|User-agent: atlassian-bot|User-agent: amazon-kendra|User-agent: Amazonbot|User-agent: Andibot|User-agent: Anomura|User-agent: anthropic-ai|User-agent: Applebot|User-agent: Applebot-Extended|User-agent: Awario|User-agent: bedrockbot|User-agent: bigsur.ai|User-agent: Bravebot|User-agent: Brightbot 1.0|User-agent: BuddyBot|User-agent: Bytespider|User-agent: CCBot|User-agent: ChatGPT Agent|User-agent: ChatGPT-User|User-agent: Claude-SearchBot|User-agent: Claude-User|User-agent: Claude-Web|User-agent: ClaudeBot|User-agent: Cloudflare-AutoRAG|User-agent: CloudVertexBot|User-agent: cohere-ai|User-agent: cohere-training-data-crawler|User-agent: Cotoyogi|User-agent: Crawlspace|User-agent: Datenbank Crawler|User-agent: DeepSeekBot|User-agent: Devin|User-agent: Diffbot|User-agent: DuckAssistBot|User-agent: Echobot Bot|User-agent: EchoboxBot|User-agent: FacebookBot|User-agent: facebookexternalhit|User-agent: Factset_spyderbot|User-agent: FirecrawlAgent|User-agent: FriendlyCrawler|User-agent: Gemini-Deep-Research|User-agent: Google-CloudVertexBot|User-agent: Google-Extended|User-agent: Google-Firebase|User-agent: Google-NotebookLM|User-agent: GoogleAgent-Mariner|User-agent: GoogleOther|User-agent: GoogleOther-Image|User-agent: GoogleOther-Video|User-agent: GPTBot|User-agent: iaskspider/2.0|User-agent: IbouBot|User-agent: ICC-Crawler|User-agent: ImagesiftBot|User-agent: img2dataset|User-agent: ISSCyberRiskCrawler|User-agent: Kangaroo Bot|User-agent: KlaviyoAIBot|User-agent: LinerBot|User-agent: Linguee Bot|User-agent: meta-externalagent|User-agent: Meta-ExternalAgent|User-agent: meta-externalfetcher|User-agent: Meta-ExternalFetcher|User-agent: meta-webindexer|User-agent: MistralAI-User|User-agent: MistralAI-User/1.0|User-agent: MyCentralAIScraperBot|User-agent: netEstate Imprint Crawler|User-agent: NotebookLM|User-agent: NovaAct|User-agent: OAI-SearchBot|User-agent: omgili|User-agent: omgilibot|User-agent: OpenAI|User-agent: Operator|User-agent: PanguBot|User-agent: Panscient|User-agent: panscient.com|User-agent: Perplexity-User|User-agent: PerplexityBot|User-agent: PetalBot|User-agent: PhindBot|User-agent: Poseidon Research Crawler|User-agent: QualifiedBot|User-agent: QuillBot|User-agent: quillbot.com|User-agent: SBIntuitionsBot|User-agent: Scrapy|User-agent: SemrushBot-OCOB|User-agent: SemrushBot-SWA|User-agent: ShapBot|User-agent: Sidetrade indexer bot|User-agent: TerraCotta|User-agent: Thinkbot|User-agent: TikTokSpider|User-agent: Timpibot|User-agent: VelenPublicWebCrawler|User-agent: WARDBot|User-agent: Webzio-Extended|User-agent: wpbot|User-agent: YaK|User-agent: YandexAdditional|User-agent: YandexAdditionalBot|User-agent: YouBot".replace("|", "\n")}
 Disallow: /
 """ if ALLOW_INDEXING else "User-agent: *\nDisallow: /\n"
 

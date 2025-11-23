@@ -90,7 +90,10 @@ def tl_user(request: HttpRequest, username: str, offset: int | None=None, forwar
     try:
         self_user = User.objects.get(token=request.COOKIES.get("token"))
     except User.DoesNotExist:
-        return api.error(ErrorCodes.NOT_AUTHENTICATED)
+        if forwards:
+            return api.error(ErrorCodes.NOT_AUTHENTICATED)
+
+        self_user = None
 
     try:
         user = User.objects.get(username=username)
@@ -118,7 +121,7 @@ def tl_comments(request: HttpRequest, post_id: int, sort: Literal["recent", "old
     try:
         user = User.objects.get(token=request.COOKIES.get("token"))
     except User.DoesNotExist:
-        return api.error(ErrorCodes.NOT_AUTHENTICATED)
+        user = None
 
     try:
         post = Post.objects.get(post_id=post_id)
