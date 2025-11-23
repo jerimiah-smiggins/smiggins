@@ -177,6 +177,13 @@ function renderTimeline(
     frag.append(getPost(post));
   }
 
+  if (!loggedIn) {
+    let logInReminder: D = document.createElement("div");
+    logInReminder.innerHTML = "<a class=\"timeline-status\" href=\"/signup/\" data-internal-link=\"signup\">Sign up to view more!</a>";
+    generateInternalLinks(logInReminder);
+    frag.append(logInReminder);
+  }
+
   tlElement.append(frag);
 
   if (updateCache && !currentTl.disableCaching) {
@@ -211,6 +218,10 @@ function _setTimeline(timelineId: string, element?: D): void {
 
   currentTlID = timelineId.split("__")[0] + timelineToggles.map((a: string): string => ("__" + a)).join("");
   currentTl = timelines[currentTlID];
+
+  if (!loggedIn) {
+    currentTl.disablePolling = true;
+  }
 
   if (tlPollingIntervalID) {
     clearInterval(tlPollingIntervalID);
@@ -311,12 +322,12 @@ function getPollHTML(poll: post["poll"], pid: number, forceVotedView: boolean=fa
 
   let output: string = "";
   let pollButtons: string = "";
-  let voted: boolean = poll.has_voted || forceVotedView;
+  let voted: boolean = poll.has_voted || forceVotedView || !loggedIn;
   let votedClass: string = voted ? "poll-voted" : "";
   let c: number = 0;
 
   for (const item of poll.items) {
-    output += `<div ${voted ? "" : `onclick="pollVote(${pid}, ${c})"`} class="poll-bar ${votedClass}" style="--poll-width: ${item.percentage}%;" ${item.voted ? "data-vote" : ""}>
+    output += `<div ${voted ? "" : `onclick="pollVote(${pid}, ${c})"`} class="poll-bar ${votedClass}" style="--poll-width: ${item.percentage}%;" ${item.voted || !loggedIn ? "data-vote" : ""}>
       <div class="poll-bar-text">${voted ? `${item.percentage}% - ` : ""}${escapeHTML(item.content)}</div>
     </div>`;
     c++;
@@ -325,7 +336,7 @@ function getPollHTML(poll: post["poll"], pid: number, forceVotedView: boolean=fa
   if (voted) {
     pollButtons = `<a onclick="refreshPollData(${pid})">Refresh</a>`;
 
-    if (!poll.has_voted && forceVotedView) {
+    if (!poll.has_voted && forceVotedView && loggedIn) {
       pollButtons += ` - <a onclick="refreshPollDisplay(${pid})">Return to voting</a>`;
     }
   } else {
@@ -581,7 +592,7 @@ function prependPostToTimeline(post: post): void {
 // handles events when clicking the like, quote, etc. buttons on posts
 function postButtonClick(e: Event): void {
   let el: el = e.currentTarget as el;
-  if (!el) { return; }
+  if (!el || !loggedIn) { return; }
 
   if (el.dataset.interactionQuote) {
     createPostModal("quote", +el.dataset.interactionQuote);

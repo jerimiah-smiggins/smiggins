@@ -127,9 +127,9 @@ def _post_to_bytes(post: Post, user: User | None, user_data_override: User | Non
 
     if quote:
         can_view_quote = bool(
-            (not quote.private or (user == quote.creator) or (user and user.following.contains(quote.creator))) # private, not following
-        and (not (user and quote.creator.blocking.contains(user))) # blocked by creator
-        and (not (user and user.blocking.contains(quote.creator))) # blocking creator
+            (not quote.private or (user == quote.creator) or (user is not None and user.following.contains(quote.creator))) # private, not following
+        and (not (user is not None and quote.creator.blocking.contains(user))) # blocked by creator
+        and (not (user is not None and user.blocking.contains(quote.creator))) # blocking creator
         )
 
     output = b(post.post_id, 4) + b(timestamp_override or post.timestamp, 8)
@@ -201,7 +201,7 @@ def _poll_to_bytes(poll: Poll, user: User | None) -> bytes:
 
     for choice in choices:
         content_bytes = str.encode(choice.content)
-        output += b(len(content_bytes)) + content_bytes + b(int(choice.votes.count() / total_votes * 1000) if total_votes else 0, 2) + b(choice.votes.filter(user=user).exists() << 7)
+        output += b(len(content_bytes)) + content_bytes + b(int(choice.votes.count() / total_votes * 1000) if total_votes else 0, 2) + b((user is not None and choice.votes.filter(user=user).exists()) << 7)
 
     return output
 
@@ -476,7 +476,7 @@ class api_PollRefresh(_api_BaseResponse):
     response_code = ResponseCodes.POLL_REFRESH
     version = 0
 
-    def set_response(self, pid: int, poll: Poll, user: User):
+    def set_response(self, pid: int, poll: Poll, user: User | None):
         self.response_data = b(pid, 4) + _poll_to_bytes(poll, user)
 
 class api_PollVote(api_PollRefresh):
@@ -581,9 +581,9 @@ class _api_TimelineBase(_api_BaseResponse):
         end: bool,
         forwards: bool,
         posts: list[Post] | list[Notification],
-        user: User
+        user: User | None
     ):
-        self.response_data = b(end << 7 | forwards << 6) + b(len(posts))
+        self.response_data = b((end or user is None) << 7 | forwards << 6) + b(len(posts))
 
         for i in posts:
             if isinstance(i, Post):
@@ -603,7 +603,7 @@ class api_TimelineUser(_api_TimelineBase):
     response_code = ResponseCodes.TIMELINE_USER
     version = 0
 
-    def set_response(self, end: bool, forwards: bool, posts: list[Post] | list[Notification], user: User, self_user: User):
+    def set_response(self, end: bool, forwards: bool, posts: list[Post] | list[Notification], user: User, self_user: User | None):
         display_name_bytes = str.encode(user.display_name)[:MAX_STR8]
         pronouns_bytes = str.encode(user.pronouns)[:MAX_STR8]
         bio_bytes = str.encode(user.bio)[:MAX_STR16]
@@ -624,9 +624,9 @@ class api_TimelineUser(_api_TimelineBase):
         if not isinstance(flags, int):
             return
 
-        flags |= self_user.following.contains(user) << 5 \
-               | self_user.blocking.contains(user) << 4 \
-               | user.pending_followers.contains(self_user) << 3 \
+        flags |= (self_user is not None and self_user.following.contains(user)) << 5 \
+               | (self_user is not None and self_user.blocking.contains(user)) << 4 \
+               | (self_user is not None and user.pending_followers.contains(self_user)) << 3 \
                | (user.pinned is not None) << 2
         self.response_data = user_data + b(flags) + (_post_to_bytes(user.pinned, self_user) if user.pinned else b"") + self.response_data[1:]
 
@@ -634,7 +634,7 @@ class api_TimelineComments(_api_TimelineBase):
     response_code = ResponseCodes.TIMELINE_COMMENTS
     version = 0
 
-    def set_response(self, end: bool, forwards: bool, posts: list[Post] | list[Notification], user: User, focused_post: Post):
+    def set_response(self, end: bool, forwards: bool, posts: list[Post] | list[Notification], user: User | None, focused_post: Post):
         super().set_response(end, forwards, posts, user)
 
         if isinstance(self.response_data, int):

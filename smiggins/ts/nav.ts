@@ -13,17 +13,13 @@ function urlToIntent(path: string): intent {
       case "/notifications/": return "notifications";
       case "/follow-requests/": return "follow-requests";
 
-      case "/settings/": return "settings";
+      // these settings pages are only visible when logged in
       case "/settings/profile/": return "settings/profile";
-      case "/settings/cosmetic/": return "settings/cosmetic";
       case "/settings/keybinds/": return "settings/keybinds";
       case "/settings/account/": return "settings/account";
-      case "/settings/about/": return "settings/about";
 
       case isAdmin && "/admin/": return "admin";
 
-      case /^\/u\/[a-z0-9_\-]+\/$/.test(path) ? path : "": return "user";
-      case /^\/p\/[0-9]+\/$/.test(path) ? path : "": return "post";
       case /^\/tag\/[a-z0-9_]+\/$/.test(path) ? path : "": return "hashtag";
     }
   } else {
@@ -31,15 +27,18 @@ function urlToIntent(path: string): intent {
       case "/": return "index";
       case "/login/": return "login";
       case "/signup/": return "signup";
-
-      case /^\/u\/[a-z0-9_\-]+\/$/.test(path) ? path : "":
-      case /^\/p\/[0-9]+\/$/.test(path) ? path : "":
-        return "404-noauth";
     }
   }
 
   switch (path) {
     case "/logout/": return "logout";
+
+    case /^\/u\/[a-z0-9_\-]+\/$/.test(path) ? path : "": return "user";
+    case /^\/p\/[0-9]+\/$/.test(path) ? path : "": return "post";
+
+    case "/settings/": return "settings";
+    case "/settings/cosmetic/": return "settings/cosmetic";
+    case "/settings/about/": return "settings/about";
 
     case "/changes/all/":
     case /^\/changes\/[0-9]+\.[0-9]+\.[0-9]\/$/.test(path) ? path : "":
@@ -147,11 +146,6 @@ function renderPage(intent: intent): void {
       extraVariables = {
         changes: generateChangesHTML(location.pathname.split("/").filter(Boolean)[1])
       }; break;
-
-    case "404-noauth":
-      extraVariables = {
-        item: location.pathname.startsWith("/u/") ? "profile" : location.pathname.startsWith("/p/") ? "post" : "thing"
-      }; break;
   }
 
   if (tlPollingIntervalID) {
@@ -181,7 +175,6 @@ function getPageTitle(intent: intent): string {
     case "signup": val = "Sign Up - "; break;
     case "logout": val = "Log Out - "; break;
     case "404": val = "Page Not Found - "; break;
-    case "404-noauth": val = "Not Logged In - "; break;
     case "user": val = getUsernameFromPath() + " - "; break;
     case "notifications": val = "Notifications - "; break;
     case "follow-requests": val = "Follow Requests - "; break;

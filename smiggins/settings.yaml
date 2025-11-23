@@ -5,15 +5,15 @@
 # file and the default value will persist. Along with that, the case (upper,
 # lower, or any combination) of the keys doesn't matter.
 
-# The version displayed on the website. Set to `null` for the real version.
-version: null
-
 # The name of the instance
 site_name: Jerimiah Smiggins
 
-# The url of the website that you are running. This is VERY IMPORTANT to set,
-# and is required for emails and sitemaps to work properly. Make sure to
-# include the "https://" part.
+# The description of the site, found on the home page when logged out, and in
+# some embeds. Set to `null` to use the default.
+site_description: null
+
+# The url of the website that you are running. Make sure to include the
+# "https://" part. Do NOT include a trailing slash.
 website_url: http://localhost:8000
 
 # A list of words/phrases to show up when loading. If none are set, it uses

@@ -492,7 +492,6 @@ function parseResponse(
       );
 
       u8arr = new Uint8Array([0, 0, flags].concat(Array.from(pinnedPostData ? pinnedPostData[1] : bio[1].slice(13))));
-      console.log(u8arr, bio, pinnedPostData, flags)
 
     case ResponseCodes.TimelineComments:
       // Prevent accidentally running this code when on user timeline

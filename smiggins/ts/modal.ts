@@ -6,7 +6,7 @@ let postModalFor: {
 function createPostModal(): void;
 function createPostModal(type: "quote" | "comment" | "edit", id: number): void;
 function createPostModal(type?: "quote" | "comment" | "edit", id?: number): void {
-  if (document.getElementById("modal")) { return; }
+  if (document.getElementById("modal") || !loggedIn) { return; }
 
   let extraVars: { [key: string]: string | [string, number] } = {
     hidden_if_no_quote: "hidden",
