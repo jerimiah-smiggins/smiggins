@@ -22,14 +22,14 @@ function p_notifications(element: D): void {
 }
 
 function _getLikeNotification(posts: post[]): D {
+  let recentTimestamp: number = 0;
   let users: string[] = posts.map((a: post, index: number): [string | null, string] | null => {
     if (!offset.lower || a.timestamp < offset.lower) { offset.lower = a.timestamp; }
     if (!offset.upper || a.timestamp > offset.upper) { offset.upper = a.timestamp; }
 
-    if (index > NUM_USERS_LIKE_NOTIF) {
-      return null;
-    }
+    if (a.timestamp > recentTimestamp) { recentTimestamp = a.timestamp; }
 
+    if (index > NUM_USERS_LIKE_NOTIF) { return null; }
     return [a.user.username, a.user.display_name];
   }).map((a: [username: string | null, displayName: string] | null): string => {
     if (a === null) {
@@ -66,8 +66,9 @@ function _getLikeNotification(posts: post[]): D {
 
   return getSnippet("notification-like", {
     pid: String(posts[0].id),
+    timestamp: getTimestamp(recentTimestamp),
     content: [simplePostContent(posts[0]), 1],
-    names: [userFull, 1]
+    names: [userFull, 1],
   });
 }
 

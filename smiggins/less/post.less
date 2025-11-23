@@ -373,12 +373,27 @@ body {
   -webkit-line-clamp: none;
 }
 
-.notification-like,
-.notification-follow {
+.notification-like {
   box-sizing: border-box;
   text-align: left;
   padding: 1em .5em;
   border-bottom: 1px solid var(--border-color);
+
+  .notification-like-upper {
+    display: flex;
+    flex-direction: row;
+    flex-wrap: nowrap;
+    gap: 0.5em;
+
+    > :first-child {
+      word-wrap: break-word;
+    }
+
+    > :last-child {
+      white-space: nowrap;
+      color: var(--subtext);
+    }
+  }
 
   .notification-like-content {
     color: var(--subtext);
@@ -389,6 +404,7 @@ body {
     -webkit-line-clamp: @notif-like-lines-max;
     -webkit-box-orient: vertical;
     overflow-y: hidden;
+    word-wrap: break-word;
   }
 }
 
