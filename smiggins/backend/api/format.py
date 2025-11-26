@@ -586,7 +586,6 @@ class _api_TimelineBase(_api_BaseResponse):
         user: User | None
     ):
         self.response_data = b((end or user is None) << 7 | forwards << 6) + b(len(posts))
-        print(end, forwards, self.response_data[0])
 
         for i in posts:
             if isinstance(i, Post):

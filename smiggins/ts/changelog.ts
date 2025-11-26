@@ -59,5 +59,16 @@ const changes: { [key: string]: versionData } = {
       "The navbar on mobile has been rearranged to be less cluttered",
       "Fixed pagination for the \"oldest\" timeline on hashtags and comments"
     ]
+  },
+  "1.3.1": {
+    description: "More secure password storage and IFrame support",
+    major_changes: [{
+      info: "You can now embed posts on other websites! By using an IFrame, you can make any post be visible on any of your websites.",
+      icon: "embed"
+    }],
+    changes: [
+      "Added IFrame support",
+      "Password storage is more secure. This however does require everyone to log in again"
+    ]
   }
 };
