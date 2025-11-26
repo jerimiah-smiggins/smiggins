@@ -191,7 +191,10 @@ function deleteAccount(e: Event): void {
 
   fetch("/api/user", {
     method: "DELETE",
-    body: buildRequest([hexToBytes(sha256(password))])
+    body: buildRequest([
+      hexToBytes(sha256(password)),
+      [username, 8]
+    ])
   }).then((response: Response): Promise<ArrayBuffer> => (response.arrayBuffer()))
     .then(parseResponse)
     .then((): void => { (e.target as Bel)?.removeAttribute("disabled"); })

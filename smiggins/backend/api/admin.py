@@ -41,7 +41,7 @@ def admin_delete_user(request: HttpRequest) -> HttpResponse:
     api = api_AdminDeleteUser(request)
 
     try:
-        self_user = User.objects.get(token=request.COOKIES.get("token"))
+        self_user = User.objects.get(auth_key=request.COOKIES.get("token"))
     except User.DoesNotExist:
         return api.error(ErrorCodes.NOT_AUTHENTICATED)
 
@@ -61,7 +61,7 @@ def delete_otp(request: HttpRequest) -> HttpResponse:
     api = api_DeleteOTP(request)
 
     try:
-        user = User.objects.get(token=request.COOKIES.get("token"))
+        user = User.objects.get(auth_key=request.COOKIES.get("token"))
     except User.DoesNotExist:
         return api.error(ErrorCodes.NOT_AUTHENTICATED)
 
@@ -81,7 +81,7 @@ def generate_otp(request: HttpRequest) -> HttpResponse:
     api = api_GenerateOTP(request)
 
     try:
-        user = User.objects.get(token=request.COOKIES.get("token"))
+        user = User.objects.get(auth_key=request.COOKIES.get("token"))
     except User.DoesNotExist:
         return api.error(ErrorCodes.NOT_AUTHENTICATED)
 
@@ -96,7 +96,7 @@ def list_otps(request: HttpRequest) -> HttpResponse:
     api = api_ListOTPs(request)
 
     try:
-        user = User.objects.get(token=request.COOKIES.get("token"))
+        user = User.objects.get(auth_key=request.COOKIES.get("token"))
     except User.DoesNotExist:
         return api.error(ErrorCodes.NOT_AUTHENTICATED)
 
@@ -111,7 +111,7 @@ def set_admin_lvl(request: HttpRequest) -> HttpResponse:
     api = api_SetAdminPermissions(request)
 
     try:
-        self_user = User.objects.get(token=request.COOKIES.get("token"))
+        self_user = User.objects.get(auth_key=request.COOKIES.get("token"))
     except User.DoesNotExist:
         return api.error(ErrorCodes.NOT_AUTHENTICATED)
 
@@ -134,7 +134,7 @@ def get_admin_lvl(request: HttpRequest, username: str) -> HttpResponse:
     api = api_GetAdminPermissions(request)
 
     try:
-        self_user = User.objects.get(token=request.COOKIES.get("token"))
+        self_user = User.objects.get(auth_key=request.COOKIES.get("token"))
     except User.DoesNotExist:
         return api.error(ErrorCodes.NOT_AUTHENTICATED)
 

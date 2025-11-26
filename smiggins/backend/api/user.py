@@ -1,9 +1,11 @@
+import random
 import re
 
+from django.contrib.auth.hashers import check_password, make_password
 from django.http import HttpRequest, HttpResponse
 from posts.models import InviteCode, User
 
-from ..helper import generate_token, trim_whitespace
+from ..helper import generate_legacy_token, trim_whitespace
 from ..variables import (DEFAULT_BANNER_COLOR, ENABLE_NEW_ACCOUNTS,
                          MAX_BIO_LENGTH, MAX_DISPL_NAME_LENGTH,
                          MAX_USERNAME_LENGTH)
@@ -15,6 +17,16 @@ from .format import (ErrorCodes, api_AcceptFolreq, api_Block,
 
 COLOR_REGEX = re.compile(r"^#[a-f0-9]{6}$")
 
+def generate_auth_key() -> str:
+    KEY_LENGTH = 64
+    SEGMENT_LENGTH = 8 # each segment is 4 bits (0-f), so 8 would be 32 bits
+
+    key = ""
+    for _ in range(KEY_LENGTH // SEGMENT_LENGTH):
+        key += hex(random.randint(0, (1 << (SEGMENT_LENGTH * 4)) - 1))[2:].zfill(SEGMENT_LENGTH)
+
+    return key
+
 def signup(request: HttpRequest) -> HttpResponse:
     api = api_SignUp(request)
     data = api.parse_data()
@@ -23,7 +35,7 @@ def signup(request: HttpRequest) -> HttpResponse:
         return api.error(ErrorCodes.BAD_REQUEST)
 
     username = data["username"].lower().replace(" ", "")
-    password = data["password"].lower()
+    password = data["password"]
 
     if ENABLE_NEW_ACCOUNTS == "otp":
         try:
@@ -52,35 +64,41 @@ def signup(request: HttpRequest) -> HttpResponse:
     if ENABLE_NEW_ACCOUNTS == "otp":
         otp.delete()
 
-    token = generate_token(username, password)
+    auth_key = generate_auth_key()
 
     User.objects.create(
         username=username,
-        token=token,
+        password_hash=make_password(password),
+        auth_key=auth_key,
         display_name=trim_whitespace(data["username"], purge_newlines=True)[0][:MAX_DISPL_NAME_LENGTH],
         color=DEFAULT_BANNER_COLOR,
         color_two=DEFAULT_BANNER_COLOR
     )
 
-    return api.response(token=token)
+    return api.response(token=auth_key)
 
 def login(request: HttpRequest) -> HttpResponse:
     api = api_LogIn(request)
     data = api.parse_data()
 
     username = data["username"].lower().replace(" ", "")
-    token = generate_token(username, data["password"])
 
     try:
         user = User.objects.get(username=username)
-
-        if token == user.token:
-            return api.response(token=token)
-
-        return api.error(ErrorCodes.BAD_PASSWORD)
-
     except User.DoesNotExist:
         return api.error(ErrorCodes.BAD_USERNAME)
+
+    if user.password_hash and check_password(data["password"], user.password_hash):
+        return api.response(token=user.auth_key)
+
+    if user.legacy_token and user.legacy_token == generate_legacy_token(username, data["password"]):
+        user.legacy_token = None
+        user.auth_key = generate_auth_key()
+        user.password_hash = make_password(data["password"])
+        user.save()
+        return api.response(token=user.auth_key)
+
+    return api.error(ErrorCodes.BAD_PASSWORD)
 
 def follow_add(request: HttpRequest) -> HttpResponse:
     return _follow(request, False)
@@ -92,7 +110,7 @@ def _follow(request: HttpRequest, unfollow: bool) -> HttpResponse:
     api = (api_Unfollow if unfollow else api_Follow)(request)
 
     try:
-        self_user = User.objects.get(token=request.COOKIES.get("token"))
+        self_user = User.objects.get(auth_key=request.COOKIES.get("token"))
     except User.DoesNotExist:
         return api.error(ErrorCodes.NOT_AUTHENTICATED)
 
@@ -136,7 +154,7 @@ def _block(request: HttpRequest, unblock: bool) -> HttpResponse:
     api = (api_Unblock if unblock else api_Block)(request)
 
     try:
-        self_user = User.objects.get(token=request.COOKIES.get("token"))
+        self_user = User.objects.get(auth_key=request.COOKIES.get("token"))
     except User.DoesNotExist:
         return api.error(ErrorCodes.NOT_AUTHENTICATED)
 
@@ -174,7 +192,7 @@ def _folreq(request: HttpRequest, accepted: bool) -> HttpResponse:
     api = (api_AcceptFolreq if accepted else api_DenyFolreq)(request)
 
     try:
-        self_user = User.objects.get(token=request.COOKIES.get("token"))
+        self_user = User.objects.get(auth_key=request.COOKIES.get("token"))
     except User.DoesNotExist:
         return api.error(ErrorCodes.NOT_AUTHENTICATED)
 
@@ -199,7 +217,7 @@ def get_profile(request: HttpRequest) -> HttpResponse:
     api = api_GetProfile(request)
 
     try:
-        user = User.objects.get(token=request.COOKIES.get("token"))
+        user = User.objects.get(auth_key=request.COOKIES.get("token"))
     except User.DoesNotExist:
         return api.error(ErrorCodes.NOT_AUTHENTICATED)
 
@@ -209,7 +227,7 @@ def save_profile(request: HttpRequest) -> HttpResponse:
     api = api_SaveProfile(request)
 
     try:
-        user = User.objects.get(token=request.COOKIES.get("token"))
+        user = User.objects.get(auth_key=request.COOKIES.get("token"))
     except User.DoesNotExist:
         return api.error(ErrorCodes.NOT_AUTHENTICATED)
 
@@ -238,7 +256,7 @@ def set_post_visibility(request: HttpRequest) -> HttpResponse:
     api = api_SetDefaultVisibility(request)
 
     try:
-        user = User.objects.get(token=request.COOKIES.get("token"))
+        user = User.objects.get(auth_key=request.COOKIES.get("token"))
     except User.DoesNotExist:
         return api.error(ErrorCodes.NOT_AUTHENTICATED)
 
@@ -251,7 +269,7 @@ def set_verify_followers(request: HttpRequest) -> HttpResponse:
     api = api_SetDefaultVisibility(request)
 
     try:
-        user = User.objects.get(token=request.COOKIES.get("token"))
+        user = User.objects.get(auth_key=request.COOKIES.get("token"))
     except User.DoesNotExist:
         return api.error(ErrorCodes.NOT_AUTHENTICATED)
 
@@ -274,36 +292,38 @@ def change_password(request: HttpRequest) -> HttpResponse:
     data = api.parse_data()
 
     try:
-        user = User.objects.get(token=current_token)
+        user = User.objects.get(auth_key=current_token)
     except User.DoesNotExist:
         return api.error(ErrorCodes.NOT_AUTHENTICATED)
 
-    if generate_token(user.username, data["current_password"]) != current_token or len(data["new_password"]) != 64 or data["new_password"] == "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855":
+    if not user.password_hash or not check_password(data["current_password"], user.password_hash) or data["new_password"] == "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855":
         return api.error(ErrorCodes.BAD_PASSWORD)
 
     for i in data["new_password"]:
         if i not in "abcdef0123456789":
             return api.error(ErrorCodes.BAD_PASSWORD)
 
-    new_token = generate_token(user.username, data["new_password"])
+    new_auth_key = generate_auth_key()
 
-    user.token = new_token
+    user.auth_key = new_auth_key
+    user.password_hash = make_password(data["new_password"])
     user.save()
 
-    return api.response(token=new_token)
+    return api.response(token=new_auth_key)
 
 def delete_account(request: HttpRequest) -> HttpResponse:
     api = api_DeleteAccount(request)
+    data = api.parse_data()
+
+    print(data)
 
     try:
-        user = User.objects.get(token=request.COOKIES.get("token"))
+        user = User.objects.get(auth_key=request.COOKIES.get("token"), username=data["username"])
     except User.DoesNotExist:
         return api.error(ErrorCodes.NOT_AUTHENTICATED)
 
-    data = api.parse_data()
+    if not user.password_hash or not check_password(data["password"], user.password_hash):
+        return api.error(ErrorCodes.BAD_PASSWORD)
 
-    if user.token == generate_token(user.username, data["password"]):
-        user.delete()
-        return api.response()
-
-    return api.error(ErrorCodes.BAD_PASSWORD)
+    user.delete()
+    return api.response()

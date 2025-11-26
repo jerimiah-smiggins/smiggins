@@ -21,7 +21,7 @@ def webapp(request: HttpRequest) -> HttpResponse:
     backup_db()
 
     try:
-        user = User.objects.get(token=request.COOKIES.get("token"))
+        user = User.objects.get(auth_key=request.COOKIES.get("token"))
     except User.DoesNotExist:
         user = None
 

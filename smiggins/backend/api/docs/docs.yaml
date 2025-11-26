@@ -145,9 +145,10 @@ PATCH /api/user:
 DELETE /api/user:
   description: "Deletes your account"
   id: 0x22
-  version: 0
+  version: 1
   body:
   - { type: hex32, name: "Password hash (sha256)" }
+  - { type: str8, name: "Username" }
 
 PATCH /api/user/password:
   description: "Changes your password"

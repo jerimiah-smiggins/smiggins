@@ -28,7 +28,7 @@ def create_simple_return(
 ) -> Callable[..., HttpResponse | HttpResponseRedirect]:
     def logged_in(request) -> bool:
         try:
-            User.objects.get(token=request.COOKIES.get("token"))
+            User.objects.get(auth_key=request.COOKIES.get("token"))
             return True
         except User.DoesNotExist:
             return False
@@ -42,7 +42,7 @@ def create_simple_return(
     x.__name__ = content
     return x
 
-def generate_token(username: str, password: str) -> str:
+def generate_legacy_token(username: str, password: str) -> str:
     return sha(sha(f"{username}:{password}") + PRIVATE_AUTHENTICATOR_KEY)
 
 def trim_whitespace(string: str, purge_newlines: bool=False) -> tuple[str, bool]:
