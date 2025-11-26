@@ -36,8 +36,6 @@ function resetSearchTL(baseElement?: D): void {
   let pollStr:    string = pollElement     ? pollElement.value    : "";
   let commentStr: string = commentElement  ? commentElement.value : "";
 
-  console.log(content, cw, username, quoteStr, pollStr, commentStr);
-
   let tlElement: Del = (baseElement || document).querySelector("#timeline-posts");
   if (!tlElement) { return; }
 

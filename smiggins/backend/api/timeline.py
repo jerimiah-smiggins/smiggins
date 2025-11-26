@@ -281,7 +281,7 @@ def tl_search(
         try:
             user_obj = User.objects.get(username=user)
         except User.DoesNotExist:
-            api.set_response(True, True, [], self_user)
+            api.set_response(True, False, [], self_user)
             return api.get_response()
 
         tl = tl.filter(creator=user_obj)
