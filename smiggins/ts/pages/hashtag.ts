@@ -10,6 +10,6 @@ function p_hashtag(element: D): void {
 
   hookTimeline(timelineElement, element.querySelector("#timeline-carousel") as Del, {
     [`hashtag_${tag}_recent`]: { url: `/api/timeline/tag/${tag}?sort=recent`, prependPosts: false },
-    [`hashtag_${tag}_oldest`]: { url: `/api/timeline/tag/${tag}?sort=oldest`, prependPosts: false, disablePolling: true },
+    [`hashtag_${tag}_oldest`]: { url: `/api/timeline/tag/${tag}?sort=oldest`, prependPosts: false, disablePolling: true, invertOffset: true },
   }, `hashtag_${tag}_recent`, element);
 }

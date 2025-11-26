@@ -217,8 +217,7 @@ body {
     [data-interaction-edit],
     [data-interaction-pin],
     [data-interaction-unpin],
-    [data-interaction-delete],
-    .hamburger {
+    [data-interaction-delete] {
       cursor: pointer;
     }
 
@@ -248,58 +247,60 @@ body {
         }
       }
     }
+  }
+}
 
-    .hamburger {
-      .post-hamburger-container {
-        position: absolute;
-        display: inline;
-      }
+.hamburger {
+  cursor: pointer;
 
-      .post-hamburger {
-        display: inline-block;
-        opacity: 0;
-        user-select: none;
-        pointer-events: none;
-        padding: 0 10px;
-        background-color: var(--background);
-        outline: 2px solid var(--accent);
-        position: absolute;
-        bottom: -1em;
-        right: 1.5em;
-        white-space: nowrap;
-        text-align: left;
-        z-index: @post-hamburger-z-index;
+  .post-hamburger-container {
+    position: absolute;
+    display: inline;
+  }
 
-        > div {
-          padding: 5px 0;
-          border-bottom: 1px solid var(--border-color);
+  .post-hamburger {
+    display: inline-block;
+    opacity: 0;
+    user-select: none;
+    pointer-events: none;
+    padding: 0 10px;
+    background-color: var(--background);
+    outline: 2px solid var(--accent);
+    position: absolute;
+    bottom: -1em;
+    right: 1.5em;
+    white-space: nowrap;
+    text-align: left;
+    z-index: @post-hamburger-z-index;
 
-          &:last-of-type {
-            border-bottom: none;
-          }
-        }
-      }
+    > div {
+      padding: 5px 0;
+      border-bottom: 1px solid var(--border-color);
 
-      > svg {
-        padding: 0 0.1em;
-      }
-
-      &:focus {
-        outline: none !important;
-
-        > svg {
-          outline: 2px solid var(--accent);
-        }
-      }
-
-      &:focus .post-hamburger,
-      .post-hamburger:focus-within,
-      .post-hamburger:hover {
-        opacity: 100%;
-        user-select: auto;
-        pointer-events: all;
+      &:last-of-type {
+        border-bottom: none;
       }
     }
+  }
+
+  > svg {
+    padding: 0 0.1em;
+  }
+
+  &:focus {
+    outline: none !important;
+
+    > svg {
+      outline: 2px solid var(--accent);
+    }
+  }
+
+  &:focus .post-hamburger,
+  .post-hamburger:focus-within,
+  .post-hamburger:hover {
+    opacity: 100%;
+    user-select: auto;
+    pointer-events: all;
   }
 }
 

@@ -16,16 +16,16 @@ declare const limits: {
 
 type intent = "index" | "login" | "signup"
             | "logout" | "404" | "changelog"
-            | "home" | "user" | "hashtag" | "post" | "notifications" | "follow-requests" | "admin"
+            | "home" | "user" | "hashtag" | "post" | "notifications" | "follow-requests" | "admin" | "search"
             | "settings" | "settings/profile" | "settings/cosmetic" | "settings/account" | "settings/keybinds" | "settings/about";
 
 type snippet = "pages/index" | "pages/login" | "pages/signup"
              | "pages/logout" | "pages/404" | "pages/changelog"
-             | "pages/home" | "pages/user" | "pages/hashtag" | "pages/post" | "pages/notifications" | "pages/follow-requests" | "pages/admin"
+             | "pages/home" | "pages/user" | "pages/hashtag" | "pages/post" | "pages/notifications" | "pages/follow-requests" | "pages/admin" | "pages/search"
              | "pages/settings" | "pages/settings/profile" | "pages/settings/cosmetic" | "pages/settings/account" | "pages/settings/keybinds" | "pages/settings/about"
              | "post" | "post-placeholder" | "toast" | "compose-modal" | "keybind-modal" | "update-modal" | "notification-like" | "folreq-user";
 
-type icons = "back" | "private" | "comment_arrow" | "comment" | "quote" | "like" | "like_active" | "hamburger" | "edit" | "pin" | "unpin" | "delete" | "home_active" | "home" | "notifications_active" | "notifications" | "messages_active" | "messages" | "user_active" | "user" | "settings_active" | "settings" | "folreq" | "folreq_active" | "share" | "login" | "user_plus";
+type icons = "back" | "private" | "comment_arrow" | "comment" | "quote" | "like" | "like_active" | "hamburger" | "edit" | "pin" | "unpin" | "delete" | "home_active" | "home" | "notifications_active" | "notifications" | "messages_active" | "messages" | "user_active" | "user" | "settings_active" | "settings" | "folreq" | "folreq_active" | "share" | "login" | "user_plus" | "search" | "plus";
 
 type keybindModifiers = "ctrl" | "shift" | "alt" | "nav";
 type themes = "light" | "dark" | "warm" | "gray" | "darker" | "oled" | "system";
@@ -100,6 +100,7 @@ type timelineConfig = {
   prependPosts: boolean | number,
   disablePolling?: true,
   disableCaching?: true,
+  invertOffset?: true,
   customRender?: (posts: any[], end: boolean, updateCache: boolean, moreElementOverride?: HTMLElement | null) => void,
   customForward?: (posts: any[], end: boolean, expectedTlID: string, forceEvent: boolean) => void
 };

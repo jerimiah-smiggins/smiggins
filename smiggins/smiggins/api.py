@@ -6,7 +6,7 @@ from backend.api.post import (add_like, pin_post, poll_refresh, poll_vote,
                               unpin_post)
 from backend.api.timeline import (tl_comments, tl_following, tl_folreq,
                                   tl_global, tl_hashtag, tl_notifications,
-                                  tl_user)
+                                  tl_search, tl_user)
 from backend.api.user import (block_add, block_remove, change_password,
                               delete_account, follow_add, follow_remove,
                               folreq_accept, folreq_deny, get_profile, login,
@@ -55,6 +55,7 @@ api.get("timeline/post/{int:post_id}")(tl_comments)
 api.get("timeline/notifications")(tl_notifications)
 api.get("timeline/tag/{str:tag}")(tl_hashtag)
 api.get("timeline/follow-requests")(tl_folreq)
+api.get("timeline/search")(tl_search)
 
 api.post("post")(post_create)
 api.patch("post")(post_edit)

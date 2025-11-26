@@ -47,5 +47,17 @@ const changes: { [key: string]: versionData } = {
       "Data is now embedded into the base document for embeds on other platforms, ex. discord",
       "Like notifications now have a timestamp attached to them"
     ]
+  },
+  "1.3.0": {
+    description: "Searching",
+    major_changes: [{
+      info: "You can now search for posts! There are seveal search filters that can be used, like whether or not it has a poll, or who created it.",
+      icon: "search"
+    }],
+    changes: [
+      "Added a search page",
+      "The navbar on mobile has been rearranged to be less cluttered",
+      "Fixed pagination for the \"oldest\" timeline on hashtags and comments"
+    ]
   }
 };

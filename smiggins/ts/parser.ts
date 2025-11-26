@@ -35,6 +35,7 @@ enum ResponseCodes {
   TimelineNotifications,
   TimelineHashtag,
   TimelineFolreq,
+  TimelineSearch,
   Notifications = 0x70
 };
 
@@ -94,6 +95,7 @@ const EXPECTED_VERSIONS: {
   [ResponseCodes.TimelineNotifications]: 0,
   [ResponseCodes.TimelineHashtag]: 0,
   [ResponseCodes.TimelineFolreq]: 0,
+  [ResponseCodes.TimelineSearch]: 0,
   [ResponseCodes.Notifications]: 0
 }
 
@@ -504,6 +506,7 @@ function parseResponse(
     case ResponseCodes.TimelineGlobal:
     case ResponseCodes.TimelineFollowing:
     case ResponseCodes.TimelineHashtag:
+    case ResponseCodes.TimelineSearch:
       end = _extractBool(u8arr[2], 7);
       forwards = _extractBool(u8arr[2], 6);
       numPosts = u8arr[3];

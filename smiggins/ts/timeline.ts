@@ -127,7 +127,7 @@ function loadMorePosts(): void {
 
   tlElement.insertAdjacentHTML("beforeend", LOADING_HTML);
 
-  fetch(`${currentTl.url}${currentTl.url.includes("?") ? "&" : "?"}offset=${offset.lower}`)
+  fetch(`${currentTl.url}${currentTl.url.includes("?") ? "&" : "?"}offset=${currentTl.invertOffset ? offset.upper : offset.lower}`)
     .then((response: Response): Promise<ArrayBuffer> => (response.arrayBuffer()))
     .then(parseResponse)
     .catch((err: any): void => {
@@ -557,7 +557,7 @@ function timelinePolling(forceEvent: boolean=false): void {
     forceEvent = true;
   }
 
-  fetch(`${currentTl.url}${currentTl.url.includes("?") ? "&" : "?"}offset=${offset.upper}&forwards=true`)
+  fetch(`${currentTl.url}${currentTl.url.includes("?") ? "&" : "?"}offset=${currentTl.invertOffset ? offset.lower : offset.upper}&forwards=true`)
     .then((response: Response): Promise<ArrayBuffer> => (response.arrayBuffer()))
     .then((ab: ArrayBuffer): void => (parseResponse(ab, (forceEvent ? "$" : "") + currentTlID)))
     .catch((err: any): void => {
