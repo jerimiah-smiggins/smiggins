@@ -110,7 +110,11 @@ def webapp(request: HttpRequest) -> HttpResponse:
     return HttpResponse(
         loader.get_template("app.html").render(
             context, request
-        )
+        ),
+        headers={
+            "X-Frame-Options": "ALLOW",
+            "Access-Control-Allow-Origin": "*"
+        } if request.GET.get("iframe") is not None else None
     )
 
 def _api_docs_map(data):

@@ -39,9 +39,10 @@
       const username = "{{ username }}";
       const pageTitle = "{{ conf.site_name }}";
       const version = "{{ conf.version }}";
+      let defaultPostPrivate = "{{ default_post_private }}" === "True";
       const TL_POLLING_INTERVAL = {{ conf.polling.timeline }} * 1000;
       const NOTIFICATION_POLLING_INTERVAL = {{ conf.polling.notifications }} * 1000;
-      let defaultPostPrivate = "{{ default_post_private }}" === "True";
+      const IS_IFRAME = new URLSearchParams(location.search).has("iframe");
       const limits = {
         // more limits can be added as needed. most aren't used by the js, just the templates
         username: {{ conf.max_length.username }},
@@ -108,6 +109,7 @@
 
     <script src="{% static 'app.js' %}?v={{ conf.version }}"></script>
     <script>
+      if (IS_IFRAME) { document.body.dataset.iframe = ""; }
       let currentPage = urlToIntent(location.pathname);
       history.replaceState(currentPage, "", normalizePath(location.pathname + location.search, true));
       renderPage(currentPage);

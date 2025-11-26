@@ -9,8 +9,8 @@
 }
 
 #timeline {
-  width: @timeline-width;
-  max-width: calc(100vw - 2em);
+  width: calc(100vw - 2em);
+  max-width: @timeline-width;
   min-height: 100vh;
   box-sizing: border-box;
   border: 2px solid var(--border-color);
@@ -214,6 +214,23 @@
     flex-direction: row;
     flex-wrap: nowrap;
     gap: 0.5em;
+  }
+}
+
+body[data-iframe] {
+  #navbar {
+    display: none !important;
+  }
+
+  #timeline {
+    width: 100vw !important;
+    max-width: unset !important;
+    border: none !important;
+  }
+
+  #timeline-container {
+    display: block;
+    margin: -1em;
   }
 }
 
