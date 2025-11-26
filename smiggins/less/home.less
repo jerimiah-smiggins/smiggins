@@ -115,6 +115,10 @@
   gap: 1em;
   align-items: center;
 
+  [data-navbar-mobile-only] {
+    display: none;
+  }
+
   svg {
     fill: currentColor;
     stroke: none;
@@ -122,15 +126,31 @@
     height: @navbar-item-height;
   }
 
-  > a {
+  .hamburger svg {
+    height: 1.2em;
+    width: auto;
+    translate: 0 0.2em;
+  }
+
+  .post-hamburger {
+    bottom: 2.25em;
+    right: -5vw;
+  }
+
+  > * {
     height: 1.5em;
     position: relative;
+    cursor: pointer;
 
-    &.navbar-current > svg {
+    &.navbar-accent svg {
+      fill: var(--accent);
+    }
+
+    &.navbar-current svg {
       filter: drop-shadow(0 0 3px var(--subtext));
     }
 
-    &[data-notification] > div {
+    [data-notification] {
       position: relative;
       display: inline-block;
 
@@ -232,7 +252,15 @@
     box-shadow: 0 -2px 0 var(--border-color);
     text-align: center;
 
-    > a {
+    [data-navbar-mobile-only] {
+      display: unset;
+    }
+
+    [data-navbar-mobile-hidden] {
+      display: none;
+    }
+
+    > * {
       flex: 1;
       padding: @navbar-item-vertical-padding 0;
     }

@@ -18,32 +18,34 @@ function fetchNotifications(): void {
 }
 
 function resetNotificationIndicators(): void {
-  let notif: el = document.querySelector("#navbar a[data-internal-link=\"notifications\"]");
-  let msg: el = document.querySelector("#navbar a[data-internal-link=\"messages\"]");
-  let folreq: el = document.querySelector("#navbar a[data-internal-link=\"follow-requests\"]");
+  let notif: NodeListOf<HTMLElement> = document.querySelectorAll("#navbar [data-notif-dot=\"notifications\"]");
+  let folreq: NodeListOf<HTMLElement> = document.querySelectorAll("#navbar [data-notif-dot=\"folreq\"]");
 
   if (notif) {
     if (pendingNotifications.notifications) {
-      notif.dataset.notification = "";
+      for (const n of notif) {
+        n.dataset.notification = "";
+      }
     } else {
-      delete notif.dataset.notification;
-    }
-  }
-
-  if (msg) {
-    if (pendingNotifications.messages) {
-      msg.dataset.notification = "";
-    } else {
-      delete msg.dataset.notification;
+      for (const n of notif) {
+        delete n.dataset.notification;
+      }
     }
   }
 
   if (folreq) {
     if (pendingNotifications.follow_requests) {
-      folreq.dataset.notification = "";
-      folreq.removeAttribute("hidden");
+      for (const fr of folreq) {
+        fr.dataset.notification = "";
+      }
+
+      for (const el of document.querySelectorAll("[data-navbar-folreq-toggle][hidden]")) {
+        el.removeAttribute("hidden");
+      }
     } else {
-      delete folreq.dataset.notification;
+      for (const fr of folreq) {
+        delete fr.dataset.notification;
+      }
     }
   }
 
