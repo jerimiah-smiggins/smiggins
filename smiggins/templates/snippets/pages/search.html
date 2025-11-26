@@ -1,0 +1,53 @@
+{% include "snippets/generic/page-start.html" %}
+
+<h1 class="no-margin-top no-margin-bottom">Search</h1>
+<hr class="no-margin-bottom">
+
+<div><input id="search-content" placeholder="Post content" data-enter-submit="#apply-search"></div>
+
+<details id="advanced-toggle" data-enter-submit="#apply-search">
+  <summary>Advanced Search</summary>
+  <p><label>Content waring: <input data-enter-next="#search-username" data-enter-submit="#apply-search" id="search-cw" placeholder="CW content (optional)"></label></p>
+  <p><label>Created by: <input data-enter-next="#search-quote" data-enter-submit="#apply-search" id="search-username" placeholder="Username (optional)"></label></p>
+
+  <div><label>
+    Includes quote?
+    <select data-enter-submit="#apply-search" id="search-quote">
+      <option value="null">Any</option>
+      <option value="true">Yes</option>
+      <option value="false">No</option>
+    </select>
+  </label></div>
+
+  <div><label>
+    Includes poll?
+    <select data-enter-submit="#apply-search" id="search-poll">
+      <option value="null">Any</option>
+      <option value="true">Yes</option>
+      <option value="false">No</option>
+    </select>
+  </label></div>
+
+  <div><label>
+    Is comment?
+    <select data-enter-submit="#apply-search" id="search-comment">
+      <option value="null">Any</option>
+      <option value="true">Yes</option>
+      <option value="false">No</option>
+    </select>
+  </label></div>
+</details>
+
+<p><button data-button-alt-colors id="apply-search">Search</button></p>
+
+<hr>
+
+<div id="timeline-carousel" class="generic-margin-bottom">
+  <div data-timeline-id="search_recent" data-timeline-active>Newest</div>
+  <div data-timeline-id="search_oldest">Oldest</div>
+</div>
+
+<div id="timeline-posts"></div>
+<button id="timeline-more" hidden>Load More</button>
+
+{% include "snippets/generic/page-end.html" %}

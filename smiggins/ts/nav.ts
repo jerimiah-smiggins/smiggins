@@ -18,6 +18,8 @@ function urlToIntent(path: string): intent {
       case "/settings/keybinds/": return "settings/keybinds";
       case "/settings/account/": return "settings/account";
 
+      case "/search/": return "search";
+
       case isAdmin && "/admin/": return "admin";
 
       case /^\/tag\/[a-z0-9_]+\/$/.test(path) ? path : "": return "hashtag";
@@ -85,11 +87,11 @@ function internalLinkHandler(e: MouseEvent): void {
   }
 }
 
-function normalizePath(path: string): string {
-  if (!path.endsWith("/"))  { path += "/"; }
+function normalizePath(path: string, includeQueryParams?: true): string {
+  if (!path.split("?")[0].endsWith("/"))  { path = path.split("?")[0] + "/?" + path.split("?").slice(1).join("?"); }
   if (!path.startsWith("/")) { path = "/" + path; }
 
-  return path.toLowerCase().split("?")[0];
+  return includeQueryParams ? path.toLowerCase() : path.toLowerCase().split("?")[0];
 }
 
 function renderPage(intent: intent): void {
@@ -180,6 +182,7 @@ function getPageTitle(intent: intent): string {
     case "follow-requests": val = "Follow Requests - "; break;
     case "changelog": val = "Changes - "; break;
     case "admin": val = "Administration - "; break;
+    case "search": val = "Search - "; break;
 
     case "index":
     case "home":

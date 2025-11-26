@@ -58,6 +58,7 @@ let snippetProcessing: { [key: string]: (element: D) => void } = {
   hashtag: p_hashtag,
   follow_requests: p_folreq,
   admin: p_admin,
+  search: p_search,
 
   settings_profile: p_settingsProfile,
   settings_cosmetic: p_settingsCosmetic,

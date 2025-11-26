@@ -9,7 +9,7 @@ from ..variables import POSTS_PER_REQUEST
 from .format import (ErrorCodes, api_TimelineComments, api_TimelineFollowing,
                      api_TimelineFolreq, api_TimelineGlobal,
                      api_TimelineHashtag, api_TimelineNotifications,
-                     api_TimelineUser)
+                     api_TimelineSearch, api_TimelineUser)
 
 
 def get_timeline(
@@ -134,7 +134,7 @@ def tl_comments(request: HttpRequest, post_id: int, sort: Literal["recent", "old
         ...
     elif sort == "oldest":
         kwargs["order_by"] = ["timestamp", "pk"]
-        forwards = False
+        forwards = True
     # elif sort == "random": # TODO: random timeline has random duplication even though it should be .distinct()
     #     kwargs["order_by"] = ["?"]
     #     forwards = False
@@ -150,7 +150,7 @@ def tl_comments(request: HttpRequest, post_id: int, sort: Literal["recent", "old
         **kwargs
     )
 
-    api.set_response(end, forwards, posts, user, post)
+    api.set_response(end, forwards and sort != "oldest", posts, user, post)
     return api.get_response()
 
 def tl_notifications(request: HttpRequest, offset: int | None=None, forwards: bool=False):
@@ -199,7 +199,7 @@ def tl_hashtag(request: HttpRequest, tag: str, sort: Literal["recent", "oldest",
         ...
     elif sort == "oldest":
         kwargs["order_by"] = ["timestamp", "pk"]
-        forwards = False
+        forwards = True
     else:
         return api.error(ErrorCodes.BAD_REQUEST)
 
@@ -211,10 +211,10 @@ def tl_hashtag(request: HttpRequest, tag: str, sort: Literal["recent", "oldest",
         **kwargs
     )
 
-    api.set_response(end, forwards, posts, user)
+    api.set_response(end, forwards and sort != "oldest", posts, user)
     return api.get_response()
 
-def tl_folreq(request: HttpRequest, offset: int | None=None):
+def tl_folreq(request: HttpRequest, offset: int | None=None) -> HttpResponse:
     api = api_TimelineFolreq(request)
 
     try:
@@ -240,3 +240,74 @@ def tl_folreq(request: HttpRequest, offset: int | None=None):
     Notification.objects.bulk_update(unread_notifications, ["read"])
 
     return api.get_response()
+
+def tl_search(
+    request: HttpRequest,
+    sort: Literal["new", "old"],
+    q: str="",
+    cw: str="",
+    user: str="",
+    quote: bool | None=None,
+    poll: bool | None=None,
+    comment: bool | None=None,
+    offset: int | None=None
+) -> HttpResponse:
+    api = api_TimelineSearch(request)
+
+    try:
+        self_user = User.objects.get(token=request.COOKIES.get("token"))
+    except User.DoesNotExist:
+        return api.error(ErrorCodes.NOT_AUTHENTICATED)
+
+    kwargs = {}
+
+    if sort == "new":
+        ...
+    elif sort == "old":
+        kwargs["order_by"] = ["timestamp", "pk"]
+        kwargs["forwards"] = True
+    else:
+        return api.error(ErrorCodes.BAD_REQUEST)
+
+    tl = Post.objects.all()
+
+    if q:
+        tl = tl.filter(content__icontains=q)
+
+    if cw:
+        tl = tl.filter(content_warning__icontains=cw)
+
+    if user:
+        try:
+            user_obj = User.objects.get(username=user)
+        except User.DoesNotExist:
+            api.set_response(True, True, [], self_user)
+            return api.get_response()
+
+        tl = tl.filter(creator=user_obj)
+
+    if quote:
+        tl = tl.filter(~Q(quoted_post=None))
+    elif quote is not None:
+        tl = tl.filter(quoted_post=None)
+
+    if poll:
+        tl = tl.filter(~Q(poll=None))
+    elif quote is not None:
+        tl = tl.filter(poll=None)
+
+    if comment:
+        tl = tl.filter(~Q(comment_parent=None))
+    elif comment is not None:
+        tl = tl.filter(comment_parent=None)
+
+    end, posts = get_timeline(
+        tl,
+        offset,
+        self_user,
+        **kwargs
+    )
+
+    api.set_response(end, False, posts, self_user)
+    return api.get_response()
+

@@ -47,6 +47,7 @@ class ResponseCodes:
     TIMELINE_NOTIFICATIONS = 0x64
     TIMELINE_HASHTAG = 0x65
     TIMELINE_FOLREQ = 0x66
+    TIMELINE_SEARCH = 0x67
 
     NOTIFICATIONS = 0x70
 
@@ -666,6 +667,10 @@ class api_TimelineFolreq(_api_BaseResponse):
             self.response_data += b(len(username_bytes)) + username_bytes
             self.response_data += b(len(display_name_bytes)) + display_name_bytes
             self.response_data += b(len(bio_bytes), 2) + bio_bytes
+
+class api_TimelineSearch(_api_TimelineBase):
+    response_code = ResponseCodes.TIMELINE_SEARCH
+    version = 0
 
 # 7X - Statuses
 class api_PendingNotifications(_api_BaseResponse):

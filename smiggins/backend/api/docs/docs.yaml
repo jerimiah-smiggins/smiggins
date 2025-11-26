@@ -414,6 +414,23 @@ GET /api/timeline/follow-requests:
   - { type: str8, name: "Display name", loop: user_count }
   - { type: str16, name: "User bio", loop: user_count }
 
+GET /api/timeline/search:
+  description: "For searching"
+  id: 0x67
+  version: 0
+  params:
+    offset: { type: int }
+    q: { type: str }
+    cw: { type: str }
+    user: { type: str }
+    quote: { type: bool }
+    poll: { type: bool }
+    comment: { type: bool }
+  response:
+  - { type: bool7, name: "End of timeline" }
+  - { type: uint8, name: "Post count", id: post_count }
+  - { type: post, name: "Post", loop: post_count }
+
 GET /api/notifications:
   description: "Checks for unread notifications"
   id: 0x70
