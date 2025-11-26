@@ -106,7 +106,7 @@
       {% include "snippet.html" with id="folreq-user" %}
     </div>
 
-    <script src="{% static 'app.js' %}"></script>
+    <script src="{% static 'app.js' %}?v={{ conf.version }}"></script>
     <script>
       let currentPage = urlToIntent(location.pathname);
       history.replaceState(currentPage, "", normalizePath(location.pathname + location.search, true));
