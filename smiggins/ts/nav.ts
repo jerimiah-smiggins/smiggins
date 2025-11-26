@@ -88,7 +88,7 @@ function internalLinkHandler(e: MouseEvent): void {
 }
 
 function normalizePath(path: string, includeQueryParams?: true): string {
-  if (!path.split("?")[0].endsWith("/"))  { path = path.split("?")[0] + "/?" + path.split("?").slice(1).join("?"); }
+  if (!path.split("?")[0].endsWith("/"))  { path = path.split("?")[0] + "/" + path.split("?").slice(1).map((a: string): string => ("?" + a)); }
   if (!path.startsWith("/")) { path = "/" + path; }
 
   return includeQueryParams ? path.toLowerCase() : path.toLowerCase().split("?")[0];
