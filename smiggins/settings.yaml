@@ -119,7 +119,10 @@ posts_per_request: 20
 # "otp" (one-time password) to require users to input a one time invite code
 # when signing up. Those can be found in the admin page.
 # Aliases: enable_signup, enable_new_users, enable_new_accounts
-enable_new_accounts: true # Last tested: v0.13.8
+enable_new_accounts: true
+
+# Whether or not to enable the /settings/about/ page.
+enable_about_page: true
 
 # Intervals (seconds) for polling requests in the frontend.
 timeline_polling_interval: 15
