@@ -311,6 +311,7 @@ function p_settingsCosmetic(element: D): void {
   if (localStorage.getItem("smiggins-expand-cws"))         { element.querySelector("#expand-cws")        ?.setAttribute("checked", ""); }
   if (localStorage.getItem("smiggins-hide-interactions"))  { element.querySelector("#hide-interactions") ?.setAttribute("checked", ""); }
   if (localStorage.getItem("smiggins-auto-show-posts"))    { element.querySelector("#auto-show")         ?.setAttribute("checked", ""); }
+  if (localStorage.getItem("smiggins-hide-changelog"))     { element.querySelector("#hide-changelog")    ?.setAttribute("checked", ""); }
 
   element.querySelector("#theme")             ?.addEventListener("change", settingsThemeSelection);
   element.querySelector("#pfp-shape")         ?.addEventListener("change", settingsPFPShapeSelection);
@@ -319,6 +320,7 @@ function p_settingsCosmetic(element: D): void {
   element.querySelector("#expand-cws")        ?.addEventListener("change", genericCheckbox("smiggins-expand-cws"));
   element.querySelector("#hide-interactions") ?.addEventListener("change", genericCheckbox("smiggins-hide-interactions"));
   element.querySelector("#auto-show")         ?.addEventListener("change", genericCheckbox("smiggins-auto-show-posts"));
+  element.querySelector("#hide-changelog")    ?.addEventListener("change", genericCheckbox("smiggins-hide-changelog"));
 
   for (const el of element.querySelectorAll("#font-size-selection > div")) {
     el.addEventListener("click", setFontSize);

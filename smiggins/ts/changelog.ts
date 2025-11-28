@@ -69,7 +69,9 @@ const changes: { [key: string]: versionData } = {
     changes: [
       "Added IFrame support",
       "Password storage is more secure. This however does require everyone to log in again",
-      "Added a backend setting to disable the <a href=\"/settings/about/\" data-internal-link=\"settings/about\">about page</a>"
+      "Added a backend setting to disable the <a href=\"/settings/about/\" data-internal-link=\"settings/about\">about page</a>",
+      "Added a configuration to disable changelog popups",
+      "Like notifications get grouped more often"
     ]
   }
 };
