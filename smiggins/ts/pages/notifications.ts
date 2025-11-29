@@ -93,7 +93,8 @@ function renderNotificationTimeline(
 
   let frag: DocumentFragment = document.createDocumentFragment();
 
-  let pendingLikes: post[] = [];
+  let pendingLikes: { [key: number]: post[] } = {};
+  let pendingLikeOrder: number[] = [];
   let previousRead: boolean = false;
   for (const post of posts) {
     let nc: NotificationCodes = post[1] & 0b01111111;
@@ -103,29 +104,34 @@ function renderNotificationTimeline(
     if (!previousRead && read) {
       previousRead = true;
 
-      if (pendingLikes.length) {
-        frag.append(_getLikeNotification(pendingLikes));
-        pendingLikes = [];
+      if (pendingLikeOrder.length) {
+        for (const l of pendingLikeOrder) {
+          frag.append(_getLikeNotification(pendingLikes[l]));
+        }
+
+        pendingLikes = {};
+        pendingLikeOrder = [];
       }
     }
 
     if (nc === NotificationCodes.Like) {
-      // check if targetted liked post has changed
-      if (pendingLikes.length && pendingLikes[0].id !== post[0].id) {
-        let el: D = _getLikeNotification(pendingLikes);
-        if (read) { el.dataset.notificationRead = ""; }
-        frag.append(el);
-        pendingLikes = [];
+      if (pendingLikes[post[0].id]) {
+        pendingLikes[post[0].id].push(post[0]);
+      } else {
+        pendingLikeOrder.push(post[0].id);
+        pendingLikes[post[0].id] = [post[0]];
       }
-
-      pendingLikes.push(post[0]);
     } else {
-      if (pendingLikes.length) {
-        let el: D = _getLikeNotification(pendingLikes);
-        if (read) { el.dataset.notificationRead = ""; }
-        frag.append(el);
+      // append grouped likes
+      if (pendingLikeOrder.length) {
+        for (const l of pendingLikeOrder) {
+          let el: D = _getLikeNotification(pendingLikes[l]);
+          if (read) { el.dataset.notificationRead = ""; }
+          frag.append(el);
+        }
 
-        pendingLikes = [];
+        pendingLikes = {};
+        pendingLikeOrder = [];
       }
 
       let el: D = getPost(insertIntoPostCache([post[0]])[0]);
@@ -134,10 +140,16 @@ function renderNotificationTimeline(
     }
   }
 
-  if (pendingLikes.length) {
-    let el: D = _getLikeNotification(pendingLikes);
-    if (previousRead) { el.dataset.notificationRead = ""; }
-    frag.append(el);
+  // append leftover grouped likes
+  if (pendingLikeOrder.length) {
+    for (const l of pendingLikeOrder) {
+      let el: D = _getLikeNotification(pendingLikes[l]);
+      if (previousRead) { el.dataset.notificationRead = ""; }
+      frag.append(el);
+    }
+
+    pendingLikes = {};
+    pendingLikeOrder = [];
   }
 
   if (prepend) {

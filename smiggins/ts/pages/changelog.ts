@@ -70,12 +70,12 @@ function generateChangesHTML(since: "all" | string): string {
   return output;
 }
 
-setTimeout((): void => { // give js time to load the rest of the file + snippets to prevent conflicts
-  let expectedVersion: string | null = localStorage.getItem("smiggins-last-version");
+let expectedVersion: string | null = localStorage.getItem("smiggins-last-version");
 
-  if (loggedIn && expectedVersion && checkVersionNewer(expectedVersion, version)) {
-    createUpdateModal(expectedVersion);
-  }
+if (loggedIn && expectedVersion && checkVersionNewer(expectedVersion, version) && !localStorage.getItem("smiggins-hide-changelog")) {
+  setTimeout((): void => { // give js time to load the rest of the file + snippets to prevent conflicts
+    createUpdateModal(localStorage.getItem("smiggins-last-version") || "0.0.0");
+  }, 100);
+}
 
-  localStorage.setItem("smiggins-last-version", version);
-}, 100);
+localStorage.setItem("smiggins-last-version", version);

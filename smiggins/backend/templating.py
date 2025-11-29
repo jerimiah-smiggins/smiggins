@@ -8,10 +8,11 @@ from posts.backups import backup_db
 from posts.models import Post, User
 
 from .api.admin import AdminPermissions
-from .variables import (BASE_DIR, ENABLE_NEW_ACCOUNTS, GOOGLE_VERIFICATION_TAG,
-                        MAX_BIO_LENGTH, MAX_CONTENT_WARNING_LENGTH,
-                        MAX_DISPL_NAME_LENGTH, MAX_POLL_OPTION_LENGTH,
-                        MAX_POLL_OPTIONS, MAX_POST_LENGTH, MAX_USERNAME_LENGTH,
+from .variables import (BASE_DIR, ENABLE_ABOUT_PAGE, ENABLE_NEW_ACCOUNTS,
+                        GOOGLE_VERIFICATION_TAG, MAX_BIO_LENGTH,
+                        MAX_CONTENT_WARNING_LENGTH, MAX_DISPL_NAME_LENGTH,
+                        MAX_POLL_OPTION_LENGTH, MAX_POLL_OPTIONS,
+                        MAX_POST_LENGTH, MAX_USERNAME_LENGTH,
                         NOTIFICATION_POLLING_INTERVAL, SITE_DESCRIPTION,
                         SITE_NAME, TIMELINE_POLLING_INTERVAL, VERSION,
                         WEBSITE_URL, MOTDs)
@@ -21,7 +22,7 @@ def webapp(request: HttpRequest) -> HttpResponse:
     backup_db()
 
     try:
-        user = User.objects.get(token=request.COOKIES.get("token"))
+        user = User.objects.get(auth_key=request.COOKIES.get("token"))
     except User.DoesNotExist:
         user = None
 
@@ -41,9 +42,6 @@ def webapp(request: HttpRequest) -> HttpResponse:
         embed_data["description"] = SITE_DESCRIPTION
     elif url == "/signup/":
         embed_data["title"] = "Sign Up - " + SITE_NAME
-        embed_data["description"] = SITE_DESCRIPTION
-    elif url == "/logout/":
-        embed_data["title"] = "Log Out - " + SITE_NAME
         embed_data["description"] = SITE_DESCRIPTION
     elif url == "/logout/":
         embed_data["title"] = "Log Out - " + SITE_NAME
@@ -78,6 +76,7 @@ def webapp(request: HttpRequest) -> HttpResponse:
             "site_name": SITE_NAME,
             "version": VERSION,
             "new_accounts": ENABLE_NEW_ACCOUNTS,
+            "enable_about_page": ENABLE_ABOUT_PAGE,
 
             "max_length": {
                 "username": MAX_USERNAME_LENGTH,
@@ -110,7 +109,11 @@ def webapp(request: HttpRequest) -> HttpResponse:
     return HttpResponse(
         loader.get_template("app.html").render(
             context, request
-        )
+        ),
+        headers={
+            "X-Frame-Options": "ALLOW",
+            "Access-Control-Allow-Origin": "*"
+        } if request.GET.get("iframe") is not None else None
     )
 
 def _api_docs_map(data):

@@ -8,7 +8,10 @@ from django.db import models
 class User(models.Model):
     user_id = models.IntegerField(primary_key=True, unique=True)
     username = models.CharField(max_length=2 ** 8 - 1, unique=True)
-    token = models.CharField(max_length=64, unique=True)
+
+    password_hash = models.TextField(null=True)
+    auth_key = models.CharField(max_length=64, unique=True)
+    legacy_token = models.CharField(max_length=64, null=True, unique=True)
 
     # Admin level
     # Functions as a binary mask. Definitions (32 bit compatible):

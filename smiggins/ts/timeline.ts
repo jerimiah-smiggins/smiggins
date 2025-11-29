@@ -658,8 +658,22 @@ function postButtonClick(e: Event): void {
       });
   } else if (el.dataset.interactionShare) {
     let postId: number = +el.dataset.interactionShare;
+    if (!navigator.clipboard) {
+      createToast("Unable to copy!", "Couldn't copy text to your clipboard. Are you using https?");
+      return;
+    }
+
     navigator.clipboard.writeText(`Check out this post on ${pageTitle}! ${location.origin}/p/${postId}/`);
     createToast("Copied!", "A link to this post has been added to your clipboard.");
+  } else if (el.dataset.interactionEmbed) {
+    let postId: number = +el.dataset.interactionEmbed;
+    if (!navigator.clipboard) {
+      createToast("Unable to copy!", "Couldn't copy text to your clipboard. Are you using https?");
+      return;
+    }
+
+    navigator.clipboard.writeText(`<iframe src="${location.origin}/p/${postId}/?iframe=" width="600" height="400"></iframe>`);
+    createToast("Copied!", "An IFrame code snippet has been coped to your clipboard.");
   } else {
     console.log("Unknown interaction type for post button", e);
   }
@@ -769,6 +783,7 @@ function p_post(element: D): void {
   element.querySelector("[data-interaction-pin]")?.addEventListener("click", postButtonClick);
   element.querySelector("[data-interaction-delete]")?.addEventListener("click", postButtonClick);
   element.querySelector("[data-interaction-share]")?.addEventListener("click", postButtonClick);
+  element.querySelector("[data-interaction-embed]")?.addEventListener("click", postButtonClick);
 }
 
 setInterval(updateTimestamps, 1000);

@@ -368,11 +368,12 @@ class api_SaveProfile(_api_BaseResponse):
 
 class api_DeleteAccount(_api_BaseResponse):
     response_code = ResponseCodes.DELETE_ACCOUNT
-    version = 0
+    version = 1
 
     def parse_data(self) -> dict:
         return {
-            "password": _to_hex(self.request.body[:32])
+            "password": _to_hex(self.request.body[:32]),
+            "username": _extract_string(8, self.request.body[32:])[0]
         }
 
     def set_response(self):
@@ -585,7 +586,6 @@ class _api_TimelineBase(_api_BaseResponse):
         user: User | None
     ):
         self.response_data = b((end or user is None) << 7 | forwards << 6) + b(len(posts))
-        print(end, forwards, self.response_data[0])
 
         for i in posts:
             if isinstance(i, Post):

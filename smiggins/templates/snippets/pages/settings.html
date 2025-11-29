@@ -7,7 +7,7 @@
   <a class="plain-link" href="/settings/cosmetic/" data-internal-link="settings/cosmetic">Cosmetic <small>- Website theme, tweaks...</small></a>
   {% if logged_in %}<a class="plain-link" href="/settings/keybinds/" data-internal-link="settings/keybinds">Keybinds <small>- Navigation, send posts...</small></a>{% endif %}
   {% if logged_in %}<a class="plain-link" href="/settings/account/" data-internal-link="settings/account">Account <small>- Change password, delete account...</small></a>{% endif %}
-  <a class="plain-link" href="/settings/about/" data-internal-link="settings/about">About <small>- Source code, credits...</small></a>
+  {% if conf.enable_about_page %}<a class="plain-link" href="/settings/about/" data-internal-link="settings/about">About <small>- Source code, credits...</small></a>{% endif %}
   {% if is_admin %}<a class="plain-link" href="/admin/" data-internal-link="admin">Administration <small>- Delete posts, generate invites...</small></a>{% endif %}
 
   {% if logged_in %}

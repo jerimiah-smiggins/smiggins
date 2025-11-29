@@ -69,7 +69,7 @@ const EXPECTED_VERSIONS: {
   [ResponseCodes.DenyFolreq]: 0,
   [ResponseCodes.GetProfile]: 0,
   [ResponseCodes.SaveProfile]: 0,
-  [ResponseCodes.DeleteAccount]: 0,
+  [ResponseCodes.DeleteAccount]: 1,
   [ResponseCodes.ChangePassword]: 0,
   [ResponseCodes.DefaultVisibility]: 0,
   [ResponseCodes.VerifyFollowers]: 0,

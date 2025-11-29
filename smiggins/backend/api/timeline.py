@@ -50,7 +50,7 @@ def tl_following(request: HttpRequest, comments: bool | None=None, offset: int |
     api = api_TimelineFollowing(request)
 
     try:
-        user = User.objects.get(token=request.COOKIES.get("token"))
+        user = User.objects.get(auth_key=request.COOKIES.get("token"))
     except User.DoesNotExist:
         return api.error(ErrorCodes.NOT_AUTHENTICATED)
 
@@ -70,7 +70,7 @@ def tl_global(request: HttpRequest, comments: bool | None=None, offset: int | No
     api = api_TimelineGlobal(request)
 
     try:
-        user = User.objects.get(token=request.COOKIES.get("token"))
+        user = User.objects.get(auth_key=request.COOKIES.get("token"))
     except User.DoesNotExist:
         return api.error(ErrorCodes.NOT_AUTHENTICATED)
 
@@ -88,7 +88,7 @@ def tl_user(request: HttpRequest, username: str, offset: int | None=None, forwar
     api = api_TimelineUser(request)
 
     try:
-        self_user = User.objects.get(token=request.COOKIES.get("token"))
+        self_user = User.objects.get(auth_key=request.COOKIES.get("token"))
     except User.DoesNotExist:
         if forwards:
             return api.error(ErrorCodes.NOT_AUTHENTICATED)
@@ -119,7 +119,7 @@ def tl_comments(request: HttpRequest, post_id: int, sort: Literal["recent", "old
     api = api_TimelineComments(request)
 
     try:
-        user = User.objects.get(token=request.COOKIES.get("token"))
+        user = User.objects.get(auth_key=request.COOKIES.get("token"))
     except User.DoesNotExist:
         user = None
 
@@ -157,7 +157,7 @@ def tl_notifications(request: HttpRequest, offset: int | None=None, forwards: bo
     api = api_TimelineNotifications(request)
 
     try:
-        user = User.objects.get(token=request.COOKIES.get("token"))
+        user = User.objects.get(auth_key=request.COOKIES.get("token"))
     except User.DoesNotExist:
         return api.error(ErrorCodes.NOT_AUTHENTICATED)
 
@@ -184,7 +184,7 @@ def tl_hashtag(request: HttpRequest, tag: str, sort: Literal["recent", "oldest",
     api = api_TimelineHashtag(request)
 
     try:
-        user = User.objects.get(token=request.COOKIES.get("token"))
+        user = User.objects.get(auth_key=request.COOKIES.get("token"))
     except User.DoesNotExist:
         return api.error(ErrorCodes.NOT_AUTHENTICATED)
 
@@ -218,7 +218,7 @@ def tl_folreq(request: HttpRequest, offset: int | None=None) -> HttpResponse:
     api = api_TimelineFolreq(request)
 
     try:
-        user = User.objects.get(token=request.COOKIES.get("token"))
+        user = User.objects.get(auth_key=request.COOKIES.get("token"))
     except User.DoesNotExist:
         return api.error(ErrorCodes.NOT_AUTHENTICATED)
 
@@ -255,7 +255,7 @@ def tl_search(
     api = api_TimelineSearch(request)
 
     try:
-        self_user = User.objects.get(token=request.COOKIES.get("token"))
+        self_user = User.objects.get(auth_key=request.COOKIES.get("token"))
     except User.DoesNotExist:
         return api.error(ErrorCodes.NOT_AUTHENTICATED)
 

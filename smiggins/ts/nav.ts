@@ -57,7 +57,12 @@ function generateInternalLinks(element?: HTMLElement): void {
 
   for (const i of links) {
     i.dataset.linkProcessed = "";
-    i.addEventListener("click", internalLinkHandler);
+
+    if (IS_IFRAME) {
+      i.setAttribute("target", "_blank");
+    } else {
+      i.addEventListener("click", internalLinkHandler);
+    }
   }
 }
 

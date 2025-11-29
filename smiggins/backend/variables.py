@@ -46,7 +46,7 @@ class DatabaseBackupsSchema(TypedDict):
 
 BASE_DIR = pathlib.Path(__file__).resolve().parent.parent
 
-REAL_VERSION: tuple[int, int, int] = (1, 3, 0)
+REAL_VERSION: tuple[int, int, int] = (1, 3, 1)
 VERSION: str = ".".join([str(i) for i in REAL_VERSION])
 
 # Set default variable states
@@ -74,6 +74,7 @@ MAX_POLL_OPTIONS: int = 8
 DEFAULT_BANNER_COLOR: str = "#3a1e93"
 POSTS_PER_REQUEST: int = 20
 ENABLE_NEW_ACCOUNTS: bool | Literal["otp"] = True
+ENABLE_ABOUT_PAGE: bool = True
 GOOGLE_VERIFICATION_TAG: str | None = ""
 # DISCORD: str | None = "tH7QnHApwu"
 ALTERNATE_IPS: bool | str = False
@@ -101,6 +102,7 @@ _VARIABLES: list[tuple[str | None, list[str], type | str | list | tuple | dict, 
     ("DEFAULT_BANNER_COLOR", ["default_banner_color"], "color", False),
     ("POSTS_PER_REQUEST", ["posts_per_request"], int, False),
     ("ENABLE_NEW_ACCOUNTS", ["enable_signup", "enable_new_users", "enable_new_accounts"], (bool, "Literal_otp"), False),
+    ("ENABLE_ABOUT_PAGE", ["enable_about_page"], bool, False),
     ("GOOGLE_VERIFICATION_TAG", ["google_verification_tag"], str, False),
     ("ALTERNATE_IPS", ["alternate_ips"], (bool, str), False),
     ("TIMELINE_POLLING_INTERVAL", ["timeline_polling_interval"], int, False),
