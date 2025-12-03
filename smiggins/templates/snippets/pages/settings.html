@@ -10,6 +10,9 @@
   {% if conf.enable_about_page %}<a class="plain-link" href="/settings/about/" data-internal-link="settings/about">About <small>- Source code, credits...</small></a>{% endif %}
   {% if is_admin %}<a class="plain-link" href="/admin/" data-internal-link="admin">Administration <small>- Delete posts, generate invites...</small></a>{% endif %}
 
+  <a href="#" class="plain-link" id="export">Export settings...</a>
+  <div><label tabindex="0">Import settings... <input hidden id="import" type="file"></label></div>
+
   {% if logged_in %}
     <a href="/logout/" data-internal-link="logout">Log Out...</a>
   {% else %}

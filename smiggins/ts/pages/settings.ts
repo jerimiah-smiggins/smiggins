@@ -293,6 +293,94 @@ function setKeybindElementData(kbId: string, el: D): void {
   el.querySelector("button")?.addEventListener("click", (): void => { modifyKeybindModal(kbId); });
 }
 
+function exportSettings(): void {
+  let settings: settingsExport = {
+    autoShowPosts: Boolean(localStorage.getItem("smiggins-auto-show-posts")),
+    complexTimestamps: Boolean(localStorage.getItem("smiggins-complex-timestamps")),
+    cwCascading: localStorage.getItem("smiggins-cw-cascading") || "email",
+    expandCws: Boolean(localStorage.getItem("smiggins-expand-cws")),
+    fontSize: localStorage.getItem("smiggins-font-size") || "normal",
+    hideChangelog: Boolean(localStorage.getItem("smiggins-hide-changelog")),
+    hideInteractions: Boolean(localStorage.getItem("smiggins-hide-interactions")),
+    pfpShape: localStorage.getItem("smiggins-php-shape") || "round",
+    theme: (localStorage.getItem("smiggins-theme") as themes | null) || "system",
+
+    homeTimeline: {
+      comments: Boolean(localStorage.getItem("smiggins-home-comments")),
+      default: localStorage.getItem("smiggins-home") || "global"
+    },
+
+    keybinds: {
+      hamburgerDelete: _kbGetKey("hamburgerDelete"),
+      hamburgerEdit: _kbGetKey("hamburgerEdit"),
+      hamburgerEmbed: _kbGetKey("hamburgerEmbed"),
+      hamburgerPin: _kbGetKey("hamburgerPin"),
+      hamburgerShare: _kbGetKey("hamburgerShare"),
+      loadNewPosts: _kbGetKey("loadNewPosts"),
+      navAdmin: _kbGetKey("navAdmin"),
+      navHome: _kbGetKey("navHome"),
+      navModifier: _kbGetKey("navModifier"),
+      navNotifications: _kbGetKey("navNotifications"),
+      navProfile: _kbGetKey("navProfile"),
+      navSettings: _kbGetKey("navSettings"),
+      newPost: _kbGetKey("newPost"),
+      topOfTimeline: _kbGetKey("topOfTimeline")
+    }
+  };
+
+  let element: HTMLAnchorElement = document.createElement("a");
+
+  element.setAttribute("href", "data:text/plain;charset=utf-8," + encodeURIComponent(JSON.stringify(settings)));
+  element.setAttribute("download", "smiggins.json");
+  element.style.display = "none";
+
+  document.body.appendChild(element);
+
+  element.click();
+
+  document.body.removeChild(element);
+}
+
+function _lsBoolean(data: boolean, key: string): void {
+  if (data) {
+    localStorage.setItem(key, "1");
+  } else {
+    localStorage.removeItem(key);
+  }
+}
+
+function importSettings(data: settingsExport): void {
+  _lsBoolean(data.autoShowPosts, "smiggins-auto-show-posts");
+  _lsBoolean(data.complexTimestamps, "smiggins-complex-timestamps");
+  localStorage.setItem("smiggins-cw-cascading", data.cwCascading || "email");
+  _lsBoolean(data.expandCws, "smiggins-expand-cws");
+  localStorage.setItem("smiggins-font-size", data.fontSize || "normal");
+  _lsBoolean(data.hideChangelog, "smiggins-hide-changelog");
+  _lsBoolean(data.hideInteractions, "smiggins-hide-interactions");
+  localStorage.setItem("smiggins-pfp-shape", data.pfpShape || "round");
+  localStorage.setItem("smiggins-theme", data.theme || "system");
+
+  _lsBoolean(data.homeTimeline.comments, "smiggins-home-comments");
+  localStorage.setItem("smiggins-home", data.homeTimeline.default || "global");
+
+  localStorage.setItem("smiggins-keybind-hamburgerDelete",  data.keybinds.hamburgerDelete  || _kbGetKey("hamburgerDelete"));
+  localStorage.setItem("smiggins-keybind-hamburgerEdit",    data.keybinds.hamburgerEdit    || _kbGetKey("hamburgerEdit"));
+  localStorage.setItem("smiggins-keybind-hamburgerEmbed",   data.keybinds.hamburgerEmbed   || _kbGetKey("hamburgerEmbed"));
+  localStorage.setItem("smiggins-keybind-hamburgerPin",     data.keybinds.hamburgerPin     || _kbGetKey("hamburgerPin"));
+  localStorage.setItem("smiggins-keybind-hamburgerShare",   data.keybinds.hamburgerShare   || _kbGetKey("hamburgerShare"));
+  localStorage.setItem("smiggins-keybind-loadNewPosts",     data.keybinds.loadNewPosts     || _kbGetKey("loadNewPosts"));
+  localStorage.setItem("smiggins-keybind-navAdmin",         data.keybinds.navAdmin         || _kbGetKey("navAdmin"));
+  localStorage.setItem("smiggins-keybind-navHome",          data.keybinds.navHome          || _kbGetKey("navHome"));
+  localStorage.setItem("smiggins-keybind-navModifier",      data.keybinds.navModifier      || _kbGetKey("navModifier"));
+  localStorage.setItem("smiggins-keybind-navNotifications", data.keybinds.navNotifications || _kbGetKey("navNotifications"));
+  localStorage.setItem("smiggins-keybind-navProfile",       data.keybinds.navProfile       || _kbGetKey("navProfile"));
+  localStorage.setItem("smiggins-keybind-navSettings",      data.keybinds.navSettings      || _kbGetKey("navSettings"));
+  localStorage.setItem("smiggins-keybind-newPost",          data.keybinds.newPost          || _kbGetKey("newPost"));
+  localStorage.setItem("smiggins-keybind-topOfTimeline",    data.keybinds.topOfTimeline    || _kbGetKey("topOfTimeline"));
+
+  location.href = location.href;
+}
+
 function p_settingsProfile(element: D): void {
   fetch("/api/user")
     .then((response: Response): Promise<ArrayBuffer> => (response.arrayBuffer()))
@@ -340,6 +428,29 @@ function p_settingsKeybinds(element: D): void {
       setKeybindElementData(kbId, kb);
     }
   }
+}
+
+function p_settingsIndex(element: D): void {
+  element.querySelector("#export")?.addEventListener("click", exportSettings);
+
+  let importEl: Iel = element.querySelector("#import") as Iel;
+  importEl?.addEventListener("input", function(e: Event): void {
+    let files: FileList | null = importEl.files;
+
+    if (files && files.length) {
+      let file: File = files[0];
+      let reader: FileReader = new FileReader();
+      reader.onload = (e: ProgressEvent<FileReader>): void => {
+        const file: string | ArrayBuffer | null | undefined = e.target?.result;
+
+        if (typeof file === "string") {
+          importSettings(JSON.parse(file));
+        }
+      }
+
+      reader.readAsText(file);
+    }
+  });
 }
 
 document.body.dataset.fontSize = localStorage.getItem("smiggins-font-size") || "normal";

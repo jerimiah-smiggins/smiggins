@@ -143,6 +143,40 @@ type replacement = {
   hiddenLink?: true
 };
 
+type settingsExport = {
+  autoShowPosts: boolean,
+  complexTimestamps: boolean,
+  cwCascading: string,
+  expandCws: boolean,
+  fontSize: string,
+  hideChangelog: boolean,
+  hideInteractions: boolean,
+  pfpShape: string,
+  theme: themes,
+
+  homeTimeline: {
+    comments: boolean,
+    default: string
+  },
+
+  keybinds: {
+    hamburgerDelete: string,
+    hamburgerEdit: string,
+    hamburgerEmbed: string,
+    hamburgerPin: string,
+    hamburgerShare: string,
+    loadNewPosts: string,
+    navAdmin: string,
+    navHome: string,
+    navModifier: string,
+    navNotifications: string,
+    navProfile: string,
+    navSettings: string,
+    newPost: string,
+    topOfTimeline: string
+  }
+};
+
 type I = HTMLInputElement;
 type D = HTMLDivElement;
 type B = HTMLButtonElement;

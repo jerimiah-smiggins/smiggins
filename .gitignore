@@ -11,3 +11,4 @@ smiggins/.env
 smiggins/db.sqlite3
 smiggins/latest_scr
 smiggins/admin.log
+smiggins.json
