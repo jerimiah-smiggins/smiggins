@@ -8,6 +8,7 @@ import yaml
 from dotenv import dotenv_values
 
 print("Loading config...")
+REAL_VERSION: tuple[int, int, int] = (1, 3, 2)
 
 def dotenv_or_(key: str, val: Any, process: Callable[[str], Any]=lambda x: x) -> Any:
     try:
@@ -46,7 +47,6 @@ class DatabaseBackupsSchema(TypedDict):
 
 BASE_DIR = pathlib.Path(__file__).resolve().parent.parent
 
-REAL_VERSION: tuple[int, int, int] = (1, 3, 1)
 VERSION: str = ".".join([str(i) for i in REAL_VERSION])
 
 # Set default variable states

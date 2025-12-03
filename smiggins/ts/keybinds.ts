@@ -1,5 +1,6 @@
 let forceDisableKeybinds: boolean = false;
 let navModKeyPressed: boolean = false;
+const KB_DISABLED = "DISABLED";
 
 let _kbReverse: { [key: string]: {
   modifiers?: keybindModifiers[],
@@ -25,6 +26,12 @@ const keybinds: { [key: string]: {
   navNotifications: { defaultKey: "n", modifiers: ["nav"], name: "Notifications", callback: (): void => { if (currentPage === "notifications") { return; } history.pushState("notifications", "", "/notifications/"); renderPage("notifications"); }},
   navProfile: { defaultKey: "p", modifiers: ["nav"], name: "Your Profile", callback: (): void => { if (currentPage === "user" && getUsernameFromPath() === username) { return; } history.pushState("user", "", `/u/${username}/`); renderPage("user"); }},
   navSettings: { defaultKey: "s", modifiers: ["nav"], name: "Settings", callback: (): void => { if (currentPage === "settings") { return; } history.pushState("settings", "", "/settings/"); renderPage("settings"); }},
+
+  hamburgerDelete: { defaultKey: "d", modifiers: ["alt"], name: "Delete Post", callback: (): void => { keybindPostHamburger("data-interaction-delete"); }},
+  hamburgerPin: { defaultKey: "f", modifiers: ["alt"], name: "Pin Post", callback: (): void => { keybindPostHamburger("data-interaction-pin") || keybindPostHamburger("data-interaction-unpin"); }},
+  hamburgerEdit: { defaultKey: "e", modifiers: ["alt"], name: "Edit Post", callback: (): void => { keybindPostHamburger("data-interaction-edit"); }},
+  hamburgerShare: { defaultKey: "s", modifiers: ["alt"], name: "Share Post", callback: (): void => { keybindPostHamburger("data-interaction-share"); }},
+  hamburgerEmbed: { defaultKey: KB_DISABLED, modifiers: [], name: "Embed Post", callback: (): void => { keybindPostHamburger("data-interaction-embed"); }},
 };
 
 function setKeybindKey(
@@ -78,7 +85,7 @@ function setKeybindKey(
   newKey = newKey.toLowerCase();
 
   if (newKey === "escape") {
-    newKey = "DISABLED";
+    newKey = KB_DISABLED;
   }
 
   let kbData: string = newKey + ":" + modString;
@@ -115,7 +122,7 @@ function _kbRefreshReverse(): void {
   for (const [id, data] of Object.entries(keybinds)) {
     let key: string = _kbGetKey(id);
 
-    if (key.startsWith("DISABLED")) {
+    if (key.startsWith(KB_DISABLED)) {
       continue;
     }
 
@@ -157,8 +164,8 @@ function keyHandler(e: KeyboardEvent): void {
   let kbData = _kbReverse[e.key.toLowerCase() + ":" + modString];
 
   if (kbData) {
-    kbData.callback(e);
     e.preventDefault();
+    kbData.callback(e);
   }
 }
 
@@ -166,6 +173,21 @@ function keyUpHandler(e: KeyboardEvent): void {
   if (e.key.toLowerCase() + ":" === _kbGetKey("navModifier")) {
     navModKeyPressed = false;
   }
+}
+
+function keybindPostHamburger(interaction: string): boolean {
+  let el: el = document.querySelector(`.hamburger:focus .post-hamburger [${interaction}]:not([hidden])`)
+            || document.querySelector(`.hamburger .post-hamburger:focus [${interaction}]:not([hidden])`)
+            || document.querySelector(`.hamburger .post-hamburger:focus-within [${interaction}]:not([hidden])`);
+
+  console.log(el);
+
+  if (el) {
+    el.click();
+    return true;
+  }
+
+  return false;
 }
 
 onkeydown = keyHandler;
