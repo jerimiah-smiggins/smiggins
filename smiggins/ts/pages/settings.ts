@@ -378,7 +378,7 @@ function importSettings(data: settingsExport): void {
   localStorage.setItem("smiggins-keybind-newPost",          data.keybinds.newPost          || _kbGetKey("newPost"));
   localStorage.setItem("smiggins-keybind-topOfTimeline",    data.keybinds.topOfTimeline    || _kbGetKey("topOfTimeline"));
 
-  location.href = location.href;
+  location.href = location.origin + location.pathname + location.search;
 }
 
 function p_settingsProfile(element: D): void {
