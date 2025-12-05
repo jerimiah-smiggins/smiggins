@@ -110,7 +110,7 @@ def follow_remove(request: HttpRequest) -> HttpResponse:
 def _follow(request: HttpRequest, unfollow: bool) -> HttpResponse:
     api = (api_Unfollow if unfollow else api_Follow)(request)
 
-    if request.user is None:
+    if request.s_user is None:
         return api.error(ErrorCodes.NOT_AUTHENTICATED)
 
     try:
@@ -119,25 +119,25 @@ def _follow(request: HttpRequest, unfollow: bool) -> HttpResponse:
         return api.error(ErrorCodes.BAD_USERNAME)
 
     if isinstance(api, api_Follow):
-        if user.blocking.contains(request.user):
+        if user.blocking.contains(request.s_user):
             return api.error(ErrorCodes.CANT_INTERACT)
-        elif request.user.blocking.contains(user):
+        elif request.s_user.blocking.contains(user):
             return api.error(ErrorCodes.BLOCKING)
 
         if user.verify_followers:
-            if not user.pending_followers.contains(request.user):
-                user.pending_followers.add(request.user)
-        elif not request.user.following.contains(user):
-            request.user.following.add(user)
+            if not user.pending_followers.contains(request.s_user):
+                user.pending_followers.add(request.s_user)
+        elif not request.s_user.following.contains(user):
+            request.s_user.following.add(user)
 
         api.set_response(is_pending=user.verify_followers)
 
     else:
-        if user.pending_followers.contains(request.user):
-            user.pending_followers.remove(request.user)
+        if user.pending_followers.contains(request.s_user):
+            user.pending_followers.remove(request.s_user)
 
-        if request.user.following.contains(user):
-            request.user.following.remove(user)
+        if request.s_user.following.contains(user):
+            request.s_user.following.remove(user)
 
         api.set_response()
 
@@ -152,7 +152,7 @@ def block_remove(request: HttpRequest) -> HttpResponse:
 def _block(request: HttpRequest, unblock: bool) -> HttpResponse:
     api = (api_Unblock if unblock else api_Block)(request)
 
-    if request.user is None:
+    if request.s_user is None:
         return api.error(ErrorCodes.NOT_AUTHENTICATED)
 
     try:
@@ -161,21 +161,21 @@ def _block(request: HttpRequest, unblock: bool) -> HttpResponse:
         return api.error(ErrorCodes.BAD_USERNAME)
 
     if unblock:
-        if request.user.blocking.contains(user):
-            request.user.blocking.remove(user)
+        if request.s_user.blocking.contains(user):
+            request.s_user.blocking.remove(user)
 
     else:
-        if request.user.following.contains(user):
-            request.user.following.remove(user)
+        if request.s_user.following.contains(user):
+            request.s_user.following.remove(user)
 
-        if user.pending_followers.contains(request.user):
-            user.pending_followers.remove(request.user)
+        if user.pending_followers.contains(request.s_user):
+            user.pending_followers.remove(request.s_user)
 
-        if request.user.pending_followers.contains(user):
-            request.user.pending_followers.remove(user)
+        if request.s_user.pending_followers.contains(user):
+            request.s_user.pending_followers.remove(user)
 
-        if not request.user.blocking.contains(user):
-            request.user.blocking.add(user)
+        if not request.s_user.blocking.contains(user):
+            request.s_user.blocking.add(user)
 
     return api.response()
 
@@ -188,10 +188,10 @@ def folreq_deny(request: HttpRequest) -> HttpResponse:
 def _folreq(request: HttpRequest, accepted: bool) -> HttpResponse:
     api = (api_AcceptFolreq if accepted else api_DenyFolreq)(request)
 
-    if request.user is None:
+    if request.s_user is None:
         return api.error(ErrorCodes.NOT_AUTHENTICATED)
 
-    if not request.user.verify_followers:
+    if not request.s_user.verify_followers:
         return api.error(ErrorCodes.BAD_REQUEST)
 
     try:
@@ -199,31 +199,31 @@ def _folreq(request: HttpRequest, accepted: bool) -> HttpResponse:
     except User.DoesNotExist:
         return api.error(ErrorCodes.BAD_USERNAME)
 
-    if user.user_id not in request.user.pending_followers.values_list("user_id", flat=True):
+    if user.user_id not in request.s_user.pending_followers.values_list("user_id", flat=True):
         return api.response()
 
     if accepted:
-        user.following.add(request.user)
+        user.following.add(request.s_user)
 
-    request.user.pending_followers.remove(user)
+    request.s_user.pending_followers.remove(user)
     return api.response()
 
 def get_profile(request: HttpRequest) -> HttpResponse:
     api = api_GetProfile(request)
 
-    if request.user is None:
+    if request.s_user is None:
         return api.error(ErrorCodes.NOT_AUTHENTICATED)
 
-    return api.response(user=request.user)
+    return api.response(user=request.s_user)
 
 def save_profile(request: HttpRequest) -> HttpResponse:
     api = api_SaveProfile(request)
 
-    if request.user is None:
+    if request.s_user is None:
         return api.error(ErrorCodes.NOT_AUTHENTICATED)
 
     data = api.parse_data()
-    user: User = request.user
+    user: User = request.s_user
 
     display_name = trim_whitespace(data["display_name"][:MAX_DISPL_NAME_LENGTH], True)
     bio = trim_whitespace(data["bio"][:MAX_BIO_LENGTH])
@@ -247,41 +247,41 @@ def save_profile(request: HttpRequest) -> HttpResponse:
 def set_post_visibility(request: HttpRequest) -> HttpResponse:
     api = api_SetDefaultVisibility(request)
 
-    if request.user is None:
+    if request.s_user is None:
         return api.error(ErrorCodes.NOT_AUTHENTICATED)
 
-    request.user.default_post_private = api.parse_data()
-    request.user.save()
+    request.s_user.default_post_private = api.parse_data()
+    request.s_user.save()
 
     return api.response()
 
 def set_verify_followers(request: HttpRequest) -> HttpResponse:
     api = api_SetDefaultVisibility(request)
 
-    if request.user is None:
+    if request.s_user is None:
         return api.error(ErrorCodes.NOT_AUTHENTICATED)
 
-    request.user.verify_followers = api.parse_data()
-    request.user.save()
+    request.s_user.verify_followers = api.parse_data()
+    request.s_user.save()
 
-    if not request.user.verify_followers:
-        pending = request.user.pending_followers.all()
+    if not request.s_user.verify_followers:
+        pending = request.s_user.pending_followers.all()
         for f in pending:
-            f.following.add(request.user)
+            f.following.add(request.s_user)
 
-        request.user.pending_followers.clear()
+        request.s_user.pending_followers.clear()
 
     return api.response()
 
 def change_password(request: HttpRequest) -> HttpResponse:
     api = api_ChangePassword(request)
 
-    if request.user is None:
+    if request.s_user is None:
         return api.error(ErrorCodes.NOT_AUTHENTICATED)
 
     data = api.parse_data()
 
-    if not request.user.password_hash or not check_password(data["current_password"], request.user.password_hash) or data["new_password"] == "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855":
+    if not request.s_user.password_hash or not check_password(data["current_password"], request.s_user.password_hash) or data["new_password"] == "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855":
         return api.error(ErrorCodes.BAD_PASSWORD)
 
     for i in data["new_password"]:
@@ -290,9 +290,9 @@ def change_password(request: HttpRequest) -> HttpResponse:
 
     new_auth_key = generate_auth_key()
 
-    request.user.auth_key = new_auth_key
-    request.user.password_hash = make_password(data["new_password"])
-    request.user.save()
+    request.s_user.auth_key = new_auth_key
+    request.s_user.password_hash = make_password(data["new_password"])
+    request.s_user.save()
 
     return api.response(token=new_auth_key)
 
@@ -300,11 +300,11 @@ def delete_account(request: HttpRequest) -> HttpResponse:
     api = api_DeleteAccount(request)
     data = api.parse_data()
 
-    if request.user is None or data["username"] != request.user.username:
+    if request.s_user is None or data["username"] != request.s_user.username:
         return api.error(ErrorCodes.NOT_AUTHENTICATED)
 
-    if not request.user.password_hash or not check_password(data["password"], request.user.password_hash):
+    if not request.s_user.password_hash or not check_password(data["password"], request.s_user.password_hash):
         return api.error(ErrorCodes.BAD_PASSWORD)
 
-    request.user.delete()
+    request.s_user.delete()
     return api.response()

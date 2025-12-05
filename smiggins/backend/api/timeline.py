@@ -50,41 +50,41 @@ def get_timeline(
 def tl_following(request: HttpRequest, comments: bool | None=None, offset: int | None=None, forwards: bool=False) -> HttpResponse:
     api = api_TimelineFollowing(request)
 
-    if request.user is None:
+    if request.s_user is None:
         return api.error(ErrorCodes.NOT_AUTHENTICATED)
 
     end, posts = get_timeline(
         (Post.objects if comments else Post.objects.filter(comment_parent=None)).filter(
-            Q(creator=request.user) | Q(creator__followers=request.user)
+            Q(creator=request.s_user) | Q(creator__followers=request.s_user)
         ),
         offset,
-        request.user,
+        request.s_user,
         forwards
     )
 
-    api.set_response(end, forwards, posts, request.user)
+    api.set_response(end, forwards, posts, request.s_user)
     return api.get_response()
 
 def tl_global(request: HttpRequest, comments: bool | None=None, offset: int | None=None, forwards: bool=False) -> HttpResponse:
     api = api_TimelineGlobal(request)
 
-    if request.user is None:
+    if request.s_user is None:
         return api.error(ErrorCodes.NOT_AUTHENTICATED)
 
     end, posts = get_timeline(
         Post.objects if comments else Post.objects.filter(comment_parent=None),
         offset,
-        request.user,
+        request.s_user,
         forwards
     )
 
-    api.set_response(end, forwards, posts, request.user)
+    api.set_response(end, forwards, posts, request.s_user)
     return api.get_response()
 
 def tl_user(request: HttpRequest, username: str, offset: int | None=None, forwards: bool=False, include_comments: bool=False) -> HttpResponse:
     api = api_TimelineUser(request)
 
-    if request.user is None and forwards:
+    if request.s_user is None and forwards:
             return api.error(ErrorCodes.NOT_AUTHENTICATED)
 
     try:
@@ -99,12 +99,12 @@ def tl_user(request: HttpRequest, username: str, offset: int | None=None, forwar
     end, posts = get_timeline(
         p,
         offset,
-        request.user,
+        request.s_user,
         forwards,
         show_blocked=True
     )
 
-    api.set_response(end, forwards, posts, user, request.user)
+    api.set_response(end, forwards, posts, user, request.s_user)
     return api.get_response()
 
 def tl_comments(request: HttpRequest, post_id: int, sort: Literal["recent", "oldest", "random"], offset: int | None=None, forwards: bool=False) -> HttpResponse:
@@ -132,31 +132,31 @@ def tl_comments(request: HttpRequest, post_id: int, sort: Literal["recent", "old
     end, posts = get_timeline(
         post.comments,
         offset,
-        request.user,
+        request.s_user,
         forwards,
         **kwargs
     )
 
-    api.set_response(end, forwards and sort != "oldest", posts, request.user, post)
+    api.set_response(end, forwards and sort != "oldest", posts, request.s_user, post)
     return api.get_response()
 
 def tl_notifications(request: HttpRequest, offset: int | None=None, forwards: bool=False):
     api = api_TimelineNotifications(request)
 
-    if request.user is None:
+    if request.s_user is None:
         return api.error(ErrorCodes.NOT_AUTHENTICATED)
 
     end, notifications = get_timeline(
-        request.user.notifications,
+        request.s_user.notifications,
         offset,
-        request.user,
+        request.s_user,
         forwards,
         no_visibility_check=True
     )
 
-    api.set_response(end, forwards, notifications, request.user)
+    api.set_response(end, forwards, notifications, request.s_user)
 
-    unread_notifications = request.user.notifications.filter(read=False)
+    unread_notifications = request.s_user.notifications.filter(read=False)
 
     for notif in unread_notifications:
         notif.read = True
@@ -168,7 +168,7 @@ def tl_notifications(request: HttpRequest, offset: int | None=None, forwards: bo
 def tl_hashtag(request: HttpRequest, tag: str, sort: Literal["recent", "oldest", "random"], offset: int | None=None, forwards: bool=False) -> HttpResponse:
     api = api_TimelineHashtag(request)
 
-    if request.user is None:
+    if request.s_user is None:
         return api.error(ErrorCodes.NOT_AUTHENTICATED)
 
     try:
@@ -189,21 +189,21 @@ def tl_hashtag(request: HttpRequest, tag: str, sort: Literal["recent", "oldest",
     end, posts = get_timeline(
         hashtag.posts,
         offset,
-        request.user,
+        request.s_user,
         forwards,
         **kwargs
     )
 
-    api.set_response(end, forwards and sort != "oldest", posts, request.user)
+    api.set_response(end, forwards and sort != "oldest", posts, request.s_user)
     return api.get_response()
 
 def tl_folreq(request: HttpRequest, offset: int | None=None) -> HttpResponse:
     api = api_TimelineFolreq(request)
 
-    if request.user is None:
+    if request.s_user is None:
         return api.error(ErrorCodes.NOT_AUTHENTICATED)
 
-    tl: BaseManager[M2MPending] = M2MPending.objects.filter(user=request.user).order_by("-pk")
+    tl: BaseManager[M2MPending] = M2MPending.objects.filter(user=request.s_user).order_by("-pk")
 
     if offset:
         tl = tl.filter(pk__lt=offset)
@@ -213,7 +213,7 @@ def tl_folreq(request: HttpRequest, offset: int | None=None) -> HttpResponse:
 
     api.set_response(end, users[:POSTS_PER_REQUEST])
 
-    unread_notifications = request.user.notifications.filter(read=False)
+    unread_notifications = request.s_user.notifications.filter(read=False)
 
     for notif in unread_notifications:
         notif.read = True
@@ -235,7 +235,7 @@ def tl_search(
 ) -> HttpResponse:
     api = api_TimelineSearch(request)
 
-    if request.user is None:
+    if request.s_user is None:
         return api.error(ErrorCodes.NOT_AUTHENTICATED)
 
     kwargs = {}
@@ -260,7 +260,7 @@ def tl_search(
         try:
             user_obj = User.objects.get(username=user)
         except User.DoesNotExist:
-            api.set_response(True, False, [], request.user)
+            api.set_response(True, False, [], request.s_user)
             return api.get_response()
 
         tl = tl.filter(creator=user_obj)
@@ -283,10 +283,10 @@ def tl_search(
     end, posts = get_timeline(
         tl,
         offset,
-        request.user,
+        request.s_user,
         **kwargs
     )
 
-    api.set_response(end, False, posts, request.user)
+    api.set_response(end, False, posts, request.s_user)
     return api.get_response()
 

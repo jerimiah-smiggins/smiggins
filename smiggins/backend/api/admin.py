@@ -41,7 +41,7 @@ class AdminPermissions:
 def admin_delete_user(request: HttpRequest) -> HttpResponse:
     api = api_AdminDeleteUser(request)
 
-    if request.user is None or not AdminPermissions.can_use(request.user, AdminPermissions.DELETE_USER):
+    if request.s_user is None or not AdminPermissions.can_use(request.s_user, AdminPermissions.DELETE_USER):
         return api.error(ErrorCodes.NOT_AUTHENTICATED)
 
     try:
@@ -56,7 +56,7 @@ def admin_delete_user(request: HttpRequest) -> HttpResponse:
 def delete_otp(request: HttpRequest) -> HttpResponse:
     api = api_DeleteOTP(request)
 
-    if request.user is None or not AdminPermissions.can_use(request.user, AdminPermissions.GENERATE_OTP):
+    if request.s_user is None or not AdminPermissions.can_use(request.s_user, AdminPermissions.GENERATE_OTP):
         return api.error(ErrorCodes.NOT_AUTHENTICATED)
 
     try:
@@ -71,7 +71,7 @@ def delete_otp(request: HttpRequest) -> HttpResponse:
 def generate_otp(request: HttpRequest) -> HttpResponse:
     api = api_GenerateOTP(request)
 
-    if request.user is None or not AdminPermissions.can_use(request.user, AdminPermissions.GENERATE_OTP):
+    if request.s_user is None or not AdminPermissions.can_use(request.s_user, AdminPermissions.GENERATE_OTP):
         return api.error(ErrorCodes.NOT_AUTHENTICATED)
 
     code = sha(f"{time.time()}-{random.random()}-{PRIVATE_AUTHENTICATOR_KEY}")
@@ -81,7 +81,7 @@ def generate_otp(request: HttpRequest) -> HttpResponse:
 def list_otps(request: HttpRequest) -> HttpResponse:
     api = api_ListOTPs(request)
 
-    if request.user is None or not AdminPermissions.can_use(request.user, AdminPermissions.GENERATE_OTP):
+    if request.s_user is None or not AdminPermissions.can_use(request.s_user, AdminPermissions.GENERATE_OTP):
         return api.error(ErrorCodes.NOT_AUTHENTICATED)
 
     return api.response(otps=list(
@@ -91,7 +91,7 @@ def list_otps(request: HttpRequest) -> HttpResponse:
 def set_admin_lvl(request: HttpRequest) -> HttpResponse:
     api = api_SetAdminPermissions(request)
 
-    if request.user is None or not AdminPermissions.can_use(request.user, AdminPermissions.SET_ADMIN_LVL):
+    if request.s_user is None or not AdminPermissions.can_use(request.s_user, AdminPermissions.SET_ADMIN_LVL):
         return api.error(ErrorCodes.NOT_AUTHENTICATED)
 
     data = api.parse_data()
@@ -109,7 +109,7 @@ def set_admin_lvl(request: HttpRequest) -> HttpResponse:
 def get_admin_lvl(request: HttpRequest, username: str) -> HttpResponse:
     api = api_GetAdminPermissions(request)
 
-    if request.user is None or not AdminPermissions.can_use(request.user, AdminPermissions.SET_ADMIN_LVL):
+    if request.s_user is None or not AdminPermissions.can_use(request.s_user, AdminPermissions.SET_ADMIN_LVL):
         return api.error(ErrorCodes.NOT_AUTHENTICATED)
 
     try:

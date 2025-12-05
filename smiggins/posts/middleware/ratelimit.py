@@ -10,7 +10,7 @@ from ..models import User
 RL_DATA: dict[str, dict] = {}
 
 class s_HttpRequest(HttpRequest):
-    user: User | None
+    s_user: User | None
 
 class Ratelimit:
     def __init__(self, get_response: Callable[[s_HttpRequest], HttpResponse]):
@@ -25,7 +25,7 @@ class Ratelimit:
         except User.DoesNotExist:
             user = None
 
-        request.user = user
+        request.s_user = user
 
         # GET /foo/bar
         route = f"{request.method} {request.path}". rstrip("/?#")

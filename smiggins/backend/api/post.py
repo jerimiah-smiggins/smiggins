@@ -17,10 +17,10 @@ from .format import (ErrorCodes, api_CreatePost, api_DeletePost, api_EditPost,
 def post_create(request: HttpRequest) -> HttpResponse:
     api = api_CreatePost(request)
 
-    if request.user is None:
+    if request.s_user is None:
         return api.error(ErrorCodes.NOT_AUTHENTICATED)
 
-    user: User = request.user
+    user: User = request.s_user
 
     data = api.parse_data()
 
@@ -151,7 +151,7 @@ def post_create(request: HttpRequest) -> HttpResponse:
 def post_edit(request: HttpRequest) -> HttpResponse:
     api = api_EditPost(request)
 
-    if request.user is None:
+    if request.s_user is None:
         return api.error(ErrorCodes.NOT_AUTHENTICATED)
 
     data = api.parse_data()
@@ -161,7 +161,7 @@ def post_edit(request: HttpRequest) -> HttpResponse:
     except Post.DoesNotExist:
         return api.error(ErrorCodes.POST_NOT_FOUND)
 
-    if request.user != post.creator:
+    if request.s_user != post.creator:
         return api.error(ErrorCodes.BAD_REQUEST)
 
     post.content = data["content"]
@@ -176,7 +176,7 @@ def post_edit(request: HttpRequest) -> HttpResponse:
 def post_delete(request: HttpRequest) -> HttpResponse:
     api = api_DeletePost(request)
 
-    if request.user is None:
+    if request.s_user is None:
         return api.error(ErrorCodes.NOT_AUTHENTICATED)
 
     pid = api.parse_data()
@@ -186,7 +186,7 @@ def post_delete(request: HttpRequest) -> HttpResponse:
     except Post.DoesNotExist:
         return api.error(ErrorCodes.POST_NOT_FOUND)
 
-    if request.user.admin_level & 1 or request.user == post.creator:
+    if request.s_user.admin_level & 1 or request.s_user == post.creator:
         post.delete()
         return api.response(pid=pid)
 
@@ -195,10 +195,10 @@ def post_delete(request: HttpRequest) -> HttpResponse:
 def add_like(request: HttpRequest, post_id: int) -> HttpResponse:
     api = api_Like(request)
 
-    if request.user is None:
+    if request.s_user is None:
         return api.error(ErrorCodes.NOT_AUTHENTICATED)
 
-    user: User = request.user
+    user: User = request.s_user
 
     try:
         post = Post.objects.get(post_id=post_id)
@@ -234,11 +234,11 @@ def add_like(request: HttpRequest, post_id: int) -> HttpResponse:
 def remove_like(request: HttpRequest, post_id: int) -> HttpResponse:
     api = api_Unlike(request)
 
-    if request.user is None:
+    if request.s_user is None:
         return api.error(ErrorCodes.NOT_AUTHENTICATED)
 
     try:
-        M2MLike.objects.get(user=request.user, post=post_id).delete()
+        M2MLike.objects.get(user=request.s_user, post=post_id).delete()
     except M2MLike.DoesNotExist:
         ...
 
@@ -247,7 +247,7 @@ def remove_like(request: HttpRequest, post_id: int) -> HttpResponse:
 def pin_post(request: HttpRequest, post_id: int) -> HttpResponse:
     api = api_Pin(request)
 
-    if request.user is None:
+    if request.s_user is None:
         return api.error(ErrorCodes.NOT_AUTHENTICATED)
 
     try:
@@ -255,26 +255,26 @@ def pin_post(request: HttpRequest, post_id: int) -> HttpResponse:
     except Post.DoesNotExist:
         return api.error(ErrorCodes.POST_NOT_FOUND)
 
-    request.user.pinned = post
-    request.user.save()
+    request.s_user.pinned = post
+    request.s_user.save()
 
     return api.response()
 
 def unpin_post(request: HttpRequest) -> HttpResponse:
     api = api_Unpin(request)
 
-    if request.user is None:
+    if request.s_user is None:
         return api.error(ErrorCodes.NOT_AUTHENTICATED)
 
-    request.user.pinned = None
-    request.user.save()
+    request.s_user.pinned = None
+    request.s_user.save()
 
     return api.response()
 
 def poll_vote(request: HttpRequest) -> HttpResponse:
     api = api_PollVote(request)
 
-    if request.user is None:
+    if request.s_user is None:
         return api.error(ErrorCodes.NOT_AUTHENTICATED)
 
     data = api.parse_data()
@@ -296,12 +296,12 @@ def poll_vote(request: HttpRequest) -> HttpResponse:
         PollVote.objects.create(
             poll=post.poll,
             choice=obj,
-            user=request.user
+            user=request.s_user
         )
     except IntegrityError:
         ...
 
-    return api.response(pid=post.post_id, poll=post.poll, user=request.user)
+    return api.response(pid=post.post_id, poll=post.poll, user=request.s_user)
 
 def poll_refresh(request: HttpRequest, post_id: int) -> HttpResponse:
     api = api_PollRefresh(request)
@@ -314,4 +314,4 @@ def poll_refresh(request: HttpRequest, post_id: int) -> HttpResponse:
     if not post.poll:
         return api.error(ErrorCodes.POST_NOT_FOUND)
 
-    return api.response(pid=post.post_id, poll=post.poll, user=request.user)
+    return api.response(pid=post.post_id, poll=post.poll, user=request.s_user)

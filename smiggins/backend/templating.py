@@ -25,7 +25,7 @@ def webapp(request: HttpRequest) -> HttpResponse:
 
     backup_db()
 
-    user = request.user
+    user = request.s_user
 
     url = "/" + "/".join(filter(bool, request.path.split("?")[0].split("#")[0].split("/")))
     if not url.endswith("/"):
