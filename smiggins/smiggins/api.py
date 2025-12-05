@@ -72,51 +72,6 @@ api.post("post/poll")(poll_vote)
 
 api.get("notifications")(notifications)
 
-API_RATELIMITS: dict[str, tuple[int, int]] = {
-#   "METHOD /api/route": (MAX_REQ, PER_N_SECONDS)
-    "POST /api/user/signup": (4, 10),
-    "POST /api/user/login": (6, 10),
-
-    "POST /api/user/follow": (10, 2),
-    "DELETE /api/user/follow": (10, 2),
-    "POST /api/user/block": (10, 2),
-    "DELETE /api/user/block": (10, 2),
-    "POST /api/user/follow-request": (10, 2),
-    "DELETE /api/user/follow-request": (10, 2),
-
-    "GET /api/user": (10, 10),
-    "PATCH /api/user": (10, 10),
-    "DELETE /api/user": (4, 10),
-    "PATCH /api/user/password": (4, 10),
-
-    "PATCH /api/user/default_post": (10, 2),
-    "PATCH /api/user/verify_followers": (10, 2),
-
-    "GET /api/timeline/global": (10, 5),
-    "GET /api/timeline/following": (10, 5),
-    "GET /api/timeline/user/": (10, 5),
-    "GET /api/timeline/post/": (10, 5),
-    "GET /api/timeline/notifications": (10, 5),
-    "GET /api/timeline/tag/": (10, 5),
-    "GET /api/timeline/follow-requests": (10, 5),
-    "GET /api/timeline/search": (10, 5),
-
-    "POST /api/post": (10, 5),
-    "PATCH /api/post": (10, 5),
-    "DELETE /api/post": (20, 5),
-
-    "POST /api/post/like/": (10, 2),
-    "DELETE /api/post/like/": (10, 2),
-
-    "POST /api/post/pin/": (10, 2),
-    "DELETE /api/post/pin": (10, 2),
-
-    "GET /api/post/poll/": (10, 2),
-    "POST /api/post/poll": (10, 2),
-
-    "GET /api/notifications": (10, 2),
-}
-
 urlpatterns = [
     path("", api.urls)
 ]

@@ -2,9 +2,10 @@ import random
 import re
 
 import yaml
-from django.http import HttpRequest, HttpResponse
+from django.http import HttpResponse
 from django.template import loader
 from posts.backups import backup_db
+from posts.middleware.ratelimit import s_HttpRequest as HttpRequest
 from posts.models import Post, User
 
 from .api.admin import AdminPermissions
@@ -24,10 +25,7 @@ def webapp(request: HttpRequest) -> HttpResponse:
 
     backup_db()
 
-    try:
-        user = User.objects.get(auth_key=request.COOKIES.get("token"))
-    except User.DoesNotExist:
-        user = None
+    user = request.user
 
     url = "/" + "/".join(filter(bool, request.path.split("?")[0].split("#")[0].split("/")))
     if not url.endswith("/"):

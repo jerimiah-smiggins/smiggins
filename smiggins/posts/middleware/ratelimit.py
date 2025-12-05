@@ -2,10 +2,8 @@ import time
 from typing import Callable
 
 from backend.api.format import ErrorCodes
-from backend.variables import ALTERNATE_IPS, ENABLE_RATELIMIT
+from backend.variables import ALTERNATE_IPS, API_RATELIMITS, ENABLE_RATELIMIT
 from django.http import HttpRequest, HttpResponse
-
-from smiggins.api import API_RATELIMITS
 
 from ..models import User
 

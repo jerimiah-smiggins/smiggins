@@ -3,7 +3,6 @@ import re
 from typing import Callable
 
 from django.http import HttpResponse, HttpResponseRedirect
-from posts.models import User
 
 from .variables import MAX_USERNAME_LENGTH, PRIVATE_AUTHENTICATOR_KEY
 
@@ -22,22 +21,10 @@ def sha_to_bytes(string: str | bytes) -> bytes:
 
 def create_simple_return(
     content: str,
-    redirect_logged_out: bool=False,
-    redirect_logged_in: bool=False,
-    content_type: str="text/html", # Only works with content_override
+    content_type: str="text/html",
 ) -> Callable[..., HttpResponse | HttpResponseRedirect]:
-    def logged_in(request) -> bool:
-        try:
-            User.objects.get(auth_key=request.COOKIES.get("token"))
-            return True
-        except User.DoesNotExist:
-            return False
-
     def x(request) -> HttpResponse | HttpResponseRedirect:
-        if (redirect_logged_in and logged_in(request)) or (redirect_logged_out and not logged_in(request)):
-            return HttpResponseRedirect("/" if redirect_logged_in else "/", status=307)
-        else:
-            return HttpResponse(content, content_type=content_type)
+        return HttpResponse(content, content_type=content_type)
 
     x.__name__ = content
     return x
