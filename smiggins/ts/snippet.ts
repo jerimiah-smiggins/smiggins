@@ -63,6 +63,7 @@ let snippetProcessing: { [key: string]: (element: D) => void } = {
   admin: p_admin,
   search: p_search,
 
+  settings_index: p_settingsIndex,
   settings_profile: p_settingsProfile,
   settings_cosmetic: p_settingsCosmetic,
   settings_account: p_settingsAccount,

@@ -2,7 +2,8 @@ from typing import Literal
 
 from django.db.models import Q
 from django.db.models.manager import BaseManager
-from django.http import HttpRequest, HttpResponse
+from django.http import HttpResponse
+from posts.middleware.ratelimit import s_HttpRequest as HttpRequest
 from posts.models import Hashtag, M2MPending, Notification, Post, User
 
 from ..variables import POSTS_PER_REQUEST
@@ -49,51 +50,42 @@ def get_timeline(
 def tl_following(request: HttpRequest, comments: bool | None=None, offset: int | None=None, forwards: bool=False) -> HttpResponse:
     api = api_TimelineFollowing(request)
 
-    try:
-        user = User.objects.get(auth_key=request.COOKIES.get("token"))
-    except User.DoesNotExist:
+    if request.s_user is None:
         return api.error(ErrorCodes.NOT_AUTHENTICATED)
 
     end, posts = get_timeline(
         (Post.objects if comments else Post.objects.filter(comment_parent=None)).filter(
-            Q(creator=user) | Q(creator__followers=user)
+            Q(creator=request.s_user) | Q(creator__followers=request.s_user)
         ),
         offset,
-        user,
+        request.s_user,
         forwards
     )
 
-    api.set_response(end, forwards, posts, user)
+    api.set_response(end, forwards, posts, request.s_user)
     return api.get_response()
 
 def tl_global(request: HttpRequest, comments: bool | None=None, offset: int | None=None, forwards: bool=False) -> HttpResponse:
     api = api_TimelineGlobal(request)
 
-    try:
-        user = User.objects.get(auth_key=request.COOKIES.get("token"))
-    except User.DoesNotExist:
+    if request.s_user is None:
         return api.error(ErrorCodes.NOT_AUTHENTICATED)
 
     end, posts = get_timeline(
         Post.objects if comments else Post.objects.filter(comment_parent=None),
         offset,
-        user,
+        request.s_user,
         forwards
     )
 
-    api.set_response(end, forwards, posts, user)
+    api.set_response(end, forwards, posts, request.s_user)
     return api.get_response()
 
 def tl_user(request: HttpRequest, username: str, offset: int | None=None, forwards: bool=False, include_comments: bool=False) -> HttpResponse:
     api = api_TimelineUser(request)
 
-    try:
-        self_user = User.objects.get(auth_key=request.COOKIES.get("token"))
-    except User.DoesNotExist:
-        if forwards:
+    if request.s_user is None and forwards:
             return api.error(ErrorCodes.NOT_AUTHENTICATED)
-
-        self_user = None
 
     try:
         user = User.objects.get(username=username)
@@ -107,21 +99,16 @@ def tl_user(request: HttpRequest, username: str, offset: int | None=None, forwar
     end, posts = get_timeline(
         p,
         offset,
-        self_user,
+        request.s_user,
         forwards,
         show_blocked=True
     )
 
-    api.set_response(end, forwards, posts, user, self_user)
+    api.set_response(end, forwards, posts, user, request.s_user)
     return api.get_response()
 
 def tl_comments(request: HttpRequest, post_id: int, sort: Literal["recent", "oldest", "random"], offset: int | None=None, forwards: bool=False) -> HttpResponse:
     api = api_TimelineComments(request)
-
-    try:
-        user = User.objects.get(auth_key=request.COOKIES.get("token"))
-    except User.DoesNotExist:
-        user = None
 
     try:
         post = Post.objects.get(post_id=post_id)
@@ -145,33 +132,31 @@ def tl_comments(request: HttpRequest, post_id: int, sort: Literal["recent", "old
     end, posts = get_timeline(
         post.comments,
         offset,
-        user,
+        request.s_user,
         forwards,
         **kwargs
     )
 
-    api.set_response(end, forwards and sort != "oldest", posts, user, post)
+    api.set_response(end, forwards and sort != "oldest", posts, request.s_user, post)
     return api.get_response()
 
 def tl_notifications(request: HttpRequest, offset: int | None=None, forwards: bool=False):
     api = api_TimelineNotifications(request)
 
-    try:
-        user = User.objects.get(auth_key=request.COOKIES.get("token"))
-    except User.DoesNotExist:
+    if request.s_user is None:
         return api.error(ErrorCodes.NOT_AUTHENTICATED)
 
     end, notifications = get_timeline(
-        user.notifications,
+        request.s_user.notifications,
         offset,
-        user,
+        request.s_user,
         forwards,
         no_visibility_check=True
     )
 
-    api.set_response(end, forwards, notifications, user)
+    api.set_response(end, forwards, notifications, request.s_user)
 
-    unread_notifications = user.notifications.filter(read=False)
+    unread_notifications = request.s_user.notifications.filter(read=False)
 
     for notif in unread_notifications:
         notif.read = True
@@ -183,9 +168,7 @@ def tl_notifications(request: HttpRequest, offset: int | None=None, forwards: bo
 def tl_hashtag(request: HttpRequest, tag: str, sort: Literal["recent", "oldest", "random"], offset: int | None=None, forwards: bool=False) -> HttpResponse:
     api = api_TimelineHashtag(request)
 
-    try:
-        user = User.objects.get(auth_key=request.COOKIES.get("token"))
-    except User.DoesNotExist:
+    if request.s_user is None:
         return api.error(ErrorCodes.NOT_AUTHENTICATED)
 
     try:
@@ -206,23 +189,21 @@ def tl_hashtag(request: HttpRequest, tag: str, sort: Literal["recent", "oldest",
     end, posts = get_timeline(
         hashtag.posts,
         offset,
-        user,
+        request.s_user,
         forwards,
         **kwargs
     )
 
-    api.set_response(end, forwards and sort != "oldest", posts, user)
+    api.set_response(end, forwards and sort != "oldest", posts, request.s_user)
     return api.get_response()
 
 def tl_folreq(request: HttpRequest, offset: int | None=None) -> HttpResponse:
     api = api_TimelineFolreq(request)
 
-    try:
-        user = User.objects.get(auth_key=request.COOKIES.get("token"))
-    except User.DoesNotExist:
+    if request.s_user is None:
         return api.error(ErrorCodes.NOT_AUTHENTICATED)
 
-    tl: BaseManager[M2MPending] = M2MPending.objects.filter(user=user).order_by("-pk")
+    tl: BaseManager[M2MPending] = M2MPending.objects.filter(user=request.s_user).order_by("-pk")
 
     if offset:
         tl = tl.filter(pk__lt=offset)
@@ -232,7 +213,7 @@ def tl_folreq(request: HttpRequest, offset: int | None=None) -> HttpResponse:
 
     api.set_response(end, users[:POSTS_PER_REQUEST])
 
-    unread_notifications = user.notifications.filter(read=False)
+    unread_notifications = request.s_user.notifications.filter(read=False)
 
     for notif in unread_notifications:
         notif.read = True
@@ -254,9 +235,7 @@ def tl_search(
 ) -> HttpResponse:
     api = api_TimelineSearch(request)
 
-    try:
-        self_user = User.objects.get(auth_key=request.COOKIES.get("token"))
-    except User.DoesNotExist:
+    if request.s_user is None:
         return api.error(ErrorCodes.NOT_AUTHENTICATED)
 
     kwargs = {}
@@ -281,7 +260,7 @@ def tl_search(
         try:
             user_obj = User.objects.get(username=user)
         except User.DoesNotExist:
-            api.set_response(True, False, [], self_user)
+            api.set_response(True, False, [], request.s_user)
             return api.get_response()
 
         tl = tl.filter(creator=user_obj)
@@ -304,10 +283,10 @@ def tl_search(
     end, posts = get_timeline(
         tl,
         offset,
-        self_user,
+        request.s_user,
         **kwargs
     )
 
-    api.set_response(end, False, posts, self_user)
+    api.set_response(end, False, posts, request.s_user)
     return api.get_response()
 

@@ -110,7 +110,8 @@ default_banner_color: "#3a1e93"
 
 # This controls how many posts can be sent at a time from the server to the
 # client. Increasing the number can increase bandwidth and cpu usage however
-# it will likely improve the user experience. Must be between 1 and 255
+# it will likely improve the user experience, up to a certain point. Must be
+# between 1 and 255
 # Default: 20
 posts_per_request: 20
 
@@ -123,6 +124,9 @@ enable_new_accounts: true
 
 # Whether or not to enable the /settings/about/ page.
 enable_about_page: true
+
+# Whether or not to enable request ratelimiting.
+enable_ratelimit: true
 
 # Intervals (seconds) for polling requests in the frontend.
 timeline_polling_interval: 15

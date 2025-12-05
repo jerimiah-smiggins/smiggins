@@ -8,6 +8,7 @@ import yaml
 from dotenv import dotenv_values
 
 print("Loading config...")
+REAL_VERSION: tuple[int, int, int] = (1, 3, 2)
 
 def dotenv_or_(key: str, val: Any, process: Callable[[str], Any]=lambda x: x) -> Any:
     try:
@@ -46,7 +47,6 @@ class DatabaseBackupsSchema(TypedDict):
 
 BASE_DIR = pathlib.Path(__file__).resolve().parent.parent
 
-REAL_VERSION: tuple[int, int, int] = (1, 3, 1)
 VERSION: str = ".".join([str(i) for i in REAL_VERSION])
 
 # Set default variable states
@@ -75,11 +75,57 @@ DEFAULT_BANNER_COLOR: str = "#3a1e93"
 POSTS_PER_REQUEST: int = 20
 ENABLE_NEW_ACCOUNTS: bool | Literal["otp"] = True
 ENABLE_ABOUT_PAGE: bool = True
+ENABLE_RATELIMIT: bool = True
 GOOGLE_VERIFICATION_TAG: str | None = ""
 # DISCORD: str | None = "tH7QnHApwu"
 ALTERNATE_IPS: bool | str = False
 TIMELINE_POLLING_INTERVAL: int = 15
 NOTIFICATION_POLLING_INTERVAL: int = 60
+
+API_RATELIMITS: dict[str, tuple[int, int]] = {
+#   "METHOD /api/route": (MAX_REQ, PER_N_SECONDS)
+    "POST /api/user/signup": (4, 10),
+    "POST /api/user/login": (6, 10),
+
+    "POST /api/user/follow": (10, 2),
+    "DELETE /api/user/follow": (10, 2),
+    "POST /api/user/block": (10, 2),
+    "DELETE /api/user/block": (10, 2),
+    "POST /api/user/follow-request": (10, 2),
+    "DELETE /api/user/follow-request": (10, 2),
+
+    "GET /api/user": (10, 10),
+    "PATCH /api/user": (10, 10),
+    "DELETE /api/user": (4, 10),
+    "PATCH /api/user/password": (4, 10),
+
+    "PATCH /api/user/default_post": (10, 2),
+    "PATCH /api/user/verify_followers": (10, 2),
+
+    "GET /api/timeline/global": (10, 5),
+    "GET /api/timeline/following": (10, 5),
+    "GET /api/timeline/user/": (10, 5),
+    "GET /api/timeline/post/": (10, 5),
+    "GET /api/timeline/notifications": (10, 5),
+    "GET /api/timeline/tag/": (10, 5),
+    "GET /api/timeline/follow-requests": (10, 5),
+    "GET /api/timeline/search": (10, 5),
+
+    "POST /api/post": (10, 5),
+    "PATCH /api/post": (10, 5),
+    "DELETE /api/post": (20, 5),
+
+    "POST /api/post/like/": (10, 2),
+    "DELETE /api/post/like/": (10, 2),
+
+    "POST /api/post/pin/": (10, 2),
+    "DELETE /api/post/pin": (10, 2),
+
+    "GET /api/post/poll/": (10, 2),
+    "POST /api/post/poll": (10, 2),
+
+    "GET /api/notifications": (10, 2),
+}
 
 # stores variable metadata
 _VARIABLES: list[tuple[str | None, list[str], type | str | list | tuple | dict, bool]] = [
@@ -103,6 +149,7 @@ _VARIABLES: list[tuple[str | None, list[str], type | str | list | tuple | dict, 
     ("POSTS_PER_REQUEST", ["posts_per_request"], int, False),
     ("ENABLE_NEW_ACCOUNTS", ["enable_signup", "enable_new_users", "enable_new_accounts"], (bool, "Literal_otp"), False),
     ("ENABLE_ABOUT_PAGE", ["enable_about_page"], bool, False),
+    ("ENABLE_RATELIMIT", ["enable_ratelimit"], bool, False),
     ("GOOGLE_VERIFICATION_TAG", ["google_verification_tag"], str, False),
     ("ALTERNATE_IPS", ["alternate_ips"], (bool, str), False),
     ("TIMELINE_POLLING_INTERVAL", ["timeline_polling_interval"], int, False),

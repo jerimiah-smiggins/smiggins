@@ -1,7 +1,8 @@
 import time
 
 from django.db.utils import IntegrityError
-from django.http import HttpRequest, HttpResponse
+from django.http import HttpResponse
+from posts.middleware.ratelimit import s_HttpRequest as HttpRequest
 from posts.models import (Hashtag, M2MHashtagPost, M2MLike, Notification, Poll,
                           PollChoice, PollVote, Post, User)
 
@@ -16,10 +17,10 @@ from .format import (ErrorCodes, api_CreatePost, api_DeletePost, api_EditPost,
 def post_create(request: HttpRequest) -> HttpResponse:
     api = api_CreatePost(request)
 
-    try:
-        user = User.objects.get(auth_key=request.COOKIES.get("token"))
-    except User.DoesNotExist:
+    if request.s_user is None:
         return api.error(ErrorCodes.NOT_AUTHENTICATED)
+
+    user: User = request.s_user
 
     data = api.parse_data()
 
@@ -150,9 +151,7 @@ def post_create(request: HttpRequest) -> HttpResponse:
 def post_edit(request: HttpRequest) -> HttpResponse:
     api = api_EditPost(request)
 
-    try:
-        user = User.objects.get(auth_key=request.COOKIES.get("token"))
-    except User.DoesNotExist:
+    if request.s_user is None:
         return api.error(ErrorCodes.NOT_AUTHENTICATED)
 
     data = api.parse_data()
@@ -162,7 +161,7 @@ def post_edit(request: HttpRequest) -> HttpResponse:
     except Post.DoesNotExist:
         return api.error(ErrorCodes.POST_NOT_FOUND)
 
-    if user != post.creator:
+    if request.s_user != post.creator:
         return api.error(ErrorCodes.BAD_REQUEST)
 
     post.content = data["content"]
@@ -177,9 +176,7 @@ def post_edit(request: HttpRequest) -> HttpResponse:
 def post_delete(request: HttpRequest) -> HttpResponse:
     api = api_DeletePost(request)
 
-    try:
-        user = User.objects.get(auth_key=request.COOKIES.get("token"))
-    except User.DoesNotExist:
+    if request.s_user is None:
         return api.error(ErrorCodes.NOT_AUTHENTICATED)
 
     pid = api.parse_data()
@@ -189,7 +186,7 @@ def post_delete(request: HttpRequest) -> HttpResponse:
     except Post.DoesNotExist:
         return api.error(ErrorCodes.POST_NOT_FOUND)
 
-    if user.admin_level & 1 or user == post.creator:
+    if request.s_user.admin_level & 1 or request.s_user == post.creator:
         post.delete()
         return api.response(pid=pid)
 
@@ -198,10 +195,10 @@ def post_delete(request: HttpRequest) -> HttpResponse:
 def add_like(request: HttpRequest, post_id: int) -> HttpResponse:
     api = api_Like(request)
 
-    try:
-        user = User.objects.get(auth_key=request.COOKIES.get("token"))
-    except User.DoesNotExist:
+    if request.s_user is None:
         return api.error(ErrorCodes.NOT_AUTHENTICATED)
+
+    user: User = request.s_user
 
     try:
         post = Post.objects.get(post_id=post_id)
@@ -237,13 +234,11 @@ def add_like(request: HttpRequest, post_id: int) -> HttpResponse:
 def remove_like(request: HttpRequest, post_id: int) -> HttpResponse:
     api = api_Unlike(request)
 
-    try:
-        user = User.objects.get(auth_key=request.COOKIES.get("token"))
-    except User.DoesNotExist:
+    if request.s_user is None:
         return api.error(ErrorCodes.NOT_AUTHENTICATED)
 
     try:
-        M2MLike.objects.get(user=user, post=post_id).delete()
+        M2MLike.objects.get(user=request.s_user, post=post_id).delete()
     except M2MLike.DoesNotExist:
         ...
 
@@ -252,9 +247,7 @@ def remove_like(request: HttpRequest, post_id: int) -> HttpResponse:
 def pin_post(request: HttpRequest, post_id: int) -> HttpResponse:
     api = api_Pin(request)
 
-    try:
-        user = User.objects.get(auth_key=request.COOKIES.get("token"))
-    except User.DoesNotExist:
+    if request.s_user is None:
         return api.error(ErrorCodes.NOT_AUTHENTICATED)
 
     try:
@@ -262,30 +255,26 @@ def pin_post(request: HttpRequest, post_id: int) -> HttpResponse:
     except Post.DoesNotExist:
         return api.error(ErrorCodes.POST_NOT_FOUND)
 
-    user.pinned = post
-    user.save()
+    request.s_user.pinned = post
+    request.s_user.save()
 
     return api.response()
 
 def unpin_post(request: HttpRequest) -> HttpResponse:
     api = api_Unpin(request)
 
-    try:
-        user = User.objects.get(auth_key=request.COOKIES.get("token"))
-    except User.DoesNotExist:
+    if request.s_user is None:
         return api.error(ErrorCodes.NOT_AUTHENTICATED)
 
-    user.pinned = None
-    user.save()
+    request.s_user.pinned = None
+    request.s_user.save()
 
     return api.response()
 
 def poll_vote(request: HttpRequest) -> HttpResponse:
     api = api_PollVote(request)
 
-    try:
-        user = User.objects.get(auth_key=request.COOKIES.get("token"))
-    except User.DoesNotExist:
+    if request.s_user is None:
         return api.error(ErrorCodes.NOT_AUTHENTICATED)
 
     data = api.parse_data()
@@ -307,20 +296,15 @@ def poll_vote(request: HttpRequest) -> HttpResponse:
         PollVote.objects.create(
             poll=post.poll,
             choice=obj,
-            user=user
+            user=request.s_user
         )
     except IntegrityError:
         ...
 
-    return api.response(pid=post.post_id, poll=post.poll, user=user)
+    return api.response(pid=post.post_id, poll=post.poll, user=request.s_user)
 
 def poll_refresh(request: HttpRequest, post_id: int) -> HttpResponse:
     api = api_PollRefresh(request)
-
-    try:
-        user = User.objects.get(auth_key=request.COOKIES.get("token"))
-    except User.DoesNotExist:
-        user = None
 
     try:
         post = Post.objects.get(post_id=post_id)
@@ -330,4 +314,4 @@ def poll_refresh(request: HttpRequest, post_id: int) -> HttpResponse:
     if not post.poll:
         return api.error(ErrorCodes.POST_NOT_FOUND)
 
-    return api.response(pid=post.post_id, poll=post.poll, user=user)
+    return api.response(pid=post.post_id, poll=post.poll, user=request.s_user)

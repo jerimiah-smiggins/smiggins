@@ -73,5 +73,13 @@ const changes: { [key: string]: versionData } = {
       "Added a configuration to disable changelog popups",
       "Like notifications get grouped more often"
     ]
+  },
+  "1.3.2": {
+    description: "Post interaction keybinds",
+    changes: [
+      "Added configurable keybinds for the options in hamburger menus on posts",
+      "Added an import/export function for settings",
+      "Added simple ratelimiting to api requests"
+    ]
   }
 };

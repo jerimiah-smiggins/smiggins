@@ -2,9 +2,10 @@ import random
 import re
 
 import yaml
-from django.http import HttpRequest, HttpResponse
+from django.http import HttpResponse
 from django.template import loader
 from posts.backups import backup_db
+from posts.middleware.ratelimit import s_HttpRequest as HttpRequest
 from posts.models import Post, User
 
 from .api.admin import AdminPermissions
@@ -19,12 +20,12 @@ from .variables import (BASE_DIR, ENABLE_ABOUT_PAGE, ENABLE_NEW_ACCOUNTS,
 
 
 def webapp(request: HttpRequest) -> HttpResponse:
+    if request.method != "GET":
+        return HttpResponse("400 Bad Request", status=400, content_type="text/plain")
+
     backup_db()
 
-    try:
-        user = User.objects.get(auth_key=request.COOKIES.get("token"))
-    except User.DoesNotExist:
-        user = None
+    user = request.s_user
 
     url = "/" + "/".join(filter(bool, request.path.split("?")[0].split("#")[0].split("/")))
     if not url.endswith("/"):
@@ -128,6 +129,9 @@ def _api_docs_map(data):
     return data
 
 def api_docs(request) -> HttpResponse:
+    if request.method != "GET":
+        return HttpResponse("400 Bad Request", status=400, content_type="text/plain")
+
     context = {
         "conf": {
             "site_name": SITE_NAME,
