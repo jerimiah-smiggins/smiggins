@@ -78,7 +78,8 @@ const changes: { [key: string]: versionData } = {
     description: "Post interaction keybinds",
     changes: [
       "Added configurable keybinds for the options in hamburger menus on posts",
-      "Added an import/export function for settings"
+      "Added an import/export function for settings",
+      "Added simple ratelimiting to api requests"
     ]
   }
 };
