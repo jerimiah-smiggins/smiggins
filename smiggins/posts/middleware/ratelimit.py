@@ -17,7 +17,7 @@ class Ratelimit:
         self.get_response = get_response
 
     def __call__(self, request: s_HttpRequest) -> HttpResponse:
-        if not ENABLE_RATELIMIT or request.path.startswith("/django-admin/"):
+        if request.path.startswith("/django-admin/"):
             return self.get_response(request)
 
         try:
@@ -26,6 +26,9 @@ class Ratelimit:
             user = None
 
         request.s_user = user
+
+        if not ENABLE_RATELIMIT:
+            return self.get_response(request)
 
         # GET /foo/bar
         route = f"{request.method} {request.path}". rstrip("/?#")
