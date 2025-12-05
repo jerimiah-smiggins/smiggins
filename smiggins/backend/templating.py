@@ -19,6 +19,9 @@ from .variables import (BASE_DIR, ENABLE_ABOUT_PAGE, ENABLE_NEW_ACCOUNTS,
 
 
 def webapp(request: HttpRequest) -> HttpResponse:
+    if request.method != "GET":
+        return HttpResponse("400 Bad Request", status=400, content_type="text/plain")
+
     backup_db()
 
     try:
@@ -128,6 +131,9 @@ def _api_docs_map(data):
     return data
 
 def api_docs(request) -> HttpResponse:
+    if request.method != "GET":
+        return HttpResponse("400 Bad Request", status=400, content_type="text/plain")
+
     context = {
         "conf": {
             "site_name": SITE_NAME,

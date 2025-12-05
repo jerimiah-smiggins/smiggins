@@ -75,6 +75,7 @@ DEFAULT_BANNER_COLOR: str = "#3a1e93"
 POSTS_PER_REQUEST: int = 20
 ENABLE_NEW_ACCOUNTS: bool | Literal["otp"] = True
 ENABLE_ABOUT_PAGE: bool = True
+ENABLE_RATELIMIT: bool = True
 GOOGLE_VERIFICATION_TAG: str | None = ""
 # DISCORD: str | None = "tH7QnHApwu"
 ALTERNATE_IPS: bool | str = False
@@ -103,6 +104,7 @@ _VARIABLES: list[tuple[str | None, list[str], type | str | list | tuple | dict, 
     ("POSTS_PER_REQUEST", ["posts_per_request"], int, False),
     ("ENABLE_NEW_ACCOUNTS", ["enable_signup", "enable_new_users", "enable_new_accounts"], (bool, "Literal_otp"), False),
     ("ENABLE_ABOUT_PAGE", ["enable_about_page"], bool, False),
+    ("ENABLE_RATELIMIT", ["enable_ratelimit"], bool, False),
     ("GOOGLE_VERIFICATION_TAG", ["google_verification_tag"], str, False),
     ("ALTERNATE_IPS", ["alternate_ips"], (bool, str), False),
     ("TIMELINE_POLLING_INTERVAL", ["timeline_polling_interval"], int, False),
