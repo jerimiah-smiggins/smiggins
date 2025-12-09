@@ -20,7 +20,7 @@ function updateBannerColors(): void {
 }
 
 function updateUserCacheFromCosmeticSettings(): void {
-  let c: userData | undefined = userCache[username];
+  let c: UserData | undefined = userCache[username];
   let displayNameElement: Iel = document.getElementById("display-name") as Iel;
   let bioElement: HTMLTextAreaElement | null = document.getElementById("bio") as HTMLTextAreaElement | null;
   let gradientCheckElement: Iel = document.getElementById("banner-gradient") as Iel;
@@ -103,7 +103,7 @@ function settingsThemeSelection(): void {
   let themeElement: HTMLSelectElement | null = document.getElementById("theme") as HTMLSelectElement | null;
 
   if (themeElement) {
-    let th: themes = themeElement.value as themes;
+    let th: Themes = themeElement.value as Themes;
     setTheme(th);
   }
 }
@@ -255,7 +255,7 @@ function profileSettingsSetUserData(
   document.getElementById("default-private")?.addEventListener("input", saveDefaultVisibility);
   document.getElementById("banner-gradient")?.addEventListener("input", updateBannerColors);
 
-  let c: userData | undefined = userCache[username];
+  let c: UserData | undefined = userCache[username];
 
   if (c) {
     c.color_one = colorOne;
@@ -276,7 +276,7 @@ function setKeybindElementData(kbId: string, el: D): void {
 
   let keyData: string = _kbGetKey(kbId);
   let key: string = keyData[0] + keyData.slice(1).split(":")[0];
-  let modifiers: string = (keyData.slice(1).split(":")[1].split(",") as keybindModifiers[]).map((mod: keybindModifiers): string => ({
+  let modifiers: string = (keyData.slice(1).split(":")[1].split(",") as KeybindModifiers[]).map((mod: KeybindModifiers): string => ({
     alt: "Alt + ",
     ctrl: "Ctrl + ",
     nav: _kbGetKey("navModifier")[0] + _kbGetKey("navModifier").slice(1).split(":")[0] + " + ",
@@ -294,7 +294,7 @@ function setKeybindElementData(kbId: string, el: D): void {
 }
 
 function exportSettings(): void {
-  let settings: settingsExport = {
+  let settings: SettingsExport = {
     autoShowPosts: Boolean(localStorage.getItem("smiggins-auto-show-posts")),
     complexTimestamps: Boolean(localStorage.getItem("smiggins-complex-timestamps")),
     cwCascading: localStorage.getItem("smiggins-cw-cascading") || "email",
@@ -303,7 +303,7 @@ function exportSettings(): void {
     hideChangelog: Boolean(localStorage.getItem("smiggins-hide-changelog")),
     hideInteractions: Boolean(localStorage.getItem("smiggins-hide-interactions")),
     pfpShape: localStorage.getItem("smiggins-php-shape") || "round",
-    theme: (localStorage.getItem("smiggins-theme") as themes | null) || "system",
+    theme: (localStorage.getItem("smiggins-theme") as Themes | null) || "system",
 
     homeTimeline: {
       comments: Boolean(localStorage.getItem("smiggins-home-comments")),
@@ -349,7 +349,7 @@ function _lsBoolean(data: boolean, key: string): void {
   }
 }
 
-function importSettings(data: settingsExport): void {
+function importSettings(data: SettingsExport): void {
   _lsBoolean(data.autoShowPosts, "smiggins-auto-show-posts");
   _lsBoolean(data.complexTimestamps, "smiggins-complex-timestamps");
   localStorage.setItem("smiggins-cw-cascading", data.cwCascading || "email");

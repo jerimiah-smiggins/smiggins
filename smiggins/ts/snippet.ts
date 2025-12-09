@@ -1,4 +1,4 @@
-const icons: { [key in icons]: string } = {
+const Icons: { [key in Icons]: string } = {
   back: '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><path d="M7.4 273.4C2.7 268.8 0 262.6 0 256s2.7-12.8 7.4-17.4l176-168c9.6-9.2 24.8-8.8 33.9.8s8.8 24.8-.8 33.9L83.9 232H424c13.3 0 24 10.7 24 24s-10.7 24-24 24H83.9l132.7 126.6c9.6 9.2 9.9 24.3.8 33.9s-24.3 9.9-33.9.8l-176-168z"/></svg>',
 
   private: '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><path d="M130.9 168.3v54.4h136v-54.4c0-37.57-30.43-68-68-68s-68 30.43-68 68m-40.8 54.4v-54.4c0-60.095 48.705-108.8 108.8-108.8s108.8 48.705 108.8 108.8v54.4h27.2c30.005 0 54.4 24.395 54.4 54.4v163.2c0 30.005-24.395 54.4-54.4 54.4h-272c-30.005 0-54.4-24.395-54.4-54.4V277.1c0-30.005 24.395-54.4 54.4-54.4zm-40.8 54.4v163.2c0 7.48 6.12 13.6 13.6 13.6h272c7.48 0 13.6-6.12 13.6-13.6V277.1c0-7.48-6.12-13.6-13.6-13.6h-272c-7.48 0-13.6 6.12-13.6 13.6"/></svg>',
@@ -62,6 +62,7 @@ let snippetProcessing: { [key: string]: (element: D) => void } = {
   follow_requests: p_folreq,
   admin: p_admin,
   search: p_search,
+  message_list: p_messageList,
 
   settings_index: p_settingsIndex,
   settings_profile: p_settingsProfile,
@@ -71,14 +72,14 @@ let snippetProcessing: { [key: string]: (element: D) => void } = {
 };
 
 // @ts-expect-error
-let snippets: { [key in snippet]: snippetData} = {};
+let snippets: { [key in snippet]: SnippetData} = {};
 
 function getSnippet(snippet: snippet, extraVariables?: { [key: string]: string | [value: string, max_repl: number] }): D {
-  let s: snippetData = snippets[snippet];
+  let s: SnippetData = snippets[snippet];
   let content: string = s.content;
 
-  for (const i of Object.keys(icons)) {
-    content = content.replaceAll(`@{icon_${i}}`, icons[i as icons]);
+  for (const i of Object.keys(Icons)) {
+    content = content.replaceAll(`@{icon_${i}}`, Icons[i as Icons]);
   }
 
   for (const i of s.variables) {

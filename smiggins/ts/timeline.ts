@@ -1,15 +1,15 @@
-let currentTl: timelineConfig;
+let currentTl: TimelineConfig;
 let currentTlID: string;
 let tlElement: D;
-let timelines: { [key: string]: timelineConfig } = {};
+let timelines: { [key: string]: TimelineConfig } = {};
 let tlPollingIntervalID: number | null = null;
 let tlPollingPendingResponse: boolean = false;
 let prependedPosts: number = 0;
 let timelineToggles: string[] = [];
 
-let tlCache: { [key: string]: timelineCache | undefined } = {};
-let postCache: { [key: number]: post | undefined } = {};
-let userCache: { [key: string]: userData | undefined } = {};
+let tlCache: { [key: string]: TimelineCache | undefined } = {};
+let postCache: { [key: number]: Post | undefined } = {};
+let userCache: { [key: string]: UserData | undefined } = {};
 
 let offset: { upper: number | null, lower: number | null } = {
   upper: null,
@@ -22,7 +22,7 @@ const LOADING_HTML: string = "<i class=\"timeline-status\">Loading...</i>";
 function hookTimeline(
   element: D,
   carousel: Del,
-  tls: { [key: string]: timelineConfig },
+  tls: { [key: string]: TimelineConfig },
   activeTimeline: string,
   fakeBodyElement?: D
 ): void {
@@ -65,7 +65,7 @@ function reloadTimeline(ignoreCache: boolean=false, element?: D): void {
   tlElement.innerHTML = LOADING_HTML;
   prependedPosts = 0;
 
-  let cache: timelineCache | undefined = tlCache[currentTlID];
+  let cache: TimelineCache | undefined = tlCache[currentTlID];
   if (!currentTl.disableCaching && !ignoreCache && cache && cache.pendingForward !== false) {
     offset = {
       upper: cache.upperBound,
@@ -76,8 +76,8 @@ function reloadTimeline(ignoreCache: boolean=false, element?: D): void {
 
     let posts: number[] = [];
     for (const post of cache.posts) {
-      let p: post | undefined = postCache[post];
-      let u: userData | undefined = p && userCache[p.user.username];
+      let p: Post | undefined = postCache[post];
+      let u: UserData | undefined = p && userCache[p.user.username];
       if (currentTl.url.startsWith("user_") || !u || !u.blocking) {
         posts.push(post);
       }
@@ -109,7 +109,7 @@ function reloadTimeline(ignoreCache: boolean=false, element?: D): void {
 }
 
 // takes a list of posts and updates the post cache, returning a list of post ids
-function insertIntoPostCache(posts: post[]): number[] {
+function insertIntoPostCache(posts: Post[]): number[] {
   let postIds: number[] = [];
 
   for (const post of posts) {
@@ -187,7 +187,7 @@ function renderTimeline(
   tlElement.append(frag);
 
   if (updateCache && !currentTl.disableCaching) {
-    let c: timelineCache | undefined = tlCache[currentTlID];
+    let c: TimelineCache | undefined = tlCache[currentTlID];
 
     if (!c) {
       c = {
@@ -210,7 +210,7 @@ function renderTimeline(
 
 // sets variables required when switching or setting a timeline
 function _setTimeline(timelineId: string, element?: D): void {
-  let c: timelineCache | undefined = tlCache[currentTlID];
+  let c: TimelineCache | undefined = tlCache[currentTlID];
   if (c) {
     c.upperBound = offset.upper;
     c.lowerBound = offset.lower;
@@ -309,7 +309,7 @@ function refreshPollData(pid: number): void {
 }
 
 function refreshPollDisplay(pid: number, forceVotedView: boolean=false): void {
-  let c: post | undefined = postCache[pid];
+  let c: Post | undefined = postCache[pid];
   if (!c) { return; }
 
   for (const el of document.querySelectorAll(`[data-post-id="${pid}"] .poll-container`)) {
@@ -317,7 +317,7 @@ function refreshPollDisplay(pid: number, forceVotedView: boolean=false): void {
   }
 }
 
-function getPollHTML(poll: post["poll"], pid: number, forceVotedView: boolean=false): string {
+function getPollHTML(poll: Post["poll"], pid: number, forceVotedView: boolean=false): string {
   if (!poll) { return ""; }
 
   let output: string = "";
@@ -352,7 +352,7 @@ function getPost(
   updateOffset: boolean=true,
   forceCwState: boolean | null=null
 ): D {
-  let p: post | undefined = postCache[post];
+  let p: Post | undefined = postCache[post];
 
   if (!p) {
     let el: D = document.createElement("div");
@@ -465,7 +465,7 @@ function getPost(
 
 // show pending new posts on the timeline
 function timelineShowNew(): void {
-  let c: timelineCache | undefined = tlCache[currentTlID];
+  let c: TimelineCache | undefined = tlCache[currentTlID];
   if (!c) { return; }
 
   let posts: number[] | false = c.pendingForward;
@@ -495,14 +495,14 @@ function timelineShowNew(): void {
 
 // handles adding posts to forwards
 function handleForward(
-  posts: post[],
+  posts: Post[],
   end: boolean,
   expectedTlID: string,
   forceEvent: boolean=false
 ): void {
   tlPollingPendingResponse = false;
 
-  let c: timelineCache | undefined = tlCache[expectedTlID];
+  let c: TimelineCache | undefined = tlCache[expectedTlID];
   if (!c) { return; }
 
   if (expectedTlID !== currentTlID) {
@@ -548,7 +548,7 @@ function handleForward(
 function timelinePolling(forceEvent: boolean=false): void {
   if (currentTl.disablePolling || !offset.upper || (tlPollingPendingResponse && !forceEvent)) { return; }
 
-  let c: timelineCache | undefined = tlCache[currentTlID];
+  let c: TimelineCache | undefined = tlCache[currentTlID];
   tlPollingPendingResponse = true;
 
   if (c && c.pendingForward === false) { return; }
@@ -567,7 +567,7 @@ function timelinePolling(forceEvent: boolean=false): void {
 }
 
 // prepends a post to the current timeline (ex. when creating a post, shows it immediately instead of waiting for load)
-function prependPostToTimeline(post: post): void {
+function prependPostToTimeline(post: Post): void {
   if (currentTl.prependPosts) {
     if (
       typeof currentTl.prependPosts === "number" &&
@@ -599,7 +599,7 @@ function postButtonClick(e: Event): void {
   } else if (el.dataset.interactionLike) {
     let postId: number = +el.dataset.interactionLike;
     let liked: boolean = el.dataset.liked === "true";
-    let c: post | undefined = postCache[postId];
+    let c: Post | undefined = postCache[postId];
     if (c) {
       c.interactions.liked = !liked;
       c.interactions.likes += (-liked + 0.5) * 2 * (1 << 3); // floatint, must increase/decrease by int 8 to change floatint by one (div10 bit, kmb 2 bits)
@@ -749,7 +749,7 @@ function handlePostDelete(pid: number): void {
 }
 
 // returns an escaped string containing the post content, or a content warning if there is one
-function simplePostContent(post: post): string {
+function simplePostContent(post: Post): string {
   return escapeHTML(post.content_warning ? "CW: " + post.content_warning : post.content) || (post.poll ? "Poll" : "");
 }
 

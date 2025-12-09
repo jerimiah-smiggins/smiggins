@@ -95,6 +95,7 @@
       {% include "snippet.html" with id="pages/follow-requests" vars="username" processing="follow_requests,timeline_more" %}
       {% include "snippet.html" with id="pages/search" vars="username" processing="search,timeline_switch,timeline_more,input_enter" %}
       {% if is_admin %}{% include "snippet.html" with id="pages/admin" vars="username" processing="admin,input_enter" %}{% endif %}
+      {% include "snippet.html" with id="pages/message-list" vars="username" processing="message_list,timeline_more" %}
 
       <!-- other -->
       {% include "snippet.html" with id="post" processing="post" %}
@@ -105,6 +106,7 @@
       {% include "snippet.html" with id="update-modal" %}
       {% include "snippet.html" with id="notification-like" %}
       {% include "snippet.html" with id="folreq-user" %}
+      {% include "snippet.html" with id="message-list-item" %}
     </div>
 
     <script src="{% static 'app.js' %}?v={{ conf.version }}"></script>

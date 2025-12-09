@@ -28,8 +28,8 @@ function withinBounds(index: number, length: number, bounds: { index: number, le
   return false;
 }
 
-function urlReplacements(str: string, repl: replacement[]): string {
-  repl.sort((a: replacement, b: replacement): number => (b.index - a.index));
+function urlReplacements(str: string, repl: Replacement[]): string {
+  repl.sort((a: Replacement, b: Replacement): number => (b.index - a.index));
 
   for (const r of repl) {
     let linkTag: string = `<a href="${r.href}" ${r.hiddenLink ? "class=\"plain-link\"" : ""} ${r.internalIntent ? `data-internal-link="${r.internalIntent}"` : "target=\"_blank\""}>`;
@@ -41,7 +41,7 @@ function urlReplacements(str: string, repl: replacement[]): string {
 
 // takes in an ESCAPED string and adds any needed links to it.
 function linkify(str: string, postID?: number): string {
-  let urlReplacement: replacement[] = [];
+  let urlReplacement: Replacement[] = [];
 
   for (const url of str.matchAll(urlRegex)) {
     let link: string = url[0];
@@ -81,10 +81,10 @@ function linkify(str: string, postID?: number): string {
 
   if (postID) {
     let href: string = `/p/${postID}/`;
-    let newReplacements: replacement[] = [];
+    let newReplacements: Replacement[] = [];
     let textIndex: number = 0;
 
-    urlReplacement.sort((a: replacement, b: replacement): number => (a.index - b.index));
+    urlReplacement.sort((a: Replacement, b: Replacement): number => (a.index - b.index));
 
     for (const repl of urlReplacement) {
       if (repl.index - textIndex > 0) {
@@ -100,7 +100,7 @@ function linkify(str: string, postID?: number): string {
       textIndex = repl.index + repl.length;
     }
 
-    let lastRepl: replacement = urlReplacement[urlReplacement.length - 1];
+    let lastRepl: Replacement = urlReplacement[urlReplacement.length - 1];
     if (lastRepl && lastRepl.index + lastRepl.length < str.length) {
       newReplacements.push({
         index: lastRepl.index + lastRepl.length,

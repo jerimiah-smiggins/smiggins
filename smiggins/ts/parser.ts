@@ -28,6 +28,10 @@ enum ResponseCodes {
   ListOTP,
   GetAdminPermissions,
   SetAdminPermissions,
+  MessageGroupTimeline = 0x50,
+  MessageTimeline,
+  MessageSend,
+  MessageGetGID,
   TimelineGlobal = 0x60,
   TimelineFollowing,
   TimelineUser,
@@ -88,6 +92,10 @@ const EXPECTED_VERSIONS: {
   [ResponseCodes.ListOTP]: 0,
   [ResponseCodes.GetAdminPermissions]: 0,
   [ResponseCodes.SetAdminPermissions]: 0,
+  [ResponseCodes.MessageGroupTimeline]: 0,
+  [ResponseCodes.MessageTimeline]: 0,
+  [ResponseCodes.MessageSend]: 0,
+  [ResponseCodes.MessageGetGID]: 0,
   [ResponseCodes.TimelineGlobal]: 0,
   [ResponseCodes.TimelineFollowing]: 0,
   [ResponseCodes.TimelineUser]: 0,
@@ -202,7 +210,7 @@ function _extractBool(num: number, offset: number): boolean {
   return Boolean((num >> offset) & 1);
 }
 
-function _extractPost(data: Uint8Array): [post, leftoverData: Uint8Array] {
+function _extractPost(data: Uint8Array): [Post, leftoverData: Uint8Array] {
   let postId: number = _extractInt(32, data);
   let commentParentId: number | null = null;
   let postTimestamp: number = _extractInt(64, data.slice(4));
@@ -239,7 +247,7 @@ function _extractPost(data: Uint8Array): [post, leftoverData: Uint8Array] {
     newData = d[1];
   }
 
-  let quoteData: post["quote"] = null;
+  let quoteData: Post["quote"] = null;
   if (_extractBool(flags[0], 5)) {
     if (!_extractBool(flags[0], 4)) {
       quoteData = false as false;
@@ -305,8 +313,8 @@ function _extractPost(data: Uint8Array): [post, leftoverData: Uint8Array] {
   }, newData];
 }
 
-function _extractPoll(data: Uint8Array): [post["poll"], leftoverData: Uint8Array] {
-  let pollData: post["poll"] = {
+function _extractPoll(data: Uint8Array): [Post["poll"], leftoverData: Uint8Array] {
+  let pollData: Post["poll"] = {
     votes: _extractInt(16, data),
     has_voted: false,
     items: [] as {
@@ -420,9 +428,9 @@ function parseResponse(
     case ResponseCodes.PollVote:
     case ResponseCodes.PollRefresh:
       let pid: number = _extractInt(32, u8arr.slice(2));
-      let pollData: post["poll"] = _extractPoll(u8arr.slice(6))[0];
+      let pollData: Post["poll"] = _extractPoll(u8arr.slice(6))[0];
 
-      let c: post | undefined = postCache[pid];
+      let c: Post | undefined = postCache[pid];
       if (c) { c.poll = pollData; }
 
       refreshPollDisplay(pid, true);
@@ -465,13 +473,55 @@ function parseResponse(
 
     case ResponseCodes.SetAdminPermissions: createToast("Success!", "Permissions saved."); break;
 
+    case ResponseCodes.MessageGroupTimeline:
+      end = _extractBool(u8arr[2], 7);
+      forwards = _extractBool(u8arr[2], 6);
+      let numGroups: number = u8arr[3];
+      let messageListItems: MessageList[] = [];
+      u8arr = u8arr.slice(4);
+
+      for (let i: number = 0; i < numGroups; i++) {
+        let gid: number = _extractInt(32, u8arr);
+        let ts: number = _extractInt(64, u8arr.slice(4));
+        let unread: boolean = _extractBool(u8arr[12], 7);
+        let content: [string, Uint8Array] = _extractString(16, u8arr.slice(13));
+        u8arr = content[1].slice(1);
+
+        let members: string[] = [];
+        for (let i: number = 0; i < Math.min(content[1][0] - 1, 3); i++) {
+          let name: [string, Uint8Array] = _extractString(8, u8arr);
+          members.push(name[0]);
+          u8arr = name[1];
+        }
+
+        messageListItems.push({
+          group_id: gid,
+          timestamp: ts,
+          unread: unread,
+          recent_content: content[0],
+
+          members: {
+            count: content[1][0],
+            names: members
+          }
+        });
+      }
+
+      if (forwards) {
+        handleMessageListForward(messageListItems, end, "messages", true);
+      } else {
+        renderMessageListTimeline(messageListItems, end, false);
+      }
+      break;
+
+
     case ResponseCodes.TimelineUser:
       displayName = _extractString(8, u8arr.slice(2));
       pronouns = _extractString(8, displayName[1]);
       bio = _extractString(16, pronouns[1]);
       let flags: number = bio[1][12];
       let pinned: number | null = null;
-      let pinnedPostData: [post, Uint8Array] | undefined;
+      let pinnedPostData: [Post, Uint8Array] | undefined;
 
       // has pinned post
       if (_extractBool(flags, 2)) {
@@ -498,7 +548,7 @@ function parseResponse(
     case ResponseCodes.TimelineComments:
       // Prevent accidentally running this code when on user timeline
       if (u8arr[0] === ResponseCodes.TimelineComments) {
-        let postData: [post, leftoverData: Uint8Array] = _extractPost(u8arr.slice(2));
+        let postData: [Post, leftoverData: Uint8Array] = _extractPost(u8arr.slice(2));
         updateFocusedPost(postData[0]);
         u8arr = new Uint8Array([0].concat(Array.from(postData[1])));
       }
@@ -514,7 +564,7 @@ function parseResponse(
       u8arr = u8arr.slice(4);
 
       for (let i: number = 0; i < numPosts; i++) {
-        let postData: [post, Uint8Array] = _extractPost(u8arr);
+        let postData: [Post, Uint8Array] = _extractPost(u8arr);
 
         posts.push(postData[0]);
         u8arr = postData[1];
@@ -539,25 +589,17 @@ function parseResponse(
       end = _extractBool(u8arr[2], 7);
       forwards = _extractBool(u8arr[2], 6);
       numPosts = u8arr[3];
-      posts = [] as [post, number][];
+      posts = [] as [Post, number][];
       u8arr = u8arr.slice(4);
 
       for (let i: number = 0; i < numPosts; i++) {
-        let postData: [post, Uint8Array] = _extractPost(u8arr.slice(1));
+        let postData: [Post, Uint8Array] = _extractPost(u8arr.slice(1));
         posts.push([postData[0], u8arr[0]]);
         u8arr = postData[1];
       }
 
       if (forwards) {
-        // TODO: forwards handling for notifs
-        // Add posts directly to timeline instead of forward cache
-        if (extraVariableSometimesUsed?.startsWith("$")) {
-          handleNotificationForward(posts, end, extraVariableSometimesUsed.slice(1), true);
-        } else if (extraVariableSometimesUsed) {
-          handleNotificationForward(posts, end, extraVariableSometimesUsed);
-        } else {
-          console.log("uh uhhhh why isn't the url set for forwards tl ????");
-        }
+        handleNotificationForward(posts, end, "notifications");
       } else {
         renderNotificationTimeline(posts, end, false);
       }
@@ -566,7 +608,7 @@ function parseResponse(
     case ResponseCodes.TimelineFolreq:
       end = _extractBool(u8arr[2], 7);
       let numUsers: number = u8arr[3];
-      let users: folreqUserData[] = [];
+      let users: FollowRequestUserData[] = [];
       u8arr = u8arr.slice(4);
 
       for (let i: number = 0; i < numUsers; i++) {

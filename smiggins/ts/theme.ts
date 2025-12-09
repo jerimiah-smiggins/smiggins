@@ -1,8 +1,8 @@
 let themeMedia: MediaQueryList = matchMedia("(prefers-color-scheme: light)");
 let _themeLs: string | null = localStorage.getItem("smiggins-theme");
-let theme: themes = _themeLs === "light" || _themeLs === "dark" || _themeLs === "warm" || _themeLs === "gray" || _themeLs === "darker" || _themeLs === "oled" ? _themeLs : "system";
+let theme: Themes = _themeLs === "light" || _themeLs === "dark" || _themeLs === "warm" || _themeLs === "gray" || _themeLs === "darker" || _themeLs === "oled" ? _themeLs : "system";
 
-function setTheme(th: themes): void {
+function setTheme(th: Themes): void {
   if (th === "system") {
     localStorage.removeItem("smiggins-theme");
     theme = "system";
@@ -14,7 +14,7 @@ function setTheme(th: themes): void {
   updateTheme(th);
 }
 
-function updateTheme(theme: themes): void {
+function updateTheme(theme: Themes): void {
   document.documentElement.dataset.theme = theme;
 }
 

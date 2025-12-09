@@ -3,7 +3,7 @@ let navModKeyPressed: boolean = false;
 const KB_DISABLED = "DISABLED";
 
 let _kbReverse: { [key: string]: {
-  modifiers?: keybindModifiers[],
+  modifiers?: KeybindModifiers[],
   callback: (e: KeyboardEvent) => void
 }} = {};
 
@@ -11,7 +11,7 @@ const keybinds: { [key: string]: {
   defaultKey: string,
   name: string,
   description?: string,
-  modifiers?: keybindModifiers[],
+  modifiers?: KeybindModifiers[],
   callback: (e: KeyboardEvent) => void,
   releaseCallback?: (e: KeyboardEvent) => void
 }} = {
@@ -22,7 +22,7 @@ const keybinds: { [key: string]: {
   navModifier: { defaultKey: "g", name: "Navigation Modifier", description: "The key that needs to be pressed in order to use the other navigation keybinds", callback: (): void => { navModKeyPressed = true; }, releaseCallback: (): void => { navModKeyPressed = false; }},
   navAdmin: { defaultKey: "a", modifiers: ["nav"], name: "Admin Page", callback: (): void => { if (!isAdmin || currentPage === "admin") { return; } history.pushState("admin", "", "/admin/"); renderPage("admin"); }},
   navHome: { defaultKey: "h", modifiers: ["nav"], name: "Home", callback: (): void => { if (currentPage === "home") { return; } history.pushState("home", "", "/"); renderPage("home"); }},
-  // navMessages: { defaultKey: "m", modifiers: ["nav"], name: "Messages", callback: (): void => { /* TODO: messages page */ }},
+  navMessages: { defaultKey: "m", modifiers: ["nav"], name: "Messages", callback: (): void => { if (currentPage === "message-list") { return; } history.pushState("message-list", "", "/messages/"); renderPage("message-list"); }},
   navNotifications: { defaultKey: "n", modifiers: ["nav"], name: "Notifications", callback: (): void => { if (currentPage === "notifications") { return; } history.pushState("notifications", "", "/notifications/"); renderPage("notifications"); }},
   navProfile: { defaultKey: "p", modifiers: ["nav"], name: "Your Profile", callback: (): void => { if (currentPage === "user" && getUsernameFromPath() === username) { return; } history.pushState("user", "", `/u/${username}/`); renderPage("user"); }},
   navSettings: { defaultKey: "s", modifiers: ["nav"], name: "Settings", callback: (): void => { if (currentPage === "settings") { return; } history.pushState("settings", "", "/settings/"); renderPage("settings"); }},
@@ -37,7 +37,7 @@ const keybinds: { [key: string]: {
 function setKeybindKey(
   id: string,
   newKey: string,
-  modifiers?: { [key in keybindModifiers]?: boolean }
+  modifiers?: { [key in KeybindModifiers]?: boolean }
 ): boolean {
   // returns true if successful or false if duplicate
 
@@ -128,7 +128,7 @@ function _kbRefreshReverse(): void {
 
     _kbReverse[key] = {
       callback: data.callback,
-      modifiers: key.slice(1).split(":")[1].split(",") as keybindModifiers[]
+      modifiers: key.slice(1).split(":")[1].split(",") as KeybindModifiers[]
     };
   }
 }

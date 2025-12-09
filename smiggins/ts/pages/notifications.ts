@@ -17,13 +17,13 @@ function p_notifications(element: D): void {
   if (!timelineElement) { return; }
 
   hookTimeline(timelineElement, null, {
-    "notifications": { url: "/api/timeline/notifications", disableCaching: true, prependPosts: false, customRender: renderNotificationTimeline, customForward: handleNotificationForward }
+    notifications: { url: "/api/timeline/notifications", disableCaching: true, prependPosts: false, customRender: renderNotificationTimeline, customForward: handleNotificationForward }
   }, "notifications", element);
 }
 
-function _getLikeNotification(posts: post[]): D {
+function _getLikeNotification(posts: Post[]): D {
   let recentTimestamp: number = 0;
-  let users: string[] = posts.map((a: post, index: number): [string | null, string] | null => {
+  let users: string[] = posts.map((a: Post, index: number): [string | null, string] | null => {
     if (!offset.lower || a.timestamp < offset.lower) { offset.lower = a.timestamp; }
     if (!offset.upper || a.timestamp > offset.upper) { offset.upper = a.timestamp; }
 
@@ -73,7 +73,7 @@ function _getLikeNotification(posts: post[]): D {
 }
 
 function renderNotificationTimeline(
-  posts: [post, notificationType: number][],
+  posts: [Post, notificationType: number][],
   end: boolean,
   updateCache: boolean,
   moreElementOverride?: el,
@@ -93,7 +93,7 @@ function renderNotificationTimeline(
 
   let frag: DocumentFragment = document.createDocumentFragment();
 
-  let pendingLikes: { [key: number]: post[] } = {};
+  let pendingLikes: { [key: number]: Post[] } = {};
   let pendingLikeOrder: number[] = [];
   let previousRead: boolean = false;
   for (const post of posts) {
@@ -166,7 +166,7 @@ function renderNotificationTimeline(
 }
 
 function handleNotificationForward(
-  posts: [post, notificationType: number][],
+  posts: [Post, notificationType: number][],
   end: boolean,
   expectedTlID: string="notifications",
   forceEvent: boolean=false

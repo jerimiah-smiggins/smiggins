@@ -41,7 +41,7 @@ function userUpdateStats(
   // TODO: pinned posts
 
   let userUsername: string = getUsernameFromPath();
-  let c: userData | undefined = userCache[userUsername];
+  let c: UserData | undefined = userCache[userUsername];
 
   if (c) {
     c.display_name  = displayName;
@@ -144,7 +144,7 @@ function userUpdateStats(
           if (pinElement) {
             delete pinElement.dataset.interactionPin;
             pinElement.dataset.interactionUnpin = String(pinned);
-            pinElement.innerHTML = icons.unpin + " Unpin";
+            pinElement.innerHTML = Icons.unpin + " Unpin";
           }
         }
 
@@ -169,7 +169,7 @@ function updateFollowButton(followed: boolean, pending?: boolean): void {
   let followButton: el = document.getElementById("follow");
   if (!followButton) { return; }
 
-  let c: userData | undefined = userCache[username];
+  let c: UserData | undefined = userCache[username];
 
   if (!followed) {
     followButton.innerText = "Follow";

@@ -17,7 +17,7 @@ function postSetDNE(): void {
   }
 }
 
-function updateFocusedPost(post: post): void {
+function updateFocusedPost(post: Post): void {
   let pid: number = insertIntoPostCache([post])[0];
   let cwElement: HTMLDetailsElement | null = document.querySelector("#focused-post .content-warning");
 
@@ -37,7 +37,7 @@ function updateFocusedPost(post: post): void {
   let commentElement: HTMLTextAreaElement | null = document.getElementById("post-content") as HTMLTextAreaElement | null;
   let cwInputElement: Iel = document.getElementById("post-cw") as Iel;
 
-  let p: post | undefined = postCache[pid];
+  let p: Post | undefined = postCache[pid];
   if (!commentBoxValueSet && commentElement && !commentElement.value && cwInputElement && !cwInputElement.value && p) {
     commentBoxValueSet = true;
     commentElement.value = getPostMentionsString(p);
@@ -45,11 +45,11 @@ function updateFocusedPost(post: post): void {
   }
 }
 
-function getPostMentionsString(p: post): string {
+function getPostMentionsString(p: Post): string {
   return getMentionsFromPost(p).map((a: string): string => (`@${a} `)).join("")
 }
 
-function getPostTemplatedCW(p: post): string {
+function getPostTemplatedCW(p: Post): string {
   let cw: string | null = p.content_warning;
 
   if (cw) {
@@ -91,7 +91,7 @@ function createComment(e: Event): void {
     if (success) {
       (cwElement as I).value = "";
 
-      let p: post | undefined = postCache[getPostIDFromPath()];
+      let p: Post | undefined = postCache[getPostIDFromPath()];
 
       if (p) {
         (contentElement as I).value = getMentionsFromPost(p).map((a: string): string => (`@${a} `)).join("");
@@ -104,7 +104,7 @@ function createComment(e: Event): void {
 
 function p_postPage(element: D): void {
   let pid: number = getPostIDFromPath();
-  let p: post | undefined = postCache[pid];
+  let p: Post | undefined = postCache[pid];
   let postElement: el = element.querySelector("#focused-post");
   let timelineElement: Del = element.querySelector("#timeline-posts");
   commentBoxValueSet = false;

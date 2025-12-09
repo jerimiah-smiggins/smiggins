@@ -17,7 +17,7 @@ def get_group(id: int | User, *users: User) -> MessageGroup:
         return MessageGroup.objects.get(id=id)
 
     gid = MessageGroup.get_id(id, *users)
-    group, created = MessageGroup.objects.get_or_create(group_id=gid, defaults={ "timestamp": 0 })
+    group, created = MessageGroup.objects.get_or_create(group_id=gid, defaults={ "timestamp": round(time.time()) })
 
     if created:
         group = MessageGroup.objects.get(group_id=gid)

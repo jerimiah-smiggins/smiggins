@@ -8,9 +8,9 @@
       <div data-notif-dot="notifications">{% if active_page == "notifications" %}@{icon_notifications_active}{% else %}@{icon_notifications}{% endif %}</div>
     </a>
 
-    {% comment %} <a data-internal-link="messages" href="/messages/" class="plain-link{% if active_page == "messages" %} navbar-current{% endif %}">
-      <div>{% if active_page == "messages" %}@{icon_messages_active}{% else %}@{icon_messages}{% endif %}</div>
-    </a> {% endcomment %}
+    <a data-navbar-mobile-hidden data-internal-link="message-list" href="/messages/" class="plain-link{% if active_page == "messages" %} navbar-current{% endif %}">
+      <div data-notif-dot="messages">{% if active_page == "messages" %}@{icon_messages_active}{% else %}@{icon_messages}{% endif %}</div>
+    </a>
 
     <div data-navbar-mobile-only class="navbar-accent" onclick="createPostModal();">
       <div>@{icon_plus}</div>
@@ -33,7 +33,7 @@
     </a>
 
     <div class="hamburger" tabindex="0" data-navbar-mobile-only>
-      <div data-notif-dot="folreq">@{icon_hamburger}</div>
+      <div data-notif-dot="folreq,messages">@{icon_hamburger}</div>
 
       <div class="post-hamburger-container">
         <div class="post-hamburger">
@@ -41,8 +41,8 @@
             @{icon_search} Search
           </a></div>
 
-          <div><a data-internal-link="settings" href="/settings/" class="plain-link{% if active_page == "settings" %} navbar-current{% endif %}">
-            {% if active_page == "settings" %}@{icon_settings_active}{% else %}@{icon_settings}{% endif %} Settings
+          <div><a data-internal-link="message-list" href="/messages/" class="plain-link {% if active_page == "messages" %}navbar-current{% endif %}">
+            <span data-notif-dot="messages">{% if active_page == "messages" %}@{icon_messages_active}{% else %}@{icon_messages}{% endif %}</span> Messages
           </a></div>
 
           <div data-navbar-folreq-toggle {% if active_page != "follow-requests" %}hidden{% endif %}>
@@ -50,6 +50,10 @@
               <span data-notif-dot="folreq">{% if active_page == "follow-requests" %}@{icon_folreq_active}{% else %}@{icon_folreq}{% endif %}</span> Follow Requests
             </a>
           </div>
+
+          <div><a data-internal-link="settings" href="/settings/" class="plain-link{% if active_page == "settings" %} navbar-current{% endif %}">
+            {% if active_page == "settings" %}@{icon_settings_active}{% else %}@{icon_settings}{% endif %} Settings
+          </a></div>
         </div>
       </div>
     </div>

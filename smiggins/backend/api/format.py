@@ -1,8 +1,8 @@
 from typing import Literal
 
 from django.http import HttpRequest, HttpResponse
-from posts.models import (M2MPending, Message, MessageGroup, Notification,
-                          Poll, Post, User)
+from posts.models import (M2MMessageMember, M2MPending, Message, MessageGroup,
+                          Notification, Poll, Post, User)
 
 
 class ResponseCodes:
@@ -597,7 +597,7 @@ class api_MessageGroupTimeline(_api_BaseResponse):
         self.response_data = b((end or user is None) << 7 | forwards << 6) + b(len(groups))
 
         for i in groups:
-            self.response_data += b(i.id, 4) + b(i.timestamp, 8)
+            self.response_data += b(i.id, 4) + b(i.timestamp, 8) + b(M2MMessageMember.objects.only("unread").get(user=user, group=i).unread << 7)
 
             recent_message = i.messages.order_by("-timestamp").first()
             if recent_message:

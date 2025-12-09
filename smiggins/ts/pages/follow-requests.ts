@@ -9,7 +9,7 @@ function p_folreq(element: D): void {
 }
 
 function renderFolreqTimeline(
-  users: folreqUserData[],
+  users: FollowRequestUserData[],
   end: boolean,
   updateCache: boolean,
   moreElementOverride?: el

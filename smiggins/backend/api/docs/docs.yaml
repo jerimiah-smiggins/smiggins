@@ -318,6 +318,7 @@ GET /api/message/list:
   - { type: uint8, name: "Group count", id: group_count }
   - { type: int32, name: "Group ID", loop: group_count }
   - { type: int64, name: "Timestamp", loop: group_count }
+  - { type: bool7, name: "Unread", loop: group_count }
   - { type: str16, name: "Recent message", loop: group_count } # will have a length of 0 if there are no messages sent
   - { type: uint8, name: "Members", id: members, loop: group_count }
   - { type: str8, name: "Member name", loop: "group_count,min(members - 1, 3)" } # excludes self - if two members (self, one other), then it would return only the other member's name. returns a maximum of three names (ex. format would be "a, b, c, and n more")

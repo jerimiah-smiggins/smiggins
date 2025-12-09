@@ -21,7 +21,7 @@ function createPostModal(type?: "quote" | "comment" | "edit", id?: number): void
   postModalFor = undefined;
 
   if (type && id !== undefined) {
-    let post: post | undefined = postCache[id];
+    let post: Post | undefined = postCache[id];
     if (!post) { console.log("post modal post not found", id); return; }
 
     postModalFor = {
@@ -92,7 +92,7 @@ function createPostModal(type?: "quote" | "comment" | "edit", id?: number): void
   document.addEventListener("keydown", clearModalOnEscape);
 
   if (type === "edit" && id !== undefined) {
-    let post: post | undefined = postCache[id];
+    let post: Post | undefined = postCache[id];
     if (!post) { return; }
 
     if (post.content_warning) {
@@ -106,7 +106,7 @@ function createPostModal(type?: "quote" | "comment" | "edit", id?: number): void
     let privEl: Iel = el.querySelector("#modal-post-private");
     if (privEl) { privEl.checked = post.private; }
   } else if (type === "comment" && id !== undefined) {
-    let post: post | undefined = postCache[id];
+    let post: Post | undefined = postCache[id];
     if (!post) { return; }
 
     let contentEl: Iel = el.querySelector("#modal-post-content");
@@ -114,7 +114,7 @@ function createPostModal(type?: "quote" | "comment" | "edit", id?: number): void
   }
 
   if ((type === "comment" || type === "quote") && id !== undefined) {
-    let post: post | undefined = postCache[id];
+    let post: Post | undefined = postCache[id];
     if (!post) { return; }
 
     let cwEl: Iel = el.querySelector("#modal-post-cw");
@@ -215,7 +215,7 @@ function postModalCreatePost(e: Event): void {
       .then((ab: ArrayBuffer): ArrayBuffer => {
         let success: boolean = !((new Uint8Array(ab)[0] >> 7) & 1);
         if (success && postModalFor) {
-          let p: post | undefined = postCache[postModalFor.id];
+          let p: Post | undefined = postCache[postModalFor.id];
           clearModal();
 
           if (p) {

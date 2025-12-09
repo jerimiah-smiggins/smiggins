@@ -1,4 +1,4 @@
-const changes: { [key: string]: versionData } = {
+const changes: { [key: string]: VersionData } = {
   "1.1.0": {
     description: "Changelog page and bug fixes",
     major_changes: [{

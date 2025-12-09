@@ -12,13 +12,13 @@ function urlToIntent(path: string): intent {
 
       case "/notifications/": return "notifications";
       case "/follow-requests/": return "follow-requests";
+      case "/search/": return "search";
+      case "/messages/": return "message-list";
 
       // these settings pages are only visible when logged in
       case "/settings/profile/": return "settings/profile";
       case "/settings/keybinds/": return "settings/keybinds";
       case "/settings/account/": return "settings/account";
-
-      case "/search/": return "search";
 
       case isAdmin && "/admin/": return "admin";
 
@@ -101,7 +101,7 @@ function normalizePath(path: string, includeQueryParams?: true): string {
 
 function renderPage(intent: intent): void {
   let extraVariables: { [key: string]: string | [string, number] } = {};
-  let c: userData | undefined;
+  let c: UserData | undefined;
 
   switch (intent) {
     case "home":
@@ -136,7 +136,7 @@ function renderPage(intent: intent): void {
 
     case "post":
       let pid: number = getPostIDFromPath();
-      let p: post | undefined = postCache[pid];
+      let p: Post | undefined = postCache[pid];
       extraVariables = {
         pid: String(pid),
         parent: String(p && p.comment),
@@ -188,6 +188,10 @@ function getPageTitle(intent: intent): string {
     case "changelog": val = "Changes - "; break;
     case "admin": val = "Administration - "; break;
     case "search": val = "Search - "; break;
+
+    case "message-list":
+    case "message":
+      val = "Messages - "; break;
 
     case "index":
     case "home":
