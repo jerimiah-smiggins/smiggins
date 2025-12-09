@@ -4,10 +4,12 @@ from django.contrib import admin as django_admin
 from django.contrib.admin.exceptions import AlreadyRegistered  # type: ignore
 from django.db import models
 
+MAX_STR8 = 1 << 8 - 1
+MAX_STR16 = 1 << 16 - 1
 
 class User(models.Model):
     user_id = models.IntegerField(primary_key=True, unique=True)
-    username = models.CharField(max_length=2 ** 8 - 1, unique=True)
+    username = models.CharField(max_length=MAX_STR8, unique=True)
 
     password_hash = models.TextField(null=True)
     auth_key = models.CharField(max_length=64, unique=True)
@@ -25,13 +27,13 @@ class User(models.Model):
     # 0000000000000000000000X0X00000XX
     admin_level = models.IntegerField(default=0)
 
-    display_name = models.CharField(max_length=2 ** 8 - 1)
-    bio = models.CharField(max_length=2 ** 16 - 1, default="", blank=True)
+    display_name = models.CharField(max_length=MAX_STR8)
+    bio = models.CharField(max_length=MAX_STR16, default="", blank=True)
     color = models.CharField(max_length=7)
     color_two = models.CharField(max_length=7, default="#000000", blank=True)
     gradient = models.BooleanField(default=False)
 
-    pronouns = models.CharField(max_length=2 ** 8 - 1, default="", blank=True)
+    pronouns = models.CharField(max_length=MAX_STR8, default="", blank=True)
 
     default_post_private = models.BooleanField(default=False)
     verify_followers = models.BooleanField(default=False)
@@ -54,14 +56,15 @@ class User(models.Model):
         followers: models.Manager["User"]
         blockers: models.Manager["User"]
         pending_following: models.Manager["User"]
+        messages: models.Manager["Message"]
 
     def __str__(self):
         return f"({self.user_id}) @{self.username}"
 
 class Post(models.Model):
     post_id = models.IntegerField(primary_key=True)
-    content = models.TextField(max_length=2 ** 16 - 1, blank=True)
-    content_warning = models.TextField(max_length=2 ** 8 - 1, null=True, blank=True)
+    content = models.TextField(max_length=MAX_STR16, blank=True)
+    content_warning = models.TextField(max_length=MAX_STR8, null=True, blank=True)
     creator = models.ForeignKey(User, on_delete=models.CASCADE, related_name="posts")
     timestamp = models.IntegerField()
 
@@ -128,7 +131,7 @@ class Notification(models.Model):
         return f"({'' if self.read else 'un'}read) {self.event_type} ({self.notif_id}) for {self.is_for.username if self.is_for else None}"
 
 class Hashtag(models.Model):
-    tag = models.CharField(max_length=2 ** 8 - 1, unique=True, primary_key=True)
+    tag = models.CharField(max_length=MAX_STR8, unique=True, primary_key=True)
     posts = models.ManyToManyField(Post, through="M2MHashtagPost", related_name="hashtags", blank=True)
 
     def __str__(self):
@@ -181,20 +184,29 @@ class InviteCode(models.Model):
     id = models.CharField(primary_key=True, unique=True, max_length=64)
 
 class MessageGroup(models.Model):
-    group_id = models.IntegerField(primary_key=True)
+    id = models.IntegerField(primary_key=True)
+    group_id = models.TextField(unique=True)
     members = models.ManyToManyField(User, through="M2MMessageMember", related_name="message_groups")
+    timestamp = models.IntegerField()
+
+    if TYPE_CHECKING:
+        messages: models.Manager["Message"]
+
+    @staticmethod
+    def get_id(*users: User) -> str:
+        return ":".join([str(i) for i in sorted([u.user_id for u in users])])
 
     def __str__(self) -> str:
-        return f"({self.group_id}) " + ", ".join(self.members.all().values_list("username", flat=True))
+        return f"({self.id}/{self.group_id}) " + ", ".join(self.members.all().values_list("username", flat=True))
 
 class Message(models.Model):
-    content = models.CharField(max_length=2 ** 16 - 1)
+    content = models.CharField(max_length=MAX_STR16)
     group = models.ForeignKey(MessageGroup, related_name="messages", on_delete=models.CASCADE)
     user = models.ForeignKey(User, related_name="messages", on_delete=models.CASCADE)
     timestamp = models.IntegerField()
 
     def __str__(self) -> str:
-        return f"({self.group.group_id}) @{self.user.username} - {self.content}"
+        return f"({self.group.id}/{self.group.group_id}) @{self.user.username} - {self.content}"
 
 class M2MLike(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE)

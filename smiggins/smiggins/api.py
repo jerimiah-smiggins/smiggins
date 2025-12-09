@@ -1,5 +1,7 @@
 from backend.api.admin import (admin_delete_user, delete_otp, generate_otp,
                                get_admin_lvl, list_otps, set_admin_lvl)
+from backend.api.messages import (get_gid, send_message, tl_message_groups,
+                                  tl_messages)
 from backend.api.notifications import notifications
 from backend.api.post import (add_like, pin_post, poll_refresh, poll_vote,
                               post_create, post_delete, post_edit, remove_like,
@@ -69,6 +71,11 @@ api.delete("post/pin")(unpin_post)
 
 api.get("post/poll/{int:post_id}")(poll_refresh)
 api.post("post/poll")(poll_vote)
+
+api.get("message/list")(tl_message_groups)
+api.get("messages/{int:gid}")(tl_messages)
+api.post("message/{int:gid}")(send_message)
+api.get("message/group")(get_gid)
 
 api.get("notifications")(notifications)
 

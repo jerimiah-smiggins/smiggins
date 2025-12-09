@@ -4,6 +4,10 @@ If there is a specific feature you would like to be added, you can make an issue
 (if an existing doesn't already exist). **No, I will not be adding images.**
 
 ## Getting your code added
+> [!WARNING]
+> AI-Generated code will not be accepted. If you want to contribute to Smiggins,
+> avoid using AI coding tools.
+
 If you want to contrinbute to smiggins, you can create a new fork with your
 code. Once you finish writing any changes you made, you can make a pull request
 with your new code **into the dev branch** (not main). It will go through a
