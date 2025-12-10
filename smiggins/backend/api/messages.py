@@ -112,7 +112,7 @@ def send_message(request: HttpRequest, gid: int) -> HttpResponse:
     group.timestamp = ts
     group.save(update_fields=["timestamp"])
 
-    M2MMessageMember.objects.filter(group=group).exclude(user_id=request.s_user.user_id).update(unread=True)
+    M2MMessageMember.objects.filter(group=group).exclude(user_id=request.s_user.user_id, user__blocked=request.s_user.user_id, user__blocking=request.s_user.user_id).update(unread=True)
 
     return api.response(
         content=content[0],
