@@ -190,7 +190,7 @@ function renderMessageTimeline(
     if (!offset.lower || message.timestamp < offset.lower) { offset.lower = message.timestamp; }
     if (!offset.upper || message.timestamp > offset.upper) { offset.upper = message.timestamp; }
 
-    if (previous.username !== message.username || previous.timestamp + MESSAGE_SEPARATION_TIMESTAMP_THRESHOLD < message.timestamp) {
+    if (previous.username !== message.username || previous.timestamp - MESSAGE_SEPARATION_TIMESTAMP_THRESHOLD > message.timestamp) {
       frag.append(_getMessageSeparator(previous));
     }
 
@@ -207,10 +207,18 @@ function renderMessageTimeline(
   }
 
   frag.append(_getMessageSeparator(previous));
+  let scrollElement: el = document.getElementById("messages-timeline-container");
 
   if (prepend) {
     tlElement.prepend(frag);
+
+    if (scrollElement) {
+      scrollElement.scrollTop = scrollElement.scrollHeight;
+    }
   } else {
+    let oldScrollTop: number | undefined = scrollElement?.scrollTop;
+    let oldScrollHeight: number | undefined = scrollElement?.scrollHeight;
+
     tlElement.append(frag);
 
     let more: el = moreElementOverride || document.getElementById("timeline-more");
@@ -218,11 +226,12 @@ function renderMessageTimeline(
       if (end) { more.hidden = true; }
       else { more.hidden = false; }
     }
-  }
 
-  // this just doesn't work
-  if (scrollToBottom) {
-    tlElement.scrollTop = tlElement.scrollHeight;
+    if (scrollElement && scrollToBottom) {
+      scrollElement.scrollTop = scrollElement.scrollHeight;
+    } else if (scrollElement && oldScrollTop !== undefined && oldScrollHeight !== undefined) {
+      scrollElement.scrollTop = oldScrollTop + scrollElement.scrollHeight - oldScrollHeight;
+    }
   }
 }
 
