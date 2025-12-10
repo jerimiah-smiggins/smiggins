@@ -1,4 +1,5 @@
 const MESSAGE_SEPARATION_TIMESTAMP_THRESHOLD: number = 600; // 10 minutes
+const MESSAGE_PREPEND_SCROLL_DOWN_THRESHOLD: number = 16;
 let messageListTLCache: {
   offset: { lower: number | null, upper: number | null },
   items: MessageList[],
@@ -11,6 +12,9 @@ let messageListTLCache: {
   items: [],
   end: false
 };
+
+let previousMessageLabel: [Message, D] | null = null;
+let firstMessage: Message | null = null;
 
 function getMessageGroupIDFromPath(path?: string): number {
   return +(path || location.pathname).split("/").filter(Boolean)[1];
@@ -34,11 +38,38 @@ function p_messageList(element: D): void {
 function p_message(element: D): void {
   let timelineElement: Del = element.querySelector("#timeline-posts");
 
+  previousMessageLabel = null;
+  firstMessage = null;
   if (!timelineElement) { return; }
 
   hookTimeline(timelineElement, null, {
     message: { url: `/api/messages/${getMessageGroupIDFromPath()}`, disableCaching: true, prependPosts: false, customRender: renderMessageTimeline, customForward: handleMessageForward }
   }, "message", element);
+
+  (element.querySelector("#messages-compose") as Iel)?.addEventListener("keydown", messageComposeHandler);
+}
+
+function messageComposeHandler(e: KeyboardEvent): void {
+  if (e.key === "Enter" && !e.shiftKey) {
+    let compose: Iel = document.getElementById("messages-compose") as Iel;
+
+    if (compose && compose.value) {
+      compose.disabled = true;
+
+      fetch(`/api/message/${getMessageGroupIDFromPath()}`, {
+        method: "POST",
+        body: buildRequest([[compose.value, 16]])
+      }).then((response: Response): Promise<ArrayBuffer> => (response.arrayBuffer()))
+        .then(parseResponse)
+        .catch((err: any): never => {
+          createToast("Something went wrong!", String(err));
+          compose.disabled = false;
+          throw err;
+        });
+
+      e.preventDefault();
+    }
+  }
 }
 
 function renderMessageListTimeline(
@@ -96,10 +127,12 @@ function renderMessageListTimeline(
       el.dataset.notificationRead = "";
     }
 
-    let existing: el = document.querySelector(`[data-message-group-id="${group.group_id}"]`);
+    let existing: el = document.querySelector(`[data-message-group-id="${group.group_id}"]`) || frag.querySelector(`[data-message-group-id="${group.group_id}"]`);
     if (prepend) {
       existing?.remove();
-    } else if (!existing) {
+    }
+
+    if (!existing || prepend) {
       el.dataset.messageGroupId = String(group.group_id);
       frag.append(el);
     }
@@ -154,7 +187,7 @@ function _getMessageSeparator(message: Message): D {
     separator.dataset.messageSelf = "";
   }
 
-  separator.innerHTML = `<a data-internal-link="user" href="/u/${message.username}/" class="plain-link">${escapeHTML(message.display_name)}</a> - ${getTimestamp(message.timestamp)}`;
+  separator.innerHTML = `<a data-internal-link="user" href="/u/${message.username}/" class="plain-link">${escapeHTML(message.display_name)} - ${getTimestamp(message.timestamp)}</a>`;
   generateInternalLinks(separator);
 
   return separator;
@@ -170,6 +203,20 @@ function renderMessageTimeline(
   clearTimelineStatuses();
 
   let scrollToBottom: boolean = offset.lower === null;
+  let scrollElement: el = document.getElementById("messages-timeline-container");
+  let oldScrollTop: number | undefined = scrollElement?.scrollTop;
+  let oldScrollTopMax: number | null = scrollElement && (scrollElement.scrollHeight - scrollElement.getBoundingClientRect().height);
+  let oldScrollHeight: number | undefined = scrollElement?.scrollHeight;
+
+  if (offset.lower === null) {
+    fetchNotifications();
+    firstMessage = messages[0];
+  }
+
+  let listItem: MessageList[] = messageListTLCache.items.filter((v: MessageList): boolean => (v.unread && v.group_id === getMessageGroupIDFromPath()));
+  for (const i of listItem) {
+    i.unread = false;
+  }
 
   if (messages.length === 0) {
     if (offset.lower === null) {
@@ -185,6 +232,11 @@ function renderMessageTimeline(
 
   let frag: DocumentFragment = document.createDocumentFragment();
   let previous: Message = messages[0];
+  if (!prepend && previousMessageLabel) {
+    previous = previousMessageLabel[0];
+    previousMessageLabel[1].remove();
+    previousMessageLabel = null;
+  }
 
   for (const message of messages) {
     if (!offset.lower || message.timestamp < offset.lower) { offset.lower = message.timestamp; }
@@ -198,6 +250,7 @@ function renderMessageTimeline(
 
     let el: D = document.createElement("div");
     el.innerHTML = linkify(escapeHTML(message.content));
+    generateInternalLinks(el);
 
     if (message.username === username) {
       el.dataset.messageSelf = "";
@@ -206,19 +259,20 @@ function renderMessageTimeline(
     frag.append(el);
   }
 
-  frag.append(_getMessageSeparator(previous));
-  let scrollElement: el = document.getElementById("messages-timeline-container");
+  if (!prepend || firstMessage && (previous.username !== firstMessage.username || previous.timestamp - MESSAGE_SEPARATION_TIMESTAMP_THRESHOLD > firstMessage.timestamp)) {
+    let previousElement: D = _getMessageSeparator(previous);
+    previousMessageLabel = [previous, previousElement];
+    frag.append(previousElement);
+  }
 
   if (prepend) {
     tlElement.prepend(frag);
+    firstMessage = messages[0];
 
-    if (scrollElement) {
+    if (scrollElement && oldScrollTop && oldScrollTopMax && oldScrollTopMax - oldScrollTop < MESSAGE_PREPEND_SCROLL_DOWN_THRESHOLD) {
       scrollElement.scrollTop = scrollElement.scrollHeight;
     }
   } else {
-    let oldScrollTop: number | undefined = scrollElement?.scrollTop;
-    let oldScrollHeight: number | undefined = scrollElement?.scrollHeight;
-
     tlElement.append(frag);
 
     let more: el = moreElementOverride || document.getElementById("timeline-more");
@@ -255,5 +309,5 @@ function handleMessageForward(
     return;
   }
 
-  renderMessageTimeline(messages.reverse(), false, false, null, true)
+  renderMessageTimeline(messages, false, false, null, true)
 }

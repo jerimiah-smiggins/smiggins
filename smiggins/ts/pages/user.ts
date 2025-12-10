@@ -104,7 +104,7 @@ function userUpdateStats(
   }
 
   let bioElement: el = document.getElementById("bio");
-  if (bioElement) { bioElement.innerHTML = linkify(escapeHTML(bio)); }
+  if (bioElement) { bioElement.innerHTML = linkify(escapeHTML(bio)); generateInternalLinks(bioElement); }
 
   let notificationString: String = "";
 

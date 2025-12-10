@@ -543,6 +543,17 @@ function parseResponse(
       }
       break;
 
+    case ResponseCodes.MessageSend:
+      let compose: Iel = document.getElementById("messages-compose") as Iel;
+      if (compose) {
+        compose.disabled = false;
+        compose.value = "";
+        compose.focus();
+      }
+
+      timelinePolling(true);
+      break;
+
     case ResponseCodes.TimelineUser:
       displayName = _extractString(8, u8arr.slice(2));
       pronouns = _extractString(8, displayName[1]);

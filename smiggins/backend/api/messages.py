@@ -80,6 +80,8 @@ def tl_messages(request: HttpRequest, gid: int, offset: int | None=None, forward
         order_by=["-timestamp"]
     )
 
+    M2MMessageMember.objects.filter(user=request.s_user, group=group, unread=True).update(unread=False)
+
     api.set_response(end, forwards, messages, request.s_user)
     return api.get_response()
 
@@ -97,17 +99,23 @@ def send_message(request: HttpRequest, gid: int) -> HttpResponse:
     ts = round(time.time())
     content = trim_whitespace(api.parse_data(), True)
 
+    if not content[1]:
+        return api.error(ErrorCodes.BAD_REQUEST)
+
     Message.objects.create(
-        content=content,
+        content=content[0],
         group=group,
         user=request.s_user,
         timestamp=ts
     )
 
-    group.members.exclude(user_id=request.s_user.user_id).update(unread=True)
+    group.timestamp = ts
+    group.save(update_fields=["timestamp"])
+
+    M2MMessageMember.objects.filter(group=group).exclude(user_id=request.s_user.user_id).update(unread=True)
 
     return api.response(
-        content=content,
+        content=content[0],
         timestamp=ts,
         user=request.s_user
     )

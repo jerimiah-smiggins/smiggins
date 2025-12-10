@@ -10,7 +10,7 @@
   </div>
 
   <hr class="no-margin-top no-margin-bottom">
-  <textarea id="messages-compose" placeholder="Blah blah blah"></textarea>
+  <textarea id="messages-compose" placeholder="Blah blah blah" maxlength="{{ conf.limits.post }}"></textarea>
 </div>
 
 {% include "snippets/generic/page-end.html" %}

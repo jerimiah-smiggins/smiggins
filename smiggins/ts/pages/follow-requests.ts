@@ -38,7 +38,7 @@ function renderFolreqTimeline(
     let el: D = getSnippet("folreq-user", {
       username: user.username,
       bio: [linkify(escapeHTML(user.bio)), 1],
-      display_name: [linkify(escapeHTML(user.display_name)), 1]
+      display_name: [escapeHTML(user.display_name), 1]
     });
 
     el.querySelector("[data-folreq-interaction-accept]")?.addEventListener("click", folreqInteraction);
