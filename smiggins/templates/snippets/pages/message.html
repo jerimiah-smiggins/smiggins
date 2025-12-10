@@ -1,0 +1,16 @@
+{% include "snippets/generic/page-start.html" with active_page="messages" %}
+
+<div id="messages-container">
+  <a class="back-link plain-link" href="/messages/" data-internal-link="message-list">@{icon_back} Messages</a>
+  <hr class="no-margin-top no-margin-bottom">
+
+  <div id="messages-timeline-container">
+    <button id="timeline-more" hidden>Load More</button>
+    <div id="timeline-posts"></div>
+  </div>
+
+  <hr class="no-margin-top no-margin-bottom">
+  <textarea id="messages-compose" placeholder="Blah blah blah"></textarea>
+</div>
+
+{% include "snippets/generic/page-end.html" %}

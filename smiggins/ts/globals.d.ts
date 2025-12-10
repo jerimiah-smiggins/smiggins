@@ -112,6 +112,13 @@ type MessageList = {
   }
 };
 
+type Message = {
+  timestamp: number,
+  content: string,
+  username: string,
+  display_name: string
+}
+
 type TimelineConfig = {
   url: string,
   prependPosts: boolean | number,

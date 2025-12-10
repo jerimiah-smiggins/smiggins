@@ -23,6 +23,7 @@ function urlToIntent(path: string): intent {
       case isAdmin && "/admin/": return "admin";
 
       case /^\/tag\/[a-z0-9_]+\/$/.test(path) ? path : "": return "hashtag";
+      case /^\/message\/[0-9]+\/$/.test(path) ? path : "": return "message";
     }
   } else {
     switch (path) {

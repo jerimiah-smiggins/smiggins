@@ -346,9 +346,9 @@ POST /api/message/{group_id}:
   request:
   - { type: str16, name: "Message content" }
   response:
-  - { type: int64, name: "Timestamp", loop: msg_count }
-  - { type: str16, name: "Message content", loop: msg_count }
-  - { type: str8, name: "Author display name", loop: msg_count }
+  - { type: int64, name: "Timestamp" }
+  - { type: str16, name: "Message content" }
+  - { type: str8, name: "Author display name" }
 
 GET /api/message/group:
   description: "Returns the group id for the group with the specified members"

@@ -508,12 +508,40 @@ function parseResponse(
       }
 
       if (forwards) {
-        handleMessageListForward(messageListItems, end, "messages", true);
+        handleMessageListForward(messageListItems, end, "message_list", true);
       } else {
         renderMessageListTimeline(messageListItems, end, false);
       }
       break;
 
+    case ResponseCodes.MessageTimeline:
+      end = _extractBool(u8arr[2], 7);
+      forwards = _extractBool(u8arr[2], 6);
+      let numMessages: number = u8arr[3];
+      let messages: Message[] = [];
+      u8arr = u8arr.slice(4);
+
+      for (let i: number = 0; i < numMessages; i++) {
+        let ts: number = _extractInt(64, u8arr);
+        let content: [string, Uint8Array] = _extractString(16, u8arr.slice(8));
+        let username: [string, Uint8Array] = _extractString(8, content[1]);
+        let displayName: [string, Uint8Array] = _extractString(8, username[1]);
+        u8arr = displayName[1];
+
+        messages.push({
+          timestamp: ts,
+          content: content[0],
+          username: username[0],
+          display_name: displayName[0]
+        });
+      }
+
+      if (forwards) {
+        handleMessageForward(messages, end, "message", true);
+      } else {
+        renderMessageTimeline(messages, end, false);
+      }
+      break;
 
     case ResponseCodes.TimelineUser:
       displayName = _extractString(8, u8arr.slice(2));

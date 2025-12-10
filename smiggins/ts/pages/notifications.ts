@@ -24,9 +24,6 @@ function p_notifications(element: D): void {
 function _getLikeNotification(posts: Post[]): D {
   let recentTimestamp: number = 0;
   let users: string[] = posts.map((a: Post, index: number): [string | null, string] | null => {
-    if (!offset.lower || a.timestamp < offset.lower) { offset.lower = a.timestamp; }
-    if (!offset.upper || a.timestamp > offset.upper) { offset.upper = a.timestamp; }
-
     if (a.timestamp > recentTimestamp) { recentTimestamp = a.timestamp; }
 
     if (index > NUM_USERS_LIKE_NOTIF) { return null; }
@@ -75,7 +72,7 @@ function _getLikeNotification(posts: Post[]): D {
 function renderNotificationTimeline(
   posts: [Post, notificationType: number][],
   end: boolean,
-  updateCache: boolean,
+  _: boolean,
   moreElementOverride?: el,
   prepend: boolean=false
 ): void {
@@ -97,6 +94,9 @@ function renderNotificationTimeline(
   let pendingLikeOrder: number[] = [];
   let previousRead: boolean = false;
   for (const post of posts) {
+    if (!offset.lower || post[0].timestamp < offset.lower) { offset.lower = post[0].timestamp; }
+    if (!offset.upper || post[0].timestamp > offset.upper) { offset.upper = post[0].timestamp; }
+
     let nc: NotificationCodes = post[1] & 0b01111111;
     let read: boolean = !(post[1] & 0x80);
 
@@ -134,7 +134,7 @@ function renderNotificationTimeline(
         pendingLikeOrder = [];
       }
 
-      let el: D = getPost(insertIntoPostCache([post[0]])[0]);
+      let el: D = getPost(insertIntoPostCache([post[0]])[0], false);
       if (read) { el.dataset.notificationRead = ""; }
       frag.append(el);
     }
