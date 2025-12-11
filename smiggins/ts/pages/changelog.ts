@@ -5,7 +5,7 @@ function _getChanges(version: string, changes: VersionData["changes"]): string {
 
 function _getVersionSpotlight(spotlight: VersionData["major_changes"]): string {
   if (!spotlight) { return ""; }
-  let list: string = spotlight?.map((a): string => (`<div>${a.icon ? Icons[a.icon] : ""}${a.info}</div>`)).join("") || "";
+  let list: string = spotlight?.map((a): string => (`<div>${a.icon ? icons[a.icon] : ""}${a.info}</div>`)).join("") || "";
   return list && `<div class="version-spotlight">${list}</div>`;
 }
 

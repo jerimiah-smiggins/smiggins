@@ -1,17 +1,5 @@
 const MESSAGE_SEPARATION_TIMESTAMP_THRESHOLD: number = 600; // 10 minutes
 const MESSAGE_PREPEND_SCROLL_DOWN_THRESHOLD: number = 16;
-let messageListTLCache: {
-  offset: { lower: number | null, upper: number | null },
-  items: MessageList[],
-  end: boolean
-} = {
-  offset: {
-    lower: null,
-    upper: null
-  },
-  items: [],
-  end: false
-};
 
 let previousMessageLabel: [Message, D] | null = null;
 let firstMessage: Message | null = null;
@@ -29,10 +17,7 @@ function p_messageList(element: D): void {
     message_list: { api: api_MessageGroupTimeline, disableCaching: true, prependPosts: false, customRender: renderMessageListTimeline, customForward: handleMessageListForward }
   }, "message_list", element);
 
-  if (messageListTLCache.items.length) {
-    offset = { ...messageListTLCache.offset };
-    renderMessageListTimeline(messageListTLCache.items, messageListTLCache.end, false);
-  }
+  element.querySelector("#message-new")?.addEventListener("click", newMessageModal);
 }
 
 function p_message(element: D): void {
@@ -126,15 +111,10 @@ function renderMessageListTimeline(
     }
   }
 
-  messageListTLCache.offset = { ...offset };
-
   if (prepend) {
     tlElement.prepend(frag);
-    messageListTLCache.items = groups.concat(messageListTLCache.items);
   } else {
     tlElement.append(frag);
-    messageListTLCache.items.push(...groups);
-    messageListTLCache.end = end;
 
     let more: el = moreElementOverride || document.getElementById("timeline-more");
     if (more) {
@@ -199,11 +179,6 @@ function renderMessageTimeline(
   if (offset.lower === null) {
     fetchNotifications();
     firstMessage = messages[0];
-  }
-
-  let listItem: MessageList[] = messageListTLCache.items.filter((v: MessageList): boolean => (v.unread && v.group_id === getMessageGroupIDFromPath()));
-  for (const i of listItem) {
-    i.unread = false;
   }
 
   if (messages.length === 0) {

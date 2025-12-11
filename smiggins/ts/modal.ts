@@ -123,7 +123,6 @@ function createPostModal(type?: "quote" | "comment" | "edit", id?: number): void
 }
 
 function createUpdateModal(since: string): void {
-  console.log(since);
   if (document.getElementById("modal")) { return; }
 
   document.body.append(getSnippet("update-modal", {
@@ -176,6 +175,37 @@ function modifyKeybindModal(kbId: string): void {
   el.querySelector("#modal")?.addEventListener("click", clearModalIfClicked);
 
   document.addEventListener("keydown", clearModalOnEscape);
+}
+
+function newMessageModal(): void {
+  if (document.getElementById("modal")) { return; }
+
+  document.body.append(getSnippet("message-modal"));
+
+  document.getElementById("message-modal-add")?.addEventListener("click", (): void => {
+    let count: number = document.querySelectorAll("#message-modal-inputs input").length;
+
+    if (count >= 255) {
+      return;
+    }
+
+    document.querySelector("#message-modal-inputs input:not([data-enter-next])")?.setAttribute("data-enter-next", `#message-modal-inputs :nth-child(${count + 1}) input`);
+    document.getElementById("message-modal-inputs")?.insertAdjacentHTML("beforeend", "<div>@<input autofocus data-enter-submit=\"#message-modal-create\" placeholder=\"username\"></div>");
+    (document.querySelector("#message-modal-inputs input:not([data-enter-next])") as el)?.addEventListener("keydown", inputEnterEvent);
+
+    if (count >= 254) {
+      document.getElementById("message-modal-add")?.setAttribute("hidden", "");
+    }
+  });
+
+  document.getElementById("message-modal-create")?.addEventListener("click", (): void => {
+    let usernames: string[] = [...document.querySelectorAll("#message-modal-inputs input") as NodeListOf<I>].map((a: I): string => (a.value.toLowerCase())).filter(Boolean);
+    if (!usernames.length) { return; }
+
+    new api_MessageGetGID(usernames, document.getElementById("message-modal-create") as Bel).fetch();
+  });
+
+  document.getElementById("modal")?.addEventListener("click", clearModalIfClicked);
 }
 
 function postModalCreatePost(e: Event): void {

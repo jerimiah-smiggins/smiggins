@@ -127,7 +127,6 @@ def get_gid(request: HttpRequest, usernames: str) -> HttpResponse:
         return api.error(ErrorCodes.NOT_AUTHENTICATED)
 
     username_list = [i.lower() for i in set(usernames.split(",") + [request.s_user.username])]
-    print(username_list)
 
     if len(username_list) <= 1 or len(username_list) > MAX_USERS_IN_MSG_GROUP:
         return api.error(ErrorCodes.BAD_REQUEST)

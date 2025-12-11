@@ -144,7 +144,7 @@ function userUpdateStats(
           if (pinElement) {
             delete pinElement.dataset.interactionPin;
             pinElement.dataset.interactionUnpin = String(pinned);
-            pinElement.innerHTML = Icons.unpin + " Unpin";
+            pinElement.innerHTML = icons.unpin + " Unpin";
           }
         }
 

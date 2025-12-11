@@ -129,7 +129,7 @@ API_RATELIMITS: dict[str, tuple[int, int]] = {
     "GET /api/message/list": (10, 5),
     "GET /api/messages/": (10, 5),
     "POST /api/message/": (10, 5),
-    "GET /api/message/group": (3, 30),
+    "GET /api/message/group": (3, 120),
 
     "GET /api/notifications": (10, 2),
 }

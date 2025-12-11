@@ -801,11 +801,14 @@ class api_MessageSend extends _api_Base {
       compose.focus();
     }
 
-    timelinePolling(true);
+    if (document.querySelector("#timeline-posts > div")) {
+      timelinePolling(true);
+    } else {
+      reloadTimeline(true);
+    }
   }
 }
 
-// incomplete
 class api_MessageGetGID extends _api_Base {
   id: ResponseCodes = ResponseCodes.MessageGetGID;
   version: number = 0;
@@ -813,16 +816,18 @@ class api_MessageGetGID extends _api_Base {
   url: string = "/api/message/group";
   method: Method = "GET";
 
-  constructor(...usernames: string[]) {
+  constructor(usernames: string[], button?: Bel) {
     super();
+    this.disabled = [button];
     this.requestParams = `usernames=${usernames.join(",")}`;
   }
 
   handle(u8arr: Uint8Array): void {
-    let gid: number = _extractInt(32, u8arr);
+    let gid: number = _extractInt(32, u8arr.slice(2));
 
     history.pushState("message", "", `/message/${gid}/`);
     renderPage("message");
+    clearModal()
   }
 }
 
