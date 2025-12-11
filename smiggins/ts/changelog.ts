@@ -81,5 +81,16 @@ const changes: { [key: string]: VersionData } = {
       "Added an import/export function for settings",
       "Added simple ratelimiting to api requests"
     ]
+  },
+  "1.4.0": {
+    description: "Messages",
+    major_changes: [{
+      info: "You can send people private messages! You can also create group messages with several people at once.",
+      icon: "messages"
+    }],
+    changes: [
+      "Added messages",
+      "Rewrote how the API is handled on the frontend"
+    ]
   }
 };
