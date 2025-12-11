@@ -7,17 +7,12 @@ function adminDeletePost(): void {
     return;
   }
 
-  let postId: number = +pidElement.value;
-
-  fetch("/api/post", {
-    method: "DELETE",
-    body: buildRequest([[postId, 32]])
-  }).then((response: Response): Promise<ArrayBuffer> => (response.arrayBuffer()))
-    .then(parseResponse)
-    .then((): void => createToast("Success!", "This post has been deleted."))
-    .catch((err: any): void => {
-      createToast("Something went wrong!", String(err));
-      throw err;
+  new api_DeletePost(+pidElement.value)
+    .fetch()
+    .then((success: boolean | void): void => {
+      if (success) {
+        createToast("Success!", "This post has been deleted.");
+      }
     });
 }
 
@@ -37,26 +32,11 @@ function adminDeleteUser(): void {
     return;
   }
 
-  fetch("/api/admin/user", {
-    method: "DELETE",
-    body: usernameElement.value
-  }).then((response: Response): Promise<ArrayBuffer> => (response.arrayBuffer()))
-    .then(parseResponse)
-    .catch((err: any): void => {
-      createToast("Something went wrong!", String(err));
-      throw err;
-    });
+  new api_AdminDeleteUser(usernameElement.value).fetch();
 }
 
 function adminCreateOTP(): void {
-  fetch("/api/admin/invite", {
-    method: "POST"
-  }).then((response: Response): Promise<ArrayBuffer> => (response.arrayBuffer()))
-    .then(parseResponse)
-    .catch((err: any): void => {
-      createToast("Something went wrong!", String(err));
-      throw err;
-    });
+  new api_GenerateOTP().fetch();
 }
 
 function adminDeleteOTP(e: Event): void {
@@ -69,28 +49,18 @@ function adminDeleteOTP(e: Event): void {
     item.remove();
   }
 
-  fetch("/api/admin/invite", {
-    method: "DELETE",
-    body: buildRequest([hexToBytes(otp)])
-  }).then((response: Response): Promise<ArrayBuffer> => (response.arrayBuffer()))
-    .then(parseResponse)
-    .catch((err: any): void => {
-      createToast("Something went wrong!", String(err));
-      throw err;
-    });
+  new api_DeleteOTP(otp).fetch()
 }
 
 function adminListOTPs(): void {
   let el: el = document.getElementById("otp-list");
-  if (el) { el.removeAttribute("hidden"); el.innerHTML = "<i>Loading...</i>"; }
 
-  fetch("/api/admin/invite")
-    .then((response: Response): Promise<ArrayBuffer> => (response.arrayBuffer()))
-    .then(parseResponse)
-    .catch((err: any): void => {
-      createToast("Something went wrong!", String(err));
-      throw err;
-    });
+  if (el) {
+    el.removeAttribute("hidden");
+    el.innerHTML = "<i>Loading...</i>";
+  }
+
+  new api_ListOTP().fetch();
 }
 
 function adminLoadPermissions(): void {
@@ -102,13 +72,7 @@ function adminLoadPermissions(): void {
     return;
   }
 
-  fetch(`/api/admin/permissions/${userElement.value}`)
-    .then((response: Response): Promise<ArrayBuffer> => (response.arrayBuffer()))
-    .then(parseResponse)
-    .catch((err: any): void => {
-      createToast("Something went wrong!", String(err));
-      throw err;
-    });
+  new api_GetAdminPermissions(userElement.value).fetch();
 }
 
 function adminSavePermissions(): void {
@@ -128,15 +92,7 @@ function adminSavePermissions(): void {
     }
   }
 
-  fetch("/api/admin/permissions", {
-    method: "POST",
-    body: buildRequest([[val, 16], [userElement.value, 8]])
-  }).then((response: Response): Promise<ArrayBuffer> => (response.arrayBuffer()))
-    .then(parseResponse)
-    .catch((err: any): void => {
-      createToast("Something went wrong!", String(err));
-      throw err;
-    });
+  new api_SetAdminPermissions(userElement.value, val).fetch();
 }
 
 function adminSetPermissionCheckboxes(lvl: number): void {

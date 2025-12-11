@@ -12,8 +12,8 @@ function p_user(element: D): void {
   element.querySelector("#block")?.addEventListener("click", toggleBlock);
 
   hookTimeline(element.querySelector("[id=\"timeline-posts\"]") as D, element.querySelector("#timeline-carousel") as Del, {
-    [tlId]: { url: `/api/timeline/user/${userUsername}`, prependPosts: username === userUsername },
-    [tlId + "+all"]: { url: `/api/timeline/user/${userUsername}?include_comments=true`, prependPosts: username === userUsername }
+    [tlId]: { api: api_TimelineUser, args: [userUsername], prependPosts: username === userUsername },
+    [tlId + "+all"]: { api: api_TimelineUser, args: [userUsername, true], prependPosts: username === userUsername }
   }, tlId, element);
 }
 
@@ -210,19 +210,8 @@ function toggleFollow(e: Event): void {
   if (!followButton) { return; }
 
   let unfollow: boolean = followButton.dataset.unfollow !== undefined;
-  followButton.disabled = true;
 
-  fetch("/api/user/follow", {
-    method: unfollow ? "DELETE" : "POST",
-    body: getUsernameFromPath()
-  }).then((response: Response): Promise<ArrayBuffer> => (response.arrayBuffer()))
-    .then(parseResponse)
-    .then((): void => { followButton.disabled = false; })
-    .catch((err: any) => {
-      followButton.disabled = false;
-      createToast("Something went wrong!", String(err));
-      throw err;
-    });
+  new (unfollow ? api_Unfollow : api_Follow)(getUsernameFromPath(), followButton).fetch()
 }
 
 function toggleBlock(e: Event): void {
@@ -230,7 +219,6 @@ function toggleBlock(e: Event): void {
   if (!blockButton) { return; }
 
   let unblock: boolean = blockButton.dataset.unblock !== undefined;
-  blockButton.disabled = true;
 
   blockUser(
     getUsernameFromPath(),
@@ -240,15 +228,5 @@ function toggleBlock(e: Event): void {
 }
 
 function blockUser(username: string, toBlock: boolean, disable?: B): void {
-  fetch("/api/user/block", {
-    method: toBlock ? "POST" : "DELETE",
-    body: username
-  }).then((response: Response): Promise<ArrayBuffer> => (response.arrayBuffer()))
-    .then(parseResponse)
-    .then((): void => { if (disable) { disable.disabled = false; }})
-    .catch((err: any): void => {
-      if (disable) { disable.disabled = false; }
-      createToast("Something went wrong!", String(err));
-      throw err;
-    });
+  new (toBlock ? api_Block : api_Unblock)(username, disable).fetch()
 }

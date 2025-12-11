@@ -203,17 +203,9 @@ function postModalCreatePost(e: Event): void {
 
   (e.target as Bel)?.setAttribute("disabled", "");
   if (postModalFor && postModalFor.type === "edit") {
-    fetch("/api/post", {
-      method: "PATCH",
-      body: buildRequest([
-        [postModalFor.id, 32],
-        privatePost,
-        [content, 16],
-        [cw, 8]
-      ])
-    }).then((response: Response): Promise<ArrayBuffer> => (response.arrayBuffer()))
-      .then((ab: ArrayBuffer): ArrayBuffer => {
-        let success: boolean = !((new Uint8Array(ab)[0] >> 7) & 1);
+    new api_EditPost(postModalFor.id, content, cw, privatePost, e.target as Bel)
+      .fetch()
+      .then((success: boolean | void): void => {
         if (success && postModalFor) {
           let p: Post | undefined = postCache[postModalFor.id];
           clearModal();
@@ -230,17 +222,7 @@ function postModalCreatePost(e: Event): void {
           }
         } else {
           contentElement.focus();
-          (e.target as Bel)?.removeAttribute("disabled");
         }
-
-        return ab;
-      })
-      .then(parseResponse)
-      .catch((err: any): void => {
-        contentElement.focus();
-        (e.target as Bel)?.removeAttribute("disabled");
-
-        throw err;
       });
   } else {
     let extra: {

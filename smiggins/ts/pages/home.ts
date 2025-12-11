@@ -1,9 +1,9 @@
 function p_home(element: D): void {
   hookTimeline(element.querySelector("[id=\"timeline-posts\"]") as D, element.querySelector("#timeline-carousel") as Del, {
-    following: { url: "/api/timeline/following", prependPosts: true },
-    global: { url: "/api/timeline/global", prependPosts: true },
-    following__comments: { url: "/api/timeline/following?comments=true", prependPosts: true },
-    global__comments: { url: "/api/timeline/global?comments=true", prependPosts: true }
+    following: { api: api_TimelineFollowing, prependPosts: true },
+    global: { api: api_TimelineGlobal, prependPosts: true },
+    following__comments: { api: api_TimelineFollowing, args: [true], prependPosts: true },
+    global__comments: { api: api_TimelineGlobal, args: [true], prependPosts: true }
   }, "global", element);
 
   element.querySelector("#post")?.addEventListener("click", homeCreatePost);

@@ -4,7 +4,7 @@ function p_folreq(element: D): void {
   if (!timelineElement) { return; }
 
   hookTimeline(timelineElement, null, {
-    "follow-requests": { url: "/api/timeline/follow-requests", disableCaching: true, disablePolling: true, prependPosts: false, customRender: renderFolreqTimeline }
+    "follow-requests": { api: api_TimelineFolreq, disableCaching: true, disablePolling: true, prependPosts: false, customRender: renderFolreqTimeline }
   }, "follow-requests", element);
 }
 
@@ -61,15 +61,7 @@ function folreqInteraction(e: Event): void {
     let username: string = el.dataset.folreqInteractionAccept || el.dataset.folreqInteractionDeny || "";
     document.querySelector(`[data-folreq-remove="${username}"]`)?.remove();
 
-    fetch("/api/user/follow-request", {
-      method: el.dataset.folreqInteractionAccept ? "POST" : "DELETE",
-      body: username
-    }).then((response: Response): Promise<ArrayBuffer> => (response.arrayBuffer()))
-      .then(parseResponse)
-      .catch((err: any): void => {
-        createToast("Something went wrong!", String(err));
-        throw err;
-      });
+    new (el.dataset.folreqInteractionAccept ? api_AcceptFollowRequest : api_DenyFollowRequest)(username).fetch();
   } else if (el.dataset.folreqInteractionBlock) {
     document.querySelector(`[data-folreq-remove="${el.dataset.folreqInteractionBlock}"]`)?.remove();
     blockUser(el.dataset.folreqInteractionBlock, true);

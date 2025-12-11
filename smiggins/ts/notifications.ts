@@ -9,12 +9,7 @@ let pendingNotifications: {
 };
 
 function fetchNotifications(): void {
-  fetch("/api/notifications")
-    .then((response: Response): Promise<ArrayBuffer> => (response.arrayBuffer()))
-    .then(parseResponse)
-    .catch((err) => {
-      console.log("timeline polling error", err);
-    });
+  new api_Notifications().fetch();
 }
 
 function resetNotificationIndicators(): void {

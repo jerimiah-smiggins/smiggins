@@ -34,6 +34,7 @@ type Icons = "back"
 
 type KeybindModifiers = "ctrl" | "shift" | "alt" | "nav";
 type Themes = "light" | "dark" | "warm" | "gray" | "darker" | "oled" | "system";
+type Method = "GET" | "POST" | "PATCH" | "DELETE";
 
 type VersionData = {
   description: string,
@@ -120,7 +121,9 @@ type Message = {
 }
 
 type TimelineConfig = {
-  url: string,
+  api: new (offset: number | null, forwards: boolean | "force", ...args: any) => _api_Base,
+  args?: any[],
+  // url: string,
   prependPosts: boolean | number,
   disablePolling?: true,
   disableCaching?: true,

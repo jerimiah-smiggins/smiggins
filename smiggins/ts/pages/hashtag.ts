@@ -9,7 +9,7 @@ function p_hashtag(element: D): void {
   if (!timelineElement || !tag) { return; }
 
   hookTimeline(timelineElement, element.querySelector("#timeline-carousel") as Del, {
-    [`hashtag_${tag}_recent`]: { url: `/api/timeline/tag/${tag}?sort=recent`, prependPosts: false },
-    [`hashtag_${tag}_oldest`]: { url: `/api/timeline/tag/${tag}?sort=oldest`, prependPosts: false, disablePolling: true, invertOffset: true },
+    [`hashtag_${tag}_recent`]: { api: api_TimelineHashtag, args: [getHashtagFromPath(), "recent"], prependPosts: false },
+    [`hashtag_${tag}_oldest`]: { api: api_TimelineHashtag, args: [getHashtagFromPath(), "oldest"], prependPosts: false, disablePolling: true, invertOffset: true },
   }, `hashtag_${tag}_recent`, element);
 }

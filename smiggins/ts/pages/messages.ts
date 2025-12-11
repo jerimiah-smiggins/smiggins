@@ -26,7 +26,7 @@ function p_messageList(element: D): void {
   if (!timelineElement) { return; }
 
   hookTimeline(timelineElement, null, {
-    message_list: { url: "/api/message/list", disableCaching: true, prependPosts: false, customRender: renderMessageListTimeline, customForward: handleMessageListForward }
+    message_list: { api: api_MessageGroupTimeline, disableCaching: true, prependPosts: false, customRender: renderMessageListTimeline, customForward: handleMessageListForward }
   }, "message_list", element);
 
   if (messageListTLCache.items.length) {
@@ -43,7 +43,7 @@ function p_message(element: D): void {
   if (!timelineElement) { return; }
 
   hookTimeline(timelineElement, null, {
-    message: { url: `/api/messages/${getMessageGroupIDFromPath()}`, disableCaching: true, prependPosts: false, customRender: renderMessageTimeline, customForward: handleMessageForward }
+    message: { api: api_MessageTimeline, args: [getMessageGroupIDFromPath()], disableCaching: true, prependPosts: false, customRender: renderMessageTimeline, customForward: handleMessageForward }
   }, "message", element);
 
   (element.querySelector("#messages-compose") as Iel)?.addEventListener("keydown", messageComposeHandler);
@@ -54,19 +54,7 @@ function messageComposeHandler(e: KeyboardEvent): void {
     let compose: Iel = document.getElementById("messages-compose") as Iel;
 
     if (compose && compose.value) {
-      compose.disabled = true;
-
-      fetch(`/api/message/${getMessageGroupIDFromPath()}`, {
-        method: "POST",
-        body: buildRequest([[compose.value, 16]])
-      }).then((response: Response): Promise<ArrayBuffer> => (response.arrayBuffer()))
-        .then(parseResponse)
-        .catch((err: any): never => {
-          createToast("Something went wrong!", String(err));
-          compose.disabled = false;
-          throw err;
-        });
-
+      new api_MessageSend(getMessageGroupIDFromPath(), compose.value, compose).fetch()
       e.preventDefault();
     }
   }

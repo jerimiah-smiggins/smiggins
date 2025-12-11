@@ -19,7 +19,7 @@ function hexToBytes(hex: string): Uint8Array {
   return arr;
 }
 
-function buildRequest(data: (Uint8Array | boolean | [number, bits: 8 | 16 | 32 | 64] | [string, lengthBits: 8 | 16])[]): ArrayBuffer {
+function buildRequest(...data: (Uint8Array | boolean | [number, bits: 8 | 16 | 32 | 64] | [string, lengthBits: 8 | 16])[]): ArrayBuffer {
   let response: number[] = [];
   let boolPendingData: number = 0
   let numBools: number = 0

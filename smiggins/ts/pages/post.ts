@@ -123,8 +123,8 @@ function p_postPage(element: D): void {
   }
 
   hookTimeline(timelineElement, element.querySelector("#timeline-carousel") as Del, {
-    [`post_${pid}_recent`]: { url: `/api/timeline/post/${pid}?sort=recent`, prependPosts: pid },
-    [`post_${pid}_oldest`]: { url: `/api/timeline/post/${pid}?sort=oldest`, prependPosts: false, disablePolling: true, invertOffset: true },
+    [`post_${pid}_recent`]: { api: api_TimelineComments, args: [pid, "recent"], prependPosts: pid },
+    [`post_${pid}_oldest`]: { api: api_TimelineComments, args: [pid, "oldest"], prependPosts: false, disablePolling: true, invertOffset: true },
     // [`post_${pid}_random`]: { url: `/api/timeline/post/${pid}?sort=random`, prependPosts: pid, disablePolling: true, disableCaching: true }
   }, `post_${pid}_recent`, element);
 

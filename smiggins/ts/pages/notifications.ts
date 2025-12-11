@@ -17,7 +17,7 @@ function p_notifications(element: D): void {
   if (!timelineElement) { return; }
 
   hookTimeline(timelineElement, null, {
-    notifications: { url: "/api/timeline/notifications", disableCaching: true, prependPosts: false, customRender: renderNotificationTimeline, customForward: handleNotificationForward }
+    notifications: { api: api_TimelineNotifications, disableCaching: true, prependPosts: false, customRender: renderNotificationTimeline, customForward: handleNotificationForward }
   }, "notifications", element);
 }
 

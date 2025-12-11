@@ -78,7 +78,7 @@ function reloadTimeline(ignoreCache: boolean=false, element?: D): void {
     for (const post of cache.posts) {
       let p: Post | undefined = postCache[post];
       let u: UserData | undefined = p && userCache[p.user.username];
-      if (currentTl.url.startsWith("user_") || !u || !u.blocking) {
+      if (currentTl.api === api_TimelineUser || !u || !u.blocking) {
         posts.push(post);
       }
     }
@@ -99,13 +99,7 @@ function reloadTimeline(ignoreCache: boolean=false, element?: D): void {
   offset.upper = null;
   offset.lower = null;
 
-  fetch(currentTl.url)
-    .then((response: Response): Promise<ArrayBuffer> => (response.arrayBuffer()))
-    .then(parseResponse)
-    .catch((err: any): void => {
-      createToast("Something went wrong!", String(err));
-      throw err;
-    });
+  new currentTl.api(null, false, ...(currentTl.args || [])).fetch();
 }
 
 // takes a list of posts and updates the post cache, returning a list of post ids
@@ -127,16 +121,13 @@ function loadMorePosts(): void {
 
   tlElement.insertAdjacentHTML("beforeend", LOADING_HTML);
 
-  fetch(`${currentTl.url}${currentTl.url.includes("?") ? "&" : "?"}offset=${currentTl.invertOffset ? offset.upper : offset.lower}`)
-    .then((response: Response): Promise<ArrayBuffer> => (response.arrayBuffer()))
-    .then(parseResponse)
-    .catch((err: any): void => {
-      createToast("Something went wrong!", String(err));
-
-      if (more) { more.hidden = false; }
-      clearTimelineStatuses();
-
-      throw err;
+  new currentTl.api(currentTl.invertOffset ? offset.upper : offset.lower, false, ...(currentTl.args || []))
+    .fetch()
+    .then((success: boolean | void): void => {
+      if (typeof success !== "boolean") {
+        if (more) { more.hidden = false; }
+        clearTimelineStatuses();
+      }
     });
 }
 
@@ -240,14 +231,28 @@ function switchTimeline(e: MouseEvent): void {
   let el: Del = e.target as Del;
   if (!el) { return; }
 
-  if (el.dataset.timelineId && el.dataset.timelineId in timelines && timelines[el.dataset.timelineId].url !== currentTl.url) {
-    _setTimeline(el.dataset.timelineId);
+  if (
+    el.dataset.timelineId
+ && el.dataset.timelineId in timelines) {
+    let newTl: TimelineConfig = timelines[el.dataset.timelineId.split("__")[0] + timelineToggles.map((a: string): string => ("__" + a)).join("")];
 
-    let carousel: Del = document.querySelector("[data-timeline-store]");
-    if (carousel && carousel.dataset.timelineStore) {
-      localStorage.setItem("smiggins-" + carousel.dataset.timelineStore, el.dataset.timelineId);
+    if (
+      newTl.api !== currentTl.api
+   || typeof newTl.args !== typeof currentTl.args
+   || (newTl.args && currentTl.args && (newTl.args.length !== currentTl.args.length || newTl.args.map(
+        // @ts-ignore
+        (a: any, i: number): boolean => (a === currentTl.args[i])
+      ).filter(Boolean).length !== newTl.args.length))
+    ) {
+      _setTimeline(el.dataset.timelineId);
+
+      let carousel: Del = document.querySelector("[data-timeline-store]");
+      if (carousel && carousel.dataset.timelineStore) {
+        localStorage.setItem("smiggins-" + carousel.dataset.timelineStore, el.dataset.timelineId);
+      }
     }
-  }
+
+ }
 
   for (const el of document.querySelectorAll("[data-timeline-active]:not([data-timeline-toggle])")) {
     delete (el as D).dataset.timelineActive;
@@ -287,25 +292,11 @@ function toggleTimeline(e: MouseEvent): void {
 }
 
 function pollVote(pid: number, option: number): void {
-  fetch("/api/post/poll", {
-    method: "POST",
-    body: buildRequest([[pid, 32], [option, 8]])
-  }).then((response: Response): Promise<ArrayBuffer> => (response.arrayBuffer()))
-    .then(parseResponse)
-    .catch((err: any) => {
-      createToast("Something went wrong!", String(err));
-      throw err;
-    });
+  new api_PollVote(pid, option).fetch();
 }
 
 function refreshPollData(pid: number): void {
-  fetch(`/api/post/poll/${pid}`)
-    .then((response: Response): Promise<ArrayBuffer> => (response.arrayBuffer()))
-    .then(parseResponse)
-    .catch((err: any) => {
-      createToast("Something went wrong!", String(err));
-      throw err;
-    });
+  new api_PollRefresh(pid).fetch();
 }
 
 function refreshPollDisplay(pid: number, forceVotedView: boolean=false): void {
@@ -557,11 +548,9 @@ function timelinePolling(forceEvent: boolean=false): void {
     forceEvent = true;
   }
 
-  fetch(`${currentTl.url}${currentTl.url.includes("?") ? "&" : "?"}offset=${currentTl.invertOffset ? offset.lower : offset.upper}&forwards=true`)
-    .then((response: Response): Promise<ArrayBuffer> => (response.arrayBuffer()))
-    .then((ab: ArrayBuffer): void => (parseResponse(ab, (forceEvent ? "$" : "") + currentTlID)))
-    .catch((err: any): void => {
-      console.log("Something went wrong polling", err)
+  new currentTl.api(currentTl.invertOffset ? offset.lower : offset.upper, forceEvent ? "force" : true, ...(currentTl.args || []))
+    .fetch()
+    .then((success: boolean | void): void => {
       tlPollingPendingResponse = false;
     });
 }
@@ -614,48 +603,17 @@ function postButtonClick(e: Event): void {
       }
     }
 
-    fetch(`/api/post/like/${postId}`, {
-      method: liked ? "DELETE" : "POST"
-    }).then((response: Response): Promise<ArrayBuffer> => (response.arrayBuffer()))
-      .then(parseResponse)
-      .catch((err: any) => {
-        createToast("Something went wrong!", String(err));
-        throw err;
-      });
+    new (liked ? api_Unlike : api_Like)(postId).fetch();
   } else if (el.dataset.interactionEdit) {
     createPostModal("edit", +el.dataset.interactionEdit);
   } else if (el.dataset.interactionPin) {
     let postId: number = +el.dataset.interactionPin;
-
-    fetch(`/api/post/pin/${postId}`, {
-      method: "POST"
-    }).then((response: Response): Promise<ArrayBuffer> => (response.arrayBuffer()))
-      .then(parseResponse)
-      .catch((err: any) => {
-        createToast("Something went wrong!", String(err));
-        throw err;
-      });
+    new api_Pin(postId).fetch();
   } else if (el.dataset.interactionUnpin) {
-    fetch("/api/post/pin", {
-      method: "DELETE"
-    }).then((response: Response): Promise<ArrayBuffer> => (response.arrayBuffer()))
-      .then(parseResponse)
-      .catch((err: any) => {
-        createToast("Something went wrong!", String(err));
-        throw err;
-      });
+    new api_Unpin().fetch();
   } else if (el.dataset.interactionDelete) {
     let postId: number = +el.dataset.interactionDelete;
-
-    fetch("/api/post", {
-      method: "DELETE",
-      body: buildRequest([[postId, 32]])
-    }).then((response: Response): Promise<ArrayBuffer> => (response.arrayBuffer()))
-      .then(parseResponse)
-      .catch((err: any) => {
-        createToast("Something went wrong!", String(err));
-        throw err;
-      });
+    new api_DeletePost(postId).fetch();
   } else if (el.dataset.interactionShare) {
     let postId: number = +el.dataset.interactionShare;
     if (!navigator.clipboard) {
@@ -693,29 +651,10 @@ function createPost(
     comment?: number
   }
 ): void {
-  fetch("/api/post", {
-    method: "POST",
-    body: buildRequest([
-      followersOnly,
-      Boolean(extra && extra.quote),
-      Boolean(extra && extra.poll && extra.poll.length),
-      Boolean(extra && extra.comment),
-      [content, 16],
-      [cw || "", 8],
-      ...((extra && extra.poll && extra.poll.length) ? [[extra.poll.length, 8] as [number, 8], ...extra.poll.map((a: string): [string, 8] => ([a, 8]))] : []),
-      ...((extra && extra.quote) ? [[extra.quote, 32] as [number, 32]] : []),
-      ...((extra && extra.comment) ? [[extra.comment, 32] as [number, 32]] : [])
-    ])
-  }).then((response: Response): Promise<ArrayBuffer> => (response.arrayBuffer()))
-    .then((ab: ArrayBuffer): ArrayBuffer => {
-      callback && callback(!((new Uint8Array(ab)[0] >> 7) & 1));
-      return ab;
-    })
-    .then(parseResponse)
-    .catch((err: any): void => {
-      callback && callback(false);
-      createToast("Something went wrong!", String(err));
-      throw err;
+  new api_CreatePost(content, cw, followersOnly, extra)
+    .fetch()
+    .then((success: boolean | void): void => {
+      if (callback) { callback(Boolean(success)); }
     });
 }
 
