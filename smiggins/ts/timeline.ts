@@ -318,9 +318,7 @@ function getPollHTML(poll: Post["poll"], pid: number, forceVotedView: boolean=fa
   let c: number = 0;
 
   for (const item of poll.items) {
-    output += `<div ${voted ? "" : `onclick="pollVote(${pid}, ${c})"`} class="poll-bar ${votedClass}" style="--poll-width: ${item.percentage}%;" ${item.voted || !loggedIn ? "data-vote" : ""}>
-      <div class="poll-bar-text">${voted ? `${item.percentage}% - ` : ""}${escapeHTML(item.content)}</div>
-    </div>`;
+    output += `<div ${voted ? "" : `onclick="pollVote(${pid}, ${c})"`} class="poll-bar ${votedClass}" style="--poll-width: ${item.percentage}%;" ${item.voted || !loggedIn ? "data-vote" : ""}><div class="poll-bar-text">${voted ? `${item.percentage}% - ` : ""}${escapeHTML(item.content)}</div></div>`;
     c++;
   }
 
