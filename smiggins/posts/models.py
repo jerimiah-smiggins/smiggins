@@ -6,8 +6,8 @@ from django.db import models
 from django.db.models.signals import post_delete
 from django.dispatch import receiver
 
-MAX_STR8 = 1 << 8 - 1
-MAX_STR16 = 1 << 16 - 1
+MAX_STR8 = (1 << 8) - 1
+MAX_STR16 = (1 << 16) - 1
 
 class User(models.Model):
     user_id = models.IntegerField(primary_key=True, unique=True)
