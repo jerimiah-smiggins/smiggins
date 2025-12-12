@@ -16,7 +16,7 @@
     <div><input data-enter-next="#post-content" data-enter-submit="#post" id="post-cw" placeholder="Content warning (optional)" maxlength="{{ conf.max_length.cw }}"></div>
     <div><textarea data-enter-next="!avoid" data-enter-submit="#post" id="post-content" placeholder="Cool comment" maxlength="{{ conf.max_length.post }}"></textarea></div>
     <div class="post-options">
-      <div><label><input type="checkbox" id="post-private" @{checked_if_default_private}> Followers only</label></div>
+      <div><label><input type="checkbox" id="post-private" @{checked_if_private}> Followers only</label></div>
       <div class="flex-spacer"></div>
       <div><button data-button-alt-colors id="post">Reply</button></div>
     </div>

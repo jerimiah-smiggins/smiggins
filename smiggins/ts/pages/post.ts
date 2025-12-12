@@ -37,11 +37,15 @@ function updateFocusedPost(post: Post): void {
   let commentElement: HTMLTextAreaElement | null = document.getElementById("post-content") as HTMLTextAreaElement | null;
   let cwInputElement: Iel = document.getElementById("post-cw") as Iel;
 
-  let p: Post | undefined = postCache[pid];
-  if (!commentBoxValueSet && commentElement && !commentElement.value && cwInputElement && !cwInputElement.value && p) {
+  if (!commentBoxValueSet && commentElement && !commentElement.value && cwInputElement && !cwInputElement.value) {
     commentBoxValueSet = true;
-    commentElement.value = getPostMentionsString(p);
-    cwInputElement.value = getPostTemplatedCW(p);
+    commentElement.value = getPostMentionsString(post);
+    cwInputElement.value = getPostTemplatedCW(post);
+
+    if (post.private || defaultPostPrivate) {
+      document.querySelector("#post-private:not([data-private-set])")?.setAttribute("checked", "");
+    }
+    document.querySelector("#post-private:not([data-private-set])")?.setAttribute("data-private-set", "");
   }
 }
 

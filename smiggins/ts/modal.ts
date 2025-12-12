@@ -42,6 +42,7 @@ function createPostModal(type?: "quote" | "comment" | "edit", id?: number): void
       private_post: post.private ? "data-private-post" : "",
       username: post.user.username,
       timestamp: getTimestamp(post.timestamp),
+      checked_if_private: (defaultPostPrivate || ((type === "comment" || type === "quote") && post.private)) ? "checked" : "",
 
       content: [simplePostContent(post), 1],
       display_name: [escapeHTML(post.user.display_name), 1],
