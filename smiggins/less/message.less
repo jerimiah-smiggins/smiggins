@@ -102,3 +102,9 @@
     outline: none !important;
   }
 }
+
+@media screen and (max-width: @mobile-scale-threshold) {
+  #messages-container {
+    height: calc(100vh - @navbar-item-height - 2 * @navbar-item-vertical-padding);
+  }
+}
