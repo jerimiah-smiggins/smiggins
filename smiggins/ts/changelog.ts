@@ -90,7 +90,9 @@ const changes: { [key: string]: VersionData } = {
     }],
     changes: [
       "Added messages",
-      "Rewrote how the API is handled on the frontend"
+      "Rewrote how the API is handled on the frontend",
+      "Fixed a bug that caused the default visibility setting to not populate on comments",
+      "Comments are now always followers-only by default if the original post is followers-only"
     ]
   }
 };
