@@ -104,6 +104,8 @@ function renderPage(intent: intent): void {
   let extraVariables: { [key: string]: string | [string, number] } = {};
   let c: UserData | undefined;
 
+  clearModal();
+
   switch (intent) {
     case "home":
       extraVariables = {

@@ -40,7 +40,7 @@ function urlReplacements(str: string, repl: Replacement[]): string {
 }
 
 // takes in an ESCAPED string and adds any needed links to it.
-function linkify(str: string, postID?: number): string {
+function linkify(str: string, postIDOrUsername?: number | string): string {
   let urlReplacement: Replacement[] = [];
 
   for (const url of str.matchAll(urlRegex)) {
@@ -79,8 +79,8 @@ function linkify(str: string, postID?: number): string {
     }
   }
 
-  if (postID) {
-    let href: string = `/p/${postID}/`;
+  if (postIDOrUsername) {
+    let href: string = typeof postIDOrUsername === "number" ? `/p/${postIDOrUsername}/` : `/u/${postIDOrUsername}`;
     let newReplacements: Replacement[] = [];
     let textIndex: number = 0;
 

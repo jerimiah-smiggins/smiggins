@@ -1,4 +1,5 @@
 const colorRegex = /^#[0-9a-f]{6}$/;
+let followingTimelineOffset: number | null = null;
 
 function getUsernameFromPath(path?: string): string {
   return (path || location.pathname).toLowerCase().split("/").filter(Boolean)[1];
@@ -10,6 +11,8 @@ function p_user(element: D): void {
 
   element.querySelector("#follow")?.addEventListener("click", toggleFollow);
   element.querySelector("#block")?.addEventListener("click", toggleBlock);
+  element.querySelector("#following-popup")?.addEventListener("click", (): void => (createFollowingModal("following", userUsername)));
+  element.querySelector("#followers-popup")?.addEventListener("click", (): void => (createFollowingModal("followers", userUsername)));
 
   hookTimeline(element.querySelector("[id=\"timeline-posts\"]") as D, element.querySelector("#timeline-carousel") as Del, {
     [tlId]: { api: api_TimelineUser, args: [userUsername], prependPosts: username === userUsername },
@@ -229,4 +232,62 @@ function toggleBlock(e: Event): void {
 
 function blockUser(username: string, toBlock: boolean, disable?: B): void {
   new (toBlock ? api_Block : api_Unblock)(username, disable).fetch()
+}
+
+function hookFollowingTimeline(type: "following" | "followers", username: string): void {
+  let tlElement: el = document.getElementById("modal-following-timeline");
+  if (!tlElement) { return; }
+
+  followingTimelineOffset = null;
+  loadFollowingTimeline(type, username);
+
+  document.getElementById("modal-timeline-more")?.addEventListener("click", (): void => (loadFollowingTimeline(type, username)));
+}
+
+function loadFollowingTimeline(type: "following" | "followers", username: string): void {
+  document.getElementById("modal-timeline-more")?.setAttribute("hidden", "");
+  document.getElementById("modal-following-timeline")?.insertAdjacentHTML("beforeend", LOADING_HTML);
+
+  new (type === "following" ? api_TimelineUserFollowing : api_TimelineUserFollowers)(followingTimelineOffset, username).fetch();
+}
+
+function renderFollowingTimeline(users: FollowRequestUserData[], end: boolean): void {
+  let el: el = document.getElementById("modal-following-timeline");
+  if (!el) { return; }
+
+  let frag: DocumentFragment = document.createDocumentFragment();
+
+  clearTimelineStatuses(el);
+
+  if (followingTimelineOffset === null && users.length === 0) {
+    if (el) { el.innerHTML = "<i class=\"timeline-status\">None</i>"; }
+  }
+
+  for (const u of users) {
+    let el: D = getSnippet("folreq-user", {
+      username: u.username,
+      banner_one: u.color_one,
+      banner_two: u.color_two,
+      hidden_if_no_pronouns: u.pronouns ? "" : "hidden",
+      bio: [u.bio ? linkify(escapeHTML(u.bio), u.username) : "<i>No bio set</i>", 1],
+      pronouns: [escapeHTML(u.pronouns || ""), 1],
+      display_name: [escapeHTML(u.display_name), 1]
+    });
+
+    el.querySelector(".folreq-interactions")?.remove();
+
+    frag.append(el);
+
+    if (followingTimelineOffset === null || u.id < followingTimelineOffset) {
+      followingTimelineOffset = u.id;
+    }
+  }
+
+  el?.append(frag);
+
+  if (end) {
+    document.getElementById("modal-timeline-more")?.setAttribute("hidden", "");
+  } else {
+    document.getElementById("modal-timeline-more")?.removeAttribute("hidden");
+  }
 }

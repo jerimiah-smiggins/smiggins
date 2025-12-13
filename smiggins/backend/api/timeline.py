@@ -4,13 +4,14 @@ from django.db.models import Model, Q
 from django.db.models.manager import BaseManager
 from django.http import HttpResponse
 from posts.middleware.ratelimit import s_HttpRequest as HttpRequest
-from posts.models import Hashtag, M2MPending, Notification, Post, User
+from posts.models import Hashtag, M2MFollow, M2MPending, Post, User
 
 from ..variables import POSTS_PER_REQUEST
 from .format import (ErrorCodes, api_TimelineComments, api_TimelineFollowing,
                      api_TimelineFolreq, api_TimelineGlobal,
                      api_TimelineHashtag, api_TimelineNotifications,
-                     api_TimelineSearch, api_TimelineUser)
+                     api_TimelineSearch, api_TimelineUser,
+                     api_TimelineUserFollowers, api_TimelineUserFollowing)
 
 T = TypeVar("T", bound="Model")
 
@@ -157,12 +158,7 @@ def tl_notifications(request: HttpRequest, offset: int | None=None, forwards: bo
 
     api.set_response(end, forwards, notifications, request.s_user)
 
-    unread_notifications = request.s_user.notifications.filter(read=False)
-
-    for notif in unread_notifications:
-        notif.read = True
-
-    Notification.objects.bulk_update(unread_notifications, ["read"])
+    request.s_user.notifications.filter(read=False).update(read=True)
 
     return api.get_response()
 
@@ -213,8 +209,6 @@ def tl_folreq(request: HttpRequest, offset: int | None=None) -> HttpResponse:
     end = len(users) <= POSTS_PER_REQUEST
 
     api.set_response(end, users[:POSTS_PER_REQUEST])
-
-    request.s_user.notifications.filter(read=False).update(read=True)
 
     return api.get_response()
 
@@ -284,4 +278,48 @@ def tl_search(
     )
 
     api.set_response(end, False, posts, request.s_user)
+    return api.get_response()
+
+def tl_user_following(request: HttpRequest, username: str, offset: int | None=None) -> HttpResponse:
+    api = api_TimelineUserFollowing(request)
+
+    if request.s_user is None:
+        return api.error(ErrorCodes.NOT_AUTHENTICATED)
+
+    try:
+        user = User.objects.get(username=username)
+    except User.DoesNotExist:
+        return api.error(ErrorCodes.BAD_USERNAME)
+
+    tl = M2MFollow.objects.filter(user=user).order_by("-pk").select_related("following")
+
+    if offset:
+        tl = tl.filter(pk__lt=offset)
+
+    users = list(tl[:POSTS_PER_REQUEST + 1])
+    end = len(users) <= POSTS_PER_REQUEST
+
+    api.set_response(end, users[:POSTS_PER_REQUEST])
+    return api.get_response()
+
+def tl_user_followers(request: HttpRequest, username: str, offset: int | None=None) -> HttpResponse:
+    api = api_TimelineUserFollowers(request)
+
+    if request.s_user is None:
+        return api.error(ErrorCodes.NOT_AUTHENTICATED)
+
+    try:
+        user = User.objects.get(username=username)
+    except User.DoesNotExist:
+        return api.error(ErrorCodes.BAD_USERNAME)
+
+    tl = M2MFollow.objects.filter(following=user).order_by("-pk").select_related("user")
+
+    if offset:
+        tl = tl.filter(pk__lt=offset)
+
+    users = list(tl[:POSTS_PER_REQUEST + 1])
+    end = len(users) <= POSTS_PER_REQUEST
+
+    api.set_response(end, users[:POSTS_PER_REQUEST])
     return api.get_response()

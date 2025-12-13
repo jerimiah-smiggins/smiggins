@@ -132,8 +132,8 @@ function loadMorePosts(): void {
 }
 
 // clear "Loading..." text and other
-function clearTimelineStatuses(): void {
-  let statuses: NodeListOf<D> = tlElement.querySelectorAll(".timeline-status");
+function clearTimelineStatuses(el?: el): void {
+  let statuses: NodeListOf<D> = (el || tlElement).querySelectorAll(".timeline-status");
   for (const el of statuses) { el.remove(); }
 }
 

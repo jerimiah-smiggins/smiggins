@@ -37,7 +37,11 @@ function renderFolreqTimeline(
   for (const user of users) {
     let el: D = getSnippet("folreq-user", {
       username: user.username,
+      banner_one: user.color_one,
+      banner_two: user.color_two,
+      hidden_if_no_pronouns: user.pronouns ? "" : "hidden",
       bio: [linkify(escapeHTML(user.bio)), 1],
+      pronouns: [escapeHTML(user.pronouns || ""), 1],
       display_name: [escapeHTML(user.display_name), 1]
     });
 

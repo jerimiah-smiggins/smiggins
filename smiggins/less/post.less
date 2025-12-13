@@ -16,8 +16,11 @@ body {
 
 #timeline-posts {
   margin: -1em 0;
+}
 
-  :last-child .post {
+:last-child {
+  > .post,
+  > .notification-like {
     border-bottom: none;
   }
 }

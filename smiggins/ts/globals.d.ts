@@ -26,7 +26,8 @@ type snippet = "pages/index" | "pages/login" | "pages/signup"
              | "pages/message-list" | "pages/message" | "message-list-item"
              | "pages/home" | "pages/user" | "pages/hashtag" | "pages/post" | "pages/notifications" | "pages/follow-requests" | "pages/admin" | "pages/search"
              | "pages/settings" | "pages/settings/profile" | "pages/settings/cosmetic" | "pages/settings/account" | "pages/settings/keybinds" | "pages/settings/about"
-             | "post" | "post-placeholder" | "toast" | "compose-modal" | "keybind-modal" | "update-modal" | "message-modal" | "notification-like" | "folreq-user";
+             | "post" | "post-placeholder" | "toast" | "notification-like" | "folreq-user"
+             | "modal/compose" | "modal/keybind" | "modal/update" | "modal/message" | "modal/following";
 
 type Icons = "back"
            | "private" | "comment_arrow" | "comment" | "quote" | "like" | "like_active" | "hamburger" | "edit" | "pin" | "unpin" | "delete" | "share" | "embed"
@@ -148,6 +149,9 @@ type UserData = {
 
 type FollowRequestUserData = {
   username: string,
+  pronouns: string | null,
+  color_one: string,
+  color_two: string,
   display_name: string,
   bio: string,
   id: number

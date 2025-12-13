@@ -1,8 +1,8 @@
 from typing import Literal
 
 from django.http import HttpRequest, HttpResponse
-from posts.models import (M2MMessageMember, M2MPending, Message, MessageGroup,
-                          Notification, Poll, Post, User)
+from posts.models import (M2MFollow, M2MMessageMember, M2MPending, Message,
+                          MessageGroup, Notification, Poll, Post, User)
 
 
 class ResponseCodes:
@@ -54,6 +54,8 @@ class ResponseCodes:
     TIMELINE_HASHTAG = 0x65
     TIMELINE_FOLREQ = 0x66
     TIMELINE_SEARCH = 0x67
+    TIMELINE_USER_FOLLOWING = 0x68
+    TIMELINE_USER_FOLLOWERS = 0x69
 
     NOTIFICATIONS = 0x70
 
@@ -735,24 +737,59 @@ class api_TimelineHashtag(_api_TimelineBase):
 
 class api_TimelineFolreq(_api_BaseResponse):
     response_code = ResponseCodes.TIMELINE_FOLREQ
-    version = 0
+    version = 1
 
     def set_response(self, end: bool, users: list[M2MPending]):
         self.response_data = b(end << 7) + b(len(users))
 
         for user in users:
             username_bytes = str.encode(user.following.username)[:MAX_STR8]
+            pronouns_bytes = str.encode(user.following.pronouns)[:MAX_STR8]
             display_name_bytes = str.encode(user.following.display_name)[:MAX_STR8]
             bio_bytes = str.encode(user.following.bio)[:MAX_STR16]
 
             self.response_data += b(user.pk, 4)
             self.response_data += b(len(username_bytes)) + username_bytes
+            self.response_data += b(len(pronouns_bytes)) + pronouns_bytes
+            self.response_data += bytearray.fromhex(user.following.color[1:7] + (user.following.color_two if user.following.gradient else user.following.color)[1:7])
             self.response_data += b(len(display_name_bytes)) + display_name_bytes
             self.response_data += b(len(bio_bytes), 2) + bio_bytes
 
 class api_TimelineSearch(_api_TimelineBase):
     response_code = ResponseCodes.TIMELINE_SEARCH
     version = 0
+
+class api_TimelineUserFollowing(_api_BaseResponse):
+    response_code = ResponseCodes.TIMELINE_USER_FOLLOWING
+    version = 0
+
+    def _get_user(self, follow: M2MFollow) -> User:
+        return follow.following
+
+    def set_response(self, end: bool, users: list[M2MFollow]):
+        self.response_data = b(end << 7) + b(len(users))
+
+        for user in users:
+            u = self._get_user(user)
+
+            username_bytes = str.encode(u.username)[:MAX_STR8]
+            pronouns_bytes = str.encode(u.pronouns)[:MAX_STR8]
+            display_name_bytes = str.encode(u.display_name)[:MAX_STR8]
+            bio_bytes = str.encode(u.bio)[:MAX_STR16]
+
+            self.response_data += b(user.pk, 4)
+            self.response_data += b(len(username_bytes)) + username_bytes
+            self.response_data += b(len(pronouns_bytes)) + pronouns_bytes
+            self.response_data += bytearray.fromhex(u.color[1:7] + (u.color_two if u.gradient else u.color)[1:7])
+            self.response_data += b(len(display_name_bytes)) + display_name_bytes
+            self.response_data += b(len(bio_bytes), 2) + bio_bytes
+
+class api_TimelineUserFollowers(api_TimelineUserFollowing):
+    response_code = ResponseCodes.TIMELINE_USER_FOLLOWERS
+    version = 0
+
+    def _get_user(self, follow: M2MFollow) -> User:
+        return follow.user
 
 # 7X - Statuses
 class api_PendingNotifications(_api_BaseResponse):

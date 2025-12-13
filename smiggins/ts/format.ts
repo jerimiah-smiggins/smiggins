@@ -43,6 +43,8 @@ enum ResponseCodes {
   TimelineHashtag,
   TimelineFolreq,
   TimelineSearch,
+  TimelineUserFollowing,
+  TimelineUserFollowers,
   Notifications = 0x70
 };
 
@@ -967,10 +969,12 @@ class api_TimelineHashtag extends _api_TimelineBase {
 
 class api_TimelineFolreq extends _api_TimelineBase {
   id: ResponseCodes = ResponseCodes.TimelineFolreq;
-  version: number = 0;
+  version: number = 1;
 
   url: string = "/api/timeline/follow-requests";
   method: Method = "GET";
+
+  constructor(offset: number | null, _: any) { super(offset, false); }
 
   handle(u8arr: Uint8Array): void {
     let end: boolean = _extractBool(u8arr[2], 7);
@@ -981,13 +985,17 @@ class api_TimelineFolreq extends _api_TimelineBase {
     for (let i: number = 0; i < numUsers; i++) {
       let id: number = _extractInt(32, u8arr);
       let username: [string, Uint8Array] = _extractString(8, u8arr.slice(4));
-      let displayName: [string, Uint8Array] = _extractString(8, username[1]);
+      let pronouns: [string, Uint8Array] = _extractString(8, username[1]);
+      let displayName: [string, Uint8Array] = _extractString(8, pronouns[1].slice(6));
       let bio: [string, Uint8Array] = _extractString(16, displayName[1]);
 
       u8arr = bio[1];
 
       users.push({
         username: username[0],
+        pronouns: pronouns[0] || null,
+        color_one: "#" + _toHex(pronouns[1].slice(0, 3)),
+        color_two: "#" + _toHex(pronouns[1].slice(3, 6)),
         display_name: displayName[0],
         bio: bio[0],
         id: id
@@ -1008,6 +1016,57 @@ class api_TimelineSearch extends _api_TimelineBase {
   constructor(offset: number | null, forwards: boolean | "force", params?: string, sort?: "new" | "old") {
     super(offset, forwards);
     this.url = `/api/timeline/search?sort=${sort}&${params}`;
+  }
+}
+
+class api_TimelineUserFollowing extends _api_TimelineBase {
+  id: ResponseCodes = ResponseCodes.TimelineUserFollowing;
+  version: number = 0;
+
+  url: string;
+  method: Method = "GET";
+
+  constructor(offset: number | null, username: string) {
+    super(offset, false);
+    this.url = `/api/timeline/user/following/${username}`;
+  }
+
+  handle(u8arr: Uint8Array): void {
+    let end: boolean = _extractBool(u8arr[2], 7);
+    let numUsers: number = u8arr[3];
+    let users: FollowRequestUserData[] = [];
+    u8arr = u8arr.slice(4);
+
+    for (let i: number = 0; i < numUsers; i++) {
+      let id: number = _extractInt(32, u8arr);
+      let username: [string, Uint8Array] = _extractString(8, u8arr.slice(4));
+      let pronouns: [string, Uint8Array] = _extractString(8, username[1]);
+      let displayName: [string, Uint8Array] = _extractString(8, pronouns[1].slice(6));
+      let bio: [string, Uint8Array] = _extractString(16, displayName[1]);
+
+      u8arr = bio[1];
+
+      users.push({
+        username: username[0],
+        pronouns: pronouns[0] || null,
+        color_one: "#" + _toHex(pronouns[1].slice(0, 3)),
+        color_two: "#" + _toHex(pronouns[1].slice(3, 6)),
+        display_name: displayName[0],
+        bio: bio[0],
+        id: id
+      });
+    }
+
+    renderFollowingTimeline(users, end);
+  }
+}
+
+class api_TimelineUserFollowers extends api_TimelineUserFollowing {
+  id: ResponseCodes = ResponseCodes.TimelineUserFollowers;
+
+  constructor(offset: number | null, username: string) {
+    super(offset, username);
+    this.url = `/api/timeline/user/followers/${username}`;
   }
 }
 

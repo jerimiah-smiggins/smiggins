@@ -76,7 +76,7 @@ function createPostModal(type?: "quote" | "comment" | "edit", id?: number): void
     }
   }
 
-  let el: D = getSnippet("compose-modal", extraVars);
+  let el: D = getSnippet("modal/compose", extraVars);
   el.querySelector("#modal-post")?.addEventListener("click", postModalCreatePost);
   el.querySelector("#modal")?.addEventListener("click", clearModalIfClicked);
   document.body.append(el);
@@ -126,7 +126,7 @@ function createPostModal(type?: "quote" | "comment" | "edit", id?: number): void
 function createUpdateModal(since: string): void {
   if (document.getElementById("modal")) { return; }
 
-  document.body.append(getSnippet("update-modal", {
+  document.body.append(getSnippet("modal/update", {
     since: since
   }));
 
@@ -134,9 +134,24 @@ function createUpdateModal(since: string): void {
   document.addEventListener("keydown", clearModalOnEscape);
 }
 
+function createFollowingModal(type: "following" | "followers", username: string): void {
+  if (document.getElementById("modal")) { return; }
+
+  let displayName: string = userCache[username] && userCache[username].display_name || username;
+
+  document.body.append(getSnippet("modal/following", {
+    title: type === "following" ? `${displayName} follows:` : `${displayName} is followed by:`
+  }));
+
+  hookFollowingTimeline(type, username);
+
+  document.getElementById("modal")?.addEventListener("click", clearModalIfClicked);
+  document.addEventListener("keydown", clearModalOnEscape);
+}
+
 function modifyKeybindModal(kbId: string): void {
   let kbData = keybinds[kbId];
-  let el: D = getSnippet("keybind-modal", {
+  let el: D = getSnippet("modal/keybind", {
     keybind_title: kbData.name,
     keybind_description: kbData.description || "",
     hidden_if_no_description: kbData.description ? "" : "hidden"
@@ -181,7 +196,7 @@ function modifyKeybindModal(kbId: string): void {
 function newMessageModal(): void {
   if (document.getElementById("modal")) { return; }
 
-  document.body.append(getSnippet("message-modal"));
+  document.body.append(getSnippet("modal/message"));
 
   document.getElementById("message-modal-add")?.addEventListener("click", (): void => {
     let count: number = document.querySelectorAll("#message-modal-inputs input").length;
