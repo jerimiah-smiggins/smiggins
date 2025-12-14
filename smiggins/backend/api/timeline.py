@@ -283,9 +283,6 @@ def tl_search(
 def tl_user_following(request: HttpRequest, username: str, offset: int | None=None) -> HttpResponse:
     api = api_TimelineUserFollowing(request)
 
-    if request.s_user is None:
-        return api.error(ErrorCodes.NOT_AUTHENTICATED)
-
     try:
         user = User.objects.get(username=username)
     except User.DoesNotExist:
@@ -304,9 +301,6 @@ def tl_user_following(request: HttpRequest, username: str, offset: int | None=No
 
 def tl_user_followers(request: HttpRequest, username: str, offset: int | None=None) -> HttpResponse:
     api = api_TimelineUserFollowers(request)
-
-    if request.s_user is None:
-        return api.error(ErrorCodes.NOT_AUTHENTICATED)
 
     try:
         user = User.objects.get(username=username)
