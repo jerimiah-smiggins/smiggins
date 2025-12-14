@@ -35,7 +35,7 @@ class Ratelimit:
 
         if route in API_RATELIMITS:
             data = API_RATELIMITS[route]
-        elif (route := "/".join(route.split("/")[:-1]) + "/") in API_RATELIMITS:
+        elif (route := "/".join(route.split("/")[:-1]) + "/*") in API_RATELIMITS:
             data = API_RATELIMITS[route]
         else:
             return self.get_response(request)

@@ -3,11 +3,15 @@ from typing import TYPE_CHECKING
 from django.contrib import admin as django_admin
 from django.contrib.admin.exceptions import AlreadyRegistered  # type: ignore
 from django.db import models
+from django.db.models.signals import post_delete
+from django.dispatch import receiver
 
+MAX_STR8 = (1 << 8) - 1
+MAX_STR16 = (1 << 16) - 1
 
 class User(models.Model):
     user_id = models.IntegerField(primary_key=True, unique=True)
-    username = models.CharField(max_length=2 ** 8 - 1, unique=True)
+    username = models.CharField(max_length=MAX_STR8, unique=True)
 
     password_hash = models.TextField(null=True)
     auth_key = models.CharField(max_length=64, unique=True)
@@ -25,13 +29,13 @@ class User(models.Model):
     # 0000000000000000000000X0X00000XX
     admin_level = models.IntegerField(default=0)
 
-    display_name = models.CharField(max_length=2 ** 8 - 1)
-    bio = models.CharField(max_length=2 ** 16 - 1, default="", blank=True)
+    display_name = models.CharField(max_length=MAX_STR8)
+    bio = models.CharField(max_length=MAX_STR16, default="", blank=True)
     color = models.CharField(max_length=7)
     color_two = models.CharField(max_length=7, default="#000000", blank=True)
     gradient = models.BooleanField(default=False)
 
-    pronouns = models.CharField(max_length=2 ** 8 - 1, default="", blank=True)
+    pronouns = models.CharField(max_length=MAX_STR8, default="", blank=True)
 
     default_post_private = models.BooleanField(default=False)
     verify_followers = models.BooleanField(default=False)
@@ -39,9 +43,6 @@ class User(models.Model):
     following = models.ManyToManyField("self", symmetrical=False, through_fields=("user", "following"), through="M2MFollow", related_name="followers", blank=True)
     blocking = models.ManyToManyField("self", symmetrical=False, through_fields=("user", "blocking"), through="M2MBlock", related_name="blockers", blank=True)
     pending_followers = models.ManyToManyField("self", symmetrical=False, through_fields=("user", "following"), through="M2MPending", related_name="pending_following", blank=True)
-
-    messages = models.JSONField(default=list, blank=True)
-    unread_messages = models.JSONField(default=list, blank=True)
 
     if TYPE_CHECKING:
         pinned: "Post | None"
@@ -57,14 +58,15 @@ class User(models.Model):
         followers: models.Manager["User"]
         blockers: models.Manager["User"]
         pending_following: models.Manager["User"]
+        messages: models.Manager["Message"]
 
     def __str__(self):
         return f"({self.user_id}) @{self.username}"
 
 class Post(models.Model):
     post_id = models.IntegerField(primary_key=True)
-    content = models.TextField(max_length=2 ** 16 - 1, blank=True)
-    content_warning = models.TextField(max_length=2 ** 8 - 1, null=True, blank=True)
+    content = models.TextField(max_length=MAX_STR16, blank=True)
+    content_warning = models.TextField(max_length=MAX_STR8, null=True, blank=True)
     creator = models.ForeignKey(User, on_delete=models.CASCADE, related_name="posts")
     timestamp = models.IntegerField()
 
@@ -130,41 +132,8 @@ class Notification(models.Model):
     def __str__(self):
         return f"({'' if self.read else 'un'}read) {self.event_type} ({self.notif_id}) for {self.is_for.username if self.is_for else None}"
 
-class PrivateMessageContainer(models.Model):
-    # Essentially f"{user_one.username}:{user_two.username}" where user_one
-    # is earlier in the alphabet than user_two
-    container_id = models.CharField(primary_key=True, unique=True, max_length=(2 ** 8 - 1) * 2 + 1)
-
-    user_one = models.ForeignKey(User, on_delete=models.CASCADE, related_name="container_reference_one")
-    user_two = models.ForeignKey(User, on_delete=models.CASCADE, related_name="container_reference_two")
-
-    unread_one = models.BooleanField(default=False)
-    unread_two = models.BooleanField(default=False)
-
-    if TYPE_CHECKING:
-        messages: models.Manager["PrivateMessage"]
-
-    def __str__(self):
-        return f"Message group between {self.user_one.username} and {self.user_two.username}"
-
-class PrivateMessage(models.Model):
-    message_id = models.IntegerField(primary_key=True, unique=True)
-    timestamp  = models.IntegerField()
-
-    content = models.CharField(max_length=2 ** 16 - 1)
-
-    # If True, then the message was sent from user one, defined in
-    # the PrivateMessageContainer. If False, then the message is from
-    # user two.
-    from_user_one = models.BooleanField()
-
-    message_container = models.ForeignKey(PrivateMessageContainer, on_delete=models.CASCADE, related_name="messages")
-
-    def __str__(self):
-        return f"({self.message_id}) From {self.message_container.user_one.username if self.from_user_one else self.message_container.user_two.username} to {self.message_container.user_two.username if self.from_user_one else self.message_container.user_one.username} - {self.content}"
-
 class Hashtag(models.Model):
-    tag = models.CharField(max_length=2 ** 8 - 1, unique=True, primary_key=True)
+    tag = models.CharField(max_length=MAX_STR8, unique=True, primary_key=True)
     posts = models.ManyToManyField(Post, through="M2MHashtagPost", related_name="hashtags", blank=True)
 
     def __str__(self):
@@ -216,6 +185,31 @@ class PollVote(models.Model):
 class InviteCode(models.Model):
     id = models.CharField(primary_key=True, unique=True, max_length=64)
 
+class MessageGroup(models.Model):
+    id = models.IntegerField(primary_key=True)
+    group_id = models.TextField(unique=True)
+    members = models.ManyToManyField(User, through="M2MMessageMember", related_name="message_groups")
+    timestamp = models.IntegerField()
+
+    if TYPE_CHECKING:
+        messages: models.Manager["Message"]
+
+    @staticmethod
+    def get_id(*users: User) -> str:
+        return ":".join([str(i) for i in sorted([u.user_id for u in users])])
+
+    def __str__(self) -> str:
+        return f"({self.id}/{self.group_id}) " + ", ".join(self.members.all().values_list("username", flat=True))
+
+class Message(models.Model):
+    content = models.CharField(max_length=MAX_STR16)
+    group = models.ForeignKey(MessageGroup, related_name="messages", on_delete=models.CASCADE)
+    user = models.ForeignKey(User, related_name="messages", on_delete=models.CASCADE)
+    timestamp = models.IntegerField()
+
+    def __str__(self) -> str:
+        return f"({self.group.id}/{self.group.group_id}) @{self.user.username} - {self.content}"
+
 class M2MLike(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE)
     post = models.ForeignKey(Post, on_delete=models.CASCADE)
@@ -266,6 +260,14 @@ class M2MHashtagPost(models.Model):
     def __str__(self):
         return f"post {self.post.post_id} has the hashtag {self.hashtag.tag}"
 
+class M2MMessageMember(models.Model):
+    user = models.ForeignKey(User, on_delete=models.CASCADE)
+    group = models.ForeignKey(MessageGroup, on_delete=models.CASCADE)
+    unread = models.BooleanField(default=False)
+
+    class Meta:
+        unique_together = ("user", "group")
+
 class GenericData(models.Model):
     id = models.CharField(max_length=50, unique=True, primary_key=True)
     value = models.TextField(blank=True)
@@ -275,21 +277,31 @@ try:
         User,
         Post,
         Notification,
-        PrivateMessageContainer,
-        PrivateMessage,
         Hashtag,
         AdminLog,
         Poll,
         PollChoice,
         PollVote,
         InviteCode,
+        MessageGroup,
+        Message,
         M2MLike,
         M2MFollow,
         M2MBlock,
         M2MPending,
         M2MHashtagPost,
+        M2MMessageMember,
         GenericData
     ])
 
 except AlreadyRegistered:
     ...
+
+@receiver(post_delete, sender=M2MMessageMember)
+def cascade_message_member_delete(sender, instance: M2MMessageMember, **kwargs):
+    gid: int = instance.group_id # type: ignore
+
+    try:
+        MessageGroup.objects.get(id=gid).delete()
+    except MessageGroup.DoesNotExist:
+        ...

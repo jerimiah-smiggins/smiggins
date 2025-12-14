@@ -10,22 +10,7 @@ function loginSubmitEvent(e: MouseEvent): void {
   if (!username) { usernameElement.focus(); return; }
   else if (!password) { passwordElement.focus(); return; }
 
-  (e.target as Bel)?.setAttribute("disabled", "");
-
-  fetch("/api/user/login", {
-    method: "POST",
-    body: buildRequest([
-      [username, 8],
-      hexToBytes(sha256(password))
-    ])
-  }).then((response: Response): Promise<ArrayBuffer> => (response.arrayBuffer()))
-    .then(parseResponse)
-    .then((): void => (e.target as Bel)?.removeAttribute("disabled"))
-    .catch((err: any): void => {
-      (e.target as Bel)?.removeAttribute("disabled");
-      createToast("Something went wrong!", String(err));
-      throw err;
-    });
+  new api_LogIn(username, password, e.target as Bel).fetch();
 }
 
 function signupSubmitEvent(e: MouseEvent): void {
@@ -52,23 +37,7 @@ function signupSubmitEvent(e: MouseEvent): void {
     return;
   }
 
-  (e.target as Bel)?.setAttribute("disabled", "");
-
-  fetch("/api/user/signup", {
-    method: "POST",
-    body: buildRequest([
-      [username, 8],
-      hexToBytes(sha256(password)),
-      [otp || "", 8]
-    ])
-  }).then((response: Response): Promise<ArrayBuffer> => (response.arrayBuffer()))
-    .then(parseResponse)
-    .then((): void => (e.target as Bel)?.removeAttribute("disabled"))
-    .catch((err: any): void => {
-      (e.target as Bel)?.removeAttribute("disabled");
-      createToast("Something went wrong!", String(err));
-      throw err;
-    });
+  new api_SignUp(username, password, e.target as Bel).fetch();
 }
 
 function p_login(element: D): void {

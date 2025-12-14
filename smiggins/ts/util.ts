@@ -180,7 +180,7 @@ function genericCheckbox(storageId: string): (e: Event) => void {
   };
 }
 
-function getMentionsFromPost(p: post): string[] {
+function getMentionsFromPost(p: Post): string[] {
   let mentions: string[] = [...new Set([[null, p.user.username] as [null, string], ...p.content.matchAll(mentionRegex)].map((a: [null, string] | RegExpExecArray): string => (a[1].toLowerCase())))].sort((a: string, b: string): 1 | -1 => (a < b ? -1 : 1));
 
   if (mentions.includes(username)) {

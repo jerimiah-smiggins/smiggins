@@ -1,27 +1,29 @@
-from typing import Literal
+from typing import Literal, TypeVar
 
-from django.db.models import Q
+from django.db.models import Model, Q
 from django.db.models.manager import BaseManager
 from django.http import HttpResponse
 from posts.middleware.ratelimit import s_HttpRequest as HttpRequest
-from posts.models import Hashtag, M2MPending, Notification, Post, User
+from posts.models import Hashtag, M2MFollow, M2MPending, Post, User
 
 from ..variables import POSTS_PER_REQUEST
 from .format import (ErrorCodes, api_TimelineComments, api_TimelineFollowing,
                      api_TimelineFolreq, api_TimelineGlobal,
                      api_TimelineHashtag, api_TimelineNotifications,
-                     api_TimelineSearch, api_TimelineUser)
+                     api_TimelineSearch, api_TimelineUser,
+                     api_TimelineUserFollowers, api_TimelineUserFollowing)
 
+T = TypeVar("T", bound="Model")
 
 def get_timeline(
-    tl: BaseManager[Post] | BaseManager[Notification],
+    tl: BaseManager[T],
     offset: int | None,
     user: User | None,
     forwards: bool=False, *,
     no_visibility_check: bool=False,
     show_blocked: bool=False,
     order_by: list[str]=["-timestamp", "-pk"]
-) -> tuple[bool, list[Post] | list[Notification]]:
+) -> tuple[bool, list[T]]:
     if offset:
         tl = tl.filter(**{
             f"timestamp__{'g' if forwards else 'l'}t": offset
@@ -44,7 +46,7 @@ def get_timeline(
         else:
             tl = tl.filter(~Q(private=True))
 
-    objs: list[Post] | list[Notification] = list(tl[:POSTS_PER_REQUEST + 1]) # type: ignore
+    objs: list[T] = list(tl[:POSTS_PER_REQUEST + 1])
     return len(objs) <= POSTS_PER_REQUEST, objs[:POSTS_PER_REQUEST]
 
 def tl_following(request: HttpRequest, comments: bool | None=None, offset: int | None=None, forwards: bool=False) -> HttpResponse:
@@ -156,12 +158,7 @@ def tl_notifications(request: HttpRequest, offset: int | None=None, forwards: bo
 
     api.set_response(end, forwards, notifications, request.s_user)
 
-    unread_notifications = request.s_user.notifications.filter(read=False)
-
-    for notif in unread_notifications:
-        notif.read = True
-
-    Notification.objects.bulk_update(unread_notifications, ["read"])
+    request.s_user.notifications.filter(read=False).update(read=True)
 
     return api.get_response()
 
@@ -212,13 +209,6 @@ def tl_folreq(request: HttpRequest, offset: int | None=None) -> HttpResponse:
     end = len(users) <= POSTS_PER_REQUEST
 
     api.set_response(end, users[:POSTS_PER_REQUEST])
-
-    unread_notifications = request.s_user.notifications.filter(read=False)
-
-    for notif in unread_notifications:
-        notif.read = True
-
-    Notification.objects.bulk_update(unread_notifications, ["read"])
 
     return api.get_response()
 
@@ -290,3 +280,46 @@ def tl_search(
     api.set_response(end, False, posts, request.s_user)
     return api.get_response()
 
+def tl_user_following(request: HttpRequest, username: str, offset: int | None=None) -> HttpResponse:
+    api = api_TimelineUserFollowing(request)
+
+    if request.s_user is None:
+        return api.error(ErrorCodes.NOT_AUTHENTICATED)
+
+    try:
+        user = User.objects.get(username=username)
+    except User.DoesNotExist:
+        return api.error(ErrorCodes.BAD_USERNAME)
+
+    tl = M2MFollow.objects.filter(user=user).order_by("-pk").select_related("following")
+
+    if offset:
+        tl = tl.filter(pk__lt=offset)
+
+    users = list(tl[:POSTS_PER_REQUEST + 1])
+    end = len(users) <= POSTS_PER_REQUEST
+
+    api.set_response(end, users[:POSTS_PER_REQUEST])
+    return api.get_response()
+
+def tl_user_followers(request: HttpRequest, username: str, offset: int | None=None) -> HttpResponse:
+    api = api_TimelineUserFollowers(request)
+
+    if request.s_user is None:
+        return api.error(ErrorCodes.NOT_AUTHENTICATED)
+
+    try:
+        user = User.objects.get(username=username)
+    except User.DoesNotExist:
+        return api.error(ErrorCodes.BAD_USERNAME)
+
+    tl = M2MFollow.objects.filter(following=user).order_by("-pk").select_related("user")
+
+    if offset:
+        tl = tl.filter(pk__lt=offset)
+
+    users = list(tl[:POSTS_PER_REQUEST + 1])
+    end = len(users) <= POSTS_PER_REQUEST
+
+    api.set_response(end, users[:POSTS_PER_REQUEST])
+    return api.get_response()

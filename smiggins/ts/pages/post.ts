@@ -17,7 +17,7 @@ function postSetDNE(): void {
   }
 }
 
-function updateFocusedPost(post: post): void {
+function updateFocusedPost(post: Post): void {
   let pid: number = insertIntoPostCache([post])[0];
   let cwElement: HTMLDetailsElement | null = document.querySelector("#focused-post .content-warning");
 
@@ -37,19 +37,23 @@ function updateFocusedPost(post: post): void {
   let commentElement: HTMLTextAreaElement | null = document.getElementById("post-content") as HTMLTextAreaElement | null;
   let cwInputElement: Iel = document.getElementById("post-cw") as Iel;
 
-  let p: post | undefined = postCache[pid];
-  if (!commentBoxValueSet && commentElement && !commentElement.value && cwInputElement && !cwInputElement.value && p) {
+  if (!commentBoxValueSet && commentElement && !commentElement.value && cwInputElement && !cwInputElement.value) {
     commentBoxValueSet = true;
-    commentElement.value = getPostMentionsString(p);
-    cwInputElement.value = getPostTemplatedCW(p);
+    commentElement.value = getPostMentionsString(post);
+    cwInputElement.value = getPostTemplatedCW(post);
+
+    if (post.private || defaultPostPrivate) {
+      document.querySelector("#post-private:not([data-private-set])")?.setAttribute("checked", "");
+    }
+    document.querySelector("#post-private:not([data-private-set])")?.setAttribute("data-private-set", "");
   }
 }
 
-function getPostMentionsString(p: post): string {
+function getPostMentionsString(p: Post): string {
   return getMentionsFromPost(p).map((a: string): string => (`@${a} `)).join("")
 }
 
-function getPostTemplatedCW(p: post): string {
+function getPostTemplatedCW(p: Post): string {
   let cw: string | null = p.content_warning;
 
   if (cw) {
@@ -91,7 +95,7 @@ function createComment(e: Event): void {
     if (success) {
       (cwElement as I).value = "";
 
-      let p: post | undefined = postCache[getPostIDFromPath()];
+      let p: Post | undefined = postCache[getPostIDFromPath()];
 
       if (p) {
         (contentElement as I).value = getMentionsFromPost(p).map((a: string): string => (`@${a} `)).join("");
@@ -104,7 +108,7 @@ function createComment(e: Event): void {
 
 function p_postPage(element: D): void {
   let pid: number = getPostIDFromPath();
-  let p: post | undefined = postCache[pid];
+  let p: Post | undefined = postCache[pid];
   let postElement: el = element.querySelector("#focused-post");
   let timelineElement: Del = element.querySelector("#timeline-posts");
   commentBoxValueSet = false;
@@ -123,8 +127,8 @@ function p_postPage(element: D): void {
   }
 
   hookTimeline(timelineElement, element.querySelector("#timeline-carousel") as Del, {
-    [`post_${pid}_recent`]: { url: `/api/timeline/post/${pid}?sort=recent`, prependPosts: pid },
-    [`post_${pid}_oldest`]: { url: `/api/timeline/post/${pid}?sort=oldest`, prependPosts: false, disablePolling: true, invertOffset: true },
+    [`post_${pid}_recent`]: { api: api_TimelineComments, args: [pid, "recent"], prependPosts: pid },
+    [`post_${pid}_oldest`]: { api: api_TimelineComments, args: [pid, "oldest"], prependPosts: false, disablePolling: true, invertOffset: true },
     // [`post_${pid}_random`]: { url: `/api/timeline/post/${pid}?sort=random`, prependPosts: pid, disablePolling: true, disableCaching: true }
   }, `post_${pid}_recent`, element);
 

@@ -4,7 +4,7 @@ if [ "$1" != "less" ]; then
 
   if [ "$1" != "uncompressed" ] && [ "$2" != "uncompressed" ]; then
     printf " compressing..."
-    uglifyjs ./smiggins/static/app.js -c -m --output ./smiggins/static/app.js
+    uglifyjs ./smiggins/static/app.js -c templates=false -m --output ./smiggins/static/app.js
   fi
 
   echo " done"

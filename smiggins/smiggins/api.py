@@ -1,12 +1,15 @@
 from backend.api.admin import (admin_delete_user, delete_otp, generate_otp,
                                get_admin_lvl, list_otps, set_admin_lvl)
+from backend.api.messages import (get_gid, send_message, tl_message_groups,
+                                  tl_messages)
 from backend.api.notifications import notifications
 from backend.api.post import (add_like, pin_post, poll_refresh, poll_vote,
                               post_create, post_delete, post_edit, remove_like,
                               unpin_post)
 from backend.api.timeline import (tl_comments, tl_following, tl_folreq,
                                   tl_global, tl_hashtag, tl_notifications,
-                                  tl_search, tl_user)
+                                  tl_search, tl_user, tl_user_followers,
+                                  tl_user_following)
 from backend.api.user import (block_add, block_remove, change_password,
                               delete_account, follow_add, follow_remove,
                               folreq_accept, folreq_deny, get_profile, login,
@@ -56,6 +59,8 @@ api.get("timeline/notifications")(tl_notifications)
 api.get("timeline/tag/{str:tag}")(tl_hashtag)
 api.get("timeline/follow-requests")(tl_folreq)
 api.get("timeline/search")(tl_search)
+api.get("timeline/user/following/{str:username}")(tl_user_following)
+api.get("timeline/user/followers/{str:username}")(tl_user_followers)
 
 api.post("post")(post_create)
 api.patch("post")(post_edit)
@@ -69,6 +74,11 @@ api.delete("post/pin")(unpin_post)
 
 api.get("post/poll/{int:post_id}")(poll_refresh)
 api.post("post/poll")(poll_vote)
+
+api.get("message/list")(tl_message_groups)
+api.get("messages/{int:gid}")(tl_messages)
+api.post("message/{int:gid}")(send_message)
+api.get("message/group")(get_gid)
 
 api.get("notifications")(notifications)
 

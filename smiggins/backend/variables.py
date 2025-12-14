@@ -8,7 +8,7 @@ import yaml
 from dotenv import dotenv_values
 
 print("Loading config...")
-REAL_VERSION: tuple[int, int, int] = (1, 3, 2)
+REAL_VERSION: tuple[int, int, int] = (1, 4, 0)
 
 def dotenv_or_(key: str, val: Any, process: Callable[[str], Any]=lambda x: x) -> Any:
     try:
@@ -84,6 +84,8 @@ NOTIFICATION_POLLING_INTERVAL: int = 60
 
 API_RATELIMITS: dict[str, tuple[int, int]] = {
 #   "METHOD /api/route": (MAX_REQ, PER_N_SECONDS)
+#   "METHOD /api/route/*" implies another parameter after, such as /api/route/{int:var}
+
     "POST /api/user/signup": (4, 10),
     "POST /api/user/login": (6, 10),
 
@@ -104,25 +106,32 @@ API_RATELIMITS: dict[str, tuple[int, int]] = {
 
     "GET /api/timeline/global": (10, 5),
     "GET /api/timeline/following": (10, 5),
-    "GET /api/timeline/user/": (10, 5),
-    "GET /api/timeline/post/": (10, 5),
+    "GET /api/timeline/user/*": (10, 5),
+    "GET /api/timeline/post/*": (10, 5),
     "GET /api/timeline/notifications": (10, 5),
-    "GET /api/timeline/tag/": (10, 5),
+    "GET /api/timeline/tag/*": (10, 5),
     "GET /api/timeline/follow-requests": (10, 5),
     "GET /api/timeline/search": (10, 5),
+    "GET /api/timeline/user/following/*": (10, 5),
+    "GET /api/timeline/user/followers/*": (10, 5),
 
     "POST /api/post": (10, 5),
     "PATCH /api/post": (10, 5),
     "DELETE /api/post": (20, 5),
 
-    "POST /api/post/like/": (10, 2),
-    "DELETE /api/post/like/": (10, 2),
+    "POST /api/post/like/*": (10, 2),
+    "DELETE /api/post/like/*": (10, 2),
 
-    "POST /api/post/pin/": (10, 2),
+    "POST /api/post/pin/*": (10, 2),
     "DELETE /api/post/pin": (10, 2),
 
-    "GET /api/post/poll/": (10, 2),
+    "GET /api/post/poll/*": (10, 2),
     "POST /api/post/poll": (10, 2),
+
+    "GET /api/message/list": (10, 5),
+    "GET /api/messages/*": (10, 5),
+    "POST /api/message/*": (10, 5),
+    "GET /api/message/group": (3, 120),
 
     "GET /api/notifications": (10, 2),
 }

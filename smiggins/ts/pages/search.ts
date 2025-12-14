@@ -60,8 +60,8 @@ function resetSearchTL(baseElement?: D): void {
     tlElement,
     (baseElement || document).querySelector("#timeline-carousel"),
     {
-      search_recent: { url: `/api/timeline/search?sort=new&${queryParams}`, prependPosts: false, disableCaching: true, disablePolling: true },
-      search_oldest: { url: `/api/timeline/search?sort=old&${queryParams}`, prependPosts: false, disableCaching: true, disablePolling: true, invertOffset: true }
+      search_recent: { api: api_TimelineSearch, args: [queryParams, "new"], prependPosts: false, disableCaching: true, disablePolling: true },
+      search_oldest: { api: api_TimelineSearch, args: [queryParams, "old"], prependPosts: false, disableCaching: true, disablePolling: true, invertOffset: true }
     },
     ((baseElement || document).querySelector("#timeline-carousel [data-timeline-active]") as el)?.dataset.timelineId || "search_recent",
     baseElement

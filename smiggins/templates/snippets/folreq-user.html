@@ -1,7 +1,9 @@
 <div class="post">
   <div class="post-upper">
+    <div class="post-user-pfp" style="--color-one: @{banner_one}; --color-two: @{banner_two}"></div>
     <div class="post-user"><a data-internal-link="user" href="/u/@{username}/" class="plain-link">@{display_name}</a></div>
     <div class="subtext post-username"><a data-internal-link="user" href="/u/@{username}/" class="plain-link">@@{username}</a></div>
+    <div class="subtext post-pronouns" @{hidden_if_no_pronouns}>@{pronouns}</div>
   </div>
 
   <div class="post-content">@{bio}</div>

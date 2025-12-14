@@ -17,33 +17,39 @@ declare const limits: {
 
 type intent = "index" | "login" | "signup"
             | "logout" | "404" | "changelog"
+            | "message-list" | "message"
             | "home" | "user" | "hashtag" | "post" | "notifications" | "follow-requests" | "admin" | "search"
             | "settings" | "settings/profile" | "settings/cosmetic" | "settings/account" | "settings/keybinds" | "settings/about";
 
 type snippet = "pages/index" | "pages/login" | "pages/signup"
              | "pages/logout" | "pages/404" | "pages/changelog"
+             | "pages/message-list" | "pages/message" | "message-list-item"
              | "pages/home" | "pages/user" | "pages/hashtag" | "pages/post" | "pages/notifications" | "pages/follow-requests" | "pages/admin" | "pages/search"
              | "pages/settings" | "pages/settings/profile" | "pages/settings/cosmetic" | "pages/settings/account" | "pages/settings/keybinds" | "pages/settings/about"
-             | "post" | "post-placeholder" | "toast" | "compose-modal" | "keybind-modal" | "update-modal" | "notification-like" | "folreq-user";
+             | "post" | "post-placeholder" | "toast" | "notification-like" | "folreq-user"
+             | "modal/compose" | "modal/keybind" | "modal/update" | "modal/message" | "modal/following";
 
-type icons = "back" | "private" | "comment_arrow" | "comment" | "quote" | "like" | "like_active" | "hamburger" | "edit" | "pin" | "unpin" | "delete" | "home_active" | "home" | "notifications_active" | "notifications" | "messages_active" | "messages" | "user_active" | "user" | "settings_active" | "settings" | "folreq" | "folreq_active" | "share" | "login" | "user_plus" | "search" | "plus" | "embed";
+type Icons = "back"
+           | "private" | "comment_arrow" | "comment" | "quote" | "like" | "like_active" | "hamburger" | "edit" | "pin" | "unpin" | "delete" | "share" | "embed"
+           | "home_active" | "home" | "notifications_active" | "notifications" | "messages_active" | "messages" | "user_active" | "user" | "settings_active" | "settings" | "folreq_active" | "folreq" | "login" | "user_plus" | "search" | "plus";
 
-type keybindModifiers = "ctrl" | "shift" | "alt" | "nav";
-type themes = "light" | "dark" | "warm" | "gray" | "darker" | "oled" | "system";
+type KeybindModifiers = "ctrl" | "shift" | "alt" | "nav";
+type Themes = "light" | "dark" | "warm" | "gray" | "darker" | "oled" | "system";
+type Method = "GET" | "POST" | "PATCH" | "DELETE";
 
-type versionData = {
+type VersionData = {
   description: string,
-  major_changes?: { icon?: icons, info: string }[],
+  major_changes?: { icon?: Icons, info: string }[],
   changes: string[]
 };
 
-type snippetData = {
+type SnippetData = {
   content: string,
   variables: (string | [string, number])[],
   processing: string[]
 };
 
-type post = {
+type Post = {
   id: number,
   content: string,
   content_warning: string | null,
@@ -96,8 +102,29 @@ type post = {
   } | false | null
 };
 
-type timelineConfig = {
-  url: string,
+type MessageList = {
+  group_id: number,
+  timestamp: number,
+  unread: boolean,
+  recent_content: string | null,
+
+  members: {
+    count: number,
+    names: string[]
+  }
+};
+
+type Message = {
+  timestamp: number,
+  content: string,
+  username: string,
+  display_name: string
+}
+
+type TimelineConfig = {
+  api: new (offset: number | null, forwards: boolean | "force", ...args: any) => _api_Base,
+  args?: any[],
+  // url: string,
   prependPosts: boolean | number,
   disablePolling?: true,
   disableCaching?: true,
@@ -106,7 +133,7 @@ type timelineConfig = {
   customForward?: (posts: any[], end: boolean, expectedTlID: string, forceEvent: boolean) => void
 };
 
-type userData = {
+type UserData = {
   display_name: string,
   pronouns: string | null,
   bio: string,
@@ -120,14 +147,17 @@ type userData = {
   pinned: number | null
 };
 
-type folreqUserData = {
+type FollowRequestUserData = {
   username: string,
+  pronouns: string | null,
+  color_one: string,
+  color_two: string,
   display_name: string,
   bio: string,
   id: number
 };
 
-type timelineCache = {
+type TimelineCache = {
   upperBound: number | null,
   lowerBound: number | null,
   posts: number[],
@@ -135,7 +165,7 @@ type timelineCache = {
   end: boolean
 };
 
-type replacement = {
+type Replacement = {
   index: number,
   length: number,
   href: string,
@@ -143,7 +173,7 @@ type replacement = {
   hiddenLink?: true
 };
 
-type settingsExport = {
+type SettingsExport = {
   autoShowPosts: boolean,
   complexTimestamps: boolean,
   cwCascading: string,
@@ -152,7 +182,7 @@ type settingsExport = {
   hideChangelog: boolean,
   hideInteractions: boolean,
   pfpShape: string,
-  theme: themes,
+  theme: Themes,
 
   homeTimeline: {
     comments: boolean,

@@ -13,8 +13,8 @@ from ..variables import (DEFAULT_BANNER_COLOR, ENABLE_NEW_ACCOUNTS,
 from .format import (ErrorCodes, api_AcceptFolreq, api_Block,
                      api_ChangePassword, api_DeleteAccount, api_DenyFolreq,
                      api_Follow, api_GetProfile, api_LogIn, api_SaveProfile,
-                     api_SetDefaultVisibility, api_SignUp, api_Unblock,
-                     api_Unfollow)
+                     api_SetDefaultVisibility, api_SetVerifyFollowers,
+                     api_SignUp, api_Unblock, api_Unfollow)
 
 COLOR_REGEX = re.compile(r"^#[a-f0-9]{6}$")
 
@@ -256,7 +256,7 @@ def set_post_visibility(request: HttpRequest) -> HttpResponse:
     return api.response()
 
 def set_verify_followers(request: HttpRequest) -> HttpResponse:
-    api = api_SetDefaultVisibility(request)
+    api = api_SetVerifyFollowers(request)
 
     if request.s_user is None:
         return api.error(ErrorCodes.NOT_AUTHENTICATED)

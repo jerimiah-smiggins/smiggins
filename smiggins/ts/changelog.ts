@@ -1,4 +1,4 @@
-const changes: { [key: string]: versionData } = {
+const changes: { [key: string]: VersionData } = {
   "1.1.0": {
     description: "Changelog page and bug fixes",
     major_changes: [{
@@ -80,6 +80,23 @@ const changes: { [key: string]: versionData } = {
       "Added configurable keybinds for the options in hamburger menus on posts",
       "Added an import/export function for settings",
       "Added simple ratelimiting to api requests"
+    ]
+  },
+  "1.4.0": {
+    description: "Messages",
+    major_changes: [{
+      info: "You can send people private messages! You can also create group messages with several people at once.",
+      icon: "messages"
+    },{
+      info: "You can now see who follows someone and who that person follows! This can be found by clicking the \"following\" or \"followed by\" text on the user's page.",
+      icon: "user_plus"
+    }],
+    changes: [
+      "Added messages",
+      "Rewrote how the API is handled on the frontend",
+      "Fixed a bug that caused the default visibility setting to not populate on comments",
+      "Comments are now always followers-only by default if the original post is followers-only",
+      "Added following/followers pages"
     ]
   }
 };

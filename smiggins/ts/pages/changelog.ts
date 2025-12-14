@@ -1,9 +1,9 @@
-function _getChanges(version: string, changes: versionData["changes"]): string {
+function _getChanges(version: string, changes: VersionData["changes"]): string {
   let list: string = changes.map((a: string): string => (`<li>${a}</li>`)).join("");
   return `<details><summary>All changes in v${version}</summary><ul>${list}</ul></details>`;
 }
 
-function _getVersionSpotlight(spotlight: versionData["major_changes"]): string {
+function _getVersionSpotlight(spotlight: VersionData["major_changes"]): string {
   if (!spotlight) { return ""; }
   let list: string = spotlight?.map((a): string => (`<div>${a.icon ? icons[a.icon] : ""}${a.info}</div>`)).join("") || "";
   return list && `<div class="version-spotlight">${list}</div>`;
@@ -52,17 +52,17 @@ function generateChangesHTML(since: "all" | string): string {
   if (since === "all") {
     // all format - [header, spotlight, all changes]
     for (const ver of queuedVersions) {
-      let data: versionData = changes[ver];
+      let data: VersionData = changes[ver];
       output += `<h2>v${ver}</h2> <div class="changelog-description">- ${data.description}</div>${_getVersionSpotlight(data.major_changes)}${_getChanges(ver, data.changes)}`;
     }
   } else {
     // since format - all spotlight, [header, all changes]
-    let allMajorChanges: versionData["major_changes"] = ([] as any[]).concat(...queuedVersions.map((a: string) => (changes[a].major_changes || [])));
+    let allMajorChanges: VersionData["major_changes"] = ([] as any[]).concat(...queuedVersions.map((a: string) => (changes[a].major_changes || [])));
 
     output += "<h2>What's new?</h2><br>" + _getVersionSpotlight(allMajorChanges);
 
     for (const ver of queuedVersions) {
-      let data: versionData = changes[ver];
+      let data: VersionData = changes[ver];
       output += `<h2>v${ver}</h2> <div class="changelog-description">- ${data.description}</div>${_getChanges(ver, data.changes)}`;
     }
   }

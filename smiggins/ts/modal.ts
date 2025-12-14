@@ -21,7 +21,7 @@ function createPostModal(type?: "quote" | "comment" | "edit", id?: number): void
   postModalFor = undefined;
 
   if (type && id !== undefined) {
-    let post: post | undefined = postCache[id];
+    let post: Post | undefined = postCache[id];
     if (!post) { console.log("post modal post not found", id); return; }
 
     postModalFor = {
@@ -42,6 +42,7 @@ function createPostModal(type?: "quote" | "comment" | "edit", id?: number): void
       private_post: post.private ? "data-private-post" : "",
       username: post.user.username,
       timestamp: getTimestamp(post.timestamp),
+      checked_if_private: (defaultPostPrivate || ((type === "comment" || type === "quote") && post.private)) ? "checked" : "",
 
       content: [simplePostContent(post), 1],
       display_name: [escapeHTML(post.user.display_name), 1],
@@ -75,7 +76,7 @@ function createPostModal(type?: "quote" | "comment" | "edit", id?: number): void
     }
   }
 
-  let el: D = getSnippet("compose-modal", extraVars);
+  let el: D = getSnippet("modal/compose", extraVars);
   el.querySelector("#modal-post")?.addEventListener("click", postModalCreatePost);
   el.querySelector("#modal")?.addEventListener("click", clearModalIfClicked);
   document.body.append(el);
@@ -92,7 +93,7 @@ function createPostModal(type?: "quote" | "comment" | "edit", id?: number): void
   document.addEventListener("keydown", clearModalOnEscape);
 
   if (type === "edit" && id !== undefined) {
-    let post: post | undefined = postCache[id];
+    let post: Post | undefined = postCache[id];
     if (!post) { return; }
 
     if (post.content_warning) {
@@ -106,7 +107,7 @@ function createPostModal(type?: "quote" | "comment" | "edit", id?: number): void
     let privEl: Iel = el.querySelector("#modal-post-private");
     if (privEl) { privEl.checked = post.private; }
   } else if (type === "comment" && id !== undefined) {
-    let post: post | undefined = postCache[id];
+    let post: Post | undefined = postCache[id];
     if (!post) { return; }
 
     let contentEl: Iel = el.querySelector("#modal-post-content");
@@ -114,7 +115,7 @@ function createPostModal(type?: "quote" | "comment" | "edit", id?: number): void
   }
 
   if ((type === "comment" || type === "quote") && id !== undefined) {
-    let post: post | undefined = postCache[id];
+    let post: Post | undefined = postCache[id];
     if (!post) { return; }
 
     let cwEl: Iel = el.querySelector("#modal-post-cw");
@@ -123,10 +124,9 @@ function createPostModal(type?: "quote" | "comment" | "edit", id?: number): void
 }
 
 function createUpdateModal(since: string): void {
-  console.log(since);
   if (document.getElementById("modal")) { return; }
 
-  document.body.append(getSnippet("update-modal", {
+  document.body.append(getSnippet("modal/update", {
     since: since
   }));
 
@@ -134,9 +134,24 @@ function createUpdateModal(since: string): void {
   document.addEventListener("keydown", clearModalOnEscape);
 }
 
+function createFollowingModal(type: "following" | "followers", username: string): void {
+  if (document.getElementById("modal")) { return; }
+
+  let displayName: string = userCache[username] && userCache[username].display_name || username;
+
+  document.body.append(getSnippet("modal/following", {
+    title: type === "following" ? `${displayName} follows:` : `${displayName} is followed by:`
+  }));
+
+  hookFollowingTimeline(type, username);
+
+  document.getElementById("modal")?.addEventListener("click", clearModalIfClicked);
+  document.addEventListener("keydown", clearModalOnEscape);
+}
+
 function modifyKeybindModal(kbId: string): void {
   let kbData = keybinds[kbId];
-  let el: D = getSnippet("keybind-modal", {
+  let el: D = getSnippet("modal/keybind", {
     keybind_title: kbData.name,
     keybind_description: kbData.description || "",
     hidden_if_no_description: kbData.description ? "" : "hidden"
@@ -178,6 +193,37 @@ function modifyKeybindModal(kbId: string): void {
   document.addEventListener("keydown", clearModalOnEscape);
 }
 
+function newMessageModal(): void {
+  if (document.getElementById("modal")) { return; }
+
+  document.body.append(getSnippet("modal/message"));
+
+  document.getElementById("message-modal-add")?.addEventListener("click", (): void => {
+    let count: number = document.querySelectorAll("#message-modal-inputs input").length;
+
+    if (count >= 255) {
+      return;
+    }
+
+    document.querySelector("#message-modal-inputs input:not([data-enter-next])")?.setAttribute("data-enter-next", `#message-modal-inputs :nth-child(${count + 1}) input`);
+    document.getElementById("message-modal-inputs")?.insertAdjacentHTML("beforeend", "<div>@<input autofocus data-enter-submit=\"#message-modal-create\" placeholder=\"username\"></div>");
+    (document.querySelector("#message-modal-inputs input:not([data-enter-next])") as el)?.addEventListener("keydown", inputEnterEvent);
+
+    if (count >= 254) {
+      document.getElementById("message-modal-add")?.setAttribute("hidden", "");
+    }
+  });
+
+  document.getElementById("message-modal-create")?.addEventListener("click", (): void => {
+    let usernames: string[] = [...document.querySelectorAll("#message-modal-inputs input") as NodeListOf<I>].map((a: I): string => (a.value.toLowerCase())).filter(Boolean);
+    if (!usernames.length) { return; }
+
+    new api_MessageGetGID(usernames, document.getElementById("message-modal-create") as Bel).fetch();
+  });
+
+  document.getElementById("modal")?.addEventListener("click", clearModalIfClicked);
+}
+
 function postModalCreatePost(e: Event): void {
   let cwElement: el = document.getElementById("modal-post-cw");
   let contentElement: el = document.getElementById("modal-post-content");
@@ -203,19 +249,11 @@ function postModalCreatePost(e: Event): void {
 
   (e.target as Bel)?.setAttribute("disabled", "");
   if (postModalFor && postModalFor.type === "edit") {
-    fetch("/api/post", {
-      method: "PATCH",
-      body: buildRequest([
-        [postModalFor.id, 32],
-        privatePost,
-        [content, 16],
-        [cw, 8]
-      ])
-    }).then((response: Response): Promise<ArrayBuffer> => (response.arrayBuffer()))
-      .then((ab: ArrayBuffer): ArrayBuffer => {
-        let success: boolean = !((new Uint8Array(ab)[0] >> 7) & 1);
+    new api_EditPost(postModalFor.id, content, cw, privatePost, e.target as Bel)
+      .fetch()
+      .then((success: boolean | void): void => {
         if (success && postModalFor) {
-          let p: post | undefined = postCache[postModalFor.id];
+          let p: Post | undefined = postCache[postModalFor.id];
           clearModal();
 
           if (p) {
@@ -230,17 +268,7 @@ function postModalCreatePost(e: Event): void {
           }
         } else {
           contentElement.focus();
-          (e.target as Bel)?.removeAttribute("disabled");
         }
-
-        return ab;
-      })
-      .then(parseResponse)
-      .catch((err: any): void => {
-        contentElement.focus();
-        (e.target as Bel)?.removeAttribute("disabled");
-
-        throw err;
       });
   } else {
     let extra: {

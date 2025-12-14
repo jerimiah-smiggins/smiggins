@@ -1,7 +1,8 @@
 from typing import Literal
 
 from django.http import HttpRequest, HttpResponse
-from posts.models import M2MPending, Notification, Poll, Post, User
+from posts.models import (M2MFollow, M2MMessageMember, M2MPending, Message,
+                          MessageGroup, Notification, Poll, Post, User)
 
 
 class ResponseCodes:
@@ -40,6 +41,11 @@ class ResponseCodes:
     GET_ADMIN_PERMISSIONS = 0x44
     SET_ADMIN_PERMISSIONS = 0x45
 
+    MESSAGE_GROUP_TIMELINE = 0x50
+    MESSAGE_TIMELINE = 0x51
+    MESSAGE_SEND = 0x52
+    MESSAGE_GET_GID = 0x53
+
     TIMELINE_GLOBAL = 0x60
     TIMELINE_FOLLOWING = 0x61
     TIMELINE_USER = 0x62
@@ -48,6 +54,8 @@ class ResponseCodes:
     TIMELINE_HASHTAG = 0x65
     TIMELINE_FOLREQ = 0x66
     TIMELINE_SEARCH = 0x67
+    TIMELINE_USER_FOLLOWING = 0x68
+    TIMELINE_USER_FOLLOWERS = 0x69
 
     NOTIFICATIONS = 0x70
 
@@ -576,6 +584,86 @@ class api_SetAdminPermissions(_api_BaseResponse):
     def set_response(self):
         self.response_data = b""
 
+# 5X - Messages
+class api_MessageGroupTimeline(_api_BaseResponse):
+    response_code = ResponseCodes.MESSAGE_GROUP_TIMELINE
+    version = 0
+
+    def set_response(
+        self,
+        end: bool,
+        forwards: bool,
+        groups: list[MessageGroup],
+        user: User
+    ):
+        self.response_data = b((end or user is None) << 7 | forwards << 6) + b(len(groups))
+
+        for i in groups:
+            self.response_data += b(i.id, 4) + b(i.timestamp, 8) + b(M2MMessageMember.objects.only("unread").get(user=user, group=i).unread << 7)
+
+            recent_message = i.messages.order_by("-timestamp").first()
+            if recent_message:
+                content = str.encode(recent_message.content)[:MAX_STR16]
+            else:
+                content = b""
+
+            self.response_data += b(len(content), 2) + content
+
+            members = i.members.count()
+            not_self_members = i.members.exclude(user_id=user.user_id)[:3].values_list("display_name", flat=True)
+            self.response_data += b(members) + b"".join([b(min(len(str.encode(u)), MAX_STR8)) + str.encode(u)[:MAX_STR8] for u in not_self_members])
+
+class api_MessageTimeline(_api_BaseResponse):
+    response_code = ResponseCodes.MESSAGE_TIMELINE
+    version = 0
+
+    def set_response(
+        self,
+        end: bool,
+        forwards: bool,
+        messages: list[Message],
+        group: MessageGroup,
+        user: User
+    ):
+        members = group.members.count()
+        not_self_members = group.members.exclude(user_id=user.user_id)[:3].values_list("display_name", flat=True)
+        self.response_data = b(members) + b"".join([b(min(len(str.encode(u)), MAX_STR8)) + str.encode(u)[:MAX_STR8] for u in not_self_members])
+
+        self.response_data += b((end or user is None) << 7 | forwards << 6) + b(len(messages))
+
+        for i in messages:
+            self.response_data += b(i.timestamp, 8)
+
+            msg_content_bytes = str.encode(i.content)[:MAX_STR16]
+            username_bytes = str.encode(i.user.username)[:MAX_STR8]
+            display_name_bytes = str.encode(i.user.display_name)[:MAX_STR8]
+
+            self.response_data += b(len(msg_content_bytes), 2) + msg_content_bytes
+            self.response_data += b(len(username_bytes)) + username_bytes
+            self.response_data += b(len(display_name_bytes)) + display_name_bytes
+
+class api_MessageSend(_api_BaseResponse):
+    response_code = ResponseCodes.MESSAGE_SEND
+    version = 0
+
+    def parse_data(self) -> str:
+        return _extract_string(16, self.request.body)[0]
+
+    def set_response(self, content: str, timestamp: int, user: User):
+        self.response_data = b(timestamp, 8)
+
+        content_bytes = str.encode(content)[:MAX_STR16]
+        display_name_bytes = str.encode(user.display_name)[:MAX_STR8]
+        self.response_data += b(len(content_bytes), 2) + content_bytes
+        self.response_data += b(len(display_name_bytes)) + display_name_bytes
+
+class api_MessageGetGroupID(_api_BaseResponse):
+    response_code = ResponseCodes.MESSAGE_GET_GID
+    version = 0
+
+    def set_response(self, gid: int):
+        self.response_data = b(gid, 4)
+
 # 6X - Timelines
 class _api_TimelineBase(_api_BaseResponse):
     def set_response(
@@ -654,24 +742,59 @@ class api_TimelineHashtag(_api_TimelineBase):
 
 class api_TimelineFolreq(_api_BaseResponse):
     response_code = ResponseCodes.TIMELINE_FOLREQ
-    version = 0
+    version = 1
 
     def set_response(self, end: bool, users: list[M2MPending]):
         self.response_data = b(end << 7) + b(len(users))
 
         for user in users:
             username_bytes = str.encode(user.following.username)[:MAX_STR8]
+            pronouns_bytes = str.encode(user.following.pronouns)[:MAX_STR8]
             display_name_bytes = str.encode(user.following.display_name)[:MAX_STR8]
             bio_bytes = str.encode(user.following.bio)[:MAX_STR16]
 
             self.response_data += b(user.pk, 4)
             self.response_data += b(len(username_bytes)) + username_bytes
+            self.response_data += b(len(pronouns_bytes)) + pronouns_bytes
+            self.response_data += bytearray.fromhex(user.following.color[1:7] + (user.following.color_two if user.following.gradient else user.following.color)[1:7])
             self.response_data += b(len(display_name_bytes)) + display_name_bytes
             self.response_data += b(len(bio_bytes), 2) + bio_bytes
 
 class api_TimelineSearch(_api_TimelineBase):
     response_code = ResponseCodes.TIMELINE_SEARCH
     version = 0
+
+class api_TimelineUserFollowing(_api_BaseResponse):
+    response_code = ResponseCodes.TIMELINE_USER_FOLLOWING
+    version = 0
+
+    def _get_user(self, follow: M2MFollow) -> User:
+        return follow.following
+
+    def set_response(self, end: bool, users: list[M2MFollow]):
+        self.response_data = b(end << 7) + b(len(users))
+
+        for user in users:
+            u = self._get_user(user)
+
+            username_bytes = str.encode(u.username)[:MAX_STR8]
+            pronouns_bytes = str.encode(u.pronouns)[:MAX_STR8]
+            display_name_bytes = str.encode(u.display_name)[:MAX_STR8]
+            bio_bytes = str.encode(u.bio)[:MAX_STR16]
+
+            self.response_data += b(user.pk, 4)
+            self.response_data += b(len(username_bytes)) + username_bytes
+            self.response_data += b(len(pronouns_bytes)) + pronouns_bytes
+            self.response_data += bytearray.fromhex(u.color[1:7] + (u.color_two if u.gradient else u.color)[1:7])
+            self.response_data += b(len(display_name_bytes)) + display_name_bytes
+            self.response_data += b(len(bio_bytes), 2) + bio_bytes
+
+class api_TimelineUserFollowers(api_TimelineUserFollowing):
+    response_code = ResponseCodes.TIMELINE_USER_FOLLOWERS
+    version = 0
+
+    def _get_user(self, follow: M2MFollow) -> User:
+        return follow.user
 
 # 7X - Statuses
 class api_PendingNotifications(_api_BaseResponse):

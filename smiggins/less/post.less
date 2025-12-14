@@ -16,8 +16,11 @@ body {
 
 #timeline-posts {
   margin: -1em 0;
+}
 
-  :last-child .post {
+:last-child {
+  > .post,
+  > .notification-like {
     border-bottom: none;
   }
 }
@@ -418,14 +421,6 @@ body {
     margin: 0 -1em;
     padding: 0 1em;
   }
-
-  // > div[data-notification-read] {
-  //   color: var(--subtext) !important;
-
-  //   a:not(.plain-link) {
-  //     color: rgba(var(--accent-rgb) / 50%);
-  //   }
-  // }
 }
 
 a#home-link,
