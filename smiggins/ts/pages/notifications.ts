@@ -115,7 +115,11 @@ function renderNotificationTimeline(
     }
 
     if (nc === NotificationCodes.Like) {
-      if (pendingLikes[post[0].id]) {
+      if (localStorage.getItem("smiggins-no-like-grouping")) {
+        let el: D = _getLikeNotification([post[0]]);
+        if (read) { el.dataset.notificationRead = ""; }
+        frag.append(el);
+      } else if (pendingLikes[post[0].id]) {
         pendingLikes[post[0].id].push(post[0]);
       } else {
         pendingLikeOrder.push(post[0].id);

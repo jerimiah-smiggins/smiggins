@@ -251,6 +251,7 @@ function exportSettings(): void {
     fontSize: localStorage.getItem("smiggins-font-size") || "normal",
     hideChangelog: Boolean(localStorage.getItem("smiggins-hide-changelog")),
     hideInteractions: Boolean(localStorage.getItem("smiggins-hide-interactions")),
+    noLikeGrouping: Boolean(localStorage.getItem("smiggins-no-like-grouping")),
     pfpShape: localStorage.getItem("smiggins-php-shape") || "round",
     theme: (localStorage.getItem("smiggins-theme") as Themes | null) || "system",
 
@@ -306,6 +307,7 @@ function importSettings(data: SettingsExport): void {
   localStorage.setItem("smiggins-font-size", data.fontSize || "normal");
   _lsBoolean(data.hideChangelog, "smiggins-hide-changelog");
   _lsBoolean(data.hideInteractions, "smiggins-hide-interactions");
+  _lsBoolean(data.noLikeGrouping, "smiggins-no-like-grouping");
   localStorage.setItem("smiggins-pfp-shape", data.pfpShape || "round");
   localStorage.setItem("smiggins-theme", data.theme || "system");
 
@@ -339,19 +341,21 @@ function p_settingsCosmetic(element: D): void {
   element.querySelector(`#pfp-shape > option[value="${localStorage.getItem("smiggins-pfp-shape") || "round"}"]`)?.setAttribute("selected", "");
   element.querySelector(`#cw-cascading > option[value="${localStorage.getItem("smiggins-cw-cascading") || "email"}"]`)?.setAttribute("selected", "");
   if (localStorage.getItem("smiggins-complex-timestamps")) { element.querySelector("#complex-timestamps")?.setAttribute("checked", ""); }
-  if (localStorage.getItem("smiggins-expand-cws"))         { element.querySelector("#expand-cws")        ?.setAttribute("checked", ""); }
   if (localStorage.getItem("smiggins-hide-interactions"))  { element.querySelector("#hide-interactions") ?.setAttribute("checked", ""); }
-  if (localStorage.getItem("smiggins-auto-show-posts"))    { element.querySelector("#auto-show")         ?.setAttribute("checked", ""); }
+  if (localStorage.getItem("smiggins-expand-cws"))         { element.querySelector("#expand-cws")        ?.setAttribute("checked", ""); }
   if (localStorage.getItem("smiggins-hide-changelog"))     { element.querySelector("#hide-changelog")    ?.setAttribute("checked", ""); }
+  if (localStorage.getItem("smiggins-no-like-grouping"))   { element.querySelector("#no-like-grouping")  ?.setAttribute("checked", ""); }
+  if (localStorage.getItem("smiggins-auto-show-posts"))    { element.querySelector("#auto-show")         ?.setAttribute("checked", ""); }
 
   element.querySelector("#theme")             ?.addEventListener("change", settingsThemeSelection);
   element.querySelector("#pfp-shape")         ?.addEventListener("change", settingsPFPShapeSelection);
   element.querySelector("#cw-cascading")      ?.addEventListener("change", settingsCWCascadingSelection);
   element.querySelector("#complex-timestamps")?.addEventListener("change", genericCheckbox("smiggins-complex-timestamps"));
-  element.querySelector("#expand-cws")        ?.addEventListener("change", genericCheckbox("smiggins-expand-cws"));
   element.querySelector("#hide-interactions") ?.addEventListener("change", genericCheckbox("smiggins-hide-interactions"));
-  element.querySelector("#auto-show")         ?.addEventListener("change", genericCheckbox("smiggins-auto-show-posts"));
+  element.querySelector("#expand-cws")        ?.addEventListener("change", genericCheckbox("smiggins-expand-cws"));
   element.querySelector("#hide-changelog")    ?.addEventListener("change", genericCheckbox("smiggins-hide-changelog"));
+  element.querySelector("#no-like-grouping")  ?.addEventListener("change", genericCheckbox("smiggins-no-like-grouping"));
+  element.querySelector("#auto-show")         ?.addEventListener("change", genericCheckbox("smiggins-auto-show-posts"));
 
   for (const el of element.querySelectorAll("#font-size-selection > div")) {
     el.addEventListener("click", setFontSize);
