@@ -331,6 +331,8 @@ GET /api/messages/{group_id}:
     offset: { type: int }
     forwards: { type: bool }
   response:
+  - { type: uint8, name: "Members", id: members, loop: group_count }
+  - { type: str8, name: "Member name", loop: "group_count,min(members - 1, 3)" } # excludes self - if two members (self, one other), then it would return only the other member's name. returns a maximum of three names (ex. format would be "a, b, c, and n more")
   - { type: bool7, name: "End of timeline" }
   - { type: bool6, name: "Forwards" }
   - { type: uint8, name: "Message count", id: msg_count }

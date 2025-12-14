@@ -70,30 +70,11 @@ function renderMessageListTimeline(
     if (!offset.lower || group.timestamp < offset.lower) { offset.lower = group.timestamp; }
     if (!offset.upper || group.timestamp > offset.upper) { offset.upper = group.timestamp; }
 
-    let members: string[] = group.members.names.map((a: string): string => (`<b>${a}</b>`))
-    let lengthDifference: number = group.members.count - members.length - 1;
-    let names: string;
-
-    if (lengthDifference === 0) {
-      if (members.length === 1) {
-        names = members[0];
-      } else if (members.length === 2) {
-        names = members.join(" and ");
-      } else {
-        members[members.length - 1] = "and " + members[members.length - 1];
-        names = members.join(", ");
-      }
-    } else if (lengthDifference === 1) {
-      names = members.join(", ") + ", and <b>1 other</b>";
-    } else {
-      names = members.join(", ") + `, and <b>${lengthDifference} others</b>`;
-    }
-
     let el: D = getSnippet("message-list-item", {
       gid: String(group.group_id),
       timestamp: getTimestamp(group.timestamp),
       content: [group.recent_content ? escapeHTML(group.recent_content) : "<i>No messages</i>", 1],
-      names: [names, 1],
+      names: [getMessageTitle(group.members.names, group.members.count), 1],
     });
 
     if (!group.unread) {
@@ -145,6 +126,29 @@ function handleMessageListForward(
   }
 
   renderMessageListTimeline(groups.reverse(), false, false, null, true)
+}
+
+function getMessageTitle(members: string[], count: number): string {
+  members = members.map((a: string): string => (`<b>${escapeHTML(a)}</b>`));
+  let lengthDifference: number = count - members.length - 1;
+  let names: string;
+
+  if (lengthDifference === 0) {
+    if (members.length === 1) {
+      names = members[0];
+    } else if (members.length === 2) {
+      names = members.join(" and ");
+    } else {
+      members[members.length - 1] = "and " + members[members.length - 1];
+      names = members.join(", ");
+    }
+  } else if (lengthDifference === 1) {
+    names = members.join(", ") + ", and <b>1 other</b>";
+  } else {
+    names = members.join(", ") + `, and <b>${lengthDifference} others</b>`;
+  }
+
+  return names;
 }
 
 function _getMessageSeparator(message: Message): D {

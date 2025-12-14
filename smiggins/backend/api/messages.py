@@ -82,7 +82,7 @@ def tl_messages(request: HttpRequest, gid: int, offset: int | None=None, forward
 
     M2MMessageMember.objects.filter(user=request.s_user, group=group, unread=True).update(unread=False)
 
-    api.set_response(end, forwards, messages, request.s_user)
+    api.set_response(end, forwards, messages, group, request.s_user)
     return api.get_response()
 
 def send_message(request: HttpRequest, gid: int) -> HttpResponse:

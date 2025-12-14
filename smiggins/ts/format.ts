@@ -752,11 +752,25 @@ class api_MessageTimeline extends _api_TimelineBase {
   }
 
   handle(u8arr: Uint8Array): void {
-    let end: boolean = _extractBool(u8arr[2], 7);
-    let forwards: boolean | "force" = _extractBool(u8arr[2], 6);
-    let numMessages: number = u8arr[3];
+    let memberCount: number = u8arr[2];
+    let members: string[] = [];
+    u8arr = u8arr.slice(3);
+    for (let i: number = 0; i < Math.min(memberCount - 1, 3); i++) {
+      let name: [string, Uint8Array] = _extractString(8, u8arr);
+      members.push(name[0]);
+      u8arr = name[1];
+    }
+
+    let el: el = document.getElementById("message-title");
+    if (el)  {
+      el.innerHTML = getMessageTitle(members, memberCount);
+    }
+
+    let end: boolean = _extractBool(u8arr[0], 7);
+    let forwards: boolean | "force" = _extractBool(u8arr[0], 6);
+    let numMessages: number = u8arr[1];
     let messages: Message[] = [];
-    u8arr = u8arr.slice(4);
+    u8arr = u8arr.slice(2);
 
     for (let i: number = 0; i < numMessages; i++) {
       let ts: number = _extractInt(64, u8arr);

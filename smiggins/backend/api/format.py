@@ -622,9 +622,14 @@ class api_MessageTimeline(_api_BaseResponse):
         end: bool,
         forwards: bool,
         messages: list[Message],
+        group: MessageGroup,
         user: User
     ):
-        self.response_data = b((end or user is None) << 7 | forwards << 6) + b(len(messages))
+        members = group.members.count()
+        not_self_members = group.members.exclude(user_id=user.user_id)[:3].values_list("display_name", flat=True)
+        self.response_data = b(members) + b"".join([b(min(len(str.encode(u)), MAX_STR8)) + str.encode(u)[:MAX_STR8] for u in not_self_members])
+
+        self.response_data += b((end or user is None) << 7 | forwards << 6) + b(len(messages))
 
         for i in messages:
             self.response_data += b(i.timestamp, 8)
