@@ -80,8 +80,8 @@ function linkify(str: string, postIDOrUsername?: number | string): string {
   }
 
   if (postIDOrUsername) {
-    let href: string = typeof postIDOrUsername === "number" ? `/p/${postIDOrUsername}/` : `/u/${postIDOrUsername}`;
-    let newReplacements: Replacement[] = [];
+    let href: string = typeof postIDOrUsername === "number" ? `/p/${postIDOrUsername}/` : `/u/${postIDOrUsername}/`;
+    let newReplacements: Replacement[] = []
     let textIndex: number = 0;
 
     urlReplacement.sort((a: Replacement, b: Replacement): number => (a.index - b.index));
@@ -92,7 +92,7 @@ function linkify(str: string, postIDOrUsername?: number | string): string {
           index: textIndex,
           length: repl.index - textIndex,
           href: href,
-          internalIntent: "post",
+          internalIntent: typeof postIDOrUsername === "number" ? "post" : "user",
           hiddenLink: true
         });
       }
@@ -106,7 +106,7 @@ function linkify(str: string, postIDOrUsername?: number | string): string {
         index: lastRepl.index + lastRepl.length,
         length: str.length - lastRepl.index - lastRepl.length,
         href: href,
-        internalIntent: "post",
+        internalIntent: typeof postIDOrUsername === "number" ? "post" : "user",
         hiddenLink: true
       });
     } else if (!lastRepl) {
@@ -114,7 +114,7 @@ function linkify(str: string, postIDOrUsername?: number | string): string {
         index: 0,
         length: str.length,
         href: href,
-        internalIntent: "post",
+        internalIntent: typeof postIDOrUsername === "number" ? "post" : "user",
         hiddenLink: true
       });
     }
