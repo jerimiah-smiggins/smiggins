@@ -81,7 +81,7 @@ function linkify(str: string, postIDOrUsername?: number | string): string {
 
   if (postIDOrUsername) {
     let href: string = typeof postIDOrUsername === "number" ? `/p/${postIDOrUsername}/` : `/u/${postIDOrUsername}/`;
-    let newReplacements: Replacement[] = []
+    let newReplacements: Replacement[] = [];
     let textIndex: number = 0;
 
     urlReplacement.sort((a: Replacement, b: Replacement): number => (a.index - b.index));
