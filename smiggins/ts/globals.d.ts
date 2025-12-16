@@ -181,6 +181,7 @@ type SettingsExport = {
   fontSize: string,
   hideChangelog: boolean,
   hideInteractions: boolean,
+  noLikeGrouping: boolean,
   pfpShape: string,
   theme: Themes,
 

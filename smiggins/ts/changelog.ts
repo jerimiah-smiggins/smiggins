@@ -98,5 +98,12 @@ const changes: { [key: string]: VersionData } = {
       "Comments are now always followers-only by default if the original post is followers-only",
       "Added following/followers pages"
     ]
+  },
+  "1.4.1": {
+    description: "Misc. changes and fixes",
+    changes: [
+      "Fixed a bug that caused people who aren't logged in to not be able to view the following/followers popups",
+      "Added a setting that disables notification grouping for likes"
+    ]
   }
 };
