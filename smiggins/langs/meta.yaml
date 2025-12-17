@@ -41,6 +41,8 @@ defs:
     error_code: str
     cant_copy: str
     cant_copy_more: str
+    passwords_dont_match: str
+    user_dne: str
 
   numbers:
     infinity: str
@@ -73,6 +75,7 @@ defs:
       length: numbered
       has_quote: str
       has_poll: str
+      reply: str
 
     quote:
       has_quote: str
@@ -89,6 +92,8 @@ defs:
     cw_short: str
     poll_short: str
 
+    poll_placeholder: str
+    poll_placeholder_optional: str
     button: str
     placeholder: str
     quote_button: str
@@ -100,7 +105,16 @@ defs:
     pinned: str
     unpinned: str
 
+    unpin: str
+
   keybinds:
+    modifiers:
+      alt: str
+      ctrl: str
+      shift: str
+
+    button_change: str
+
     new_post: { name: str, description: str }
     load_new_posts: { name: str, description: str }
     top_of_timeline: { name: str, description: str }
@@ -119,9 +133,26 @@ defs:
 
   settings:
     profile_saved: str
+    password_changed: str
+    pronouns_presets: str[]
 
   admin:
     user_deleted: str
     invite_code_copied: str
     otp_delete_button: str
     permissions_saved: str
+
+  messages:
+    none: str
+    title: numbered
+
+  notifications:
+    like: numbered
+
+  user:
+    follow: str
+    unfollow: str
+    pending: str
+    block: str
+    unblock: str
+    no_bio: str

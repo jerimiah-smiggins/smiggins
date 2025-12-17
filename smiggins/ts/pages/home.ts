@@ -20,7 +20,7 @@ function getPollInputsHTML(id: string, submit: string): string {
   let output: string = "";
 
   for (let i: number = 0; i < limits.poll_count; i++) {
-    output += `<div><input data-poll-input="${id}" data-poll-num="${i}" ${i + 1 < limits.poll_count ? `data-enter-next="[data-poll-input='${id}'][data-poll-num='${i + 1}']"` : ""} data-enter-submit="${submit}" placeholder="Option ${i + 1}${i >= 2 ? " (optional)" : ""}" maxlength="${limits.poll_item}"></div>`;
+    output += `<div><input data-poll-input="${id}" data-poll-num="${i}" ${i + 1 < limits.poll_count ? `data-enter-next="[data-poll-input='${id}'][data-poll-num='${i + 1}']"` : ""} data-enter-submit="${submit}" placeholder="${lr(L.post[i >= 2 ? "poll_placeholder_optional" : "poll_placeholder"], { n: String(i + 1) })}" maxlength="${limits.poll_item}"></div>`;
   }
 
   return output;

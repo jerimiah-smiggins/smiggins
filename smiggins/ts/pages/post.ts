@@ -6,7 +6,7 @@ function getPostIDFromPath(path?: string): number {
 
 function postSetDNE(): void {
   let notFound: HTMLElement = document.createElement("div");
-  notFound.innerText = "This post doesn't exist.";
+  notFound.innerText = L.errors.post_not_found;
   notFound.classList.add("generic-margin-top");
   document.getElementById("focused-post")?.replaceChildren(notFound);
   document.getElementById("comment-parent")?.setAttribute("hidden", "");
@@ -63,7 +63,7 @@ function getPostTemplatedCW(p: Post): string {
       case "email":
       case null:
         if (!cw.toLowerCase().startsWith("re:")) {
-          return "RE: " + cw.slice(0, limits.content_warning - 4);
+          return lr(L.post.cw.reply, { c: cw }).slice(0, limits.content_warning);
         }
 
       case "copy":

@@ -24,7 +24,7 @@ function userSetDNE(): void {
   let tlContainer: el = document.getElementById("timeline-posts");
 
   if (tlContainer) {
-    tlContainer.innerHTML = `<i class="timeline-status">User '${escapeHTML(getUsernameFromPath())}' does not exist.</i>`;
+    tlContainer.innerHTML = `<i class="timeline-status">${lr(L.errors.user_dne, { u: escapeHTML(getUsernameFromPath()), })}</i>`;
   }
 }
 
@@ -84,23 +84,23 @@ function userUpdateStats(
 
     if (followElement) {
       if (following === "pending") {
-        followElement.innerText = "Pending";
+        followElement.innerText = L.user.pending;
         followElement.dataset.unfollow = "";
       } else if (following) {
-        followElement.innerText = "Unfollow";
+        followElement.innerText = L.user.unfollow;
         followElement.dataset.unfollow = "";
       } else {
-        followElement.innerText = "Follow";
+        followElement.innerText = L.user.follow;
         delete followElement.dataset.unfollow;
       }
     }
 
     if (blockElement) {
       if (blocking) {
-        blockElement.innerText = "Unblock";
+        blockElement.innerText = L.user.unblock;
         blockElement.dataset.unblock = "";
       } else {
-        blockElement.innerText = "Block";
+        blockElement.innerText = L.user.block;
         delete blockElement.dataset.unblock;
       }
     }
@@ -147,7 +147,7 @@ function userUpdateStats(
           if (pinElement) {
             delete pinElement.dataset.interactionPin;
             pinElement.dataset.interactionUnpin = String(pinned);
-            pinElement.innerHTML = icons.unpin + " Unpin";
+            pinElement.innerHTML = icons.unpin + " " + L.post.unpin;
           }
         }
 
@@ -175,15 +175,15 @@ function updateFollowButton(followed: boolean, pending?: boolean): void {
   let c: UserData | undefined = userCache[username];
 
   if (!followed) {
-    followButton.innerText = "Follow";
+    followButton.innerText = L.user.follow;
     delete followButton.dataset.unfollow;
     if (c) { c.following = false; }
   } else if (pending) {
-    followButton.innerText = "Pending";
+    followButton.innerText = L.user.pending;
     followButton.dataset.unfollow = "";
     if (c) { c.following = "pending"; }
   } else {
-    followButton.innerText = "Unfollow";
+    followButton.innerText = L.user.unfollow;
     followButton.dataset.unfollow = "";
     if (c) { c.following = true; }
   }
@@ -194,16 +194,16 @@ function updateBlockButton(blocked: boolean): void {
   if (!blockButton) { return; }
 
   if (blocked) {
-    blockButton.innerText = "Unblock";
+    blockButton.innerText = L.user.unblock;
     blockButton.dataset.unblock = "";
 
     let followButton: el = document.getElementById("follow");
     if (followButton && followButton.dataset.unfollow !== undefined) {
       delete followButton.dataset.unfollow;
-      followButton.innerText = "Follow";
+      followButton.innerText = L.user.follow;
     }
   } else {
-    blockButton.innerText = "Block";
+    blockButton.innerText = L.user.block;
     delete blockButton.dataset.unblock;
   }
 }
@@ -260,7 +260,7 @@ function renderFollowingTimeline(users: FollowRequestUserData[], end: boolean): 
   clearTimelineStatuses(el);
 
   if (followingTimelineOffset === null && users.length === 0) {
-    if (el) { el.innerHTML = "<i class=\"timeline-status\">None</i>"; }
+    if (el) { el.innerHTML = `<i class="timeline-status">${L.generic.none}</i>`; }
   }
 
   for (const u of users) {
@@ -269,7 +269,7 @@ function renderFollowingTimeline(users: FollowRequestUserData[], end: boolean): 
       banner_one: u.color_one,
       banner_two: u.color_two,
       hidden_if_no_pronouns: u.pronouns ? "" : "hidden",
-      bio: [u.bio ? linkify(escapeHTML(u.bio), u.username) : "<i>No bio set</i>", 1],
+      bio: [u.bio ? linkify(escapeHTML(u.bio), u.username) : `<i>${L.user.no_bio}</i>`, 1],
       pronouns: [escapeHTML(u.pronouns || ""), 1],
       display_name: [escapeHTML(u.display_name), 1]
     });

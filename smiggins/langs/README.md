@@ -18,7 +18,8 @@
 4. continue reading the next section for more information and specifics.
 
 ## adding on to an existing translation:
-1. start translating any strings that need it.
+1. start translating any strings that need it. **You are responsible for
+   escaping HTML** (ex. `&lt;` instead of `<`).
 
 2. by running the `generator.py` file, you should be able to make sure you
    have a valid language file, and be able to test it out on a local development

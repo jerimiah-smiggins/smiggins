@@ -57,7 +57,7 @@ function renderMessageListTimeline(
   if (offset.lower === null && groups.length === 0) {
     let none: HTMLElement = document.createElement("i");
     none.classList.add("timeline-status");
-    none.innerText = "None";
+    none.innerText = L.generic.none;
 
     tlElement.append(none);
 
@@ -73,7 +73,7 @@ function renderMessageListTimeline(
     let el: D = getSnippet("message-list-item", {
       gid: String(group.group_id),
       timestamp: getTimestamp(group.timestamp),
-      content: [group.recent_content ? escapeHTML(group.recent_content) : "<i>No messages</i>", 1],
+      content: [group.recent_content ? escapeHTML(group.recent_content) : `<i>${L.messages.none}</i>`, 1],
       names: [getMessageTitle(group.members.names, group.members.count), 1],
     });
 
@@ -130,25 +130,12 @@ function handleMessageListForward(
 
 function getMessageTitle(members: string[], count: number): string {
   members = members.map((a: string): string => (`<b>${escapeHTML(a)}</b>`));
-  let lengthDifference: number = count - members.length - 1;
-  let names: string;
-
-  if (lengthDifference === 0) {
-    if (members.length === 1) {
-      names = members[0];
-    } else if (members.length === 2) {
-      names = members.join(" and ");
-    } else {
-      members[members.length - 1] = "and " + members[members.length - 1];
-      names = members.join(", ");
-    }
-  } else if (lengthDifference === 1) {
-    names = members.join(", ") + ", and <b>1 other</b>";
-  } else {
-    names = members.join(", ") + `, and <b>${lengthDifference} others</b>`;
-  }
-
-  return names;
+  return lr(n(L.messages.title, count - 1), {
+    a: members[0],
+    b: members[1],
+    c: members[2],
+    n: String(count)
+  });
 }
 
 function _getMessageSeparator(message: Message): D {
@@ -189,7 +176,7 @@ function renderMessageTimeline(
     if (offset.lower === null) {
       let none: HTMLElement = document.createElement("i");
       none.classList.add("timeline-status");
-      none.innerText = "None";
+      none.innerText = L.generic.none;
 
       tlElement.append(none);
     }

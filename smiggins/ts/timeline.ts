@@ -147,7 +147,7 @@ function renderTimeline(
   if (offset.lower === null && posts.length === 0) {
     let none: HTMLElement = document.createElement("i");
     none.classList.add("timeline-status");
-    none.innerText = "None";
+    none.innerText = L.generic.none;
 
     tlElement.append(none);
 

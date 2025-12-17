@@ -108,7 +108,7 @@ function settingsCWCascadingSelection(): void {
 
 function changePasswordSuccess(token: string): void {
   setTokenCookie(token);
-  createToast("Success!", "Your password has been changed.");
+  createToast(L.generic.success, L.settings.password_changed);
 
   let currentPwElement: el = document.getElementById("password-current");
   let newPwElement: el = document.getElementById("password-new");
@@ -190,7 +190,7 @@ function profileSettingsSetUserData(
 
     if (pronouns === "") {
       // do nothing, pronouns unset
-    } else if (["he/him", "she/her", "they/them", "it/its"].includes(pronouns)) {
+    } else if (L.settings.pronouns_presets.includes(pronouns)) {
       pronounsElement.value = pronouns;
       pronounsCustomElement.setAttribute("hidden", "");
     } else {
@@ -228,13 +228,13 @@ function setKeybindElementData(kbId: string, el: D): void {
   let keyData: string = _kbGetKey(kbId);
   let key: string = keyData[0] + keyData.slice(1).split(":")[0];
   let modifiers: string = (keyData.slice(1).split(":")[1].split(",") as KeybindModifiers[]).map((mod: KeybindModifiers): string => ({
-    alt: "Alt + ",
-    ctrl: "Ctrl + ",
+    alt: L.keybinds.modifiers.alt + " + ",
+    ctrl: L.keybinds.modifiers.ctrl + " + ",
     nav: _kbGetKey("navModifier")[0] + _kbGetKey("navModifier").slice(1).split(":")[0] + " + ",
-    shift: "Shift + "
+    shift: L.keybinds.modifiers.shift + " + "
   }[mod])).join("");
 
-  let output: string = `<div class="generic-margin-top">${escapeHTML(kbData.name || "")}: <code class="kb-key">${escapeHTML(key == KB_DISABLED ? KB_DISABLED : modifiers + key)}</code> <button data-kb-id="${kbId}">Change</button></div>`;
+  let output: string = `<div class="generic-margin-top">${escapeHTML(kbData.name || "")}: <code class="kb-key">${escapeHTML(key == KB_DISABLED ? KB_DISABLED : modifiers + key)}</code> <button data-kb-id="${kbId}">${L.keybinds.button_change}</button></div>`;
 
   if (kbData.description) {
     output += `<small><div>${escapeHTML(kbData.description)}</div></small>`;

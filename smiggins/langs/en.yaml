@@ -41,6 +41,8 @@ errors:
   error_code: Error code %c
   cant_copy: Unable to copy!
   cant_copy_more: Couldn't copy text to your clipboard. Are you using https?
+  passwords_dont_match: Passwords don't match.
+  user_dne: User '%u' does not exist.
 
 numbers:
   infinity: Infinity
@@ -77,6 +79,7 @@ post:
       "*": "%n chars"
     has_quote: ", quote"
     has_poll: ", poll"
+    reply: "RE: %c"
 
   quote:
     has_quote: Includes a quote
@@ -95,6 +98,8 @@ post:
   cw_short: "CW: %c"
   poll_short: "Poll"
 
+  poll_placeholder: Option %n
+  poll_placeholder_optional: Option %n (optional)
   button: Post
   placeholder: Cool post
   quote_button: Quote
@@ -114,7 +119,16 @@ post:
   pinned: Pinned to your profile.
   unpinned: This post is no longer pinned to your profile.
 
+  unpin: Unpin
+
 keybinds:
+  modifiers:
+    alt: Alt
+    ctrl: Ctrl
+    shift: Shift
+
+  button_change: Change
+
   new_post: { name: Enter Post Box, description: Lets you send a post from anywhere }
   load_new_posts: { name: Load New Posts, description: Shows any posts that have been made since the posts were initially loaded }
   top_of_timeline: { name: Jump to Top, description: Jumps to the top of the current page }
@@ -133,9 +147,40 @@ keybinds:
 
 settings:
   profile_saved: Your profile has been saved.
+  password_changed: Your password has been changed.
+  pronouns_presets:
+    - he/him
+    - she/her
+    - they/them
+    - it/its
 
 admin:
   user_deleted: This user has been deleted.
   invite_code_copied: The invite code has been copied to your clipboard.
   otp_delete_button: Delete
   permissions_saved: Permissions saved.
+
+messages:
+  none: No messages
+  title:
+    1: "%a"
+    2: "%a and %b"
+    3: "%a, %b, and %c"
+    4: "%a, %b, %c, and <b>%n other</b>"
+    "*": "%a, %b, %c, and <b>%n others</b>"
+
+notifications:
+  like:
+    1: "%a liked your post."
+    2: "%a and %b liked your post."
+    3: "%a, %b, and %c liked your post."
+    4: "%a, %b, %c, and <b>%n other</b> liked your post."
+    "*": "%a, %b, %c, and <b>%n others</b> liked your post."
+
+user:
+  follow: Follow
+  unfollow: Unfollow
+  pending: Pending
+  block: Block
+  unblock: Unblock
+  no_bio: No bio set

@@ -33,7 +33,7 @@ function signupSubmitEvent(e: MouseEvent): void {
   else if (!password) { passwordElement.focus(); return; }
   else if (password !== confirm) {
     confirmElement.focus();
-    createToast("Passwords don't match.");
+    createToast(L.errors.passwords_dont_match);
     return;
   }
 
