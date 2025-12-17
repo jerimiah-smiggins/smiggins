@@ -5,7 +5,7 @@ fi
 
 if [ "$1" == "lang" ] || [ "$1" == "" ] || [ "$1" == "uncompressed" ]; then
   printf "collecting languages..."
-  python3 ./smiggins/langs/_generator.py
+  python3 ./smiggins/langs/generator.py
   echo " done"
 fi
 

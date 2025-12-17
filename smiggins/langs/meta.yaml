@@ -1,4 +1,4 @@
-# yaml-language-server: $schema=_meta.schema.json
+# yaml-language-server: $schema=meta.schema.json
 
 languages:
 # first language on list will be used as default

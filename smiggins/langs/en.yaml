@@ -1,4 +1,4 @@
-# yaml-language-server: $schema=_lang.schema.json
+# yaml-language-server: $schema=lang.schema.json
 
 meta:
   name: English

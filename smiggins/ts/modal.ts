@@ -198,6 +198,7 @@ function newMessageModal(): void {
     document.querySelector("#message-modal-inputs input:not([data-enter-next])")?.setAttribute("data-enter-next", `#message-modal-inputs :nth-child(${count + 1}) input`);
     document.getElementById("message-modal-inputs")?.insertAdjacentHTML("beforeend", `<div>@<input autofocus data-enter-submit="#message-modal-create" placeholder="${L.generic.username}"></div>`);
     (document.querySelector("#message-modal-inputs input:not([data-enter-next])") as el)?.addEventListener("keydown", inputEnterEvent);
+    (document.querySelector("#message-modal-inputs input:not([data-enter-next])") as el)?.focus();
 
     if (count >= 254) {
       document.getElementById("message-modal-add")?.setAttribute("hidden", "");
