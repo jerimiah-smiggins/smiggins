@@ -14,8 +14,8 @@ function createPostModal(type?: "quote" | "comment" | "edit", id?: number): void
     hidden_if_no_poll: "",
     poll_items: getPollInputsHTML("modal", "#modal-post"),
     private_post: "",
-    placeholder: "Cool post",
-    action: "Post"
+    placeholder: L.post.placeholder,
+    action: L.post.button
   };
 
   postModalFor = undefined;
@@ -30,8 +30,8 @@ function createPostModal(type?: "quote" | "comment" | "edit", id?: number): void
     };
 
     extraVars = {
-      placeholder: "Cool post",
-      action: "Post",
+      placeholder: L.post.placeholder,
+      action: L.post.button,
 
       hidden_if_no_quote: "hidden",
       hidden_if_no_comment: "hidden",
@@ -53,25 +53,15 @@ function createPostModal(type?: "quote" | "comment" | "edit", id?: number): void
 
     if (type === "quote") {
       extraVars.hidden_if_no_quote = "";
-      extraVars.action = "Quote";
-      extraVars.placeholder = [
-        "Cool quote",
-        "What did they say this time?",
-        "Yet another mistake to point out?",
-        "Ugh... not again..."
-      ][Math.floor(Math.random() * 4)];
+      extraVars.action = L.post.quote_button;
+      extraVars.placeholder = L.post.quote_placeholder[Math.floor(Math.random() * L.post.quote_placeholder.length)];
     } else if (type === "comment") {
       extraVars.hidden_if_no_comment = "";
-      extraVars.action = "Reply";
-      extraVars.placeholder = [
-        "Cool comment",
-        "Got something to say about this?",
-        "Let them know how you feel",
-        "Go spread your opinions, little one"
-      ][Math.floor(Math.random() * 4)];
+      extraVars.action = L.post.comment_button;
+      extraVars.placeholder = L.post.comment_placeholder[Math.floor(Math.random() * L.post.comment_placeholder.length)];
     } else if (type === "edit") {
-      extraVars.placeholder = "Cool post but edited";
-      extraVars.action = "Save";
+      extraVars.action = L.post.edit_button;
+      extraVars.placeholder = L.post.edit_placeholder;
       extraVars.hidden_if_no_poll = "hidden";
     }
   }
@@ -152,7 +142,7 @@ function createFollowingModal(type: "following" | "followers", username: string)
 function modifyKeybindModal(kbId: string): void {
   let kbData = keybinds[kbId];
   let el: D = getSnippet("modal/keybind", {
-    keybind_title: kbData.name,
+    keybind_title: kbData.name || "",
     keybind_description: kbData.description || "",
     hidden_if_no_description: kbData.description ? "" : "hidden"
   });
@@ -206,7 +196,7 @@ function newMessageModal(): void {
     }
 
     document.querySelector("#message-modal-inputs input:not([data-enter-next])")?.setAttribute("data-enter-next", `#message-modal-inputs :nth-child(${count + 1}) input`);
-    document.getElementById("message-modal-inputs")?.insertAdjacentHTML("beforeend", "<div>@<input autofocus data-enter-submit=\"#message-modal-create\" placeholder=\"username\"></div>");
+    document.getElementById("message-modal-inputs")?.insertAdjacentHTML("beforeend", `<div>@<input autofocus data-enter-submit="#message-modal-create" placeholder="${L.generic.username}"></div>`);
     (document.querySelector("#message-modal-inputs input:not([data-enter-next])") as el)?.addEventListener("keydown", inputEnterEvent);
 
     if (count >= 254) {

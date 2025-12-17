@@ -1,4 +1,15 @@
-if [ "$1" != "less" ]; then
+if [ "$1" != "" ] && [ "$1" != "lang" ] && [ "$1" != "less" ] && [ "$1" != "ts" ] && [ "$1" != "uncompressed" ]; then
+  echo "unknown format $1";
+  exit 1;
+fi
+
+if [ "$1" == "lang" ] || [ "$1" == "" ] || [ "$1" == "uncompressed" ]; then
+  printf "collecting languages..."
+  python3 ./smiggins/langs/_generator.py
+  echo " done"
+fi
+
+if [ "$1" == "ts" ] || [ "$1" == "" ] || [ "$1" == "uncompressed" ]; then
   printf "compiling typescript..."
   tsc
 
@@ -10,7 +21,7 @@ if [ "$1" != "less" ]; then
   echo " done"
 fi
 
-if [ "$1" != "ts" ]; then
+if [ "$1" == "less" ] || [ "$1" == "" ] || [ "$1" == "uncompressed" ]; then
   printf "compiling less..."
   lessc ./smiggins/less/base.less ./smiggins/static/base.css
 

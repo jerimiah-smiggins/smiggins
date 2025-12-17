@@ -179,23 +179,23 @@ function getPageTitle(intent: intent): string {
     notificationString = "\u2022 ";
   }
 
-  let val: null | string = intent + " - ";
+  let val: null | string = intent;
 
   switch (intent) {
-    case "login": val = "Log In - "; break;
-    case "signup": val = "Sign Up - "; break;
-    case "logout": val = "Log Out - "; break;
-    case "404": val = "Page Not Found - "; break;
+    case "login": val = L.titles.login; break;
+    case "signup": val = L.titles.signup; break;
+    case "logout": val = L.titles.logout; break;
+    case "404": val = L.titles.not_found; break;
     case "user": val = getUsernameFromPath() + " - "; break;
-    case "notifications": val = "Notifications - "; break;
-    case "follow-requests": val = "Follow Requests - "; break;
-    case "changelog": val = "Changes - "; break;
-    case "admin": val = "Administration - "; break;
-    case "search": val = "Search - "; break;
+    case "notifications": val = L.titles.notifications; break;
+    case "follow-requests": val = L.titles.follow_requests; break;
+    case "changelog": val = L.titles.changes; break;
+    case "admin": val = L.titles.admin; break;
+    case "search": val = L.titles.search; break;
 
     case "message-list":
     case "message":
-      val = "Messages - "; break;
+      val = L.titles.messages; break;
 
     case "index":
     case "home":
@@ -208,11 +208,14 @@ function getPageTitle(intent: intent): string {
     case "settings/keybinds":
     case "settings/account":
     case "settings/about":
-      val = "Settings - "; break;
+      val = L.titles.settings; break;
   }
 
   if (val) {
-    return notificationString + val + pageTitle;
+    return notificationString + lr(L.titles.base, {
+      l: val,
+      n: pageTitle
+    });
   }
 
   return notificationString + pageTitle;

@@ -246,7 +246,7 @@ function hookFollowingTimeline(type: "following" | "followers", username: string
 
 function loadFollowingTimeline(type: "following" | "followers", username: string): void {
   document.getElementById("modal-timeline-more")?.setAttribute("hidden", "");
-  document.getElementById("modal-following-timeline")?.insertAdjacentHTML("beforeend", LOADING_HTML);
+  document.getElementById("modal-following-timeline")?.insertAdjacentHTML("beforeend", `<i class="timeline-status">${L.generic.loading}</i>`);
 
   new (type === "following" ? api_TimelineUserFollowing : api_TimelineUserFollowers)(followingTimelineOffset, username).fetch();
 }

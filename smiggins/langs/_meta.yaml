@@ -1,0 +1,127 @@
+# yaml-language-server: $schema=_meta.schema.json
+
+languages:
+# first language on list will be used as default
+- en
+
+defs:
+  version: str
+
+  generic:
+    username: str
+    success: str
+    copied: str
+    none: str
+    pending_update: str
+    loading: str
+    sign_up_for_more: str
+
+  errors:
+    something_went_wrong: str
+    bad_username: str
+    username_no_user: str
+    username_characters: str
+    username_used: str
+    bad_password: str
+    invalid_otp: str
+    invalid_otp_more: str
+    cant_delete: str
+    cant_delete_more: str
+    cant_interact: str
+    cant_interact_more: str
+    blocking: str
+    blocking_more: str
+    post_not_found: str
+    invalid_poll: str
+    poll_more_than_one: str
+    not_authenticated: str
+    not_authenticated_more: str
+    ratelimit: str
+    ratelimit_more: str
+    error_code: str
+    cant_copy: str
+    cant_copy_more: str
+
+  numbers:
+    infinity: str
+    thousand: str
+    million: str
+    billion: str
+
+  titles:
+    base: str
+    admin: str
+    changes: str
+    follow_requests: str
+    login: str
+    logout: str
+    messages: str
+    not_found: str
+    notifications: str
+    search: str
+    settings: str
+    signup: str
+
+  post:
+    poll:
+      refresh: str
+      return_to_voting: str
+      view_results: str
+      vote_count: numbered
+
+    cw:
+      length: numbered
+      has_quote: str
+      has_poll: str
+
+    quote:
+      has_quote: str
+      has_poll: str
+      cant_view: str
+
+    tl_refresh: str
+    show_new: numbered
+
+    copied: str
+    embedded: str
+    deleted: str
+
+    cw_short: str
+    poll_short: str
+
+    button: str
+    placeholder: str
+    quote_button: str
+    quote_placeholder: str[]
+    comment_button: str
+    comment_placeholder: str[]
+    edit_button: str
+    edit_placeholder: str
+    pinned: str
+    unpinned: str
+
+  keybinds:
+    new_post: { name: str, description: str }
+    load_new_posts: { name: str, description: str }
+    top_of_timeline: { name: str, description: str }
+    nav_modifier: { name: str, description: str }
+    nav_admin: str
+    nav_home: str
+    nav_messages: str
+    nav_notifications: str
+    nav_profile: str
+    nav_settings: str
+    hamburger_delete: str
+    hamburger_pin: str
+    hamburger_edit: str
+    hamburger_share: str
+    hamburger_embed: str
+
+  settings:
+    profile_saved: str
+
+  admin:
+    user_deleted: str
+    invite_code_copied: str
+    otp_delete_button: str
+    permissions_saved: str

@@ -221,6 +221,8 @@ function profileSettingsSetUserData(
 }
 
 function setKeybindElementData(kbId: string, el: D): void {
+  setKeybindStrings();
+
   let kbData = keybinds[kbId];
 
   let keyData: string = _kbGetKey(kbId);
@@ -232,7 +234,7 @@ function setKeybindElementData(kbId: string, el: D): void {
     shift: "Shift + "
   }[mod])).join("");
 
-  let output: string = `<div class="generic-margin-top">${escapeHTML(kbData.name)}: <code class="kb-key">${escapeHTML(key == KB_DISABLED ? KB_DISABLED : modifiers + key)}</code> <button data-kb-id="${kbId}">Change</button></div>`;
+  let output: string = `<div class="generic-margin-top">${escapeHTML(kbData.name || "")}: <code class="kb-key">${escapeHTML(key == KB_DISABLED ? KB_DISABLED : modifiers + key)}</code> <button data-kb-id="${kbId}">Change</button></div>`;
 
   if (kbData.description) {
     output += `<small><div>${escapeHTML(kbData.description)}</div></small>`;

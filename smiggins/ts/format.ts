@@ -97,7 +97,10 @@ class _api_Base {
         }
 
         if (u8arr[1] !== this.version) {
-          alert(`It seems that ${pageTitle} has been updated. Please reload the page for updates to take effect.\n\nIf this popup continues to show up after you reload, please contact your instance administrator.\nCode: r${u8arr[0].toString(16)}v${u8arr[1]}t${Math.round(Date.now() / 1000)}`);
+          alert(lr(L.generic.pending_update, {
+            t: pageTitle,
+            c: `r${u8arr[0].toString(16)}v${u8arr[1]}t${Math.round(Date.now() / 1000)}`
+          }));
           throw Error("Bad version");
         }
 
@@ -127,7 +130,7 @@ class _api_Base {
 
   // for when there is an actual js error thrown
   genericError(err: any): void {
-    createToast("Something went wrong!", String(err));
+    createToast(L.errors.something_went_wrong, String(err));
     this.always();
     throw err;
   }
@@ -340,7 +343,7 @@ class api_SaveProfile extends _api_Base {
   }
 
   handle(u8arr: Uint8Array): void {
-    createToast("Success!", "Your profile has been saved.");
+    createToast(L.generic.success, L.settings.profile_saved);
     updateUserCacheFromCosmeticSettings();
   }
 }
@@ -490,7 +493,7 @@ class api_Pin extends _api_Base {
   }
 
   handle(u8arr: Uint8Array): void {
-    createToast("Success!", "Pinned to your profile.");
+    createToast(L.generic.success, L.post.pinned);
   }
 }
 
@@ -502,7 +505,7 @@ class api_Unpin extends _api_Base {
   method: Method = "DELETE";
 
   handle(u8arr: Uint8Array): void {
-    createToast("Success!", "This post is no longer pinned to your profile.");
+    createToast(L.generic.success, L.post.unpinned);
     document.getElementById("user-pinned-container")?.setAttribute("hidden", "");
   }
 }
@@ -596,7 +599,7 @@ class api_AdminDeleteUser extends _api_Base {
   }
 
   handle(u8arr: Uint8Array): void {
-    createToast("Success!", "This user has been deleted.");
+    createToast(L.generic.success, L.admin.user_deleted);
   }
 }
 
@@ -613,7 +616,7 @@ class api_GenerateOTP extends _api_Base {
     if (el) { el.classList.add("otp"); el.innerText = otp; }
     el?.removeAttribute("hidden");
     navigator.clipboard.writeText(otp)
-      .then((): void => createToast("Copied!", "The invite code has been copied to your clipboard."));
+      .then((): void => createToast(L.generic.copied, L.admin.invite_code_copied));
   }
 }
 
@@ -644,9 +647,9 @@ class api_ListOTP extends _api_Base {
     if (!el) { return; }
 
     let otps: RegExpMatchArray[] = [..._toHex(u8arr.slice(2)).matchAll(/.{64}/g)];
-    if (!otps.length) { el.innerHTML = "<i>None</i>"; return; }
+    if (!otps.length) { el.innerHTML = `<i>${L.generic.none}</i>`; return; }
 
-    el.innerHTML = otps.map((a: RegExpMatchArray): string => `<div data-otp-container="${a[0]}"><code class="otp">${a[0]}</code> <button data-otp="${a}">Delete</button></div>`).join("");
+    el.innerHTML = otps.map((a: RegExpMatchArray): string => `<div data-otp-container="${a[0]}"><code class="otp">${a[0]}</code> <button data-otp="${a}">${L.admin.otp_delete_button}</button></div>`).join("");
 
     for (const button of el.querySelectorAll("button")) {
       button.addEventListener("click", adminDeleteOTP);
@@ -684,7 +687,7 @@ class api_SetAdminPermissions extends _api_Base {
   }
 
   handle(u8arr: Uint8Array): void {
-    createToast("Success!", "Permissions saved.");
+    createToast(L.generic.success, L.admin.permissions_saved);
   }
 }
 
