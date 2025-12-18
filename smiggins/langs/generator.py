@@ -260,7 +260,9 @@ const LANGS: {{ [key in languages]: LanguageData }} = {{
 {"\n".join([f'  "{lang}": {json.dumps(data)},' for lang, data in languages.items()])}
 }};
 
-let L: LanguageData = LANGS[localStorage.getItem("smiggins-language") as languages | null || "{meta["languages"][0]}"];
+const DEFAULT_LANGUAGE: languages = "{meta["languages"][0]}";
+
+let L: LanguageData = LANGS[localStorage.getItem("smiggins-language") as languages | null || DEFAULT_LANGUAGE];
 """)
 
 f.close()

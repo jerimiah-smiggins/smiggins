@@ -223,6 +223,9 @@ settings:
     complex_ts: Enable complex timestamps
     complex_ts_more: (1h becomes 1h32m, 5m becomes 5m48s)
 
+    section_language: Languages
+    language: "Language:"
+
     section_font_size: Font Size
     font_size_example: Aa
 

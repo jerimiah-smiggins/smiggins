@@ -693,6 +693,12 @@
             "complex_ts_more": {
               "type": "string"
             },
+            "section_language": {
+              "type": "string"
+            },
+            "language": {
+              "type": "string"
+            },
             "section_font_size": {
               "type": "string"
             },

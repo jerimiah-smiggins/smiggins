@@ -206,6 +206,9 @@ defs:
       complex_ts: str
       complex_ts_more: str
 
+      section_language: str
+      language: str
+
       section_font_size: str
       font_size_example: str
 

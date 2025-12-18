@@ -138,6 +138,13 @@ function renderPage(intent: intent): void {
         pronouns_presets: L.settings.profile.pronouns_presets.map((a: string): string => (`<option value="${a}">${a}</option>`)).join("")
       }; break;
 
+    case "settings/cosmetic":
+      extraVariables = {
+        language_selection: Object.values(LANGS).map((a: LanguageData): string => (
+          `<option value="${a.meta.id}">${escapeHTML(a.meta.name)}</option>`
+        )).join("")
+      }; break;
+
     case "settings/account":
       extraVariables = {
         delete_account_confirmation: lr(L.settings.account.confirmation, {
