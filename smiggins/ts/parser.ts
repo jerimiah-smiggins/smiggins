@@ -1,3 +1,4 @@
+// handles replacements in language strings
 function lr(str: string, replacements: { [key: string]: string }): string {
   for (const [key, val] of Object.entries(replacements)) {
     str = str.replaceAll("%" + key, val);
@@ -5,12 +6,29 @@ function lr(str: string, replacements: { [key: string]: string }): string {
   return str;
 }
 
+// handles numbered language strings
 function n(data: { [key in number | "*"]: string }, num: number): string {
   if (data[num]) {
     return data[num];
   }
 
   return data["*"];
+}
+
+// turns a language key string (ex. "generic.none") and turns it into the
+// respective language string (ex. L.generic.none -> "None")
+function langFromRaw(key: string): string {
+  let response: any = L;
+
+  for (const sect of key.split(".")) {
+    response = response[sect];
+
+    if (!response) {
+      return key;
+    }
+  }
+
+  return String(response);
 }
 
 function floatintToStr(num: number): string {

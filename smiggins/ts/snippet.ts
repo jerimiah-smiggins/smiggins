@@ -83,6 +83,10 @@ function getSnippet(snippet: snippet, extraVariables?: { [key: string]: string |
     content = content.replaceAll(`@{icon_${i}}`, icons[i as Icons]);
   }
 
+  for (const i of content.matchAll(/@\{lang.((?:[a-z_0-9]+.)*[a-z_0-9]+)\}/ig)) {
+    content = content.replace(i[0], langFromRaw(i[1]));
+  }
+
   for (const i of s.variables) {
     let replacementValue: string = "";
     let replacementCount: number = 0;

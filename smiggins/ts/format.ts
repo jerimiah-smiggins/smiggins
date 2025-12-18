@@ -343,7 +343,7 @@ class api_SaveProfile extends _api_Base {
   }
 
   handle(u8arr: Uint8Array): void {
-    createToast(L.generic.success, L.settings.profile_saved);
+    createToast(L.generic.success, L.settings.profile.profile_saved);
     updateUserCacheFromCosmeticSettings();
   }
 }
@@ -599,7 +599,7 @@ class api_AdminDeleteUser extends _api_Base {
   }
 
   handle(u8arr: Uint8Array): void {
-    createToast(L.generic.success, L.admin.user_deleted);
+    createToast(L.generic.success, L.admin.delete_user.success);
   }
 }
 
@@ -616,7 +616,7 @@ class api_GenerateOTP extends _api_Base {
     if (el) { el.classList.add("otp"); el.innerText = otp; }
     el?.removeAttribute("hidden");
     navigator.clipboard.writeText(otp)
-      .then((): void => createToast(L.generic.copied, L.admin.invite_code_copied));
+      .then((): void => createToast(L.generic.copied, L.admin.generate_otp.copied));
   }
 }
 
@@ -649,7 +649,7 @@ class api_ListOTP extends _api_Base {
     let otps: RegExpMatchArray[] = [..._toHex(u8arr.slice(2)).matchAll(/.{64}/g)];
     if (!otps.length) { el.innerHTML = `<i>${L.generic.none}</i>`; return; }
 
-    el.innerHTML = otps.map((a: RegExpMatchArray): string => `<div data-otp-container="${a[0]}"><code class="otp">${a[0]}</code> <button data-otp="${a}">${L.admin.otp_delete_button}</button></div>`).join("");
+    el.innerHTML = otps.map((a: RegExpMatchArray): string => `<div data-otp-container="${a[0]}"><code class="otp">${a[0]}</code> <button data-otp="${a}">${L.admin.generate_otp.delete}</button></div>`).join("");
 
     for (const button of el.querySelectorAll("button")) {
       button.addEventListener("click", adminDeleteOTP);
@@ -687,7 +687,7 @@ class api_SetAdminPermissions extends _api_Base {
   }
 
   handle(u8arr: Uint8Array): void {
-    createToast(L.generic.success, L.admin.permissions_saved);
+    createToast(L.generic.success, L.admin.set_level.success);
   }
 }
 

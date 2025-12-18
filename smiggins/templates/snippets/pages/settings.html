@@ -1,22 +1,22 @@
 {% include "snippets/generic/page-start.html" with active_page="settings" %}
 
-<h1 class="no-margin-top no-margin-bottom">Settings</h1>
+<h1 class="no-margin-top no-margin-bottom">@{lang.titles.settings}</h1>
 <hr class="no-margin-bottom">
 <div id="settings-sections">
-  {% if logged_in %}<a class="plain-link" href="/settings/profile/" data-internal-link="settings/profile">Profile <small>- Display name, banner color...</small></a>{% endif %}
-  <a class="plain-link" href="/settings/cosmetic/" data-internal-link="settings/cosmetic">Cosmetic <small>- Website theme, tweaks...</small></a>
-  {% if logged_in %}<a class="plain-link" href="/settings/keybinds/" data-internal-link="settings/keybinds">Keybinds <small>- Navigation, send posts...</small></a>{% endif %}
-  {% if logged_in %}<a class="plain-link" href="/settings/account/" data-internal-link="settings/account">Account <small>- Change password, delete account...</small></a>{% endif %}
-  {% if conf.enable_about_page %}<a class="plain-link" href="/settings/about/" data-internal-link="settings/about">About <small>- Source code, credits...</small></a>{% endif %}
-  {% if is_admin %}<a class="plain-link" href="/admin/" data-internal-link="admin">Administration <small>- Delete posts, generate invites...</small></a>{% endif %}
+  {% if logged_in %}<a class="plain-link" href="/settings/profile/" data-internal-link="settings/profile">@{lang.settings.profile.title} <small>- @{lang.settings.profile.description}</small></a>{% endif %}
+  <a class="plain-link" href="/settings/cosmetic/" data-internal-link="settings/cosmetic">@{lang.settings.cosmetic.title} <small>- @{lang.settings.cosmetic.description}</small></a>
+  {% if logged_in %}<a class="plain-link" href="/settings/keybinds/" data-internal-link="settings/keybinds">@{lang.settings.keybinds.title} <small>- @{lang.settings.keybinds.description}</small></a>{% endif %}
+  {% if logged_in %}<a class="plain-link" href="/settings/account/" data-internal-link="settings/account">@{lang.settings.account.title} <small>- @{lang.settings.account.description}</small></a>{% endif %}
+  {% if conf.enable_about_page %}<a class="plain-link" href="/settings/about/" data-internal-link="settings/about">@{lang.settings.about.title} <small>- @{lang.settings.about.description}</small></a>{% endif %}
+  {% if is_admin %}<a class="plain-link" href="/admin/" data-internal-link="admin">@{lang.admin.title} <small>- @{lang.admin.description}</small></a>{% endif %}
 
-  <a href="#" class="plain-link" id="export">Export settings...</a>
-  <div><label tabindex="0">Import settings... <input hidden id="import" type="file"></label></div>
+  <a href="#" class="plain-link" id="export">@{lang.settings.export}</a>
+  <div><label tabindex="0">@{lang.settings.import}<input hidden id="import" type="file"></label></div>
 
   {% if logged_in %}
-    <a href="/logout/" data-internal-link="logout">Log Out...</a>
+    <a href="/logout/" data-internal-link="logout">@{lang.settings.log_out}</a>
   {% else %}
-    <a href="/login/" data-internal-link="login">Log In...</a>
+    <a href="/login/" data-internal-link="login">@{lang.settings.log_in}</a>
   {% endif %}
 </div>
 <hr class="no-margin-top">

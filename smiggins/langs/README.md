@@ -13,7 +13,11 @@
    - a schema header, for validation:
      `# yaml-language-server: $schema=lang.schema.json`
    - a meta section, with the localized name of the language and any fallback
-     languages to use when this language is missing a specific string.
+     languages to use when this language is missing a specific string. if the
+     new language isn't just an extension of another, you should just use `en`
+     as the fallback because that will always be up-to-date. fallback languages
+     will be used when the language doesn't have a specific language key, ex.
+     one that was added after the language has been last updated.
 
 4. continue reading the next section for more information and specifics.
 

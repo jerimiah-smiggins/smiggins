@@ -1,0 +1,12 @@
+# yaml-language-server: $schema=lang.schema.json
+
+meta:
+  name: English (United Kingdom)
+  maintainers:
+    - trinkey
+  fallback:
+    - en
+
+settings:
+  profile:
+    description: Display name, banner colour...

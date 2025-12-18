@@ -38,21 +38,21 @@
       <div class="post-hamburger-container">
         <div class="post-hamburger">
           <div><a data-internal-link="search" href="/search/" class="plain-link{% if active_page == "search" %} navbar-current{% endif %}">
-            @{icon_search} Search
+            @{icon_search} @{lang.titles.search}
           </a></div>
 
           <div><a data-internal-link="message-list" href="/messages/" class="plain-link {% if active_page == "messages" %}navbar-current{% endif %}">
-            <span data-notif-dot="messages">{% if active_page == "messages" %}@{icon_messages_active}{% else %}@{icon_messages}{% endif %}</span> Messages
+            <span data-notif-dot="messages">{% if active_page == "messages" %}@{icon_messages_active}{% else %}@{icon_messages}{% endif %}</span> @{lang.titles.messages}
           </a></div>
 
           <div data-navbar-folreq-toggle {% if active_page != "follow-requests" %}hidden{% endif %}>
             <a data-internal-link="follow-requests" href="/follow-requests/" class="plain-link {% if active_page == "follow-requests" %}navbar-current{% endif %}">
-              <span data-notif-dot="folreq">{% if active_page == "follow-requests" %}@{icon_folreq_active}{% else %}@{icon_folreq}{% endif %}</span> Follow Requests
+              <span data-notif-dot="folreq">{% if active_page == "follow-requests" %}@{icon_folreq_active}{% else %}@{icon_folreq}{% endif %}</span> @{lang.titles.follow_requests}
             </a>
           </div>
 
           <div><a data-internal-link="settings" href="/settings/" class="plain-link{% if active_page == "settings" %} navbar-current{% endif %}">
-            {% if active_page == "settings" %}@{icon_settings_active}{% else %}@{icon_settings}{% endif %} Settings
+            {% if active_page == "settings" %}@{icon_settings_active}{% else %}@{icon_settings}{% endif %} @{lang.titles.settings}
           </a></div>
         </div>
       </div>

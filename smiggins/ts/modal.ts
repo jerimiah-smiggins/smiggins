@@ -117,7 +117,10 @@ function createUpdateModal(since: string): void {
   if (document.getElementById("modal")) { return; }
 
   document.body.append(getSnippet("modal/update", {
-    since: since
+    since: since,
+    update_title: lr(L.update.title, {
+      s: pageTitle
+    })
   }));
 
   document.getElementById("modal")?.addEventListener("click", clearModalIfClicked);

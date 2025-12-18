@@ -7,14 +7,14 @@
   <div id="username">@@{user_username}</div>
 
   <small>
-    <span class="pointer" id="following-popup">following <span id="following">@{following}</span></span> -
-    <span class="pointer" id="followers-popup">followed by <span id="followers">@{followers}</span></span> -
-    <span id="post-count">@{post_count}</span> posts
+    <span class="pointer" id="following-popup"><span id="following">@{following}</span></span> -
+    <span class="pointer" id="followers-popup"><span id="followers">@{followers}</span></span> -
+    <span id="post-count">@{post_count}</span>
   </small>
 
   <p id="user-interactions" hidden>
-    <button id="follow">Follow</button>
-    <button id="block">Block</button>
+    <button id="follow">@{lang.user.follow}</button>
+    <button id="block">@{lang.user.block}</button>
   </p>
 
   <p id="bio">@{bio}</p>
@@ -25,11 +25,11 @@
 <hr class="no-margin-top">
 
 <div id="timeline-carousel" class="generic-margin-bottom">
-  <div data-timeline-id="user_@{user_username}" data-timeline-active>Posts</div>
-  <div data-timeline-id="user_@{user_username}+all">Include Comments</div>
+  <div data-timeline-id="user_@{user_username}" data-timeline-active>@{lang.timeline.user_main}</div>
+  <div data-timeline-id="user_@{user_username}+all">@{lang.timeline.user_comments}</div>
 </div>
 
 <div id="timeline-posts"></div>
-<button id="timeline-more" hidden>Load More</button>
+<button id="timeline-more" hidden>@{lang.generic.load_more}</button>
 
 {% include "snippets/generic/page-end.html" %}

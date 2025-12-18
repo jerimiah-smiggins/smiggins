@@ -108,7 +108,7 @@ function settingsCWCascadingSelection(): void {
 
 function changePasswordSuccess(token: string): void {
   setTokenCookie(token);
-  createToast(L.generic.success, L.settings.password_changed);
+  createToast(L.generic.success, L.settings.account.password_changed);
 
   let currentPwElement: el = document.getElementById("password-current");
   let newPwElement: el = document.getElementById("password-new");
@@ -190,7 +190,7 @@ function profileSettingsSetUserData(
 
     if (pronouns === "") {
       // do nothing, pronouns unset
-    } else if (L.settings.pronouns_presets.includes(pronouns)) {
+    } else if (L.settings.profile.pronouns_presets.includes(pronouns)) {
       pronounsElement.value = pronouns;
       pronounsCustomElement.setAttribute("hidden", "");
     } else {

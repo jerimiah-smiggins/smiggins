@@ -118,9 +118,9 @@ function renderPage(intent: intent): void {
       extraVariables = {
         color_one: c && c.color_one || "var(--background-mid)",
         color_two: c && c.color_two || "var(--background-mid)",
-        following: c && floatintToStr(c.num_following) || "0",
-        followers: c && floatintToStr(c.num_followers) || "0",
-        post_count: c && floatintToStr(c.num_posts) || "0",
+        following: lr(L.user.following_count, { n: c && floatintToStr(c.num_following) || "0" }),
+        followers: lr(L.user.followed_by_count, { n: c && floatintToStr(c.num_followers) || "0" }),
+        post_count: lr(L.user.posts_count, { n: c && floatintToStr(c.num_posts) || "0" }),
         bio: c && [linkify(escapeHTML(c.bio)), 1] || "",
         user_username: c && [escapeHTML(u + (c.pronouns ? " - " + c.pronouns : "")), 1] || u,
         display_name: c && [escapeHTML(c.display_name), 1] || u
@@ -134,7 +134,24 @@ function renderPage(intent: intent): void {
         color_two: c && c.color_two || defaultBanner,
         checked_if_gradient: !c || !c.color_one || !c.color_two || c.color_one === c.color_two ? "" : "checked",
         display_name: c && escapeHTML(c.display_name) || username,
-        bio: c && escapeHTML(c.bio) || ""
+        bio: c && escapeHTML(c.bio) || "",
+        pronouns_presets: L.settings.profile.pronouns_presets.map((a: string): string => (`<option value="${a}">${a}</option>`)).join("")
+      }; break;
+
+    case "settings/account":
+      extraVariables = {
+        delete_account_confirmation: lr(L.settings.account.confirmation, {
+          B: "<span class=\"warning\">",
+          b: "</span>",
+          u: `<b>@${username}</b>`
+        })
+      }; break;
+
+    case "settings/about":
+      extraVariables = {
+        changes_link: lr(L.settings.about.past_changes, {
+          h: `<a href="/changes/all/" data-internal-link="changelog">${L.settings.about.here}</a>`
+        })
       }; break;
 
     case "post":

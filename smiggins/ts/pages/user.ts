@@ -161,9 +161,9 @@ function userUpdateStats(
   let followingElement: el = document.getElementById("following");
   let followersElement: el = document.getElementById("followers");
   let postsElement: el = document.getElementById("post-count");
-  if (followingElement) { followingElement.innerText = floatintToStr(numFollowing); }
-  if (followersElement) { followersElement.innerText = floatintToStr(numFollowers); }
-  if (postsElement) { postsElement.innerText = floatintToStr(numPosts); }
+  if (followingElement) { followingElement.innerText = lr(L.user.following_count, { n: c && floatintToStr(numFollowing) || "0" }); }
+  if (followersElement) { followersElement.innerText = lr(L.user.followed_by_count, { n: c && floatintToStr(numFollowers) || "0" }); }
+  if (postsElement) { postsElement.innerText = lr(L.user.posts_count, { n: c && floatintToStr(numPosts) || "0" }); }
 }
 
 function updateFollowButton(followed: false): void;

@@ -1,14 +1,14 @@
 {% include "snippets/generic/page-start.html" with active_page="settings" %}
 
-<h1 class="no-margin-top no-margin-bottom">Keybinds</h1>
+<h1 class="no-margin-top no-margin-bottom">@{lang.settings.keybinds.real_title}</h1>
 
 <hr class="no-margin-bottom">
-<a class="back-link plain-link" href="/settings/" data-internal-link="settings">@{icon_back} Settings</a>
+<a class="back-link plain-link" href="/settings/" data-internal-link="settings">@{icon_back} @{lang.titles.settings}</a>
 <hr class="no-margin-top no-margin-bottom">
 
 <div id="settings-sections">
   <div>
-    <p class="no-margin-top">Generic Keybinds</p>
+    <p class="no-margin-top">@{lang.settings.keybinds.section_generic}</p>
 
     <div class="kb-input" data-kb-id="newPost"></div>
     <div class="kb-input" data-kb-id="loadNewPosts"></div>
@@ -16,7 +16,7 @@
   </div>
 
   <div>
-    <p class="no-margin-top">Navigation Keybinds</p>
+    <p class="no-margin-top">@{lang.settings.keybinds.section_nav}</p>
     <div class="kb-input" data-kb-id="navModifier"></div>
     {% if is_admin %}<div class="kb-input" data-kb-id="navAdmin"></div>{% endif %}
     <div class="kb-input" data-kb-id="navHome"></div>
@@ -27,7 +27,7 @@
   </div>
 
   <div>
-    <p class="no-margin-top">Post Interaction Keybinds</p>
+    <p class="no-margin-top">@{lang.settings.keybinds.section_hamburger}</p>
     <div class="kb-input" data-kb-id="hamburgerDelete"></div>
     <div class="kb-input" data-kb-id="hamburgerPin"></div>
     <div class="kb-input" data-kb-id="hamburgerEdit"></div>

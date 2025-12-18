@@ -1,53 +1,53 @@
 {% include "snippets/generic/page-start.html" %}
 
-<h1 class="no-margin-top no-margin-bottom">Administration</h1>
+<h1 class="no-margin-top no-margin-bottom">@{lang.titles.admin}</h1>
 <hr class="no-margin-bottom">
 
 <div id="settings-sections">
   {% if admin.DELETE_POST %}
     <div>
-      <h2 class="no-margin-top">Delete Posts</h2>
-      <div><label>Post ID: <input data-enter-submit="#delete-post" id="delete-post-id" type="number" placeholder="1234"></label></div>
-      <p class="no-margin-bottom"><button id="delete-post">Delete Post</button></p>
+      <h2 class="no-margin-top">@{lang.admin.delete_post.title}</h2>
+      <div><label>@{lang.admin.delete_post.pid} <input data-enter-submit="#delete-post" id="delete-post-id" type="number" placeholder="1234"></label></div>
+      <p class="no-margin-bottom"><button id="delete-post">@{lang.admin.delete_post.button}</button></p>
     </div>
   {% endif %}
 
   {% if admin.DELETE_USER %}
     <div>
-      <h2 class="no-margin-top">Delete User</h2>
-      <div><label>Username: <input data-enter-submit="#delete-user-confirm" data-enter-submit="#delete-user" id="delete-user-username" placeholder="badperson"></label></div>
+      <h2 class="no-margin-top">@{lang.admin.delete_user.title}</h2>
+      <div><label>@{lang.admin.delete_user.username} <input data-enter-submit="#delete-user-confirm" data-enter-submit="#delete-user" id="delete-user-username" placeholder="@{lang.generic.username}"></label></div>
       <div><label>
         <input type="checkbox" id="delete-user-confirm" data-enter-submit="#delete-user">
-        I confirm that this is the user I would like to <span class="warning">permanently delete</span>.
+        @{lang.admin.delete_user.confirmation}
       </label></div>
-      <p class="no-margin-bottom"><button id="delete-user">Delete User</button></p>
+      <p class="no-margin-bottom"><button id="delete-user">@{lang.admin.delete_user.button}</button></p>
     </div>
   {% endif %}
 
   {% if admin.GENERATE_OTP and conf.new_accounts == "otp" %}
     <div>
-      <h2 class="no-margin-top">Invite Codes</h2>
-      <p class="no-margin-bottom"><button id="generate-otp">Generate Code</button></p>
+      <h2 class="no-margin-top">@{lang.admin.generate_otp.title}</h2>
+      <p class="no-margin-bottom"><button id="generate-otp">@{lang.admin.generate_otp.generate}</button></p>
       <div hidden id="generate-otp-output" class="generic-margin-top"></div>
-      <p class="no-margin-bottom"><button id="list-otps">List Valid Codes</button></p>
+      <p class="no-margin-bottom"><button id="list-otps">@{lang.admin.generate_otp.list}</button></p>
       <div hidden id="otp-list" class="generic-margin-top"></div>
     </div>
   {% endif %}
 
   {% if admin.SET_ADMIN_LVL %}
     <div>
-      <h2 class="no-margin-top">Admin Permissions</h2>
-      <div><label>Username: <input data-enter-submit="#delete-user-confirm" data-enter-submit="#delete-user" id="permissions-username" placeholder="newadmin"></label></div>
+      <h2 class="no-margin-top">@{lang.admin.set_level.title}</h2>
+      <div><label>@{lang.admin.set_level.username} <input data-enter-submit="#delete-user-confirm" data-enter-submit="#delete-user" id="permissions-username" placeholder="@{lang.generic.username}"></label></div>
 
-      <div><label><input type="checkbox" data-admin-permissions="0"> Delete Posts</label></div>
-      <div><label><input type="checkbox" data-admin-permissions="1"> Delete Users</label></div>
-      {% if conf.new_accounts == "otp" %}<div><label><input type="checkbox" data-admin-permissions="9"> Generate Invite Codes</label></div>{% endif %}
-      <div><label><input type="checkbox" data-admin-permissions="7"> Set Admin Permissions</label></div>
-      <small><div>Allows setting permissions for <b>both self and others</b>, including permissions they don't have</div></small>
+      <div><label><input type="checkbox" data-admin-permissions="0"> @{lang.admin.delete_post.title}</label></div>
+      <div><label><input type="checkbox" data-admin-permissions="1"> @{lang.admin.delete_user.title}</label></div>
+      {% if conf.new_accounts == "otp" %}<div><label><input type="checkbox" data-admin-permissions="9"> @{lang.admin.generate_otp.title}</label></div>{% endif %}
+      <div><label><input type="checkbox" data-admin-permissions="7"> @{lang.admin.set_level.title}</label></div>
+      <small><div>@{lang.admin.set_level.permission_warning}</div></small>
 
       <p class="no-margin-bottom">
-        <button id="permissions-load">Load Current Permissions</button>
-        <button id="permissions-save">Save Permissions</button>
+        <button id="permissions-load">@{lang.admin.set_level.load}</button>
+        <button id="permissions-save">@{lang.admin.set_level.save}</button>
       </p>
     </div>
   {% endif %}

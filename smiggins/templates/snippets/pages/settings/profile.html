@@ -1,67 +1,61 @@
 {% include "snippets/generic/page-start.html" with active_page="settings" %}
 
-<h1 class="no-margin-top no-margin-bottom">Profile Settings</h1>
+<h1 class="no-margin-top no-margin-bottom">@{lang.settings.profile.real_title}</h1>
 
 <hr class="no-margin-bottom">
-<a class="back-link plain-link" href="/settings/" data-internal-link="settings">@{icon_back} Settings</a>
+<a class="back-link plain-link" href="/settings/" data-internal-link="settings">@{icon_back} @{lang.titles.settings}</a>
 <hr class="no-margin-top no-margin-bottom">
 
 <div id="settings-sections">
   <div>
-    <p class="no-margin-top">Your Profile</p>
+    <p class="no-margin-top">@{lang.settings.profile.section_profile}</p>
     <label>
-      <div>Display name:</div>
+      <div>@{lang.settings.profile.display_name}</div>
       <input data-disabled-while-loading disabled id="display-name" value="@{display_name}" maxlength="{{ conf.max_length.display_name }}">
     </label>
 
     <label>
-      <div class="generic-margin-top">Pronouns:</div>
+      <div class="generic-margin-top">@{lang.settings.profile.pronouns}</div>
       <select data-disabled-while-loading disabled id="pronouns">
-        <option value="">Unset</option>
-        <option value="he/him">he/him</option>
-        <option value="she/her">she/her</option>
-        <option value="they/them">they/them</option>
-        <option value="it/its">it/its</option>
-        <option value="custom">Custom</option>
+        <option value="">@{lang.settings.profile.pronouns_unset}</option>
+        @{pronouns_presets}
+        <option value="custom">@{lang.settings.profile.pronouns_custom}</option>
       </select>
-      <div><input id="pronouns-custom" hidden placeholder="Custom pronouns..." maxlength="255"></div>
+      <div><input id="pronouns-custom" hidden placeholder="@{lang.settings.profile.pronouns_custom_placeholder}" maxlength="255"></div>
     </label>
 
     <label>
-      <div class="generic-margin-top">User bio:</div>
+      <div class="generic-margin-top">@{lang.settings.profile.bio}</div>
       <textarea data-disabled-while-loading disabled id="bio" maxlength="{{ conf.max_length.bio }}">@{bio}</textarea>
     </label>
 
-    <div class="generic-margin-top">Banner:</div>
+    <div class="generic-margin-top">@{lang.settings.profile.banner}</div>
     <input data-disabled-while-loading disabled type="checkbox" id="banner-gradient" @{checked_if_gradient}>
-    <label for="banner-gradient">Enable gradient banner?</label>
+    <label for="banner-gradient">@{lang.settings.profile.gradient}</label>
     <div>
       <input data-disabled-while-loading disabled type="color" value="@{color_one}" id="banner-one">
       <input data-disabled-while-loading disabled type="color" value="@{color_two}" id="banner-two">
     </div>
     <div id="banner-example" style="--color-one: @{color_one}; --color-two: @{color_two}"></div>
-    <p class="no-margin-bottom"><button id="profile-save" data-button-alt-colors>Save</button>
+    <p class="no-margin-bottom"><button id="profile-save" data-button-alt-colors>@{lang.settings.profile.save_profile}</button>
   </div>
 
   <div>
-    <p class="no-margin-top">Posts</p>
+    <p class="no-margin-top">@{lang.settings.profile.section_posts}</p>
     <label>
-      <div>Default post visibility:</div>
+      <div>@{lang.settings.profile.default_visibility}</div>
       <select id="default-private">
-        <option value="false">Public</option>
-        <option value="true" @{selected_if_default_private}>Followers Only</option>
+        <option value="false">@{lang.settings.profile.vis_public}</option>
+        <option value="true" @{selected_if_default_private}>@{lang.settings.profile.vis_private}</option>
       </select>
     </label>
   </div>
 
   <div>
-    <p class="no-margin-top">Followers</p>
-    <label><input data-disabled-while-loading disabled type="checkbox" id="verify-followers"> Manually approve followers?</label>
+    <p class="no-margin-top">@{lang.settings.profile.section_followers}</p>
+    <label><input data-disabled-while-loading disabled type="checkbox" id="verify-followers"> @{lang.settings.profile.manually_approve}</label>
   </div>
 </div>
 <hr class="no-margin-top">
-
-{% comment %}
-<div>manually approve</div> {% endcomment %}
 
 {% include "snippets/generic/page-end.html" %}
