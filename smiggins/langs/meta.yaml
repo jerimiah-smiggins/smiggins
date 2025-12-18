@@ -261,6 +261,9 @@ defs:
       section_credits: str
       lead_dev: str
       contributors: str
+      translators: str
+      maintainers: str
+      past_maintainers: str
       icons: str
 
       section_call_to_action: str

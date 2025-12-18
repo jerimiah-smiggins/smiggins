@@ -18,6 +18,8 @@ function n(data: { [key in number | "*"]: string }, num: number): string {
 // turns a language key string (ex. "generic.none") and turns it into the
 // respective language string (ex. L.generic.none -> "None")
 function langFromRaw(key: string): string {
+  // return "!"; // testing
+
   let response: any = L;
 
   for (const sect of key.split(".")) {
