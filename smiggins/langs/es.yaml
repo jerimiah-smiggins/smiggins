@@ -154,6 +154,7 @@ keybinds:
     alt: Alt
     ctrl: Ctrl
     shift: Shift
+    disabled: DESHABILITADO
 
   button_change: Cambiar
   change_instructions: Pulsa la tecla nueva en el cuadro arriba.
