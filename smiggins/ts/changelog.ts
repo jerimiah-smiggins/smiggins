@@ -105,5 +105,15 @@ const changes: { [key: string]: VersionData } = {
       "Fixed a bug that caused people who aren't logged in to not be able to view the following/followers popups",
       "Added a setting that disables notification grouping for likes"
     ]
+  },
+  "1.4.2": {
+    description: "Languages",
+    major_changes: [{
+      info: "Added support for multiple languages! Currently, there is only English (US/UK) and Spanish, but if you want to help translate to more languages, please reach out.",
+      icon: "comment"
+    }],
+    changes: [
+      "Added support for multiple languages."
+    ]
   }
 };
