@@ -3,7 +3,7 @@
 meta:
   name: English
   maintainers:
-    - trinkey
+    - [trinkey, trinkey]
 
 version: v%n # %n -> version number, ex. v1.2.3
 
@@ -223,6 +223,9 @@ settings:
     complex_ts: Enable complex timestamps
     complex_ts_more: (1h becomes 1h32m, 5m becomes 5m48s)
 
+    section_language: Languages
+    language: "Language:"
+
     section_font_size: Font Size
     font_size_example: Aa
 
@@ -279,6 +282,9 @@ settings:
     section_credits: Credits
     lead_dev: "Lead Developer:"
     contributors: "Other Contributors:"
+    translators: "Translators:"
+    maintainers: "Maintainers:"
+    past_maintainers: "Past Maintainers:"
     icons: Some icons are from Font Awesome
 
     section_call_to_action: Found a bug? Have suggestions?
@@ -311,7 +317,7 @@ admin:
   delete_user:
     title: Delete User
     success: This user has been deleted.
-    username: "Username: "
+    username: "Username:"
     confirmation: I confirm that this is the user I would like to permanently delete.
     button: Delete User
 
@@ -325,7 +331,7 @@ admin:
   set_level:
     title: Set Admin Permissions
     success: Permissions saved.
-    username: "Username: "
+    username: "Username:"
     permission_warning: Allows setting permissions for both self and others, including permissions they don't have
     load: Load Current Permissions
     save: Save Permissions

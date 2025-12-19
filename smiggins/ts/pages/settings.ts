@@ -253,6 +253,7 @@ function exportSettings(): void {
     fontSize: localStorage.getItem("smiggins-font-size") || "normal",
     hideChangelog: Boolean(localStorage.getItem("smiggins-hide-changelog")),
     hideInteractions: Boolean(localStorage.getItem("smiggins-hide-interactions")),
+    language: localStorage.getItem("smiggins-language") as languages | null || L.meta.id,
     noLikeGrouping: Boolean(localStorage.getItem("smiggins-no-like-grouping")),
     pfpShape: localStorage.getItem("smiggins-php-shape") || "round",
     theme: (localStorage.getItem("smiggins-theme") as Themes | null) || "system",
@@ -312,6 +313,7 @@ function importSettings(data: SettingsExport): void {
   _lsBoolean(data.noLikeGrouping, "smiggins-no-like-grouping");
   localStorage.setItem("smiggins-pfp-shape", data.pfpShape || "round");
   localStorage.setItem("smiggins-theme", data.theme || "system");
+  localStorage.setItem("smiggins-language", data.theme || DEFAULT_LANGUAGE);
 
   _lsBoolean(data.homeTimeline.comments, "smiggins-home-comments");
   localStorage.setItem("smiggins-home", data.homeTimeline.default || "global");
@@ -342,6 +344,7 @@ function p_settingsCosmetic(element: D): void {
   element.querySelector(`#theme > option[value="${theme}"]`)?.setAttribute("selected", "");
   element.querySelector(`#pfp-shape > option[value="${localStorage.getItem("smiggins-pfp-shape") || "round"}"]`)?.setAttribute("selected", "");
   element.querySelector(`#cw-cascading > option[value="${localStorage.getItem("smiggins-cw-cascading") || "email"}"]`)?.setAttribute("selected", "");
+  element.querySelector(`#language > option[value="${localStorage.getItem("smiggins-language") || L.meta.id}"]`)?.setAttribute("selected", "");
   if (localStorage.getItem("smiggins-complex-timestamps")) { element.querySelector("#complex-timestamps")?.setAttribute("checked", ""); }
   if (localStorage.getItem("smiggins-hide-interactions"))  { element.querySelector("#hide-interactions") ?.setAttribute("checked", ""); }
   if (localStorage.getItem("smiggins-expand-cws"))         { element.querySelector("#expand-cws")        ?.setAttribute("checked", ""); }
@@ -358,6 +361,16 @@ function p_settingsCosmetic(element: D): void {
   element.querySelector("#hide-changelog")    ?.addEventListener("change", genericCheckbox("smiggins-hide-changelog"));
   element.querySelector("#no-like-grouping")  ?.addEventListener("change", genericCheckbox("smiggins-no-like-grouping"));
   element.querySelector("#auto-show")         ?.addEventListener("change", genericCheckbox("smiggins-auto-show-posts"));
+
+  element.querySelector("#language")?.addEventListener("change", (): void => {
+    let newLang: string | undefined = (document.getElementById("language") as Iel)?.value;
+
+    if (newLang && Object.keys(LANGS).includes(newLang)) {
+      localStorage.setItem("smiggins-language", newLang);
+      L = LANGS[newLang as languages];
+      renderPage("settings/cosmetic");
+    }
+  })
 
   for (const el of element.querySelectorAll("#font-size-selection > div")) {
     el.addEventListener("click", setFontSize);

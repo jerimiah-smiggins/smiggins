@@ -25,13 +25,47 @@
         "maintainers": {
           "type": "array",
           "items": {
-            "type": "string"
+            "type": "array",
+            "maxLength": 2,
+            "minLength": 2,
+            "items": [
+              {
+                "anyOf": [
+                  {
+                    "type": "string"
+                  },
+                  {
+                    "type": "null"
+                  }
+                ]
+              },
+              {
+                "type": "string"
+              }
+            ]
           }
         },
         "past_maintainers": {
           "type": "array",
           "items": {
-            "type": "string"
+            "type": "array",
+            "maxLength": 2,
+            "minLength": 2,
+            "items": [
+              {
+                "anyOf": [
+                  {
+                    "type": "string"
+                  },
+                  {
+                    "type": "null"
+                  }
+                ]
+              },
+              {
+                "type": "string"
+              }
+            ]
           }
         }
       }
@@ -659,6 +693,12 @@
             "complex_ts_more": {
               "type": "string"
             },
+            "section_language": {
+              "type": "string"
+            },
+            "language": {
+              "type": "string"
+            },
             "section_font_size": {
               "type": "string"
             },
@@ -816,6 +856,15 @@
               "type": "string"
             },
             "contributors": {
+              "type": "string"
+            },
+            "translators": {
+              "type": "string"
+            },
+            "maintainers": {
+              "type": "string"
+            },
+            "past_maintainers": {
               "type": "string"
             },
             "icons": {

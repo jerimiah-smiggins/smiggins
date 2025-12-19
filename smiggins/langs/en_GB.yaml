@@ -2,11 +2,14 @@
 
 meta:
   name: English (United Kingdom)
-  maintainers:
-    - trinkey
+  past_maintainers:
+    - [trinkey, trinkey]
   fallback:
     - en
 
 settings:
   profile:
     description: Display name, banner colour...
+
+  cosmetic:
+    section_colors: Colours

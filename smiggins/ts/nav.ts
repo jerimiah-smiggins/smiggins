@@ -138,6 +138,13 @@ function renderPage(intent: intent): void {
         pronouns_presets: L.settings.profile.pronouns_presets.map((a: string): string => (`<option value="${a}">${a}</option>`)).join("")
       }; break;
 
+    case "settings/cosmetic":
+      extraVariables = {
+        language_selection: Object.values(LANGS).map((a: LanguageData): string => (
+          `<option value="${a.meta.id}">${escapeHTML(a.meta.name)}</option>`
+        )).join("")
+      }; break;
+
     case "settings/account":
       extraVariables = {
         delete_account_confirmation: lr(L.settings.account.confirmation, {
@@ -148,10 +155,33 @@ function renderPage(intent: intent): void {
       }; break;
 
     case "settings/about":
+      let maintainerMap: (a: [string | null, string]) => string = (a: [string | null, string]): string => (a[0] ? `<li><a target="_blank" href="https://github.com/${a[0]}/">${escapeHTML(a[1])}</a></li>` : `<li>${escapeHTML(a[1])}</li>`);
+      let translators: string = "";
+
+      for (const i of Object.values(LANGS)) {
+        translators += `<li><b>${escapeHTML(i.meta.name)}</b>:<ul class="no-margin-top">`;
+        translators += `<li><div>${L.settings.about.maintainers}</div>`;
+
+        if (i.meta.maintainers.length) {
+          translators += `<ul class="no-margin-top">${i.meta.maintainers.map(maintainerMap)}</ul>`;
+        } else {
+          translators = translators.slice(0, translators.length - 6) + ` <i>${L.generic.none}</i></div>`;
+        }
+
+        translators += `</li>`;
+
+        if (i.meta.past_maintainers.length) {
+          translators += `<li>${L.settings.about.past_maintainers}<ul class="no-margin-top">${i.meta.past_maintainers.map(maintainerMap)}</ul></li>`;
+        }
+
+        translators += "</ul></li>";
+      }
+
       extraVariables = {
         changes_link: lr(L.settings.about.past_changes, {
           h: `<a href="/changes/all/" data-internal-link="changelog">${L.settings.about.here}</a>`
-        })
+        }),
+        translator_credits: `<ul class="no-margin-top">${translators}</ul>`
       }; break;
 
     case "post":

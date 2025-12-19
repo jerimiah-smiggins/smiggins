@@ -3,7 +3,7 @@
 meta:
   name: Español
   maintainers:
-    - pquirrel
+    - [pquirrel, pquirrel]
 
 version: v%n # %n -> version number, ex. v1.2.3
 
@@ -222,6 +222,9 @@ settings:
     complex_ts: Activa marcas de tiempo detallados
     complex_ts_more: (1h → 1h32m, 5m → 5m48s)
 
+    section_language: Lenguajes
+    language: "Lenguaje:"
+
     section_font_size: Tamaño de fuente
     font_size_example: Aa
 
@@ -278,6 +281,9 @@ settings:
     section_credits: Créditos
     lead_dev: "Desarrollador Principal:"
     contributors: "Otros Contribuyentes:"
+    translators: "Traductores:"
+    maintainers: "Mantenedores:"
+    past_maintainers: "Mantenedores Pasados:"
     icons: Algunos íconos son de Font Awesome
 
     section_call_to_action: ¿Encontraste un error? ¿Tienes recomendaciones?

@@ -32,6 +32,9 @@
    able to have autocompletion features and validation to ensure you have a
    properly formatted language file.
 
-3. if you want to continue to help translate, add your github username to the
-   `maintainers` section. if not, you can add your gitub username to the
-   `past_maintainers` section to get credit for your work.
+3. if you want to continue to help translate, add yourself to the `maintainers`
+   section. if not, you can add yourself to the `past_maintainers` section to
+   get credit for your work. the format for the maintainers list is:
+   `[github username, display name]` - for example: `[smigginslover123, Jeremiah]`
+   (if you don't want a github username attached to your contributions, you can
+   just set it to `null`).

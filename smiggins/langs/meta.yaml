@@ -207,6 +207,9 @@ defs:
       complex_ts: str
       complex_ts_more: str
 
+      section_language: str
+      language: str
+
       section_font_size: str
       font_size_example: str
 
@@ -262,6 +265,9 @@ defs:
       section_credits: str
       lead_dev: str
       contributors: str
+      translators: str
+      maintainers: str
+      past_maintainers: str
       icons: str
 
       section_call_to_action: str
