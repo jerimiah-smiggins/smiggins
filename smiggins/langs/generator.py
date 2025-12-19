@@ -259,7 +259,7 @@ type LanguageData = {{
 }};
 
 const LANGS: {{ [key in languages]: LanguageData }} = {{
-{"\n".join([f'  "{lang}": {json.dumps(data)},' for lang, data in languages.items()])}
+{"\n".join([f'  "{lang}": {json.dumps(data, ensure_ascii=False)},' for lang, data in languages.items()])}
 }};
 
 const DEFAULT_LANGUAGE: languages = "{meta["languages"][0]}";
