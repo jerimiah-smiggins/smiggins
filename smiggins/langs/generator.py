@@ -262,7 +262,12 @@ const LANGS: {{ [key in languages]: LanguageData }} = {{
 
 const DEFAULT_LANGUAGE: languages = "{meta["languages"][0]}";
 
-let L: LanguageData = LANGS[localStorage.getItem("smiggins-language") as languages | null || DEFAULT_LANGUAGE];
+let L: LanguageData;
+
+L = LANGS[localStorage.getItem("smiggins-language") as languages | null || DEFAULT_LANGUAGE];
+if (!L) {{
+  L = LANGS[DEFAULT_LANGUAGE];
+}}
 """)
 
 f.close()
