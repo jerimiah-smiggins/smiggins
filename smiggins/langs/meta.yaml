@@ -140,6 +140,7 @@ defs:
       alt: str
       ctrl: str
       shift: str
+      disabled: str
 
     button_change: str
     change_instructions: str

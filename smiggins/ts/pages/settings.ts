@@ -234,6 +234,10 @@ function setKeybindElementData(kbId: string, el: D): void {
     shift: L.keybinds.modifiers.shift + " + "
   }[mod])).join("");
 
+  if (key === KB_DISABLED) {
+    key = L.keybinds.modifiers.disabled;
+  }
+
   let output: string = `<div class="generic-margin-top">${escapeHTML(kbData.name || "")}: <code class="kb-key">${escapeHTML(key == KB_DISABLED ? KB_DISABLED : modifiers + key)}</code> <button data-kb-id="${kbId}">${L.keybinds.button_change}</button></div>`;
 
   if (kbData.description) {

@@ -152,6 +152,7 @@ keybinds:
     alt: Alt
     ctrl: Ctrl
     shift: Shift
+    disabled: DISABLED
 
   button_change: Change
   change_instructions: Press the new key in the box above.

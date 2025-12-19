@@ -481,6 +481,9 @@
             },
             "shift": {
               "type": "string"
+            },
+            "disabled": {
+              "type": "string"
             }
           }
         },
