@@ -4,6 +4,7 @@ languages:
 # first language on list will be used as default
 - en
 - en_GB
+- es
 
 defs:
   version: str

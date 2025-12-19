@@ -1,0 +1,425 @@
+# yaml-language-server: $schema=lang.schema.json
+
+meta:
+  name: Español
+  maintainers:
+    - [pq-on-tempe2, pquirrel]
+  fallback:
+    - en
+
+version: v%n # %n -> version number, ex. v1.2.3
+
+generic:
+  username: Nombre para mostrar
+  success: ¡Éxito!
+  copied: ¡Copiado!
+  none: Nada
+  pending_update: "Parece que %t fue actualizado. Recarga la página para ver los actualizaciones.\n\nSi este mensaje continuaría apareciendo después de recargar, contacta su administrador.\nCódigo: %c"
+  loading: Cargando...
+  load_more: Carga Más
+  sign_up_for_more: ¡Inscribese para ver más!
+  toggle_password: Ver Contraseña
+  back: Atrás
+
+errors:
+  something_went_wrong: ¡Algo salió mal!
+  bad_username: Nombre inválido.
+  username_no_user: No usuario tiene este nombre.
+  username_characters: Nombres para mostrar solo pueden incluir los carácteres a-z, 0-9, _, and -.
+  username_used: Este nombre está ocupado.
+  bad_password: Contraseña inválida.
+  invalid_otp: Código de invitación inválido.
+  invalid_otp_more: Make sure your invite code is correct and try again.
+  cant_delete: No puede borrar.
+  cant_delete_more: No tiene los permisos para borrar este publicación.
+  cant_interact: No puede interactuar.
+  cant_interact_more: No puede interactuar con este usuario por alguno razón.
+  blocking: Está bloqueando este usuario.
+  blocking_more: Debería desbloquear este usuario para hacerlo.
+  post_not_found: Este publicación no fue encontrado.
+  invalid_poll: Encuesta inválida.
+  poll_more_than_one: Necesita más de una opción.
+  not_authenticated: No tiene autenticación.
+  not_authenticated_more: Necesita iniciar una sesión para hacerlo.
+  ratelimit: Ratelimited.
+  ratelimit_more: Inténtalo de nuevo en algunos segundos.
+  error_code: "Código de error: %c"
+  cant_copy: ¡No pudo copiarlo!
+  cant_copy_more: No puede copiar el texto al portapapeles. Está usando https?
+  passwords_dont_match: Contraseñas no se combinan.
+  user_dne: Usario '%u' no existe.
+
+numbers:
+  infinity: Infinito
+  thousand: "%nk"
+  million: "%nm"
+  billion: "%nb"
+
+  second: "%xs"
+  minute: "%xm"
+  hour: "%xh"
+  day: "%xd"
+  year: "%xa"
+  minute_second: "%xm%ys"
+  hour_minute: "%xh%ym"
+  day_hour: "%xd%yh"
+  year_day: "%xa%yd"
+  future: "en %t"
+
+titles:
+  base: "%l - %n" # %l - location-based title, ex. Settings / %n - site name
+  admin: Administración
+  changes: Cambios
+  follow_requests: Solicitudes para seguirte
+  login: Iniciar sesión
+  logout: Cerrar sesión
+  messages: Mensajes
+  not_found: Página No Encontrado
+  notifications: Notificaciones
+  search: Buscar
+  settings: Ajustes
+  signup: Inscribirse
+
+post:
+  poll:
+    refresh: Actualizar
+    return_to_voting: Regresar a votar
+    view_results: Ver resultados
+    vote_count:
+      1: "%n vota"
+      "*": "%n votas"
+
+  cw:
+    length:
+      1: "%n car."
+      "*": "%n cars."
+    has_quote: ", cita"
+    has_poll: ", encuesta"
+    reply: "RE: %c"
+
+  quote:
+    has_quote: Incluye una cita
+    has_poll: Incluye una encuesta
+    cant_view: No puede ver esta cita.
+
+  tl_refresh: Actualizar
+  show_new:
+    1: Muestra publicación nueva (%n)
+    "*": Muestra publicaciones nuevas (%n)
+
+  copied: Copiado un enlace a esta publicación al portapapeles.
+  embedded: Copiado un IFrame al portapapeles.
+  deleted: Este publicación fue borrado.
+
+  cw_short: "CW: %c"
+  poll_short: "Encuesta"
+
+  followers_only: Solo para Seguidores
+  cw_placeholder: Advertencia de Contenido (opcional)
+  poll_button: Encuesta
+  poll_placeholder: Opción %n
+  poll_placeholder_optional: Opción %n (opcional)
+  button: Publicar
+  placeholder: Un miau o algo
+  quote_button: Citar
+  quote_placeholder:
+    - Una cita...
+    - ¿Qué se dice ahora...?
+    - ¿Otro error?
+    - Otra vez...
+  comment_button: Responder
+  comment_placeholder:
+    - Una nota...
+    - ¿Tiene algo que quiere decir?
+    - Informase como se siente
+    - Puede decir algo... o puede enviar un miau
+  edit_button: Guardar
+  edit_placeholder: Otro tipo de miau
+
+  pinned: La publicación esta fijado a su perfil.
+  unpinned: Este publicación ya no esta fijado a su perfil.
+
+  embed: Incrustar
+  share: Compartir
+  unpin: Desfijar
+  pin: Fijar
+  edit: Editar
+  delete: Borrar
+
+  parent_link: Nota Superior
+  home_link: Inicio
+
+keybinds:
+  modifiers:
+    alt: Alt
+    ctrl: Ctrl
+    shift: Shift
+
+  button_change: Cambiar
+  change_instructions: Pulsa la tecla nueva en el cuadro arriba.
+
+  new_post: { name: Entrar Cuadro de Publicar, description: Se permite enviar un publicación de cualquier lugar }
+  load_new_posts: { name: Cargar Publicaciones Nuevas, description: Muestra todas las publicaciones que fue creado desde cuando fueron cargados }
+  top_of_timeline: { name: Saltar al principio, description: Salta al principio de la página }
+  nav_modifier: { name: Tecla modificador de navigación, description: La tecla que activa los otros comandos }
+  nav_admin: Administración
+  nav_home: Inicio
+  nav_messages: Mensajes
+  nav_notifications: Notificaciones
+  nav_profile: Perfil
+  nav_settings: Ajustes
+  hamburger_delete: Borrar publicación
+  hamburger_pin: Fijar publicación
+  hamburger_edit: Editar publicación
+  hamburger_share: Compartir publicación
+  hamburger_embed: Incrustar publicación
+
+settings:
+  profile:
+    title: Perfil
+    real_title: Perfil
+    description: Nombre de usuario, color del banner...
+    profile_saved: Su perfil fue guardado.
+
+    section_profile: Su Perfil
+    display_name: "Nombre de usuario:"
+    pronouns: "Pronombres:"
+    pronouns_presets:
+      - él
+      - ella
+      - elle
+    pronouns_unset: "-"
+    pronouns_custom: Personalizado
+    pronouns_custom_placeholder: Pronombres personalizados...
+    bio: "Bío:"
+    banner: "Banner:"
+    gradient: Activar banner con gradiente
+    save_profile: Guardar
+
+    section_posts: Publicaciones
+    default_visibility: "Visibilidad de publicación por defecto:"
+    vis_public: Público
+    vis_private: Solo seguidores
+
+    section_followers: Seguidores
+    manually_approve: Revisar seguidores nuevos
+
+  cosmetic:
+    title: Estético
+    real_title: Estético
+    description: Diseño del sitio, modificaciones...
+
+    section_colors: Colores
+    themes:
+      label: "Diseño:"
+      system: Automático
+      light: Claro
+      dark: Oscuro
+      warm: Cálido
+      gray: Gris
+      darker: Gris Oscuro
+      oled: OLED
+
+    section_timestamps: Marcas de tiempo
+    complex_ts: Activa marcas de tiempo detallados
+    complex_ts_more: (1h → 1h32m, 5m → 5m48s)
+
+    section_language: Lenguajes
+    language: "Lenguaje:"
+
+    section_font_size: Tamaño de fuente
+    font_size_example: Aa
+
+    section_posts: Publicaciones
+    hide_interactions: Esconder interacciones en publicaciones
+    expand_cws: Siempre abrir advertencias de contenido
+    hide_changelog: Esconder registro de cambios
+    no_like_grouping: No agrupar notificaciones de likes
+    auto_show_new: Mostrar publicaciones nuevas en la biografía automáticamente
+    auto_show_new_more: Si no es activado, estaría un botón para mostrar publicaciones nuevas.
+    banner_shape:
+      label: "Forma del ícono del banner usuario:"
+      none: Escondido
+      square: Cuadrado
+      round: Cuadrado redondeado
+      circle: Círculo
+    cw_cascading:
+      label: "Catarada de Advertencias de contenido:"
+      description: Que la advertencia de contenido debe estar cuando notando una publicación con uno.
+      none: No pone un advertencia
+      email: "Adjuntar \"RE: \" (como email)"
+      copy: Usar advertencia actual
+
+  keybinds:
+    title: Comandos
+    real_title: Comandos
+    description: Navigación, enviar publicaciones...
+    section_generic: Comandos genéricos
+    section_nav: Comandos de Navigación
+    section_hamburger: Comandos de Interacciones
+
+  account:
+    title: Cuenta
+    real_title: Cuenta
+    description: Cambiar contraseña, borrar cuenta...
+    password_changed: Su contraseña fue cambiado.
+
+    section_change_password: Cambiar contraseña
+    current: Contraseña actual
+    new: Contraseña nueva
+    confirm: Confirma contraseña nueva
+    set: Cambiar
+
+    section_delete: Borrar cuenta
+    password: Contraseña
+    # %B: start bold / %b: end bold
+    confirmation: Yo confirma que %Bno podría deshacer%b este acción, y que %Bno podría recuperar%b todo la información relacionado con este cuenta.
+    delete: Borrar mi cuenta
+
+  about:
+    title: Acerca De
+    description: Código fuente, créditos...
+
+    section_credits: Créditos
+    lead_dev: "Desarrollador Principal:"
+    contributors: "Otros Contribuyentes:"
+    translators: "Traductores:"
+    maintainers: "Mantenedores:"
+    past_maintainers: "Mantenedores Pasados:"
+    icons: Algunos íconos son de Font Awesome
+
+    section_call_to_action: ¿Encontraste un error? ¿Tienes recomendaciones?
+    create_an_issue: ¡Crea un cuestion en GitHub!
+    suggestions_appreciated: Todos los recomendaciones y declaraciones de errores son apreciados.
+    past_changes: También, puedes ver todos los cambios pasados %h.
+    here: aquí
+
+    section_special_thanks: Agradecimientos Especiales
+    thanks_intro: Gracias a todos quien han declarado cuestiones, han dado recomendaciones, y quien son activo en la comunidad.
+    thanks_body: Este projecto esta creado y mantenido gratis. Nadie ha ganado ni uno centavo por Smiggins. No existe hoy sin su apoyo. Gracias por usando Smiggins, ¡y esperamos que lo guste!
+
+    source: Código fuente
+    discord: Servidor de Discord
+
+  import: Importar Ajustes...
+  export: Exportar Ajustes...
+  log_out: Cerrar sesión...
+  log_in: Iniciar sesión...
+
+admin:
+  title: Administración
+  description: Borrar publicaciones, crear invitaciones...
+
+  delete_post:
+    title: Borrar publicaciones
+    pid: "ID de la publicación:"
+    button: Borrar publicación
+
+  delete_user:
+    title: Borrar usuario
+    success: This user has been deleted.
+    username: "Nombre para mostrar: "
+    confirmation: Yo confirma que este es el usuario que quiero borrar permanentemente.
+    button: Borrar usuario
+
+  generate_otp:
+    title: Manejar códigos de invitación
+    generate: Crear código de invitación
+    list: Enumerar códigos válidos
+    delete: Borrar
+    copied: El código de invitación fue copiado al portapapeles.
+
+  set_level:
+    title: Permisos de administración
+    success: Guardó los permisos.
+    username: "Nombre para mostrar: "
+    permission_warning: Permite cambiar permisos a sí mismo y a otros, incluyendo permisos que no tiene.
+    load: Cargar Permisos Actuales
+    save: Guardar Permisos
+
+messages:
+  none: No mensajes
+  title:
+    1: "%a"
+    2: "%a y %b"
+    3: "%a, %b, y %c"
+    4: "%a, %b, %c, y <b>%n otro</b>"
+    "*": "%a, %b, %c, y <b>%n otros</b>"
+  placeholder: Miau Miau
+  create_group: Crear un Grupo
+  create_button: Crear Grupo
+  add_user: Añadir un Usuario
+  cancel: Cancelar
+
+notifications:
+  like:
+    1: "%a dio un like a tu publicación."
+    2: "%a y %b dieron likes a tu publicación."
+    3: "%a, %b, y %c dieron likes a tu publicación."
+    4: "%a, %b, %c, y <b>%n otro</b> dieron likes a tu publicación."
+    "*": "%a, %b, %c, y <b>%n otros</b> dieron likes a tu publicación."
+
+user:
+  follow: Seguir
+  unfollow: Dejar de seguir
+  pending: Pendiente
+  block: Bloquear
+  unblock: Desbloquear
+  no_bio: No bío esta presente
+
+  following_count: "%n Siguiendo"
+  followed_by_count: "%n Seguidores"
+  posts_count: "%n publicaciones"
+
+  modal_close: Cerrar
+
+  follow_request_accept: Aceptar
+  follow_request_deny: Rechazar
+
+timeline:
+  user_main: Publicaciones
+  user_comments: Con Notas
+  newest: Más nuevo
+  oldest: Más viejo
+  home_following: Seguidores
+  home_global: Global
+  home_comments: Notas
+
+login:
+  username: Nombre para mostrar
+  password: Contraseña
+  confirm: Confirma Contraseña
+  invite_code: Código de invitación
+
+  logout_info: Haz clic aquí si no ha sido redirigido automáticamente
+
+  sign_up_button: Inscribirse
+  log_in_button: Iniciar sesión
+  new_accounts_disabled: Se ha cerrado crear nuevas cuentas.
+  already_have_account: ¿Ya tienes una cuenta? Mejor iniciar una sesión.
+  dont_have_account: ¿No tienes una cuenta? Mejor inscribirse.
+
+search:
+  button: Buscar
+  content_placeholder: Contenido de la publicación
+  advanced: Avanzada
+  cw: "Advertencia de Contenido:"
+  cw_placeholder: Contenido de la AC (opcional)
+  author: "Creado por:"
+  author_placeholder: Nombre para mostrar (opcional)
+  quote: ¿Con una cita?
+  poll: ¿Con una encuesta?
+  comment: ¿Es una Nota?
+
+  any: Cualquier
+  "yes": "Sí"
+  "no": "No"
+
+not_found:
+  subtitle: No se encontró el URL
+  back: Volver a inicio
+
+update:
+  title: "¡%s había actualizado!"
+  view_changes: Mirar a los Cambios
+  dismiss: Descartar
