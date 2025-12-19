@@ -3,7 +3,9 @@
 meta:
   name: Español
   maintainers:
-    - [pquirrel, pquirrel]
+    - [pq-on-tempe2, pquirrel]
+  fallback:
+    - en
 
 version: v%n # %n -> version number, ex. v1.2.3
 
@@ -15,7 +17,7 @@ generic:
   pending_update: "Parece que %t fue actualizado. Recarga la página para ver los actualizaciones.\n\nSi este mensaje continuaría apareciendo después de recargar, contacta su administrador.\nCódigo: %c"
   loading: Cargando...
   load_more: Carga Más
-  sign_up_for_more: Inscribese para ver más!
+  sign_up_for_more: ¡Inscribese para ver más!
   toggle_password: Ver Contraseña
   back: Atrás
 
@@ -418,6 +420,6 @@ not_found:
   back: Volver a inicio
 
 update:
-  title: "%s había actualizado!"
+  title: "¡%s había actualizado!"
   view_changes: Mirar a los Cambios
   dismiss: Descartar
