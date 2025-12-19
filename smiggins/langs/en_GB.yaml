@@ -2,7 +2,7 @@
 
 meta:
   name: English (United Kingdom)
-  past_maintainers:
+  maintainers:
     - [trinkey, trinkey]
   fallback:
     - en
