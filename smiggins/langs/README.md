@@ -38,3 +38,22 @@
    `[github username, display name]` - for example: `[smigginslover123, Jeremiah]`
    (if you don't want a github username attached to your contributions, you can
    just set it to `null`).
+
+## tips and tricks for translators
+- if there is a replacement string, it will always start with a `%` and be
+  followed by one letter, like `%v`. there will always only be one letter, so
+  you don't need to worry about that.
+- for anything that expects a list of strings, ex. pronouns presets, you can
+  have as many or as few items as you want (at least one though).
+- for numbered inputs (ex. the amt of votes in a poll), you don't have to stick
+  with just one specific set of numbers. if the language you're translating into
+  has a different word for zero of something, you can just have a zero key, and
+  it will work properly. if a number that's not explicitly set is used, then
+  the value at the "*" key will be used.
+
+  ```yaml
+  vote_count:
+    0: ZERO votes
+    1: "%n vote"
+    "*": "%n votes"
+  ```

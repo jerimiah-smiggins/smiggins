@@ -95,7 +95,8 @@ def get_schema(keyval, only_properties: bool=False) -> dict:
             return {
                 "type": "array",
                 "items": {
-                    "type": "string"
+                    "type": "string",
+                    "minItems": 1
                 }
             }
 
@@ -103,6 +104,7 @@ def get_schema(keyval, only_properties: bool=False) -> dict:
             return {
                 "type": "object",
                 "additionalProperties": False,
+                "required": ["*"],
                 "patternProperties": {
                     "\\*|\\d+": {
                         "type": "string"

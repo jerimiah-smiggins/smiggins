@@ -303,6 +303,9 @@
             "vote_count": {
               "type": "object",
               "additionalProperties": false,
+              "required": [
+                "*"
+              ],
               "patternProperties": {
                 "\\*|\\d+": {
                   "type": "string"
@@ -318,6 +321,9 @@
             "length": {
               "type": "object",
               "additionalProperties": false,
+              "required": [
+                "*"
+              ],
               "patternProperties": {
                 "\\*|\\d+": {
                   "type": "string"
@@ -356,6 +362,9 @@
         "show_new": {
           "type": "object",
           "additionalProperties": false,
+          "required": [
+            "*"
+          ],
           "patternProperties": {
             "\\*|\\d+": {
               "type": "string"
@@ -404,7 +413,8 @@
         "quote_placeholder": {
           "type": "array",
           "items": {
-            "type": "string"
+            "type": "string",
+            "minItems": 1
           }
         },
         "comment_button": {
@@ -413,7 +423,8 @@
         "comment_placeholder": {
           "type": "array",
           "items": {
-            "type": "string"
+            "type": "string",
+            "minItems": 1
           }
         },
         "edit_button": {
@@ -594,7 +605,8 @@
             "pronouns_presets": {
               "type": "array",
               "items": {
-                "type": "string"
+                "type": "string",
+                "minItems": 1
               }
             },
             "pronouns_unset": {
@@ -1019,6 +1031,9 @@
         "title": {
           "type": "object",
           "additionalProperties": false,
+          "required": [
+            "*"
+          ],
           "patternProperties": {
             "\\*|\\d+": {
               "type": "string"
@@ -1049,6 +1064,9 @@
         "like": {
           "type": "object",
           "additionalProperties": false,
+          "required": [
+            "*"
+          ],
           "patternProperties": {
             "\\*|\\d+": {
               "type": "string"
