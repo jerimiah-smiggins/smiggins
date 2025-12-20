@@ -617,7 +617,10 @@ function postButtonClick(e: Event): void {
       return;
     }
 
-    navigator.clipboard.writeText(`Check out this post on ${pageTitle}! ${location.origin}/p/${postId}/`);
+    navigator.clipboard.writeText(lr(L.post.copy_message, {
+      s: pageTitle,
+      p: `${location.origin}/p/${postId}/`
+    }));
     createToast(L.generic.copied, L.post.copied);
   } else if (el.dataset.interactionEmbed) {
     let postId: number = +el.dataset.interactionEmbed;

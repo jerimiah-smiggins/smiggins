@@ -102,6 +102,7 @@ defs:
     show_new: numbered
 
     copied: str
+    copy_message: str
     embedded: str
     deleted: str
 

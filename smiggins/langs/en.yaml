@@ -106,6 +106,7 @@ post:
     "*": Show new posts (%n)
 
   copied: A link to this post has been added to your clipboard.
+  copy_message: Check out this post on %s! %p
   embedded: An IFrame code snippet has been copied to your clipboard.
   deleted: This post has been deleted.
 

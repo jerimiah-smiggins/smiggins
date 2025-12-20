@@ -374,6 +374,9 @@
         "copied": {
           "type": "string"
         },
+        "copy_message": {
+          "type": "string"
+        },
         "embedded": {
           "type": "string"
         },
