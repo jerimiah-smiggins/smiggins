@@ -108,6 +108,7 @@ post:
     "*": Muestra publicaciones nuevas (%n)
 
   copied: Copiado un enlace a esta publicación al portapapeles.
+  copy_message: ¡Mira esta publicación en %s! %p
   embedded: Copiado un IFrame al portapapeles.
   deleted: Este publicación fue borrado.
 
