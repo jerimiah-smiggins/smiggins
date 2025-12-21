@@ -1,75 +1,83 @@
 {% include "snippets/generic/page-start.html" with active_page="settings" %}
 
-<h1 class="no-margin-top no-margin-bottom">Cosmetic Settings</h1>
+<h1 class="no-margin-top no-margin-bottom">@{lang.settings.cosmetic.real_title}</h1>
 
 <hr class="no-margin-bottom">
-<a class="back-link plain-link" href="/settings/" data-internal-link="settings">@{icon_back} Settings</a>
+<a class="back-link plain-link" href="/settings/" data-internal-link="settings">@{icon_back} @{lang.titles.settings}</a>
 <hr class="no-margin-top no-margin-bottom">
 
 <div id="settings-sections">
   <div>
-    <p class="no-margin-top">Colors</p>
+    <p class="no-margin-top">@{lang.settings.cosmetic.section_colors}</p>
     <label>
-      <div>Theme:</div>
+      <div>@{lang.settings.cosmetic.themes.label}</div>
       <select id="theme">
-        <option value="system">Automatic</option>
-        <option value="light">Light</option>
-        <option value="dark">Dark</option>
-        <option value="warm">Warm</option>
-        <option value="gray">Gray</option>
-        <option value="darker">Dark Gray</option>
-        <option value="oled">Black</option>
+        <option value="system">@{lang.settings.cosmetic.themes.system}</option>
+        <option value="light">@{lang.settings.cosmetic.themes.light}</option>
+        <option value="dark">@{lang.settings.cosmetic.themes.dark}</option>
+        <option value="warm">@{lang.settings.cosmetic.themes.warm}</option>
+        <option value="gray">@{lang.settings.cosmetic.themes.gray}</option>
+        <option value="darker">@{lang.settings.cosmetic.themes.darker}</option>
+        <option value="oled">@{lang.settings.cosmetic.themes.oled}</option>
       </select>
     </label>
   </div>
 
   <div>
-    <p class="no-margin-top">Timestamps</p>
-    <label><input type="checkbox" id="complex-timestamps"> Enable complex timestamps</label>
-    <small><div>(1h becomes 1h32m, 5m becomes 5m48s)</div></small>
+    <p class="no-margin-top">@{lang.settings.cosmetic.section_timestamps}</p>
+    <label><input type="checkbox" id="complex-timestamps"> @{lang.settings.cosmetic.complex_ts}</label>
+    <small><div>@{lang.settings.cosmetic.complex_ts_more}</div></small>
   </div>
 
   <div>
-    <p class="no-margin-top">Font Size</p>
+    <p class="no-margin-top">@{lang.settings.cosmetic.section_language}</p>
+    <label>
+      <div>@{lang.settings.cosmetic.language}</div>
+      <select id="language">@{language_selection}</select>
+    </label>
+  </div>
+
+  <div>
+    <p class="no-margin-top">@{lang.settings.cosmetic.section_font_size}</p>
     <div id="font-size-selection">
-      <div id="font-size-small"><span>Aa</span></div>
-      <div id="font-size-normal"><span>Aa</span></div>
-      <div id="font-size-large"><span>Aa</span></div>
-      <div id="font-size-xl"><span>Aa</span></div>
+      <div id="font-size-small"><span>@{lang.settings.cosmetic.font_size_example}</span></div>
+      <div id="font-size-normal"><span>@{lang.settings.cosmetic.font_size_example}</span></div>
+      <div id="font-size-large"><span>@{lang.settings.cosmetic.font_size_example}</span></div>
+      <div id="font-size-xl"><span>@{lang.settings.cosmetic.font_size_example}</span></div>
     </div>
   </div>
 
   <div>
-    <p class="no-margin-top">Posts</p>
-    <div><label><input type="checkbox" id="hide-interactions"> Hide interactions on posts</label></div>
-    <div><label><input type="checkbox" id="expand-cws"> Always expand content warnings</label></div>
-    <div><label><input type="checkbox" id="hide-changelog"> Hide changelog popups</label></div>
+    <p class="no-margin-top">@{lang.settings.cosmetic.section_posts}</p>
+    <div><label><input type="checkbox" id="hide-interactions"> @{lang.settings.cosmetic.hide_interactions}</label></div>
+    <div><label><input type="checkbox" id="expand-cws"> @{lang.settings.cosmetic.expand_cws}</label></div>
+    <div><label><input type="checkbox" id="hide-changelog"> @{lang.settings.cosmetic.hide_changelog}</label></div>
     {% if logged_in %}
-      <div><label><input type="checkbox" id="no-like-grouping"> Don't group like notifications</label></div>
-      <div><label><input type="checkbox" id="auto-show"> Automatically show new posts on the timeline</label></div>
-      <small><div>When disabled, there will instead be a button to show new posts.</div></small>
+      <div><label><input type="checkbox" id="no-like-grouping"> @{lang.settings.cosmetic.no_like_grouping}</label></div>
+      <div><label><input type="checkbox" id="auto-show"> @{lang.settings.cosmetic.auto_show_new}</label></div>
+      <small><div>@{lang.settings.cosmetic.auto_show_new_more}</div></small>
     {% endif %}
 
     <div class="generic-margin-top generic-margin-bottom">
       <label>
-        <div>User banner icon shape:</div>
+        <div>@{lang.settings.cosmetic.banner_shape.label}</div>
         <select id="pfp-shape">
-          <option value="none">Hidden</option>
-          <option value="square">Square</option>
-          <option value="round">Rounded Square</option>
-          <option value="circle">Circle</option>
+          <option value="none">@{lang.settings.cosmetic.banner_shape.none}</option>
+          <option value="square">@{lang.settings.cosmetic.banner_shape.square}</option>
+          <option value="round">@{lang.settings.cosmetic.banner_shape.round}</option>
+          <option value="circle">@{lang.settings.cosmetic.banner_shape.circle}</option>
         </select>
       </label>
     </div>
 
     <div class="generic-margin-top">
       <label>
-        <div>Content warning cascading:</div>
-        <small><div>What the content warning should be when commenting on a post with one.</div></small>
+        <div>@{lang.settings.cosmetic.cw_cascading.label}</div>
+        <small><div>@{lang.settings.cosmetic.cw_cascading.description}</div></small>
         <select id="cw-cascading">
-          <option value="none">Don't set a content warning</option>
-          <option value="email">Prepend "RE: " (like an email)</option>
-          <option value="copy">Use existing content warning</option>
+          <option value="none">@{lang.settings.cosmetic.cw_cascading.none}</option>
+          <option value="email">@{lang.settings.cosmetic.cw_cascading.email}</option>
+          <option value="copy">@{lang.settings.cosmetic.cw_cascading.copy}</option>
         </select>
       </label>
     </div>

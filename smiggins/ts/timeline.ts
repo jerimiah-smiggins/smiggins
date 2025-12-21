@@ -16,8 +16,6 @@ let offset: { upper: number | null, lower: number | null } = {
   lower: null
 };
 
-const LOADING_HTML: string = "<i class=\"timeline-status\">Loading...</i>";
-
 // hooks onto an element for a timeline, initialization
 function hookTimeline(
   element: D,
@@ -62,7 +60,7 @@ function hookTimeline(
 
 // completely refreshes the posts, ex. when switching or reloading
 function reloadTimeline(ignoreCache: boolean=false, element?: D): void {
-  tlElement.innerHTML = LOADING_HTML;
+  tlElement.innerHTML = `<i class="timeline-status">${L.generic.loading}</i>`;
   prependedPosts = 0;
 
   let cache: TimelineCache | undefined = tlCache[currentTlID];
@@ -119,7 +117,7 @@ function loadMorePosts(): void {
   let more: el = document.getElementById("timeline-more");
   if (more) { more.hidden = true; }
 
-  tlElement.insertAdjacentHTML("beforeend", LOADING_HTML);
+  tlElement.insertAdjacentHTML("beforeend", `<i class="timeline-status">${L.generic.loading}</i>`);
 
   new currentTl.api(currentTl.invertOffset ? offset.upper : offset.lower, false, ...(currentTl.args || []))
     .fetch()
@@ -149,7 +147,7 @@ function renderTimeline(
   if (offset.lower === null && posts.length === 0) {
     let none: HTMLElement = document.createElement("i");
     none.classList.add("timeline-status");
-    none.innerText = "None";
+    none.innerText = L.generic.none;
 
     tlElement.append(none);
 
@@ -170,7 +168,7 @@ function renderTimeline(
 
   if (!loggedIn) {
     let logInReminder: D = document.createElement("div");
-    logInReminder.innerHTML = "<a class=\"timeline-status\" href=\"/signup/\" data-internal-link=\"signup\">Sign up to view more!</a>";
+    logInReminder.innerHTML = `<a class="timeline-status" href="/signup/" data-internal-link=\"signup\">${L.generic.sign_up_for_more}</a>`;
     generateInternalLinks(logInReminder);
     frag.append(logInReminder);
   }
@@ -323,16 +321,16 @@ function getPollHTML(poll: Post["poll"], pid: number, forceVotedView: boolean=fa
   }
 
   if (voted) {
-    pollButtons = `<a onclick="refreshPollData(${pid})">Refresh</a>`;
+    pollButtons = `<a onclick="refreshPollData(${pid})">${L.post.poll.refresh}</a>`;
 
     if (!poll.has_voted && forceVotedView && loggedIn) {
-      pollButtons += ` - <a onclick="refreshPollDisplay(${pid})">Return to voting</a>`;
+      pollButtons += ` - <a onclick="refreshPollDisplay(${pid})">${L.post.poll.return_to_voting}</a>`;
     }
   } else {
-    pollButtons = `<a onclick="refreshPollDisplay(${pid}, true)">View results</a>`;
+    pollButtons = `<a onclick="refreshPollDisplay(${pid}, true)">${L.post.poll.view_results}</a>`;
   }
 
-  return output + `<small><div>${floatintToStr(poll.votes)} vote${floatintToNum(poll.votes) !== 1 ? "s" : ""} - ${pollButtons}</div></small>`;
+  return output + `<small><div>${lr(n(L.post.poll.vote_count, floatintToNum(poll.votes)), { n: floatintToStr(poll.votes) })} - ${pollButtons}</div></small>`;
 }
 
 // turns post data into an html element
@@ -358,7 +356,7 @@ function getPost(
   let contentWarningEnd: string = "";
 
   if (p.content_warning) {
-    contentWarningStart = `<details class="content-warning"${forceCwState !== false && (forceCwState === true || localStorage.getItem("smiggins-expand-cws")) ? " open" : "" }><summary><div>${escapeHTML(p.content_warning)} <div class="content-warning-stats">(${p.content.length} char${p.content.length === 1 ? "" : "s"}${p.quote ? ", quote" : ""}${p.poll ? ", poll" : ""})</div></div></summary>`;
+    contentWarningStart = `<details class="content-warning"${forceCwState !== false && (forceCwState === true || localStorage.getItem("smiggins-expand-cws")) ? " open" : "" }><summary><div>${escapeHTML(p.content_warning)} <div class="content-warning-stats">(${lr(n(L.post.cw.length, p.content.length), { n: String(p.content.length) })}${p.quote ? L.post.cw.has_quote : ""}${p.poll ? L.post.cw.has_poll : ""})</div></div></summary>`;
     contentWarningEnd = "</details>";
   }
 
@@ -372,7 +370,7 @@ function getPost(
     let quoteCwEnd: string = "";
 
     if (p.quote.content_warning) {
-      quoteCwStart = `<details class="content-warning"${forceCwState !== false && (forceCwState === true || localStorage.getItem("smiggins-expand-cws")) ? " open" : "" }><summary><div>${escapeHTML(p.quote.content_warning)} <div class="content-warning-stats">(${p.quote.content.length} char${p.quote.content.length === 1 ? "" : "s"}${p.quote.has_quote ? ", quote" : ""}${p.quote.has_poll ? ", poll" : ""})</div></div></summary>`;
+      quoteCwStart = `<details class="content-warning"${forceCwState !== false && (forceCwState === true || localStorage.getItem("smiggins-expand-cws")) ? " open" : "" }><summary><div>${escapeHTML(p.quote.content_warning)} <div class="content-warning-stats">(${lr(n(L.post.cw.length, p.quote.content.length), { n: String(p.quote.content.length) })}${p.quote.has_quote ? L.post.cw.has_quote : ""}${p.quote.has_poll ? L.post.cw.has_poll : ""})</div></div></summary>`;
       quoteCwEnd = "</details>";
     }
 
@@ -396,7 +394,7 @@ function getPost(
     };
 
     quoteUnsafeData = {
-      quote_content: [quoteContent + (p.quote.has_poll ? (p.quote.content ? "\n" : "") + `<a data-internal-link="post" href="/p/${p.quote.id}/" class="plain-link"><i>Includes a poll</i></a>` : "") + (p.quote.has_quote ? (p.quote.content || p.quote.has_poll ? "\n" : "") + `<a data-internal-link="post" href="/p/${p.quote.id}/" class="plain-link"><i>Includes a quote</i></a>` : ""), 1],
+      quote_content: [quoteContent + (p.quote.has_poll ? (p.quote.content ? "\n" : "") + `<a data-internal-link="post" href="/p/${p.quote.id}/" class="plain-link"><i>${L.post.quote.has_poll}</i></a>` : "") + (p.quote.has_quote ? (p.quote.content || p.quote.has_poll ? "\n" : "") + `<a data-internal-link="post" href="/p/${p.quote.id}/" class="plain-link"><i>${L.post.quote.has_quote}</i></a>` : ""), 1],
       quote_cw_start: [quoteCwStart, 1],
       quote_pronouns: [p.quote.user.pronouns || "", 1],
       quote_display_name: [escapeHTML(p.quote.user.display_name), 1]
@@ -445,7 +443,7 @@ function getPost(
 
     if (quoteElement) {
       quoteElement.removeAttribute("hidden");
-      quoteElement.innerHTML = "<i>You can't view this quote.</i>";
+      quoteElement.innerHTML = `<i>${L.post.quote.cant_view}</i>`;
     }
   }
 
@@ -521,11 +519,11 @@ function handleForward(
     c.pendingForward.push(...insertIntoPostCache(posts).reverse());
 
     if (showNewElement) {
-      showNewElement.innerText = `Show new posts (${c.pendingForward.length - prependedPosts})`;
+      showNewElement.innerText = lr(n(L.post.show_new, c.pendingForward.length), { n: String(c.pendingForward.length) });
     }
   } else {
     c.pendingForward = false;
-    if (showNewElement) { showNewElement.innerText = "Refresh"; }
+    if (showNewElement) { showNewElement.innerText = L.post.tl_refresh; }
   }
 
   if (forceEvent) {
@@ -615,21 +613,24 @@ function postButtonClick(e: Event): void {
   } else if (el.dataset.interactionShare) {
     let postId: number = +el.dataset.interactionShare;
     if (!navigator.clipboard) {
-      createToast("Unable to copy!", "Couldn't copy text to your clipboard. Are you using https?");
+      createToast(L.errors.cant_copy, L.errors.cant_copy_more);
       return;
     }
 
-    navigator.clipboard.writeText(`Check out this post on ${pageTitle}! ${location.origin}/p/${postId}/`);
-    createToast("Copied!", "A link to this post has been added to your clipboard.");
+    navigator.clipboard.writeText(lr(L.post.copy_message, {
+      s: pageTitle,
+      p: `${location.origin}/p/${postId}/`
+    }));
+    createToast(L.generic.copied, L.post.copied);
   } else if (el.dataset.interactionEmbed) {
     let postId: number = +el.dataset.interactionEmbed;
     if (!navigator.clipboard) {
-      createToast("Unable to copy!", "Couldn't copy text to your clipboard. Are you using https?");
+      createToast(L.errors.cant_copy, L.errors.cant_copy_more);
       return;
     }
 
     navigator.clipboard.writeText(`<iframe src="${location.origin}/p/${postId}/?iframe=" width="600" height="400"></iframe>`);
-    createToast("Copied!", "An IFrame code snippet has been coped to your clipboard.");
+    createToast(L.generic.copied, L.post.embedded);
   } else {
     console.log("Unknown interaction type for post button", e);
   }
@@ -665,7 +666,7 @@ function handlePostDelete(pid: number): void {
   }
 
   for (const el of document.querySelectorAll(`[data-post-id="${pid}"]`)) {
-    el.innerHTML = "<i>This post has been deleted.</i>";
+    el.innerHTML = `<i>${L.post.deleted}</i>`;
   }
 
   delete tlCache[`post_${pid}_recent`];
@@ -687,7 +688,7 @@ function handlePostDelete(pid: number): void {
 
 // returns an escaped string containing the post content, or a content warning if there is one
 function simplePostContent(post: Post): string {
-  return escapeHTML(post.content_warning ? "CW: " + post.content_warning : post.content) || (post.poll ? "Poll" : "");
+  return escapeHTML(post.content_warning ? lr(L.post.cw_short, { c: post.content_warning }) : post.content) || (post.poll ? L.post.poll_short : "");
 }
 
 // (processing) timeline "show more" button

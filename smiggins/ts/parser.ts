@@ -1,6 +1,41 @@
+// handles replacements in language strings
+function lr(str: string, replacements: { [key: string]: string }): string {
+  for (const [key, val] of Object.entries(replacements)) {
+    str = str.replaceAll("%" + key, val);
+  }
+  return str;
+}
+
+// handles numbered language strings
+function n(data: { [key in number | "*"]: string }, num: number): string {
+  if (data[num]) {
+    return data[num];
+  }
+
+  return data["*"];
+}
+
+// turns a language key string (ex. "generic.none") and turns it into the
+// respective language string (ex. L.generic.none -> "None")
+function langFromRaw(key: string): string {
+  // return "!"; // testing
+
+  let response: any = L;
+
+  for (const sect of key.split(".")) {
+    response = response[sect];
+
+    if (!response) {
+      return key;
+    }
+  }
+
+  return String(response);
+}
+
 function floatintToStr(num: number): string {
   if (num >> 14 & 1) {
-    return "Infinity";
+    return L.numbers.infinity;
   }
 
   let negative: number = 1;
@@ -16,13 +51,15 @@ function floatintToStr(num: number): string {
 
   let powerLetter: string = "";
   switch (power) {
-    case 0: powerLetter = ""; break;
-    case 1: powerLetter = "k"; break;
-    case 2: powerLetter = "m"; break;
-    case 3: powerLetter = "b"; break;
+    case 0: powerLetter = "%n"; break;
+    case 1: powerLetter = L.numbers.thousand; break;
+    case 2: powerLetter = L.numbers.million; break;
+    case 3: powerLetter = L.numbers.billion; break;
   }
 
-  return String(output) + powerLetter;
+  return lr(powerLetter, {
+    n: String(output)
+  });
 }
 
 function floatintToNum(num: number): number {
@@ -46,35 +83,35 @@ function floatintToNum(num: number): number {
 
 function _getErrorStrings(code: number, context: number): [title: string | null, content?: string] {
   switch (code) {
-    case ErrorCodes.BadRequest: return ["Something went wrong!"];
+    case ErrorCodes.BadRequest: return [L.errors.something_went_wrong];
     case ErrorCodes.BadUsername: switch (context) {
       case ResponseCodes.LogIn:
       case ResponseCodes.AdminDeleteUser:
       case ResponseCodes.GetAdminPermissions:
       case ResponseCodes.SetAdminPermissions:
-        return ["Invalid username.", "No user has that username."];
-      case ResponseCodes.SignUp: return ["Invalid username.", "Usernames can only include the characters a-z, 0-9, _, and -."];
+        return [L.errors.bad_username, L.errors.username_no_user];
+      case ResponseCodes.SignUp: return [L.errors.bad_username, L.errors.username_characters];
       case ResponseCodes.TimelineUser: userSetDNE(); return [null];
-      default: return ["Invalid username."];
+      default: return [L.errors.bad_username];
     }
-    case ErrorCodes.UsernameUsed: return ["Username in use."];
-    case ErrorCodes.BadPassword: return ["Invalid password."];
-    case ErrorCodes.InvalidOTP: return ["Invalid invite code.", "Make sure your invite code is correct and try again."];
+    case ErrorCodes.UsernameUsed: return [L.errors.username_used];
+    case ErrorCodes.BadPassword: return [L.errors.bad_password];
+    case ErrorCodes.InvalidOTP: return [L.errors.invalid_otp, L.errors.invalid_otp_more];
     case ErrorCodes.CantInteract: switch (context) {
-      case ResponseCodes.DeletePost: return ["Can't delete.", "You don't have permissions to delete this post."];
-      default: return ["Can't interact.", "You can't interact with this user for some reason."];
+      case ResponseCodes.DeletePost: return [L.errors.cant_delete, L.errors.cant_delete_more];
+      default: return [L.errors.cant_interact, L.errors.cant_interact_more];
     }
-    case ErrorCodes.Blocking: return ["You are blocking this person.", "You need to unblock them to do this."];
+    case ErrorCodes.Blocking: return [L.errors.blocking, L.errors.blocking_more];
     case ErrorCodes.PostNotFound: switch (context) {
       case ResponseCodes.TimelineComments: postSetDNE(); return [null];
-      default: return ["Post not found."];
+      default: return [L.errors.post_not_found];
     }
-    case ErrorCodes.PollSingleOption: return ["Invalid poll.", "Must have more than one option."];
-    case ErrorCodes.NotAuthenticated: return ["Not Authenticated.", "You need to be logged in to do this."];
-    case ErrorCodes.Ratelimit: return ["Ratelimited.", "Try again in a few seconds."];
+    case ErrorCodes.PollSingleOption: return [L.errors.invalid_poll, L.errors.poll_more_than_one];
+    case ErrorCodes.NotAuthenticated: return [L.errors.not_authenticated, L.errors.not_authenticated_more];
+    case ErrorCodes.Ratelimit: return [L.errors.ratelimit, L.errors.ratelimit_more];
   }
 
-  return ["Something went wrong!", "Error code " + context.toString(16) + code.toString(16)];
+  return [L.errors.something_went_wrong, lr(L.errors.error_code, { c: context.toString(16) + code.toString(16) })];
 }
 
 function _extractString(lengthBits: 8 | 16, data: Uint8Array): [string, leftoverData: Uint8Array] {

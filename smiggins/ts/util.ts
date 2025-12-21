@@ -138,18 +138,32 @@ function getTimestamp(timestamp: number, raw: boolean=false): string {
   let output: string = "?";
 
   if (difference < 60) {
-    output = `${difference}s`;
+    output = lr(L.numbers.second, {
+      x: String(difference)
+    });
   } else if (difference < 60 * 60) {
-    output = `${Math.floor(difference / 60)}m` + (complexTimestamps ? `${difference % 60}s` : "");
+    output = lr(L.numbers[complexTimestamps ? "minute_second" : "minute"], {
+      x: String(Math.floor(difference / 60)),
+      y: String(difference % 60)
+    });
   } else if (difference < 60 * 60 * 24) {
-    output = `${Math.floor(difference / 60 / 60)}h` + (complexTimestamps ? `${Math.floor(difference / 60) % 60}m` : "");
+    output = lr(L.numbers[complexTimestamps ? "hour_minute" : "hour"], {
+      x: String(Math.floor(difference / 60 / 60)),
+      y: String(Math.floor(difference / 60) % 60)
+    });
   } else if (difference < 60 * 60 * 24 * 365) {
-    output = `${Math.floor(difference / 60 / 60 / 24)}d` + (complexTimestamps ? `${Math.floor(difference / 60 / 60) % 24}h` : "");
+    output = lr(L.numbers[complexTimestamps ? "day_hour" : "day"], {
+      x: String(Math.floor(difference / 60 / 60 / 24)),
+      y: String(Math.floor(difference / 60 / 60) % 24)
+    });
   } else if (!isNaN(timestamp)) {
-    output = `${Math.floor(difference / 60 / 60 / 24 / 365)}y` + (complexTimestamps ? `${Math.floor(difference / 60 / 60 / 24) % 365}d` : "");
+    output = lr(L.numbers[complexTimestamps ? "day_hour" : "day"], {
+      x: String(Math.floor(difference / 60 / 60 / 24 / 365)),
+      y: String(Math.floor(difference / 60 / 60 / 24) % 365)
+    });
   }
 
-  if (future) { output = "in " + output; }
+  if (future) { output = lr(L.numbers.future, { t: output }); }
   if (raw) { return output; }
   return `<span data-timestamp="${timestamp}">${output}</span>`;
 }

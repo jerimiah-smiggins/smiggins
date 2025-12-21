@@ -108,7 +108,7 @@ function settingsCWCascadingSelection(): void {
 
 function changePasswordSuccess(token: string): void {
   setTokenCookie(token);
-  createToast("Success!", "Your password has been changed.");
+  createToast(L.generic.success, L.settings.account.password_changed);
 
   let currentPwElement: el = document.getElementById("password-current");
   let newPwElement: el = document.getElementById("password-new");
@@ -190,7 +190,7 @@ function profileSettingsSetUserData(
 
     if (pronouns === "") {
       // do nothing, pronouns unset
-    } else if (["he/him", "she/her", "they/them", "it/its"].includes(pronouns)) {
+    } else if (L.settings.profile.pronouns_presets.includes(pronouns)) {
       pronounsElement.value = pronouns;
       pronounsCustomElement.setAttribute("hidden", "");
     } else {
@@ -221,18 +221,24 @@ function profileSettingsSetUserData(
 }
 
 function setKeybindElementData(kbId: string, el: D): void {
+  setKeybindStrings();
+
   let kbData = keybinds[kbId];
 
   let keyData: string = _kbGetKey(kbId);
   let key: string = keyData[0] + keyData.slice(1).split(":")[0];
   let modifiers: string = (keyData.slice(1).split(":")[1].split(",") as KeybindModifiers[]).map((mod: KeybindModifiers): string => ({
-    alt: "Alt + ",
-    ctrl: "Ctrl + ",
+    alt: L.keybinds.modifiers.alt + " + ",
+    ctrl: L.keybinds.modifiers.ctrl + " + ",
     nav: _kbGetKey("navModifier")[0] + _kbGetKey("navModifier").slice(1).split(":")[0] + " + ",
-    shift: "Shift + "
+    shift: L.keybinds.modifiers.shift + " + "
   }[mod])).join("");
 
-  let output: string = `<div class="generic-margin-top">${escapeHTML(kbData.name)}: <code class="kb-key">${escapeHTML(key == KB_DISABLED ? KB_DISABLED : modifiers + key)}</code> <button data-kb-id="${kbId}">Change</button></div>`;
+  if (key === KB_DISABLED) {
+    key = L.keybinds.modifiers.disabled;
+  }
+
+  let output: string = `<div class="generic-margin-top">${escapeHTML(kbData.name || "")}: <code class="kb-key">${escapeHTML(key == KB_DISABLED ? KB_DISABLED : modifiers + key)}</code> <button data-kb-id="${kbId}">${L.keybinds.button_change}</button></div>`;
 
   if (kbData.description) {
     output += `<small><div>${escapeHTML(kbData.description)}</div></small>`;
@@ -251,6 +257,7 @@ function exportSettings(): void {
     fontSize: localStorage.getItem("smiggins-font-size") || "normal",
     hideChangelog: Boolean(localStorage.getItem("smiggins-hide-changelog")),
     hideInteractions: Boolean(localStorage.getItem("smiggins-hide-interactions")),
+    language: localStorage.getItem("smiggins-language") as languages | null || L.meta.id,
     noLikeGrouping: Boolean(localStorage.getItem("smiggins-no-like-grouping")),
     pfpShape: localStorage.getItem("smiggins-php-shape") || "round",
     theme: (localStorage.getItem("smiggins-theme") as Themes | null) || "system",
@@ -310,6 +317,7 @@ function importSettings(data: SettingsExport): void {
   _lsBoolean(data.noLikeGrouping, "smiggins-no-like-grouping");
   localStorage.setItem("smiggins-pfp-shape", data.pfpShape || "round");
   localStorage.setItem("smiggins-theme", data.theme || "system");
+  localStorage.setItem("smiggins-language", data.theme || DEFAULT_LANGUAGE);
 
   _lsBoolean(data.homeTimeline.comments, "smiggins-home-comments");
   localStorage.setItem("smiggins-home", data.homeTimeline.default || "global");
@@ -340,6 +348,7 @@ function p_settingsCosmetic(element: D): void {
   element.querySelector(`#theme > option[value="${theme}"]`)?.setAttribute("selected", "");
   element.querySelector(`#pfp-shape > option[value="${localStorage.getItem("smiggins-pfp-shape") || "round"}"]`)?.setAttribute("selected", "");
   element.querySelector(`#cw-cascading > option[value="${localStorage.getItem("smiggins-cw-cascading") || "email"}"]`)?.setAttribute("selected", "");
+  element.querySelector(`#language > option[value="${localStorage.getItem("smiggins-language") || L.meta.id}"]`)?.setAttribute("selected", "");
   if (localStorage.getItem("smiggins-complex-timestamps")) { element.querySelector("#complex-timestamps")?.setAttribute("checked", ""); }
   if (localStorage.getItem("smiggins-hide-interactions"))  { element.querySelector("#hide-interactions") ?.setAttribute("checked", ""); }
   if (localStorage.getItem("smiggins-expand-cws"))         { element.querySelector("#expand-cws")        ?.setAttribute("checked", ""); }
@@ -356,6 +365,16 @@ function p_settingsCosmetic(element: D): void {
   element.querySelector("#hide-changelog")    ?.addEventListener("change", genericCheckbox("smiggins-hide-changelog"));
   element.querySelector("#no-like-grouping")  ?.addEventListener("change", genericCheckbox("smiggins-no-like-grouping"));
   element.querySelector("#auto-show")         ?.addEventListener("change", genericCheckbox("smiggins-auto-show-posts"));
+
+  element.querySelector("#language")?.addEventListener("change", (): void => {
+    let newLang: string | undefined = (document.getElementById("language") as Iel)?.value;
+
+    if (newLang && Object.keys(LANGS).includes(newLang)) {
+      localStorage.setItem("smiggins-language", newLang);
+      L = LANGS[newLang as languages];
+      renderPage("settings/cosmetic");
+    }
+  })
 
   for (const el of element.querySelectorAll("#font-size-selection > div")) {
     el.addEventListener("click", setFontSize);

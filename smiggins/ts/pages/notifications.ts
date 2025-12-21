@@ -1,8 +1,3 @@
-// ex. a value of 4 would show:
-// a, b, c, and d liked your post
-// a, b, c, d, and n other(s) liked your post
-const NUM_USERS_LIKE_NOTIF: number = 4;
-
 enum NotificationCodes {
   Comment = 1,
   Quote,
@@ -23,10 +18,8 @@ function p_notifications(element: D): void {
 
 function _getLikeNotification(posts: Post[]): D {
   let recentTimestamp: number = 0;
-  let users: string[] = posts.map((a: Post, index: number): [string | null, string] | null => {
+  let users: string[] = posts.map((a: Post): [string | null, string] | null => {
     if (a.timestamp > recentTimestamp) { recentTimestamp = a.timestamp; }
-
-    if (index > NUM_USERS_LIKE_NOTIF) { return null; }
     return [a.user.username, a.user.display_name];
   }).map((a: [username: string | null, displayName: string] | null): string => {
     if (a === null) {
@@ -44,22 +37,12 @@ function _getLikeNotification(posts: Post[]): D {
     return htmlStart + escapeHTML(a[1]) + htmlEnd;
   });
 
-  let lengthDifference: number = posts.length - users.length
-  let userFull: string;
-  if (lengthDifference === 0) {
-    if (users.length === 1) {
-      userFull = users[0];
-    } else if (users.length === 2) {
-      userFull = users.join(" and ");
-    } else {
-      users[users.length - 1] = "and " + users[users.length - 1];
-      userFull = users.join(", ");
-    }
-  } else if (lengthDifference === 1) {
-    userFull = users.join(", ") + ", and <b>1 other</b>";
-  } else {
-    userFull = users.join(", ") + `, and <b>${lengthDifference} others</b>`;
-  }
+  let userFull: string = lr(n(L.notifications.like, posts.length), {
+    a: users[0],
+    b: users[1],
+    c: users[2],
+    n: String(posts.length)
+  });
 
   return getSnippet("notification-like", {
     pid: String(posts[0].id),
@@ -81,7 +64,7 @@ function renderNotificationTimeline(
   if (offset.lower === null && posts.length === 0) {
     let none: HTMLElement = document.createElement("i");
     none.classList.add("timeline-status");
-    none.innerText = "None";
+    none.innerText = L.generic.none;
 
     tlElement.append(none);
 

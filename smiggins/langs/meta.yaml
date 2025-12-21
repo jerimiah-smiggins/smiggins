@@ -1,0 +1,399 @@
+# yaml-language-server: $schema=meta.schema.json
+
+languages:
+# first language on list will be used as default
+- en
+- en_GB
+- es
+
+defs:
+  version: str
+
+  generic:
+    username: str
+    success: str
+    copied: str
+    none: str
+    pending_update: str
+    loading: str
+    load_more: str
+    sign_up_for_more: str
+    toggle_password: str
+    back: str
+
+  errors:
+    something_went_wrong: str
+    bad_username: str
+    username_no_user: str
+    username_characters: str
+    username_used: str
+    bad_password: str
+    invalid_otp: str
+    invalid_otp_more: str
+    cant_delete: str
+    cant_delete_more: str
+    cant_interact: str
+    cant_interact_more: str
+    blocking: str
+    blocking_more: str
+    post_not_found: str
+    invalid_poll: str
+    poll_more_than_one: str
+    not_authenticated: str
+    not_authenticated_more: str
+    ratelimit: str
+    ratelimit_more: str
+    error_code: str
+    cant_copy: str
+    cant_copy_more: str
+    passwords_dont_match: str
+    user_dne: str
+
+  numbers:
+    infinity: str
+    thousand: str
+    million: str
+    billion: str
+
+    second: str
+    minute: str
+    hour: str
+    day: str
+    year: str
+    minute_second: str
+    hour_minute: str
+    day_hour: str
+    year_day: str
+    future: str
+
+  titles:
+    base: str
+    admin: str
+    changes: str
+    follow_requests: str
+    login: str
+    logout: str
+    messages: str
+    not_found: str
+    notifications: str
+    search: str
+    settings: str
+    signup: str
+
+  post:
+    poll:
+      refresh: str
+      return_to_voting: str
+      view_results: str
+      vote_count: numbered
+
+    cw:
+      length: numbered
+      has_quote: str
+      has_poll: str
+      reply: str
+
+    quote:
+      has_quote: str
+      has_poll: str
+      cant_view: str
+
+    tl_refresh: str
+    show_new: numbered
+
+    copied: str
+    copy_message: str
+    embedded: str
+    deleted: str
+
+    cw_short: str
+    poll_short: str
+
+    followers_only: str
+    cw_placeholder: str
+    poll_button: str
+    poll_placeholder: str
+    poll_placeholder_optional: str
+    button: str
+    placeholder: str
+    quote_button: str
+    quote_placeholder: str[]
+    comment_button: str
+    comment_placeholder: str[]
+    edit_button: str
+    edit_placeholder: str
+
+    pinned: str
+    unpinned: str
+
+    embed: str
+    share: str
+    unpin: str
+    pin: str
+    edit: str
+    delete: str
+
+    parent_link: str
+    home_link: str
+
+  keybinds:
+    modifiers:
+      alt: str
+      ctrl: str
+      shift: str
+      disabled: str
+
+    button_change: str
+    change_instructions: str
+
+    new_post: { name: str, description: str }
+    load_new_posts: { name: str, description: str }
+    top_of_timeline: { name: str, description: str }
+    nav_modifier: { name: str, description: str }
+    nav_admin: str
+    nav_home: str
+    nav_messages: str
+    nav_notifications: str
+    nav_profile: str
+    nav_settings: str
+    hamburger_delete: str
+    hamburger_pin: str
+    hamburger_edit: str
+    hamburger_share: str
+    hamburger_embed: str
+
+  settings:
+    profile:
+      title: str
+      real_title: str
+      description: str
+      profile_saved: str
+
+      section_profile: str
+      display_name: str
+      pronouns: str
+      pronouns_presets: str[]
+      pronouns_unset: str
+      pronouns_custom: str
+      pronouns_custom_placeholder: str
+      bio: str
+      banner: str
+      gradient: str
+      save_profile: str
+
+      section_posts: str
+      default_visibility: str
+      vis_public: str
+      vis_private: str
+
+      section_followers: str
+      manually_approve: str
+
+    cosmetic:
+      title: str
+      real_title: str
+      description: str
+
+      section_colors: str
+      themes:
+        label: str
+        system: str
+        light: str
+        dark: str
+        warm: str
+        gray: str
+        darker: str
+        oled: str
+
+      section_timestamps: str
+      complex_ts: str
+      complex_ts_more: str
+
+      section_language: str
+      language: str
+
+      section_font_size: str
+      font_size_example: str
+
+      section_posts: str
+      hide_interactions: str
+      expand_cws: str
+      hide_changelog: str
+      no_like_grouping: str
+      auto_show_new: str
+      auto_show_new_more: str
+      banner_shape:
+        label: str
+        none: str
+        square: str
+        round: str
+        circle: str
+      cw_cascading:
+        label: str
+        description: str
+        none: str
+        email: str
+        copy: str
+
+    keybinds:
+      title: str
+      real_title: str
+      description: str
+      section_generic: str
+      section_nav: str
+      section_hamburger: str
+
+    account:
+      title: str
+      real_title: str
+      description: str
+      password_changed: str
+
+      section_change_password: str
+      current: str
+      new: str
+      confirm: str
+      set: str
+
+      section_delete: str
+      password: str
+      confirmation: str
+      delete: str
+
+    about:
+      title: str
+      description: str
+
+      section_credits: str
+      lead_dev: str
+      contributors: str
+      translators: str
+      maintainers: str
+      past_maintainers: str
+      icons: str
+
+      section_call_to_action: str
+      create_an_issue: str
+      suggestions_appreciated: str
+      past_changes: str
+      here: str
+
+      section_special_thanks: str
+      thanks_intro: str
+      thanks_body: str
+
+      source: str
+      discord: str
+
+    import: str
+    export: str
+    log_out: str
+    log_in: str
+
+  admin:
+    title: str
+    description: str
+
+    delete_post:
+      title: str
+      pid: str
+      button: str
+
+    delete_user:
+      title: str
+      success: str
+      username: str
+      confirmation: str
+      button: str
+
+    generate_otp:
+      title: str
+      generate: str
+      list: str
+      delete: str
+      copied: str
+
+    set_level:
+      title: str
+      success: str
+      username: str
+      permission_warning: str
+      load: str
+      save: str
+
+  messages:
+    none: str
+    title: numbered
+    placeholder: str
+    create_group: str
+    create_button: str
+    add_user: str
+    cancel: str
+
+  notifications:
+    like: numbered
+
+  user:
+    follow: str
+    unfollow: str
+    pending: str
+    block: str
+    unblock: str
+    no_bio: str
+
+    following_count: str
+    followed_by_count: str
+    posts_count: str
+
+    modal_close: str
+
+    follow_request_accept: str
+    follow_request_deny: str
+
+  timeline:
+    user_main: str
+    user_comments: str
+    newest: str
+    oldest: str
+    home_following: str
+    home_global: str
+    home_comments: str
+
+  login:
+    username: str
+    password: str
+    confirm: str
+    invite_code: str
+
+    logout_info: str
+
+    sign_up_button: str
+    log_in_button: str
+    new_accounts_disabled: str
+    already_have_account: str
+    dont_have_account: str
+
+  search:
+    button: str
+    content_placeholder: str
+    advanced: str
+    cw: str
+    cw_placeholder: str
+    author: str
+    author_placeholder: str
+    quote: str
+    poll: str
+    comment: str
+
+    any: str
+    "yes": str
+    "no": str
+
+  not_found:
+    subtitle: str
+    back: str
+
+  update:
+    title: str
+    view_changes: str
+    dismiss: str

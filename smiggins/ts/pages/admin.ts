@@ -7,13 +7,7 @@ function adminDeletePost(): void {
     return;
   }
 
-  new api_DeletePost(+pidElement.value)
-    .fetch()
-    .then((success: boolean | void): void => {
-      if (success) {
-        createToast("Success!", "This post has been deleted.");
-      }
-    });
+  new api_DeletePost(+pidElement.value).fetch();
 }
 
 function adminDeleteUser(): void {
@@ -57,7 +51,7 @@ function adminListOTPs(): void {
 
   if (el) {
     el.removeAttribute("hidden");
-    el.innerHTML = "<i>Loading...</i>";
+    el.innerHTML = `<i>${L.generic.loading}</i>`;
   }
 
   new api_ListOTP().fetch();

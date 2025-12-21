@@ -1,33 +1,33 @@
 {% include "snippets/generic/page-start.html" with active_page="settings" %}
 
-<h1 class="no-margin-top no-margin-bottom">Account Settings</h1>
+<h1 class="no-margin-top no-margin-bottom">@{lang.settings.account.real_title}</h1>
 
 <hr class="no-margin-bottom">
-<a class="back-link plain-link" href="/settings/" data-internal-link="settings">@{icon_back} Settings</a>
+<a class="back-link plain-link" href="/settings/" data-internal-link="settings">@{icon_back} @{lang.titles.settings}</a>
 <hr class="no-margin-top no-margin-bottom">
 
 <div id="settings-sections">
   <div>
-    <p class="no-margin-top">Change Password</p>
-    <div><input type="password" id="password-current" placeholder="Current password" data-enter-next="#password-new" data-enter-submit="#password-set"></div>
-    <div><input type="password" id="password-new" placeholder="New password" data-enter-next="#password-confirm" data-enter-submit="#password-set"></div>
-    <div><input type="password" id="password-confirm" placeholder="Confirm password" data-enter-submit="#password-set"></div>
-    <button class="generic-margin-top" id="password-set">Set Password</button>
-    <button data-password-toggle="#password-current,#password-new,#password-confirm">Toggle Password</button>
+    <p class="no-margin-top">@{lang.settings.account.section_change_password}</p>
+    <div><input type="password" id="password-current" placeholder="@{lang.settings.account.current}" data-enter-next="#password-new" data-enter-submit="#password-set"></div>
+    <div><input type="password" id="password-new" placeholder="@{lang.settings.account.new}" data-enter-next="#password-confirm" data-enter-submit="#password-set"></div>
+    <div><input type="password" id="password-confirm" placeholder="@{lang.settings.account.confirm}" data-enter-submit="#password-set"></div>
+    <button class="generic-margin-top" id="password-set">@{lang.settings.account.set}</button>
+    <button data-password-toggle="#password-current,#password-new,#password-confirm">@{lang.generic.toggle_password}</button>
   </div>
 
   <div>
-    <p class="no-margin-top">Delete Account</p>
-    <p><input type="password" id="delete-acc-password" placeholder="Password" data-enter-next="#delete-acc-confirm" data-enter-submit="#delete-acc"></p>
+    <p class="no-margin-top">@{lang.settings.account.section_delete}</p>
+    <p><input type="password" id="delete-acc-password" placeholder="@{lang.settings.account.password}" data-enter-next="#delete-acc-confirm" data-enter-submit="#delete-acc"></p>
     <p><label>
       <input type="checkbox" id="delete-acc-confirm" data-enter-submit="#delete-acc">
-      I confirm that this action <span class="warning">can not be undone</span>, and any data associated with this account (<b>@{username}</b>) will <span class="warning">not be recoverable</span>.
+      @{delete_account_confirmation}
     </label></p>
-    <button id="delete-acc">Delete My Account</button>
-    <button data-password-toggle="#delete-acc-password">Toggle Password</button>
+    <button id="delete-acc">@{lang.settings.account.delete}</button>
+    <button data-password-toggle="#delete-acc-password">@{lang.generic.toggle_password}</button>
   </div>
 
-  <a href="/logout/" data-internal-link="logout">Log Out...</a>
+  <a href="/logout/" data-internal-link="logout">@{lang.settings.log_out}</a>
 </div>
 
 <hr class="no-margin-top">

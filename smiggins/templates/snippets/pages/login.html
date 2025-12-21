@@ -1,9 +1,9 @@
-<h1 class="no-margin-top">Log In</h1>
+<h1 class="no-margin-top">@{lang.titles.login}</h1>
 
-<div><input data-enter-next="#password" data-enter-submit="#submit" id="username" placeholder="Username" maxlength="{{ conf.max_length.username }}"></div>
-<div><input data-enter-submit="#submit" id="password" placeholder="Password" type="password"></div>
-<p><button id="submit">Log In</button> <button data-password-toggle="#password">Toggle Password</button></p>
+<div><input data-enter-next="#password" data-enter-submit="#submit" id="username" placeholder="@{lang.login.username}" maxlength="{{ conf.max_length.username }}"></div>
+<div><input data-enter-submit="#submit" id="password" placeholder="@{lang.login.password}" type="password"></div>
+<p><button id="submit">@{lang.login.log_in_button}</button> <button data-password-toggle="#password">@{lang.generic.toggle_password}</button></p>
 
 {% if conf.new_accounts %}
-  <div>Don't have an account? <a data-internal-link="signup" href="/signup/">Sign up</a></div>
+  <div><a data-internal-link="signup" href="/signup/">@{lang.login.dont_have_account}</a></div>
 {% endif %}

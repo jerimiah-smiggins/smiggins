@@ -9,30 +9,48 @@ let _kbReverse: { [key: string]: {
 
 const keybinds: { [key: string]: {
   defaultKey: string,
-  name: string,
+  name?: string,
   description?: string,
   modifiers?: KeybindModifiers[],
   callback: (e: KeyboardEvent) => void,
   releaseCallback?: (e: KeyboardEvent) => void
 }} = {
-  newPost: { defaultKey: "n", name: "Enter Post Box", description: "Lets you send a post from anywhere", callback: (): void => { createPostModal(); }},
-  loadNewPosts: { defaultKey: "r", name: "Load New Posts", description: "Shows any posts that have been made since the posts were initially loaded", callback: timelineShowNew },
-  topOfTimeline: { defaultKey: "/", name: "Jump to Top", description: "Jumps to the top of the current page", callback: (): void => { window.scrollTo(0, 0); }},
+  newPost: { defaultKey: "n", callback: (): void => { createPostModal(); }},
+  loadNewPosts: { defaultKey: "r", callback: timelineShowNew },
+  topOfTimeline: { defaultKey: "/", callback: (): void => { window.scrollTo(0, 0); }},
 
-  navModifier: { defaultKey: "g", name: "Navigation Modifier", description: "The key that needs to be pressed in order to use the other navigation keybinds", callback: (): void => { navModKeyPressed = true; }, releaseCallback: (): void => { navModKeyPressed = false; }},
-  navAdmin: { defaultKey: "a", modifiers: ["nav"], name: "Admin Page", callback: (): void => { if (!isAdmin || currentPage === "admin") { return; } history.pushState("admin", "", "/admin/"); renderPage("admin"); }},
-  navHome: { defaultKey: "h", modifiers: ["nav"], name: "Home", callback: (): void => { if (currentPage === "home") { return; } history.pushState("home", "", "/"); renderPage("home"); }},
-  navMessages: { defaultKey: "m", modifiers: ["nav"], name: "Messages", callback: (): void => { if (currentPage === "message-list") { return; } history.pushState("message-list", "", "/messages/"); renderPage("message-list"); }},
-  navNotifications: { defaultKey: "n", modifiers: ["nav"], name: "Notifications", callback: (): void => { if (currentPage === "notifications") { return; } history.pushState("notifications", "", "/notifications/"); renderPage("notifications"); }},
-  navProfile: { defaultKey: "p", modifiers: ["nav"], name: "Your Profile", callback: (): void => { if (currentPage === "user" && getUsernameFromPath() === username) { return; } history.pushState("user", "", `/u/${username}/`); renderPage("user"); }},
-  navSettings: { defaultKey: "s", modifiers: ["nav"], name: "Settings", callback: (): void => { if (currentPage === "settings") { return; } history.pushState("settings", "", "/settings/"); renderPage("settings"); }},
+  navModifier: { defaultKey: "g", callback: (): void => { navModKeyPressed = true; }, releaseCallback: (): void => { navModKeyPressed = false; }},
+  navAdmin: { defaultKey: "a", modifiers: ["nav"], callback: (): void => { if (!isAdmin || currentPage === "admin") { return; } history.pushState("admin", "", "/admin/"); renderPage("admin"); }},
+  navHome: { defaultKey: "h", modifiers: ["nav"], callback: (): void => { if (currentPage === "home") { return; } history.pushState("home", "", "/"); renderPage("home"); }},
+  navMessages: { defaultKey: "m", modifiers: ["nav"], callback: (): void => { if (currentPage === "message-list") { return; } history.pushState("message-list", "", "/messages/"); renderPage("message-list"); }},
+  navNotifications: { defaultKey: "n", modifiers: ["nav"], callback: (): void => { if (currentPage === "notifications") { return; } history.pushState("notifications", "", "/notifications/"); renderPage("notifications"); }},
+  navProfile: { defaultKey: "p", modifiers: ["nav"], callback: (): void => { if (currentPage === "user" && getUsernameFromPath() === username) { return; } history.pushState("user", "", `/u/${username}/`); renderPage("user"); }},
+  navSettings: { defaultKey: "s", modifiers: ["nav"], callback: (): void => { if (currentPage === "settings") { return; } history.pushState("settings", "", "/settings/"); renderPage("settings"); }},
 
-  hamburgerDelete: { defaultKey: "d", modifiers: ["alt"], name: "Delete Post", callback: (): void => { keybindPostHamburger("data-interaction-delete"); }},
-  hamburgerPin: { defaultKey: "f", modifiers: ["alt"], name: "Pin Post", callback: (): void => { keybindPostHamburger("data-interaction-pin") || keybindPostHamburger("data-interaction-unpin"); }},
-  hamburgerEdit: { defaultKey: "e", modifiers: ["alt"], name: "Edit Post", callback: (): void => { keybindPostHamburger("data-interaction-edit"); }},
-  hamburgerShare: { defaultKey: "s", modifiers: ["alt"], name: "Share Post", callback: (): void => { keybindPostHamburger("data-interaction-share"); }},
-  hamburgerEmbed: { defaultKey: KB_DISABLED, modifiers: [], name: "Embed Post", callback: (): void => { keybindPostHamburger("data-interaction-embed"); }},
+  hamburgerDelete: { defaultKey: "d", modifiers: ["alt"], callback: (): void => { keybindPostHamburger("data-interaction-delete"); }},
+  hamburgerPin: { defaultKey: "f", modifiers: ["alt"], callback: (): void => { keybindPostHamburger("data-interaction-pin") || keybindPostHamburger("data-interaction-unpin"); }},
+  hamburgerEdit: { defaultKey: "e", modifiers: ["alt"], callback: (): void => { keybindPostHamburger("data-interaction-edit"); }},
+  hamburgerShare: { defaultKey: "s", modifiers: ["alt"], callback: (): void => { keybindPostHamburger("data-interaction-share"); }},
+  hamburgerEmbed: { defaultKey: KB_DISABLED, modifiers: [], callback: (): void => { keybindPostHamburger("data-interaction-embed"); }},
 };
+
+function setKeybindStrings(): void {
+  keybinds.newPost = { ...keybinds.newPost, ...L.keybinds.new_post };
+  keybinds.loadNewPosts = { ...keybinds.loadNewPosts, ...L.keybinds.load_new_posts };
+  keybinds.topOfTimeline = { ...keybinds.topOfTimeline, ...L.keybinds.top_of_timeline };
+  keybinds.navModifier = { ...keybinds.navModifier, ...L.keybinds.nav_modifier };
+  keybinds.navAdmin.name = L.keybinds.nav_admin;
+  keybinds.navHome.name = L.keybinds.nav_home;
+  keybinds.navMessages.name = L.keybinds.nav_messages;
+  keybinds.navNotifications.name = L.keybinds.nav_notifications;
+  keybinds.navProfile.name = L.keybinds.nav_profile;
+  keybinds.navSettings.name = L.keybinds.nav_settings;
+  keybinds.hamburgerDelete.name = L.keybinds.hamburger_delete;
+  keybinds.hamburgerPin.name = L.keybinds.hamburger_pin;
+  keybinds.hamburgerEdit.name = L.keybinds.hamburger_edit;
+  keybinds.hamburgerShare.name = L.keybinds.hamburger_share;
+  keybinds.hamburgerEmbed.name = L.keybinds.hamburger_embed;
+}
 
 function setKeybindKey(
   id: string,
