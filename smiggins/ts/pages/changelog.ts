@@ -72,9 +72,10 @@ function generateChangesHTML(since: "all" | string): string {
 
 let expectedVersion: string | null = localStorage.getItem("smiggins-last-version");
 
-if (loggedIn && expectedVersion && checkVersionNewer(expectedVersion, version) && !localStorage.getItem("smiggins-hide-changelog")) {
-  setTimeout((): void => { // give js time to load the rest of the file + snippets to prevent conflicts
+setTimeout((): void => { // give js time to load the rest of the file + snippets to prevent conflicts
+  if (loggedIn && expectedVersion && checkVersionNewer(expectedVersion, version) && !localStorage.getItem("smiggins-hide-changelog")) {
     createUpdateModal(localStorage.getItem("smiggins-last-version") || "0.0.0");
-    localStorage.setItem("smiggins-last-version", version);
-  }, 100);
-}
+  }
+
+  localStorage.setItem("smiggins-last-version", version);
+}, 100);
