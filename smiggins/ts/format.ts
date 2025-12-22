@@ -208,11 +208,29 @@ class api_LogIn extends _api_Base {
   }
 }
 
-class api_SignUp extends api_LogIn {
+class api_SignUp extends _api_Base {
   readonly id: ResponseCodes = ResponseCodes.SignUp;
   readonly version: number = 0;
 
   readonly url: string = "/api/user/signup";
+  readonly method: Method = "POST";
+
+  constructor(username: string, password: string, otp?: string | null, button?: Bel) {
+    super();
+
+    this.requestBody = buildRequest(
+      [username, 8],
+      hexToBytes(sha256(password)),
+      [otp || "", 8]
+    );
+
+    this.disabled = [button];
+  }
+
+  handle(u8arr: Uint8Array): void {
+    setTokenCookie(_toHex(u8arr.slice(2)));
+    location.href = "/";
+  }
 }
 
 // 1X - Relationships
