@@ -54,13 +54,13 @@ function saveProfile(e: Event): void {
   let pronounsElement: HTMLSelectElement | null = document.getElementById("pronouns") as HTMLSelectElement | null;
   let pronounsCustomElement: Iel = document.getElementById("pronouns-custom") as Iel;
 
-  if (!displayNameElement || !bioElement || !gradientCheckElement || !c1Element || !c2Element || !pronounsElement || !pronounsCustomElement) { return; }
+  if (!displayNameElement || !bioElement || !gradientCheckElement || !c1Element || !c2Element) { return; }
 
   new api_SaveProfile(
     gradientCheckElement.checked,
     displayNameElement.value,
     bioElement.value,
-    pronounsElement.value === "custom" ? pronounsCustomElement.value : pronounsElement.value,
+    pronounsElement && pronounsCustomElement ? (pronounsElement.value === "custom" ? pronounsCustomElement.value : pronounsElement.value) : "",
     c1Element.value.slice(1),
     c2Element.value.slice(1),
     e.target as Bel

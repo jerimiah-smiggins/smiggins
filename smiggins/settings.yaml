@@ -128,6 +128,11 @@ enable_about_page: true
 # Whether or not to enable request ratelimiting.
 enable_ratelimit: true
 
+# In case smiggins is being used by a more conservative audience, for some
+# reason. When set to true, all instances of pronouns will be hidden, but
+# existing users will keep their pronouns setting from before this was set.
+enable_pronouns: true
+
 # Intervals (seconds) for polling requests in the frontend.
 timeline_polling_interval: 15
 notifications_polling_interval: 60

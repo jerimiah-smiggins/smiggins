@@ -4,6 +4,8 @@ from django.http import HttpRequest, HttpResponse
 from posts.models import (M2MFollow, M2MMessageMember, M2MPending, Message,
                           MessageGroup, Notification, Poll, Post, User)
 
+from ..variables import ENABLE_PRONOUNS
+
 
 class ResponseCodes:
     # Make sure to update the corresponding values in ts/parser.ts
@@ -169,7 +171,7 @@ def _post_to_bytes(post: Post, user: User | None, user_data_override: User | Non
     cw_bytes = str.encode(post.content_warning or "")[:MAX_STR8]
     username_bytes = str.encode((user_data_override or post.creator).username)[:MAX_STR8]
     display_name_bytes = str.encode((user_data_override or post.creator).display_name)[:MAX_STR8]
-    pronouns_bytes = str.encode((user_data_override or post.creator).pronouns)[:MAX_STR8]
+    pronouns_bytes = str.encode((user_data_override or post.creator).pronouns if ENABLE_PRONOUNS else "")[:MAX_STR8]
 
     output += b(len(content_bytes), 2) + content_bytes
     output += b(len(cw_bytes), 1) + cw_bytes
@@ -191,7 +193,7 @@ def _post_to_bytes(post: Post, user: User | None, user_data_override: User | Non
         quote_cw_bytes = str.encode(quote.content_warning or "")[:MAX_STR8]
         quote_username_bytes = str.encode(quote.creator.username)[:MAX_STR8]
         quote_display_name_bytes = str.encode(quote.creator.display_name)[:MAX_STR8]
-        quote_pronouns_bytes = str.encode(quote.creator.pronouns)[:MAX_STR8]
+        quote_pronouns_bytes = str.encode(quote.creator.pronouns if ENABLE_PRONOUNS else "")[:MAX_STR8]
 
         output += b(len(quote_content_bytes), 2) + quote_content_bytes
         output += b(len(quote_cw_bytes), 1) + quote_cw_bytes
@@ -327,7 +329,7 @@ class api_GetProfile(_api_BaseResponse):
     ):
         display_name_bytes = str.encode(user.display_name)[:MAX_STR8]
         bio_bytes = str.encode(user.bio)[:MAX_STR16]
-        pronouns_bytes = str.encode(user.pronouns)[:MAX_STR8]
+        pronouns_bytes = str.encode(user.pronouns if ENABLE_PRONOUNS else "")[:MAX_STR8]
 
         self.response_data = b""
         self.response_data += b(len(display_name_bytes)) + display_name_bytes
@@ -677,7 +679,7 @@ class api_TimelineUser(_api_TimelineBase):
 
     def set_response(self, end: bool, forwards: bool, posts: list[Post], user: User, self_user: User | None):
         display_name_bytes = str.encode(user.display_name)[:MAX_STR8]
-        pronouns_bytes = str.encode(user.pronouns)[:MAX_STR8]
+        pronouns_bytes = str.encode(user.pronouns if ENABLE_PRONOUNS else "")[:MAX_STR8]
         bio_bytes = str.encode(user.bio)[:MAX_STR16]
 
         user_data = b(len(display_name_bytes)) + display_name_bytes
@@ -783,7 +785,7 @@ class api_TimelineFolreq(_api_BaseResponse):
 
         for user in users:
             username_bytes = str.encode(user.following.username)[:MAX_STR8]
-            pronouns_bytes = str.encode(user.following.pronouns)[:MAX_STR8]
+            pronouns_bytes = str.encode(user.following.pronouns if ENABLE_PRONOUNS else "")[:MAX_STR8]
             display_name_bytes = str.encode(user.following.display_name)[:MAX_STR8]
             bio_bytes = str.encode(user.following.bio)[:MAX_STR16]
 
@@ -812,7 +814,7 @@ class api_TimelineUserFollowing(_api_BaseResponse):
             u = self._get_user(user)
 
             username_bytes = str.encode(u.username)[:MAX_STR8]
-            pronouns_bytes = str.encode(u.pronouns)[:MAX_STR8]
+            pronouns_bytes = str.encode(u.pronouns if ENABLE_PRONOUNS else "")[:MAX_STR8]
             display_name_bytes = str.encode(u.display_name)[:MAX_STR8]
             bio_bytes = str.encode(u.bio)[:MAX_STR16]
 

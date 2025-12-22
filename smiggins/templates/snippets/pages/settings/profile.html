@@ -14,15 +14,17 @@
       <input data-disabled-while-loading disabled id="display-name" value="@{display_name}" maxlength="{{ conf.max_length.display_name }}">
     </label>
 
-    <label>
-      <div class="generic-margin-top">@{lang.settings.profile.pronouns}</div>
-      <select data-disabled-while-loading disabled id="pronouns">
-        <option value="">@{lang.settings.profile.pronouns_unset}</option>
-        @{pronouns_presets}
-        <option value="custom">@{lang.settings.profile.pronouns_custom}</option>
-      </select>
-      <div><input id="pronouns-custom" hidden placeholder="@{lang.settings.profile.pronouns_custom_placeholder}" maxlength="255"></div>
-    </label>
+    {% if conf.enable_pronouns %}
+      <label>
+        <div class="generic-margin-top">@{lang.settings.profile.pronouns}</div>
+        <select data-disabled-while-loading disabled id="pronouns">
+          <option value="">@{lang.settings.profile.pronouns_unset}</option>
+          @{pronouns_presets}
+          <option value="custom">@{lang.settings.profile.pronouns_custom}</option>
+        </select>
+        <div><input id="pronouns-custom" hidden placeholder="@{lang.settings.profile.pronouns_custom_placeholder}" maxlength="255"></div>
+      </label>
+    {% endif %}
 
     <label>
       <div class="generic-margin-top">@{lang.settings.profile.bio}</div>

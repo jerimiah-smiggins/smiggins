@@ -9,8 +9,8 @@ from posts.models import InviteCode, M2MFollow, Notification, User
 
 from ..helper import generate_legacy_token, trim_whitespace
 from ..variables import (DEFAULT_BANNER_COLOR, ENABLE_NEW_ACCOUNTS,
-                         MAX_BIO_LENGTH, MAX_DISPL_NAME_LENGTH,
-                         MAX_USERNAME_LENGTH)
+                         ENABLE_PRONOUNS, MAX_BIO_LENGTH,
+                         MAX_DISPL_NAME_LENGTH, MAX_USERNAME_LENGTH)
 from .format import (ErrorCodes, api_AcceptFolreq, api_Block,
                      api_ChangePassword, api_DeleteAccount, api_DenyFolreq,
                      api_Follow, api_GetProfile, api_LogIn, api_SaveProfile,
@@ -257,7 +257,7 @@ def save_profile(request: HttpRequest) -> HttpResponse:
     user.color_two = data["color_two"]
 
     pronouns = trim_whitespace(data["pronouns"], True)
-    user.pronouns = pronouns[0] if pronouns[1] else ""
+    user.pronouns = (pronouns[0] if pronouns[1] else "") if ENABLE_PRONOUNS else user.pronouns
 
     user.save()
 
