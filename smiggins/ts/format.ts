@@ -132,7 +132,7 @@ class _api_Base {
   genericError(err: any): void {
     createToast(L.errors.something_went_wrong, String(err));
     this.always();
-    throw err;
+    console.error(err);
   }
 }
 

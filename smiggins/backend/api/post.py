@@ -198,8 +198,6 @@ def add_like(request: HttpRequest, post_id: int) -> HttpResponse:
     if request.s_user is None:
         return api.error(ErrorCodes.NOT_AUTHENTICATED)
 
-    user: User = request.s_user
-
     try:
         post = Post.objects.get(post_id=post_id)
     except Post.DoesNotExist:
@@ -207,22 +205,22 @@ def add_like(request: HttpRequest, post_id: int) -> HttpResponse:
 
     creator = post.creator
 
-    if creator.blocking.contains(user) \
-    or creator.blockers.contains(user) \
-    or (post.private and creator.username != user.username and not creator.followers.contains(user)):
+    if creator.blocking.contains(request.s_user) \
+    or creator.blockers.contains(request.s_user) \
+    or (post.private and creator.username != request.s_user.username and not creator.followers.contains(request.s_user)):
         return api.error(ErrorCodes.CANT_INTERACT)
 
     try:
-        post.likes.add(user)
+        post.likes.add(request.s_user)
     except IntegrityError:
         ...
     else:
-        if post.creator != user:
+        if post.creator != request.s_user:
             try:
                 Notification.objects.create(
                     timestamp=round(time.time()),
                     event_type="like",
-                    linked_like=M2MLike.objects.get(user=user, post=post),
+                    linked_like=M2MLike.objects.get(user=request.s_user, post=post),
                     post=post,
                     is_for=post.creator
                 )
