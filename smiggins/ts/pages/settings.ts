@@ -288,7 +288,7 @@ function exportSettings(): void {
   let element: HTMLAnchorElement = document.createElement("a");
 
   element.setAttribute("href", "data:text/plain;charset=utf-8," + encodeURIComponent(JSON.stringify(settings)));
-  element.setAttribute("download", "smiggins.json");
+  element.setAttribute("download", `${pageTitle}.json`);
   element.style.display = "none";
 
   document.body.appendChild(element);
