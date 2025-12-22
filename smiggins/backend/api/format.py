@@ -214,21 +214,6 @@ def _poll_to_bytes(poll: Poll, user: User | None) -> bytes:
 
     return output
 
-def _notification_to_bytes(notification: Notification, user: User | None) -> bytes:
-    quote_types = {
-        "comment": 1,
-        "quote": 2,
-        "ping": 3,
-        "like": 4
-    }
-
-    return b((not notification.read) << 7 | quote_types[notification.event_type]) + _post_to_bytes(
-        notification.post,
-        user,
-        notification.linked_like.user if notification.event_type == "like" and notification.linked_like else None,
-        notification.timestamp
-    )
-
 class _api_BaseResponse:
     response_code = 0
     version = 0
@@ -670,16 +655,13 @@ class _api_TimelineBase(_api_BaseResponse):
         self,
         end: bool,
         forwards: bool,
-        posts: list[Post] | list[Notification],
+        posts: list[Post],
         user: User | None
     ):
         self.response_data = b((end or user is None) << 7 | forwards << 6) + b(len(posts))
 
         for i in posts:
-            if isinstance(i, Post):
-                self.response_data += _post_to_bytes(i, user)
-            else:
-                self.response_data += _notification_to_bytes(i, user)
+            self.response_data += _post_to_bytes(i, user)
 
 class api_TimelineGlobal(_api_TimelineBase):
     response_code = ResponseCodes.TIMELINE_GLOBAL
@@ -693,7 +675,7 @@ class api_TimelineUser(_api_TimelineBase):
     response_code = ResponseCodes.TIMELINE_USER
     version = 0
 
-    def set_response(self, end: bool, forwards: bool, posts: list[Post] | list[Notification], user: User, self_user: User | None):
+    def set_response(self, end: bool, forwards: bool, posts: list[Post], user: User, self_user: User | None):
         display_name_bytes = str.encode(user.display_name)[:MAX_STR8]
         pronouns_bytes = str.encode(user.pronouns)[:MAX_STR8]
         bio_bytes = str.encode(user.bio)[:MAX_STR16]
@@ -724,7 +706,7 @@ class api_TimelineComments(_api_TimelineBase):
     response_code = ResponseCodes.TIMELINE_COMMENTS
     version = 0
 
-    def set_response(self, end: bool, forwards: bool, posts: list[Post] | list[Notification], user: User | None, focused_post: Post):
+    def set_response(self, end: bool, forwards: bool, posts: list[Post], user: User | None, focused_post: Post):
         super().set_response(end, forwards, posts, user)
 
         if isinstance(self.response_data, int):
@@ -732,9 +714,61 @@ class api_TimelineComments(_api_TimelineBase):
 
         self.response_data = _post_to_bytes(focused_post, user) + b(0) + self.response_data
 
-class api_TimelineNotifications(_api_TimelineBase):
+class api_TimelineNotifications(_api_BaseResponse):
     response_code = ResponseCodes.TIMELINE_NOTIFICATIONS
-    version = 0
+    version = 1
+
+    def set_response(
+        self,
+        end: bool,
+        forwards: bool,
+        notifications: list[Notification],
+        user: User | None
+    ):
+        NOTIFS = {
+            "comment": 1,
+            "quote": 2,
+            "ping": 3,
+            "like": 4,
+            "follow": 5
+        }
+
+        self.response_data: bytes = b((end or user is None) << 7 | forwards << 6) + b(len(notifications))
+
+        for i in notifications:
+            # read/type
+            self.response_data += b((not i.read) << 7 | NOTIFS[i.event_type])
+
+            # generic post
+            if (i.event_type == "comment" or i.event_type == "quote" or i.event_type == "ping") and i.post:
+                self.response_data += _post_to_bytes(i.post, user, timestamp_override=i.timestamp)
+
+            # like (pid, ts, username, displayname, content, cw)
+            elif i.event_type == "like" and i.linked_like and i.post:
+                self.response_data += b(i.post.post_id, 4) + b(i.timestamp, 8)
+
+                username_bytes = str.encode(i.linked_like.user.username)[:MAX_STR8]
+                display_name_bytes = str.encode(i.linked_like.user.display_name)[:MAX_STR8]
+                content_bytes =  str.encode(i.post.content)[:MAX_STR16]
+                cw_bytes =  str.encode(i.post.content_warning or "")[:MAX_STR8]
+
+                self.response_data += b(len(username_bytes)) + username_bytes
+                self.response_data += b(len(display_name_bytes)) + display_name_bytes
+                self.response_data += b(len(content_bytes), 2) + content_bytes
+                self.response_data += b(len(cw_bytes)) + cw_bytes
+
+            # follow (ts, username, displayname)
+            elif i.event_type == "follow" and i.linked_follow:
+                self.response_data += b(i.timestamp, 8)
+
+                username_bytes = str.encode(i.linked_follow.user.username)[:MAX_STR8]
+                display_name_bytes = str.encode(i.linked_follow.user.display_name)[:MAX_STR8]
+
+                self.response_data += b(len(username_bytes)) + username_bytes
+                self.response_data += b(len(display_name_bytes)) + display_name_bytes
+
+            else:
+                print("[tl] invalid notification", i.notif_id)
 
 class api_TimelineHashtag(_api_TimelineBase):
     response_code = ResponseCodes.TIMELINE_HASHTAG

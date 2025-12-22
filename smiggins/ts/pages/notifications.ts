@@ -2,7 +2,8 @@ enum NotificationCodes {
   Comment = 1,
   Quote,
   Ping,
-  Like
+  Like,
+  Follow
 };
 
 function p_notifications(element: D): void {
@@ -16,11 +17,11 @@ function p_notifications(element: D): void {
   }, "notifications", element);
 }
 
-function _getLikeNotification(posts: Post[]): D {
+function _getLikeNotification(likes: NotificationLikeData[]): D {
   let recentTimestamp: number = 0;
-  let users: string[] = posts.map((a: Post): [string | null, string] | null => {
+  let users: string[] = likes.map((a: NotificationLikeData): [string | null, string] | null => {
     if (a.timestamp > recentTimestamp) { recentTimestamp = a.timestamp; }
-    return [a.user.username, a.user.display_name];
+    return [a.username, a.display_name];
   }).map((a: [username: string | null, displayName: string] | null): string => {
     if (a === null) {
       return "";
@@ -37,23 +38,57 @@ function _getLikeNotification(posts: Post[]): D {
     return htmlStart + escapeHTML(a[1]) + htmlEnd;
   });
 
-  let userFull: string = lr(n(L.notifications.like, posts.length), {
+  let userFull: string = lr(n(L.notifications.like, likes.length), {
     a: users[0],
     b: users[1],
     c: users[2],
-    n: String(posts.length)
+    n: String(likes.length - 3)
   });
 
   return getSnippet("notification-like", {
-    pid: String(posts[0].id),
+    pid: String(likes[0].post_id),
     timestamp: getTimestamp(recentTimestamp),
-    content: [simplePostContent(posts[0]), 1],
+    content: [simplePostContent(likes[0].content, likes[0].content_warning, false), 1],
+    names: [userFull, 1],
+  });
+}
+
+function _getFollowNotification(follows: NotificationFollowData[]): D {
+  let recentTimestamp: number = 0;
+  let users: string[] = follows.map((a: NotificationFollowData): [string | null, string] | null => {
+    if (a.timestamp > recentTimestamp) { recentTimestamp = a.timestamp; }
+    return [a.username, a.display_name];
+  }).map((a: [username: string | null, displayName: string] | null): string => {
+    if (a === null) {
+      return "";
+    }
+
+    let htmlStart: string = "<b>";
+    let htmlEnd: string = "</b>";
+
+    if (a[0]) {
+      htmlStart += `<a class="plain-link" data-internal-link="user" href="/u/${a[0]}/">`;
+      htmlEnd = "</a>" + htmlEnd;
+    }
+
+    return htmlStart + escapeHTML(a[1]) + htmlEnd;
+  });
+
+  let userFull: string = lr(n(L.notifications.follow, follows.length), {
+    a: users[0],
+    b: users[1],
+    c: users[2],
+    n: String(follows.length - 3)
+  });
+
+  return getSnippet("notification-follow", {
+    timestamp: getTimestamp(recentTimestamp),
     names: [userFull, 1],
   });
 }
 
 function renderNotificationTimeline(
-  posts: [Post, notificationType: number][],
+  notifs: NotificationData[],
   end: boolean,
   _: boolean,
   moreElementOverride?: el,
@@ -61,7 +96,7 @@ function renderNotificationTimeline(
 ): void {
   clearTimelineStatuses();
 
-  if (offset.lower === null && posts.length === 0) {
+  if (offset.lower === null && notifs.length === 0) {
     let none: HTMLElement = document.createElement("i");
     none.classList.add("timeline-status");
     none.innerText = L.generic.none;
@@ -73,71 +108,71 @@ function renderNotificationTimeline(
 
   let frag: DocumentFragment = document.createDocumentFragment();
 
-  let pendingLikes: { [key: number]: Post[] } = {};
+  let pendingLikes: { [key: number]: NotificationLikeData[] } = {};
   let pendingLikeOrder: number[] = [];
-  let previousRead: boolean = false;
-  for (const post of posts) {
-    if (!offset.lower || post[0].timestamp < offset.lower) { offset.lower = post[0].timestamp; }
-    if (!offset.upper || post[0].timestamp > offset.upper) { offset.upper = post[0].timestamp; }
+  let pendingFollows: NotificationFollowData[] = [];
 
-    let nc: NotificationCodes = post[1] & 0b01111111;
-    let read: boolean = !(post[1] & 0x80);
+  let previousRead: boolean = false;
+  for (const notif of notifs) {
+    let ts: number = notif.code === NotificationCodes.Like || notif.code === NotificationCodes.Follow ? notif.timestamp : notif.post.timestamp;
+    if (!offset.lower || ts < offset.lower) { offset.lower = ts; }
+    if (!offset.upper || ts > offset.upper) { offset.upper = ts; }
 
     // add any new likes to the timeline when switching from unread to read notifications
-    if (!previousRead && read) {
+    if (!previousRead && !notif.unread) {
       previousRead = true;
 
-      if (pendingLikeOrder.length) {
-        for (const l of pendingLikeOrder) {
-          frag.append(_getLikeNotification(pendingLikes[l]));
-        }
-
-        pendingLikes = {};
-        pendingLikeOrder = [];
-      }
+      pushPending(frag, pendingLikes, pendingLikeOrder, pendingFollows);
+      pendingLikes = {};
+      pendingLikeOrder = [];
+      pendingFollows = [];
     }
 
-    if (nc === NotificationCodes.Like) {
+    if (notif.code === NotificationCodes.Like) {
+      pushPending(frag, {}, [], pendingFollows);
+      pendingFollows = [];
+
       if (localStorage.getItem("smiggins-no-like-grouping")) {
-        let el: D = _getLikeNotification([post[0]]);
-        if (read) { el.dataset.notificationRead = ""; }
+        // force push notification when grouping disabled
+        let el: D = _getLikeNotification([notif]);
+        if (!notif.unread) { el.dataset.notificationRead = ""; }
         frag.append(el);
-      } else if (pendingLikes[post[0].id]) {
-        pendingLikes[post[0].id].push(post[0]);
+      } else if (pendingLikes[notif.post_id]) {
+        // append to pending
+        pendingLikes[notif.post_id].push(notif);
       } else {
-        pendingLikeOrder.push(post[0].id);
-        pendingLikes[post[0].id] = [post[0]];
+        // add to pending
+        pendingLikeOrder.push(notif.post_id);
+        pendingLikes[notif.post_id] = [notif];
+      }
+    } else if (notif.code === NotificationCodes.Follow) {
+      pushPending(frag, pendingLikes, pendingLikeOrder, []);
+      pendingLikes = {};
+      pendingLikeOrder = [];
+
+      if (localStorage.getItem("smiggins-no-like-grouping")) {
+        // force push notification when grouping disabled
+        let el: D = _getFollowNotification([notif]);
+        if (!notif.unread) { el.dataset.notificationRead = ""; }
+        frag.append(el);
+      } else {
+        pendingFollows.push(notif);
       }
     } else {
       // append grouped likes
-      if (pendingLikeOrder.length) {
-        for (const l of pendingLikeOrder) {
-          let el: D = _getLikeNotification(pendingLikes[l]);
-          if (read) { el.dataset.notificationRead = ""; }
-          frag.append(el);
-        }
+      pushPending(frag, pendingLikes, pendingLikeOrder, pendingFollows);
+      pendingLikes = {};
+      pendingLikeOrder = [];
+      pendingFollows = [];
 
-        pendingLikes = {};
-        pendingLikeOrder = [];
-      }
-
-      let el: D = getPost(insertIntoPostCache([post[0]])[0], false);
-      if (read) { el.dataset.notificationRead = ""; }
+      let el: D = getPost(insertIntoPostCache([notif.post])[0], false);
+      if (!notif.unread) { el.dataset.notificationRead = ""; }
       frag.append(el);
     }
   }
 
   // append leftover grouped likes
-  if (pendingLikeOrder.length) {
-    for (const l of pendingLikeOrder) {
-      let el: D = _getLikeNotification(pendingLikes[l]);
-      if (previousRead) { el.dataset.notificationRead = ""; }
-      frag.append(el);
-    }
-
-    pendingLikes = {};
-    pendingLikeOrder = [];
-  }
+  pushPending(frag, pendingLikes, pendingLikeOrder, pendingFollows);
 
   if (prepend) {
     tlElement.prepend(frag);
@@ -152,11 +187,38 @@ function renderNotificationTimeline(
   }
 }
 
+function pushPending(
+  frag: DocumentFragment,
+  pendingLikes: { [key: number]: NotificationLikeData[] },
+  pendingLikeOrder: number[],
+  pendingFollows: NotificationFollowData[]
+): void {
+  if (pendingLikeOrder.length) {
+    for (const l of pendingLikeOrder) {
+      let el: D = _getLikeNotification(pendingLikes[l]);
+
+      if (!pendingLikes[l][0].unread) {
+        el.dataset.notificationRead = "";
+      }
+
+      frag.append(el);
+    }
+  } else if (pendingFollows.length) {
+    let el: D = _getFollowNotification(pendingFollows);
+
+    if (!pendingFollows[0].unread) {
+      el.dataset.notificationRead = "";
+    }
+
+    frag.append(el);
+  }
+}
+
 function handleNotificationForward(
-  posts: [Post, notificationType: number][],
+  notifs: NotificationData[],
   end: boolean,
   expectedTlID: string="notifications",
-  forceEvent: boolean=false
+  _: boolean=false
 ): void {
   tlPollingPendingResponse = false;
 
@@ -165,12 +227,12 @@ function handleNotificationForward(
     return;
   }
 
-  if (posts.length === 0) { return; }
+  if (notifs.length === 0) { return; }
 
   if (!end) {
     reloadTimeline(true);
     return;
   }
 
-  renderNotificationTimeline(posts.reverse(), false, false, null, true)
+  renderNotificationTimeline(notifs.reverse(), false, false, null, true)
 }

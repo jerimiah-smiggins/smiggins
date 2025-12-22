@@ -1078,6 +1078,18 @@
               "type": "string"
             }
           }
+        },
+        "follow": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "*"
+          ],
+          "patternProperties": {
+            "\\*|\\d+": {
+              "type": "string"
+            }
+          }
         }
       }
     },

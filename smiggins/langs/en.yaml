@@ -360,6 +360,13 @@ notifications:
     4: "%a, %b, %c, and <b>%n other</b> liked your post."
     "*": "%a, %b, %c, and <b>%n others</b> liked your post."
 
+  follow:
+    1: "%a followed you."
+    2: "%a and %b followed you."
+    3: "%a, %b, and %c followed you."
+    4: "%a, %b, %c, and <b>%n other</b> followed you."
+    "*": "%a, %b, %c, and <b>%n others</b> followed you."
+
 user:
   follow: Follow
   unfollow: Unfollow

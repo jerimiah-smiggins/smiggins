@@ -118,13 +118,15 @@ class Notification(models.Model):
     # - quote (your post/comment being quoted)
     # - ping (get @mentioned)
     # - like (your post got liked)
+    # - follow (someone followed you)
     event_type = models.CharField(max_length=7)
 
     # Exists in order to automatically remove a notification if a like gets removed
-    linked_like = models.ForeignKey("M2MLike", on_delete=models.CASCADE, null=True, blank=True)
+    linked_like: "M2MLike | None" = models.ForeignKey("M2MLike", on_delete=models.CASCADE, null=True, blank=True) # type: ignore
+    linked_follow: "M2MFollow | None" = models.ForeignKey("M2MFollow", on_delete=models.CASCADE, null=True, blank=True) # type: ignore
 
     # The post that caused the notification
-    post = models.ForeignKey(Post, on_delete=models.CASCADE)
+    post = models.ForeignKey(Post, on_delete=models.CASCADE, null=True, blank=True)
 
     # The user object for who the notification is for
     is_for = models.ForeignKey(User, on_delete=models.CASCADE, related_name="notifications")
