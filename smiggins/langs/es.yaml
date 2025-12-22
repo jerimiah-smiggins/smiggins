@@ -226,8 +226,8 @@ settings:
     complex_ts: Activa marcas de tiempo detallados
     complex_ts_more: (1h → 1h32m, 5m → 5m48s)
 
-    section_language: Lenguajes
-    language: "Lenguaje:"
+    section_language: Idiomas
+    language: "Idioma:"
 
     section_font_size: Tamaño de fuente
     font_size_example: Aa

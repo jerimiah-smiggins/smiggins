@@ -10,10 +10,10 @@ from posts.models import Post, User
 
 from .api.admin import AdminPermissions
 from .variables import (BASE_DIR, ENABLE_ABOUT_PAGE, ENABLE_NEW_ACCOUNTS,
-                        GOOGLE_VERIFICATION_TAG, MAX_BIO_LENGTH,
-                        MAX_CONTENT_WARNING_LENGTH, MAX_DISPL_NAME_LENGTH,
-                        MAX_POLL_OPTION_LENGTH, MAX_POLL_OPTIONS,
-                        MAX_POST_LENGTH, MAX_USERNAME_LENGTH,
+                        ENABLE_PRONOUNS, GOOGLE_VERIFICATION_TAG,
+                        MAX_BIO_LENGTH, MAX_CONTENT_WARNING_LENGTH,
+                        MAX_DISPL_NAME_LENGTH, MAX_POLL_OPTION_LENGTH,
+                        MAX_POLL_OPTIONS, MAX_POST_LENGTH, MAX_USERNAME_LENGTH,
                         NOTIFICATION_POLLING_INTERVAL, SITE_DESCRIPTION,
                         SITE_NAME, TIMELINE_POLLING_INTERVAL, VERSION,
                         WEBSITE_URL, MOTDs)
@@ -78,6 +78,7 @@ def webapp(request: HttpRequest) -> HttpResponse:
             "version": VERSION,
             "new_accounts": ENABLE_NEW_ACCOUNTS,
             "enable_about_page": ENABLE_ABOUT_PAGE,
+            "enable_pronouns": ENABLE_PRONOUNS,
 
             "max_length": {
                 "username": MAX_USERNAME_LENGTH,

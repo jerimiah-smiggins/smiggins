@@ -4,6 +4,8 @@ from pathlib import Path
 
 import yaml
 
+PRINT_MISSING = len(sys.argv) <= 1 or sys.argv[1] != "silent"
+IGNORE_MISSING = ["en_GB"]
 
 def keyval_from_lang(keyval, lang, id: str, tree: list[str]=[]):
     if isinstance(keyval, dict):
@@ -15,7 +17,7 @@ def keyval_from_lang(keyval, lang, id: str, tree: list[str]=[]):
             if key in lang:
                 out[key] = keyval_from_lang(val, lang[key], id, tree + [key])
             else:
-                if PRINT_MISSING:
+                if PRINT_MISSING and id not in IGNORE_MISSING:
                     print(f"{id}: missing key {'.'.join(tree + [key])}")
                 out[key] = None
         return out
@@ -163,7 +165,6 @@ def apply_fallbacks(keyval, lang, recursed: bool=False, fb: dict={}):
 
     return None
 
-PRINT_MISSING = len(sys.argv) <= 1 or sys.argv[1] != "silent"
 BASE_DIR = Path(__file__).parent
 OUT_FILE = BASE_DIR / "../ts/lang.ts"
 meta = yaml.safe_load(open(BASE_DIR / "meta.yaml", "r"))

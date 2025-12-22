@@ -1,15 +1,16 @@
 import random
 import re
+import time
 
 from django.contrib.auth.hashers import check_password, make_password
 from django.http import HttpResponse
 from posts.middleware.ratelimit import s_HttpRequest as HttpRequest
-from posts.models import InviteCode, User
+from posts.models import InviteCode, M2MFollow, Notification, User
 
 from ..helper import generate_legacy_token, trim_whitespace
 from ..variables import (DEFAULT_BANNER_COLOR, ENABLE_NEW_ACCOUNTS,
-                         MAX_BIO_LENGTH, MAX_DISPL_NAME_LENGTH,
-                         MAX_USERNAME_LENGTH)
+                         ENABLE_PRONOUNS, MAX_BIO_LENGTH,
+                         MAX_DISPL_NAME_LENGTH, MAX_USERNAME_LENGTH)
 from .format import (ErrorCodes, api_AcceptFolreq, api_Block,
                      api_ChangePassword, api_DeleteAccount, api_DenyFolreq,
                      api_Follow, api_GetProfile, api_LogIn, api_SaveProfile,
@@ -129,6 +130,15 @@ def _follow(request: HttpRequest, unfollow: bool) -> HttpResponse:
                 user.pending_followers.add(request.s_user)
         elif not request.s_user.following.contains(user):
             request.s_user.following.add(user)
+            Notification.objects.create(
+                timestamp=round(time.time()),
+                event_type="follow",
+                linked_follow=M2MFollow.objects.get(
+                    user=request.s_user,
+                    following=user
+                ),
+                is_for=user
+            )
 
         api.set_response(is_pending=user.verify_followers)
 
@@ -204,6 +214,15 @@ def _folreq(request: HttpRequest, accepted: bool) -> HttpResponse:
 
     if accepted:
         user.following.add(request.s_user)
+        Notification.objects.create(
+            timestamp=round(time.time()),
+            event_type="follow",
+            linked_follow=M2MFollow.objects.get(
+                user=user,
+                following=request.s_user
+            ),
+            is_for=request.s_user
+        )
 
     request.s_user.pending_followers.remove(user)
     return api.response()
@@ -238,7 +257,7 @@ def save_profile(request: HttpRequest) -> HttpResponse:
     user.color_two = data["color_two"]
 
     pronouns = trim_whitespace(data["pronouns"], True)
-    user.pronouns = pronouns[0] if pronouns[1] else ""
+    user.pronouns = (pronouns[0] if pronouns[1] else "") if ENABLE_PRONOUNS else user.pronouns
 
     user.save()
 

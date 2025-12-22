@@ -7,7 +7,7 @@
   "display_override": ["fullscreen", "minimal-ui"],
   "name": "{{ site_name }}",
   "orientation": "natural",
-  "short_name": "Smiggins",
+  "short_name": "{{ site_name }}",
   "start_url": "/",
   "theme_color": "#190b14",
 

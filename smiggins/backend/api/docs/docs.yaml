@@ -433,7 +433,7 @@ GET /api/timeline/post/{post_id}:
 GET /api/timeline/notifications:
   description: "Notification timeline"
   id: 0x64
-  version: 0
+  version: 1
   params:
     offset: { type: int }
     forwards: { type: bool }

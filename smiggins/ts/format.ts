@@ -132,7 +132,7 @@ class _api_Base {
   genericError(err: any): void {
     createToast(L.errors.something_went_wrong, String(err));
     this.always();
-    throw err;
+    console.error(err);
   }
 }
 
@@ -945,7 +945,7 @@ class api_TimelineComments extends _api_TimelineBase {
 
 class api_TimelineNotifications extends _api_TimelineBase {
   id: ResponseCodes = ResponseCodes.TimelineNotifications;
-  version: number = 0;
+  version: number = 1;
 
   url: string = "/api/timeline/notifications";
   method: Method = "GET";
@@ -953,20 +953,90 @@ class api_TimelineNotifications extends _api_TimelineBase {
   handle(u8arr: Uint8Array): void {
     let end: boolean = _extractBool(u8arr[2], 7);
     let forwards: boolean | "force" = _extractBool(u8arr[2], 6);
-    let numPosts: number = u8arr[3];
-    let posts: [Post, number][] = [] as [Post, number][];
+    let numNotifs: number = u8arr[3];
+    let notifs: NotificationData[] = [];
     u8arr = u8arr.slice(4);
 
-    for (let i: number = 0; i < numPosts; i++) {
-      let postData: [Post, Uint8Array] = _extractPost(u8arr.slice(1));
-      posts.push([postData[0], u8arr[0]]);
-      u8arr = postData[1];
+    for (let i: number = 0; i < numNotifs; i++) {
+      let unread: boolean = Boolean(u8arr[0] & 0x80);
+      let notifData: NotificationData | null = null;
+      let code: NotificationCodes = u8arr[0] & 0x7F;
+      u8arr = u8arr.slice(1);
+
+      switch (code) {
+        // generic post
+        case NotificationCodes.Comment:
+        case NotificationCodes.Quote:
+        case NotificationCodes.Ping: {
+          let postData: [Post, Uint8Array] = _extractPost(u8arr);
+          u8arr = postData[1];
+
+          notifData = {
+            code: code,
+            unread: unread,
+            post: postData[0]
+          };
+
+          break;
+        }
+
+        // like (pid, ts, username, displayname, content, cw)
+        case NotificationCodes.Like: {
+          let postId: number = _extractInt(32, u8arr);
+          let timestamp: number = _extractInt(64, u8arr.slice(4));
+
+          let username: [string, Uint8Array] = _extractString(8, u8arr.slice(12));
+          let displayName: [string, Uint8Array] = _extractString(8, username[1]);
+          let content: [string, Uint8Array] = _extractString(16, displayName[1]);
+          let cw: [string, Uint8Array] = _extractString(8, content[1]);
+          u8arr = cw[1];
+
+          notifData = {
+            code: code,
+            unread: unread,
+            username: username[0],
+            display_name: displayName[0],
+            timestamp: timestamp,
+            post_id: postId,
+            content: content[0],
+            content_warning: cw[0]
+          };
+
+          break;
+        }
+
+        // follow (ts, username, displayname)
+        case NotificationCodes.Follow: {
+          let timestamp: number = _extractInt(64, u8arr);
+          let username: [string, Uint8Array] = _extractString(8, u8arr.slice(8));
+          let displayName: [string, Uint8Array] = _extractString(8, username[1]);
+          u8arr = displayName[1];
+
+          notifData = {
+            code: code,
+            unread: unread,
+            username: username[0],
+            display_name: displayName[0],
+            timestamp: timestamp
+          };
+
+          break;
+        }
+
+        default: {
+          console.log("invalid notification object", code);
+        }
+      }
+
+      if (notifData) {
+        notifs.push(notifData);
+      }
     }
 
     if (forwards) {
-      handleNotificationForward(posts, end, "notifications");
+      handleNotificationForward(notifs, end, "notifications");
     } else {
-      renderNotificationTimeline(posts, end, false);
+      renderNotificationTimeline(notifs, end, false);
     }
   }
 }

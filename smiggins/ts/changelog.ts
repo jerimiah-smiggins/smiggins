@@ -115,5 +115,11 @@ const changes: { [key: string]: VersionData } = {
     changes: [
       "Added support for multiple languages."
     ]
+  },
+  "1.4.3": {
+    description: "Follow Notifications",
+    changes: [
+      "You now recieve a notification when someone follows you."
+    ]
   }
 };

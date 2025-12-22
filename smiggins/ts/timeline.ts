@@ -515,7 +515,7 @@ function handleForward(
   }
 
   if (end) {
-    offset.upper = posts[0].timestamp;
+    offset.upper = Math.max(...posts.map((a: Post): number => (a.timestamp)));
     c.pendingForward.push(...insertIntoPostCache(posts).reverse());
 
     if (showNewElement) {
@@ -536,9 +536,9 @@ function timelinePolling(forceEvent: boolean=false): void {
   if (currentTl.disablePolling || !offset.upper || (tlPollingPendingResponse && !forceEvent)) { return; }
 
   let c: TimelineCache | undefined = tlCache[currentTlID];
-  tlPollingPendingResponse = true;
-
   if (c && c.pendingForward === false) { return; }
+
+  tlPollingPendingResponse = true;
 
   if (localStorage.getItem("smiggins-auto-show-posts")) {
     forceEvent = true;
@@ -687,8 +687,20 @@ function handlePostDelete(pid: number): void {
 }
 
 // returns an escaped string containing the post content, or a content warning if there is one
-function simplePostContent(post: Post): string {
-  return escapeHTML(post.content_warning ? lr(L.post.cw_short, { c: post.content_warning }) : post.content) || (post.poll ? L.post.poll_short : "");
+function simplePostContent(post: Post): string;
+function simplePostContent(content: string, cw: string, hasPoll: boolean): string;
+function simplePostContent(post: Post | string, cw?: string | null, hasPoll?: boolean): string {
+  let content: string;
+
+  if (typeof post !== "string") {
+    content = post.content;
+    cw = post.content_warning;
+    hasPoll = Boolean(post.poll);
+  } else {
+    content = post;
+  }
+
+  return escapeHTML(cw ? lr(L.post.cw_short, { c: cw }) : content) || (hasPoll ? L.post.poll_short : "");
 }
 
 // (processing) timeline "show more" button

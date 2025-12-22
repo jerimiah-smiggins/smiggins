@@ -26,7 +26,7 @@ type snippet = "pages/index" | "pages/login" | "pages/signup"
              | "pages/message-list" | "pages/message" | "message-list-item"
              | "pages/home" | "pages/user" | "pages/hashtag" | "pages/post" | "pages/notifications" | "pages/follow-requests" | "pages/admin" | "pages/search"
              | "pages/settings" | "pages/settings/profile" | "pages/settings/cosmetic" | "pages/settings/account" | "pages/settings/keybinds" | "pages/settings/about"
-             | "post" | "post-placeholder" | "toast" | "notification-like" | "folreq-user"
+             | "post" | "post-placeholder" | "toast" | "notification-like" | "notification-follow" | "folreq-user"
              | "modal/compose" | "modal/keybind" | "modal/update" | "modal/message" | "modal/following";
 
 type Icons = "back"
@@ -156,6 +156,31 @@ type FollowRequestUserData = {
   bio: string,
   id: number
 };
+
+type NotificationLikeData = {
+  code: NotificationCodes.Like,
+  unread: boolean,
+  username: string,
+  display_name: string,
+  timestamp: number,
+  post_id: number,
+  content: string,
+  content_warning: string
+};
+
+type NotificationFollowData = {
+  code: NotificationCodes.Follow,
+  unread: boolean,
+  username: string,
+  display_name: string,
+  timestamp: number
+};
+
+type NotificationData = {
+  code: NotificationCodes.Comment | NotificationCodes.Quote | NotificationCodes.Ping,
+  unread: boolean,
+  post: Post
+} | NotificationLikeData | NotificationFollowData;
 
 type TimelineCache = {
   upperBound: number | null,
