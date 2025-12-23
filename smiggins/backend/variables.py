@@ -21,17 +21,26 @@ def error(string):
 
 dotenv = dotenv_values(".env")
 
-auth_key = None
+auth_key = None # type: ignore
 try:
     from ._api_keys import auth_key  # type: ignore
 except ImportError:
     ...
 
-auth_key = dotenv_or_("auth_key", auth_key, str.encode)
+auth_key: bytes = dotenv_or_("auth_key", auth_key, str.encode)
 
-if "auth_key" not in globals() or not auth_key:
+if not auth_key:
     error("auth_key not set in .env")
-    exit()
+    auth_key = b""
+
+try:
+    VAPID = {
+        "public": dotenv["VAPID_public_key"],
+        "private": dotenv["VAPID_public_key"]
+    }
+except KeyError:
+    error("VAPID keys not set in .env")
+    VAPID = None
 
 if sys.version_info >= (3, 12):
     from typing import TypedDict

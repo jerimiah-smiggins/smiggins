@@ -6,6 +6,7 @@ declare const isAdmin: boolean;
 declare const username: string;
 declare const pageTitle: string;
 declare const version: string;
+declare const SW_URL: string;
 declare let currentPage: intent;
 declare let defaultPostPrivate: boolean;
 declare const limits: {

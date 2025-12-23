@@ -83,6 +83,7 @@ class _api_Base {
 
     return fetch(this.url + (this.requestParams ? ((this.url.includes("?") ? "&" : "?") + this.requestParams) : ""), {
       method: this.method,
+      headers: { "Content-Type": "application/octet-stream" },
       body: this.requestBody
     }).then((response: Response): Promise<ArrayBuffer> => (response.arrayBuffer()))
       .then((ab: ArrayBuffer): Uint8Array => (new Uint8Array(ab)))

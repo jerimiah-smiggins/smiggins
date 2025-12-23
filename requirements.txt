@@ -1,6 +1,7 @@
 django # Web server backend
 django-ninja # Handles API requests
-pyyaml # For loading the settings.yaml file
 python-dotenv # For more private settings
+pywebpush # Encryption and handling for push notifications
+pyyaml # For loading the settings.yaml file
 
 pydantic==2.11.7 # Used by ninja for validation
