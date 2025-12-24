@@ -9,11 +9,17 @@ async function canUseNotifications(): Promise<boolean> {
 
 async function handleNotification(data: PushMessageData | null): Promise<void> {
   if (!canUseNotifications()) {
-    console.log("[SW] recieved message but can't show notif")
+    console.log("[SW] recieved message but can't show notif");
   }
 
-  sw_self.registration.showNotification("Notification", {
-    body: data?.text() || "No notification content was given.",
+  // expected format:
+  // site name;event;text
+  // event: "", "p[pid]", "u[username]", "m[gid]"
+  let content: string[] = data?.text().split(";") || ["Notification", "", "No notification content was given."];
+
+  sw_self.registration.showNotification(content[0], {
+    body: content.slice(2).join(";"),
+    data: content[1]
   });
 }
 

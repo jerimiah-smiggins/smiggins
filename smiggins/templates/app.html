@@ -39,7 +39,7 @@
       const username = "{{ username }}";
       const pageTitle = "{{ conf.site_name }}";
       const version = "{{ conf.version }}";
-      const SW_URL = "{% static 'sw.js' %}?v={{ conf.version }}";
+      const SW_URL = "/sw.js?v={{ conf.version }}";
       let defaultPostPrivate = "{{ default_post_private }}" === "True";
       const TL_POLLING_INTERVAL = {{ conf.polling.timeline }} * 1000;
       const NOTIFICATION_POLLING_INTERVAL = {{ conf.polling.notifications }} * 1000;

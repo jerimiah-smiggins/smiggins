@@ -702,15 +702,6 @@
                 }
               }
             },
-            "section_timestamps": {
-              "type": "string"
-            },
-            "complex_ts": {
-              "type": "string"
-            },
-            "complex_ts_more": {
-              "type": "string"
-            },
             "section_language": {
               "type": "string"
             },
@@ -721,6 +712,24 @@
               "type": "string"
             },
             "font_size_example": {
+              "type": "string"
+            },
+            "section_notifications": {
+              "type": "string"
+            },
+            "no_like_grouping": {
+              "type": "string"
+            },
+            "push_enable": {
+              "type": "string"
+            },
+            "push_disable": {
+              "type": "string"
+            },
+            "push_blocked": {
+              "type": "string"
+            },
+            "push_unavailable": {
               "type": "string"
             },
             "section_posts": {
@@ -735,7 +744,10 @@
             "hide_changelog": {
               "type": "string"
             },
-            "no_like_grouping": {
+            "complex_ts": {
+              "type": "string"
+            },
+            "complex_ts_more": {
               "type": "string"
             },
             "auto_show_new": {

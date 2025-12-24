@@ -1,9 +1,13 @@
-from typing import TYPE_CHECKING
+import json
+import threading
+from typing import TYPE_CHECKING, Literal
 
+import pywebpush
+from backend.variables import SITE_NAME, VAPID
 from django.contrib import admin as django_admin
 from django.contrib.admin.exceptions import AlreadyRegistered  # type: ignore
 from django.db import models
-from django.db.models.signals import post_delete
+from django.db.models.signals import post_delete, post_save
 from django.dispatch import receiver
 
 MAX_STR8 = (1 << 8) - 1
@@ -212,6 +216,55 @@ class Message(models.Model):
     def __str__(self) -> str:
         return f"({self.group.id}/{self.group.group_id}) @{self.user.username} - {self.content}"
 
+class PushNotification(models.Model):
+    user = models.ForeignKey(User, on_delete=models.CASCADE)
+    endpoint = models.TextField(unique=True)
+    keys = models.TextField()
+    expires = models.IntegerField(null=True)
+
+    def to_json(self):
+        return {
+            "endpoint": self.endpoint,
+            "keys": json.loads(self.keys),
+            "expires": self.expires
+        }
+
+    def send(
+        self,
+        event: Literal["comment", "quote", "ping", "follow"] | str,
+        context: User | Post | MessageGroup
+    ):
+        if not VAPID:
+            return
+
+        if isinstance(context, User):
+            # TODO: move this out of Notification because of follow request acceptance triggering false push notifications
+            action = f"u{context.username}"
+            data = f"{context.display_name} (@{context.username}) started following you."
+        elif isinstance(context, Post):
+            action = f"p{context.post_id}"
+            if event == "comment":
+                data = f"{context.creator.display_name} (@{context.creator.username}): {context.content[:100]}{'...' if len(context.content) > 100 else ''}"
+            elif event == "quote":
+                data = f"{context.creator.display_name} (@{context.creator.username}): {context.content[:100]}{'...' if len(context.content) > 100 else ''}"
+            else:
+                data = f"{context.creator.display_name} (@{context.creator.username}): {context.content[:100]}{'...' if len(context.content) > 100 else ''}"
+        else:
+            action = f"m{context.group_id}"
+            data = "New messages" # TODO: more descriptive data
+        # TODO: support follow request notifications
+
+        threading.Thread(target=pywebpush.webpush, kwargs={
+            "subscription_info": self.to_json(),
+            "data": f"{SITE_NAME};{action};{data}",
+            "vapid_private_key": VAPID["private"],
+            "vapid_claims": {
+                "sub": f"mailto:{VAPID['email']}",
+                "aud": "/".join(self.endpoint.split("/")[:3]) # :3
+            },
+            "ttl": 60 * 60 # keep trying for an hour if the recipient isn't online
+        }).start()
+
 class M2MLike(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE)
     post = models.ForeignKey(Post, on_delete=models.CASCADE)
@@ -287,6 +340,7 @@ try:
         InviteCode,
         MessageGroup,
         Message,
+        PushNotification,
         M2MLike,
         M2MFollow,
         M2MBlock,
@@ -307,3 +361,14 @@ def cascade_message_member_delete(sender, instance: M2MMessageMember, **kwargs):
         MessageGroup.objects.get(id=gid).delete()
     except MessageGroup.DoesNotExist:
         ...
+
+@receiver(post_save, sender=Notification)
+def send_push_notification(sender, instance: Notification, **kwargs):
+    if instance.event_type != "like" and not instance.pk:
+        context: User | Post | None = instance.linked_follow.user if instance.linked_follow else instance.post
+
+        if not context:
+            return
+
+        for obj in PushNotification.objects.filter(user=instance.is_for):
+            obj.send(instance.event_type, context)

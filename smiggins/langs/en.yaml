@@ -85,7 +85,7 @@ post:
     view_results: View results
     vote_count:
       1: "%n vote"
-      "*": "%n vote"
+      "*": "%n votes"
 
   cw:
     length:
@@ -221,21 +221,25 @@ settings:
       darker: Dark Gray
       oled: Black
 
-    section_timestamps: Timestamps
-    complex_ts: Enable complex timestamps
-    complex_ts_more: (1h becomes 1h32m, 5m becomes 5m48s)
-
     section_language: Languages
     language: "Language:"
 
     section_font_size: Font Size
     font_size_example: Aa
 
+    section_notifications: Notifications
+    no_like_grouping: Don't group like notifications
+    push_enable: Enable Push Notifications
+    push_disable: Disable Push Notifications
+    push_blocked: Push notifications have been blocked.
+    push_unavailable: Push notifications aren't available on this browser.
+
     section_posts: Posts
     hide_interactions: Hide interactions on posts
     expand_cws: Always expand content warnings
     hide_changelog: Hide changelog popups
-    no_like_grouping: Don't group like notifications
+    complex_ts: Enable complex timestamps
+    complex_ts_more: (1h becomes 1h32m, 5m becomes 5m48s)
     auto_show_new: Automatically show new posts on the timeline
     auto_show_new_more: When disabled, there will instead be a button to show new posts.
     banner_shape:

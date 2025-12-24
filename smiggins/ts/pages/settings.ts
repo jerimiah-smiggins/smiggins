@@ -340,6 +340,42 @@ function importSettings(data: SettingsExport): void {
   location.href = location.origin + location.pathname + location.search;
 }
 
+function disablePushNotifications(): void {
+  localStorage.removeItem("smiggins-push-notifs");
+  killServiceWorker();
+
+  document.getElementById("disable-push-notifs")?.setAttribute("hidden", "");
+  document.getElementById("enable-push-notifs")?.removeAttribute("hidden");
+}
+
+function enablePushNotifications(): void {
+  document.getElementById("enable-push-notifs")?.setAttribute("disabled", "");
+
+  if (Notification.permission === "granted") {
+    initServiceWorker();
+    document.getElementById("enable-push-notifs")?.removeAttribute("disabled");
+    document.getElementById("enable-push-notifs")?.setAttribute("hidden", "");
+    document.getElementById("disable-push-notifs")?.removeAttribute("hidden");
+    localStorage.setItem("smiggins-push-notifs", "1");
+    return;
+  }
+
+  askNotificationPermission()
+    .then((perms: NotificationPermission | void): void => {
+      document.getElementById("enable-push-notifs")?.removeAttribute("disabled");
+
+      if (perms === "granted") {
+        initServiceWorker();
+        localStorage.setItem("smiggins-push-notifs", "1");
+        document.getElementById("enable-push-notifs")?.setAttribute("hidden", "");
+        document.getElementById("disable-push-notifs")?.removeAttribute("hidden");
+      } else if (perms === "denied") {
+        document.getElementById("enable-push-notifs")?.setAttribute("hidden", "");
+        document.getElementById("push-notifs-blocked")?.removeAttribute("hidden");
+      }
+    });
+}
+
 function p_settingsProfile(element: D): void {
   new api_GetProfile().fetch();
 }
@@ -374,10 +410,24 @@ function p_settingsCosmetic(element: D): void {
       L = LANGS[newLang as languages];
       renderPage("settings/cosmetic");
     }
-  })
+  });
 
   for (const el of element.querySelectorAll("#font-size-selection > div")) {
     el.addEventListener("click", setFontSize);
+  }
+
+  element.querySelector("#enable-push-notifs")?.addEventListener("click", enablePushNotifications);
+  element.querySelector("#disable-push-notifs")?.addEventListener("click", disablePushNotifications);
+
+  if (window.Notification) {
+    element.querySelector("#push-notifs-unavailable")?.setAttribute("hidden", "");
+    if (Notification.permission === "granted" && localStorage.getItem("smiggins-push-notifs")) {
+      element.querySelector("#disable-push-notifs")?.removeAttribute("hidden");
+    } else if (Notification.permission === "denied") {
+      element.querySelector("#push-notifs-blocked")?.removeAttribute("hidden");
+    } else {
+      element.querySelector("#enable-push-notifs")?.removeAttribute("hidden");
+    }
   }
 }
 

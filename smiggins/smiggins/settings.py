@@ -85,3 +85,5 @@ STATICFILES_DIRS = [
     BASE_DIR / "static-custom",
     BASE_DIR / "static",
 ]
+
+SERVICE_WORDER_DIR = BASE_DIR / "static/sw.js"

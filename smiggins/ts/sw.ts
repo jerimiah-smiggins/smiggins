@@ -7,26 +7,37 @@ async function canUseNotifications(): Promise<boolean> {
 
 function swRegHandler(registration: ServiceWorkerRegistration): void {
   registration.pushManager.getSubscription()
-    .then(async (subscription: PushSubscription | null): Promise<PushSubscription> => {
+    .then(async (subscription: PushSubscription | null): Promise<PushSubscription | null> => {
       if (subscription) {
         console.log("[SW] subscription exists");
         return subscription;
       }
 
+      if (!loggedIn) {
+        console.log("[SW] not listening due to not logged in");
+        return null;
+      }
+
       const response = await fetch("/api/sw/publickey");
       const publicKey: string = await response.text();
-      const convertedKey: Uint8Array<ArrayBuffer> = new TextEncoder().encode(atob(publicKey.replaceAll("-", "+").replaceAll("_", "/")));
 
       return registration.pushManager.subscribe({
         userVisibleOnly: true,
-        applicationServerKey: convertedKey
+        applicationServerKey: publicKey
       });
     })
-    .then((subscription: PushSubscription): void => {
-      fetch("/api/sw/register", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" }
-      })
+    .then((subscription: PushSubscription | null): void => {
+      if (subscription) {
+        fetch(loggedIn ? "/api/sw/register" : "/api/sw/unregister", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(subscription.toJSON())
+        });
+
+        if (!loggedIn) {
+          subscription.unsubscribe();
+        }
+      }
     });
 }
 
@@ -36,26 +47,33 @@ function initServiceWorker(): void {
     return;
   }
 
-  navigator.serviceWorker.register(SW_URL)
-    .catch((err: any): void => {
+  navigator.serviceWorker.register(SW_URL, {
+    scope: "/"
+  }).catch((err: any): void => {
       console.log("[SW] failed to init", err)
     });
 
+  console.log("[SW] attempting to init");
   navigator.serviceWorker.ready.then(swRegHandler);
 }
 
-async function askNotificationPermission(initSW: boolean=true, persist: boolean=true): Promise<void> {
-  if (window.Notification && !await canUseNotifications()) {
-    let status: NotificationPermission = await Notification.requestPermission();
-    if (status === "granted") {
-      if (initSW) {
-        initServiceWorker();
-      }
+function killServiceWorker(): void {
+  if (!navigator.serviceWorker) {
+    console.log("[SW] can't kill: not supported");
+    return;
+  }
 
-      if (persist) {
-        localStorage.setItem("smiggins-push-notifs", "1");
+  navigator.serviceWorker.getRegistrations()
+    .then((regs: readonly ServiceWorkerRegistration[]): void => {
+      for (const i of regs) {
+        i.unregister();
       }
-    }
+    });
+}
+
+async function askNotificationPermission(): Promise<NotificationPermission | void> {
+  if (window.Notification && !await canUseNotifications()) {
+    return await Notification.requestPermission();
   }
 }
 

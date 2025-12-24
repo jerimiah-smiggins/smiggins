@@ -6,6 +6,7 @@ from backend.api.notifications import notifications
 from backend.api.post import (add_like, pin_post, poll_refresh, poll_vote,
                               post_create, post_delete, post_edit, remove_like,
                               unpin_post)
+from backend.api.push import sw_get_publickey, sw_register, sw_unregister
 from backend.api.timeline import (tl_comments, tl_following, tl_folreq,
                                   tl_global, tl_hashtag, tl_notifications,
                                   tl_search, tl_user, tl_user_followers,
@@ -81,6 +82,10 @@ api.post("message/{int:gid}")(send_message)
 api.get("message/group")(get_gid)
 
 api.get("notifications")(notifications)
+
+api.get("sw/publickey")(sw_get_publickey)
+api.post("sw/register")(sw_register)
+api.post("sw/unregister")(sw_unregister)
 
 urlpatterns = [
     path("", api.urls)

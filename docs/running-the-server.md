@@ -46,6 +46,7 @@ auth_key = ""
 # the can be generated at https://steveseguin.github.io/vapid/
 VAPID_public_key = "your public key"
 VAPID_private_key = "your private key"
+VAPID_email = "you@example.com"
 ```
 
 > [!NOTE]

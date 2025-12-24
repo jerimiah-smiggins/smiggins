@@ -36,7 +36,8 @@ if not auth_key:
 try:
     VAPID = {
         "public": dotenv["VAPID_public_key"],
-        "private": dotenv["VAPID_public_key"]
+        "private": dotenv["VAPID_private_key"],
+        "email": dotenv["VAPID_email"]
     }
 except KeyError:
     error("VAPID keys not set in .env")
@@ -319,6 +320,7 @@ for i in _themes_check:
 
 del _VARIABLES, _var_dict, _themes_check
 
+SITE_NAME = SITE_NAME.replace(";", ":")
 MAX_USERNAME_LENGTH = clamp(MAX_USERNAME_LENGTH, minimum=1, maximum=2 ** 8 - 1)
 MAX_DISPL_NAME_LENGTH = clamp(MAX_DISPL_NAME_LENGTH, minimum=MAX_USERNAME_LENGTH, maximum=2 ** 8 - 1)
 MAX_BIO_LENGTH = clamp(MAX_BIO_LENGTH, minimum=1, maximum=2 ** 16 - 1)
