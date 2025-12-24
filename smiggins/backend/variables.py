@@ -145,6 +145,10 @@ API_RATELIMITS: dict[str, tuple[int, int]] = {
     "GET /api/message/group": (3, 120),
 
     "GET /api/notifications": (10, 2),
+
+    "GET /api/sw/publickey": (10, 2),
+    "POST /api/sw/register": (4, 10),
+    "POST /api/sw/unregister": (4, 10),
 }
 
 # stores variable metadata
