@@ -7,7 +7,7 @@ from backend.variables import SITE_NAME, VAPID
 from django.contrib import admin as django_admin
 from django.contrib.admin.exceptions import AlreadyRegistered  # type: ignore
 from django.db import models
-from django.db.models.signals import post_delete, post_save
+from django.db.models.signals import post_delete, post_init
 from django.dispatch import receiver
 
 MAX_STR8 = (1 << 8) - 1
@@ -362,7 +362,7 @@ def cascade_message_member_delete(sender, instance: M2MMessageMember, **kwargs):
     except MessageGroup.DoesNotExist:
         ...
 
-@receiver(post_save, sender=Notification)
+@receiver(post_init, sender=Notification)
 def send_push_notification(sender, instance: Notification, **kwargs):
     if instance.event_type != "like" and not instance.pk:
         context: User | Post | None = instance.linked_follow.user if instance.linked_follow else instance.post
