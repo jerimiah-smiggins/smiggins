@@ -19,7 +19,8 @@ async function handleNotification(data: PushMessageData | null): Promise<void> {
 
   sw_self.registration.showNotification(content[0], {
     body: content.slice(2).join(";"),
-    data: content[1]
+    data: content[1],
+    icon: location.origin + "/favicon.ico"
   });
 }
 

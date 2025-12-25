@@ -19,7 +19,7 @@ def dotenv_or_(key: str, val: Any, process: Callable[[str], Any]=lambda x: x) ->
 def error(string):
     print(f"\x1b[91m{string}\x1b[0m")
 
-dotenv = dotenv_values(".env")
+dotenv = dotenv_values(pathlib.Path(__file__).parent.parent / ".env")
 
 auth_key = None # type: ignore
 try:
