@@ -402,3 +402,15 @@ defs:
     title: str
     view_changes: str
     dismiss: str
+
+  sw:
+    notifications:
+      followed: str
+      folreq: str
+      comment: str
+      quote: str
+      ping: str
+      message: numbered
+
+      no_content_title: str
+      no_content_body: str

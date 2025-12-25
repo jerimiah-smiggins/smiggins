@@ -435,3 +435,18 @@ update:
   title: "%s has been updated!"
   view_changes: View Changes
   dismiss: Dismiss
+
+sw:
+  notifications:
+    followed: "%n (@%u) started following you."
+    folreq: "%n (@%u) wants to follow you."
+    comment: "%n (@%u): %c"
+    quote: "%n (@%u): %c"
+    ping: "%n (@%u): %c"
+    message:
+      0: "%n (@u) messaged you"
+      1: "%n (@u) messaged you and %c other"
+      "*": "%n (@u) messaged you and %c others"
+
+    no_content_title: Notification
+    no_content_body: No notification context was given.

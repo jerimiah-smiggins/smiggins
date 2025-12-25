@@ -1281,6 +1281,51 @@
           "type": "string"
         }
       }
+    },
+    "sw": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "notifications": {
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {
+            "followed": {
+              "type": "string"
+            },
+            "folreq": {
+              "type": "string"
+            },
+            "comment": {
+              "type": "string"
+            },
+            "quote": {
+              "type": "string"
+            },
+            "ping": {
+              "type": "string"
+            },
+            "message": {
+              "type": "object",
+              "additionalProperties": false,
+              "required": [
+                "*"
+              ],
+              "patternProperties": {
+                "\\*|\\d+": {
+                  "type": "string"
+                }
+              }
+            },
+            "no_content_title": {
+              "type": "string"
+            },
+            "no_content_body": {
+              "type": "string"
+            }
+          }
+        }
+      }
     }
   }
 }

@@ -232,7 +232,7 @@ class PushNotification(models.Model):
     @staticmethod
     def send_to(
         user: User,
-        event: Literal["comment", "quote", "ping", "follow", "follow-request"] | str,
+        event: Literal["comment", "quote", "ping", "follow", "follow_request"] | str,
         context: User | Post | MessageGroup
     ):
         for obj in PushNotification.objects.filter(user=user):
@@ -240,40 +240,42 @@ class PushNotification(models.Model):
 
     def send(
         self,
-        event: Literal["comment", "quote", "ping", "follow", "follow-request"] | str,
+        event: Literal["comment", "quote", "ping", "follow", "follow_request"] | str,
         context: User | Post | MessageGroup
     ):
         if not VAPID:
             return
 
-        # TODO: support langauges?
-
         if isinstance(context, User):
             action = f"u{context.username}"
-            if event == "follow-request":
-                data = f"{context.display_name} (@{context.username}) wants to follow you."
-            else:
-                data = f"{context.display_name} (@{context.username}) started following you."
+            data = {
+                "username": context.username,
+                "display_name": context.display_name
+            }
         elif isinstance(context, Post):
             action = f"p{context.post_id}"
-            if event == "comment":
-                data = f"{context.creator.display_name} (@{context.creator.username}): {context.content[:100]}{'...' if len(context.content) > 100 else ''}"
-            elif event == "quote":
-                data = f"{context.creator.display_name} (@{context.creator.username}): {context.content[:100]}{'...' if len(context.content) > 100 else ''}"
-            else:
-                data = f"{context.creator.display_name} (@{context.creator.username}): {context.content[:100]}{'...' if len(context.content) > 100 else ''}"
+            data = {
+                "username": context.creator.username,
+                "display_name": context.creator.display_name,
+                "content": context.content[:100] + ("..." if len(context.content) > 100 else "")
+            }
         else:
             action = f"m{context.group_id}"
-            data = "New messages" # TODO: more descriptive data
+            sender = context.messages.order_by("-pk").prefetch_related("user")[0].user
+            data = {
+                "username": sender.username,
+                "display_name": sender.display_name,
+                "users": context.members.count()
+            }
 
         threading.Thread(target=PushNotification.webpush_safe, kwargs={
             "obj": self,
             "subscription_info": self.to_json(),
-            "data": f"{SITE_NAME};{action};{data}",
+            "data": f"{SITE_NAME};{event};{action};{json.dumps(data)}",
             "vapid_private_key": VAPID["private"],
             "vapid_claims": {
                 "sub": f"mailto:{VAPID['email']}",
-                "aud": "/".join(self.endpoint.split("/")[:3]) # :3
+                "aud": "/".join(self.endpoint.split("/")[:3])
             },
             "ttl": 60 * 60 # keep trying for an hour if the recipient isn't online
         }).start()

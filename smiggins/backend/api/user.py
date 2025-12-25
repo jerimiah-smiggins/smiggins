@@ -129,7 +129,7 @@ def _follow(request: HttpRequest, unfollow: bool) -> HttpResponse:
         if user.verify_followers:
             if not user.pending_followers.contains(request.s_user):
                 user.pending_followers.add(request.s_user)
-                PushNotification.send_to(user, "follow-request", request.s_user)
+                PushNotification.send_to(user, "follow_request", request.s_user)
 
         elif not request.s_user.following.contains(user):
             request.s_user.following.add(user)
