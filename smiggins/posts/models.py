@@ -229,18 +229,31 @@ class PushNotification(models.Model):
             "expires": self.expires
         }
 
+    @staticmethod
+    def send_to(
+        user: User,
+        event: Literal["comment", "quote", "ping", "follow", "follow-request"] | str,
+        context: User | Post | MessageGroup
+    ):
+        for obj in PushNotification.objects.filter(user=user):
+            obj.send(event, context)
+
     def send(
         self,
-        event: Literal["comment", "quote", "ping", "follow"] | str,
+        event: Literal["comment", "quote", "ping", "follow", "follow-request"] | str,
         context: User | Post | MessageGroup
     ):
         if not VAPID:
             return
 
+        # TODO: support langauges?
+
         if isinstance(context, User):
-            # TODO: move this out of Notification because of follow request acceptance triggering false push notifications
             action = f"u{context.username}"
-            data = f"{context.display_name} (@{context.username}) started following you."
+            if event == "follow-request":
+                data = f"{context.display_name} (@{context.username}) wants to follow you."
+            else:
+                data = f"{context.display_name} (@{context.username}) started following you."
         elif isinstance(context, Post):
             action = f"p{context.post_id}"
             if event == "comment":
@@ -252,9 +265,9 @@ class PushNotification(models.Model):
         else:
             action = f"m{context.group_id}"
             data = "New messages" # TODO: more descriptive data
-        # TODO: support follow request notifications
 
-        threading.Thread(target=pywebpush.webpush, kwargs={
+        threading.Thread(target=PushNotification.webpush_safe, kwargs={
+            "obj": self,
             "subscription_info": self.to_json(),
             "data": f"{SITE_NAME};{action};{data}",
             "vapid_private_key": VAPID["private"],
@@ -264,6 +277,26 @@ class PushNotification(models.Model):
             },
             "ttl": 60 * 60 # keep trying for an hour if the recipient isn't online
         }).start()
+
+    @staticmethod
+    def webpush_safe(obj: "PushNotification", **kwargs):
+        try:
+            pywebpush.webpush(**kwargs)
+        except pywebpush.WebPushException as err:
+            try:
+                if err.response.status_code == 410: # type: ignore
+                    obj.delete()
+                    print("gone")
+                elif err.response.status_code == 404: # type: ignore
+                    obj.delete()
+                    print("404")
+                elif err.response.status_code == 403: # type: ignore
+                    obj.delete()
+                    print("forbidden")
+            except AttributeError:
+                ...
+
+            raise err
 
 class M2MLike(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE)
@@ -364,11 +397,10 @@ def cascade_message_member_delete(sender, instance: M2MMessageMember, **kwargs):
 
 @receiver(post_init, sender=Notification)
 def send_push_notification(sender, instance: Notification, **kwargs):
-    if instance.event_type != "like" and not instance.pk:
+    if instance.event_type in ["ping", "quote", "comment"] and not instance.pk:
         context: User | Post | None = instance.linked_follow.user if instance.linked_follow else instance.post
 
         if not context:
             return
 
-        for obj in PushNotification.objects.filter(user=instance.is_for):
-            obj.send(instance.event_type, context)
+        PushNotification.send_to(instance.is_for, instance.event_type, context)

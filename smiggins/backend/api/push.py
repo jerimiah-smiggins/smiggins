@@ -42,9 +42,6 @@ def sw_register(request: HttpRequest) -> HttpResponse:
     return HttpResponse()
 
 def sw_unregister(request: HttpRequest) -> HttpResponse:
-    if not request.s_user:
-        return HttpResponseForbidden()
-
     try:
         data = json.loads(request.body)
     except json.JSONDecodeError:
@@ -54,10 +51,12 @@ def sw_unregister(request: HttpRequest) -> HttpResponse:
         return HttpResponseBadRequest()
 
     try:
-        PushNotification.objects.get(
+        notif = PushNotification.objects.get(
             endpoint=data["endpoint"]
         )
     except PushNotification.DoesNotExist:
         ...
+    else:
+        notif.delete()
 
     return HttpResponse()

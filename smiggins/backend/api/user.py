@@ -5,7 +5,8 @@ import time
 from django.contrib.auth.hashers import check_password, make_password
 from django.http import HttpResponse
 from posts.middleware.ratelimit import s_HttpRequest as HttpRequest
-from posts.models import InviteCode, M2MFollow, Notification, User
+from posts.models import (InviteCode, M2MFollow, Notification,
+                          PushNotification, User)
 
 from ..helper import generate_legacy_token, trim_whitespace
 from ..variables import (DEFAULT_BANNER_COLOR, ENABLE_NEW_ACCOUNTS,
@@ -128,6 +129,8 @@ def _follow(request: HttpRequest, unfollow: bool) -> HttpResponse:
         if user.verify_followers:
             if not user.pending_followers.contains(request.s_user):
                 user.pending_followers.add(request.s_user)
+                PushNotification.send_to(user, "follow-request", request.s_user)
+
         elif not request.s_user.following.contains(user):
             request.s_user.following.add(user)
             Notification.objects.create(
@@ -139,6 +142,8 @@ def _follow(request: HttpRequest, unfollow: bool) -> HttpResponse:
                 ),
                 is_for=user
             )
+
+            PushNotification.send_to(user, "follow", request.s_user)
 
         api.set_response(is_pending=user.verify_followers)
 

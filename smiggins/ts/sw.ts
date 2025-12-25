@@ -13,8 +13,10 @@ function swRegHandler(registration: ServiceWorkerRegistration): void {
         return subscription;
       }
 
-      if (!loggedIn) {
-        console.log("[SW] not listening due to not logged in");
+      let register: boolean = loggedIn && Boolean(localStorage.getItem("smiggins-push-notifs")) && await canUseNotifications();
+
+      if (!register) {
+        console.log("[SW] not listening");
         return null;
       }
 
@@ -26,15 +28,17 @@ function swRegHandler(registration: ServiceWorkerRegistration): void {
         applicationServerKey: publicKey
       });
     })
-    .then((subscription: PushSubscription | null): void => {
+    .then(async (subscription: PushSubscription | null): Promise<void> => {
+      let register: boolean = loggedIn && Boolean(localStorage.getItem("smiggins-push-notifs")) && await canUseNotifications();
+
       if (subscription) {
-        fetch(loggedIn ? "/api/sw/register" : "/api/sw/unregister", {
+        fetch(register ? "/api/sw/register" : "/api/sw/unregister", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify(subscription.toJSON())
         });
 
-        if (!loggedIn) {
+        if (!register) {
           subscription.unsubscribe();
         }
       }
@@ -77,10 +81,4 @@ async function askNotificationPermission(): Promise<NotificationPermission | voi
   }
 }
 
-if (localStorage.getItem("smiggins-push-notifs")) {
-  canUseNotifications().then((notifs: boolean): void => {
-    if (notifs) {
-      initServiceWorker();
-    }
-  });
-}
+initServiceWorker();

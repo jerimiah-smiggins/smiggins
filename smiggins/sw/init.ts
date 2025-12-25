@@ -17,6 +17,8 @@ async function handleNotification(data: PushMessageData | null): Promise<void> {
   // event: "", "p[pid]", "u[username]", "m[gid]"
   let content: string[] = data?.text().split(";") || ["Notification", "", "No notification content was given."];
 
+  // TODO: handling event
+
   sw_self.registration.showNotification(content[0], {
     body: content.slice(2).join(";"),
     data: content[1],
