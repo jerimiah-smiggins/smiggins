@@ -54,11 +54,12 @@ function initServiceWorker(): void {
   navigator.serviceWorker.register(SW_URL, {
     scope: "/"
   }).catch((err: any): void => {
-      console.log("[SW] failed to init", err)
+      console.log("[SW] failed to init", err);
     });
 
   console.log("[SW] attempting to init");
   navigator.serviceWorker.ready.then(swRegHandler);
+  swSetLanguage();
 }
 
 function killServiceWorker(): void {
@@ -79,6 +80,13 @@ async function askNotificationPermission(): Promise<NotificationPermission | voi
   if (window.Notification && !await canUseNotifications()) {
     return await Notification.requestPermission();
   }
+}
+
+function swSetLanguage(): void {
+  navigator.serviceWorker.ready.then((w: ServiceWorkerRegistration): void => {
+    console.log(w.active, w.waiting, w.installing);
+    (w.active || w.waiting || w.installing)?.postMessage(localStorage.getItem("smiggins-language") || DEFAULT_LANGUAGE);
+  });
 }
 
 initServiceWorker();

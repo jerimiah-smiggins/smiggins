@@ -320,6 +320,7 @@ function importSettings(data: SettingsExport): void {
   localStorage.setItem("smiggins-pfp-shape", data.pfpShape || "round");
   localStorage.setItem("smiggins-theme", data.theme || "system");
   localStorage.setItem("smiggins-language", data.theme || DEFAULT_LANGUAGE);
+  swSetLanguage();
 
   _lsBoolean(data.homeTimeline.comments, "smiggins-home-comments");
   localStorage.setItem("smiggins-home", data.homeTimeline.default || "global");
@@ -411,6 +412,7 @@ function p_settingsCosmetic(element: D): void {
       localStorage.setItem("smiggins-language", newLang);
       L = LANGS[newLang as languages];
       renderPage("settings/cosmetic");
+      swSetLanguage();
     }
   });
 

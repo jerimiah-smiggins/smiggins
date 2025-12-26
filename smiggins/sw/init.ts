@@ -76,4 +76,13 @@ sw_self.addEventListener("push", function(e: PushEvent): void {
   e.waitUntil(handleNotification(e.data))
 });
 
+sw_self.addEventListener("message", function(e: ExtendableMessageEvent): void {
+  console.log("message", e.data);
+  L = LANGS[e.data as languages | null || DEFAULT_LANGUAGE];
+
+  if (!L) {
+    L = LANGS[DEFAULT_LANGUAGE];
+  }
+});
+
 console.log("[SW] init");
