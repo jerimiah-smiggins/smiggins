@@ -7,14 +7,7 @@ let _kbReverse: { [key: string]: {
   callback: (e: KeyboardEvent) => void
 }} = {};
 
-const keybinds: { [key: string]: {
-  defaultKey: string,
-  name?: string,
-  description?: string,
-  modifiers?: KeybindModifiers[],
-  callback: (e: KeyboardEvent) => void,
-  releaseCallback?: (e: KeyboardEvent) => void
-}} = {
+const keybinds: { [key: string]: KeybindData } = {
   newPost: { defaultKey: "n", callback: (): void => { createPostModal(); }},
   loadNewPosts: { defaultKey: "r", callback: timelineShowNew },
   topOfTimeline: { defaultKey: "/", callback: (): void => { window.scrollTo(0, 0); }},

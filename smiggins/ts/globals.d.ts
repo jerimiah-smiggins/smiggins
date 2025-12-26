@@ -235,6 +235,15 @@ type SettingsExport = {
   }
 };
 
+type KeybindData = {
+  defaultKey: string,
+  name?: string,
+  description?: string,
+  modifiers?: KeybindModifiers[],
+  callback: (e: KeyboardEvent) => void,
+  releaseCallback?: (e: KeyboardEvent) => void
+};
+
 type I = HTMLInputElement;
 type D = HTMLDivElement;
 type B = HTMLButtonElement;

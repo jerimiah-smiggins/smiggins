@@ -1,3 +1,4 @@
+// sets banner example on profile settings when updating inputs
 function updateBannerColors(): void {
   let bannerDisplayElement: el = document.getElementById("banner-example");
   let gradientCheckElement: Iel = document.getElementById("banner-gradient") as Iel;
@@ -223,7 +224,7 @@ function profileSettingsSetUserData(
 function setKeybindElementData(kbId: string, el: D): void {
   setKeybindStrings();
 
-  let kbData = keybinds[kbId];
+  let kbData: KeybindData = keybinds[kbId];
 
   let keyData: string = _kbGetKey(kbId);
   let key: string = keyData[0] + keyData.slice(1).split(":")[0];
@@ -298,6 +299,7 @@ function exportSettings(): void {
   document.body.removeChild(element);
 }
 
+// handles simple on/off settings when importing
 function _lsBoolean(data: boolean, key: string): void {
   if (data) {
     localStorage.setItem(key, "1");
