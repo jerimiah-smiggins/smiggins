@@ -291,6 +291,7 @@ defs:
 
     import: str
     export: str
+    export_ios_warning: str
     log_out: str
     log_in: str
 

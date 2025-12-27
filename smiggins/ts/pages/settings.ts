@@ -290,6 +290,7 @@ function exportSettings(): void {
 
   element.setAttribute("href", "data:text/plain;charset=utf-8," + encodeURIComponent(JSON.stringify(settings)));
   element.setAttribute("download", `${pageTitle}.json`);
+  element.target = "_blank"
   element.style.display = "none";
 
   document.body.appendChild(element);
@@ -471,6 +472,14 @@ function p_settingsIndex(element: D): void {
       reader.readAsText(file);
     }
   });
+
+  if ([ // detection for iOS mobile, which doesn't save properly
+    "iPad",   "iPad Simulator",
+    "iPhone", "iPhone Simulator",
+    "iPod",   "iPod Simulator"
+  ].includes(navigator.platform)) {
+    element.querySelector("#export-ios-warning")?.removeAttribute("hidden");
+  }
 }
 
 document.body.dataset.fontSize = localStorage.getItem("smiggins-font-size") || "normal";

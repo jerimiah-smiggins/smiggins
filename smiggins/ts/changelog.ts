@@ -121,5 +121,11 @@ const changes: { [key: string]: VersionData } = {
     changes: [
       "You now recieve a notification when someone follows you."
     ]
+  },
+  "1.4.4": {
+    description: "Push Notifications",
+    changes: [
+      "There is now an option to recieve push notifications on supported browsers."
+    ]
   }
 };

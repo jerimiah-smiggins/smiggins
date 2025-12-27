@@ -8,7 +8,7 @@ import yaml
 from dotenv import dotenv_values
 
 print("Loading config...")
-REAL_VERSION: tuple[int, int, int] = (1, 4, 3)
+REAL_VERSION: tuple[int, int, int] = (1, 4, 4)
 
 def dotenv_or_(key: str, val: Any, process: Callable[[str], Any]=lambda x: x) -> Any:
     try:

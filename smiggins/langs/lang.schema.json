@@ -938,6 +938,9 @@
         "export": {
           "type": "string"
         },
+        "export_ios_warning": {
+          "type": "string"
+        },
         "log_out": {
           "type": "string"
         },
