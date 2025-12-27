@@ -124,10 +124,6 @@ def tl_comments(request: HttpRequest, post_id: int, sort: Literal["recent", "old
     elif sort == "oldest":
         kwargs["order_by"] = ["timestamp", "pk"]
         forwards = True
-    # elif sort == "random": # TODO: random timeline has random duplication even though it should be .distinct()
-    #     kwargs["order_by"] = ["?"]
-    #     forwards = False
-    #     offset = None
     else:
         return api.error(ErrorCodes.BAD_REQUEST)
 

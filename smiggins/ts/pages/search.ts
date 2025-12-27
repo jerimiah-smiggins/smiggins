@@ -18,7 +18,6 @@ function p_search(element: D): void {
 
   element.querySelector("#apply-search")?.addEventListener("click", (): void => resetSearchTL());
   resetSearchTL(element);
-  // TODO: loading from url query
 }
 
 function resetSearchTL(baseElement?: D): void {

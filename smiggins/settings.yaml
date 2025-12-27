@@ -5,7 +5,8 @@
 # file and the default value will persist. Along with that, the case (upper,
 # lower, or any combination) of the keys doesn't matter.
 
-# The name of the instance
+# The name of the instance. For technical reasons, the semicolon (";") character
+# can not be used. Instead, you can use the regular colon (":").
 site_name: Jerimiah Smiggins
 
 # The description of the site, found on the home page when logged out, and in

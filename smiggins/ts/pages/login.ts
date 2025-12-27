@@ -37,7 +37,7 @@ function signupSubmitEvent(e: MouseEvent): void {
     return;
   }
 
-  new api_SignUp(username, password, e.target as Bel).fetch();
+  new api_SignUp(username, password, otp, e.target as Bel).fetch();
 }
 
 function p_login(element: D): void {

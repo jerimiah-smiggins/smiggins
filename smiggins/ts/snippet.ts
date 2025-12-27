@@ -117,12 +117,26 @@ function getSnippet(snippet: snippet, extraVariables?: { [key: string]: string |
   }
 
   if (extraVariables) {
-    for (const i of Object.keys(extraVariables)) {
-      if (typeof extraVariables[i] === "string") {
-        content = content.replaceAll(`@{${i}}`, extraVariables[i]);
+    let values: { [key: string]: string } = {};
+
+    for (const [key, val] of Object.entries(extraVariables)) {
+      values[key] = `TEMP_${Math.random()}`;
+
+      if (typeof val === "string") {
+        content = content.replaceAll(`@{${key}}`, "%" + values[key]);
       } else {
-        for (let _: number = 0; _ < extraVariables[i][1]; _++) {
-          content = content.replace(`@{${i}}`, extraVariables[i][0]);
+        for (let _: number = 0; _ < val[1]; _++) {
+          content = content.replace(`@{${key}}`, "%" + values[key]);
+        }
+      }
+    }
+
+    for (const [key, val] of Object.entries(extraVariables)) {
+      if (typeof val === "string") {
+        content = content.replaceAll("%" + values[key], val);
+      } else {
+        for (let _: number = 0; _ < val[1]; _++) {
+          content = content.replace("%" + values[key], val[0]);
         }
       }
     }

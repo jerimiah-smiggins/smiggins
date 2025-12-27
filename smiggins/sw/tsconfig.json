@@ -1,0 +1,14 @@
+{
+  "compilerOptions": {
+    "lib": [ "es2021", "WebWorker" ],
+    "noUnusedLocals": true,
+    "outFile": "../static/sw.js",
+    "removeComments": true,
+    "target": "es6",
+    "strict": true
+  },
+
+  "include": [
+    "./**/*.ts"
+  ]
+}

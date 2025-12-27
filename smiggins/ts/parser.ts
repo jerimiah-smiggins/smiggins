@@ -1,8 +1,16 @@
 // handles replacements in language strings
 function lr(str: string, replacements: { [key: string]: string }): string {
-  for (const [key, val] of Object.entries(replacements)) {
-    str = str.replaceAll("%" + key, val);
+  let values: { [key: string]: string } = {};
+
+  for (const [key, _] of Object.entries(replacements)) {
+    values[key] = `TEMP_${Math.random()}`;
+    str = str.replaceAll("%" + key, values[key]);
   }
+
+  for (const [key, val] of Object.entries(replacements)) {
+    str = str.replaceAll(values[key], val);
+  }
+
   return str;
 }
 

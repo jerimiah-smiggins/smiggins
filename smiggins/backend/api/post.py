@@ -144,8 +144,6 @@ def post_create(request: HttpRequest) -> HttpResponse:
     if pending_hashtag_objects:
         M2MHashtagPost.objects.bulk_create(pending_hashtag_objects, ignore_conflicts=True)
 
-    # TODO:? respect MAX_NOTIFS variable
-
     return api.response(post=post, user=user)
 
 def post_edit(request: HttpRequest) -> HttpResponse:

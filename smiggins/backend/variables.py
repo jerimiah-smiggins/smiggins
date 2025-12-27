@@ -8,7 +8,7 @@ import yaml
 from dotenv import dotenv_values
 
 print("Loading config...")
-REAL_VERSION: tuple[int, int, int] = (1, 4, 3)
+REAL_VERSION: tuple[int, int, int] = (1, 4, 4)
 
 def dotenv_or_(key: str, val: Any, process: Callable[[str], Any]=lambda x: x) -> Any:
     try:
@@ -19,19 +19,29 @@ def dotenv_or_(key: str, val: Any, process: Callable[[str], Any]=lambda x: x) ->
 def error(string):
     print(f"\x1b[91m{string}\x1b[0m")
 
-dotenv = dotenv_values(".env")
+dotenv = dotenv_values(pathlib.Path(__file__).parent.parent / ".env")
 
-auth_key = None
+auth_key = None # type: ignore
 try:
     from ._api_keys import auth_key  # type: ignore
 except ImportError:
     ...
 
-auth_key = dotenv_or_("auth_key", auth_key, str.encode)
+auth_key: bytes = dotenv_or_("auth_key", auth_key, str.encode)
 
-if "auth_key" not in globals() or not auth_key:
+if not auth_key:
     error("auth_key not set in .env")
-    exit()
+    auth_key = b""
+
+try:
+    VAPID = {
+        "public": dotenv["VAPID_public_key"],
+        "private": dotenv["VAPID_private_key"],
+        "email": dotenv["VAPID_email"]
+    }
+except KeyError:
+    error("VAPID keys not set in .env")
+    VAPID = None
 
 if sys.version_info >= (3, 12):
     from typing import TypedDict
@@ -135,6 +145,10 @@ API_RATELIMITS: dict[str, tuple[int, int]] = {
     "GET /api/message/group": (3, 120),
 
     "GET /api/notifications": (10, 2),
+
+    "GET /api/sw/publickey": (10, 2),
+    "POST /api/sw/register": (4, 10),
+    "POST /api/sw/unregister": (4, 10),
 }
 
 # stores variable metadata
@@ -310,6 +324,7 @@ for i in _themes_check:
 
 del _VARIABLES, _var_dict, _themes_check
 
+SITE_NAME = SITE_NAME.replace(";", ":")
 MAX_USERNAME_LENGTH = clamp(MAX_USERNAME_LENGTH, minimum=1, maximum=2 ** 8 - 1)
 MAX_DISPL_NAME_LENGTH = clamp(MAX_DISPL_NAME_LENGTH, minimum=MAX_USERNAME_LENGTH, maximum=2 ** 8 - 1)
 MAX_BIO_LENGTH = clamp(MAX_BIO_LENGTH, minimum=1, maximum=2 ** 16 - 1)
