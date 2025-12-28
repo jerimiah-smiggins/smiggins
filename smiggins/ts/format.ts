@@ -970,6 +970,11 @@ class api_TimelineNotifications extends _api_TimelineBase {
   method: Method = "GET";
 
   handle(u8arr: Uint8Array): void {
+    // updates badge count
+    if ("setAppBadge" in navigator && "clearAppBadge" in navigator) {
+      new api_Notifications().fetch();
+    }
+
     let end: boolean = _extractBool(u8arr[2], 7);
     let forwards: boolean | "force" = _extractBool(u8arr[2], 6);
     let numNotifs: number = u8arr[3];
