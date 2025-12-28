@@ -228,7 +228,12 @@ settings:
     section_font_size: Tamaño de fuente
     font_size_example: Aa
 
+    section_notifications: Notificaciones
     no_like_grouping: No agrupar notificaciones de likes
+    push_enable: Activar notificaciones emergentes
+    push_disable: Desactivar notificaciones emergentes
+    push_blocked: Había bloqueado las notificaciones emergentes.
+    push_unavailable: Las notificaciones emergentes no son disponibles en este navegador.
 
     section_posts: Publicaciones
     hide_interactions: Esconder interacciones en publicaciones
@@ -304,6 +309,7 @@ settings:
 
   import: Importar Ajustes...
   export: Exportar Ajustes...
+  export_ios_warning: Exportando los ajustes no podría funcionar en iOS.
   log_out: Cerrar sesión...
   log_in: Iniciar sesión...
 
@@ -359,6 +365,13 @@ notifications:
     3: "%a, %b, y %c dieron likes a tu publicación."
     4: "%a, %b, %c, y <b>%n otro</b> dieron likes a tu publicación."
     "*": "%a, %b, %c, y <b>%n otros</b> dieron likes a tu publicación."
+
+  follow:
+    1: "%a te empezó a seguir."
+    2: "%a y %b se empezaron a seguir."
+    3: "%a, %b, y %c se empezaron a seguir."
+    4: "%a, %b, %c, y <b>%n other</b> se empezaron a seguir."
+    "*": "%a, %b, %c, y <b>%n others</b> se empezaron a seguir."
 
 user:
   follow: Seguir
@@ -424,3 +437,18 @@ update:
   title: "¡%s había actualizado!"
   view_changes: Mirar a los Cambios
   dismiss: Descartar
+
+sw:
+  notifications:
+    followed: "%n (@%u) ahora te sigue."
+    folreq: "%n (@%u) te quiere seguir."
+    comment: "%n (@%u): %c"
+    quote: "%n (@%u): %c"
+    ping: "%n (@%u): %c"
+    message:
+      0: "%n (@u) te envió un mensaje."
+      1: "%n (@u) les envió un mensaje a ti y %c otro."
+      "*": "%n (@u) les envió un mensaje a ti y %c otros."
+
+    no_content_title: Notificación
+    no_content_body: No hay contexto para esta notificación.
