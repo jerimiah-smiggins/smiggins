@@ -835,7 +835,7 @@ class api_TimelineUserFollowers(api_TimelineUserFollowing):
 # 7X - Statuses
 class api_PendingNotifications(_api_BaseResponse):
     response_code = ResponseCodes.NOTIFICATIONS
-    version = 0
+    version = 1
 
-    def set_response(self, notifications: bool, messages: bool, follow_requests: bool):
-        self.response_data = b(notifications << 7 | messages << 6 | follow_requests << 5)
+    def set_response(self, notifications: bool, messages: bool, follow_requests: bool, count: int):
+        self.response_data = b(notifications << 7 | messages << 6 | follow_requests << 5) + b(count)
