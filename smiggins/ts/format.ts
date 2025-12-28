@@ -63,11 +63,11 @@ enum ErrorCodes {
 };
 
 class _api_Base {
-  readonly id: ResponseCodes = ResponseCodes.NOOP;
-  readonly version: number = 0;
+  id: ResponseCodes = ResponseCodes.NOOP;
+  version: number = 0;
 
-  readonly url: string = "/api/noop";
-  readonly method: Method = "GET";
+  url: string = "/api/noop";
+  method: Method = "GET";
 
   disabled: (el | undefined)[] = [];
 
@@ -186,11 +186,11 @@ class _api_TimelineBase extends _api_Base {
 
 // 0X - Authentication
 class api_LogIn extends _api_Base {
-  readonly id: ResponseCodes = ResponseCodes.LogIn;
-  readonly version: number = 0;
+  id: ResponseCodes = ResponseCodes.LogIn;
+  version: number = 0;
 
-  readonly url: string = "/api/user/login";
-  readonly method: Method = "POST";
+  url: string = "/api/user/login";
+  method: Method = "POST";
 
   constructor(username: string, password: string, button?: Bel) {
     super();
@@ -210,11 +210,11 @@ class api_LogIn extends _api_Base {
 }
 
 class api_SignUp extends _api_Base {
-  readonly id: ResponseCodes = ResponseCodes.SignUp;
-  readonly version: number = 0;
+  id: ResponseCodes = ResponseCodes.SignUp;
+  version: number = 0;
 
-  readonly url: string = "/api/user/signup";
-  readonly method: Method = "POST";
+  url: string = "/api/user/signup";
+  method: Method = "POST";
 
   constructor(username: string, password: string, otp?: string | null, button?: Bel) {
     super();
@@ -236,11 +236,11 @@ class api_SignUp extends _api_Base {
 
 // 1X - Relationships
 class api_Follow extends _api_Base {
-  readonly id: ResponseCodes = ResponseCodes.Follow;
-  readonly version: number = 0;
+  id: ResponseCodes = ResponseCodes.Follow;
+  version: number = 0;
 
-  readonly url: string = "/api/user/follow";
-  readonly method: Method = "POST";
+  url: string = "/api/user/follow";
+  method: Method = "POST";
 
   constructor(username: string, button?: Bel) {
     super();
@@ -254,10 +254,10 @@ class api_Follow extends _api_Base {
 }
 
 class api_Unfollow extends api_Follow {
-  readonly id: ResponseCodes = ResponseCodes.Unfollow;
-  readonly version: number = 0;
+  id: ResponseCodes = ResponseCodes.Unfollow;
+  version: number = 0;
 
-  readonly method: Method = "DELETE";
+  method: Method = "DELETE";
 
   handle(u8arr: Uint8Array): void {
     updateFollowButton(false);
@@ -265,11 +265,11 @@ class api_Unfollow extends api_Follow {
 }
 
 class api_Block extends api_Follow {
-  readonly id: ResponseCodes = ResponseCodes.Block;
-  readonly version: number = 0;
+  id: ResponseCodes = ResponseCodes.Block;
+  version: number = 0;
 
-  readonly url: string = "/api/user/block";
-  readonly method: Method = "POST";
+  url: string = "/api/user/block";
+  method: Method = "POST";
 
   handle(u8arr: Uint8Array): void {
     updateBlockButton(true);
@@ -277,10 +277,10 @@ class api_Block extends api_Follow {
 }
 
 class api_Unblock extends api_Block {
-  readonly id: ResponseCodes = ResponseCodes.Unblock;
-  readonly version: number = 0;
+  id: ResponseCodes = ResponseCodes.Unblock;
+  version: number = 0;
 
-  readonly method: Method = "DELETE";
+  method: Method = "DELETE";
 
   handle(u8arr: Uint8Array): void {
     updateBlockButton(false);
@@ -288,11 +288,11 @@ class api_Unblock extends api_Block {
 }
 
 class api_AcceptFollowRequest extends _api_Base {
-  readonly id: ResponseCodes = ResponseCodes.AcceptFolreq;
-  readonly version: number = 0;
+  id: ResponseCodes = ResponseCodes.AcceptFolreq;
+  version: number = 0;
 
-  readonly url: string = "/api/user/follow-request";
-  readonly method: Method = "POST";
+  url: string = "/api/user/follow-request";
+  method: Method = "POST";
 
   constructor(username: string) {
     super();
@@ -303,19 +303,19 @@ class api_AcceptFollowRequest extends _api_Base {
 }
 
 class api_DenyFollowRequest extends api_AcceptFollowRequest {
-  readonly id: ResponseCodes = ResponseCodes.DenyFolreq;
-  readonly version: number = 0;
+  id: ResponseCodes = ResponseCodes.DenyFolreq;
+  version: number = 0;
 
-  readonly method: Method = "DELETE";
+  method: Method = "DELETE";
 }
 
 // 2X - Settings and Account Management
 class api_GetProfile extends _api_Base {
-  readonly id: ResponseCodes = ResponseCodes.GetProfile;
-  readonly version: number = 0;
+  id: ResponseCodes = ResponseCodes.GetProfile;
+  version: number = 0;
 
-  readonly url: string = "/api/user";
-  readonly method: Method = "GET";
+  url: string = "/api/user";
+  method: Method = "GET";
 
   handle(u8arr: Uint8Array): void {
     let displayName: [string, Uint8Array] = _extractString(8, u8arr.slice(2));
@@ -335,11 +335,11 @@ class api_GetProfile extends _api_Base {
 }
 
 class api_SaveProfile extends _api_Base {
-  readonly id: ResponseCodes = ResponseCodes.SaveProfile;
-  readonly version: number = 0;
+  id: ResponseCodes = ResponseCodes.SaveProfile;
+  version: number = 0;
 
-  readonly url: string = "/api/user";
-  readonly method: Method = "PATCH";
+  url: string = "/api/user";
+  method: Method = "PATCH";
 
   constructor(
     gradient: boolean,
@@ -1179,7 +1179,7 @@ class api_TimelineUserFollowers extends api_TimelineUserFollowing {
 // 7X - Statuses
 class api_Notifications extends _api_Base {
   id: ResponseCodes = ResponseCodes.Notifications;
-  version: number = 0;
+  version: number = 1;
 
   url: string = "/api/notifications";
   method: Method = "GET";
@@ -1190,6 +1190,8 @@ class api_Notifications extends _api_Base {
       messages: _extractBool(u8arr[2], 6),
       follow_requests: _extractBool(u8arr[2], 5)
     };
+
+    swUpdateBadge(u8arr[3]);
 
     resetNotificationIndicators();
   }

@@ -82,11 +82,18 @@ async function askNotificationPermission(): Promise<NotificationPermission | voi
   }
 }
 
-function swSetLanguage(): void {
+function _swPostMessage(message: string): void {
   navigator.serviceWorker.ready.then((w: ServiceWorkerRegistration): void => {
-    console.log(w.active, w.waiting, w.installing);
-    (w.active || w.waiting || w.installing)?.postMessage(localStorage.getItem("smiggins-language") || DEFAULT_LANGUAGE);
+    (w.active || w.waiting || w.installing)?.postMessage(message);
   });
+}
+
+function swSetLanguage(): void {
+  _swPostMessage("l" + (localStorage.getItem("smiggins-language") || DEFAULT_LANGUAGE));
+}
+
+function swUpdateBadge(count: number): void {
+  _swPostMessage("b" + String(count));
 }
 
 initServiceWorker();

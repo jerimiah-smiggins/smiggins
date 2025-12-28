@@ -12,6 +12,9 @@ async function handleNotification(data: PushMessageData | null): Promise<void> {
     console.log("[SW] recieved message but can't show notif");
   }
 
+  resetBadgeInterval();
+  fetchBadge();
+
   // expected format:
   // site_name;type;click_event;data
   // type: follow, follow-request, comment, quote, ping, message
@@ -21,7 +24,12 @@ async function handleNotification(data: PushMessageData | null): Promise<void> {
   let siteName: string = content[0];
   let type: NotificationEventType = content[1] as NotificationEventType;
   let event: string = content[2];
-  let additionalData: any = JSON.parse(content.slice(3).join(";"));
+  let additionalData: {
+    display_name: string,
+    username: string,
+    content: string,
+    users: number
+  } = JSON.parse(content.slice(3).join(";"));
 
   let body: string = String(additionalData);
 
@@ -32,7 +40,7 @@ async function handleNotification(data: PushMessageData | null): Promise<void> {
       body = lr(L.notifications[type], {
         n: additionalData.display_name,
         u: additionalData.username,
-        c: additionalData.content
+        c: additionalData.content.replaceAll("\n", "")
       });
       break;
     }
@@ -68,8 +76,6 @@ async function handleNotification(data: PushMessageData | null): Promise<void> {
     data: event,
     icon: location.origin + "/favicon.ico"
   });
-
-  // TODO: notification on click event
 }
 
 sw_self.addEventListener("push", function(e: PushEvent): void {
@@ -78,10 +84,39 @@ sw_self.addEventListener("push", function(e: PushEvent): void {
 
 sw_self.addEventListener("message", function(e: ExtendableMessageEvent): void {
   console.log("message", e.data);
-  L = LANGS[e.data as languages | null || DEFAULT_LANGUAGE];
 
-  if (!L) {
-    L = LANGS[DEFAULT_LANGUAGE];
+  if (typeof e.data === "string") {
+    switch (e.data[0]) {
+      case "l": {
+        L = LANGS[e.data.slice(1) as languages | null || DEFAULT_LANGUAGE];
+        if (!L) { L = LANGS[DEFAULT_LANGUAGE]; }
+        break;
+      }
+      case "b": {
+        resetBadgeInterval();
+        updateBadge(Number(e.data.slice(1)));
+        break;
+      }
+    }
+  }
+});
+
+sw_self.addEventListener("notificationclick", function(e: NotificationEvent): void {
+  if (typeof e.notification.data === "string") {
+    switch (e.notification.data[0]) {
+      case "p": {
+        sw_self.clients.openWindow(`/p/${e.notification.data.slice(1)}/`);
+        break;
+      }
+      case "u": {
+        sw_self.clients.openWindow(`/u/${e.notification.data.slice(1)}/`);
+        break;
+      }
+      case "m": {
+        sw_self.clients.openWindow(`/message/${e.notification.data.slice(1)}/`);
+        break;
+      }
+    }
   }
 });
 
