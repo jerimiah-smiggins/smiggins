@@ -233,6 +233,8 @@ settings:
     push_disable: Disable Push Notifications
     push_blocked: Push notifications have been blocked.
     push_unavailable: Push notifications aren't available on this browser.
+    # %L - start guide link; %l - end guide link; %s - site name
+    pwa_warning: You may need to %Linstall %s as a web app%l for push notifications to work.
 
     section_posts: Posts
     hide_interactions: Hide interactions on posts

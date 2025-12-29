@@ -434,6 +434,22 @@ function p_settingsCosmetic(element: D): void {
       element.querySelector("#enable-push-notifs")?.removeAttribute("hidden");
     }
   }
+
+  // show warning about pwas for push notifications for android/iOS
+  if (navigator.userAgent.toLowerCase().includes("android") || [
+    "iPad",   "iPad Simulator",
+    "iPhone", "iPhone Simulator",
+    "iPod",   "iPod Simulator"
+  ].includes(navigator.platform)) {
+    let el: el = element.querySelector("#pwa-warning");
+    if (el) {
+      el.innerHTML = lr(L.settings.cosmetic.pwa_warning, {
+        L: "<a href=\"https://developer.mozilla.org/en-US/docs/Web/Progressive_web_apps/Guides/Installing\" target=\"_blank\">",
+        l: "</a>",
+        s: pageTitle
+      });
+    }
+  }
 }
 
 function p_settingsAccount(element: D): void {
@@ -473,7 +489,7 @@ function p_settingsIndex(element: D): void {
     }
   });
 
-  if ([ // detection for iOS mobile, which doesn't save properly
+  if ([ // detection for iOS mobile
     "iPad",   "iPad Simulator",
     "iPhone", "iPhone Simulator",
     "iPod",   "iPod Simulator"

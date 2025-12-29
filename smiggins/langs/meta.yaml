@@ -217,6 +217,7 @@ defs:
       push_disable: str
       push_blocked: str
       push_unavailable: str
+      pwa_warning: str
 
       section_posts: str
       hide_interactions: str

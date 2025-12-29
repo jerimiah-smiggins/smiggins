@@ -732,6 +732,9 @@
             "push_unavailable": {
               "type": "string"
             },
+            "pwa_warning": {
+              "type": "string"
+            },
             "section_posts": {
               "type": "string"
             },
