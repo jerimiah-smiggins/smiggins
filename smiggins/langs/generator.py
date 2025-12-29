@@ -294,11 +294,6 @@ const DEFAULT_LANGUAGE: languages = "{meta["languages"][0]}";
 
 let L: LanguageData;
 
-// TODO: localStorage isn't supported on service workers - need to look up solution at some point
-// L = LANGS[localStorage.getItem("smiggins-language") as languages | null || DEFAULT_LANGUAGE];
-// if (!L) {{
-//   L = LANGS[DEFAULT_LANGUAGE];
-// }}
 L = LANGS[DEFAULT_LANGUAGE];
 """)
 
