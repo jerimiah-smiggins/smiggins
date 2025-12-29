@@ -125,7 +125,6 @@ def send_message(request: HttpRequest, gid: int) -> HttpResponse:
     )
 
     for u in to_notify:
-        print(u.user)
         PushNotification.send_to(u.user, "message", u.group)
     to_notify.update(unread=True)
 
