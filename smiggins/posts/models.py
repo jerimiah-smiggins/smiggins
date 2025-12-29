@@ -1,9 +1,13 @@
-from typing import TYPE_CHECKING
+import json
+import threading
+from typing import TYPE_CHECKING, Literal
 
+import pywebpush
+from backend.variables import SITE_NAME, VAPID
 from django.contrib import admin as django_admin
 from django.contrib.admin.exceptions import AlreadyRegistered  # type: ignore
 from django.db import models
-from django.db.models.signals import post_delete
+from django.db.models.signals import post_delete, post_init
 from django.dispatch import receiver
 
 MAX_STR8 = (1 << 8) - 1
@@ -212,6 +216,90 @@ class Message(models.Model):
     def __str__(self) -> str:
         return f"({self.group.id}/{self.group.group_id}) @{self.user.username} - {self.content}"
 
+class PushNotification(models.Model):
+    user = models.ForeignKey(User, on_delete=models.CASCADE)
+    endpoint = models.TextField(unique=True)
+    keys = models.TextField()
+    expires = models.IntegerField(null=True)
+
+    def to_json(self):
+        return {
+            "endpoint": self.endpoint,
+            "keys": json.loads(self.keys),
+            "expires": self.expires
+        }
+
+    @staticmethod
+    def send_to(
+        user: User,
+        event: Literal["comment", "quote", "ping", "follow", "follow_request", "message"],
+        context: User | Post | MessageGroup
+    ):
+        for obj in PushNotification.objects.filter(user=user):
+            obj.send(event, context)
+
+    def send(
+        self,
+        event: Literal["comment", "quote", "ping", "follow", "follow_request", "message"],
+        context: User | Post | MessageGroup
+    ):
+        if not VAPID:
+            return
+
+        if isinstance(context, User):
+            action = f"u{context.username}"
+            data = {
+                "username": context.username,
+                "display_name": context.display_name
+            }
+        elif isinstance(context, Post):
+            action = f"p{context.post_id}"
+            data = {
+                "username": context.creator.username,
+                "display_name": context.creator.display_name,
+                "content": context.content[:100] + ("..." if len(context.content) > 100 else "")
+            }
+        else:
+            action = f"m{context.id}"
+            sender = context.messages.order_by("-pk").prefetch_related("user")[0].user
+            data = {
+                "username": sender.username,
+                "display_name": sender.display_name,
+                "users": context.members.count()
+            }
+
+        threading.Thread(target=PushNotification.webpush_safe, kwargs={
+            "obj": self,
+            "subscription_info": self.to_json(),
+            "data": f"{SITE_NAME};{event};{action};{json.dumps(data)}",
+            "vapid_private_key": VAPID["private"],
+            "vapid_claims": {
+                "sub": f"mailto:{VAPID['email']}",
+                "aud": "/".join(self.endpoint.split("/")[:3])
+            },
+            "ttl": 60 * 60 # keep trying for an hour if the recipient isn't online
+        }).start()
+
+    @staticmethod
+    def webpush_safe(obj: "PushNotification", **kwargs):
+        try:
+            pywebpush.webpush(**kwargs)
+        except pywebpush.WebPushException as err:
+            try:
+                if err.response.status_code == 410: # type: ignore
+                    obj.delete()
+                    print("gone")
+                elif err.response.status_code == 404: # type: ignore
+                    obj.delete()
+                    print("404")
+                elif err.response.status_code == 403: # type: ignore
+                    obj.delete()
+                    print("forbidden")
+            except AttributeError:
+                ...
+
+            raise err
+
 class M2MLike(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE)
     post = models.ForeignKey(Post, on_delete=models.CASCADE)
@@ -287,6 +375,7 @@ try:
         InviteCode,
         MessageGroup,
         Message,
+        PushNotification,
         M2MLike,
         M2MFollow,
         M2MBlock,
@@ -307,3 +396,17 @@ def cascade_message_member_delete(sender, instance: M2MMessageMember, **kwargs):
         MessageGroup.objects.get(id=gid).delete()
     except MessageGroup.DoesNotExist:
         ...
+
+@receiver(post_init, sender=Notification)
+def send_push_notification(sender, instance: Notification, **kwargs):
+    if instance.event_type in ["ping", "quote", "comment"] and not instance.pk:
+        context: User | Post | None = instance.linked_follow.user if instance.linked_follow else instance.post
+
+        if not context:
+            return
+
+        PushNotification.send_to(
+            instance.is_for,
+            instance.event_type, # type: ignore
+            context
+        )

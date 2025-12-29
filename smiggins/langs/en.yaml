@@ -85,7 +85,7 @@ post:
     view_results: View results
     vote_count:
       1: "%n vote"
-      "*": "%n vote"
+      "*": "%n votes"
 
   cw:
     length:
@@ -221,21 +221,27 @@ settings:
       darker: Dark Gray
       oled: Black
 
-    section_timestamps: Timestamps
-    complex_ts: Enable complex timestamps
-    complex_ts_more: (1h becomes 1h32m, 5m becomes 5m48s)
-
     section_language: Languages
     language: "Language:"
 
     section_font_size: Font Size
     font_size_example: Aa
 
+    section_notifications: Notifications
+    no_like_grouping: Don't group like notifications
+    push_enable: Enable Push Notifications
+    push_disable: Disable Push Notifications
+    push_blocked: Push notifications have been blocked.
+    push_unavailable: Push notifications aren't available on this browser.
+    # %L - start guide link; %l - end guide link; %s - site name
+    pwa_warning: You may need to %Linstall %s as a web app%l for push notifications to work.
+
     section_posts: Posts
     hide_interactions: Hide interactions on posts
     expand_cws: Always expand content warnings
     hide_changelog: Hide changelog popups
-    no_like_grouping: Don't group like notifications
+    complex_ts: Enable complex timestamps
+    complex_ts_more: (1h becomes 1h32m, 5m becomes 5m48s)
     auto_show_new: Automatically show new posts on the timeline
     auto_show_new_more: When disabled, there will instead be a button to show new posts.
     banner_shape:
@@ -304,6 +310,7 @@ settings:
 
   import: Import Settings...
   export: Export Settings...
+  export_ios_warning: Exporting your settings may not work on iOS.
   log_out: Log Out...
   log_in: Log In...
 
@@ -431,3 +438,18 @@ update:
   title: "%s has been updated!"
   view_changes: View Changes
   dismiss: Dismiss
+
+sw:
+  notifications:
+    followed: "%n (@%u) started following you."
+    folreq: "%n (@%u) wants to follow you."
+    comment: "%n (@%u): %c"
+    quote: "%n (@%u): %c"
+    ping: "%n (@%u): %c"
+    message:
+      0: "%n (@u) messaged you"
+      1: "%n (@u) messaged you and %c other"
+      "*": "%n (@u) messaged you and %c others"
+
+    no_content_title: Notification
+    no_content_body: No notification context was given.

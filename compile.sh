@@ -1,4 +1,4 @@
-if [ "$1" != "" ] && [ "$1" != "lang" ] && [ "$1" != "less" ] && [ "$1" != "ts" ] && [ "$1" != "uncompressed" ]; then
+if [ "$1" != "" ] && [ "$1" != "lang" ] && [ "$1" != "less" ] && [ "$1" != "ts" ] && [ "$1" != "sw" ] && [ "$1" != "uncompressed" ]; then
   echo "unknown format $1";
   exit 1;
 fi
@@ -16,6 +16,20 @@ if [ "$1" == "ts" ] || [ "$1" == "" ] || [ "$1" == "uncompressed" ]; then
   if [ "$1" != "uncompressed" ] && [ "$2" != "uncompressed" ]; then
     printf " compressing..."
     uglifyjs ./smiggins/static/app.js -c templates=false -m --output ./smiggins/static/app.js
+  fi
+
+  echo " done"
+fi
+
+if [ "$1" == "sw" ] || [ "$1" == "" ] || [ "$1" == "uncompressed" ]; then
+  printf "compiling service worker..."
+  cd smiggins/sw
+  tsc
+  cd ../..
+
+  if [ "$1" != "uncompressed" ] && [ "$2" != "uncompressed" ]; then
+    printf " compressing..."
+    uglifyjs ./smiggins/static/sw.js -c templates=false -m --output ./smiggins/static/sw.js
   fi
 
   echo " done"

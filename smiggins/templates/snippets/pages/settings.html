@@ -10,7 +10,10 @@
   {% if conf.enable_about_page %}<a class="plain-link" href="/settings/about/" data-internal-link="settings/about">@{lang.settings.about.title} <small>- @{lang.settings.about.description}</small></a>{% endif %}
   {% if is_admin %}<a class="plain-link" href="/admin/" data-internal-link="admin">@{lang.admin.title} <small>- @{lang.admin.description}</small></a>{% endif %}
 
-  <a href="#" class="plain-link" id="export">@{lang.settings.export}</a>
+  <a href="#" class="plain-link" id="export">
+    @{lang.settings.export}
+    <small id="export-ios-warning" hidden><div>@{lang.settings.export_ios_warning}</div></small>
+  </a>
   <div><label tabindex="0">@{lang.settings.import}<input hidden id="import" type="file"></label></div>
 
   {% if logged_in %}

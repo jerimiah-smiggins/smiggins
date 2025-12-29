@@ -205,21 +205,26 @@ defs:
         darker: str
         oled: str
 
-      section_timestamps: str
-      complex_ts: str
-      complex_ts_more: str
-
       section_language: str
       language: str
 
       section_font_size: str
       font_size_example: str
 
+      section_notifications: str
+      no_like_grouping: str
+      push_enable: str
+      push_disable: str
+      push_blocked: str
+      push_unavailable: str
+      pwa_warning: str
+
       section_posts: str
       hide_interactions: str
       expand_cws: str
       hide_changelog: str
-      no_like_grouping: str
+      complex_ts: str
+      complex_ts_more: str
       auto_show_new: str
       auto_show_new_more: str
       banner_shape:
@@ -287,6 +292,7 @@ defs:
 
     import: str
     export: str
+    export_ios_warning: str
     log_out: str
     log_in: str
 
@@ -398,3 +404,15 @@ defs:
     title: str
     view_changes: str
     dismiss: str
+
+  sw:
+    notifications:
+      followed: str
+      folreq: str
+      comment: str
+      quote: str
+      ping: str
+      message: numbered
+
+      no_content_title: str
+      no_content_body: str

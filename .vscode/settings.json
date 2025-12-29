@@ -28,6 +28,7 @@
   "search.exclude": {
     ".vscode/*": true,
     "smiggins/static/app.js": true,
+    "smiggins/static/sw.js": true,
     "smiggins/static/base.css": true,
     "smiggins/posts/migrations/*": true,
     "**/__pycache__": true,
@@ -37,6 +38,7 @@
 
   "files.exclude": {
     "smiggins/static/app.js": true,
+    "smiggins/static/sw.js": true,
     "smiggins/static/base.css": true,
     "**/__pycache__": true,
     "**/.venv/": true,

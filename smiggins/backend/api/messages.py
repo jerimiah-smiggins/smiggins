@@ -1,8 +1,10 @@
 import time
 
+from django.db.models import Q
 from django.http import HttpResponse
 from posts.middleware.ratelimit import s_HttpRequest as HttpRequest
-from posts.models import M2MMessageMember, Message, MessageGroup, User
+from posts.models import (M2MMessageMember, Message, MessageGroup,
+                          PushNotification, User)
 
 from ..helper import trim_whitespace
 from .format import (ErrorCodes, api_MessageGetGroupID,
@@ -95,6 +97,9 @@ def send_message(request: HttpRequest, gid: int) -> HttpResponse:
         group = get_group(gid)
     except MessageGroup.DoesNotExist:
         return api.error(ErrorCodes.BAD_REQUEST)
+    else:
+        if not group.members.contains(request.s_user):
+            return api.error(ErrorCodes.NOT_AUTHENTICATED)
 
     ts = round(time.time())
     content = trim_whitespace(api.parse_data(), True)
@@ -112,7 +117,16 @@ def send_message(request: HttpRequest, gid: int) -> HttpResponse:
     group.timestamp = ts
     group.save(update_fields=["timestamp"])
 
-    M2MMessageMember.objects.filter(group=group).exclude(user_id=request.s_user.user_id, user__blocking=request.s_user.user_id).update(unread=True)
+    to_notify = M2MMessageMember.objects.filter(
+        ~Q(user=request.s_user),
+        ~Q(user__blocking=request.s_user.user_id),
+        group=group,
+        unread=False
+    )
+
+    for u in to_notify:
+        PushNotification.send_to(u.user, "message", u.group)
+    to_notify.update(unread=True)
 
     return api.response(
         content=content[0],

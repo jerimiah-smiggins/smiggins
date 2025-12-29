@@ -37,20 +37,23 @@ git switch branch-name
 python -m pip install --upgrade -r requirements.txt
 ```
 
-Then, you need to create the `.env` file. To do so, you can run one of
-the following commands based on your operating system:
-```bash
-# Linux/Mac:
-echo "auth_key=some random text this can be anything" > ./smiggins/.env
+Then, you need to create the `.env` file. The content should look something like
+the following:
+```ini
+auth_key = ""
 
-# Windows:
-echo auth_key=some random text this can be anything > ./smiggins/.env
+# these keys are used for push notifications.
+# the can be generated at https://steveseguin.github.io/vapid/
+VAPID_public_key = "your public key"
+VAPID_private_key = "your private key"
+VAPID_email = "you@example.com"
 ```
 
-> [!WARNING]
+> [!NOTE]
 >
-> Once you set the contents of this variable, **DO NOT CHANGE IT!** This will
-> make it so you can no longer log into any existing accounts.
+> The auth_key variable doesn't need to be anything in particular. It is only
+> here as compatability for when it was used for authentication. It allows
+> legacy accounts to still be logged into and migrated to the new system.
 
 Next, you will need to create the database. To do so, run this command:
 ```bash

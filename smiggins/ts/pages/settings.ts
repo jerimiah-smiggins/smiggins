@@ -1,3 +1,4 @@
+// sets banner example on profile settings when updating inputs
 function updateBannerColors(): void {
   let bannerDisplayElement: el = document.getElementById("banner-example");
   let gradientCheckElement: Iel = document.getElementById("banner-gradient") as Iel;
@@ -223,7 +224,7 @@ function profileSettingsSetUserData(
 function setKeybindElementData(kbId: string, el: D): void {
   setKeybindStrings();
 
-  let kbData = keybinds[kbId];
+  let kbData: KeybindData = keybinds[kbId];
 
   let keyData: string = _kbGetKey(kbId);
   let key: string = keyData[0] + keyData.slice(1).split(":")[0];
@@ -288,7 +289,8 @@ function exportSettings(): void {
   let element: HTMLAnchorElement = document.createElement("a");
 
   element.setAttribute("href", "data:text/plain;charset=utf-8," + encodeURIComponent(JSON.stringify(settings)));
-  element.setAttribute("download", "smiggins.json");
+  element.setAttribute("download", `${pageTitle}.json`);
+  element.target = "_blank"
   element.style.display = "none";
 
   document.body.appendChild(element);
@@ -298,6 +300,7 @@ function exportSettings(): void {
   document.body.removeChild(element);
 }
 
+// handles simple on/off settings when importing
 function _lsBoolean(data: boolean, key: string): void {
   if (data) {
     localStorage.setItem(key, "1");
@@ -318,6 +321,7 @@ function importSettings(data: SettingsExport): void {
   localStorage.setItem("smiggins-pfp-shape", data.pfpShape || "round");
   localStorage.setItem("smiggins-theme", data.theme || "system");
   localStorage.setItem("smiggins-language", data.theme || DEFAULT_LANGUAGE);
+  swSetLanguage();
 
   _lsBoolean(data.homeTimeline.comments, "smiggins-home-comments");
   localStorage.setItem("smiggins-home", data.homeTimeline.default || "global");
@@ -338,6 +342,42 @@ function importSettings(data: SettingsExport): void {
   localStorage.setItem("smiggins-keybind-topOfTimeline",    data.keybinds.topOfTimeline    || _kbGetKey("topOfTimeline"));
 
   location.href = location.origin + location.pathname + location.search;
+}
+
+function disablePushNotifications(): void {
+  localStorage.removeItem("smiggins-push-notifs");
+  killServiceWorker();
+
+  document.getElementById("disable-push-notifs")?.setAttribute("hidden", "");
+  document.getElementById("enable-push-notifs")?.removeAttribute("hidden");
+}
+
+function enablePushNotifications(): void {
+  document.getElementById("enable-push-notifs")?.setAttribute("disabled", "");
+
+  if (Notification.permission === "granted") {
+    initServiceWorker();
+    document.getElementById("enable-push-notifs")?.removeAttribute("disabled");
+    document.getElementById("enable-push-notifs")?.setAttribute("hidden", "");
+    document.getElementById("disable-push-notifs")?.removeAttribute("hidden");
+    localStorage.setItem("smiggins-push-notifs", "1");
+    return;
+  }
+
+  askNotificationPermission()
+    .then((perms: NotificationPermission | void): void => {
+      document.getElementById("enable-push-notifs")?.removeAttribute("disabled");
+
+      if (perms === "granted") {
+        initServiceWorker();
+        localStorage.setItem("smiggins-push-notifs", "1");
+        document.getElementById("enable-push-notifs")?.setAttribute("hidden", "");
+        document.getElementById("disable-push-notifs")?.removeAttribute("hidden");
+      } else if (perms === "denied") {
+        document.getElementById("enable-push-notifs")?.setAttribute("hidden", "");
+        document.getElementById("push-notifs-blocked")?.removeAttribute("hidden");
+      }
+    });
 }
 
 function p_settingsProfile(element: D): void {
@@ -373,11 +413,42 @@ function p_settingsCosmetic(element: D): void {
       localStorage.setItem("smiggins-language", newLang);
       L = LANGS[newLang as languages];
       renderPage("settings/cosmetic");
+      swSetLanguage();
     }
-  })
+  });
 
   for (const el of element.querySelectorAll("#font-size-selection > div")) {
     el.addEventListener("click", setFontSize);
+  }
+
+  element.querySelector("#enable-push-notifs")?.addEventListener("click", enablePushNotifications);
+  element.querySelector("#disable-push-notifs")?.addEventListener("click", disablePushNotifications);
+
+  if (window.Notification) {
+    element.querySelector("#push-notifs-unavailable")?.setAttribute("hidden", "");
+    if (Notification.permission === "granted" && localStorage.getItem("smiggins-push-notifs")) {
+      element.querySelector("#disable-push-notifs")?.removeAttribute("hidden");
+    } else if (Notification.permission === "denied") {
+      element.querySelector("#push-notifs-blocked")?.removeAttribute("hidden");
+    } else {
+      element.querySelector("#enable-push-notifs")?.removeAttribute("hidden");
+    }
+  }
+
+  // show warning about pwas for push notifications for android/iOS
+  if (navigator.userAgent.toLowerCase().includes("android") || [
+    "iPad",   "iPad Simulator",
+    "iPhone", "iPhone Simulator",
+    "iPod",   "iPod Simulator"
+  ].includes(navigator.platform)) {
+    let el: el = element.querySelector("#pwa-warning");
+    if (el) {
+      el.innerHTML = lr(L.settings.cosmetic.pwa_warning, {
+        L: "<a href=\"https://developer.mozilla.org/en-US/docs/Web/Progressive_web_apps/Guides/Installing\" target=\"_blank\">",
+        l: "</a>",
+        s: pageTitle
+      });
+    }
   }
 }
 
@@ -417,6 +488,14 @@ function p_settingsIndex(element: D): void {
       reader.readAsText(file);
     }
   });
+
+  if ([ // detection for iOS mobile
+    "iPad",   "iPad Simulator",
+    "iPhone", "iPhone Simulator",
+    "iPod",   "iPod Simulator"
+  ].includes(navigator.platform)) {
+    element.querySelector("#export-ios-warning")?.removeAttribute("hidden");
+  }
 }
 
 document.body.dataset.fontSize = localStorage.getItem("smiggins-font-size") || "normal";

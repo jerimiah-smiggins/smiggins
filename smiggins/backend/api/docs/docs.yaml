@@ -528,7 +528,7 @@ GET /api/timeline/user/followers/{username}:
 GET /api/notifications:
   description: "Checks for unread notifications"
   id: 0x70
-  version: 0
+  version: 1
   response:
   - { type: bool7, name: "Unread notifications" }
   - { type: bool6, name: "Unread private messages" }

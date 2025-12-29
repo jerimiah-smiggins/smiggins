@@ -24,12 +24,6 @@
   </div>
 
   <div>
-    <p class="no-margin-top">@{lang.settings.cosmetic.section_timestamps}</p>
-    <label><input type="checkbox" id="complex-timestamps"> @{lang.settings.cosmetic.complex_ts}</label>
-    <small><div>@{lang.settings.cosmetic.complex_ts_more}</div></small>
-  </div>
-
-  <div>
     <p class="no-margin-top">@{lang.settings.cosmetic.section_language}</p>
     <label>
       <div>@{lang.settings.cosmetic.language}</div>
@@ -47,13 +41,28 @@
     </div>
   </div>
 
+  {% if logged_in %}
+    <div>
+      <p class="no-margin-top">@{lang.settings.cosmetic.section_notifications}</p>
+      <p><label><input type="checkbox" id="no-like-grouping"> @{lang.settings.cosmetic.no_like_grouping}</label></p>
+      <div>
+        <button hidden id="enable-push-notifs">@{lang.settings.cosmetic.push_enable}</button>
+        <button hidden id="disable-push-notifs">@{lang.settings.cosmetic.push_disable}</button>
+        <div hidden id="push-notifs-blocked">@{lang.settings.cosmetic.push_blocked}</div>
+        <div id="push-notifs-unavailable">@{lang.settings.cosmetic.push_unavailable}</div>
+      </div>
+      <small><div id="pwa-warning"></div></small>
+    </div>
+  {% endif %}
+
   <div>
     <p class="no-margin-top">@{lang.settings.cosmetic.section_posts}</p>
     <div><label><input type="checkbox" id="hide-interactions"> @{lang.settings.cosmetic.hide_interactions}</label></div>
     <div><label><input type="checkbox" id="expand-cws"> @{lang.settings.cosmetic.expand_cws}</label></div>
     <div><label><input type="checkbox" id="hide-changelog"> @{lang.settings.cosmetic.hide_changelog}</label></div>
+    <label><input type="checkbox" id="complex-timestamps"> @{lang.settings.cosmetic.complex_ts}</label>
+    <small><div>@{lang.settings.cosmetic.complex_ts_more}</div></small>
     {% if logged_in %}
-      <div><label><input type="checkbox" id="no-like-grouping"> @{lang.settings.cosmetic.no_like_grouping}</label></div>
       <div><label><input type="checkbox" id="auto-show"> @{lang.settings.cosmetic.auto_show_new}</label></div>
       <small><div>@{lang.settings.cosmetic.auto_show_new_more}</div></small>
     {% endif %}

@@ -222,21 +222,27 @@ settings:
       darker: Gris Oscuro
       oled: OLED
 
-    section_timestamps: Marcas de tiempo
-    complex_ts: Activa marcas de tiempo detallados
-    complex_ts_more: (1h → 1h32m, 5m → 5m48s)
-
     section_language: Idiomas
     language: "Idioma:"
 
     section_font_size: Tamaño de fuente
     font_size_example: Aa
 
+    section_notifications: Notificaciones
+    no_like_grouping: No agrupar notificaciones de likes
+    push_enable: Activar notificaciones emergentes
+    push_disable: Desactivar notificaciones emergentes
+    push_blocked: Había bloqueado las notificaciones emergentes.
+    push_unavailable: Las notificaciones emergentes no son disponibles en este navegador.
+    # %L - start guide link; %l - end guide link; %s - site name
+    pwa_warning: Es posible que %Lnecesite instalar %s como una aplicación web%l para que las notificaciones emergentes funcionen.
+
     section_posts: Publicaciones
     hide_interactions: Esconder interacciones en publicaciones
     expand_cws: Siempre abrir advertencias de contenido
     hide_changelog: Esconder registro de cambios
-    no_like_grouping: No agrupar notificaciones de likes
+    complex_ts: Activa marcas de tiempo detallados
+    complex_ts_more: (1h → 1h32m, 5m → 5m48s)
     auto_show_new: Mostrar publicaciones nuevas en la biografía automáticamente
     auto_show_new_more: Si no es activado, estaría un botón para mostrar publicaciones nuevas.
     banner_shape:
@@ -305,6 +311,7 @@ settings:
 
   import: Importar Ajustes...
   export: Exportar Ajustes...
+  export_ios_warning: Exportando los ajustes no podría funcionar en iOS.
   log_out: Cerrar sesión...
   log_in: Iniciar sesión...
 
@@ -360,6 +367,13 @@ notifications:
     3: "%a, %b, y %c dieron likes a tu publicación."
     4: "%a, %b, %c, y <b>%n otro</b> dieron likes a tu publicación."
     "*": "%a, %b, %c, y <b>%n otros</b> dieron likes a tu publicación."
+
+  follow:
+    1: "%a te empezó a seguir."
+    2: "%a y %b se empezaron a seguir."
+    3: "%a, %b, y %c se empezaron a seguir."
+    4: "%a, %b, %c, y <b>%n other</b> se empezaron a seguir."
+    "*": "%a, %b, %c, y <b>%n others</b> se empezaron a seguir."
 
 user:
   follow: Seguir
@@ -425,3 +439,18 @@ update:
   title: "¡%s había actualizado!"
   view_changes: Mirar a los Cambios
   dismiss: Descartar
+
+sw:
+  notifications:
+    followed: "%n (@%u) ahora te sigue."
+    folreq: "%n (@%u) te quiere seguir."
+    comment: "%n (@%u): %c"
+    quote: "%n (@%u): %c"
+    ping: "%n (@%u): %c"
+    message:
+      0: "%n (@u) te envió un mensaje."
+      1: "%n (@u) les envió un mensaje a ti y %c otro."
+      "*": "%n (@u) les envió un mensaje a ti y %c otros."
+
+    no_content_title: Notificación
+    no_content_body: No hay contexto para esta notificación.

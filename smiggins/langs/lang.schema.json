@@ -702,15 +702,6 @@
                 }
               }
             },
-            "section_timestamps": {
-              "type": "string"
-            },
-            "complex_ts": {
-              "type": "string"
-            },
-            "complex_ts_more": {
-              "type": "string"
-            },
             "section_language": {
               "type": "string"
             },
@@ -721,6 +712,27 @@
               "type": "string"
             },
             "font_size_example": {
+              "type": "string"
+            },
+            "section_notifications": {
+              "type": "string"
+            },
+            "no_like_grouping": {
+              "type": "string"
+            },
+            "push_enable": {
+              "type": "string"
+            },
+            "push_disable": {
+              "type": "string"
+            },
+            "push_blocked": {
+              "type": "string"
+            },
+            "push_unavailable": {
+              "type": "string"
+            },
+            "pwa_warning": {
               "type": "string"
             },
             "section_posts": {
@@ -735,7 +747,10 @@
             "hide_changelog": {
               "type": "string"
             },
-            "no_like_grouping": {
+            "complex_ts": {
+              "type": "string"
+            },
+            "complex_ts_more": {
               "type": "string"
             },
             "auto_show_new": {
@@ -924,6 +939,9 @@
           "type": "string"
         },
         "export": {
+          "type": "string"
+        },
+        "export_ios_warning": {
           "type": "string"
         },
         "log_out": {
@@ -1267,6 +1285,51 @@
         },
         "dismiss": {
           "type": "string"
+        }
+      }
+    },
+    "sw": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "notifications": {
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {
+            "followed": {
+              "type": "string"
+            },
+            "folreq": {
+              "type": "string"
+            },
+            "comment": {
+              "type": "string"
+            },
+            "quote": {
+              "type": "string"
+            },
+            "ping": {
+              "type": "string"
+            },
+            "message": {
+              "type": "object",
+              "additionalProperties": false,
+              "required": [
+                "*"
+              ],
+              "patternProperties": {
+                "\\*|\\d+": {
+                  "type": "string"
+                }
+              }
+            },
+            "no_content_title": {
+              "type": "string"
+            },
+            "no_content_body": {
+              "type": "string"
+            }
+          }
         }
       }
     }
