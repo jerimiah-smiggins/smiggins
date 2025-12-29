@@ -69,6 +69,12 @@ async function handleNotification(data: PushMessageData | null): Promise<void> {
       });
       break;
     }
+
+    default: {
+      console.log("[SW] unknown notification type", type);
+      body = L.notifications.no_content_body;
+      break;
+    }
   }
 
   sw_self.registration.showNotification(siteName, {

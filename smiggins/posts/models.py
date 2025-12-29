@@ -232,7 +232,7 @@ class PushNotification(models.Model):
     @staticmethod
     def send_to(
         user: User,
-        event: Literal["comment", "quote", "ping", "follow", "follow_request"] | str,
+        event: Literal["comment", "quote", "ping", "follow", "follow_request", "message"],
         context: User | Post | MessageGroup
     ):
         for obj in PushNotification.objects.filter(user=user):
@@ -240,7 +240,7 @@ class PushNotification(models.Model):
 
     def send(
         self,
-        event: Literal["comment", "quote", "ping", "follow", "follow_request"] | str,
+        event: Literal["comment", "quote", "ping", "follow", "follow_request", "message"],
         context: User | Post | MessageGroup
     ):
         if not VAPID:
@@ -260,7 +260,7 @@ class PushNotification(models.Model):
                 "content": context.content[:100] + ("..." if len(context.content) > 100 else "")
             }
         else:
-            action = f"m{context.group_id}"
+            action = f"m{context.id}"
             sender = context.messages.order_by("-pk").prefetch_related("user")[0].user
             data = {
                 "username": sender.username,
@@ -405,4 +405,8 @@ def send_push_notification(sender, instance: Notification, **kwargs):
         if not context:
             return
 
-        PushNotification.send_to(instance.is_for, instance.event_type, context)
+        PushNotification.send_to(
+            instance.is_for,
+            instance.event_type, # type: ignore
+            context
+        )

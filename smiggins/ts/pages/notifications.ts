@@ -94,6 +94,11 @@ function renderNotificationTimeline(
   moreElementOverride?: el,
   prepend: boolean=false
 ): void {
+  if ("notifications" !== currentTlID) {
+    console.log("timeline switched, discarding request");
+    return;
+  }
+
   clearTimelineStatuses();
 
   if (offset.lower === null && notifs.length === 0) {
@@ -222,7 +227,7 @@ function handleNotificationForward(
 ): void {
   tlPollingPendingResponse = false;
 
-  if (expectedTlID !== currentTlID) {
+  if ("notifications" !== currentTlID) {
     console.log("timeline switched, discarding request");
     return;
   }
