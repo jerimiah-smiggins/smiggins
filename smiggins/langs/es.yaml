@@ -234,6 +234,8 @@ settings:
     push_disable: Desactivar notificaciones emergentes
     push_blocked: Había bloqueado las notificaciones emergentes.
     push_unavailable: Las notificaciones emergentes no son disponibles en este navegador.
+    # %L - start guide link; %l - end guide link; %s - site name
+    pwa_warning: Es posible que %Lnecesite instalar %s como una aplicación web%l para que las notificaciones emergentes funcionen.
 
     section_posts: Publicaciones
     hide_interactions: Esconder interacciones en publicaciones
