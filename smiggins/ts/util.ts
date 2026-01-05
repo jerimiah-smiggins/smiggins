@@ -157,7 +157,7 @@ function getTimestamp(timestamp: number, raw: boolean=false): string {
       y: String(Math.floor(difference / 60 / 60) % 24)
     });
   } else if (!isNaN(timestamp)) {
-    output = lr(L.numbers[complexTimestamps ? "day_hour" : "day"], {
+    output = lr(L.numbers[complexTimestamps ? "year_day" : "year"], {
       x: String(Math.floor(difference / 60 / 60 / 24 / 365)),
       y: String(Math.floor(difference / 60 / 60 / 24) % 365)
     });
