@@ -1,9 +1,5 @@
-// on notification event on main, update badge
-// if closed, update badge every n minutes (15m? 1h?)
-// update badge on push notification
-
 const CAN_USE_BADGES: boolean = "clearAppBadge" in navigator && "setAppBadge" in navigator;
-const BADGE_INTERVAL: number = 60 * 60 * 1000; // 1h
+const BADGE_INTERVAL: number = 15 * 60 * 1000; // 15m
 let badgeIntervalID: number | undefined = undefined;
 
 function fetchBadge(): void {
@@ -20,6 +16,7 @@ function fetchBadge(): void {
 }
 
 function updateBadge(count: number): void {
+  console.log(count);
   if (!CAN_USE_BADGES) { return; }
 
   if (count <= 0) {

@@ -127,5 +127,12 @@ const changes: { [key: string]: VersionData } = {
     changes: [
       "There is now an option to recieve push notifications on supported browsers."
     ]
+  },
+  "1.4.5": {
+    description: "Bug Fixes",
+    changes: [
+      "Fixed a bug that caused timestamps from >= 1 year ago to not show properly.",
+      "Fixed a bug where the username on push notifications from being sent a message wasn't being set."
+    ]
   }
 };

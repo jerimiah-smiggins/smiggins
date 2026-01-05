@@ -24,7 +24,7 @@ function swRegHandler(registration: ServiceWorkerRegistration): void {
       const publicKey: string = await response.text();
 
       return registration.pushManager.subscribe({
-        userVisibleOnly: true,
+        // userVisibleOnly: true,
         applicationServerKey: publicKey
       });
     })

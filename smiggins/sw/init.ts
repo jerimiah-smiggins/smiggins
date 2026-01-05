@@ -12,26 +12,28 @@ async function handleNotification(data: PushMessageData | null): Promise<void> {
     console.log("[SW] recieved message but can't show notif");
   }
 
-  resetBadgeInterval();
-  fetchBadge();
 
   // expected format:
-  // site_name;type;click_event;data
+  // site_name;badges;type;click_event;data
   // type: follow, follow-request, comment, quote, ping, message
   // event: "", "p[pid]", "u[username]", "m[gid]"
   let content: string[] = data?.text().split(";") || [L.notifications.no_content_title, "none", "", L.notifications.no_content_body];
 
   let siteName: string = content[0];
-  let type: NotificationEventType = content[1] as NotificationEventType;
-  let event: string = content[2];
+  let badges: number = Number(content[1])
+  let type: NotificationEventType = content[2] as NotificationEventType;
+  let event: string = content[3];
   let additionalData: {
     display_name: string,
     username: string,
     content: string,
     users: number
-  } = JSON.parse(content.slice(3).join(";"));
+  } = JSON.parse(content.slice(4).join(";"));
 
   let body: string = String(additionalData);
+
+  resetBadgeInterval();
+  updateBadge(badges);
 
   switch (type) {
     case "comment":
