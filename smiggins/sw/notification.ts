@@ -1,0 +1,115 @@
+async function canUseNotifications(): Promise<boolean> {
+  const perms: PermissionStatus = await navigator.permissions.query({
+    name: "notifications"
+  });
+  return (perms.state === "granted");
+}
+
+async function handleNotification(data: PushMessageData | null): Promise<void> {
+  if (!canUseNotifications()) {
+    console.log("[SW] recieved message but can't show notif");
+  }
+
+  // expected format:
+  // site_name;badges;type;click_event;data
+  // type: follow, follow-request, comment, quote, ping, message, none
+  // event: "", "p[pid]", "u[username]", "m[gid]"
+  let content: string[] = data?.text().split(";") || [L.notifications.no_content_title, "none", "", L.notifications.no_content_body];
+
+  let siteName: string = content[0];
+  let badges: number = Number(content[1])
+  let type: NotificationEventType = content[2] as NotificationEventType;
+  let event: string = content[3];
+  let additionalData: {
+    display_name: string,
+    username: string,
+    content: string,
+    users: number
+  } = JSON.parse(content.slice(4).join(";"));
+
+  let body: string = String(additionalData);
+
+  resetBadgeInterval();
+  updateBadge(badges);
+
+  switch (type) {
+    case "comment":
+    case "quote":
+    case "ping": {
+      body = lr(L.notifications[type], {
+        n: additionalData.display_name,
+        u: additionalData.username,
+        c: additionalData.content.replaceAll("\n", "")
+      });
+      break;
+    }
+
+    case "follow": {
+      body = lr(L.notifications.followed, {
+        n: additionalData.display_name,
+        u: additionalData.username
+      });
+      break;
+    }
+
+    case "follow_request": {
+      body = lr(L.notifications.folreq, {
+        n: additionalData.display_name,
+        u: additionalData.username
+      });
+      break;
+    }
+
+    case "message": {
+      body = lr(n(L.notifications.message, additionalData.users - 2), {
+        n: additionalData.display_name,
+        u: additionalData.username,
+        c: String(additionalData.users - 2)
+      });
+      break;
+    }
+
+    case "none": {
+      return;
+    }
+
+    default: {
+      console.log("[SW] unknown notification type", type);
+      body = L.notifications.no_content_body;
+      break;
+    }
+  }
+
+  sw_self.registration.showNotification(siteName, {
+    body: body,
+    data: `${type};${event}`,
+    icon: location.origin + "/favicon.ico"
+  });
+}
+
+async function clearAllNotifications(): Promise<void> {
+  let notifs: Notification[] = await sw_self.registration.getNotifications();
+
+  for (const notif of notifs) {
+    notif.close();
+  }
+}
+
+sw_self.addEventListener("notificationclick", function(e: NotificationEvent): void {
+  if (typeof e.notification.data === "string") {
+    switch (e.notification.data[0]) {
+      case "p": {
+        sw_self.clients.openWindow(`/p/${e.notification.data.slice(1)}/`);
+        break;
+      }
+      case "u": {
+        sw_self.clients.openWindow(`/u/${e.notification.data.slice(1)}/`);
+        break;
+      }
+      case "m": {
+        sw_self.clients.openWindow(`/message/${e.notification.data.slice(1)}/`);
+        break;
+      }
+    }
+  }
+});

@@ -245,21 +245,22 @@ class PushNotification(models.Model):
     @staticmethod
     def send_to(
         user: User,
-        event: Literal["comment", "quote", "ping", "follow", "follow_request", "message"],
-        context: User | Post | MessageGroup
+        event: Literal["comment", "quote", "ping", "follow", "follow_request", "message", "none"],
+        context: User | Post | MessageGroup | None
     ):
+        notif_count = user.get_notif_count()["count"]
         for obj in PushNotification.objects.filter(user=user):
             obj.send(
                 event,
-                user.get_notif_count()["count"],
+                notif_count,
                 context
             )
 
     def send(
         self,
-        event: Literal["comment", "quote", "ping", "follow", "follow_request", "message"],
+        event: Literal["comment", "quote", "ping", "follow", "follow_request", "message", "message", "none"],
         notif_count: int,
-        context: User | Post | MessageGroup
+        context: User | Post | MessageGroup | None
     ):
         if not VAPID:
             return
@@ -277,7 +278,7 @@ class PushNotification(models.Model):
                 "display_name": context.creator.display_name,
                 "content": context.content[:100] + ("..." if len(context.content) > 100 else "")
             }
-        else:
+        elif isinstance(context, MessageGroup):
             action = f"m{context.id}"
             sender = context.messages.order_by("-pk").prefetch_related("user")[0].user
             data = {
@@ -285,6 +286,9 @@ class PushNotification(models.Model):
                 "display_name": sender.display_name,
                 "users": context.members.count()
             }
+        else:
+            action = ""
+            data = {}
 
         threading.Thread(target=PushNotification.webpush_safe, kwargs={
             "obj": self,

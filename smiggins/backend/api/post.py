@@ -4,7 +4,7 @@ from django.db.utils import IntegrityError
 from django.http import HttpResponse
 from posts.middleware.ratelimit import s_HttpRequest as HttpRequest
 from posts.models import (Hashtag, M2MHashtagPost, M2MLike, Notification, Poll,
-                          PollChoice, PollVote, Post, User)
+                          PollChoice, PollVote, Post, PushNotification, User)
 
 from ..helper import find_hashtags, find_mentions, trim_whitespace
 from ..variables import (MAX_CONTENT_WARNING_LENGTH, MAX_POLL_OPTION_LENGTH,
@@ -224,6 +224,8 @@ def add_like(request: HttpRequest, post_id: int) -> HttpResponse:
                 )
             except M2MLike.DoesNotExist:
                 ...
+
+    PushNotification.send_to(creator, "none", None)
 
     return api.response()
 
