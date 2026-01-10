@@ -448,9 +448,9 @@ sw:
     quote: "%n (@%u): %c"
     ping: "%n (@%u): %c"
     message:
-      0: "%n (@u) te envió un mensaje."
-      1: "%n (@u) les envió un mensaje a ti y %c otro."
-      "*": "%n (@u) les envió un mensaje a ti y %c otros."
+      0: "%n (@%u) te envió un mensaje."
+      1: "%n (@%u) les envió un mensaje a ti y %c otro."
+      "*": "%n (@%u) les envió un mensaje a ti y %c otros."
 
     no_content_title: Notificación
     no_content_body: No hay contexto para esta notificación.

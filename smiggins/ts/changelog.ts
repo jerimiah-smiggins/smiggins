@@ -127,5 +127,15 @@ const changes: { [key: string]: VersionData } = {
     changes: [
       "There is now an option to recieve push notifications on supported browsers."
     ]
+  },
+  "1.4.5": {
+    description: "Bug Fixes",
+    changes: [
+      "Fixed a bug that caused timestamps from >= 1 year ago to not show properly.",
+      "Fixed a bug where the username on push notifications from being sent a message wasn't being set.",
+      "Fixed a bug where the content of private posts was visible to people who shouldn't see them in very specific circumstances.",
+      "Push notifications that show post content (ex. mention, quote, comment) now use the content warning if one is specified",
+      "You can no longer add extra leading/trailing whitespace when editing a post."
+    ]
   }
 };

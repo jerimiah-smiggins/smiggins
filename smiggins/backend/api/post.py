@@ -4,7 +4,7 @@ from django.db.utils import IntegrityError
 from django.http import HttpResponse
 from posts.middleware.ratelimit import s_HttpRequest as HttpRequest
 from posts.models import (Hashtag, M2MHashtagPost, M2MLike, Notification, Poll,
-                          PollChoice, PollVote, Post, User)
+                          PollChoice, PollVote, Post, PushNotification, User)
 
 from ..helper import find_hashtags, find_mentions, trim_whitespace
 from ..variables import (MAX_CONTENT_WARNING_LENGTH, MAX_POLL_OPTION_LENGTH,
@@ -155,15 +155,18 @@ def post_edit(request: HttpRequest) -> HttpResponse:
     data = api.parse_data()
 
     try:
-        post = Post.objects.get(post_id=data["post_id"])
+        post = Post.objects.filter(creator=request.s_user).get(post_id=data["post_id"])
     except Post.DoesNotExist:
         return api.error(ErrorCodes.POST_NOT_FOUND)
 
-    if request.s_user != post.creator:
+    content = trim_whitespace(data["content"])
+    cw = trim_whitespace(data["cw"] or "", True)
+
+    if len(cw[0]) > MAX_CONTENT_WARNING_LENGTH or len(content[0]) > MAX_POST_LENGTH or not content[1]:
         return api.error(ErrorCodes.BAD_REQUEST)
 
-    post.content = data["content"]
-    post.content_warning = data["cw"]
+    post.content = content[0]
+    post.content_warning = cw[0]
     post.private = data["private"]
     post.edited = True
     post.edited_at = round(time.time())
@@ -224,6 +227,8 @@ def add_like(request: HttpRequest, post_id: int) -> HttpResponse:
                 )
             except M2MLike.DoesNotExist:
                 ...
+
+    PushNotification.send_to(creator, "none", None)
 
     return api.response()
 

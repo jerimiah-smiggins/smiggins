@@ -24,7 +24,7 @@ function swRegHandler(registration: ServiceWorkerRegistration): void {
       const publicKey: string = await response.text();
 
       return registration.pushManager.subscribe({
-        userVisibleOnly: true,
+        // userVisibleOnly: true,
         applicationServerKey: publicKey
       });
     })
@@ -60,6 +60,7 @@ function initServiceWorker(): void {
   console.log("[SW] attempting to init");
   navigator.serviceWorker.ready.then(swRegHandler);
   swSetLanguage();
+  swClearNotifs();
 }
 
 function killServiceWorker(): void {
@@ -94,6 +95,10 @@ function swSetLanguage(): void {
 
 function swUpdateBadge(count: number): void {
   _swPostMessage("b" + String(count));
+}
+
+function swClearNotifs(): void {
+  _swPostMessage("c");
 }
 
 initServiceWorker();

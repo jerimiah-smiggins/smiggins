@@ -447,9 +447,9 @@ sw:
     quote: "%n (@%u): %c"
     ping: "%n (@%u): %c"
     message:
-      0: "%n (@u) messaged you"
-      1: "%n (@u) messaged you and %c other"
-      "*": "%n (@u) messaged you and %c others"
+      0: "%n (@%u) messaged you"
+      1: "%n (@%u) messaged you and %c other"
+      "*": "%n (@%u) messaged you and %c others"
 
     no_content_title: Notification
     no_content_body: No notification context was given.

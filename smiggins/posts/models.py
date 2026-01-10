@@ -64,6 +64,19 @@ class User(models.Model):
         pending_following: models.Manager["User"]
         messages: models.Manager["Message"]
 
+    def get_notif_count(self):
+        notification_count = self.notifications.filter(read=False).count()
+        message_count = M2MMessageMember.objects.filter(user=self, unread=True).count()
+        folreq_count = self.pending_followers.count()
+
+        return {
+            "notifications": bool(notification_count),
+            "messages": bool(message_count),
+            "follow_requests": bool(folreq_count),
+            "count": min(100, notification_count + message_count + folreq_count)
+        }
+
+
     def __str__(self):
         return f"({self.user_id}) @{self.username}"
 
@@ -232,16 +245,22 @@ class PushNotification(models.Model):
     @staticmethod
     def send_to(
         user: User,
-        event: Literal["comment", "quote", "ping", "follow", "follow_request", "message"],
-        context: User | Post | MessageGroup
+        event: Literal["comment", "quote", "ping", "follow", "follow_request", "message", "none"],
+        context: User | Post | MessageGroup | None
     ):
+        notif_count = user.get_notif_count()["count"]
         for obj in PushNotification.objects.filter(user=user):
-            obj.send(event, context)
+            obj.send(
+                event,
+                notif_count,
+                context
+            )
 
     def send(
         self,
-        event: Literal["comment", "quote", "ping", "follow", "follow_request", "message"],
-        context: User | Post | MessageGroup
+        event: Literal["comment", "quote", "ping", "follow", "follow_request", "message", "message", "none"],
+        notif_count: int,
+        context: User | Post | MessageGroup | None
     ):
         if not VAPID:
             return
@@ -257,9 +276,9 @@ class PushNotification(models.Model):
             data = {
                 "username": context.creator.username,
                 "display_name": context.creator.display_name,
-                "content": context.content[:100] + ("..." if len(context.content) > 100 else "")
+                "content": (context.content_warning or context.content)[:100] + ("..." if len((context.content_warning or context.content)) > 100 else "")
             }
-        else:
+        elif isinstance(context, MessageGroup):
             action = f"m{context.id}"
             sender = context.messages.order_by("-pk").prefetch_related("user")[0].user
             data = {
@@ -267,11 +286,14 @@ class PushNotification(models.Model):
                 "display_name": sender.display_name,
                 "users": context.members.count()
             }
+        else:
+            action = ""
+            data = {}
 
         threading.Thread(target=PushNotification.webpush_safe, kwargs={
             "obj": self,
             "subscription_info": self.to_json(),
-            "data": f"{SITE_NAME};{event};{action};{json.dumps(data)}",
+            "data": f"{SITE_NAME};{notif_count};{event};{action};{json.dumps(data)}",
             "vapid_private_key": VAPID["private"],
             "vapid_claims": {
                 "sub": f"mailto:{VAPID['email']}",
