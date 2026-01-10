@@ -276,7 +276,7 @@ class PushNotification(models.Model):
             data = {
                 "username": context.creator.username,
                 "display_name": context.creator.display_name,
-                "content": context.content[:100] + ("..." if len(context.content) > 100 else "")
+                "content": (context.content_warning or context.content)[:100] + ("..." if len((context.content_warning or context.content)) > 100 else "")
             }
         elif isinstance(context, MessageGroup):
             action = f"m{context.id}"
