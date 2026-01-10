@@ -251,8 +251,8 @@ function postModalCreatePost(e: Event): void {
           clearModal();
 
           if (p) {
-            p.content = content;
-            p.content_warning = cw;
+            p.content = content.trim();
+            p.content_warning = cw.trim();
             p.private = privatePost
             p.edited = true;
 

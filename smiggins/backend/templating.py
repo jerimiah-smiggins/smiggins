@@ -63,7 +63,7 @@ def webapp(request: HttpRequest) -> HttpResponse:
         embed_pid = url.split("/")[2].lower()
         try:
             embed_post = Post.objects.filter(private=False).get(post_id=embed_pid)
-        except User.DoesNotExist:
+        except Post.DoesNotExist:
             embed_data["title"] = f"{SITE_NAME}"
             embed_data["description"] = "This post doesn't exist."
         else:
