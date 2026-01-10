@@ -698,11 +698,14 @@ class api_TimelineUser(_api_TimelineBase):
         if not isinstance(flags, int):
             return
 
+        pinned_post = user.pinned
+        can_view_pinned: bool = pinned_post is not None and (self_user is not None and not pinned_post.creator.blocking.contains(self_user) and not self_user.blocking.contains(pinned_post.creator)) and (not pinned_post.private or pinned_post.creator.followers.contains(user))
+
         flags |= (self_user is not None and self_user.following.contains(user)) << 5 \
                | (self_user is not None and self_user.blocking.contains(user)) << 4 \
                | (self_user is not None and user.pending_followers.contains(self_user)) << 3 \
-               | (user.pinned is not None) << 2
-        self.response_data = user_data + b(flags) + (_post_to_bytes(user.pinned, self_user) if user.pinned else b"") + self.response_data[1:]
+               | (can_view_pinned) << 2
+        self.response_data = user_data + b(flags) + (_post_to_bytes(pinned_post, self_user) if pinned_post and can_view_pinned else b"") + self.response_data[1:]
 
 class api_TimelineComments(_api_TimelineBase):
     response_code = ResponseCodes.TIMELINE_COMMENTS
