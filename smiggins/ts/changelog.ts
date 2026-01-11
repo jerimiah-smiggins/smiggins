@@ -137,5 +137,12 @@ const changes: { [key: string]: VersionData } = {
       "Push notifications that show post content (ex. mention, quote, comment) now use the content warning if one is specified",
       "You can no longer add extra leading/trailing whitespace when editing a post."
     ]
+  },
+  "1.4.6": {
+    description: "Bug Fixes Part 2",
+    changes: [
+      "Notifications should get cleared when opening a window.",
+      "Like notifications no longer show a push notification, instead just updating the badge count."
+    ]
   }
 };

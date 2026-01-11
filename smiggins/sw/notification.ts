@@ -32,6 +32,10 @@ async function handleNotification(data: PushMessageData | null): Promise<void> {
   resetBadgeInterval();
   updateBadge(badges);
 
+  if (type === "none") {
+    return;
+  }
+
   switch (type) {
     case "comment":
     case "quote":
@@ -69,10 +73,6 @@ async function handleNotification(data: PushMessageData | null): Promise<void> {
       break;
     }
 
-    case "none": {
-      return;
-    }
-
     default: {
       console.log("[SW] unknown notification type", type);
       body = L.notifications.no_content_body;
@@ -89,6 +89,7 @@ async function handleNotification(data: PushMessageData | null): Promise<void> {
 
 async function clearAllNotifications(): Promise<void> {
   let notifs: Notification[] = await sw_self.registration.getNotifications();
+  console.log("[SW] clearing notifications");
 
   for (const notif of notifs) {
     notif.close();
