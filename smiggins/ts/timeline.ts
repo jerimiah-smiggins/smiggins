@@ -388,13 +388,16 @@ function getPost(
       quote_pid: String(p.quote.id),
       quote_comment_id: String(p.quote.comment),
 
+      // contains quote/poll text
+      quote_extra: (p.quote.has_poll ? `<a data-internal-link="post" href="/p/${p.quote.id}/" class="plain-link"><i>${L.post.quote.has_poll}</i></a>` : "") + (p.quote.has_quote ? (p.quote.has_poll ? "<br>" : "") + `<a data-internal-link="post" href="/p/${p.quote.id}/" class="plain-link"><i>${L.post.quote.has_quote}</i></a>` : ""),
+
       hidden_if_no_quote_pronouns: p.quote.user.pronouns ? "" : "hidden",
       hidden_if_no_quote_comment: p.quote.comment ? "" : "hidden",
       hidden_if_no_quote_edit: p.quote.edited ? "" : "hidden"
     };
 
     quoteUnsafeData = {
-      quote_content: [quoteContent + (p.quote.has_poll ? (p.quote.content ? "\n" : "") + `<a data-internal-link="post" href="/p/${p.quote.id}/" class="plain-link"><i>${L.post.quote.has_poll}</i></a>` : "") + (p.quote.has_quote ? (p.quote.content || p.quote.has_poll ? "\n" : "") + `<a data-internal-link="post" href="/p/${p.quote.id}/" class="plain-link"><i>${L.post.quote.has_quote}</i></a>` : ""), 1],
+      quote_content: [quoteContent, 1],
       quote_cw_start: [quoteCwStart, 1],
       quote_pronouns: [p.quote.user.pronouns || "", 1],
       quote_display_name: [escapeHTML(p.quote.user.display_name), 1]
