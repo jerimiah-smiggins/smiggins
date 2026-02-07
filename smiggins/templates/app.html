@@ -100,7 +100,7 @@
       {% include "snippet.html" with id="pages/message" vars="username" processing="message,timeline_more" %}
 
       <!-- modals -->
-      {% include "snippet.html" with id="modal/compose" processing="input_enter" %}
+      {% include "snippet.html" with id="modal/compose" vars="checked_if_default_private" processing="input_enter" %}
       {% include "snippet.html" with id="modal/keybind" %}
       {% include "snippet.html" with id="modal/update" %}
       {% include "snippet.html" with id="modal/message" processing="input_enter" %}
