@@ -141,8 +141,16 @@ const changes: { [key: string]: VersionData } = {
   "1.4.6": {
     description: "Bug Fixes Part 2",
     changes: [
-      "Notifications should get cleared when opening a window.",
+      "Notifications now get cleared when opening a window.",
       "Like notifications no longer show a push notification, instead just updating the badge count."
+    ]
+  },
+  "1.4.7": {
+    description: "Bug Fixes Part 3",
+    changes: [
+      "The default post visibility setting is now respected on compose modals.",
+      "Push notifications should work again on all supported browsers (broken in 1.4.6).",
+      "The text indicating a quote includes another quote or a poll no longer gets cut off on long quotes."
     ]
   }
 };
