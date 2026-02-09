@@ -173,7 +173,7 @@ function modifyKeybindModal(kbId: string): void {
 
       clearModal();
     } else {
-      createToast("Key already in use");
+      createToast("Key already in use", undefined, undefined, "warning");
     }
 
     e.preventDefault();

@@ -122,6 +122,12 @@
       let currentPage = urlToIntent(location.pathname);
       history.replaceState(currentPage, "", normalizePath(location.pathname + location.search, true));
       renderPage(currentPage);
+
+      if (!localStorage.getItem("smiggins-hide-load-toasts")) {
+        {% for toast in toasts %}
+          createToast("{{ toast.title }}", "{{ toast.content }}", 8_000, "{{ toast.type }}");
+        {% endfor %}
+      }
     </script>
   </body>
 </html>

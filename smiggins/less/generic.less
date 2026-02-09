@@ -1,98 +1,108 @@
+@themes: {
+  @dark: {
+    @background: #190b14;
+    @background-mid: #2e1425;
+    @background-bright: #3c1a30;
+    @background-very-bright: #5e2a4e;
+    @text: #c5b8ca;
+    @subtext: #c5a8ca80;
+    @accent: #d8a4c6;
+    @red: #d67677;
+    @yellow: #d3d381;
+  };
+
+  @light: {
+    @background: #f4e6ef;
+    @background-mid: #ebd1e2;
+    @background-bright: #e5c2d9;
+    @background-very-bright: #d4a0c5;
+    @text: #413446;
+    @subtext: #41344680;
+    @accent: #592647;
+    @red: #89292b;
+    @yellow: #7c6a1d;
+  };
+
+  @warm: {
+    @background: #faf4ed;
+    @background-mid: #f4ede8;
+    @background-bright: #f2e9e1;
+    @background-very-bright: #e3dad2;
+    @text: #575279;
+    @subtext: #57527980;
+    @accent: #d8707e;
+    @red: #a03660;
+    @yellow: #ca8627;
+  };
+
+  @gray: {
+    @background: #303446;
+    @background-mid: #414559;
+    @background-bright: #292c3c;
+    @background-very-bright: #232634;
+    @text: #c6d0f6;
+    @subtext: #c6d0f680;
+    @accent: #f4b8e4;
+    @red: #e78284;
+    @yellow: #e5c890;
+  };
+
+  @darker: {
+    @background: #1e1e2e;
+    @background-mid: #313244;
+    @background-bright: #181825;
+    @background-very-bright: #11111b;
+    @text: #cdd6f4;
+    @subtext: #cdd6f480;
+    @accent: #f5c2e7;
+    @red: #f38ba8;
+    @yellow: #f9e2af;
+  };
+
+  @oled: {
+    @background: #000000;
+    @background-mid: #313244;
+    @background-bright: #11111b;
+    @background-very-bright: #222230;
+    @text: #cdd6f4;
+    @subtext: #cdd6f480;
+    @accent: #f5c2e7;
+    @red: #f38ba8;
+    @yellow: #f9e2af;
+  };
+};
+
+.rgbify(@color) {
+  @rgb: red(@color) green(@color) blue(@color);
+}
+
+.gen-theme-vars(@theme) {
+  --background: @theme[@background];
+  --background-mid: @theme[@background-mid];
+  --background-bright: @theme[@background-bright];
+  --background-very-bright: @theme[@background-very-bright];
+  --text: @theme[@text];
+  --subtext: @theme[@subtext];
+  --accent: @theme[@accent];
+  --red: @theme[@red];
+  --yellow: @theme[@yellow];
+
+  --background-rgb: .rgbify(@theme[@background])[];
+  --accent-rgb: .rgbify(@theme[@accent])[];
+  --red-rgb: .rgbify(@theme[@red])[];
+  --yellow-rgb: .rgbify(@theme[@yellow])[];
+}
+
 html {
-  --background: #190b14;
-  --background-mid: #2e1425;
-  --background-bright: #3c1a30;
-  --background-very-bright: #5e2a4e;
-  --text: #c5b8ca;
-  --subtext: #c5a8ca80;
-  --accent: #d8a4c6;
-  --red: #d67677;
-  --yellow: #d3d381;
+  .gen-theme-vars(@themes[@dark]);
   --modal-background: #00000070;
-
-  --background-rgb: 25 11 20;
-  --accent-rgb: 216 164 198;
-
   --border-color: var(--background-bright);
 
-  &[data-theme="light"] {
-    --background: #f4e6ef;
-    --background-mid: #ebd1e2;
-    --background-bright: #e5c2d9;
-    --background-very-bright: #d4a0c5;
-    --text: #413446;
-    --subtext: #41344680;
-    --accent: #592647;
-    --red: #89292b;
-    --yellow: #d3d381;
-
-    --background-rgb: 244 230 239;
-    --accent-rgb: 89 38 71;
-  }
-
-  &[data-theme="warm"] {
-    --background: #faf4ed;
-    --background-mid: #f4ede8;
-    --background-bright: #f2e9e1;
-    --background-very-bright: #e3dad2;
-    --text: #575279;
-    --subtext: #57527980;
-    --accent: #d8707e;
-    --red: #a03660;
-    --yellow: #ea9d34;
-
-    --background-rgb: 250 244 237;
-    --accent-rgb: 216 112 126;
-  }
-
-  &[data-theme="gray"] {
-    --background: #303446;
-    --background-mid: #414559;
-    --background-bright: #292c3c;
-    --background-very-bright: #232634;
-    --text: #c6d0f6;
-    --subtext: #c6d0f680;
-    --accent: #f4b8e4;
-    --red: #e78284;
-    --yellow: #e5c890;
-
-    --background-rgb: 48 52 70;
-    --accent-rgb: 244 184 228;
-  }
-
-  &[data-theme="darker"] {
-    --background: #1e1e2e;
-    --background-mid: #313244;
-    --background-bright: #181825;
-    --background-very-bright: #11111b;
-    --text: #cdd6f4;
-    --subtext: #cdd6f480;
-    --accent: #f5c2e7;
-    --red: #f38ba8;
-    --yellow: #f9e2af;
-
-    --border-color: var(--background-mid);
-
-    --background-rgb: 0 0 0;
-    --accent-rgb: 245 194 231;
-  }
-
-  &[data-theme="oled"] {
-    --background: #000000;
-    --background-mid: #313244;
-    --background-bright: #11111b;
-    --background-very-bright: #222230;
-    --text: #cdd6f4;
-    --subtext: #cdd6f480;
-    --accent: #f5c2e7;
-    --red: #f38ba8;
-    --yellow: #f9e2af;
-
-    --border-color: var(--background-mid);
-
-    --background-rgb: 0 0 0;
-    --accent-rgb: 245 194 231;
-  }
+  &[data-theme="light"]  { .gen-theme-vars(@themes[@light]);  }
+  &[data-theme="warm"]   { .gen-theme-vars(@themes[@warm]);   }
+  &[data-theme="gray"]   { .gen-theme-vars(@themes[@gray]);   }
+  &[data-theme="darker"] { .gen-theme-vars(@themes[@darker]); }
+  &[data-theme="oled"]   { .gen-theme-vars(@themes[@oled]);   }
 }
 
 body {
@@ -307,23 +317,61 @@ button {
   flex-direction: column-reverse;
   flex-wrap: nowrap;
   align-items: center;
+  text-align: left;
   gap: 10px;
   z-index: @toast-z-index;
   pointer-events: none;
 
   .toast {
-    background-color: var(--background-mid);
-    border: 2px solid var(--accent);
-    box-sizing: border-box;
-    padding: 10px;
+    background-color: var(--background-bright);
+    border: 2px solid var(--background-very-bright);
     max-width: calc(100vw - 20px);
-    width: 290px;
-    border-radius: 15px;
+    width: 350px;
+    border-radius: 0.5em;
     pointer-events: auto;
+    box-shadow: 5px 5px 10px #00000080;
+
+    .toast-inner {
+      padding: 10px 15px;
+      border-radius: 0.5em;
+    }
+
+    &[data-toast-type="warning"] {
+      background-color: var(--background);
+      border-color: rgba(var(--yellow-rgb) / 50%);
+
+
+      .toast-inner {
+        background-color: rgba(var(--yellow-rgb) / 15%);
+        color: var(--yellow);
+      }
+    }
+
+    &[data-toast-type="error"] {
+      background-color: var(--background);
+      border-color: rgba(var(--red-rgb) / 50%);
+
+
+      .toast-inner {
+        background-color: rgba(var(--red-rgb) / 15%);
+        color: var(--red);
+      }
+    }
 
     > .toast-title {
       font-weight: 700;
-      font-size: 1.125em;
+      text-align: center;
     }
   }
+}
+
+#index-title {
+  margin-bottom: 0.25em;
+  font-size: 2.5em;
+}
+
+#index-desc {
+  max-width: 600px;
+  margin: 0 auto;
+  margin-bottom: 0.5em;
 }

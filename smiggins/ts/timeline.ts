@@ -616,7 +616,7 @@ function postButtonClick(e: Event): void {
   } else if (el.dataset.interactionShare) {
     let postId: number = +el.dataset.interactionShare;
     if (!navigator.clipboard) {
-      createToast(L.errors.cant_copy, L.errors.cant_copy_more);
+      createToast(L.errors.cant_copy, L.errors.cant_copy_more, undefined, "warning");
       return;
     }
 
@@ -628,7 +628,7 @@ function postButtonClick(e: Event): void {
   } else if (el.dataset.interactionEmbed) {
     let postId: number = +el.dataset.interactionEmbed;
     if (!navigator.clipboard) {
-      createToast(L.errors.cant_copy, L.errors.cant_copy_more);
+      createToast(L.errors.cant_copy, L.errors.cant_copy_more, undefined, "warning");
       return;
     }
 

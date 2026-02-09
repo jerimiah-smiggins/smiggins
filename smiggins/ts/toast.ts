@@ -1,13 +1,15 @@
 function createToast(
   title: string | null,
   content?: string,
-  timeout?: number
+  timeout?: number,
+  type: "info" | "warning" | "error"="info"
 ): void {
   if (!title) { return; }
 
   let toast: D = getSnippet("toast", {
     title: title,
-    content: content || ""
+    content: content || "",
+    type: type
   });
 
   document.getElementById("toasts")?.append(toast);

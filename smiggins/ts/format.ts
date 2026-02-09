@@ -126,12 +126,13 @@ class _api_Base {
 
   // builtin api error handling
   err(code: ErrorCodes): void {
-    createToast(..._getErrorStrings(code, this.id));
+    let err = _getErrorStrings(code, this.id);
+    createToast(err[0], err[1], undefined, "error");
   }
 
   // for when there is an actual js error thrown
   genericError(err: any): void {
-    createToast(L.errors.something_went_wrong, String(err));
+    createToast(L.errors.something_went_wrong, String(err), undefined, "error");
     this.always();
     console.error(err);
   }

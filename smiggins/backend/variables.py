@@ -48,6 +48,12 @@ if sys.version_info >= (3, 12):
 else:
     from typing_extensions import TypedDict
 
+class ToastSchema(TypedDict):
+    type: Literal["info", "warning", "error"]
+    show_for: Literal["logged_out", "logged_in", "all"]
+    title: str
+    content: str
+
 class DatabaseBackupsSchema(TypedDict):
     enabled: bool
     frequency: int | float
@@ -65,6 +71,7 @@ SITE_DESCRIPTION: str = None # type: ignore - gets properly set after conf is lo
 WEBSITE_URL: str | None = None
 MOTDs: list[str] | None = None
 DEBUG: bool = True
+LOAD_TOASTS: list[ToastSchema] = []
 DATABASE_BACKUPS: DatabaseBackupsSchema = {
     "enabled": False,
     "frequency":  24,
@@ -159,7 +166,8 @@ _VARIABLES: list[tuple[str | None, list[str], type | str | list | tuple | dict, 
     ("WEBSITE_URL", ["website_url"], str, False),
     ("MOTDs", ["motd", "motds"], [str], True),
     ("DEBUG", ["debug"], bool, False),
-    ("DATABASE_BACKUPS",  ["db_backups", "db_backup"], "db",  False),
+    ("LOAD_TOASTS",  ["load_toasts"], ["toast"], False),
+    ("DATABASE_BACKUPS",  ["db_backups", "db_backup"], "db", False),
     ("OWNER_USER_ID", ["owner_user_id"], int, False),
     ("ALLOW_INDEXING", ["allow_indexing"], bool, False),
     ("MAX_USERNAME_LENGTH", ["max_username_length"], int, False),
@@ -235,6 +243,30 @@ def typecheck(obj: Any, expected_type: type | str | list | tuple | dict, allow_n
             if "$" not in obj["filename"]:
                 error("db_backup, '$' should be in filename")
                 return False
+
+            return True
+
+        if expected_type == "toast":
+            if not isinstance(obj, dict):
+                return False
+
+            for key, val in {
+                "type": str,
+                "show_for": str,
+                "title": str,
+                "content": str
+            }.items():
+                if not typecheck(obj[key], val):
+                    error(f"load_toasts, {key} should be {val}")
+                    return False
+
+            for key, val in {
+                "type": ["info", "warning", "error"],
+                "show_for": ["logged_in", "logged_out", "all"]
+            }.items():
+                if obj[key] not in val:
+                    error(f"load_toasts.{key} must be one of {', '.join(val)}")
+                    return False
 
             return True
 
@@ -339,7 +371,7 @@ DATABASE_BACKUPS["frequency"] = clamp(DATABASE_BACKUPS["frequency"], minimum=1) 
 DATABASE_BACKUPS["keep"] = clamp(DATABASE_BACKUPS["keep"], minimum=1)
 
 if SITE_DESCRIPTION is None:
-    SITE_DESCRIPTION = f"{SITE_NAME} is a small social media platform running Smiggins. On {SITE_NAME}, you can talk to others in a fun and inclusive environment."
+    SITE_DESCRIPTION = f"{SITE_NAME} is a social media platform running Smiggins. On {SITE_NAME}, you can talk to others in a fun, user-friendly environment."
 
 if isinstance(ENABLE_NEW_ACCOUNTS, str):
     ENABLE_NEW_ACCOUNTS = ENABLE_NEW_ACCOUNTS.lower()
@@ -354,9 +386,15 @@ Disallow: /django-admin/
 Disallow: /api/
 
 # https://github.com/ai-robots-txt/ai.robots.txt/blob/main/robots.txt
-{"User-agent: AddSearchBot|User-agent: AI2Bot|User-agent: Ai2Bot-Dolma|User-agent: aiHitBot|User-agent: AmazonBuyForMe|User-agent: atlassian-bot|User-agent: amazon-kendra|User-agent: Amazonbot|User-agent: Andibot|User-agent: Anomura|User-agent: anthropic-ai|User-agent: Applebot|User-agent: Applebot-Extended|User-agent: Awario|User-agent: bedrockbot|User-agent: bigsur.ai|User-agent: Bravebot|User-agent: Brightbot 1.0|User-agent: BuddyBot|User-agent: Bytespider|User-agent: CCBot|User-agent: ChatGPT Agent|User-agent: ChatGPT-User|User-agent: Claude-SearchBot|User-agent: Claude-User|User-agent: Claude-Web|User-agent: ClaudeBot|User-agent: Cloudflare-AutoRAG|User-agent: CloudVertexBot|User-agent: cohere-ai|User-agent: cohere-training-data-crawler|User-agent: Cotoyogi|User-agent: Crawlspace|User-agent: Datenbank Crawler|User-agent: DeepSeekBot|User-agent: Devin|User-agent: Diffbot|User-agent: DuckAssistBot|User-agent: Echobot Bot|User-agent: EchoboxBot|User-agent: FacebookBot|User-agent: facebookexternalhit|User-agent: Factset_spyderbot|User-agent: FirecrawlAgent|User-agent: FriendlyCrawler|User-agent: Gemini-Deep-Research|User-agent: Google-CloudVertexBot|User-agent: Google-Extended|User-agent: Google-Firebase|User-agent: Google-NotebookLM|User-agent: GoogleAgent-Mariner|User-agent: GoogleOther|User-agent: GoogleOther-Image|User-agent: GoogleOther-Video|User-agent: GPTBot|User-agent: iaskspider/2.0|User-agent: IbouBot|User-agent: ICC-Crawler|User-agent: ImagesiftBot|User-agent: img2dataset|User-agent: ISSCyberRiskCrawler|User-agent: Kangaroo Bot|User-agent: KlaviyoAIBot|User-agent: LinerBot|User-agent: Linguee Bot|User-agent: meta-externalagent|User-agent: Meta-ExternalAgent|User-agent: meta-externalfetcher|User-agent: Meta-ExternalFetcher|User-agent: meta-webindexer|User-agent: MistralAI-User|User-agent: MistralAI-User/1.0|User-agent: MyCentralAIScraperBot|User-agent: netEstate Imprint Crawler|User-agent: NotebookLM|User-agent: NovaAct|User-agent: OAI-SearchBot|User-agent: omgili|User-agent: omgilibot|User-agent: OpenAI|User-agent: Operator|User-agent: PanguBot|User-agent: Panscient|User-agent: panscient.com|User-agent: Perplexity-User|User-agent: PerplexityBot|User-agent: PetalBot|User-agent: PhindBot|User-agent: Poseidon Research Crawler|User-agent: QualifiedBot|User-agent: QuillBot|User-agent: quillbot.com|User-agent: SBIntuitionsBot|User-agent: Scrapy|User-agent: SemrushBot-OCOB|User-agent: SemrushBot-SWA|User-agent: ShapBot|User-agent: Sidetrade indexer bot|User-agent: TerraCotta|User-agent: Thinkbot|User-agent: TikTokSpider|User-agent: Timpibot|User-agent: VelenPublicWebCrawler|User-agent: WARDBot|User-agent: Webzio-Extended|User-agent: wpbot|User-agent: YaK|User-agent: YandexAdditional|User-agent: YandexAdditionalBot|User-agent: YouBot".replace("|", '''
+# Last updated: 09-Feb-2025
+{"User-agent: AddSearchBot|User-agent: AI2Bot|User-agent: AI2Bot-DeepResearchEval|User-agent: Ai2Bot-Dolma|User-agent: aiHitBot|User-agent: amazon-kendra|User-agent: Amazonbot|User-agent: AmazonBuyForMe|User-agent: Andibot|User-agent: Anomura|User-agent: anthropic-ai|User-agent: Applebot|User-agent: Applebot-Extended|User-agent: atlassian-bot|User-agent: Awario|User-agent: bedrockbot|User-agent: bigsur.ai|User-agent: Bravebot|User-agent: Brightbot 1.0|User-agent: BuddyBot|User-agent: Bytespider|User-agent: CCBot|User-agent: Channel3Bot|User-agent: ChatGLM-Spider|User-agent: ChatGPT Agent|User-agent: ChatGPT-User|User-agent: Claude-SearchBot|User-agent: Claude-User|User-agent: Claude-Web|User-agent: ClaudeBot|User-agent: Cloudflare-AutoRAG|User-agent: CloudVertexBot|User-agent: cohere-ai|User-agent: cohere-training-data-crawler|User-agent: Cotoyogi|User-agent: Crawl4AI|User-agent: Crawlspace|User-agent: Datenbank Crawler|User-agent: DeepSeekBot|User-agent: Devin|User-agent: Diffbot|User-agent: DuckAssistBot|User-agent: Echobot Bot|User-agent: EchoboxBot|User-agent: FacebookBot|User-agent: facebookexternalhit|User-agent: Factset_spyderbot|User-agent: FirecrawlAgent|User-agent: FriendlyCrawler|User-agent: Gemini-Deep-Research|User-agent: Google-CloudVertexBot|User-agent: Google-Extended|User-agent: Google-Firebase|User-agent: Google-NotebookLM|User-agent: GoogleAgent-Mariner|User-agent: GoogleOther|User-agent: GoogleOther-Image|User-agent: GoogleOther-Video|User-agent: GPTBot|User-agent: iAskBot|User-agent: iaskspider|User-agent: iaskspider/2.0|User-agent: IbouBot|User-agent: ICC-Crawler|User-agent: ImagesiftBot|User-agent: imageSpider|User-agent: img2dataset|User-agent: ISSCyberRiskCrawler|User-agent: Kangaroo Bot|User-agent: KlaviyoAIBot|User-agent: KunatoCrawler|User-agent: laion-huggingface-processor|User-agent: LAIONDownloader|User-agent: LCC|User-agent: LinerBot|User-agent: Linguee Bot|User-agent: LinkupBot|User-agent: Manus-User|User-agent: meta-externalagent|User-agent: Meta-ExternalAgent|User-agent: meta-externalfetcher|User-agent: Meta-ExternalFetcher|User-agent: meta-webindexer|User-agent: MistralAI-User|User-agent: MistralAI-User/1.0|User-agent: MyCentralAIScraperBot|User-agent: netEstate Imprint Crawler|User-agent: NotebookLM|User-agent: NovaAct|User-agent: OAI-SearchBot|User-agent: omgili|User-agent: omgilibot|User-agent: OpenAI|User-agent: Operator|User-agent: PanguBot|User-agent: Panscient|User-agent: panscient.com|User-agent: Perplexity-User|User-agent: PerplexityBot|User-agent: PetalBot|User-agent: PhindBot|User-agent: Poggio-Citations|User-agent: Poseidon Research Crawler|User-agent: QualifiedBot|User-agent: QuillBot|User-agent: quillbot.com|User-agent: SBIntuitionsBot|User-agent: Scrapy|User-agent: SemrushBot-OCOB|User-agent: SemrushBot-SWA|User-agent: ShapBot|User-agent: Sidetrade indexer bot|User-agent: Spider|User-agent: TavilyBot|User-agent: TerraCotta|User-agent: Thinkbot|User-agent: TikTokSpider|User-agent: Timpibot|User-agent: TwinAgent|User-agent: VelenPublicWebCrawler|User-agent: WARDBot|User-agent: Webzio-Extended|User-agent: webzio-extended|User-agent: wpbot|User-agent: WRTNBot|User-agent: YaK|User-agent: YandexAdditional|User-agent: YandexAdditionalBot|User-agent: YouBot|User-agent: ZanistaBot".replace("|", '''
 ''')}
 Disallow: /
 """ if ALLOW_INDEXING else "User-agent: *\nDisallow: /\n"
+
+TOASTS = {
+    "logged_in": list(filter(lambda a: a["show_for"] == "logged_in" or a["show_for"] == "all", LOAD_TOASTS)),
+    "logged_out": list(filter(lambda a: a["show_for"] == "logged_out" or a["show_for"] == "all", LOAD_TOASTS))
+}
 
 print("Finished loading config")

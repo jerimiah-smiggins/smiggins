@@ -15,7 +15,7 @@ from .variables import (BASE_DIR, ENABLE_ABOUT_PAGE, ENABLE_NEW_ACCOUNTS,
                         MAX_DISPL_NAME_LENGTH, MAX_POLL_OPTION_LENGTH,
                         MAX_POLL_OPTIONS, MAX_POST_LENGTH, MAX_USERNAME_LENGTH,
                         NOTIFICATION_POLLING_INTERVAL, SITE_DESCRIPTION,
-                        SITE_NAME, TIMELINE_POLLING_INTERVAL, VERSION,
+                        SITE_NAME, TIMELINE_POLLING_INTERVAL, TOASTS, VERSION,
                         WEBSITE_URL, MOTDs)
 
 
@@ -75,6 +75,7 @@ def webapp(request: HttpRequest) -> HttpResponse:
     context = {
         "conf": {
             "site_name": SITE_NAME,
+            "site_description": SITE_DESCRIPTION,
             "version": VERSION,
             "new_accounts": ENABLE_NEW_ACCOUNTS,
             "enable_about_page": ENABLE_ABOUT_PAGE,
@@ -105,7 +106,8 @@ def webapp(request: HttpRequest) -> HttpResponse:
         "is_admin": user is not None and AdminPermissions.has_any(user),
         "default_post_private": user and user.default_post_private,
         "loading": random.choice(MOTDs) if MOTDs else "Loading...",
-        "google_verification_tag": GOOGLE_VERIFICATION_TAG
+        "google_verification_tag": GOOGLE_VERIFICATION_TAG,
+        "toasts": TOASTS["logged_out"] if user is None else TOASTS["logged_in"]
     }
 
     return HttpResponse(
