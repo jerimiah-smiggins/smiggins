@@ -68,7 +68,14 @@ function generateInternalLinks(element?: HTMLElement): void {
 }
 
 function internalLinkHandler(e: MouseEvent): void {
-  if (!e.ctrlKey) {
+  if (e.ctrlKey) {
+    // Ctrl+Clicking should open in a new tab, don't handle events to prevent interfering with this
+    return;
+  } else if (e.altKey) {
+    // Alt+Clicking is sometimes used for text selection, don't navigate in order to prevent possible issues
+    e.preventDefault();
+    return;
+  } else {
     let el: HTMLElement = e.currentTarget as HTMLElement;
     let newPage: intent = el.dataset.internalLink as intent;
     let newURL: string | null = (el as HTMLAnchorElement).href || null;
@@ -78,12 +85,14 @@ function internalLinkHandler(e: MouseEvent): void {
     }
 
     if (newURL && newPage === "post" && getPostIDFromPath(newURL) === getPostIDFromPath()) {
+      // open comment modal when clicking post link on the same post page
       createPostModal("comment", getPostIDFromPath());
     } else if (
       newPage !== currentPage || newPage === "post"
    || (newURL && newPage === "user" && getUsernameFromPath(newURL) !== getUsernameFromPath())
    || (newURL && newPage === "hashtag" && getHashtagFromPath(newURL) !== getHashtagFromPath())
     ) {
+      // nav only if going to a different page
       history.pushState(newPage, "", newURL);
       renderPage(newPage);
       currentPage = newPage;
