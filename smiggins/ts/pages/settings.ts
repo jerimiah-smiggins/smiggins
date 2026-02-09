@@ -260,6 +260,7 @@ function exportSettings(): void {
     hideInteractions: Boolean(localStorage.getItem("smiggins-hide-interactions")),
     language: localStorage.getItem("smiggins-language") as languages | null || L.meta.id,
     noLikeGrouping: Boolean(localStorage.getItem("smiggins-no-like-grouping")),
+    noLoadToasts: Boolean(localStorage.getItem("smiggins-no-load-toasts")),
     pfpShape: localStorage.getItem("smiggins-php-shape") || "round",
     theme: (localStorage.getItem("smiggins-theme") as Themes | null) || "system",
 
@@ -318,6 +319,7 @@ function importSettings(data: SettingsExport): void {
   _lsBoolean(data.hideChangelog, "smiggins-hide-changelog");
   _lsBoolean(data.hideInteractions, "smiggins-hide-interactions");
   _lsBoolean(data.noLikeGrouping, "smiggins-no-like-grouping");
+  _lsBoolean(data.noLoadToasts, "smiggins-no-load-toasts");
   localStorage.setItem("smiggins-pfp-shape", data.pfpShape || "round");
   localStorage.setItem("smiggins-theme", data.theme || "system");
   localStorage.setItem("smiggins-language", data.theme || DEFAULT_LANGUAGE);
@@ -394,6 +396,7 @@ function p_settingsCosmetic(element: D): void {
   if (localStorage.getItem("smiggins-expand-cws"))         { element.querySelector("#expand-cws")        ?.setAttribute("checked", ""); }
   if (localStorage.getItem("smiggins-hide-changelog"))     { element.querySelector("#hide-changelog")    ?.setAttribute("checked", ""); }
   if (localStorage.getItem("smiggins-no-like-grouping"))   { element.querySelector("#no-like-grouping")  ?.setAttribute("checked", ""); }
+  if (localStorage.getItem("smiggins-no-load-toasts"))     { element.querySelector("#no-load-toasts")    ?.setAttribute("checked", ""); }
   if (localStorage.getItem("smiggins-auto-show-posts"))    { element.querySelector("#auto-show")         ?.setAttribute("checked", ""); }
 
   element.querySelector("#theme")             ?.addEventListener("change", settingsThemeSelection);
@@ -404,6 +407,7 @@ function p_settingsCosmetic(element: D): void {
   element.querySelector("#expand-cws")        ?.addEventListener("change", genericCheckbox("smiggins-expand-cws"));
   element.querySelector("#hide-changelog")    ?.addEventListener("change", genericCheckbox("smiggins-hide-changelog"));
   element.querySelector("#no-like-grouping")  ?.addEventListener("change", genericCheckbox("smiggins-no-like-grouping"));
+  element.querySelector("#no-load-toasts")    ?.addEventListener("change", genericCheckbox("smiggins-no-load-toasts"));
   element.querySelector("#auto-show")         ?.addEventListener("change", genericCheckbox("smiggins-auto-show-posts"));
 
   element.querySelector("#language")?.addEventListener("change", (): void => {

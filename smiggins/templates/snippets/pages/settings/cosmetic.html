@@ -45,7 +45,9 @@
     <div>
       <p class="no-margin-top">@{lang.settings.cosmetic.section_notifications}</p>
       <p><label><input type="checkbox" id="no-like-grouping"> @{lang.settings.cosmetic.no_like_grouping}</label></p>
-      <div>
+      <label><input type="checkbox" id="no-load-toasts"> @{lang.settings.cosmetic.no_load_toasts}</label>
+      <small><div>@{no_load_toasts_more}</div></small>
+      <div class="generic-margin-top">
         <button hidden id="enable-push-notifs">@{lang.settings.cosmetic.push_enable}</button>
         <button hidden id="disable-push-notifs">@{lang.settings.cosmetic.push_disable}</button>
         <div hidden id="push-notifs-blocked">@{lang.settings.cosmetic.push_blocked}</div>

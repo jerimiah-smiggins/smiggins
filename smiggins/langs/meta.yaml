@@ -213,6 +213,8 @@ defs:
 
       section_notifications: str
       no_like_grouping: str
+      no_load_toasts: str
+      no_load_toasts_more: str
       push_enable: str
       push_disable: str
       push_blocked: str

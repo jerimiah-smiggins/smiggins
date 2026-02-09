@@ -151,7 +151,8 @@ function renderPage(intent: intent): void {
       extraVariables = {
         language_selection: Object.values(LANGS).map((a: LanguageData): string => (
           `<option value="${a.meta.id}">${escapeHTML(a.meta.name)}</option>`
-        )).join("")
+        )).join(""),
+        no_load_toasts_more: L.settings.cosmetic.no_load_toasts_more.replaceAll("%s", pageTitle)
       }; break;
 
     case "settings/account":

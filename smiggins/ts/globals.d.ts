@@ -209,6 +209,7 @@ type SettingsExport = {
   hideInteractions: boolean,
   language: languages,
   noLikeGrouping: boolean,
+  noLoadToasts: boolean,
   pfpShape: string,
   theme: Themes,
 

@@ -229,6 +229,8 @@ settings:
 
     section_notifications: Notifications
     no_like_grouping: Don't group like notifications
+    no_load_toasts: Hide toasts on page load
+    no_load_toasts_more: The administrators of %s may configure informational toasts to be shown when you load the page. This turns these off.
     push_enable: Enable Push Notifications
     push_disable: Disable Push Notifications
     push_blocked: Push notifications have been blocked.

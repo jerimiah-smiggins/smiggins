@@ -720,6 +720,12 @@
             "no_like_grouping": {
               "type": "string"
             },
+            "no_load_toasts": {
+              "type": "string"
+            },
+            "no_load_toasts_more": {
+              "type": "string"
+            },
             "push_enable": {
               "type": "string"
             },

@@ -149,8 +149,10 @@ const changes: { [key: string]: VersionData } = {
     description: "Bug Fixes Part 3",
     changes: [
       "The default post visibility setting is now respected on compose modals.",
-      "Push notifications should work again on all supported browsers (broken in 1.4.6).",
-      "The text indicating a quote includes another quote or a poll no longer gets cut off on long quotes."
+      "Push notifications should work again on supported browsers (broken in 1.4.6).",
+      "The text indicating a quote includes another quote or a poll no longer gets cut off on long quotes.",
+      "Added a backend setting to show a notification to users when the page is loaded. These can be disabled in the cosmetic settings.",
+      "A configurable site description is now shown on the home page to logged out users."
     ]
   }
 };
