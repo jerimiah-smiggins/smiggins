@@ -230,6 +230,8 @@ settings:
 
     section_notifications: Notificaciones
     no_like_grouping: No agrupar notificaciones de likes
+    no_load_toasts: Esconder avisos en cargar
+    no_load_toasts_more: Los administradores de %s podrían configurar avisos informacionales para mostrar cuando la página cargue. Este los apagan.
     push_enable: Activar notificaciones emergentes
     push_disable: Desactivar notificaciones emergentes
     push_blocked: Había bloqueado las notificaciones emergentes.
