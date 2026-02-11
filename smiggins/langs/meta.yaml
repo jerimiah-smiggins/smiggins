@@ -204,6 +204,12 @@ defs:
         gray: str
         darker: str
         oled: str
+      favicon:
+        label: str
+        system: str
+        light: str
+        dark: str
+        old: str
 
       section_language: str
       language: str
@@ -273,6 +279,7 @@ defs:
 
       section_credits: str
       lead_dev: str
+      logo_artist: str
       contributors: str
       translators: str
       maintainers: str

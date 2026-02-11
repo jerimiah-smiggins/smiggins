@@ -30,12 +30,13 @@ type snippet = "pages/index" | "pages/login" | "pages/signup"
              | "post" | "post-placeholder" | "toast" | "notification-like" | "notification-follow" | "folreq-user"
              | "modal/compose" | "modal/keybind" | "modal/update" | "modal/message" | "modal/following";
 
-type Icons = "back"
+type Icons = "back" | "logo"
            | "private" | "comment_arrow" | "comment" | "quote" | "like" | "like_active" | "hamburger" | "edit" | "pin" | "unpin" | "delete" | "share" | "embed"
            | "home_active" | "home" | "notifications_active" | "notifications" | "messages_active" | "messages" | "user_active" | "user" | "settings_active" | "settings" | "folreq_active" | "folreq" | "login" | "user_plus" | "search" | "plus";
 
 type KeybindModifiers = "ctrl" | "shift" | "alt" | "nav";
 type Themes = "light" | "dark" | "warm" | "gray" | "darker" | "oled" | "system";
+type Favicon = "light" | "dark" | "old" | "system";
 type Method = "GET" | "POST" | "PATCH" | "DELETE";
 
 type VersionData = {
@@ -204,6 +205,7 @@ type SettingsExport = {
   complexTimestamps: boolean,
   cwCascading: string,
   expandCws: boolean,
+  favicon: Favicon,
   fontSize: string,
   hideChangelog: boolean,
   hideInteractions: boolean,

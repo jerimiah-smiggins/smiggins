@@ -220,6 +220,12 @@ settings:
       gray: Gray
       darker: Dark Gray
       oled: Black
+    favicon:
+      label: "Favicon:"
+      system: Automatic
+      light: Light
+      dark: Dark
+      old: Old Logo
 
     section_language: Languages
     language: "Language:"
@@ -291,6 +297,7 @@ settings:
 
     section_credits: Credits
     lead_dev: "Lead Developer:"
+    logo_artist: "Smiggins Logo Artist:"
     contributors: "Other Contributors:"
     translators: "Translators:"
     maintainers: "Maintainers:"

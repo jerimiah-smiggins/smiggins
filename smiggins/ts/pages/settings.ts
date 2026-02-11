@@ -88,6 +88,15 @@ function settingsThemeSelection(): void {
   }
 }
 
+function settingsFaviconSelection(): void {
+  let faviconElement: HTMLSelectElement | null = document.getElementById("favicon-sel") as HTMLSelectElement | null;
+
+  if (faviconElement) {
+    let favi: Favicon = faviconElement.value as Favicon;
+    setFavicon(favi);
+  }
+}
+
 function settingsPFPShapeSelection(): void {
   let pfpElement: HTMLSelectElement | null = document.getElementById("pfp-shape") as HTMLSelectElement | null;
 
@@ -255,6 +264,7 @@ function exportSettings(): void {
     complexTimestamps: Boolean(localStorage.getItem("smiggins-complex-timestamps")),
     cwCascading: localStorage.getItem("smiggins-cw-cascading") || "email",
     expandCws: Boolean(localStorage.getItem("smiggins-expand-cws")),
+    favicon: (localStorage.getItem("smiggins-favicon") as Favicon | null) || "system",
     fontSize: localStorage.getItem("smiggins-font-size") || "normal",
     hideChangelog: Boolean(localStorage.getItem("smiggins-hide-changelog")),
     hideInteractions: Boolean(localStorage.getItem("smiggins-hide-interactions")),
@@ -315,6 +325,7 @@ function importSettings(data: SettingsExport): void {
   _lsBoolean(data.complexTimestamps, "smiggins-complex-timestamps");
   localStorage.setItem("smiggins-cw-cascading", data.cwCascading || "email");
   _lsBoolean(data.expandCws, "smiggins-expand-cws");
+  localStorage.setItem("smiggins-favicon", data.favicon || "system");
   localStorage.setItem("smiggins-font-size", data.fontSize || "normal");
   _lsBoolean(data.hideChangelog, "smiggins-hide-changelog");
   _lsBoolean(data.hideInteractions, "smiggins-hide-interactions");
@@ -388,6 +399,7 @@ function p_settingsProfile(element: D): void {
 
 function p_settingsCosmetic(element: D): void {
   element.querySelector(`#theme > option[value="${theme}"]`)?.setAttribute("selected", "");
+  element.querySelector(`#favicon-sel > option[value="${localStorage.getItem("smiggins-favicon")}"]`)?.setAttribute("selected", "");
   element.querySelector(`#pfp-shape > option[value="${localStorage.getItem("smiggins-pfp-shape") || "round"}"]`)?.setAttribute("selected", "");
   element.querySelector(`#cw-cascading > option[value="${localStorage.getItem("smiggins-cw-cascading") || "email"}"]`)?.setAttribute("selected", "");
   element.querySelector(`#language > option[value="${localStorage.getItem("smiggins-language") || L.meta.id}"]`)?.setAttribute("selected", "");
@@ -400,6 +412,7 @@ function p_settingsCosmetic(element: D): void {
   if (localStorage.getItem("smiggins-auto-show-posts"))    { element.querySelector("#auto-show")         ?.setAttribute("checked", ""); }
 
   element.querySelector("#theme")             ?.addEventListener("change", settingsThemeSelection);
+  element.querySelector("#favicon-sel")       ?.addEventListener("change", settingsFaviconSelection);
   element.querySelector("#pfp-shape")         ?.addEventListener("change", settingsPFPShapeSelection);
   element.querySelector("#cw-cascading")      ?.addEventListener("change", settingsCWCascadingSelection);
   element.querySelector("#complex-timestamps")?.addEventListener("change", genericCheckbox("smiggins-complex-timestamps"));

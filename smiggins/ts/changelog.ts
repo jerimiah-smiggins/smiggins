@@ -146,7 +146,11 @@ const changes: { [key: string]: VersionData } = {
     ]
   },
   "1.4.7": {
-    description: "Bug Fixes Part 3",
+    description: "New Logo and Bug Fixes",
+    major_changes: [{
+      info: "Smiggins now has a new logo, created by CyanPi! The old logo will be used as a fallback when necessary, or can be set in settings.",
+      icon: "logo"
+    }],
     changes: [
       "The default post visibility setting is now respected on compose modals.",
       "Push notifications should work again on supported browsers (broken in 1.4.6).",

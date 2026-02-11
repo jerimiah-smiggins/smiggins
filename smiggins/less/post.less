@@ -197,6 +197,11 @@ body {
     position: relative;
     top: 0.2em;
     padding-right: 0.1em;
+
+    &.svg-stroke-no-fill {
+      fill: none;
+      stroke: currentColor;
+    }
   }
 
   .folreq-interactions {
@@ -244,6 +249,11 @@ body {
           svg:last-of-type {
             display: inline;
             fill: var(--accent);
+
+            &.svg-stroke-no-fill {
+              fill: none;
+              stroke: var(--accent);
+            }
           }
 
           svg:first-of-type {
@@ -316,6 +326,11 @@ body {
   svg {
     height: 1.2em;
     fill: currentColor;
+
+    &.svg-stroke-no-fill {
+      fill: none;
+      stroke: currentColor;
+    }
   }
 }
 

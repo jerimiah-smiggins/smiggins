@@ -702,6 +702,27 @@
                 }
               }
             },
+            "favicon": {
+              "type": "object",
+              "additionalProperties": false,
+              "properties": {
+                "label": {
+                  "type": "string"
+                },
+                "system": {
+                  "type": "string"
+                },
+                "light": {
+                  "type": "string"
+                },
+                "dark": {
+                  "type": "string"
+                },
+                "old": {
+                  "type": "string"
+                }
+              }
+            },
             "section_language": {
               "type": "string"
             },
@@ -892,6 +913,9 @@
               "type": "string"
             },
             "lead_dev": {
+              "type": "string"
+            },
+            "logo_artist": {
               "type": "string"
             },
             "contributors": {

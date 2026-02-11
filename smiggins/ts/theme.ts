@@ -1,11 +1,14 @@
 let themeMedia: MediaQueryList = matchMedia("(prefers-color-scheme: light)");
 let _themeLs: string | null = localStorage.getItem("smiggins-theme");
+let _faviLs: string | null = localStorage.getItem("smiggins-favicon");
 let theme: Themes = _themeLs === "light" || _themeLs === "dark" || _themeLs === "warm" || _themeLs === "gray" || _themeLs === "darker" || _themeLs === "oled" ? _themeLs : "system";
+let favicon: Favicon = _faviLs === "light" || _faviLs === "dark" || _faviLs === "old" ? _faviLs : "system";
 
 function setTheme(th: Themes): void {
+  theme = th;
+
   if (th === "system") {
     localStorage.removeItem("smiggins-theme");
-    theme = "system";
     updateTheme(themeMedia.matches ? "light" : "dark");
     return;
   }
@@ -18,10 +21,41 @@ function updateTheme(theme: Themes): void {
   document.documentElement.dataset.theme = theme;
 }
 
+function setFavicon(favi: Favicon): void {
+  favicon = favi;
+
+  if (favi === "system") {
+    localStorage.removeItem("smiggins-favicon");
+    updateFavicon(themeMedia.matches ? "light" : "dark");
+    return;
+  }
+
+  localStorage.setItem("smiggins-favicon", favi);
+  updateFavicon(favi);
+}
+
+function updateFavicon(favi: Favicon): void {
+  let filename: string | undefined;
+
+  switch (favi) {
+    case "dark": filename = "favicon-dark.png"; break;
+    case "light": filename = "favicon-light.png"; break;
+    case "old": filename = "old_favicon.png"; break;
+  }
+
+  if (!filename) { return; }
+  let el: el = document.getElementById("favicon");
+  if (!el || !el.dataset.urlFormat) { return; }
+
+  el.setAttribute("href", el.dataset.urlFormat.replaceAll("FAVICON_FILENAME", filename));
+}
+
 function updateAutoTheme(): void {
-  if (theme !== "system") { return; }
-  updateTheme(themeMedia.matches ? "light" : "dark");
+  let newTheme: "light" | "dark" = themeMedia.matches ? "light" : "dark";
+  if (favicon === "system") { updateFavicon(newTheme); }
+  if (theme === "system") { updateTheme(newTheme); }
 }
 
 themeMedia.addEventListener("change", updateAutoTheme);
 updateTheme((theme === "system" && (themeMedia.matches ? "light" : "dark")) || theme);
+updateFavicon((favicon === "system" && (themeMedia.matches ? "light" : "dark")) || favicon)
