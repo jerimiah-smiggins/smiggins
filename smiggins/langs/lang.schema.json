@@ -718,6 +718,18 @@
                 "dark": {
                   "type": "string"
                 },
+                "pq_light": {
+                  "type": "string"
+                },
+                "pq_dark": {
+                  "type": "string"
+                },
+                "cat_light": {
+                  "type": "string"
+                },
+                "cat_dark": {
+                  "type": "string"
+                },
                 "old": {
                   "type": "string"
                 }

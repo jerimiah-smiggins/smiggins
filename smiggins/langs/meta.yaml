@@ -209,6 +209,10 @@ defs:
         system: str
         light: str
         dark: str
+        pq_light: str
+        pq_dark: str
+        cat_light: str
+        cat_dark: str
         old: str
 
       section_language: str
@@ -279,7 +283,7 @@ defs:
 
       section_credits: str
       lead_dev: str
-      logo_artist: str
+      logo_artists: str
       contributors: str
       translators: str
       maintainers: str

@@ -225,6 +225,10 @@ settings:
       system: Automatic
       light: Light
       dark: Dark
+      pq_light: Cat Light
+      pq_dark: Cat Dark
+      cat_light: Other Cat Light
+      cat_dark: Other Cat Dark
       old: Old Logo
 
     section_language: Languages
@@ -297,7 +301,7 @@ settings:
 
     section_credits: Credits
     lead_dev: "Lead Developer:"
-    logo_artist: "Smiggins Logo Artist:"
+    logo_artists: "Smiggins Logo Artists:"
     contributors: "Other Contributors:"
     translators: "Translators:"
     maintainers: "Maintainers:"

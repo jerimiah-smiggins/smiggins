@@ -36,7 +36,7 @@ type Icons = "back" | "logo"
 
 type KeybindModifiers = "ctrl" | "shift" | "alt" | "nav";
 type Themes = "light" | "dark" | "warm" | "gray" | "darker" | "oled" | "system";
-type Favicon = "light" | "dark" | "old" | "system";
+type Favicon = "light" | "dark" | "old" | "pq-light" | "pq-dark" | "cat-light" | "cat-dark" | "system";
 type Method = "GET" | "POST" | "PATCH" | "DELETE";
 
 type VersionData = {

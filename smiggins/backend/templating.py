@@ -1,5 +1,6 @@
 import random
 import re
+from pathlib import Path
 
 import yaml
 from django.http import HttpResponse
@@ -97,10 +98,12 @@ def webapp(request: HttpRequest) -> HttpResponse:
             },
         },
 
+        # using a Path().name to trim possible xss
+        "favicon": Path(request.COOKIES.get("favicon") or "favicon-dark.png").name,
+
         "embed": embed_data,
 
         "admin": dict([(key, AdminPermissions.can_use(user, val)) for key, val in AdminPermissions.ALL.items()]) if user else {},
-
         "logged_in": user is not None,
         "username": user and user.username,
         "is_admin": user is not None and AdminPermissions.has_any(user),
@@ -154,7 +157,8 @@ def manifest_json(request):
     return HttpResponse(
         loader.get_template("manifest.json").render({
             "site_name": SITE_NAME,
-            "version": VERSION
+            "version": VERSION,
+            "favicon": Path(request.COOKIES.get("favicon") or "favicon-dark.png").name
         }, request),
         content_type="application/manifest+json"
     )
