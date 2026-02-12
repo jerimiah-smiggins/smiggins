@@ -927,7 +927,7 @@
             "lead_dev": {
               "type": "string"
             },
-            "logo_artist": {
+            "logo_artists": {
               "type": "string"
             },
             "contributors": {

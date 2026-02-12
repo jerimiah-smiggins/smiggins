@@ -36,10 +36,6 @@ load_toasts:
 #   show_for: "logged_in" | "logged_out" | "all"
 #   title: "Possible Downtime"
 #   content: "Possible downtime starting Friday and continuing throughought the weekend."
-- type: "warning"
-  show_for: "all"
-  title: "all warning"
-  content: "a"
 # - ...
 
 db_backup: # Information about database backups.

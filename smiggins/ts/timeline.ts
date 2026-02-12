@@ -509,8 +509,9 @@ function handleForward(
   if (posts.length === 0 || c.pendingForward === false) { return; }
 
   let showNewElement: el = document.getElementById("timeline-show-new");
+  let countWithoutPrepended: number = c.pendingForward.length + posts.length - prependedPosts;
 
-  if (!forceEvent && !showNewElement && (!end || (c.pendingForward.length + posts.length - prependedPosts) > 0)) {
+  if (!forceEvent && !showNewElement && (!end || countWithoutPrepended > 0)) {
     showNewElement = document.createElement("button");
     showNewElement.id = "timeline-show-new";
     showNewElement.addEventListener("click", timelineShowNew);
@@ -521,8 +522,8 @@ function handleForward(
     offset.upper = Math.max(...posts.map((a: Post): number => (a.timestamp)));
     c.pendingForward.push(...insertIntoPostCache(posts).reverse());
 
-    if (showNewElement) {
-      showNewElement.innerText = lr(n(L.post.show_new, c.pendingForward.length), { n: String(c.pendingForward.length) });
+    if (showNewElement && countWithoutPrepended > 0) {
+      showNewElement.innerText = lr(n(L.post.show_new, countWithoutPrepended), { n: String(countWithoutPrepended) });
     }
   } else {
     c.pendingForward = false;
