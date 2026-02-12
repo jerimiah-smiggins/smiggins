@@ -253,7 +253,7 @@ settings:
     expand_cws: Always expand content warnings
     hide_changelog: Hide changelog popups
     complex_ts: Enable complex timestamps
-    complex_ts_more: (1h becomes 1h32m, 5m becomes 5m48s)
+    complex_ts_more: (1h → 1h32m, 5m → 5m48s)
     auto_show_new: Automatically show new posts on the timeline
     auto_show_new_more: When disabled, there will instead be a button to show new posts.
     banner_shape:
