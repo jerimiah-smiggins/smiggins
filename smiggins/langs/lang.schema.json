@@ -702,6 +702,39 @@
                 }
               }
             },
+            "favicon": {
+              "type": "object",
+              "additionalProperties": false,
+              "properties": {
+                "label": {
+                  "type": "string"
+                },
+                "system": {
+                  "type": "string"
+                },
+                "light": {
+                  "type": "string"
+                },
+                "dark": {
+                  "type": "string"
+                },
+                "pq_light": {
+                  "type": "string"
+                },
+                "pq_dark": {
+                  "type": "string"
+                },
+                "cat_light": {
+                  "type": "string"
+                },
+                "cat_dark": {
+                  "type": "string"
+                },
+                "old": {
+                  "type": "string"
+                }
+              }
+            },
             "section_language": {
               "type": "string"
             },
@@ -718,6 +751,12 @@
               "type": "string"
             },
             "no_like_grouping": {
+              "type": "string"
+            },
+            "no_load_toasts": {
+              "type": "string"
+            },
+            "no_load_toasts_more": {
               "type": "string"
             },
             "push_enable": {
@@ -885,7 +924,13 @@
             "section_credits": {
               "type": "string"
             },
+            "generic_website": {
+              "type": "string"
+            },
             "lead_dev": {
+              "type": "string"
+            },
+            "logo_artists": {
               "type": "string"
             },
             "contributors": {

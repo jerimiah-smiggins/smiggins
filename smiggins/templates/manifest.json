@@ -12,7 +12,7 @@
   "theme_color": "#190b14",
 
   "icons": [{
-    "src": "{% static 'img/old_favicon.png' %}",
+    "src": "{% static 'img' %}/{{ favicon }}",
     "type": "image/png",
     "sizes": "64x64"
   }]

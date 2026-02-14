@@ -141,8 +141,24 @@ const changes: { [key: string]: VersionData } = {
   "1.4.6": {
     description: "Bug Fixes Part 2",
     changes: [
-      "Notifications should get cleared when opening a window.",
+      "Notifications now get cleared when opening a window.",
       "Like notifications no longer show a push notification, instead just updating the badge count."
+    ]
+  },
+  "1.4.7": {
+    description: "New Logo and Bug Fixes",
+    major_changes: [{
+      info: "Smiggins now has a new logo, created by CyanPi! The old logo will be used as a fallback when necessary, and you can also select the second and third place winners in settings.",
+      icon: "logo"
+    }],
+    changes: [
+      "Added a new default favicon. More can be chosen in settings.",
+      "The default post visibility setting is now respected on compose modals.",
+      "Push notifications should work again on supported browsers (broken in 1.4.6).",
+      "The text indicating a quote includes another quote or a poll no longer gets cut off on long quotes.",
+      "Added a backend setting to show a notification to users when the page is loaded. These can be disabled in the cosmetic settings.",
+      "A configurable site description is now shown on the home page to logged out users.",
+      "The 'Show New Posts' button should now show the proper post count in all cases."
     ]
   }
 };

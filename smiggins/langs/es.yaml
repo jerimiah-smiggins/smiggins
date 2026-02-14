@@ -221,6 +221,16 @@ settings:
       gray: Gris
       darker: Gris Oscuro
       oled: OLED
+    favicon:
+      label: "Favicono:"
+      system: Automático
+      light: Claro
+      dark: Oscuro
+      pq_light: Gato Claro
+      pq_dark: Gato Oscuro
+      cat_light: Otro Gato Claro
+      cat_dark: Otro Gato Oscuro
+      old: Logo Antiguo
 
     section_language: Idiomas
     language: "Idioma:"
@@ -230,6 +240,8 @@ settings:
 
     section_notifications: Notificaciones
     no_like_grouping: No agrupar notificaciones de likes
+    no_load_toasts: Esconder avisos en cargar
+    no_load_toasts_more: Los administradores de %s podrían configurar avisos informacionales para mostrar cuando la página cargue. Este los apagan.
     push_enable: Activar notificaciones emergentes
     push_disable: Desactivar notificaciones emergentes
     push_blocked: Había bloqueado las notificaciones emergentes.
@@ -253,7 +265,7 @@ settings:
       circle: Círculo
     cw_cascading:
       label: "Catarada de Advertencias de contenido:"
-      description: Que la advertencia de contenido debe estar cuando notando una publicación con uno.
+      description: Qué la advertencia de contenido debe estar cuando notando una publicación con uno.
       none: No pone un advertencia
       email: "Adjuntar \"RE: \" (como email)"
       copy: Usar advertencia actual
@@ -289,7 +301,9 @@ settings:
     description: Código fuente, créditos...
 
     section_credits: Créditos
+    generic_website: sitio web
     lead_dev: "Desarrollador Principal:"
+    logo_artists: "Artistas del Logo de Smiggins:"
     contributors: "Otros Contribuyentes:"
     translators: "Traductores:"
     maintainers: "Mantenedores:"

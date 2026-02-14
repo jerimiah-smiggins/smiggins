@@ -388,13 +388,16 @@ function getPost(
       quote_pid: String(p.quote.id),
       quote_comment_id: String(p.quote.comment),
 
+      // contains quote/poll text
+      quote_extra: (p.quote.has_poll ? `<a data-internal-link="post" href="/p/${p.quote.id}/" class="plain-link"><i>${L.post.quote.has_poll}</i></a>` : "") + (p.quote.has_quote ? (p.quote.has_poll ? "<br>" : "") + `<a data-internal-link="post" href="/p/${p.quote.id}/" class="plain-link"><i>${L.post.quote.has_quote}</i></a>` : ""),
+
       hidden_if_no_quote_pronouns: p.quote.user.pronouns ? "" : "hidden",
       hidden_if_no_quote_comment: p.quote.comment ? "" : "hidden",
       hidden_if_no_quote_edit: p.quote.edited ? "" : "hidden"
     };
 
     quoteUnsafeData = {
-      quote_content: [quoteContent + (p.quote.has_poll ? (p.quote.content ? "\n" : "") + `<a data-internal-link="post" href="/p/${p.quote.id}/" class="plain-link"><i>${L.post.quote.has_poll}</i></a>` : "") + (p.quote.has_quote ? (p.quote.content || p.quote.has_poll ? "\n" : "") + `<a data-internal-link="post" href="/p/${p.quote.id}/" class="plain-link"><i>${L.post.quote.has_quote}</i></a>` : ""), 1],
+      quote_content: [quoteContent, 1],
       quote_cw_start: [quoteCwStart, 1],
       quote_pronouns: [p.quote.user.pronouns || "", 1],
       quote_display_name: [escapeHTML(p.quote.user.display_name), 1]
@@ -506,8 +509,9 @@ function handleForward(
   if (posts.length === 0 || c.pendingForward === false) { return; }
 
   let showNewElement: el = document.getElementById("timeline-show-new");
+  let countWithoutPrepended: number = c.pendingForward.length + posts.length - prependedPosts;
 
-  if (!forceEvent && !showNewElement && (!end || (c.pendingForward.length + posts.length - prependedPosts) > 0)) {
+  if (!forceEvent && !showNewElement && (!end || countWithoutPrepended > 0)) {
     showNewElement = document.createElement("button");
     showNewElement.id = "timeline-show-new";
     showNewElement.addEventListener("click", timelineShowNew);
@@ -518,8 +522,8 @@ function handleForward(
     offset.upper = Math.max(...posts.map((a: Post): number => (a.timestamp)));
     c.pendingForward.push(...insertIntoPostCache(posts).reverse());
 
-    if (showNewElement) {
-      showNewElement.innerText = lr(n(L.post.show_new, c.pendingForward.length), { n: String(c.pendingForward.length) });
+    if (showNewElement && countWithoutPrepended > 0) {
+      showNewElement.innerText = lr(n(L.post.show_new, countWithoutPrepended), { n: String(countWithoutPrepended) });
     }
   } else {
     c.pendingForward = false;
@@ -613,7 +617,7 @@ function postButtonClick(e: Event): void {
   } else if (el.dataset.interactionShare) {
     let postId: number = +el.dataset.interactionShare;
     if (!navigator.clipboard) {
-      createToast(L.errors.cant_copy, L.errors.cant_copy_more);
+      createToast(L.errors.cant_copy, L.errors.cant_copy_more, undefined, "warning");
       return;
     }
 
@@ -625,7 +629,7 @@ function postButtonClick(e: Event): void {
   } else if (el.dataset.interactionEmbed) {
     let postId: number = +el.dataset.interactionEmbed;
     if (!navigator.clipboard) {
-      createToast(L.errors.cant_copy, L.errors.cant_copy_more);
+      createToast(L.errors.cant_copy, L.errors.cant_copy_more, undefined, "warning");
       return;
     }
 

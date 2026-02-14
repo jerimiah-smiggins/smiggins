@@ -248,6 +248,10 @@ class PushNotification(models.Model):
         event: Literal["comment", "quote", "ping", "follow", "follow_request", "message", "none"],
         context: User | Post | MessageGroup | None
     ):
+        if event == "none":
+            # read note in PushNotification.send()
+            return
+
         notif_count = user.get_notif_count()["count"]
         for obj in PushNotification.objects.filter(user=user):
             obj.send(
@@ -263,6 +267,13 @@ class PushNotification(models.Model):
         context: User | Post | MessageGroup | None
     ):
         if not VAPID:
+            return
+
+        if event == "none":
+            # it's technically out of spec to not show a notification on push
+            # with userVisibleOnly set to true on the frontend, but also most
+            # browsers won't let you create a push handler without userVisibleOnly
+            # set to true, so there's not much you can do about this
             return
 
         if isinstance(context, User):

@@ -204,6 +204,16 @@ defs:
         gray: str
         darker: str
         oled: str
+      favicon:
+        label: str
+        system: str
+        light: str
+        dark: str
+        pq_light: str
+        pq_dark: str
+        cat_light: str
+        cat_dark: str
+        old: str
 
       section_language: str
       language: str
@@ -213,6 +223,8 @@ defs:
 
       section_notifications: str
       no_like_grouping: str
+      no_load_toasts: str
+      no_load_toasts_more: str
       push_enable: str
       push_disable: str
       push_blocked: str
@@ -270,7 +282,9 @@ defs:
       description: str
 
       section_credits: str
+      generic_website: str
       lead_dev: str
+      logo_artists: str
       contributors: str
       translators: str
       maintainers: str

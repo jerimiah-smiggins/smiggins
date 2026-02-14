@@ -13,7 +13,7 @@
     {% endif %}
 
     <link rel="manifest" href="/manifest.json">
-    <link rel="icon" href="{% static 'img/old_favicon.png' %}?v={{ conf.version }}">
+    <link rel="icon" id="favicon" href="{% static 'img' %}/{{ favicon }}?v={{ conf.version }}" data-url-format="{% static 'img/FAVICON_FILENAME' %}?v={{ conf.version }}">
 
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width,initial-scale=1">
@@ -61,7 +61,7 @@
 
     <div id="container">
       <div id="loading">
-        <img id="loading-icon" src="{% static 'img/old_favicon.png' %}?v={{ conf.version }}">
+        <img id="loading-icon" src="{% static 'img' %}/{{ favicon }}?v={{ conf.version }}">
         <div>{{ loading }}</div>
       </div>
     </div>
@@ -100,7 +100,7 @@
       {% include "snippet.html" with id="pages/message" vars="username" processing="message,timeline_more" %}
 
       <!-- modals -->
-      {% include "snippet.html" with id="modal/compose" processing="input_enter" %}
+      {% include "snippet.html" with id="modal/compose" vars="checked_if_default_private" processing="input_enter" %}
       {% include "snippet.html" with id="modal/keybind" %}
       {% include "snippet.html" with id="modal/update" %}
       {% include "snippet.html" with id="modal/message" processing="input_enter" %}
@@ -122,6 +122,12 @@
       let currentPage = urlToIntent(location.pathname);
       history.replaceState(currentPage, "", normalizePath(location.pathname + location.search, true));
       renderPage(currentPage);
+
+      if (!localStorage.getItem("smiggins-no-load-toasts")) {
+        {% for toast in toasts %}
+          createToast("{{ toast.title }}", "{{ toast.content }}", 8_000, "{{ toast.type }}");
+        {% endfor %}
+      }
     </script>
   </body>
 </html>

@@ -220,6 +220,16 @@ settings:
       gray: Gray
       darker: Dark Gray
       oled: Black
+    favicon:
+      label: "Favicon:"
+      system: Automatic
+      light: Light
+      dark: Dark
+      pq_light: Cat Light
+      pq_dark: Cat Dark
+      cat_light: Other Cat Light
+      cat_dark: Other Cat Dark
+      old: Old Logo
 
     section_language: Languages
     language: "Language:"
@@ -229,6 +239,8 @@ settings:
 
     section_notifications: Notifications
     no_like_grouping: Don't group like notifications
+    no_load_toasts: Hide toasts on page load
+    no_load_toasts_more: The administrators of %s may configure informational toasts to be shown when you load the page. This turns these off.
     push_enable: Enable Push Notifications
     push_disable: Disable Push Notifications
     push_blocked: Push notifications have been blocked.
@@ -241,7 +253,7 @@ settings:
     expand_cws: Always expand content warnings
     hide_changelog: Hide changelog popups
     complex_ts: Enable complex timestamps
-    complex_ts_more: (1h becomes 1h32m, 5m becomes 5m48s)
+    complex_ts_more: (1h → 1h32m, 5m → 5m48s)
     auto_show_new: Automatically show new posts on the timeline
     auto_show_new_more: When disabled, there will instead be a button to show new posts.
     banner_shape:
@@ -288,7 +300,9 @@ settings:
     description: Source code, credits...
 
     section_credits: Credits
+    generic_website: website
     lead_dev: "Lead Developer:"
+    logo_artists: "Smiggins Logo Artists:"
     contributors: "Other Contributors:"
     translators: "Translators:"
     maintainers: "Maintainers:"

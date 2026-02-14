@@ -21,6 +21,20 @@
         <option value="oled">@{lang.settings.cosmetic.themes.oled}</option>
       </select>
     </label>
+
+    <label>
+      <div class="generic-margin-top">@{lang.settings.cosmetic.favicon.label}</div>
+      <select id="favicon-sel">
+        <option value="system">@{lang.settings.cosmetic.favicon.system}</option>
+        <option value="light">@{lang.settings.cosmetic.favicon.light}</option>
+        <option value="dark">@{lang.settings.cosmetic.favicon.dark}</option>
+        <option value="pq-light">@{lang.settings.cosmetic.favicon.pq_light}</option>
+        <option value="pq-dark">@{lang.settings.cosmetic.favicon.pq_dark}</option>
+        <option value="cat-light">@{lang.settings.cosmetic.favicon.cat_light}</option>
+        <option value="cat-dark">@{lang.settings.cosmetic.favicon.cat_dark}</option>
+        <option value="old">@{lang.settings.cosmetic.favicon.old}</option>
+      </select>
+    </label>
   </div>
 
   <div>
@@ -45,7 +59,9 @@
     <div>
       <p class="no-margin-top">@{lang.settings.cosmetic.section_notifications}</p>
       <p><label><input type="checkbox" id="no-like-grouping"> @{lang.settings.cosmetic.no_like_grouping}</label></p>
-      <div>
+      <label><input type="checkbox" id="no-load-toasts"> @{lang.settings.cosmetic.no_load_toasts}</label>
+      <small><div>@{no_load_toasts_more}</div></small>
+      <div class="generic-margin-top">
         <button hidden id="enable-push-notifs">@{lang.settings.cosmetic.push_enable}</button>
         <button hidden id="disable-push-notifs">@{lang.settings.cosmetic.push_disable}</button>
         <div hidden id="push-notifs-blocked">@{lang.settings.cosmetic.push_blocked}</div>

@@ -126,6 +126,11 @@
     stroke: none;
     width: @navbar-item-height;
     height: @navbar-item-height;
+
+    &.svg-stroke-no-fill {
+      fill: none;
+      stroke: currentColor;
+    }
   }
 
   .hamburger svg {
@@ -146,6 +151,11 @@
 
     &.navbar-accent svg {
       fill: var(--accent);
+
+      &.svg-stroke-no-fill {
+        fill: none;
+        stroke: var(--accent);
+      }
     }
 
     &.navbar-current svg {

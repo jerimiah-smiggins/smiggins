@@ -126,12 +126,13 @@ class _api_Base {
 
   // builtin api error handling
   err(code: ErrorCodes): void {
-    createToast(..._getErrorStrings(code, this.id));
+    let err = _getErrorStrings(code, this.id);
+    createToast(err[0], err[1], undefined, "error");
   }
 
   // for when there is an actual js error thrown
   genericError(err: any): void {
-    createToast(L.errors.something_went_wrong, String(err));
+    createToast(L.errors.something_went_wrong, String(err), undefined, "error");
     this.always();
     console.error(err);
   }
@@ -139,6 +140,7 @@ class _api_Base {
 
 class _api_TimelineBase extends _api_Base {
   expectedTlID: string;
+  forwardsForce: boolean = false;
 
   constructor(offset: number | null, forwards: boolean | "force") {
     super();
@@ -151,13 +153,19 @@ class _api_TimelineBase extends _api_Base {
         this.requestParams += "&forwards=true";
 
         if (forwards === "force") {
-          this.expectedTlID = "$" + this.expectedTlID;
+          this.forwardsForce = true;
         }
       }
     }
   }
 
   handle(u8arr: Uint8Array): void {
+    console.log(this.expectedTlID, currentTlID);
+    if (this.expectedTlID !== currentTlID) {
+      console.log("timeline changed; discarding");
+      return;
+    }
+
     let end: boolean = _extractBool(u8arr[2], 7);
     let forwards: boolean | "force" = _extractBool(u8arr[2], 6);
     let numPosts: number = u8arr[3];
@@ -172,12 +180,7 @@ class _api_TimelineBase extends _api_Base {
     }
 
     if (forwards) {
-      if (this.expectedTlID.startsWith("$")) {
-        // Add posts directly to timeline instead of forward cache
-        handleForward(posts, end, this.expectedTlID.slice(1), true);
-      } else {
-        handleForward(posts, end, this.expectedTlID);
-      }
+      handleForward(posts, end, this.expectedTlID, this.forwardsForce);
     } else {
       renderTimeline(insertIntoPostCache(posts), end);
     }

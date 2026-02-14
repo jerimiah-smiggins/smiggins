@@ -29,6 +29,15 @@ MOTDs:
 # static files securely among other things
 debug: true
 
+# Toasts that are shown to the user when the page is loaded. Can be used for
+# announcements or upcoming changes or whatnot
+load_toasts:
+# - type: "info" | "warning" | "error"
+#   show_for: "logged_in" | "logged_out" | "all"
+#   title: "Possible Downtime"
+#   content: "Possible downtime starting Friday and continuing throughought the weekend."
+# - ...
+
 db_backup: # Information about database backups.
   # Whether or not to enable db backups
   enabled: false
