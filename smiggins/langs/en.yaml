@@ -300,6 +300,7 @@ settings:
     description: Source code, credits...
 
     section_credits: Credits
+    generic_website: website
     lead_dev: "Lead Developer:"
     logo_artists: "Smiggins Logo Artists:"
     contributors: "Other Contributors:"

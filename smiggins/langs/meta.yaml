@@ -282,6 +282,7 @@ defs:
       description: str
 
       section_credits: str
+      generic_website: str
       lead_dev: str
       logo_artists: str
       contributors: str

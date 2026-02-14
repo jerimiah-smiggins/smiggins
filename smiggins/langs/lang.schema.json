@@ -924,6 +924,9 @@
             "section_credits": {
               "type": "string"
             },
+            "generic_website": {
+              "type": "string"
+            },
             "lead_dev": {
               "type": "string"
             },
