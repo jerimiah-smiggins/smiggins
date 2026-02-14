@@ -301,6 +301,7 @@ settings:
     description: Código fuente, créditos...
 
     section_credits: Créditos
+    generic_website: sitio web
     lead_dev: "Desarrollador Principal:"
     logo_artists: "Artistas del Logo de Smiggins:"
     contributors: "Otros Contribuyentes:"
