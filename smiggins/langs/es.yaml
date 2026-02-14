@@ -221,6 +221,16 @@ settings:
       gray: Gris
       darker: Gris Oscuro
       oled: OLED
+    favicon:
+      label: "Favicono:"
+      system: Automático
+      light: Claro
+      dark: Oscuro
+      pq_light: Gato Claro
+      pq_dark: Gato Oscuro
+      cat_light: Otro Gato Claro
+      cat_dark: Otro Gato Oscuro
+      old: Logo Antiguo
 
     section_language: Idiomas
     language: "Idioma:"
@@ -255,7 +265,7 @@ settings:
       circle: Círculo
     cw_cascading:
       label: "Catarada de Advertencias de contenido:"
-      description: Que la advertencia de contenido debe estar cuando notando una publicación con uno.
+      description: Qué la advertencia de contenido debe estar cuando notando una publicación con uno.
       none: No pone un advertencia
       email: "Adjuntar \"RE: \" (como email)"
       copy: Usar advertencia actual
@@ -292,6 +302,7 @@ settings:
 
     section_credits: Créditos
     lead_dev: "Desarrollador Principal:"
+    logo_artists: "Artistas del Logo de Smiggins:"
     contributors: "Otros Contribuyentes:"
     translators: "Traductores:"
     maintainers: "Mantenedores:"
