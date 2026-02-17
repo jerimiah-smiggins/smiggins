@@ -82,7 +82,7 @@ async function handleNotification(data: PushMessageData | null): Promise<void> {
 
   sw_self.registration.showNotification(siteName, {
     body: body,
-    data: `${type};${event}`,
+    data: event,
     icon: location.origin + "/favicon.ico"
   });
 }
