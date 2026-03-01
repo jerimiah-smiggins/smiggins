@@ -496,9 +496,6 @@
         "change_instructions": {
           "type": "string"
         },
-        "in_use": {
-          "type": "string"
-        },
         "new_post": {
           "type": "object",
           "additionalProperties": false,
@@ -865,6 +862,9 @@
               "type": "string"
             },
             "section_hamburger": {
+              "type": "string"
+            },
+            "in_use": {
               "type": "string"
             }
           }

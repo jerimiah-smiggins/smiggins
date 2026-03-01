@@ -157,7 +157,6 @@ keybinds:
 
   button_change: Change
   change_instructions: Press the new key in the box above.
-  in_use: Key already in use
 
   new_post: { name: Enter Post Box, description: Lets you send a post from anywhere }
   load_new_posts: { name: Load New Posts, description: Shows any posts that have been made since the posts were initially loaded }
@@ -277,6 +276,7 @@ settings:
     section_generic: Generic Keybinds
     section_nav: Navigation Keybinds
     section_hamburger: Post Interaction Keybinds
+    in_use: Key already in use
 
   account:
     title: Account
