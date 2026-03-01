@@ -160,5 +160,5 @@ def manifest_json(request):
             "version": VERSION,
             "favicon": Path(request.COOKIES.get("favicon") or "favicon-dark.png").name
         }, request),
-        content_type="application/manifest+json"
+        content_type="application/json; charset=utf-8"
     )
