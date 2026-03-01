@@ -496,6 +496,9 @@
         "change_instructions": {
           "type": "string"
         },
+        "in_use": {
+          "type": "string"
+        },
         "new_post": {
           "type": "object",
           "additionalProperties": false,

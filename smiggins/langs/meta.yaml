@@ -145,6 +145,7 @@ defs:
 
     button_change: str
     change_instructions: str
+    in_use: str
 
     new_post: { name: str, description: str }
     load_new_posts: { name: str, description: str }
