@@ -160,5 +160,13 @@ const changes: { [key: string]: VersionData } = {
       "A configurable site description is now shown on the home page to logged out users.",
       "The 'Show New Posts' button should now show the proper post count in all cases."
     ]
+  },
+  "1.4.8": {
+    description: "Even More Bug Fixes",
+    changes: [
+      "Fixed a bug where clicking on notifications wouldn't bring you to the correct page.",
+      "The private setting on a post is now cascaded on post modals.",
+      "An icon size of 512x512 is now specified in manifest.json in order for certain browsers to accept it as valid.",
+    ]
   }
 };

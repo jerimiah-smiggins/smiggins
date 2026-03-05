@@ -38,7 +38,7 @@
       const isAdmin = "{{ is_admin }}" === "True";
       const username = "{{ username }}";
       const pageTitle = "{{ conf.site_name }}";
-      const version = "{{ conf.version }}";
+      const version = "{% if conf.enable_about_page %}{{ conf.version }}{% else %}0.0.0{% endif %}";
       const SW_URL = "/sw.js?v={{ conf.version }}";
       let defaultPostPrivate = "{{ default_post_private }}" === "True";
       const TL_POLLING_INTERVAL = {{ conf.polling.timeline }} * 1000;
@@ -76,7 +76,7 @@
       {% endcomment %}
       {% include "snippet.html" with id="pages/404" vars="home_page" %}
       {% include "snippet.html" with id="pages/logout" processing="logout" %}
-      {% include "snippet.html" with id="pages/changelog" vars="home_page" %}
+      {% if conf.enable_about_page %}{% include "snippet.html" with id="pages/changelog" vars="home_page" %}{% endif %}
       <!-- logged out pages -->
       {% include "snippet.html" with id="pages/index" vars="site_name" %}
       {% include "snippet.html" with id="pages/login" processing="input_enter,password_toggle,login" %}
