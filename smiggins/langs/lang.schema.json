@@ -863,6 +863,9 @@
             },
             "section_hamburger": {
               "type": "string"
+            },
+            "in_use": {
+              "type": "string"
             }
           }
         },

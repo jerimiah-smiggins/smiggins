@@ -15,7 +15,8 @@ function createPostModal(type?: "quote" | "comment" | "edit", id?: number): void
     poll_items: getPollInputsHTML("modal", "#modal-post"),
     private_post: "",
     placeholder: L.post.placeholder,
-    action: L.post.button
+    action: L.post.button,
+    checked_if_private: defaultPostPrivate ? "checked" : ""
   };
 
   postModalFor = undefined;
@@ -173,7 +174,7 @@ function modifyKeybindModal(kbId: string): void {
 
       clearModal();
     } else {
-      createToast("Key already in use", undefined, undefined, "warning");
+      createToast(L.settings.keybinds.in_use, undefined, undefined, "warning");
     }
 
     e.preventDefault();

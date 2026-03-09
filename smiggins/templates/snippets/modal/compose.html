@@ -18,7 +18,7 @@
     <div id="modal-poll-area" hidden>@{poll_items}</div>
 
     <div class="post-options">
-      <div><label><input type="checkbox" id="modal-post-private" @{checked_if_default_private}> @{lang.post.followers_only}</label></div>
+      <div><label><input type="checkbox" id="modal-post-private" @{checked_if_private}> @{lang.post.followers_only}</label></div>
       <div class="flex-spacer"></div>
       <div><button data-button-alt-colors id="modal-poll-toggle" @{hidden_if_no_poll}>@{lang.post.poll_button}</button></div>
       <div><button data-button-alt-colors id="modal-post">@{action}</button></div>

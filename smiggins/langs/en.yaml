@@ -276,6 +276,7 @@ settings:
     section_generic: Generic Keybinds
     section_nav: Navigation Keybinds
     section_hamburger: Post Interaction Keybinds
+    in_use: Key already in use
 
   account:
     title: Account

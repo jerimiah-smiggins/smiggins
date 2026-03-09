@@ -3,12 +3,13 @@ import threading
 from typing import TYPE_CHECKING, Literal
 
 import pywebpush
-from backend.variables import SITE_NAME, VAPID
 from django.contrib import admin as django_admin
 from django.contrib.admin.exceptions import AlreadyRegistered  # type: ignore
 from django.db import models
 from django.db.models.signals import post_delete, post_init
 from django.dispatch import receiver
+
+from backend.variables import SITE_NAME, VAPID
 
 MAX_STR8 = (1 << 8) - 1
 MAX_STR16 = (1 << 16) - 1

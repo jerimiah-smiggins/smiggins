@@ -13,9 +13,9 @@ function checkVersionNewer(current: string, version: string): boolean {
   let target: number[] = current.split(".").map(Number);
   let ver: number[] = version.split(".").map(Number);
 
-  return ver[0] as number > target[0] // A.x.x -> B.x.x
-      || ver[0] as number === target[0] && ver[1] as number > target[1] // A.B.x -> A.C.x
-      || ver[0] as number === target[0] && ver[1] as number === target[1] && ver[2] as number > target[2]; // A.B.C -> A.B.D;
+  return ver[0] > target[0] // A.x.x -> B.x.x
+      || ver[0] === target[0] && ver[1] > target[1] // A.B.x -> A.C.x
+      || ver[0] === target[0] && ver[1] === target[1] && ver[2] > target[2]; // A.B.C -> A.B.D;
 }
 
 function generateChangesHTML(since: "all" | string): string {

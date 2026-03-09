@@ -60,7 +60,7 @@ function initServiceWorker(): void {
   console.log("[SW] attempting to init");
   navigator.serviceWorker.ready.then(swRegHandler);
   swSetLanguage();
-  swClearNotifs();
+  // swClearNotifs();
 }
 
 function killServiceWorker(): void {

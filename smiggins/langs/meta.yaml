@@ -259,6 +259,7 @@ defs:
       section_generic: str
       section_nav: str
       section_hamburger: str
+      in_use: str
 
     account:
       title: str

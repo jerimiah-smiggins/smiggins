@@ -14,6 +14,6 @@
   "icons": [{
     "src": "{% static 'img' %}/{{ favicon }}",
     "type": "image/png",
-    "sizes": "64x64"
+    "sizes": "512x512"
   }]
 }

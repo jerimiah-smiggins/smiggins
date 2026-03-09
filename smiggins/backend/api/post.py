@@ -212,7 +212,7 @@ def add_like(request: HttpRequest, post_id: int) -> HttpResponse:
         return api.error(ErrorCodes.CANT_INTERACT)
 
     try:
-        post.likes.add(request.s_user)
+        M2MLike.objects.create(user=request.s_user, post=post)
     except IntegrityError:
         ...
     else:
@@ -228,7 +228,7 @@ def add_like(request: HttpRequest, post_id: int) -> HttpResponse:
             except M2MLike.DoesNotExist:
                 ...
 
-    PushNotification.send_to(creator, "none", None)
+        PushNotification.send_to(creator, "none", None)
 
     return api.response()
 

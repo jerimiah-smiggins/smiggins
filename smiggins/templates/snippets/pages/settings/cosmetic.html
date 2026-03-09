@@ -58,7 +58,8 @@
   {% if logged_in %}
     <div>
       <p class="no-margin-top">@{lang.settings.cosmetic.section_notifications}</p>
-      <p><label><input type="checkbox" id="no-like-grouping"> @{lang.settings.cosmetic.no_like_grouping}</label></p>
+      <div><label><input type="checkbox" id="no-like-grouping"> @{lang.settings.cosmetic.no_like_grouping}</label></div>
+      {% if conf.enable_about_page %}<div><label><input type="checkbox" id="hide-changelog"> @{lang.settings.cosmetic.hide_changelog}</label></div>{% endif %}
       <label><input type="checkbox" id="no-load-toasts"> @{lang.settings.cosmetic.no_load_toasts}</label>
       <small><div>@{no_load_toasts_more}</div></small>
       <div class="generic-margin-top">
@@ -75,7 +76,6 @@
     <p class="no-margin-top">@{lang.settings.cosmetic.section_posts}</p>
     <div><label><input type="checkbox" id="hide-interactions"> @{lang.settings.cosmetic.hide_interactions}</label></div>
     <div><label><input type="checkbox" id="expand-cws"> @{lang.settings.cosmetic.expand_cws}</label></div>
-    <div><label><input type="checkbox" id="hide-changelog"> @{lang.settings.cosmetic.hide_changelog}</label></div>
     <label><input type="checkbox" id="complex-timestamps"> @{lang.settings.cosmetic.complex_ts}</label>
     <small><div>@{lang.settings.cosmetic.complex_ts_more}</div></small>
     {% if logged_in %}
