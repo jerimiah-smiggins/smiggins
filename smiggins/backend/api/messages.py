@@ -102,7 +102,7 @@ def send_message(request: HttpRequest, gid: int) -> HttpResponse:
             return api.error(ErrorCodes.NOT_AUTHENTICATED)
 
     ts = round(time.time())
-    content = trim_whitespace(api.parse_data(), True)
+    content = trim_whitespace(api.parse_data())
 
     if not content[1]:
         return api.error(ErrorCodes.BAD_REQUEST)
