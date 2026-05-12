@@ -160,7 +160,6 @@ class _api_TimelineBase extends _api_Base {
   }
 
   handle(u8arr: Uint8Array): void {
-    console.log(this.expectedTlID, currentTlID);
     if (this.expectedTlID !== currentTlID) {
       console.log("timeline changed; discarding");
       return;
@@ -180,6 +179,7 @@ class _api_TimelineBase extends _api_Base {
     }
 
     if (forwards) {
+      if (posts.length) { playSound(AudioContexts.NewPost); }
       handleForward(posts, end, this.expectedTlID, this.forwardsForce);
     } else {
       renderTimeline(insertIntoPostCache(posts), end);
@@ -474,6 +474,7 @@ class api_CreatePost extends _api_Base {
   }
 
   handle(u8arr: Uint8Array): void {
+    playSound(AudioContexts.CreatePost);
     prependPostToTimeline(_extractPost(u8arr.slice(2))[0]);
   }
 }
@@ -587,7 +588,9 @@ class api_EditPost extends _api_Base {
     );
   }
 
-  handle(u8arr: Uint8Array): void {}
+  handle(u8arr: Uint8Array): void {
+    playSound(AudioContexts.EditPost);
+  }
 }
 
 class api_DeletePost extends _api_Base {
@@ -603,6 +606,7 @@ class api_DeletePost extends _api_Base {
   }
 
   handle(u8arr: Uint8Array): void {
+    playSound(AudioContexts.DeletePost);
     handlePostDelete(_extractInt(32, u8arr.slice(2)));
   }
 }
@@ -1193,14 +1197,25 @@ class api_Notifications extends _api_Base {
   method: Method = "GET";
 
   handle(u8arr: Uint8Array): void {
-    pendingNotifications = {
+    let newPending = {
       notifications: _extractBool(u8arr[2], 7),
       messages: _extractBool(u8arr[2], 6),
       follow_requests: _extractBool(u8arr[2], 5)
     };
 
-    swUpdateBadge(u8arr[3]);
+    if (previousNotificationCount != Infinity && (
+      (newPending.notifications && !pendingNotifications.notifications)
+   || (newPending.messages && !pendingNotifications.messages)
+   || (newPending.follow_requests && !pendingNotifications.follow_requests)
+   || (previousNotificationCount < u8arr[3]) // notification count has increased
+    )) {
+      playSound(AudioContexts.Notification);
+    }
 
+    previousNotificationCount = u8arr[3];
+    pendingNotifications = newPending;
+
+    swUpdateBadge(u8arr[3]);
     resetNotificationIndicators();
   }
 

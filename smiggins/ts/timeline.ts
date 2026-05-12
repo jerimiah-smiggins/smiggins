@@ -633,6 +633,7 @@ function postButtonClick(e: Event): void {
     }
 
     new (liked ? api_Unlike : api_Like)(postId).fetch();
+    if (!liked) { playSound(AudioContexts.LikePost); }
   } else if (el.dataset.interactionEdit) {
     createPostModal("edit", +el.dataset.interactionEdit);
   } else if (el.dataset.interactionPin) {

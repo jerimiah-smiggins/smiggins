@@ -7,6 +7,7 @@ declare const username: string;
 declare const pageTitle: string;
 declare const version: string;
 declare const SW_URL: string;
+declare const AUDIO_URL: string;
 declare let currentPage: intent;
 declare let defaultPostPrivate: boolean;
 declare const limits: {
@@ -38,6 +39,12 @@ type KeybindModifiers = "ctrl" | "shift" | "alt" | "nav";
 type Themes = "light" | "dark" | "warm" | "gray" | "darker" | "oled" | "system";
 type Favicon = "light" | "dark" | "old" | "pq-light" | "pq-dark" | "cat-light" | "cat-dark" | "system";
 type Method = "GET" | "POST" | "PATCH" | "DELETE";
+
+type AudioConfig = {
+  file: string,
+  volume: number,
+  disable?: boolean
+};
 
 type VersionData = {
   description: string,
@@ -251,8 +258,10 @@ type KeybindData = {
 type I = HTMLInputElement;
 type D = HTMLDivElement;
 type B = HTMLButtonElement;
+type A = HTMLAudioElement;
 
 type el = HTMLElement | null;
 type Iel = I | null;
 type Del = D | null;
 type Bel = B | null;
+type Ael = A | null;
