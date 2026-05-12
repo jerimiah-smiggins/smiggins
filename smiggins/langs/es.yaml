@@ -399,7 +399,9 @@ user:
 
   following_count: "%n Siguiendo"
   followed_by_count: "%n Seguidores"
-  posts_count: "%n publicaciones"
+  post_count:
+    1: "%n publicacione"
+    "*": "%n publicaciones"
 
   modal_close: Cerrar
 

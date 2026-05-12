@@ -129,7 +129,7 @@ function renderPage(intent: intent): void {
         color_two: c && c.color_two || "var(--background-mid)",
         following: lr(L.user.following_count, { n: c && floatintToStr(c.num_following) || "0" }),
         followers: lr(L.user.followed_by_count, { n: c && floatintToStr(c.num_followers) || "0" }),
-        post_count: lr(L.user.posts_count, { n: c && floatintToStr(c.num_posts) || "0" }),
+        post_count: lr(n(L.user.post_count, c && floatintToNum(c.num_posts) || 0), { n: c && floatintToStr(c.num_posts) || "0" }),
         bio: c && [linkify(escapeHTML(c.bio)), 1] || "",
         user_username: c && [escapeHTML(u + (c.pronouns ? " - " + c.pronouns : "")), 1] || u,
         display_name: c && [escapeHTML(c.display_name), 1] || u

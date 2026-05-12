@@ -119,9 +119,10 @@ function renderNotificationTimeline(
 
   let previousRead: boolean = false;
   for (const notif of notifs) {
-    let ts: number = notif.code === NotificationCodes.Like || notif.code === NotificationCodes.Follow ? notif.timestamp : notif.post.timestamp;
-    if (!offset.lower || ts < offset.lower) { offset.lower = ts; }
-    if (!offset.upper || ts > offset.upper) { offset.upper = ts; }
+    checkOffsetUpdateRaw(
+      notif.code === NotificationCodes.Like || notif.code === NotificationCodes.Follow ? notif.timestamp : notif.post.timestamp,
+      0 // notif ids aren't communicatd to frontend
+    );
 
     // add any new likes to the timeline when switching from unread to read notifications
     if (!previousRead && !notif.unread) {

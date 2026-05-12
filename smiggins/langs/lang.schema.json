@@ -1187,8 +1187,17 @@
         "followed_by_count": {
           "type": "string"
         },
-        "posts_count": {
-          "type": "string"
+        "post_count": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "*"
+          ],
+          "patternProperties": {
+            "\\*|\\d+": {
+              "type": "string"
+            }
+          }
         },
         "modal_close": {
           "type": "string"

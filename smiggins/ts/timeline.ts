@@ -11,7 +11,7 @@ let tlCache: { [key: string]: TimelineCache | undefined } = {};
 let postCache: { [key: number]: Post | undefined } = {};
 let userCache: { [key: string]: UserData | undefined } = {};
 
-let offset: { upper: number | null, lower: number | null } = {
+let offset: { upper: Offset, lower: Offset } = {
   upper: null,
   lower: null
 };
@@ -110,6 +110,34 @@ function insertIntoPostCache(posts: Post[]): number[] {
   }
 
   return postIds;
+}
+
+function checkOffsetUpdate(post: Post): void {
+  checkOffsetUpdateRaw(post.timestamp, post.id);
+}
+
+function checkOffsetUpdateRaw(ts: number, id: number): void {
+  if (checkOffsetHigher([ts, id], offset.upper)) {
+    offset.upper = [ts, id];
+  }
+
+  if (checkOffsetLower([ts, id], offset.lower)) {
+    offset.lower = [ts, id];
+  }
+}
+
+function checkOffsetHigher(possibleNewer: Offset, current: Offset): boolean {
+  if (possibleNewer === null) { return false; }
+  if (current === null) { return true; }
+
+  return possibleNewer[0] > current[0] || (possibleNewer[0] === current[0] && possibleNewer[1] > current[0]);
+}
+
+function checkOffsetLower(possibleOlder: Offset, current: Offset): boolean {
+  if (possibleOlder === null) { return false; }
+  if (current === null) { return true; }
+
+  return possibleOlder[0] < current[0] || (possibleOlder[0] === current[0] && possibleOlder[1] < current[0]);
 }
 
 // loads more older posts
@@ -349,8 +377,9 @@ function getPost(
 
   let postContent: string = linkify(escapeHTML(p.content), post);
 
-  if (updateOffset && (!offset.lower || p.timestamp < offset.lower)) { offset.lower = p.timestamp; }
-  if (updateOffset && (!offset.upper || p.timestamp > offset.upper)) { offset.upper = p.timestamp; }
+  if (updateOffset) {
+    checkOffsetUpdate(p);
+  }
 
   let contentWarningStart: string = "";
   let contentWarningEnd: string = "";
@@ -519,7 +548,7 @@ function handleForward(
   }
 
   if (end) {
-    offset.upper = Math.max(...posts.map((a: Post): number => (a.timestamp)));
+    checkOffsetUpdate(posts.reduce((a: Post, b: Post): Post => (checkOffsetHigher([a.timestamp, a.id], [b.timestamp, b.id]) ? a : b)));
     c.pendingForward.push(...insertIntoPostCache(posts).reverse());
 
     if (showNewElement && countWithoutPrepended > 0) {

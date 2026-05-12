@@ -67,8 +67,7 @@ function renderMessageListTimeline(
   let frag: DocumentFragment = document.createDocumentFragment();
 
   for (const group of groups) {
-    if (!offset.lower || group.timestamp < offset.lower) { offset.lower = group.timestamp; }
-    if (!offset.upper || group.timestamp > offset.upper) { offset.upper = group.timestamp; }
+    checkOffsetUpdateRaw(group.timestamp, group.group_id);
 
     let el: D = getSnippet("message-list-item", {
       gid: String(group.group_id),
@@ -193,8 +192,7 @@ function renderMessageTimeline(
   }
 
   for (const message of messages) {
-    if (!offset.lower || message.timestamp < offset.lower) { offset.lower = message.timestamp; }
-    if (!offset.upper || message.timestamp > offset.upper) { offset.upper = message.timestamp; }
+    checkOffsetUpdateRaw(message.timestamp, 0); // Messages don't have IDs communicated to frontend
 
     if (previous.username !== message.username || previous.timestamp - MESSAGE_SEPARATION_TIMESTAMP_THRESHOLD > message.timestamp) {
       frag.append(_getMessageSeparator(previous));

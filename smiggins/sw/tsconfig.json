@@ -3,6 +3,8 @@
     "lib": [ "es2021", "WebWorker" ],
     "noUnusedLocals": true,
     "outFile": "../static/sw.js",
+    "ignoreDeprecations": "6.0",
+    "rootDir": ".",
     "removeComments": true,
     "target": "es6",
     "strict": true

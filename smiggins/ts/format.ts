@@ -142,12 +142,12 @@ class _api_TimelineBase extends _api_Base {
   expectedTlID: string;
   forwardsForce: boolean = false;
 
-  constructor(offset: number | null, forwards: boolean | "force") {
+  constructor(offset: Offset, forwards: boolean | "force") {
     super();
     this.expectedTlID = currentTlID;
 
     if (offset) {
-      this.requestParams = `offset=${offset}`;
+      this.requestParams = `offset_raw=${offset[0]}:${offset[1]}`;
 
       if (forwards) {
         this.requestParams += "&forwards=true";
@@ -771,7 +771,7 @@ class api_MessageTimeline extends _api_TimelineBase {
   url: string;
   method: Method = "GET";
 
-  constructor(offset: number | null, forwards: boolean | "force", gid: number) {
+  constructor(offset: Offset, forwards: boolean | "force", gid: number) {
     super(offset, forwards);
     this.url = `/api/messages/${gid}`;
   }
@@ -880,7 +880,7 @@ class api_TimelineGlobal extends _api_TimelineBase {
   url: string;
   method: Method = "GET";
 
-  constructor(offset: number | null, forwards: boolean | "force", comments?: boolean) {
+  constructor(offset: Offset, forwards: boolean | "force", comments?: boolean) {
     super(offset, forwards);
     this.url = `/api/timeline/global${comments ? "?comments=true" : ""}`;
   }
@@ -893,7 +893,7 @@ class api_TimelineFollowing extends _api_TimelineBase {
   url: string;
   method: Method = "GET";
 
-  constructor(offset: number | null, forwards: boolean | "force", comments?: boolean) {
+  constructor(offset: Offset, forwards: boolean | "force", comments?: boolean) {
     super(offset, forwards);
     this.url = `/api/timeline/following${comments ? "?comments=true" : ""}`;
   }
@@ -906,7 +906,7 @@ class api_TimelineUser extends _api_TimelineBase {
   url: string;
   method: Method = "GET";
 
-  constructor(offset: number | null, forwards: boolean | "force", username?: string, comments?: boolean) {
+  constructor(offset: Offset, forwards: boolean | "force", username?: string, comments?: boolean) {
     super(offset, forwards);
     this.url = `/api/timeline/user/${username}${comments ? "?include_comments=true" : ""}`;
   }
@@ -952,7 +952,7 @@ class api_TimelineComments extends _api_TimelineBase {
   url: string;
   method: Method = "GET";
 
-  constructor(offset: number | null, forwards: boolean | "force", pid?: number, sort?: "recent" | "oldest") {
+  constructor(offset: Offset, forwards: boolean | "force", pid?: number, sort?: "recent" | "oldest") {
     super(offset, forwards);
     this.url = `/api/timeline/post/${pid}?sort=${sort}`;
   }
@@ -1075,7 +1075,7 @@ class api_TimelineHashtag extends _api_TimelineBase {
   url: string;
   method: Method = "GET";
 
-  constructor(offset: number | null, forwards: boolean | "force", tag?: string, sort?: "recent" | "oldest") {
+  constructor(offset: Offset, forwards: boolean | "force", tag?: string, sort?: "recent" | "oldest") {
     super(offset, forwards);
     this.url = `/api/timeline/tag/${tag}?sort=${sort}`;
   }
@@ -1088,7 +1088,7 @@ class api_TimelineFolreq extends _api_TimelineBase {
   url: string = "/api/timeline/follow-requests";
   method: Method = "GET";
 
-  constructor(offset: number | null, _: any) { super(offset, false); }
+  constructor(offset: Offset, _: any) { super(offset, false); }
 
   handle(u8arr: Uint8Array): void {
     let end: boolean = _extractBool(u8arr[2], 7);
@@ -1127,7 +1127,7 @@ class api_TimelineSearch extends _api_TimelineBase {
   url: string;
   method: Method = "GET";
 
-  constructor(offset: number | null, forwards: boolean | "force", params?: string, sort?: "new" | "old") {
+  constructor(offset: Offset, forwards: boolean | "force", params?: string, sort?: "new" | "old") {
     super(offset, forwards);
     this.url = `/api/timeline/search?sort=${sort}&${params}`;
   }
@@ -1140,7 +1140,7 @@ class api_TimelineUserFollowing extends _api_TimelineBase {
   url: string;
   method: Method = "GET";
 
-  constructor(offset: number | null, username: string) {
+  constructor(offset: Offset, username: string) {
     super(offset, false);
     this.url = `/api/timeline/user/following/${username}`;
   }
@@ -1178,7 +1178,7 @@ class api_TimelineUserFollowing extends _api_TimelineBase {
 class api_TimelineUserFollowers extends api_TimelineUserFollowing {
   id: ResponseCodes = ResponseCodes.TimelineUserFollowers;
 
-  constructor(offset: number | null, username: string) {
+  constructor(offset: Offset, username: string) {
     super(offset, username);
     this.url = `/api/timeline/user/followers/${username}`;
   }

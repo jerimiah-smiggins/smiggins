@@ -365,7 +365,7 @@ defs:
 
     following_count: str
     followed_by_count: str
-    posts_count: str
+    post_count: numbered
 
     modal_close: str
 

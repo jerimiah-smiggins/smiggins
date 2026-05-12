@@ -399,7 +399,9 @@ user:
 
   following_count: following %n
   followed_by_count: followed by %n
-  posts_count: "%n posts"
+  post_count:
+    1: "%n post"
+    "*": "%n posts"
 
   modal_close: Close
 

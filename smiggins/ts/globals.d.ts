@@ -124,7 +124,7 @@ type Message = {
 }
 
 type TimelineConfig = {
-  api: new (offset: number | null, forwards: boolean | "force", ...args: any) => _api_Base,
+  api: new (offset: Offset, forwards: boolean | "force", ...args: any) => _api_Base,
   args?: any[],
   // url: string,
   prependPosts: boolean | number,
@@ -184,9 +184,10 @@ type NotificationData = {
   post: Post
 } | NotificationLikeData | NotificationFollowData;
 
+type Offset = [ts: number, id: number] | null;
 type TimelineCache = {
-  upperBound: number | null,
-  lowerBound: number | null,
+  upperBound: Offset,
+  lowerBound: Offset,
   posts: number[],
   pendingForward: number[] | false,
   end: boolean

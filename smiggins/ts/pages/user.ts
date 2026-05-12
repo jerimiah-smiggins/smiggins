@@ -1,5 +1,5 @@
 const colorRegex = /^#[0-9a-f]{6}$/;
-let followingTimelineOffset: number | null = null;
+let followingTimelineOffset: Offset = null;
 
 function getUsernameFromPath(path?: string): string {
   return (path || location.pathname).toLowerCase().split("/").filter(Boolean)[1];
@@ -161,7 +161,7 @@ function userUpdateStats(
   let postsElement: el = document.getElementById("post-count");
   if (followingElement) { followingElement.innerText = lr(L.user.following_count, { n: c && floatintToStr(numFollowing) || "0" }); }
   if (followersElement) { followersElement.innerText = lr(L.user.followed_by_count, { n: c && floatintToStr(numFollowers) || "0" }); }
-  if (postsElement) { postsElement.innerText = lr(L.user.posts_count, { n: c && floatintToStr(numPosts) || "0" }); }
+  if (postsElement) { postsElement.innerText = lr(n(L.user.post_count, floatintToNum(numPosts)), { n: c && floatintToStr(numPosts) || "0" }); }
 }
 
 function updateFollowButton(followed: false): void;
@@ -276,8 +276,8 @@ function renderFollowingTimeline(users: FollowRequestUserData[], end: boolean): 
 
     frag.append(el);
 
-    if (followingTimelineOffset === null || u.id < followingTimelineOffset) {
-      followingTimelineOffset = u.id;
+    if (followingTimelineOffset === null || u.id < followingTimelineOffset[1]) {
+      followingTimelineOffset = [0, u.id]; // timestamp doesn't matter for following/followers
     }
   }
 
