@@ -14,9 +14,10 @@ from ..variables import (DEFAULT_BANNER_COLOR, ENABLE_NEW_ACCOUNTS,
                          MAX_DISPL_NAME_LENGTH, MAX_USERNAME_LENGTH)
 from .format import (ErrorCodes, api_AcceptFolreq, api_Block,
                      api_ChangePassword, api_DeleteAccount, api_DenyFolreq,
-                     api_Follow, api_GetProfile, api_LogIn, api_SaveProfile,
-                     api_SetDefaultVisibility, api_SetVerifyFollowers,
-                     api_SignUp, api_Unblock, api_Unfollow)
+                     api_Follow, api_GetProfile, api_LogIn, api_Mute,
+                     api_SaveProfile, api_SetDefaultVisibility,
+                     api_SetVerifyFollowers, api_SignUp, api_Unblock,
+                     api_Unfollow, api_Unmute)
 
 COLOR_REGEX = re.compile(r"^#[a-f0-9]{6}$")
 
@@ -133,17 +134,19 @@ def _follow(request: HttpRequest, unfollow: bool) -> HttpResponse:
 
         elif not request.s_user.following.contains(user):
             request.s_user.following.add(user)
-            Notification.objects.create(
-                timestamp=round(time.time()),
-                event_type="follow",
-                linked_follow=M2MFollow.objects.get(
-                    user=request.s_user,
-                    following=user
-                ),
-                is_for=user
-            )
 
-            PushNotification.send_to(user, "follow", request.s_user)
+            if not user.muting.contains(request.s_user):
+                Notification.objects.create(
+                    timestamp=round(time.time()),
+                    event_type="follow",
+                    linked_follow=M2MFollow.objects.get(
+                        user=request.s_user,
+                        following=user
+                    ),
+                    is_for=user
+                )
+
+                PushNotification.send_to(user, "follow", request.s_user)
 
         api.set_response(is_pending=user.verify_followers)
 
@@ -191,6 +194,33 @@ def _block(request: HttpRequest, unblock: bool) -> HttpResponse:
 
         if not request.s_user.blocking.contains(user):
             request.s_user.blocking.add(user)
+
+    return api.response()
+
+def mute_add(request: HttpRequest) -> HttpResponse:
+    return _mute(request, False)
+
+def mute_remove(request: HttpRequest) -> HttpResponse:
+    return _mute(request, True)
+
+def _mute(request: HttpRequest, unmute: bool) -> HttpResponse:
+    api = (api_Unmute if unmute else api_Mute)(request)
+
+    if request.s_user is None:
+        return api.error(ErrorCodes.NOT_AUTHENTICATED)
+
+    try:
+        user = User.objects.get(username=api.parse_data())
+    except User.DoesNotExist:
+        return api.error(ErrorCodes.BAD_USERNAME)
+
+    if unmute:
+        if request.s_user.muting.contains(user):
+            request.s_user.muting.remove(user)
+
+    else:
+        if not request.s_user.muting.contains(user):
+            request.s_user.muting.add(user)
 
     return api.response()
 

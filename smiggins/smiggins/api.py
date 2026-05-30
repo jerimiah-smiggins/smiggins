@@ -14,8 +14,9 @@ from backend.api.timeline import (tl_comments, tl_following, tl_folreq,
 from backend.api.user import (block_add, block_remove, change_password,
                               delete_account, follow_add, follow_remove,
                               folreq_accept, folreq_deny, get_profile, login,
-                              save_profile, set_post_visibility,
-                              set_verify_followers, signup)
+                              mute_add, mute_remove, save_profile,
+                              set_post_visibility, set_verify_followers,
+                              signup)
 from backend.variables import DEBUG, SITE_NAME, VERSION
 from django.urls import path
 from ninja import NinjaAPI
@@ -34,6 +35,8 @@ api.post("user/follow")(follow_add)
 api.delete("user/follow")(follow_remove)
 api.post("user/block")(block_add)
 api.delete("user/block")(block_remove)
+api.post("user/mute")(mute_add)
+api.delete("user/mute")(mute_remove)
 api.post("user/follow-request")(folreq_accept)
 api.delete("user/follow-request")(folreq_deny)
 

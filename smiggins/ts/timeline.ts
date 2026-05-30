@@ -76,7 +76,7 @@ function reloadTimeline(ignoreCache: boolean=false, element?: D): void {
     for (const post of cache.posts) {
       let p: Post | undefined = postCache[post];
       let u: UserData | undefined = p && userCache[p.user.username];
-      if (currentTl.api === api_TimelineUser || !u || !u.blocking) {
+      if (currentTl.api === api_TimelineUser || !u || !(u.blocking || u.muting)) {
         posts.push(post);
       }
     }

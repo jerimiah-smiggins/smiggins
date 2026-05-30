@@ -393,9 +393,15 @@ user:
   follow: Follow
   unfollow: Unfollow
   pending: Pending
+  follow_info: Whether or not to show a user's posts on the following timeline. When following a user, they will get notified, however they won't be notified if you unfollow them.
+  mute: Mute
+  unmute: Unmute
+  mute_info: Muting a user prevents you from seeing any of their posts or activity, however they can still see and interact with any of your posts. If you mute a user you are following, you won't see their posts on your following timeline.
   block: Block
   unblock: Unblock
+  block_info: Blocking a user prevents you from seeing or interacting with any of their posts and prevents them from seeing any of your posts. If you block a user you're following, you will unfollow them, and that user will also unfollow you if you are being followed by them.
   no_bio: No bio set
+  user_relationship_help_title: User Relationships
 
   following_count: following %n
   followed_by_count: followed by %n

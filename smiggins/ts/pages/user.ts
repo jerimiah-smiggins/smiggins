@@ -11,6 +11,8 @@ function p_user(element: D): void {
 
   element.querySelector("#follow")?.addEventListener("click", toggleFollow);
   element.querySelector("#block")?.addEventListener("click", toggleBlock);
+  element.querySelector("#mute")?.addEventListener("click", toggleMute);
+  element.querySelector("#user-relationship-help")?.addEventListener("click", createRelationshipHelpModal);
   element.querySelector("#following-popup")?.addEventListener("click", (): void => (createFollowingModal("following", userUsername)));
   element.querySelector("#followers-popup")?.addEventListener("click", (): void => (createFollowingModal("followers", userUsername)));
 
@@ -36,6 +38,7 @@ function userUpdateStats(
   colorTwo: string,
   following: boolean | "pending",
   blocking: boolean,
+  muting: boolean,
   numFollowing: number,
   numFollowers: number,
   numPosts: number,
@@ -52,6 +55,7 @@ function userUpdateStats(
     c.color_two     = colorTwo;
     c.following     = following;
     c.blocking      = blocking;
+    c.muting        = muting;
     c.num_following = numFollowing;
     c.num_followers = numFollowers;
     c.num_posts     = numPosts;
@@ -65,6 +69,7 @@ function userUpdateStats(
       color_two: colorTwo || "var(--background-mid)",
       following: following || false,
       blocking: blocking || false,
+      muting: muting || false,
       num_following: numFollowing || 0,
       num_followers: numFollowers || 0,
       num_posts: numPosts || 0,
@@ -74,17 +79,18 @@ function userUpdateStats(
     userCache[userUsername] = c;
   }
 
-  if (username !== userUsername) { // follow/block buttons
+  if (username !== userUsername) { // follow/block/mute buttons
     document.getElementById("user-interactions")?.removeAttribute("hidden");
 
     let followElement: el = document.getElementById("follow");
     let blockElement: el = document.getElementById("block");
+    let muteElement: el = document.getElementById("mute");
 
     if (followElement) {
-      if (following === "pending") {
+      if (c.following === "pending") {
         followElement.innerText = L.user.pending;
         followElement.dataset.unfollow = "";
-      } else if (following) {
+      } else if (c.following) {
         followElement.innerText = L.user.unfollow;
         followElement.dataset.unfollow = "";
       } else {
@@ -94,12 +100,22 @@ function userUpdateStats(
     }
 
     if (blockElement) {
-      if (blocking) {
+      if (c.blocking) {
         blockElement.innerText = L.user.unblock;
         blockElement.dataset.unblock = "";
       } else {
         blockElement.innerText = L.user.block;
         delete blockElement.dataset.unblock;
+      }
+    }
+
+    if (muteElement) {
+      if (c.muting) {
+        muteElement.innerText = L.user.unmute;
+        muteElement.dataset.unmute = "";
+      } else {
+        muteElement.innerText = L.user.mute;
+        delete muteElement.dataset.unmute;
       }
     }
   }
@@ -206,6 +222,19 @@ function updateBlockButton(blocked: boolean): void {
   }
 }
 
+function updateMuteButton(muted: boolean): void {
+  let muteButton: el = document.getElementById("mute");
+  if (!muteButton) { return; }
+
+  if (muted) {
+    muteButton.innerText = L.user.unmute;
+    muteButton.dataset.unmute = "";
+  } else {
+    muteButton.innerText = L.user.mute;
+    delete muteButton.dataset.unmute;
+  }
+}
+
 function toggleFollow(e: Event): void {
   let followButton: Bel = e.target as Bel;
   if (!followButton) { return; }
@@ -230,6 +259,15 @@ function toggleBlock(e: Event): void {
 
 function blockUser(username: string, toBlock: boolean, disable?: B): void {
   new (toBlock ? api_Block : api_Unblock)(username, disable).fetch()
+}
+
+function toggleMute(e: Event): void {
+  let muteButton: Bel = e.target as Bel;
+  if (!muteButton) { return; }
+
+  let unmute: boolean = muteButton.dataset.unmute !== undefined;
+
+  new (unmute ? api_Unmute : api_Mute)(getUsernameFromPath(), muteButton).fetch()
 }
 
 function hookFollowingTimeline(type: "following" | "followers", username: string): void {

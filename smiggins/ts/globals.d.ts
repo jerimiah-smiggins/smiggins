@@ -29,7 +29,7 @@ type snippet = "pages/index" | "pages/login" | "pages/signup"
              | "pages/home" | "pages/user" | "pages/hashtag" | "pages/post" | "pages/notifications" | "pages/follow-requests" | "pages/admin" | "pages/search"
              | "pages/settings" | "pages/settings/profile" | "pages/settings/cosmetic" | "pages/settings/account" | "pages/settings/keybinds" | "pages/settings/about"
              | "post" | "post-placeholder" | "toast" | "notification-like" | "notification-follow" | "folreq-user"
-             | "modal/compose" | "modal/keybind" | "modal/update" | "modal/message" | "modal/following";
+             | "modal/compose" | "modal/keybind" | "modal/update" | "modal/message" | "modal/following" | "modal/user-relationship-help";
 
 type Icons = "back" | "logo"
            | "private" | "comment_arrow" | "comment" | "quote" | "like" | "like_active" | "hamburger" | "edit" | "pin" | "unpin" | "delete" | "share" | "embed"
@@ -150,6 +150,7 @@ type UserData = {
   color_two: string,
   following: boolean | "pending",
   blocking: boolean,
+  muting: boolean,
   num_following: number,
   num_followers: number,
   num_posts: number,

@@ -114,6 +114,16 @@ function createPostModal(type?: "quote" | "comment" | "edit", id?: number): void
   }
 }
 
+function createRelationshipHelpModal(): void {
+  if (document.getElementById("modal")) { return; }
+
+  document.body.append(getSnippet("modal/user-relationship-help"));
+
+  document.getElementById("modal")?.addEventListener("click", clearModalIfClicked);
+  document.addEventListener("keydown", clearModalOnEscape);
+
+}
+
 function createUpdateModal(since: string): void {
   if (document.getElementById("modal")) { return; }
 

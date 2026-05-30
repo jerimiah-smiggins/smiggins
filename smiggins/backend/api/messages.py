@@ -123,6 +123,7 @@ def send_message(request: HttpRequest, gid: int) -> HttpResponse:
     to_notify = M2MMessageMember.objects.filter(
         ~Q(user=request.s_user),
         ~Q(user__blocking=request.s_user.user_id),
+        ~Q(user__muting=request.s_user.user_id),
         group=group,
         unread=False
     )

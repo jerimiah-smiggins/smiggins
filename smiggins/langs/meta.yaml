@@ -359,9 +359,15 @@ defs:
     follow: str
     unfollow: str
     pending: str
+    follow_info: str
+    mute: str
+    unmute: str
+    mute_info: str
     block: str
     unblock: str
+    block_info: str
     no_bio: str
+    user_relationship_help_title: str
 
     following_count: str
     followed_by_count: str

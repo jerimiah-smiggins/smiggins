@@ -1172,13 +1172,31 @@
         "pending": {
           "type": "string"
         },
+        "follow_info": {
+          "type": "string"
+        },
+        "mute": {
+          "type": "string"
+        },
+        "unmute": {
+          "type": "string"
+        },
+        "mute_info": {
+          "type": "string"
+        },
         "block": {
           "type": "string"
         },
         "unblock": {
           "type": "string"
         },
+        "block_info": {
+          "type": "string"
+        },
         "no_bio": {
+          "type": "string"
+        },
+        "user_relationship_help_title": {
           "type": "string"
         },
         "following_count": {

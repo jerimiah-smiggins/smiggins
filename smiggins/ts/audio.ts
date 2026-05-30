@@ -8,32 +8,39 @@ enum AudioContexts {
 };
 
 const DEFAULT_AUDIO_CONFIG: { [key in AudioContexts]: AudioConfig } = {
-  [AudioContexts.CreatePost]: {
-    file: "pop2-e5a5.mp3",
-    volume: 1
-  },
-  [AudioContexts.EditPost]: {
-    file: "pop2-e5a5.mp3",
-    volume: 1
-  },
-  [AudioContexts.LikePost]: {
-    file: "pop2-e5.mp3",
-    volume: 0.25
-  },
-  [AudioContexts.DeletePost]: {
-    file: "pop2-e5.mp3",
-    volume: 1,
-    disable: true
-  },
-  [AudioContexts.Notification]: {
-    file: "pop-e5.mp3",
-    volume: 1
-  },
-  [AudioContexts.NewPost]: {
-    file: "pop-e5a5.mp3",
-    volume: 1,
-    disable: true
-  }
+  [AudioContexts.CreatePost]:   { file: "", volume: 1, disable: true },
+  [AudioContexts.EditPost]:     { file: "", volume: 1, disable: true },
+  [AudioContexts.LikePost]:     { file: "", volume: 1, disable: true },
+  [AudioContexts.DeletePost]:   { file: "", volume: 1, disable: true },
+  [AudioContexts.Notification]: { file: "", volume: 1, disable: true },
+  [AudioContexts.NewPost]:      { file: "", volume: 1, disable: true }
+
+  // [AudioContexts.CreatePost]: {
+  //   file: "pop2-e5a5.mp3",
+  //   volume: 1
+  // },
+  // [AudioContexts.EditPost]: {
+  //   file: "pop2-e5a5.mp3",
+  //   volume: 1
+  // },
+  // [AudioContexts.LikePost]: {
+  //   file: "pop2-e5.mp3",
+  //   volume: 0.25
+  // },
+  // [AudioContexts.DeletePost]: {
+  //   file: "pop2-e5.mp3",
+  //   volume: 1,
+  //   disable: true
+  // },
+  // [AudioContexts.Notification]: {
+  //   file: "pop-e5.mp3",
+  //   volume: 1
+  // },
+  // [AudioContexts.NewPost]: {
+  //   file: "pop-e5a5.mp3",
+  //   volume: 1,
+  //   disable: true
+  // }
 };
 
 function getAudio(context: AudioContexts | AudioConfig): Ael {

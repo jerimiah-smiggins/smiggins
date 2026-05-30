@@ -21,7 +21,7 @@ def get_timeline(
     user: User | None,
     forwards: bool=False, *,
     no_visibility_check: bool=False,
-    show_blocked: bool=False,
+    show_blocked_and_muted: bool=False,
     order_by: list[str]=["-timestamp", "-pk"],
     offset_ignore_id: bool=False
 ) -> tuple[bool, list[T]]:
@@ -44,8 +44,8 @@ def get_timeline(
         if user:
             tl = tl.filter(~Q(creator__blocking=user)) # exclude users who block you
 
-            if not show_blocked:
-                tl = tl.filter(~Q(creator__blockers=user)) # exclude users who you block
+            if not show_blocked_and_muted:
+                tl = tl.filter(~Q(creator__blockers=user) & ~Q(creator__muters=user)) # exclude users who you block/mute
 
             tl = tl.filter(
                 ~Q(private=True) # public posts
@@ -124,7 +124,7 @@ def tl_user(request: HttpRequest, username: str, offset_raw: str | None=None, fo
         offset,
         request.s_user,
         forwards,
-        show_blocked=True
+        show_blocked_and_muted=True
     )
 
     api.set_response(end, forwards, posts, user, request.s_user)

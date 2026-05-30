@@ -10,6 +10,8 @@ enum ResponseCodes {
   Unblock,
   AcceptFolreq,
   DenyFolreq,
+  Mute,
+  Unmute,
   GetProfile = 0x20,
   SaveProfile,
   DeleteAccount,
@@ -62,9 +64,59 @@ enum ErrorCodes {
   Ratelimit
 };
 
+const API_VERSIONS: { [key in ResponseCodes]: number } = {
+  [ResponseCodes.NOOP]: 0,
+  [ResponseCodes.LogIn]: 0,
+  [ResponseCodes.SignUp]: 0,
+  [ResponseCodes.Follow]: 0,
+  [ResponseCodes.Unfollow]: 0,
+  [ResponseCodes.Block]: 0,
+  [ResponseCodes.Unblock]: 0,
+  [ResponseCodes.AcceptFolreq]: 0,
+  [ResponseCodes.DenyFolreq]: 0,
+  [ResponseCodes.Mute]: 0,
+  [ResponseCodes.Unmute]: 0,
+  [ResponseCodes.GetProfile]: 0,
+  [ResponseCodes.SaveProfile]: 0,
+  [ResponseCodes.DeleteAccount]: 1,
+  [ResponseCodes.ChangePassword]: 0,
+  [ResponseCodes.DefaultVisibility]: 0,
+  [ResponseCodes.VerifyFollowers]: 0,
+  [ResponseCodes.CreatePost]: 0,
+  [ResponseCodes.Like]: 0,
+  [ResponseCodes.Unlike]: 0,
+  [ResponseCodes.Pin]: 0,
+  [ResponseCodes.Unpin]: 0,
+  [ResponseCodes.PollVote]: 0,
+  [ResponseCodes.PollRefresh]: 0,
+  [ResponseCodes.EditPost]: 0,
+  [ResponseCodes.DeletePost]: 0,
+  [ResponseCodes.AdminDeleteUser]: 0,
+  [ResponseCodes.GenerateOTP]: 0,
+  [ResponseCodes.DeleteOTP]: 0,
+  [ResponseCodes.ListOTP]: 0,
+  [ResponseCodes.GetAdminPermissions]: 0,
+  [ResponseCodes.SetAdminPermissions]: 0,
+  [ResponseCodes.MessageGroupTimeline]: 1,
+  [ResponseCodes.MessageTimeline]: 1,
+  [ResponseCodes.MessageSend]: 0,
+  [ResponseCodes.MessageGetGID]: 0,
+  [ResponseCodes.TimelineGlobal]: 1,
+  [ResponseCodes.TimelineFollowing]: 1,
+  [ResponseCodes.TimelineUser]: 1,
+  [ResponseCodes.TimelineComments]: 1,
+  [ResponseCodes.TimelineNotifications]: 2,
+  [ResponseCodes.TimelineHashtag]: 1,
+  [ResponseCodes.TimelineFolreq]: 2,
+  [ResponseCodes.TimelineSearch]: 1,
+  [ResponseCodes.TimelineUserFollowing]: 1,
+  [ResponseCodes.TimelineUserFollowers]: 1,
+  [ResponseCodes.Notifications]: 1,
+};
+
 class _api_Base {
   id: ResponseCodes = ResponseCodes.NOOP;
-  version: number = 0;
+  version: number = API_VERSIONS[ResponseCodes.NOOP];
 
   url: string = "/api/noop";
   method: Method = "GET";
@@ -73,8 +125,6 @@ class _api_Base {
 
   requestBody: ArrayBuffer | string | null = null;
   requestParams: string | null = null;
-
-  constructor(...params: any) {}
 
   async fetch(): Promise<boolean | void> {
     for (const el of this.disabled) {
@@ -190,7 +240,7 @@ class _api_TimelineBase extends _api_Base {
 // 0X - Authentication
 class api_LogIn extends _api_Base {
   id: ResponseCodes = ResponseCodes.LogIn;
-  version: number = 0;
+  version: number = API_VERSIONS[ResponseCodes.LogIn];
 
   url: string = "/api/user/login";
   method: Method = "POST";
@@ -214,7 +264,7 @@ class api_LogIn extends _api_Base {
 
 class api_SignUp extends _api_Base {
   id: ResponseCodes = ResponseCodes.SignUp;
-  version: number = 0;
+  version: number = API_VERSIONS[ResponseCodes.SignUp];
 
   url: string = "/api/user/signup";
   method: Method = "POST";
@@ -240,7 +290,7 @@ class api_SignUp extends _api_Base {
 // 1X - Relationships
 class api_Follow extends _api_Base {
   id: ResponseCodes = ResponseCodes.Follow;
-  version: number = 0;
+  version: number = API_VERSIONS[ResponseCodes.Follow];
 
   url: string = "/api/user/follow";
   method: Method = "POST";
@@ -258,7 +308,7 @@ class api_Follow extends _api_Base {
 
 class api_Unfollow extends api_Follow {
   id: ResponseCodes = ResponseCodes.Unfollow;
-  version: number = 0;
+  version: number = API_VERSIONS[ResponseCodes.Unfollow];
 
   method: Method = "DELETE";
 
@@ -269,7 +319,7 @@ class api_Unfollow extends api_Follow {
 
 class api_Block extends api_Follow {
   id: ResponseCodes = ResponseCodes.Block;
-  version: number = 0;
+  version: number = API_VERSIONS[ResponseCodes.Block];
 
   url: string = "/api/user/block";
   method: Method = "POST";
@@ -281,7 +331,7 @@ class api_Block extends api_Follow {
 
 class api_Unblock extends api_Block {
   id: ResponseCodes = ResponseCodes.Unblock;
-  version: number = 0;
+  version: number = API_VERSIONS[ResponseCodes.Unblock];
 
   method: Method = "DELETE";
 
@@ -292,7 +342,7 @@ class api_Unblock extends api_Block {
 
 class api_AcceptFollowRequest extends _api_Base {
   id: ResponseCodes = ResponseCodes.AcceptFolreq;
-  version: number = 0;
+  version: number = API_VERSIONS[ResponseCodes.AcceptFolreq];
 
   url: string = "/api/user/follow-request";
   method: Method = "POST";
@@ -307,15 +357,38 @@ class api_AcceptFollowRequest extends _api_Base {
 
 class api_DenyFollowRequest extends api_AcceptFollowRequest {
   id: ResponseCodes = ResponseCodes.DenyFolreq;
-  version: number = 0;
+  version: number = API_VERSIONS[ResponseCodes.DenyFolreq];
 
   method: Method = "DELETE";
+}
+
+class api_Mute extends api_Follow {
+  id: ResponseCodes = ResponseCodes.Mute;
+  version: number = API_VERSIONS[ResponseCodes.Mute];
+
+  url: string = "/api/user/mute";
+  method: Method = "POST";
+
+  handle(u8arr: Uint8Array): void {
+    updateMuteButton(true);
+  }
+}
+
+class api_Unmute extends api_Mute {
+  id: ResponseCodes = ResponseCodes.Unmute;
+  version: number = API_VERSIONS[ResponseCodes.Unmute];
+
+  method: Method = "DELETE";
+
+  handle(u8arr: Uint8Array): void {
+    updateMuteButton(false);
+  }
 }
 
 // 2X - Settings and Account Management
 class api_GetProfile extends _api_Base {
   id: ResponseCodes = ResponseCodes.GetProfile;
-  version: number = 0;
+  version: number = API_VERSIONS[ResponseCodes.GetProfile];
 
   url: string = "/api/user";
   method: Method = "GET";
@@ -339,7 +412,7 @@ class api_GetProfile extends _api_Base {
 
 class api_SaveProfile extends _api_Base {
   id: ResponseCodes = ResponseCodes.SaveProfile;
-  version: number = 0;
+  version: number = API_VERSIONS[ResponseCodes.SaveProfile];
 
   url: string = "/api/user";
   method: Method = "PATCH";
@@ -372,7 +445,7 @@ class api_SaveProfile extends _api_Base {
 
 class api_DeleteAccount extends _api_Base {
   id: ResponseCodes = ResponseCodes.DeleteAccount;
-  version: number = 1;
+  version: number = API_VERSIONS[ResponseCodes.DeleteAccount];
 
   url: string = "/api/user";
   method: Method = "DELETE";
@@ -393,7 +466,7 @@ class api_DeleteAccount extends _api_Base {
 
 class api_ChangePassword extends _api_Base {
   id: ResponseCodes = ResponseCodes.ChangePassword;
-  version: number = 0;
+  version: number = API_VERSIONS[ResponseCodes.ChangePassword];
 
   url: string = "/api/user/password";
   method: Method = "PATCH";
@@ -413,7 +486,7 @@ class api_ChangePassword extends _api_Base {
 
 class api_DefaultVisibility extends _api_Base {
   id: ResponseCodes = ResponseCodes.DefaultVisibility;
-  version: number = 0;
+  version: number = API_VERSIONS[ResponseCodes.DefaultVisibility];
 
   url: string = "/api/user/default_post";
   method: Method = "PATCH";
@@ -428,7 +501,7 @@ class api_DefaultVisibility extends _api_Base {
 
 class api_VerifyFollowers extends _api_Base {
   id: ResponseCodes = ResponseCodes.VerifyFollowers;
-  version: number = 0;
+  version: number = API_VERSIONS[ResponseCodes.VerifyFollowers];
 
   url: string = "/api/user/verify_followers";
   method: Method = "PATCH";
@@ -444,7 +517,7 @@ class api_VerifyFollowers extends _api_Base {
 // 3X - Posts and Interactions
 class api_CreatePost extends _api_Base {
   id: ResponseCodes = ResponseCodes.CreatePost;
-  version: number = 0;
+  version: number = API_VERSIONS[ResponseCodes.CreatePost];
 
   url: string = "/api/post";
   method: Method = "POST";
@@ -481,7 +554,7 @@ class api_CreatePost extends _api_Base {
 
 class api_Like extends _api_Base {
   id: ResponseCodes = ResponseCodes.Like;
-  version: number = 0;
+  version: number = API_VERSIONS[ResponseCodes.Like];
 
   url: string;
   method: Method = "POST";
@@ -496,7 +569,7 @@ class api_Like extends _api_Base {
 
 class api_Unlike extends api_Like {
   id: ResponseCodes = ResponseCodes.Unlike;
-  version: number = 0;
+  version: number = API_VERSIONS[ResponseCodes.Unlike];
 
   method: Method = "DELETE";
 
@@ -505,7 +578,7 @@ class api_Unlike extends api_Like {
 
 class api_Pin extends _api_Base {
   id: ResponseCodes = ResponseCodes.Pin;
-  version: number = 0;
+  version: number = API_VERSIONS[ResponseCodes.Pin];
 
   url: string;
   method: Method = "POST";
@@ -522,7 +595,7 @@ class api_Pin extends _api_Base {
 
 class api_Unpin extends _api_Base {
   id: ResponseCodes = ResponseCodes.Unpin;
-  version: number = 0;
+  version: number = API_VERSIONS[ResponseCodes.Unpin];
 
   url: string = "/api/post/pin";
   method: Method = "DELETE";
@@ -535,7 +608,7 @@ class api_Unpin extends _api_Base {
 
 class api_PollVote extends _api_Base {
   id: ResponseCodes = ResponseCodes.PollVote;
-  version: number = 0;
+  version: number = API_VERSIONS[ResponseCodes.PollVote];
 
   url: string = "/api/post/poll";
   method: Method = "POST";
@@ -558,7 +631,7 @@ class api_PollVote extends _api_Base {
 
 class api_PollRefresh extends api_PollVote {
   id: ResponseCodes = ResponseCodes.PollRefresh;
-  version: number = 0;
+  version: number = API_VERSIONS[ResponseCodes.PollRefresh];
 
   url: string;
   method: Method = "GET";
@@ -572,7 +645,7 @@ class api_PollRefresh extends api_PollVote {
 
 class api_EditPost extends _api_Base {
   id: ResponseCodes = ResponseCodes.EditPost;
-  version: number = 0;
+  version: number = API_VERSIONS[ResponseCodes.EditPost];
 
   url: string = "/api/post";
   method: Method = "PATCH";
@@ -595,7 +668,7 @@ class api_EditPost extends _api_Base {
 
 class api_DeletePost extends _api_Base {
   id: ResponseCodes = ResponseCodes.DeletePost;
-  version: number = 0;
+  version: number = API_VERSIONS[ResponseCodes.DeletePost];
 
   url: string = "/api/post";
   method: Method = "DELETE";
@@ -614,7 +687,7 @@ class api_DeletePost extends _api_Base {
 // 4X - Administration
 class api_AdminDeleteUser extends _api_Base {
   id: ResponseCodes = ResponseCodes.AdminDeleteUser;
-  version: number = 0;
+  version: number = API_VERSIONS[ResponseCodes.AdminDeleteUser];
 
   url: string = "/api/admin/user";
   method: Method = "DELETE";
@@ -631,7 +704,7 @@ class api_AdminDeleteUser extends _api_Base {
 
 class api_GenerateOTP extends _api_Base {
   id: ResponseCodes = ResponseCodes.GenerateOTP;
-  version: number = 0;
+  version: number = API_VERSIONS[ResponseCodes.GenerateOTP];
 
   url: string = "/api/admin/invite";
   method: Method = "POST";
@@ -648,7 +721,7 @@ class api_GenerateOTP extends _api_Base {
 
 class api_DeleteOTP extends _api_Base {
   id: ResponseCodes = ResponseCodes.DeleteOTP;
-  version: number = 0;
+  version: number = API_VERSIONS[ResponseCodes.DeleteOTP];
 
   url: string = "/api/admin/invite";
   method: Method = "DELETE";
@@ -663,7 +736,7 @@ class api_DeleteOTP extends _api_Base {
 
 class api_ListOTP extends _api_Base {
   id: ResponseCodes = ResponseCodes.ListOTP;
-  version: number = 0;
+  version: number = API_VERSIONS[ResponseCodes.ListOTP];
 
   url: string = "/api/admin/invite";
   method: Method = "GET";
@@ -685,7 +758,7 @@ class api_ListOTP extends _api_Base {
 
 class api_GetAdminPermissions extends _api_Base {
   id: ResponseCodes = ResponseCodes.GetAdminPermissions;
-  version: number = 0;
+  version: number = API_VERSIONS[ResponseCodes.GetAdminPermissions];
 
   url: string;
   method: Method = "GET";
@@ -702,7 +775,7 @@ class api_GetAdminPermissions extends _api_Base {
 
 class api_SetAdminPermissions extends _api_Base {
   id: ResponseCodes = ResponseCodes.SetAdminPermissions;
-  version: number = 0;
+  version: number = API_VERSIONS[ResponseCodes.SetAdminPermissions];
 
   url: string = "/api/admin/permissions";
   method: Method = "POST";
@@ -720,7 +793,7 @@ class api_SetAdminPermissions extends _api_Base {
 // 5X - Messages
 class api_MessageGroupTimeline extends _api_TimelineBase {
   id: ResponseCodes = ResponseCodes.MessageGroupTimeline;
-  version: number = 0;
+  version: number = API_VERSIONS[ResponseCodes.MessageGroupTimeline];
 
   url: string = "/api/message/list";
   method: Method = "GET";
@@ -770,7 +843,7 @@ class api_MessageGroupTimeline extends _api_TimelineBase {
 
 class api_MessageTimeline extends _api_TimelineBase {
   id: ResponseCodes = ResponseCodes.MessageTimeline;
-  version: number = 0;
+  version: number = API_VERSIONS[ResponseCodes.MessageTimeline];
 
   url: string;
   method: Method = "GET";
@@ -826,7 +899,7 @@ class api_MessageTimeline extends _api_TimelineBase {
 
 class api_MessageSend extends _api_Base {
   id: ResponseCodes = ResponseCodes.MessageSend;
-  version: number = 0;
+  version: number = API_VERSIONS[ResponseCodes.MessageSend];
 
   url: string;
   method: Method = "POST";
@@ -856,7 +929,7 @@ class api_MessageSend extends _api_Base {
 
 class api_MessageGetGID extends _api_Base {
   id: ResponseCodes = ResponseCodes.MessageGetGID;
-  version: number = 0;
+  version: number = API_VERSIONS[ResponseCodes.MessageGetGID];
 
   url: string = "/api/message/group";
   method: Method = "GET";
@@ -879,7 +952,7 @@ class api_MessageGetGID extends _api_Base {
 // 6X - Timelines
 class api_TimelineGlobal extends _api_TimelineBase {
   id: ResponseCodes = ResponseCodes.TimelineGlobal;
-  version: number = 0;
+  version: number = API_VERSIONS[ResponseCodes.TimelineGlobal];
 
   url: string;
   method: Method = "GET";
@@ -892,7 +965,7 @@ class api_TimelineGlobal extends _api_TimelineBase {
 
 class api_TimelineFollowing extends _api_TimelineBase {
   id: ResponseCodes = ResponseCodes.TimelineFollowing;
-  version: number = 0;
+  version: number = API_VERSIONS[ResponseCodes.TimelineFollowing];
 
   url: string;
   method: Method = "GET";
@@ -905,7 +978,7 @@ class api_TimelineFollowing extends _api_TimelineBase {
 
 class api_TimelineUser extends _api_TimelineBase {
   id: ResponseCodes = ResponseCodes.TimelineUser;
-  version: number = 0;
+  version: number = API_VERSIONS[ResponseCodes.TimelineUser];
 
   url: string;
   method: Method = "GET";
@@ -935,8 +1008,9 @@ class api_TimelineUser extends _api_TimelineBase {
       bio[0],
       "#" + _toHex(bio[1].slice(0, 3)),
       "#" + _toHex(bio[1].slice(3, 6)),
-      _extractBool(flags, 3) && "pending" || _extractBool(flags, 5),
-      _extractBool(flags, 4),
+      _extractBool(flags, 3) && "pending" || _extractBool(flags, 5), // following
+      _extractBool(flags, 4), // blocking
+      _extractBool(flags, 1), // muting
       _extractInt(16, bio[1].slice(8)),
       _extractInt(16, bio[1].slice(6)),
       _extractInt(16, bio[1].slice(10)),
@@ -951,7 +1025,7 @@ class api_TimelineUser extends _api_TimelineBase {
 
 class api_TimelineComments extends _api_TimelineBase {
   id: ResponseCodes = ResponseCodes.TimelineComments;
-  version: number = 0;
+  version: number = API_VERSIONS[ResponseCodes.TimelineComments];
 
   url: string;
   method: Method = "GET";
@@ -971,7 +1045,7 @@ class api_TimelineComments extends _api_TimelineBase {
 
 class api_TimelineNotifications extends _api_TimelineBase {
   id: ResponseCodes = ResponseCodes.TimelineNotifications;
-  version: number = 1;
+  version: number = API_VERSIONS[ResponseCodes.TimelineNotifications];
 
   url: string = "/api/timeline/notifications";
   method: Method = "GET";
@@ -1074,7 +1148,7 @@ class api_TimelineNotifications extends _api_TimelineBase {
 
 class api_TimelineHashtag extends _api_TimelineBase {
   id: ResponseCodes = ResponseCodes.TimelineHashtag;
-  version: number = 0;
+  version: number = API_VERSIONS[ResponseCodes.TimelineHashtag];
 
   url: string;
   method: Method = "GET";
@@ -1087,7 +1161,7 @@ class api_TimelineHashtag extends _api_TimelineBase {
 
 class api_TimelineFolreq extends _api_TimelineBase {
   id: ResponseCodes = ResponseCodes.TimelineFolreq;
-  version: number = 1;
+  version: number = API_VERSIONS[ResponseCodes.TimelineFolreq];
 
   url: string = "/api/timeline/follow-requests";
   method: Method = "GET";
@@ -1126,7 +1200,7 @@ class api_TimelineFolreq extends _api_TimelineBase {
 
 class api_TimelineSearch extends _api_TimelineBase {
   id: ResponseCodes = ResponseCodes.TimelineSearch;
-  version: number = 0;
+  version: number = API_VERSIONS[ResponseCodes.TimelineSearch];
 
   url: string;
   method: Method = "GET";
@@ -1139,7 +1213,7 @@ class api_TimelineSearch extends _api_TimelineBase {
 
 class api_TimelineUserFollowing extends _api_TimelineBase {
   id: ResponseCodes = ResponseCodes.TimelineUserFollowing;
-  version: number = 0;
+  version: number = API_VERSIONS[ResponseCodes.TimelineUserFollowing];
 
   url: string;
   method: Method = "GET";
@@ -1181,6 +1255,7 @@ class api_TimelineUserFollowing extends _api_TimelineBase {
 
 class api_TimelineUserFollowers extends api_TimelineUserFollowing {
   id: ResponseCodes = ResponseCodes.TimelineUserFollowers;
+  version: number = API_VERSIONS[ResponseCodes.TimelineUserFollowers];
 
   constructor(offset: Offset, username: string) {
     super(offset, username);
@@ -1191,7 +1266,7 @@ class api_TimelineUserFollowers extends api_TimelineUserFollowing {
 // 7X - Statuses
 class api_Notifications extends _api_Base {
   id: ResponseCodes = ResponseCodes.Notifications;
-  version: number = 1;
+  version: number = API_VERSIONS[ResponseCodes.Notifications];
 
   url: string = "/api/notifications";
   method: Method = "GET";
