@@ -152,6 +152,7 @@ function _extractPost(data: Uint8Array): [Post, leftoverData: Uint8Array] {
   let postTimestamp: number = _extractInt(64, data.slice(4));
   let flags: [number, number] = [data[12], data[13]];
   let edited: [post: boolean, quote: boolean] = [_extractBool(flags[1], 7), _extractBool(flags[1], 6)]
+  let scheduled: [post: boolean, quote: boolean] = [_extractBool(flags[1], 3), _extractBool(flags[1], 2)]
 
   let newData: Uint8Array = data.slice(14);
 
@@ -210,6 +211,7 @@ function _extractPost(data: Uint8Array): [Post, leftoverData: Uint8Array] {
         private: _extractBool(flags[0], 2),
         comment: quoteCommentId,
         edited: edited[1],
+        scheduled: scheduled[1],
         has_poll: _extractBool(flags[1], 5),
         has_quote: _extractBool(flags[1], 4),
 
@@ -233,6 +235,7 @@ function _extractPost(data: Uint8Array): [Post, leftoverData: Uint8Array] {
     private: _extractBool(flags[0], 7),
     comment: commentParentId,
     edited: edited[0],
+    scheduled: scheduled[0],
 
     interactions: interactions,
 

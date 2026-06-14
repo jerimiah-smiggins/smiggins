@@ -43,7 +43,7 @@ def post_create(request: HttpRequest) -> HttpResponse:
     if len(cw[0]) > MAX_CONTENT_WARNING_LENGTH or len(content[0]) > MAX_POST_LENGTH or not (content[1] or len(poll)):
         return api.error(ErrorCodes.BAD_REQUEST)
 
-    ts = round(time.time())
+    ts = max(data["scheduled_at"] or 0, round(time.time()))
 
     quote = None
     if data["quote"]:
@@ -74,7 +74,8 @@ def post_create(request: HttpRequest) -> HttpResponse:
         timestamp=ts,
         private=data["private"],
         quoted_post=quote,
-        comment_parent=comment_parent
+        comment_parent=comment_parent,
+        scheduled=data["scheduled_at"] == ts
     )
 
     post = Post.objects.get(

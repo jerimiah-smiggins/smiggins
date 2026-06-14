@@ -60,6 +60,7 @@ class ResponseCodes:
     TIMELINE_SEARCH = 0x67
     TIMELINE_USER_FOLLOWING = 0x68
     TIMELINE_USER_FOLLOWERS = 0x69
+    TIMELINE_SCHEDULED = 0x6a
 
     NOTIFICATIONS = 0x70
 
@@ -416,7 +417,7 @@ class api_SetVerifyFollowers(api_SetDefaultVisibility):
 # 3X - Posts and Interactions
 class api_CreatePost(_api_BaseResponse):
     response_code = ResponseCodes.CREATE_POST
-    version = 0
+    version = 1
 
     def parse_data(self) -> dict:
         data = self.request.body
@@ -425,6 +426,7 @@ class api_CreatePost(_api_BaseResponse):
         has_quote = _extract_bool(flags, 6)
         has_poll = _extract_bool(flags, 5)
         has_comment = _extract_bool(flags, 4)
+        is_scheduled = _extract_bool(flags, 3)
 
         content, data = _extract_string(16, data[1:])
         cw, data = _extract_string(8, data)
@@ -432,6 +434,7 @@ class api_CreatePost(_api_BaseResponse):
         quote_id = None
         polls = None
         comment_id = None
+        scheduled_at = None
 
         if has_poll:
             poll_items = _extract_int(8, data)
@@ -449,13 +452,18 @@ class api_CreatePost(_api_BaseResponse):
             comment_id = _extract_int(32, data)
             data = data[4:]
 
+        if is_scheduled:
+            scheduled_at = _extract_int(64, data)
+            data = data[8:]
+
         return {
             "content": content,
             "cw": cw,
             "private": _extract_bool(flags, 7),
             "quote": quote_id,
             "poll": polls,
-            "comment": comment_id
+            "comment": comment_id,
+            "scheduled_at": scheduled_at
         }
 
     def set_response(self, post: Post, user: User):
@@ -678,15 +686,15 @@ class _api_TimelineBase(_api_BaseResponse):
 
 class api_TimelineGlobal(_api_TimelineBase):
     response_code = ResponseCodes.TIMELINE_GLOBAL
-    version = 1
+    version = 2
 
 class api_TimelineFollowing(_api_TimelineBase):
     response_code = ResponseCodes.TIMELINE_FOLLOWING
-    version = 1
+    version = 2
 
 class api_TimelineUser(_api_TimelineBase):
     response_code = ResponseCodes.TIMELINE_USER
-    version = 1
+    version = 2
 
     def set_response(self, end: bool, forwards: bool, posts: list[Post], user: User, self_user: User | None):
         display_name_bytes = str.encode(user.display_name)[:MAX_STR8]
@@ -728,7 +736,7 @@ class api_TimelineUser(_api_TimelineBase):
 
 class api_TimelineComments(_api_TimelineBase):
     response_code = ResponseCodes.TIMELINE_COMMENTS
-    version = 1
+    version = 2
 
     def set_response(self, end: bool, forwards: bool, posts: list[Post], user: User | None, focused_post: Post):
         super().set_response(end, forwards, posts, user)
@@ -796,7 +804,7 @@ class api_TimelineNotifications(_api_BaseResponse):
 
 class api_TimelineHashtag(_api_TimelineBase):
     response_code = ResponseCodes.TIMELINE_HASHTAG
-    version = 1
+    version = 2
 
 class api_TimelineFolreq(_api_BaseResponse):
     response_code = ResponseCodes.TIMELINE_FOLREQ
@@ -820,7 +828,7 @@ class api_TimelineFolreq(_api_BaseResponse):
 
 class api_TimelineSearch(_api_TimelineBase):
     response_code = ResponseCodes.TIMELINE_SEARCH
-    version = 1
+    version = 2
 
 class api_TimelineUserFollowing(_api_BaseResponse):
     response_code = ResponseCodes.TIMELINE_USER_FOLLOWING
@@ -853,6 +861,10 @@ class api_TimelineUserFollowers(api_TimelineUserFollowing):
 
     def _get_user(self, follow: M2MFollow) -> User:
         return follow.user
+
+class api_TimelineScheduled(_api_TimelineBase):
+    response_code = ResponseCodes.TIMELINE_SCHEDULED
+    version = 0
 
 # 7X - Statuses
 class api_PendingNotifications(_api_BaseResponse):

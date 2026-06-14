@@ -88,6 +88,7 @@ class Post(models.Model):
     creator = models.ForeignKey(User, on_delete=models.CASCADE, related_name="posts")
     timestamp = models.IntegerField()
 
+    scheduled = models.BooleanField(default=False)
     edited = models.BooleanField(default=False)
     edited_at = models.IntegerField(null=True, blank=True)
 

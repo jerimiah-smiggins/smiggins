@@ -32,7 +32,7 @@ type snippet = "pages/index" | "pages/login" | "pages/signup"
              | "modal/compose" | "modal/keybind" | "modal/update" | "modal/message" | "modal/following" | "modal/user-relationship-help";
 
 type Icons = "back" | "logo"
-           | "private" | "comment_arrow" | "comment" | "quote" | "like" | "like_active" | "hamburger" | "edit" | "pin" | "unpin" | "delete" | "share" | "embed"
+           | "private" | "comment_arrow" | "comment" | "quote" | "like" | "like_active" | "hamburger" | "edit" | "schedule" | "pin" | "unpin" | "delete" | "share" | "embed"
            | "home_active" | "home" | "notifications_active" | "notifications" | "messages_active" | "messages" | "user_active" | "user" | "settings_active" | "settings" | "folreq_active" | "folreq" | "login" | "user_plus" | "search" | "plus";
 
 type KeybindModifiers = "ctrl" | "shift" | "alt" | "nav";
@@ -66,6 +66,7 @@ type Post = {
   private: boolean,
   comment: number | null,
   edited: boolean,
+  scheduled: boolean,
 
   poll: {
     votes: number,
@@ -99,6 +100,7 @@ type Post = {
     private: boolean,
     comment: number | null,
     edited: boolean,
+    scheduled: boolean,
     has_poll: boolean,
     has_quote: boolean,
 

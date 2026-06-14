@@ -422,7 +422,8 @@ function getPost(
 
       hidden_if_no_quote_pronouns: p.quote.user.pronouns ? "" : "hidden",
       hidden_if_no_quote_comment: p.quote.comment ? "" : "hidden",
-      hidden_if_no_quote_edit: p.quote.edited ? "" : "hidden"
+      hidden_if_no_quote_edit: p.quote.edited ? "" : "hidden",
+      hidden_if_no_quote_schedule: p.quote.scheduled ? "" : "hidden"
     };
 
     quoteUnsafeData = {
@@ -457,6 +458,7 @@ function getPost(
     hidden_if_no_comment: p.comment ? "" : "hidden",
     hidden_if_no_poll: p.poll ? "" : "hidden",
     hidden_if_no_edit: p.edited ? "" : "hidden",
+    hidden_if_no_schedule: p.scheduled ? "" : "hidden",
     ...quoteData,
 
     // unsafe items, includes a max replace in order to prevent unwanted injection
@@ -681,7 +683,8 @@ function createPost(
   extra?: {
     quote?: number,
     poll?: string[],
-    comment?: number
+    comment?: number,
+    scheduled?: number
   }
 ): void {
   new api_CreatePost(content, cw, followersOnly, extra)

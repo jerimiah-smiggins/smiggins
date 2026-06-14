@@ -82,7 +82,7 @@ const API_VERSIONS: { [key in ResponseCodes]: number } = {
   [ResponseCodes.ChangePassword]: 0,
   [ResponseCodes.DefaultVisibility]: 0,
   [ResponseCodes.VerifyFollowers]: 0,
-  [ResponseCodes.CreatePost]: 0,
+  [ResponseCodes.CreatePost]: 1,
   [ResponseCodes.Like]: 0,
   [ResponseCodes.Unlike]: 0,
   [ResponseCodes.Pin]: 0,
@@ -101,14 +101,14 @@ const API_VERSIONS: { [key in ResponseCodes]: number } = {
   [ResponseCodes.MessageTimeline]: 1,
   [ResponseCodes.MessageSend]: 0,
   [ResponseCodes.MessageGetGID]: 0,
-  [ResponseCodes.TimelineGlobal]: 1,
-  [ResponseCodes.TimelineFollowing]: 1,
-  [ResponseCodes.TimelineUser]: 1,
-  [ResponseCodes.TimelineComments]: 1,
+  [ResponseCodes.TimelineGlobal]: 2,
+  [ResponseCodes.TimelineFollowing]: 2,
+  [ResponseCodes.TimelineUser]: 2,
+  [ResponseCodes.TimelineComments]: 2,
   [ResponseCodes.TimelineNotifications]: 2,
-  [ResponseCodes.TimelineHashtag]: 1,
+  [ResponseCodes.TimelineHashtag]: 2,
   [ResponseCodes.TimelineFolreq]: 2,
-  [ResponseCodes.TimelineSearch]: 1,
+  [ResponseCodes.TimelineSearch]: 2,
   [ResponseCodes.TimelineUserFollowing]: 1,
   [ResponseCodes.TimelineUserFollowers]: 1,
   [ResponseCodes.Notifications]: 1,
@@ -529,7 +529,8 @@ class api_CreatePost extends _api_Base {
     extra?: {
       quote?: number,
       poll?: string[],
-      comment?: number
+      comment?: number,
+      scheduled?: number
     }
   ) {
     super();
@@ -538,11 +539,13 @@ class api_CreatePost extends _api_Base {
       Boolean(extra && extra.quote),
       Boolean(extra && extra.poll && extra.poll.length),
       Boolean(extra && extra.comment),
+      Boolean(extra && extra.scheduled),
       [content, 16],
       [cw || "", 8],
       ...((extra && extra.poll && extra.poll.length) ? [[extra.poll.length, 8] as [number, 8], ...extra.poll.map((a: string): [string, 8] => ([a, 8]))] : []),
       ...((extra && extra.quote) ? [[extra.quote, 32] as [number, 32]] : []),
-      ...((extra && extra.comment) ? [[extra.comment, 32] as [number, 32]] : [])
+      ...((extra && extra.comment) ? [[extra.comment, 32] as [number, 32]] : []),
+      ...((extra && extra.scheduled) ? [[extra.scheduled, 64] as [number, 64]] : [])
     );
   }
 

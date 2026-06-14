@@ -1,3 +1,4 @@
+import time
 from typing import Literal, TypeVar
 
 from django.db.models import Model, Q
@@ -10,10 +11,15 @@ from ..variables import POSTS_PER_REQUEST
 from .format import (ErrorCodes, api_TimelineComments, api_TimelineFollowing,
                      api_TimelineFolreq, api_TimelineGlobal,
                      api_TimelineHashtag, api_TimelineNotifications,
-                     api_TimelineSearch, api_TimelineUser,
-                     api_TimelineUserFollowers, api_TimelineUserFollowing)
+                     api_TimelineScheduled, api_TimelineSearch,
+                     api_TimelineUser, api_TimelineUserFollowers,
+                     api_TimelineUserFollowing)
 
 T = TypeVar("T", bound="Model")
+
+# Start showing items on a timeline that have a timestamp that is this many seconds
+# in the future - hopefully prevents any odd race condition things or whatnot
+TIMESTAMP_FUTURE_OFFSET = 1
 
 def get_timeline(
     tl: BaseManager[T],
@@ -23,7 +29,8 @@ def get_timeline(
     no_visibility_check: bool=False,
     show_blocked_and_muted: bool=False,
     order_by: list[str]=["-timestamp", "-pk"],
-    offset_ignore_id: bool=False
+    offset_ignore_id: bool=False,
+    timestamp_future_exclusion: str | None="timestamp"
 ) -> tuple[bool, list[T]]:
     if offset:
         if offset_ignore_id:
@@ -39,6 +46,9 @@ def get_timeline(
             }))
 
     tl = tl.order_by(*order_by)
+
+    if timestamp_future_exclusion:
+        tl = tl.filter(**{f"{timestamp_future_exclusion}__lte": round(time.time() + TIMESTAMP_FUTURE_OFFSET)})
 
     if not no_visibility_check:
         if user:
@@ -341,4 +351,24 @@ def tl_user_followers(request: HttpRequest, username: str, offset_raw: str | Non
     end = len(users) <= POSTS_PER_REQUEST
 
     api.set_response(end, users[:POSTS_PER_REQUEST])
+    return api.get_response()
+
+def tl_scheduled_posts(request: HttpRequest, offset_raw: str | None=None) -> HttpResponse:
+    api = api_TimelineScheduled(request)
+    offset = _parse_offset(offset_raw)
+
+    if request.s_user is None:
+        return api.error(ErrorCodes.NOT_AUTHENTICATED)
+
+    p = request.s_user.posts.filter(timestamp__gt=round(time.time()), scheduled=True)
+
+    end, posts = get_timeline(
+        p,
+        offset,
+        request.s_user,
+        show_blocked_and_muted=True,
+        timestamp_future_exclusion=None
+    )
+
+    api.set_response(end, False, posts, request.s_user)
     return api.get_response()
