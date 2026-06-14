@@ -71,6 +71,7 @@ titles:
   admin: Administración
   changes: Cambios
   follow_requests: Solicitudes para seguirte
+  scheduled: Publicaciones programadas
   login: Iniciar sesión
   logout: Cerrar sesión
   messages: Mensajes
@@ -116,6 +117,7 @@ post:
   poll_short: "Encuesta"
 
   followers_only: Solo para Seguidores
+  scheduled: Programa para...
   cw_placeholder: Advertencia de Contenido (opcional)
   poll_button: Encuesta
   poll_placeholder: Opción %n
@@ -170,6 +172,7 @@ keybinds:
   nav_notifications: Notificaciones
   nav_profile: Perfil
   nav_settings: Ajustes
+  nav_search: Buscar
   hamburger_delete: Borrar publicación
   hamburger_pin: Fijar publicación
   hamburger_edit: Editar publicación
@@ -277,6 +280,7 @@ settings:
     section_generic: Comandos genéricos
     section_nav: Comandos de Navigación
     section_hamburger: Comandos de Interacciones
+    in_use: Tecla ya usado
 
   account:
     title: Cuenta
@@ -393,9 +397,15 @@ user:
   follow: Seguir
   unfollow: Dejar de seguir
   pending: Pendiente
+  follow_info: Si o no mostrar las publicaciones de un usuario en la biografía de seguidores. Cuando sigues un usuario, ese usuario recibe una notificación, pero no recibe una notificación si dejas de seguirlo.
+  mute: Silenciar
+  unmute: Dejar de silenciar
+  mute_info: Si silencias un usuario, no te veas sus publicaciones ni su actividad. Sin embargo, el usuario puede ver e interactuar con tu publicaciones. Si silencias un usuario que sigues, no te veas sus publicaciones en la biografía de seguidores.
   block: Bloquear
   unblock: Desbloquear
+  block_info: Si bloqueas un usuario, no veas sus publicaciones ni su actividad y no pueda ver tu publicaciones. Si bloqueas un usuario que sigues, lo dejarás de seguir, y si ese usuario sigue a ti, te dejará de seguir.
   no_bio: No bío esta presente
+  user_relationship_help_title: Relaciones a usuarios
 
   following_count: "%n Siguiendo"
   followed_by_count: "%n Seguidores"
