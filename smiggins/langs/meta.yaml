@@ -111,6 +111,7 @@ defs:
     poll_short: str
 
     followers_only: str
+    scheduled: str
     cw_placeholder: str
     poll_button: str
     poll_placeholder: str

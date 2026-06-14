@@ -115,6 +115,7 @@ post:
   poll_short: "Poll"
 
   followers_only: Followers Only
+  scheduled: Scheduled
   cw_placeholder: Content warning (optional)
   poll_button: Poll
   poll_placeholder: Option %n

@@ -14,6 +14,14 @@ function p_home(element: D): void {
       pollElement.hidden = !pollElement.hidden;
     }
   });
+
+  element.querySelector("#post-scheduled")?.addEventListener("input", function(): void {
+    if ((element.querySelector("#post-scheduled") as Iel)?.checked) {
+      element.querySelector("#post-scheduled-date")?.removeAttribute("hidden");
+    } else {
+      element.querySelector("#post-scheduled-date")?.setAttribute("hidden", "");
+    }
+  });
 }
 
 function getPollInputsHTML(id: string, submit: string): string {
@@ -27,15 +35,18 @@ function getPollInputsHTML(id: string, submit: string): string {
 }
 
 function homeCreatePost(e: Event): void {
-  let cwElement: el = document.getElementById("post-cw");
-  let contentElement: el = document.getElementById("post-content");
-  let privatePostElement: el = document.getElementById("post-private");
+  let cwElement: Iel = document.getElementById("post-cw") as Iel;
+  let contentElement: Iel = document.getElementById("post-content") as Iel;
+  let privatePostElement: Iel = document.getElementById("post-private") as Iel;
+  let scheduledCheckElement: Iel = document.getElementById("post-scheduled") as Iel;
+  let scheduledDateElement: Iel = document.getElementById("post-scheduled-date") as Iel;
 
-  if (!cwElement || !contentElement || !privatePostElement) { return; }
+  if (!cwElement || !contentElement || !privatePostElement || !scheduledCheckElement || !scheduledDateElement) { return; }
 
-  let cw: string = (cwElement as I).value;
-  let content: string = (contentElement as I).value;
-  let privatePost: boolean = (privatePostElement as I).checked;
+  let cw: string = cwElement.value;
+  let content: string = contentElement.value;
+  let privatePost: boolean = privatePostElement.checked;
+  let scheduled: number | undefined = scheduledCheckElement.checked ? Math.floor(scheduledDateElement.valueAsNumber / 1000) : undefined;
 
   let poll: string[] = [];
 
@@ -66,6 +77,7 @@ function homeCreatePost(e: Event): void {
       }
     }
   }, {
-    poll: poll.length ? poll : undefined
+    poll: poll.length ? poll : undefined,
+    scheduled: scheduled
   });
 }

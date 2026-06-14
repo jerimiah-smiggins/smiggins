@@ -18,6 +18,11 @@
     <div><button data-button-alt-colors id="poll-toggle">@{lang.post.poll_button}</button></div>
     <div><button data-button-alt-colors id="post">@{lang.post.button}</button></div>
   </div>
+  <div class="post-options">
+    <div><label><input type="checkbox" id="post-scheduled"> @{lang.post.scheduled}</label></div>
+    <div class="flex-spacer"></div>
+    <input type="datetime-local" id="post-scheduled-date" hidden>
+  </div>
 </div>
 
 <hr>

@@ -173,7 +173,7 @@ const changes: { [key: string]: VersionData } = {
     description: "Muting users",
     changes: [
       "There is now an option to mute users, a way to stop seeing someone that's less exteme than blocking.",
-      "Posts can be schedule for the future.",
+      "Posts can be schedule for the future. Push notifications are not sent for scheduled posts.",
       "Timeline offsets now use both a timestamp and the post id, instead of just the timestamp.",
       "Newlines on private messages are no longer collapsed.",
       "There is now a configurable keybind for navigating to the search page."

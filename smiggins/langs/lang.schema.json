@@ -395,6 +395,9 @@
         "followers_only": {
           "type": "string"
         },
+        "scheduled": {
+          "type": "string"
+        },
         "cw_placeholder": {
           "type": "string"
         },
