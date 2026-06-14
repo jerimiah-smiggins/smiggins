@@ -70,6 +70,9 @@ function homeCreatePost(e: Event): void {
       (cwElement as I).value = "";
       (contentElement as I).value = "";
 
+      scheduledCheckElement.checked = false;
+      scheduledDateElement?.setAttribute("hidden", "");
+
       document.getElementById("poll-area")?.setAttribute("hidden", "");
 
       for (const el of document.querySelectorAll("[data-poll-input]") as NodeListOf<I>) {
