@@ -69,6 +69,7 @@ titles:
   admin: Administration
   changes: Changes
   follow_requests: Follow Requests
+  scheduled: Scheduled Posts
   login: Log In
   logout: Log Out
   messages: Messages
@@ -168,6 +169,7 @@ keybinds:
   nav_notifications: Notifications
   nav_profile: Your Profile
   nav_settings: Settings
+  nav_search: Search
   hamburger_delete: Delete Post
   hamburger_pin: Pin Post
   hamburger_edit: Edit Post

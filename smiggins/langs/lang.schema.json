@@ -257,6 +257,9 @@
         "follow_requests": {
           "type": "string"
         },
+        "scheduled": {
+          "type": "string"
+        },
         "login": {
           "type": "string"
         },
@@ -560,6 +563,9 @@
           "type": "string"
         },
         "nav_settings": {
+          "type": "string"
+        },
+        "nav_search": {
           "type": "string"
         },
         "hamburger_delete": {

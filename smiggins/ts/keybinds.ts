@@ -19,6 +19,7 @@ const keybinds: { [key: string]: KeybindData } = {
   navNotifications: { defaultKey: "n", modifiers: ["nav"], callback: (): void => { if (currentPage === "notifications") { return; } history.pushState("notifications", "", "/notifications/"); renderPage("notifications"); }},
   navProfile: { defaultKey: "p", modifiers: ["nav"], callback: (): void => { if (currentPage === "user" && getUsernameFromPath() === username) { return; } history.pushState("user", "", `/u/${username}/`); renderPage("user"); }},
   navSettings: { defaultKey: "s", modifiers: ["nav"], callback: (): void => { if (currentPage === "settings") { return; } history.pushState("settings", "", "/settings/"); renderPage("settings"); }},
+  navSearch: { defaultKey: "e", modifiers: ["nav"], callback: (): void => { if (currentPage === "search") { return; } history.pushState("search", "", "/search/"); renderPage("search"); }},
 
   hamburgerDelete: { defaultKey: "d", modifiers: ["alt"], callback: (): void => { keybindPostHamburger("data-interaction-delete"); }},
   hamburgerPin: { defaultKey: "f", modifiers: ["alt"], callback: (): void => { keybindPostHamburger("data-interaction-pin") || keybindPostHamburger("data-interaction-unpin"); }},
@@ -38,6 +39,7 @@ function setKeybindStrings(): void {
   keybinds.navNotifications.name = L.keybinds.nav_notifications;
   keybinds.navProfile.name = L.keybinds.nav_profile;
   keybinds.navSettings.name = L.keybinds.nav_settings;
+  keybinds.navSearch.name = L.keybinds.nav_search;
   keybinds.hamburgerDelete.name = L.keybinds.hamburger_delete;
   keybinds.hamburgerPin.name = L.keybinds.hamburger_pin;
   keybinds.hamburgerEdit.name = L.keybinds.hamburger_edit;
@@ -190,8 +192,6 @@ function keybindPostHamburger(interaction: string): boolean {
   let el: el = document.querySelector(`.hamburger:focus .post-hamburger [${interaction}]:not([hidden])`)
             || document.querySelector(`.hamburger .post-hamburger:focus [${interaction}]:not([hidden])`)
             || document.querySelector(`.hamburger .post-hamburger:focus-within [${interaction}]:not([hidden])`);
-
-  console.log(el);
 
   if (el) {
     el.click();

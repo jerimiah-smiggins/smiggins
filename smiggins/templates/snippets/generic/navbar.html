@@ -1,35 +1,52 @@
 <div id="navbar">
   {% if logged_in %}
+    <!-- Home (Mobile and Desktop) -->
     <a data-internal-link="home" href="/" class="plain-link{% if active_page == "home" %} navbar-current{% endif %}">
       <div>{% if active_page == "home" %}@{icon_home_active}{% else %}@{icon_home}{% endif %}</div>
     </a>
 
+    <!-- Notifications (Mobile and Desktop) -->
     <a data-internal-link="notifications" href="/notifications/" class="plain-link{% if active_page == "notifications" %} navbar-current{% endif %}">
       <div data-notif-dot="notifications">{% if active_page == "notifications" %}@{icon_notifications_active}{% else %}@{icon_notifications}{% endif %}</div>
     </a>
 
+    <!-- Messages (Desktop, 1/2) -->
     <a data-navbar-mobile-hidden data-internal-link="message-list" href="/messages/" class="plain-link{% if active_page == "messages" %} navbar-current{% endif %}">
       <div data-notif-dot="messages">{% if active_page == "messages" %}@{icon_messages_active}{% else %}@{icon_messages}{% endif %}</div>
     </a>
 
+    <!-- New Post (Mobile) -->
     <div data-navbar-mobile-only class="navbar-accent" onclick="createPostModal();">
       <div>@{icon_plus}</div>
     </div>
 
+    <div data-navbar-mobile-hidden class="navbar-separator"></div>
+
+    <!-- User (Mobile and Desktop) -->
     <a data-internal-link="user" href="/u/@{username}/" class="plain-link{% if active_page == "user" %} navbar-current{% endif %}">
       <div>{% if active_page == "user" %}@{icon_user_active}{% else %}@{icon_user}{% endif %}</div>
     </a>
 
+    <!-- Search (Desktop, 1/2) -->
     <a data-navbar-mobile-hidden data-internal-link="search" href="/search/" class="plain-link{% if active_page == "search" %} navbar-current{% endif %}">
       <div>@{icon_search}</div>
     </a>
 
-    <a data-navbar-mobile-hidden data-internal-link="settings" href="/settings/" class="plain-link{% if active_page == "settings" %} navbar-current{% endif %}">
-      <div>{% if active_page == "settings" %}@{icon_settings_active}{% else %}@{icon_settings}{% endif %}</div>
+    <!-- Scheduled Posts (Desktop, 1/2) -->
+    <a data-navbar-mobile-hidden data-internal-link="scheduled" href="/scheduled/" class="plain-link{% if active_page == "scheduled" %} navbar-current{% endif %}">
+      <div data-notif-dot="folreq">{% if active_page == "scheduled" %}@{icon_schedule_active}{% else %}@{icon_schedule}{% endif %}</div>
     </a>
 
+    <!-- Follow Requests (Desktop, 1/2) -->
     <a data-navbar-mobile-hidden data-navbar-folreq-toggle data-internal-link="follow-requests" href="/follow-requests/" {% if active_page == "follow-requests" %}class="plain-link navbar-current"{% else %}class="plain-link" hidden{% endif %}>
       <div data-notif-dot="folreq">{% if active_page == "follow-requests" %}@{icon_folreq_active}{% else %}@{icon_folreq}{% endif %}</div>
+    </a>
+
+    <div data-navbar-mobile-hidden class="navbar-separator"></div>
+
+    <!-- Settings (Desktop, 1/3) -->
+    <a data-navbar-mobile-hidden data-internal-link="settings" href="/settings/" class="plain-link{% if active_page == "settings" %} navbar-current{% endif %}">
+      <div>{% if active_page == "settings" %}@{icon_settings_active}{% else %}@{icon_settings}{% endif %}</div>
     </a>
 
     <div class="hamburger" tabindex="0" data-navbar-mobile-only>
@@ -37,20 +54,24 @@
 
       <div class="post-hamburger-container">
         <div class="post-hamburger">
+          <!-- Search (Mobile, 2/2) -->
           <div><a data-internal-link="search" href="/search/" class="plain-link{% if active_page == "search" %} navbar-current{% endif %}">
             @{icon_search} @{lang.titles.search}
           </a></div>
 
+          <!-- Messages (Mobile, 2/2) -->
           <div><a data-internal-link="message-list" href="/messages/" class="plain-link {% if active_page == "messages" %}navbar-current{% endif %}">
             <span data-notif-dot="messages">{% if active_page == "messages" %}@{icon_messages_active}{% else %}@{icon_messages}{% endif %}</span> @{lang.titles.messages}
           </a></div>
 
+          <!-- Follow Requests (Mobile, 2/2) -->
           <div data-navbar-folreq-toggle {% if active_page != "follow-requests" %}hidden{% endif %}>
             <a data-internal-link="follow-requests" href="/follow-requests/" class="plain-link {% if active_page == "follow-requests" %}navbar-current{% endif %}">
               <span data-notif-dot="folreq">{% if active_page == "follow-requests" %}@{icon_folreq_active}{% else %}@{icon_folreq}{% endif %}</span> @{lang.titles.follow_requests}
             </a>
           </div>
 
+          <!-- Settings (Mobile, 2/3) -->
           <div><a data-internal-link="settings" href="/settings/" class="plain-link{% if active_page == "settings" %} navbar-current{% endif %}">
             {% if active_page == "settings" %}@{icon_settings_active}{% else %}@{icon_settings}{% endif %} @{lang.titles.settings}
           </a></div>
@@ -61,6 +82,7 @@
     <a data-internal-link="login" href="/login/" class="plain-link"><div>@{icon_login}</div></a>
     <a data-internal-link="signup" href="/signup/" class="plain-link"><div>@{icon_user_plus}</div></a>
 
+    <!-- Settings (Desktop and Mobile, 3/3) -->
     <a data-internal-link="settings" href="/settings/" class="plain-link{% if active_page == "settings" %} navbar-current{% endif %}">
       <div>{% if active_page == "settings" %}@{icon_settings_active}{% else %}@{icon_settings}{% endif %}</div>
     </a>

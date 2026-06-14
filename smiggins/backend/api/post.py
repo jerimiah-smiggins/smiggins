@@ -172,8 +172,13 @@ def post_edit(request: HttpRequest) -> HttpResponse:
     post.content = content[0]
     post.content_warning = cw[0]
     post.private = data["private"]
-    post.edited = True
-    post.edited_at = round(time.time())
+
+    # don't flag as edited if it's a scheduled post that isn't public
+    ts = round(time.time())
+    if not post.scheduled or ts >= post.timestamp:
+        post.edited = True
+        post.edited_at = round(time.time())
+
     post.save()
 
     return api.response()

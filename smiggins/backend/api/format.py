@@ -160,9 +160,11 @@ def _post_to_bytes(post: Post, user: User | None, user_data_override: User | Non
       | int(poll is not None) # has poll
     ) + b(
         post.edited << 7 # post edited
-      | (quote is not None and quote.edited) << 6 # poll edited
+      | (quote is not None and quote.edited) << 6 # quote edited
       | (quote is not None and hasattr(quote, "poll")) << 5 # quote has poll
       | (quote is not None and quote.quoted_post is not None) << 4 # quote has quote
+      | (post.scheduled) << 3 # post scheduled
+      | (quote is not None and quote.scheduled) << 2 # quote scheduled
     )
 
     if comment:
@@ -421,6 +423,7 @@ class api_CreatePost(_api_BaseResponse):
 
     def parse_data(self) -> dict:
         data = self.request.body
+        print(_to_hex(data))
 
         flags = int(data[0])
         has_quote = _extract_bool(flags, 6)
@@ -567,7 +570,7 @@ class api_ListOTPs(_api_BaseResponse):
     version = 0
 
     def set_response(self, otps: list[str]):
-        self.response_data = bytearray.fromhex("".join(otps))
+        self.response_data = bytes(bytearray.fromhex("".join(otps)))
 
 class api_GetAdminPermissions(_api_BaseResponse):
     response_code = ResponseCodes.GET_ADMIN_PERMISSIONS

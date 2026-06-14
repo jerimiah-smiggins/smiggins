@@ -135,7 +135,8 @@ function _extractInt(lengthBits: 8 | 16 | 32 | 64, data: Uint8Array): number {
   let output: number = 0;
 
   for (let i: number = 0; i * 8 < lengthBits; i++) {
-    output <<= 8;
+    // can't <<= 8 because it overflows at 32 bits
+    output *= 0x100;
     output += data[i];
   }
 

@@ -47,6 +47,7 @@ enum ResponseCodes {
   TimelineSearch,
   TimelineUserFollowing,
   TimelineUserFollowers,
+  TimelineScheduled,
   Notifications = 0x70
 };
 
@@ -111,6 +112,7 @@ const API_VERSIONS: { [key in ResponseCodes]: number } = {
   [ResponseCodes.TimelineSearch]: 2,
   [ResponseCodes.TimelineUserFollowing]: 1,
   [ResponseCodes.TimelineUserFollowers]: 1,
+  [ResponseCodes.TimelineScheduled]: 0,
   [ResponseCodes.Notifications]: 1,
 };
 
@@ -522,6 +524,8 @@ class api_CreatePost extends _api_Base {
   url: string = "/api/post";
   method: Method = "POST";
 
+  private scheduled: boolean;
+
   constructor(
     content: string,
     cw: string | null,
@@ -534,6 +538,7 @@ class api_CreatePost extends _api_Base {
     }
   ) {
     super();
+    this.scheduled = Boolean(extra && extra.scheduled);
     this.requestBody = buildRequest(
       followersOnly,
       Boolean(extra && extra.quote),
@@ -551,7 +556,10 @@ class api_CreatePost extends _api_Base {
 
   handle(u8arr: Uint8Array): void {
     playSound(AudioContexts.CreatePost);
-    prependPostToTimeline(_extractPost(u8arr.slice(2))[0]);
+
+    if (!this.scheduled) {
+      prependPostToTimeline(_extractPost(u8arr.slice(2))[0]);
+    }
   }
 }
 
@@ -1263,6 +1271,19 @@ class api_TimelineUserFollowers extends api_TimelineUserFollowing {
   constructor(offset: Offset, username: string) {
     super(offset, username);
     this.url = `/api/timeline/user/followers/${username}`;
+  }
+}
+
+class api_TimelineScheduled extends _api_TimelineBase {
+  id: ResponseCodes = ResponseCodes.TimelineScheduled;
+  version: number = API_VERSIONS[ResponseCodes.TimelineScheduled];
+
+  url: string;
+  method: Method = "GET";
+
+  constructor(offset: Offset, forwards: boolean | "force", sort?: "recent" | "oldest") {
+    super(offset, forwards);
+    this.url = `/api/timeline/scheduled?sort=${sort}`;
   }
 }
 

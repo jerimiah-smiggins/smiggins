@@ -292,6 +292,7 @@ function exportSettings(): void {
       navNotifications: _kbGetKey("navNotifications"),
       navProfile: _kbGetKey("navProfile"),
       navSettings: _kbGetKey("navSettings"),
+      navSearch: _kbGetKey("navSearch"),
       newPost: _kbGetKey("newPost"),
       topOfTimeline: _kbGetKey("topOfTimeline")
     }
@@ -351,6 +352,7 @@ function importSettings(data: SettingsExport): void {
   localStorage.setItem("smiggins-keybind-navNotifications", data.keybinds.navNotifications || _kbGetKey("navNotifications"));
   localStorage.setItem("smiggins-keybind-navProfile",       data.keybinds.navProfile       || _kbGetKey("navProfile"));
   localStorage.setItem("smiggins-keybind-navSettings",      data.keybinds.navSettings      || _kbGetKey("navSettings"));
+  localStorage.setItem("smiggins-keybind-navSearch",        data.keybinds.navSearch        || _kbGetKey("navSearch"));
   localStorage.setItem("smiggins-keybind-newPost",          data.keybinds.newPost          || _kbGetKey("newPost"));
   localStorage.setItem("smiggins-keybind-topOfTimeline",    data.keybinds.topOfTimeline    || _kbGetKey("topOfTimeline"));
 

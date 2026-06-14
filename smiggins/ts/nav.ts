@@ -12,6 +12,7 @@ function urlToIntent(path: string): intent {
 
       case "/notifications/": return "notifications";
       case "/follow-requests/": return "follow-requests";
+      case "/scheduled/": return "scheduled";
       case "/search/": return "search";
       case "/messages/": return "message-list";
 
@@ -243,9 +244,11 @@ function getPageTitle(intent: intent): string {
     case "signup": val = L.titles.signup; break;
     case "logout": val = L.titles.logout; break;
     case "404": val = L.titles.not_found; break;
-    case "user": val = getUsernameFromPath() + " - "; break;
+    case "user": val = getUsernameFromPath(); break;
+    case "hashtag": val = "#" + getHashtagFromPath(); break;
     case "notifications": val = L.titles.notifications; break;
     case "follow-requests": val = L.titles.follow_requests; break;
+    case "scheduled": val = L.titles.scheduled; break;
     case "changelog": val = L.titles.changes; break;
     case "admin": val = L.titles.admin; break;
     case "search": val = L.titles.search; break;

@@ -93,8 +93,9 @@
       {% include "snippet.html" with id="pages/settings/keybinds" vars="username" processing="settings_keybinds" %}
       {% if conf.enable_about_page %}{% include "snippet.html" with id="pages/settings/about" vars="username" %}{% endif %}
       {% include "snippet.html" with id="pages/notifications" vars="username" processing="notifications,timeline_more" %}
-      {% include "snippet.html" with id="pages/hashtag" vars="username" processing="timeline_switch,timeline_more,hashtag" %}
+      {% include "snippet.html" with id="pages/hashtag" vars="username" processing="hashtag,timeline_switch,timeline_more" %}
       {% include "snippet.html" with id="pages/follow-requests" vars="username" processing="follow_requests,timeline_more" %}
+      {% include "snippet.html" with id="pages/scheduled" vars="username" processing="scheduled,timeline_switch,timeline_more" %}
       {% include "snippet.html" with id="pages/search" vars="username" processing="search,timeline_switch,timeline_more,input_enter" %}
       {% if is_admin %}{% include "snippet.html" with id="pages/admin" vars="username" processing="admin,input_enter" %}{% endif %}
       {% include "snippet.html" with id="pages/message-list" vars="username" processing="message_list,timeline_more" %}

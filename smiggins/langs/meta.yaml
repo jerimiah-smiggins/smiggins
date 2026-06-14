@@ -71,6 +71,7 @@ defs:
     admin: str
     changes: str
     follow_requests: str
+    scheduled: str
     login: str
     logout: str
     messages: str
@@ -156,6 +157,7 @@ defs:
     nav_notifications: str
     nav_profile: str
     nav_settings: str
+    nav_search: str
     hamburger_delete: str
     hamburger_pin: str
     hamburger_edit: str

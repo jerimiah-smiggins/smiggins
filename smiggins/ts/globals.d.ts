@@ -20,20 +20,20 @@ declare const limits: {
 type intent = "index" | "login" | "signup"
             | "logout" | "404" | "changelog"
             | "message-list" | "message"
-            | "home" | "user" | "hashtag" | "post" | "notifications" | "follow-requests" | "admin" | "search"
+            | "home" | "user" | "hashtag" | "post" | "notifications" | "follow-requests" | "admin" | "search" | "scheduled"
             | "settings" | "settings/profile" | "settings/cosmetic" | "settings/account" | "settings/keybinds" | "settings/about";
 
 type snippet = "pages/index" | "pages/login" | "pages/signup"
              | "pages/logout" | "pages/404" | "pages/changelog"
              | "pages/message-list" | "pages/message" | "message-list-item"
-             | "pages/home" | "pages/user" | "pages/hashtag" | "pages/post" | "pages/notifications" | "pages/follow-requests" | "pages/admin" | "pages/search"
+             | "pages/home" | "pages/user" | "pages/hashtag" | "pages/post" | "pages/notifications" | "pages/follow-requests" | "pages/admin" | "pages/search" | "pages/scheduled"
              | "pages/settings" | "pages/settings/profile" | "pages/settings/cosmetic" | "pages/settings/account" | "pages/settings/keybinds" | "pages/settings/about"
              | "post" | "post-placeholder" | "toast" | "notification-like" | "notification-follow" | "folreq-user"
              | "modal/compose" | "modal/keybind" | "modal/update" | "modal/message" | "modal/following" | "modal/user-relationship-help";
 
 type Icons = "back" | "logo"
-           | "private" | "comment_arrow" | "comment" | "quote" | "like" | "like_active" | "hamburger" | "edit" | "schedule" | "pin" | "unpin" | "delete" | "share" | "embed"
-           | "home_active" | "home" | "notifications_active" | "notifications" | "messages_active" | "messages" | "user_active" | "user" | "settings_active" | "settings" | "folreq_active" | "folreq" | "login" | "user_plus" | "search" | "plus";
+           | "private" | "comment_arrow" | "comment" | "quote" | "like" | "like_active" | "hamburger" | "edit" | "pin" | "unpin" | "delete" | "share" | "embed"
+           | "home_active" | "home" | "notifications_active" | "notifications" | "messages_active" | "messages" | "user_active" | "user" | "settings_active" | "settings" | "folreq_active" | "folreq" | "login" | "user_plus" | "search" | "plus" | "schedule" | "schedule_active";
 
 type KeybindModifiers = "ctrl" | "shift" | "alt" | "nav";
 type Themes = "light" | "dark" | "warm" | "gray" | "darker" | "oled" | "system";
@@ -244,6 +244,7 @@ type SettingsExport = {
     navNotifications: string,
     navProfile: string,
     navSettings: string,
+    navSearch: string,
     newPost: string,
     topOfTimeline: string
   }

@@ -8,7 +8,8 @@ smiggins/django_cache/
 smiggins/static-custom/
 smiggins/backend/_api_keys.py
 smiggins/.env
-smiggins/db.sqlite3
 smiggins/latest_scr
 smiggins/admin.log
 smiggins.json
+
+*.sqlite3
