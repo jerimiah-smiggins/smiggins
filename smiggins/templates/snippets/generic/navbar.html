@@ -64,6 +64,11 @@
             <span data-notif-dot="messages">{% if active_page == "messages" %}@{icon_messages_active}{% else %}@{icon_messages}{% endif %}</span> @{lang.titles.messages}
           </a></div>
 
+          <!-- Scheduled Posts (Mobile, 2/2) -->
+          <div><a data-internal-link="scheduled" href="/scheduled/" class="plain-link{% if active_page == "scheduled" %} navbar-current{% endif %}">
+            <span data-notif-dot="folreq">{% if active_page == "scheduled" %}@{icon_schedule_active}{% else %}@{icon_schedule}{% endif %}</span> @{lang.titles.scheduled}
+          </a></div>
+
           <!-- Follow Requests (Mobile, 2/2) -->
           <div data-navbar-folreq-toggle {% if active_page != "follow-requests" %}hidden{% endif %}>
             <a data-internal-link="follow-requests" href="/follow-requests/" class="plain-link {% if active_page == "follow-requests" %}navbar-current{% endif %}">
