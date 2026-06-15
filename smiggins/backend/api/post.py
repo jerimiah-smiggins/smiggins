@@ -50,7 +50,7 @@ def post_create(request: HttpRequest) -> HttpResponse:
     quote = None
     if data["quote"]:
         try:
-            quote = Post.objects.filter(Q(timestamp__lte=round(time.time() + TIMESTAMP_FUTURE_OFFSET))).get(post_id=data["quote"])
+            quote = Post.objects.filter(Q(timestamp__lte=round(time.time() + TIMESTAMP_FUTURE_OFFSET))).distinct().get(post_id=data["quote"])
         except Post.DoesNotExist:
             ...
         else:
@@ -61,7 +61,7 @@ def post_create(request: HttpRequest) -> HttpResponse:
     comment_parent = None
     if data["comment"]:
         try:
-            comment_parent = Post.objects.filter(Q(timestamp__lte=round(time.time() + TIMESTAMP_FUTURE_OFFSET))).get(post_id=data["comment"])
+            comment_parent = Post.objects.filter(Q(timestamp__lte=round(time.time() + TIMESTAMP_FUTURE_OFFSET))).distinct().get(post_id=data["comment"])
         except Post.DoesNotExist:
             ...
         else:
@@ -211,7 +211,7 @@ def add_like(request: HttpRequest, post_id: int) -> HttpResponse:
         return api.error(ErrorCodes.NOT_AUTHENTICATED)
 
     try:
-        post = Post.objects.filter(Q(timestamp__lte=round(time.time() + TIMESTAMP_FUTURE_OFFSET))).get(post_id=post_id)
+        post = Post.objects.filter(Q(timestamp__lte=round(time.time() + TIMESTAMP_FUTURE_OFFSET))).distinct().get(post_id=post_id)
     except Post.DoesNotExist:
         return api.error(ErrorCodes.POST_NOT_FOUND)
 
@@ -264,7 +264,7 @@ def pin_post(request: HttpRequest, post_id: int) -> HttpResponse:
         return api.error(ErrorCodes.NOT_AUTHENTICATED)
 
     try:
-        post = Post.objects.filter(Q(timestamp__lte=round(time.time() + TIMESTAMP_FUTURE_OFFSET))).get(post_id=post_id)
+        post = Post.objects.filter(Q(timestamp__lte=round(time.time() + TIMESTAMP_FUTURE_OFFSET))).distinct().get(post_id=post_id)
     except Post.DoesNotExist:
         return api.error(ErrorCodes.POST_NOT_FOUND)
 
@@ -293,7 +293,7 @@ def poll_vote(request: HttpRequest) -> HttpResponse:
     data = api.parse_data()
 
     try:
-        post = Post.objects.filter(Q(timestamp__lte=round(time.time() + TIMESTAMP_FUTURE_OFFSET))).get(post_id=data["post_id"])
+        post = Post.objects.filter(Q(timestamp__lte=round(time.time() + TIMESTAMP_FUTURE_OFFSET))).distinct().get(post_id=data["post_id"])
     except Post.DoesNotExist:
         return api.error(ErrorCodes.POST_NOT_FOUND)
 
@@ -320,7 +320,7 @@ def poll_refresh(request: HttpRequest, post_id: int) -> HttpResponse:
     api = api_PollRefresh(request)
 
     try:
-        post = Post.objects.filter(Q(timestamp__lte=round(time.time() + TIMESTAMP_FUTURE_OFFSET))).get(post_id=post_id)
+        post = Post.objects.filter(Q(timestamp__lte=round(time.time() + TIMESTAMP_FUTURE_OFFSET))).distinct().get(post_id=post_id)
     except Post.DoesNotExist:
         return api.error(ErrorCodes.POST_NOT_FOUND)
 

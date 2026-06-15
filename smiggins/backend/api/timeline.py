@@ -149,7 +149,7 @@ def tl_comments(request: HttpRequest, post_id: int, sort: Literal["recent", "old
             ~Q(private=True) # public posts
             | Q(creator=request.s_user) # post from self
             | (Q(private=True) & Q(creator__followers=request.s_user)) # private but following
-        ).get(post_id=post_id)
+        ).distinct().get(post_id=post_id)
     except Post.DoesNotExist:
         return api.error(ErrorCodes.POST_NOT_FOUND)
 
