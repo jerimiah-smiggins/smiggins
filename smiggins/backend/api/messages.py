@@ -10,7 +10,7 @@ from ..helper import trim_whitespace
 from .format import (ErrorCodes, api_MessageGetGroupID,
                      api_MessageGroupTimeline, api_MessageSend,
                      api_MessageTimeline)
-from .timeline import get_timeline
+from .timeline import _parse_offset, get_timeline
 
 MAX_USERS_IN_MSG_GROUP = 100
 
@@ -36,8 +36,9 @@ def get_group(id: int | User, *users: User) -> MessageGroup:
 
     return group
 
-def tl_message_groups(request: HttpRequest, offset: int | None=None, forwards: bool=False) -> HttpResponse:
+def tl_message_groups(request: HttpRequest, offset_raw: str | None=None, forwards: bool=False) -> HttpResponse:
     api = api_MessageGroupTimeline(request)
+    offset = _parse_offset(offset_raw)
 
     if request.s_user is None:
         return api.error(ErrorCodes.NOT_AUTHENTICATED)
@@ -54,8 +55,9 @@ def tl_message_groups(request: HttpRequest, offset: int | None=None, forwards: b
     api.set_response(end, forwards, groups, request.s_user)
     return api.get_response()
 
-def tl_messages(request: HttpRequest, gid: int, offset: int | None=None, forwards: bool=False) -> HttpResponse:
+def tl_messages(request: HttpRequest, gid: int, offset_raw: str | None=None, forwards: bool=False) -> HttpResponse:
     api = api_MessageTimeline(request)
+    offset = _parse_offset(offset_raw)
 
     if request.s_user is None:
         return api.error(ErrorCodes.NOT_AUTHENTICATED)
@@ -79,7 +81,8 @@ def tl_messages(request: HttpRequest, gid: int, offset: int | None=None, forward
         request.s_user,
         forwards,
         no_visibility_check=True,
-        order_by=["-timestamp"]
+        order_by=["-timestamp"],
+        offset_ignore_id=True # IGNORE ID on offset - not sent to frontend
     )
 
     M2MMessageMember.objects.filter(user=request.s_user, group=group, unread=True).update(unread=False)
@@ -102,7 +105,7 @@ def send_message(request: HttpRequest, gid: int) -> HttpResponse:
             return api.error(ErrorCodes.NOT_AUTHENTICATED)
 
     ts = round(time.time())
-    content = trim_whitespace(api.parse_data(), True)
+    content = trim_whitespace(api.parse_data())
 
     if not content[1]:
         return api.error(ErrorCodes.BAD_REQUEST)
@@ -120,6 +123,7 @@ def send_message(request: HttpRequest, gid: int) -> HttpResponse:
     to_notify = M2MMessageMember.objects.filter(
         ~Q(user=request.s_user),
         ~Q(user__blocking=request.s_user.user_id),
+        ~Q(user__muting=request.s_user.user_id),
         group=group,
         unread=False
     )

@@ -8,6 +8,8 @@ let pendingNotifications: {
   follow_requests: false
 };
 
+let previousNotificationCount: number = Infinity;
+
 function fetchNotifications(): void {
   new api_Notifications().fetch();
 }

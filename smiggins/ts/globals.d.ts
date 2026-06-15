@@ -7,6 +7,7 @@ declare const username: string;
 declare const pageTitle: string;
 declare const version: string;
 declare const SW_URL: string;
+declare const AUDIO_URL: string;
 declare let currentPage: intent;
 declare let defaultPostPrivate: boolean;
 declare const limits: {
@@ -19,25 +20,31 @@ declare const limits: {
 type intent = "index" | "login" | "signup"
             | "logout" | "404" | "changelog"
             | "message-list" | "message"
-            | "home" | "user" | "hashtag" | "post" | "notifications" | "follow-requests" | "admin" | "search"
+            | "home" | "user" | "hashtag" | "post" | "notifications" | "follow-requests" | "admin" | "search" | "scheduled"
             | "settings" | "settings/profile" | "settings/cosmetic" | "settings/account" | "settings/keybinds" | "settings/about";
 
 type snippet = "pages/index" | "pages/login" | "pages/signup"
              | "pages/logout" | "pages/404" | "pages/changelog"
              | "pages/message-list" | "pages/message" | "message-list-item"
-             | "pages/home" | "pages/user" | "pages/hashtag" | "pages/post" | "pages/notifications" | "pages/follow-requests" | "pages/admin" | "pages/search"
+             | "pages/home" | "pages/user" | "pages/hashtag" | "pages/post" | "pages/notifications" | "pages/follow-requests" | "pages/admin" | "pages/search" | "pages/scheduled"
              | "pages/settings" | "pages/settings/profile" | "pages/settings/cosmetic" | "pages/settings/account" | "pages/settings/keybinds" | "pages/settings/about"
              | "post" | "post-placeholder" | "toast" | "notification-like" | "notification-follow" | "folreq-user"
-             | "modal/compose" | "modal/keybind" | "modal/update" | "modal/message" | "modal/following";
+             | "modal/compose" | "modal/keybind" | "modal/update" | "modal/message" | "modal/following" | "modal/user-relationship-help";
 
 type Icons = "back" | "logo"
            | "private" | "comment_arrow" | "comment" | "quote" | "like" | "like_active" | "hamburger" | "edit" | "pin" | "unpin" | "delete" | "share" | "embed"
-           | "home_active" | "home" | "notifications_active" | "notifications" | "messages_active" | "messages" | "user_active" | "user" | "settings_active" | "settings" | "folreq_active" | "folreq" | "login" | "user_plus" | "search" | "plus";
+           | "home_active" | "home" | "notifications_active" | "notifications" | "messages_active" | "messages" | "user_active" | "user" | "settings_active" | "settings" | "folreq_active" | "folreq" | "login" | "user_plus" | "search" | "plus" | "schedule" | "schedule_active";
 
 type KeybindModifiers = "ctrl" | "shift" | "alt" | "nav";
 type Themes = "light" | "dark" | "warm" | "gray" | "darker" | "oled" | "system";
 type Favicon = "light" | "dark" | "old" | "pq-light" | "pq-dark" | "cat-light" | "cat-dark" | "system";
 type Method = "GET" | "POST" | "PATCH" | "DELETE";
+
+type AudioConfig = {
+  file: string,
+  volume: number,
+  disable?: boolean
+};
 
 type VersionData = {
   description: string,
@@ -59,6 +66,7 @@ type Post = {
   private: boolean,
   comment: number | null,
   edited: boolean,
+  scheduled: boolean,
 
   poll: {
     votes: number,
@@ -92,6 +100,7 @@ type Post = {
     private: boolean,
     comment: number | null,
     edited: boolean,
+    scheduled: boolean,
     has_poll: boolean,
     has_quote: boolean,
 
@@ -124,7 +133,7 @@ type Message = {
 }
 
 type TimelineConfig = {
-  api: new (offset: number | null, forwards: boolean | "force", ...args: any) => _api_Base,
+  api: new (offset: Offset, forwards: boolean | "force", ...args: any) => _api_Base,
   args?: any[],
   // url: string,
   prependPosts: boolean | number,
@@ -143,6 +152,7 @@ type UserData = {
   color_two: string,
   following: boolean | "pending",
   blocking: boolean,
+  muting: boolean,
   num_following: number,
   num_followers: number,
   num_posts: number,
@@ -184,9 +194,10 @@ type NotificationData = {
   post: Post
 } | NotificationLikeData | NotificationFollowData;
 
+type Offset = [ts: number, id: number] | null;
 type TimelineCache = {
-  upperBound: number | null,
-  lowerBound: number | null,
+  upperBound: Offset,
+  lowerBound: Offset,
   posts: number[],
   pendingForward: number[] | false,
   end: boolean
@@ -233,6 +244,7 @@ type SettingsExport = {
     navNotifications: string,
     navProfile: string,
     navSettings: string,
+    navSearch: string,
     newPost: string,
     topOfTimeline: string
   }
@@ -250,8 +262,10 @@ type KeybindData = {
 type I = HTMLInputElement;
 type D = HTMLDivElement;
 type B = HTMLButtonElement;
+type A = HTMLAudioElement;
 
 type el = HTMLElement | null;
 type Iel = I | null;
 type Del = D | null;
 type Bel = B | null;
+type Ael = A | null;

@@ -18,6 +18,8 @@ class ResponseCodes:
     UNBLOCK = 0x13
     ACCEPT_FOLREQ = 0x14
     DENY_FOLREQ = 0x15
+    MUTE = 0x16
+    UNMUTE = 0x17
 
     GET_PROFILE = 0x20
     SAVE_PROFILE = 0x21
@@ -58,6 +60,7 @@ class ResponseCodes:
     TIMELINE_SEARCH = 0x67
     TIMELINE_USER_FOLLOWING = 0x68
     TIMELINE_USER_FOLLOWERS = 0x69
+    TIMELINE_SCHEDULED = 0x6a
 
     NOTIFICATIONS = 0x70
 
@@ -141,6 +144,7 @@ def _post_to_bytes(post: Post, user: User | None, user_data_override: User | Non
             (not quote.private or (user == quote.creator) or (user is not None and user.following.contains(quote.creator))) # private, not following
         and (not (user is not None and quote.creator.blocking.contains(user))) # blocked by creator
         and (not (user is not None and user.blocking.contains(quote.creator))) # blocking creator
+        and (not (user is not None and user.muting.contains(quote.creator))) # muting creator
         )
 
     output = b(post.post_id, 4) + b(timestamp_override or post.timestamp, 8)
@@ -156,9 +160,11 @@ def _post_to_bytes(post: Post, user: User | None, user_data_override: User | Non
       | int(poll is not None) # has poll
     ) + b(
         post.edited << 7 # post edited
-      | (quote is not None and quote.edited) << 6 # poll edited
+      | (quote is not None and quote.edited) << 6 # quote edited
       | (quote is not None and hasattr(quote, "poll")) << 5 # quote has poll
       | (quote is not None and quote.quoted_post is not None) << 4 # quote has quote
+      | (post.scheduled) << 3 # post scheduled
+      | (quote is not None and quote.scheduled) << 2 # quote scheduled
     )
 
     if comment:
@@ -318,6 +324,14 @@ class api_DenyFolreq(api_Unfollow):
     response_code = ResponseCodes.DENY_FOLREQ
     version = 0
 
+class api_Unmute(api_Unfollow):
+    response_code = ResponseCodes.UNMUTE
+    version = 0
+
+class api_Mute(api_Unfollow):
+    response_code = ResponseCodes.MUTE
+    version = 0
+
 # 2X - Settings and Account Management
 class api_GetProfile(_api_BaseResponse):
     response_code = ResponseCodes.GET_PROFILE
@@ -405,15 +419,17 @@ class api_SetVerifyFollowers(api_SetDefaultVisibility):
 # 3X - Posts and Interactions
 class api_CreatePost(_api_BaseResponse):
     response_code = ResponseCodes.CREATE_POST
-    version = 0
+    version = 1
 
     def parse_data(self) -> dict:
         data = self.request.body
+        print(_to_hex(data))
 
         flags = int(data[0])
         has_quote = _extract_bool(flags, 6)
         has_poll = _extract_bool(flags, 5)
         has_comment = _extract_bool(flags, 4)
+        is_scheduled = _extract_bool(flags, 3)
 
         content, data = _extract_string(16, data[1:])
         cw, data = _extract_string(8, data)
@@ -421,6 +437,7 @@ class api_CreatePost(_api_BaseResponse):
         quote_id = None
         polls = None
         comment_id = None
+        scheduled_at = None
 
         if has_poll:
             poll_items = _extract_int(8, data)
@@ -438,13 +455,18 @@ class api_CreatePost(_api_BaseResponse):
             comment_id = _extract_int(32, data)
             data = data[4:]
 
+        if is_scheduled:
+            scheduled_at = _extract_int(64, data)
+            data = data[8:]
+
         return {
             "content": content,
             "cw": cw,
             "private": _extract_bool(flags, 7),
             "quote": quote_id,
             "poll": polls,
-            "comment": comment_id
+            "comment": comment_id,
+            "scheduled_at": scheduled_at
         }
 
     def set_response(self, post: Post, user: User):
@@ -548,7 +570,7 @@ class api_ListOTPs(_api_BaseResponse):
     version = 0
 
     def set_response(self, otps: list[str]):
-        self.response_data = bytearray.fromhex("".join(otps))
+        self.response_data = bytes(bytearray.fromhex("".join(otps)))
 
 class api_GetAdminPermissions(_api_BaseResponse):
     response_code = ResponseCodes.GET_ADMIN_PERMISSIONS
@@ -574,7 +596,7 @@ class api_SetAdminPermissions(_api_BaseResponse):
 # 5X - Messages
 class api_MessageGroupTimeline(_api_BaseResponse):
     response_code = ResponseCodes.MESSAGE_GROUP_TIMELINE
-    version = 0
+    version = 1
 
     def set_response(
         self,
@@ -602,7 +624,7 @@ class api_MessageGroupTimeline(_api_BaseResponse):
 
 class api_MessageTimeline(_api_BaseResponse):
     response_code = ResponseCodes.MESSAGE_TIMELINE
-    version = 0
+    version = 1
 
     def set_response(
         self,
@@ -667,15 +689,15 @@ class _api_TimelineBase(_api_BaseResponse):
 
 class api_TimelineGlobal(_api_TimelineBase):
     response_code = ResponseCodes.TIMELINE_GLOBAL
-    version = 0
+    version = 2
 
 class api_TimelineFollowing(_api_TimelineBase):
     response_code = ResponseCodes.TIMELINE_FOLLOWING
-    version = 0
+    version = 2
 
 class api_TimelineUser(_api_TimelineBase):
     response_code = ResponseCodes.TIMELINE_USER
-    version = 0
+    version = 2
 
     def set_response(self, end: bool, forwards: bool, posts: list[Post], user: User, self_user: User | None):
         display_name_bytes = str.encode(user.display_name)[:MAX_STR8]
@@ -699,17 +721,25 @@ class api_TimelineUser(_api_TimelineBase):
             return
 
         pinned_post = user.pinned
-        can_view_pinned: bool = pinned_post is not None and (self_user is not None and not pinned_post.creator.blocking.contains(self_user) and not self_user.blocking.contains(pinned_post.creator)) and (not pinned_post.private or pinned_post.creator.followers.contains(user))
+        can_view_pinned: bool = pinned_post is not None and (
+            self_user is not None # if logged in
+        and not pinned_post.creator.blocking.contains(self_user) # blocked
+        and not self_user.blocking.contains(pinned_post.creator) # blocking
+        and not self_user.muting.contains(pinned_post.creator) # muting
+        ) and (
+            not pinned_post.private or pinned_post.creator.followers.contains(user) # private
+        )
 
         flags |= (self_user is not None and self_user.following.contains(user)) << 5 \
                | (self_user is not None and self_user.blocking.contains(user)) << 4 \
                | (self_user is not None and user.pending_followers.contains(self_user)) << 3 \
-               | (can_view_pinned) << 2
+               | (can_view_pinned) << 2 \
+               | (self_user is not None and self_user.muting.contains(user)) << 1
         self.response_data = user_data + b(flags) + (_post_to_bytes(pinned_post, self_user) if pinned_post and can_view_pinned else b"") + self.response_data[1:]
 
 class api_TimelineComments(_api_TimelineBase):
     response_code = ResponseCodes.TIMELINE_COMMENTS
-    version = 0
+    version = 2
 
     def set_response(self, end: bool, forwards: bool, posts: list[Post], user: User | None, focused_post: Post):
         super().set_response(end, forwards, posts, user)
@@ -721,7 +751,7 @@ class api_TimelineComments(_api_TimelineBase):
 
 class api_TimelineNotifications(_api_BaseResponse):
     response_code = ResponseCodes.TIMELINE_NOTIFICATIONS
-    version = 1
+    version = 2
 
     def set_response(
         self,
@@ -777,11 +807,11 @@ class api_TimelineNotifications(_api_BaseResponse):
 
 class api_TimelineHashtag(_api_TimelineBase):
     response_code = ResponseCodes.TIMELINE_HASHTAG
-    version = 0
+    version = 2
 
 class api_TimelineFolreq(_api_BaseResponse):
     response_code = ResponseCodes.TIMELINE_FOLREQ
-    version = 1
+    version = 2
 
     def set_response(self, end: bool, users: list[M2MPending]):
         self.response_data = b(end << 7) + b(len(users))
@@ -801,11 +831,11 @@ class api_TimelineFolreq(_api_BaseResponse):
 
 class api_TimelineSearch(_api_TimelineBase):
     response_code = ResponseCodes.TIMELINE_SEARCH
-    version = 0
+    version = 2
 
 class api_TimelineUserFollowing(_api_BaseResponse):
     response_code = ResponseCodes.TIMELINE_USER_FOLLOWING
-    version = 0
+    version = 1
 
     def _get_user(self, follow: M2MFollow) -> User:
         return follow.following
@@ -830,10 +860,14 @@ class api_TimelineUserFollowing(_api_BaseResponse):
 
 class api_TimelineUserFollowers(api_TimelineUserFollowing):
     response_code = ResponseCodes.TIMELINE_USER_FOLLOWERS
-    version = 0
+    version = 1
 
     def _get_user(self, follow: M2MFollow) -> User:
         return follow.user
+
+class api_TimelineScheduled(_api_TimelineBase):
+    response_code = ResponseCodes.TIMELINE_SCHEDULED
+    version = 0
 
 # 7X - Statuses
 class api_PendingNotifications(_api_BaseResponse):

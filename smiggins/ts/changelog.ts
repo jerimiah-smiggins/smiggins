@@ -148,7 +148,7 @@ const changes: { [key: string]: VersionData } = {
   "1.4.7": {
     description: "New Logo and Bug Fixes",
     major_changes: [{
-      info: "Smiggins now has a new logo, created by CyanPi! The old logo will be used as a fallback when necessary, and you can also select the second and third place winners in settings.",
+      info: "Smiggins now has a new logo, created by CyanPi! The old logo will be used as a fallback when necessary, and you can also select the second and third place logo contest winners in settings.",
       icon: "logo"
     }],
     changes: [
@@ -167,6 +167,16 @@ const changes: { [key: string]: VersionData } = {
       "Fixed a bug where clicking on notifications wouldn't bring you to the correct page.",
       "The private setting on a post is now cascaded on post modals.",
       "An icon size of 512x512 is now specified in manifest.json in order for certain browsers to accept it as valid.",
+    ]
+  },
+  "1.4.9": {
+    description: "Muting users",
+    changes: [
+      "There is now an option to mute users, a way to stop seeing someone that's less exteme than blocking.",
+      "Posts can be schedule for the future. Push notifications are not sent for scheduled posts.",
+      "Timeline offsets now use both a timestamp and the post id, instead of just the timestamp.",
+      "Newlines on private messages are no longer collapsed.",
+      "There is now a configurable keybind for navigating to the search page."
     ]
   }
 };

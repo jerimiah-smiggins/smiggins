@@ -8,7 +8,10 @@
 
     <div class="subtext post-timestamp"><a data-internal-link="post" href="/p/@{pid}/" class="plain-link">@{timestamp}</a></div>
 
-    <div class="post-edited" @{hidden_if_no_edit}>@{icon_edit}</div>
+    <div class="post-top-right">
+      <div @{hidden_if_no_edit}>@{icon_edit}</div>
+      <div @{hidden_if_no_schedule}>@{icon_schedule}</div>
+    </div>
   </div>
 
   @{cw_start}
@@ -27,7 +30,10 @@
 
       <div class="subtext post-timestamp"><a data-internal-link="post" href="/p/@{quote_pid}/" class="plain-link">@{quote_timestamp}</a></div>
 
-      <div class="post-edited" @{hidden_if_no_quote_edit}>@{icon_edit}</div>
+      <div class="post-top-right">
+        <div @{hidden_if_no_quote_edit}>@{icon_edit}</div>
+        <div @{hidden_if_no_quote_schedule}>@{icon_schedule}</div>
+      </div>
     </div>
 
     @{quote_cw_start}

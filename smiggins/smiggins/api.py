@@ -9,13 +9,14 @@ from backend.api.post import (add_like, pin_post, poll_refresh, poll_vote,
 from backend.api.push import sw_get_publickey, sw_register, sw_unregister
 from backend.api.timeline import (tl_comments, tl_following, tl_folreq,
                                   tl_global, tl_hashtag, tl_notifications,
-                                  tl_search, tl_user, tl_user_followers,
-                                  tl_user_following)
+                                  tl_scheduled_posts, tl_search, tl_user,
+                                  tl_user_followers, tl_user_following)
 from backend.api.user import (block_add, block_remove, change_password,
                               delete_account, follow_add, follow_remove,
                               folreq_accept, folreq_deny, get_profile, login,
-                              save_profile, set_post_visibility,
-                              set_verify_followers, signup)
+                              mute_add, mute_remove, save_profile,
+                              set_post_visibility, set_verify_followers,
+                              signup)
 from backend.variables import DEBUG, SITE_NAME, VERSION
 from django.urls import path
 from ninja import NinjaAPI
@@ -34,6 +35,8 @@ api.post("user/follow")(follow_add)
 api.delete("user/follow")(follow_remove)
 api.post("user/block")(block_add)
 api.delete("user/block")(block_remove)
+api.post("user/mute")(mute_add)
+api.delete("user/mute")(mute_remove)
 api.post("user/follow-request")(folreq_accept)
 api.delete("user/follow-request")(folreq_deny)
 
@@ -62,6 +65,7 @@ api.get("timeline/follow-requests")(tl_folreq)
 api.get("timeline/search")(tl_search)
 api.get("timeline/user/following/{str:username}")(tl_user_following)
 api.get("timeline/user/followers/{str:username}")(tl_user_followers)
+api.get("timeline/scheduled")(tl_scheduled_posts)
 
 api.post("post")(post_create)
 api.patch("post")(post_edit)

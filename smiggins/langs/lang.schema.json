@@ -257,6 +257,9 @@
         "follow_requests": {
           "type": "string"
         },
+        "scheduled": {
+          "type": "string"
+        },
         "login": {
           "type": "string"
         },
@@ -390,6 +393,9 @@
           "type": "string"
         },
         "followers_only": {
+          "type": "string"
+        },
+        "scheduled": {
           "type": "string"
         },
         "cw_placeholder": {
@@ -560,6 +566,9 @@
           "type": "string"
         },
         "nav_settings": {
+          "type": "string"
+        },
+        "nav_search": {
           "type": "string"
         },
         "hamburger_delete": {
@@ -1172,13 +1181,31 @@
         "pending": {
           "type": "string"
         },
+        "follow_info": {
+          "type": "string"
+        },
+        "mute": {
+          "type": "string"
+        },
+        "unmute": {
+          "type": "string"
+        },
+        "mute_info": {
+          "type": "string"
+        },
         "block": {
           "type": "string"
         },
         "unblock": {
           "type": "string"
         },
+        "block_info": {
+          "type": "string"
+        },
         "no_bio": {
+          "type": "string"
+        },
+        "user_relationship_help_title": {
           "type": "string"
         },
         "following_count": {
@@ -1187,8 +1214,17 @@
         "followed_by_count": {
           "type": "string"
         },
-        "posts_count": {
-          "type": "string"
+        "post_count": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "*"
+          ],
+          "patternProperties": {
+            "\\*|\\d+": {
+              "type": "string"
+            }
+          }
         },
         "modal_close": {
           "type": "string"

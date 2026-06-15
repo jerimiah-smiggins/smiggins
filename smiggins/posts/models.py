@@ -3,13 +3,12 @@ import threading
 from typing import TYPE_CHECKING, Literal
 
 import pywebpush
+from backend.variables import SITE_NAME, VAPID
 from django.contrib import admin as django_admin
 from django.contrib.admin.exceptions import AlreadyRegistered  # type: ignore
 from django.db import models
 from django.db.models.signals import post_delete, post_init
 from django.dispatch import receiver
-
-from backend.variables import SITE_NAME, VAPID
 
 MAX_STR8 = (1 << 8) - 1
 MAX_STR16 = (1 << 16) - 1
@@ -47,6 +46,7 @@ class User(models.Model):
 
     following = models.ManyToManyField("self", symmetrical=False, through_fields=("user", "following"), through="M2MFollow", related_name="followers", blank=True)
     blocking = models.ManyToManyField("self", symmetrical=False, through_fields=("user", "blocking"), through="M2MBlock", related_name="blockers", blank=True)
+    muting = models.ManyToManyField("self", symmetrical=False, through_fields=("user", "muting"), through="M2MMute", related_name="muters", blank=True)
     pending_followers = models.ManyToManyField("self", symmetrical=False, through_fields=("user", "following"), through="M2MPending", related_name="pending_following", blank=True)
 
     if TYPE_CHECKING:
@@ -88,6 +88,7 @@ class Post(models.Model):
     creator = models.ForeignKey(User, on_delete=models.CASCADE, related_name="posts")
     timestamp = models.IntegerField()
 
+    scheduled = models.BooleanField(default=False)
     edited = models.BooleanField(default=False)
     edited_at = models.IntegerField(null=True, blank=True)
 
@@ -364,6 +365,16 @@ class M2MBlock(models.Model):
     def __str__(self):
         return f"{self.user.username} blocks {self.blocking.username}"
 
+class M2MMute(models.Model):
+    user = models.ForeignKey(User, on_delete=models.CASCADE, related_name="muting_obj")
+    muting = models.ForeignKey(User, on_delete=models.CASCADE, related_name="muted_obj")
+
+    class Meta:
+        unique_together = ("user", "muting")
+
+    def __str__(self):
+        return f"{self.user.username} mutes {self.muting.username}"
+
 class M2MPending(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE, related_name="pending_obj")
     following = models.ForeignKey(User, on_delete=models.CASCADE, related_name="pending_follow_obj")
@@ -413,6 +424,7 @@ try:
         M2MLike,
         M2MFollow,
         M2MBlock,
+        M2MMute,
         M2MPending,
         M2MHashtagPost,
         M2MMessageMember,
@@ -433,7 +445,7 @@ def cascade_message_member_delete(sender, instance: M2MMessageMember, **kwargs):
 
 @receiver(post_init, sender=Notification)
 def send_push_notification(sender, instance: Notification, **kwargs):
-    if instance.event_type in ["ping", "quote", "comment"] and not instance.pk:
+    if instance.event_type in ["ping", "quote", "comment"] and not instance.pk and not (instance.post and instance.is_for.muting.contains(instance.post.creator)):
         context: User | Post | None = instance.linked_follow.user if instance.linked_follow else instance.post
 
         if not context:

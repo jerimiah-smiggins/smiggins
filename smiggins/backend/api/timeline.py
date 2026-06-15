@@ -1,3 +1,4 @@
+import time
 from typing import Literal, TypeVar
 
 from django.db.models import Model, Q
@@ -10,33 +11,51 @@ from ..variables import POSTS_PER_REQUEST
 from .format import (ErrorCodes, api_TimelineComments, api_TimelineFollowing,
                      api_TimelineFolreq, api_TimelineGlobal,
                      api_TimelineHashtag, api_TimelineNotifications,
-                     api_TimelineSearch, api_TimelineUser,
-                     api_TimelineUserFollowers, api_TimelineUserFollowing)
+                     api_TimelineScheduled, api_TimelineSearch,
+                     api_TimelineUser, api_TimelineUserFollowers,
+                     api_TimelineUserFollowing)
 
 T = TypeVar("T", bound="Model")
 
+# Start showing items on a timeline that have a timestamp that is this many seconds
+# in the future - hopefully prevents any odd race condition things or whatnot
+TIMESTAMP_FUTURE_OFFSET = 1
+
 def get_timeline(
     tl: BaseManager[T],
-    offset: int | None,
+    offset: tuple[int, int] | None,
     user: User | None,
     forwards: bool=False, *,
     no_visibility_check: bool=False,
-    show_blocked: bool=False,
-    order_by: list[str]=["-timestamp", "-pk"]
+    show_blocked_and_muted: bool=False,
+    order_by: list[str]=["-timestamp", "-pk"],
+    offset_ignore_id: bool=False,
+    timestamp_future_exclusion: str | None="timestamp"
 ) -> tuple[bool, list[T]]:
     if offset:
-        tl = tl.filter(**{
-            f"timestamp__{'g' if forwards else 'l'}t": offset
-        })
+        if offset_ignore_id:
+            tl = tl.filter(**{
+                f"timestamp__{'g' if forwards else 'l'}t": offset[0]
+            })
+        else:
+            tl = tl.filter(Q(**{
+                f"timestamp__{'g' if forwards else 'l'}t": offset[0]
+            }) | Q(**{ # kinda untested but this should work
+                "timestamp": offset[0],
+                f"pk__{'g' if forwards else 'l'}t": offset[1]
+            }))
 
     tl = tl.order_by(*order_by)
+
+    if timestamp_future_exclusion:
+        tl = tl.filter(**{f"{timestamp_future_exclusion}__lte": round(time.time() + TIMESTAMP_FUTURE_OFFSET)})
 
     if not no_visibility_check:
         if user:
             tl = tl.filter(~Q(creator__blocking=user)) # exclude users who block you
 
-            if not show_blocked:
-                tl = tl.filter(~Q(creator__blockers=user)) # exclude users who you block
+            if not show_blocked_and_muted:
+                tl = tl.filter(~Q(creator__blockers=user) & ~Q(creator__muters=user)) # exclude users who you block/mute
 
             tl = tl.filter(
                 ~Q(private=True) # public posts
@@ -49,8 +68,18 @@ def get_timeline(
     objs: list[T] = list(tl[:POSTS_PER_REQUEST + 1])
     return len(objs) <= POSTS_PER_REQUEST, objs[:POSTS_PER_REQUEST]
 
-def tl_following(request: HttpRequest, comments: bool | None=None, offset: int | None=None, forwards: bool=False) -> HttpResponse:
+def _parse_offset(raw: str | None) -> tuple[int, int] | None:
+    if not raw or ":" not in raw:
+        return None
+
+    try:
+        return int(raw.split(":")[0]), int(raw.split(":")[1])
+    except (IndexError, ValueError):
+        return None
+
+def tl_following(request: HttpRequest, comments: bool | None=None, offset_raw: str | None=None, forwards: bool=False) -> HttpResponse:
     api = api_TimelineFollowing(request)
+    offset = _parse_offset(offset_raw)
 
     if request.s_user is None:
         return api.error(ErrorCodes.NOT_AUTHENTICATED)
@@ -67,8 +96,9 @@ def tl_following(request: HttpRequest, comments: bool | None=None, offset: int |
     api.set_response(end, forwards, posts, request.s_user)
     return api.get_response()
 
-def tl_global(request: HttpRequest, comments: bool | None=None, offset: int | None=None, forwards: bool=False) -> HttpResponse:
+def tl_global(request: HttpRequest, comments: bool | None=None, offset_raw: str | None=None, forwards: bool=False) -> HttpResponse:
     api = api_TimelineGlobal(request)
+    offset = _parse_offset(offset_raw)
 
     if request.s_user is None:
         return api.error(ErrorCodes.NOT_AUTHENTICATED)
@@ -83,8 +113,9 @@ def tl_global(request: HttpRequest, comments: bool | None=None, offset: int | No
     api.set_response(end, forwards, posts, request.s_user)
     return api.get_response()
 
-def tl_user(request: HttpRequest, username: str, offset: int | None=None, forwards: bool=False, include_comments: bool=False) -> HttpResponse:
+def tl_user(request: HttpRequest, username: str, offset_raw: str | None=None, forwards: bool=False, include_comments: bool=False) -> HttpResponse:
     api = api_TimelineUser(request)
+    offset = _parse_offset(offset_raw)
 
     if request.s_user is None and forwards:
             return api.error(ErrorCodes.NOT_AUTHENTICATED)
@@ -103,14 +134,15 @@ def tl_user(request: HttpRequest, username: str, offset: int | None=None, forwar
         offset,
         request.s_user,
         forwards,
-        show_blocked=True
+        show_blocked_and_muted=True
     )
 
     api.set_response(end, forwards, posts, user, request.s_user)
     return api.get_response()
 
-def tl_comments(request: HttpRequest, post_id: int, sort: Literal["recent", "oldest", "random"], offset: int | None=None, forwards: bool=False) -> HttpResponse:
+def tl_comments(request: HttpRequest, post_id: int, sort: Literal["recent", "oldest", "random"], offset_raw: str | None=None, forwards: bool=False) -> HttpResponse:
     api = api_TimelineComments(request)
+    offset = _parse_offset(offset_raw)
 
     try:
         post = Post.objects.get(post_id=post_id)
@@ -138,8 +170,9 @@ def tl_comments(request: HttpRequest, post_id: int, sort: Literal["recent", "old
     api.set_response(end, forwards and sort != "oldest", posts, request.s_user, post)
     return api.get_response()
 
-def tl_notifications(request: HttpRequest, offset: int | None=None, forwards: bool=False):
+def tl_notifications(request: HttpRequest, offset_raw: str | None=None, forwards: bool=False):
     api = api_TimelineNotifications(request)
+    offset = _parse_offset(offset_raw)
 
     if request.s_user is None:
         return api.error(ErrorCodes.NOT_AUTHENTICATED)
@@ -149,7 +182,8 @@ def tl_notifications(request: HttpRequest, offset: int | None=None, forwards: bo
         offset,
         request.s_user,
         forwards,
-        no_visibility_check=True
+        no_visibility_check=True,
+        offset_ignore_id=True # IGNORE ID on offset! -> isn't sent to frontend!!
     )
 
     api.set_response(end, forwards, notifications, request.s_user)
@@ -158,8 +192,9 @@ def tl_notifications(request: HttpRequest, offset: int | None=None, forwards: bo
 
     return api.get_response()
 
-def tl_hashtag(request: HttpRequest, tag: str, sort: Literal["recent", "oldest", "random"], offset: int | None=None, forwards: bool=False) -> HttpResponse:
+def tl_hashtag(request: HttpRequest, tag: str, sort: Literal["recent", "oldest", "random"], offset_raw: str | None=None, forwards: bool=False) -> HttpResponse:
     api = api_TimelineHashtag(request)
+    offset = _parse_offset(offset_raw)
 
     if request.s_user is None:
         return api.error(ErrorCodes.NOT_AUTHENTICATED)
@@ -190,8 +225,9 @@ def tl_hashtag(request: HttpRequest, tag: str, sort: Literal["recent", "oldest",
     api.set_response(end, forwards and sort != "oldest", posts, request.s_user)
     return api.get_response()
 
-def tl_folreq(request: HttpRequest, offset: int | None=None) -> HttpResponse:
+def tl_folreq(request: HttpRequest, offset_raw: str | None=None) -> HttpResponse:
     api = api_TimelineFolreq(request)
+    offset = _parse_offset(offset_raw)
 
     if request.s_user is None:
         return api.error(ErrorCodes.NOT_AUTHENTICATED)
@@ -217,9 +253,10 @@ def tl_search(
     quote: bool | None=None,
     poll: bool | None=None,
     comment: bool | None=None,
-    offset: int | None=None
+    offset_raw: str | None=None
 ) -> HttpResponse:
     api = api_TimelineSearch(request)
+    offset = _parse_offset(offset_raw)
 
     if request.s_user is None:
         return api.error(ErrorCodes.NOT_AUTHENTICATED)
@@ -276,8 +313,9 @@ def tl_search(
     api.set_response(end, False, posts, request.s_user)
     return api.get_response()
 
-def tl_user_following(request: HttpRequest, username: str, offset: int | None=None) -> HttpResponse:
+def tl_user_following(request: HttpRequest, username: str, offset_raw: str | None=None) -> HttpResponse:
     api = api_TimelineUserFollowing(request)
+    offset = _parse_offset(offset_raw) # timestamp not used - doesn't make sense in this case
 
     try:
         user = User.objects.get(username=username)
@@ -287,7 +325,7 @@ def tl_user_following(request: HttpRequest, username: str, offset: int | None=No
     tl = M2MFollow.objects.filter(user=user).order_by("-pk").select_related("following")
 
     if offset:
-        tl = tl.filter(pk__lt=offset)
+        tl = tl.filter(pk__lt=offset[1])
 
     users = list(tl[:POSTS_PER_REQUEST + 1])
     end = len(users) <= POSTS_PER_REQUEST
@@ -295,8 +333,9 @@ def tl_user_following(request: HttpRequest, username: str, offset: int | None=No
     api.set_response(end, users[:POSTS_PER_REQUEST])
     return api.get_response()
 
-def tl_user_followers(request: HttpRequest, username: str, offset: int | None=None) -> HttpResponse:
+def tl_user_followers(request: HttpRequest, username: str, offset_raw: str | None=None) -> HttpResponse:
     api = api_TimelineUserFollowers(request)
+    offset = _parse_offset(offset_raw) # timestamp not used - doesn't make sense in this case
 
     try:
         user = User.objects.get(username=username)
@@ -306,10 +345,30 @@ def tl_user_followers(request: HttpRequest, username: str, offset: int | None=No
     tl = M2MFollow.objects.filter(following=user).order_by("-pk").select_related("user")
 
     if offset:
-        tl = tl.filter(pk__lt=offset)
+        tl = tl.filter(pk__lt=offset[1])
 
     users = list(tl[:POSTS_PER_REQUEST + 1])
     end = len(users) <= POSTS_PER_REQUEST
 
     api.set_response(end, users[:POSTS_PER_REQUEST])
+    return api.get_response()
+
+def tl_scheduled_posts(request: HttpRequest, offset_raw: str | None=None) -> HttpResponse:
+    api = api_TimelineScheduled(request)
+    offset = _parse_offset(offset_raw)
+
+    if request.s_user is None:
+        return api.error(ErrorCodes.NOT_AUTHENTICATED)
+
+    p = request.s_user.posts.filter(timestamp__gt=round(time.time()), scheduled=True)
+
+    end, posts = get_timeline(
+        p,
+        offset,
+        request.s_user,
+        show_blocked_and_muted=True,
+        timestamp_future_exclusion=None
+    )
+
+    api.set_response(end, False, posts, request.s_user)
     return api.get_response()

@@ -16,6 +16,7 @@ function renderFolreqTimeline(
 ): void {
   clearTimelineStatuses();
 
+  // "None" text if empty
   if (offset.lower === null && users.length === 0) {
     let none: HTMLElement = document.createElement("i");
     none.classList.add("timeline-status");

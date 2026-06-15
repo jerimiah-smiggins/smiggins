@@ -8,7 +8,7 @@ import yaml
 from dotenv import dotenv_values
 
 print("Loading config...")
-REAL_VERSION: tuple[int, int, int] = (1, 4, 8)
+REAL_VERSION: tuple[int, int, int] = (1, 4, 9)
 
 def dotenv_or_(key: str, val: Any, process: Callable[[str], Any]=lambda x: x) -> Any:
     try:
@@ -111,6 +111,8 @@ API_RATELIMITS: dict[str, tuple[int, int]] = {
     "DELETE /api/user/follow": (10, 2),
     "POST /api/user/block": (10, 2),
     "DELETE /api/user/block": (10, 2),
+    "POST /api/user/mute": (10, 2),
+    "DELETE /api/user/mute": (10, 2),
     "POST /api/user/follow-request": (10, 2),
     "DELETE /api/user/follow-request": (10, 2),
 

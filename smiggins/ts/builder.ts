@@ -1,11 +1,13 @@
 function _intToBytes(num: number, length: number=1): Uint8Array {
-  let arr: Uint8Array = new Uint8Array(length);
+  let arrReverse: Uint8Array = new Uint8Array(length);
 
   for (let i: number = 0; i < length; i++) {
-    arr[i] = (num >> (8 * (length - i - 1))) & 0xff;
+    arrReverse[i] = num & 0xff;
+    // can't >>= 8 because it overflows at 32 bits
+    num = Math.floor(num / 0x100);
   }
 
-  return arr;
+  return arrReverse.reverse();
 }
 
 function hexToBytes(hex: string): Uint8Array {

@@ -73,11 +73,23 @@ function createPostModal(type?: "quote" | "comment" | "edit", id?: number): void
   document.body.append(el);
   (el.querySelector("#modal-post-content") as el)?.focus();
 
+  if (type === "edit") {
+    el.querySelector("#modal-post-scheduled-options")?.setAttribute("hidden", "");
+  }
+
   el.querySelector("#modal-poll-toggle")?.addEventListener("click", function(): void {
     let pollElement: Del = (el.querySelector("#modal-poll-area") as Del);
 
     if (pollElement) {
       pollElement.hidden = !pollElement.hidden;
+    }
+  });
+
+  el.querySelector("#modal-post-scheduled")?.addEventListener("input", function(): void {
+    if ((el.querySelector("#modal-post-scheduled") as Iel)?.checked) {
+      el.querySelector("#modal-post-scheduled-date")?.removeAttribute("hidden");
+    } else {
+      el.querySelector("#modal-post-scheduled-date")?.setAttribute("hidden", "");
     }
   });
 
@@ -112,6 +124,16 @@ function createPostModal(type?: "quote" | "comment" | "edit", id?: number): void
     let cwEl: Iel = el.querySelector("#modal-post-cw");
     if (cwEl) { cwEl.value = getPostTemplatedCW(post); }
   }
+}
+
+function createRelationshipHelpModal(): void {
+  if (document.getElementById("modal")) { return; }
+
+  document.body.append(getSnippet("modal/user-relationship-help"));
+
+  document.getElementById("modal")?.addEventListener("click", clearModalIfClicked);
+  document.addEventListener("keydown", clearModalOnEscape);
+
 }
 
 function createUpdateModal(since: string): void {
@@ -220,15 +242,18 @@ function newMessageModal(): void {
 }
 
 function postModalCreatePost(e: Event): void {
-  let cwElement: el = document.getElementById("modal-post-cw");
-  let contentElement: el = document.getElementById("modal-post-content");
-  let privatePostElement: el = document.getElementById("modal-post-private");
+  let cwElement: Iel = document.getElementById("modal-post-cw") as Iel;
+  let contentElement: Iel = document.getElementById("modal-post-content") as Iel;
+  let privatePostElement: Iel = document.getElementById("modal-post-private") as Iel;
+  let scheduledCheckElement: Iel = document.getElementById("modal-post-scheduled") as Iel;
+  let scheduledDateElement: Iel = document.getElementById("modal-post-scheduled-date") as Iel;
 
-  if (!cwElement || !contentElement || !privatePostElement) { return; }
+  if (!cwElement || !contentElement || !privatePostElement || !scheduledCheckElement || !scheduledDateElement) { return; }
 
-  let cw: string = (cwElement as I).value;
-  let content: string = (contentElement as I).value;
-  let privatePost: boolean = (privatePostElement as I).checked;
+  let cw: string = cwElement.value;
+  let content: string = contentElement.value;
+  let privatePost: boolean = privatePostElement.checked;
+  let scheduled: number | undefined = scheduledCheckElement.checked ? Math.floor(scheduledDateElement.valueAsNumber / 1000) : undefined;
 
   let poll: string[] = [];
 
@@ -269,7 +294,8 @@ function postModalCreatePost(e: Event): void {
     let extra: {
       quote?: number,
       poll?: string[],
-      comment?: number
+      comment?: number,
+      scheduled?: number
     } = {};
 
     if (postModalFor) {
@@ -278,6 +304,10 @@ function postModalCreatePost(e: Event): void {
 
     if (poll.length !== 0) {
       extra.poll = poll;
+    }
+
+    if (scheduled) {
+      extra.scheduled = scheduled;
     }
 
     createPost(

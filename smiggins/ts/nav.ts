@@ -12,6 +12,7 @@ function urlToIntent(path: string): intent {
 
       case "/notifications/": return "notifications";
       case "/follow-requests/": return "follow-requests";
+      case "/scheduled/": return "scheduled";
       case "/search/": return "search";
       case "/messages/": return "message-list";
 
@@ -129,7 +130,7 @@ function renderPage(intent: intent): void {
         color_two: c && c.color_two || "var(--background-mid)",
         following: lr(L.user.following_count, { n: c && floatintToStr(c.num_following) || "0" }),
         followers: lr(L.user.followed_by_count, { n: c && floatintToStr(c.num_followers) || "0" }),
-        post_count: lr(L.user.posts_count, { n: c && floatintToStr(c.num_posts) || "0" }),
+        post_count: lr(n(L.user.post_count, c && floatintToNum(c.num_posts) || 0), { n: c && floatintToStr(c.num_posts) || "0" }),
         bio: c && [linkify(escapeHTML(c.bio)), 1] || "",
         user_username: c && [escapeHTML(u + (c.pronouns ? " - " + c.pronouns : "")), 1] || u,
         display_name: c && [escapeHTML(c.display_name), 1] || u
@@ -243,9 +244,11 @@ function getPageTitle(intent: intent): string {
     case "signup": val = L.titles.signup; break;
     case "logout": val = L.titles.logout; break;
     case "404": val = L.titles.not_found; break;
-    case "user": val = getUsernameFromPath() + " - "; break;
+    case "user": val = getUsernameFromPath(); break;
+    case "hashtag": val = "#" + getHashtagFromPath(); break;
     case "notifications": val = L.titles.notifications; break;
     case "follow-requests": val = L.titles.follow_requests; break;
+    case "scheduled": val = L.titles.scheduled; break;
     case "changelog": val = L.titles.changes; break;
     case "admin": val = L.titles.admin; break;
     case "search": val = L.titles.search; break;

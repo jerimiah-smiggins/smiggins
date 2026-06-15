@@ -3,8 +3,9 @@ import time
 from django.db.utils import IntegrityError
 from django.http import HttpResponse
 from posts.middleware.ratelimit import s_HttpRequest as HttpRequest
-from posts.models import (Hashtag, M2MHashtagPost, M2MLike, Notification, Poll,
-                          PollChoice, PollVote, Post, PushNotification, User)
+from posts.models import (Hashtag, M2MHashtagPost, M2MLike, M2MMute,
+                          Notification, Poll, PollChoice, PollVote, Post,
+                          PushNotification, User)
 
 from ..helper import find_hashtags, find_mentions, trim_whitespace
 from ..variables import (MAX_CONTENT_WARNING_LENGTH, MAX_POLL_OPTION_LENGTH,
@@ -42,7 +43,7 @@ def post_create(request: HttpRequest) -> HttpResponse:
     if len(cw[0]) > MAX_CONTENT_WARNING_LENGTH or len(content[0]) > MAX_POST_LENGTH or not (content[1] or len(poll)):
         return api.error(ErrorCodes.BAD_REQUEST)
 
-    ts = round(time.time())
+    ts = max(data["scheduled_at"] or 0, round(time.time()))
 
     quote = None
     if data["quote"]:
@@ -73,7 +74,8 @@ def post_create(request: HttpRequest) -> HttpResponse:
         timestamp=ts,
         private=data["private"],
         quoted_post=quote,
-        comment_parent=comment_parent
+        comment_parent=comment_parent,
+        scheduled=data["scheduled_at"] == ts
     )
 
     post = Post.objects.get(
@@ -126,8 +128,10 @@ def post_create(request: HttpRequest) -> HttpResponse:
                 timestamp=ts
             ))
 
+    # this sucks so bad
+    pending_notification_user_exclusions = M2MMute.objects.filter(muting=user).values_list("user__user_id", flat=True)
     if pending_notification_objects:
-        Notification.objects.bulk_create(pending_notification_objects, ignore_conflicts=True) # gives AssertionError without ignore_conficts for no reason
+        Notification.objects.bulk_create([i for i in pending_notification_objects if i.is_for.user_id not in pending_notification_user_exclusions], ignore_conflicts=True) # gives AssertionError without ignore_conficts for no reason
 
     pending_hashtag_objects = []
     for tag in find_hashtags(content[0]):
@@ -168,8 +172,13 @@ def post_edit(request: HttpRequest) -> HttpResponse:
     post.content = content[0]
     post.content_warning = cw[0]
     post.private = data["private"]
-    post.edited = True
-    post.edited_at = round(time.time())
+
+    # don't flag as edited if it's a scheduled post that isn't public
+    ts = round(time.time())
+    if not post.scheduled or ts >= post.timestamp:
+        post.edited = True
+        post.edited_at = round(time.time())
+
     post.save()
 
     return api.response()
@@ -216,19 +225,20 @@ def add_like(request: HttpRequest, post_id: int) -> HttpResponse:
     except IntegrityError:
         ...
     else:
-        if post.creator != request.s_user:
-            try:
-                Notification.objects.create(
-                    timestamp=round(time.time()),
-                    event_type="like",
-                    linked_like=M2MLike.objects.get(user=request.s_user, post=post),
-                    post=post,
-                    is_for=post.creator
-                )
-            except M2MLike.DoesNotExist:
-                ...
+        if not post.creator.muting.contains(request.s_user):
+            if post.creator != request.s_user:
+                try:
+                    Notification.objects.create(
+                        timestamp=round(time.time()),
+                        event_type="like",
+                        linked_like=M2MLike.objects.get(user=request.s_user, post=post),
+                        post=post,
+                        is_for=post.creator
+                    )
+                except M2MLike.DoesNotExist:
+                    ...
 
-        PushNotification.send_to(creator, "none", None)
+            PushNotification.send_to(creator, "none", None)
 
     return api.response()
 

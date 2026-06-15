@@ -21,7 +21,7 @@
               "properties": {
                 "type": {
                   "type": "string",
-                  "enum": ["str", "int", "float", "bool"]
+                  "enum": ["str", "int", "float", "bool", "offset"]
                 },
                 "name": { "type": "string" },
                 "required": { "type": "boolean", "enum": [true] }

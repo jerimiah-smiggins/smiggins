@@ -1,0 +1,14 @@
+{% include "snippets/generic/page-start.html" with active_page="scheduled" %}
+
+<h1 id="tag" class="no-margin-top no-margin-bottom">@{lang.titles.scheduled}</h1>
+<hr>
+
+<div id="timeline-carousel" class="generic-margin-bottom">
+  <div data-timeline-id="scheduled_recent" data-timeline-active>@{lang.timeline.newest}</div>
+  <div data-timeline-id="scheduled_oldest">@{lang.timeline.oldest}</div>
+</div>
+
+<div id="timeline-posts"></div>
+<button id="timeline-more" hidden>@{lang.generic.load_more}</button>
+
+{% include "snippets/generic/page-end.html" %}

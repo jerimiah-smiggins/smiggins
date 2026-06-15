@@ -20,6 +20,8 @@ post:
   - { type: bool6, name: "Quote edited" }
   - { type: bool5, name: "Quote has poll" }
   - { type: bool4, name: "Quote has quote" }
+  - { type: bool3, name: "Scheduled" }
+  - { type: bool2, name: "Quote scheduled" }
 
   - { type: uint32, name: "Comment parent ID", condition: is_comment }
 
@@ -117,6 +119,20 @@ DELETE /api/user/follow-request:
   body:
   - { type: str0, name: "Username" }
 
+POST /api/user/mute:
+  description: "Mutes the specificed user"
+  id: 0x16
+  version: 0
+  body:
+  - { type: str0, name: "Username" }
+
+DELETE /api/user/mute:
+  description: "Unmutes the specificed user"
+  id: 0x17
+  version: 0
+  body:
+  - { type: str0, name: "Username" }
+
 GET /api/user:
   description: "Gets your profile information"
   id: 0x20
@@ -177,18 +193,20 @@ PATCH /api/user/verify_followers:
 POST /api/post:
   description: "Creates a post"
   id: 0x30
-  version: 0
+  version: 1
   body:
   - { type: bool7, name: "Followers only" }
   - { type: bool6, name: "Is quote", id: has_quote }
   - { type: bool5, name: "Has poll", id: has_poll }
   - { type: bool4, name: "Is comment", id: has_comment }
+  - { type: bool3, name: "Is scheduled", id: is_scheduled }
   - { type: str16, name: "Content" }
   - { type: str8, name: "Content warning" }
   - { type: uint8, name: "Poll items", condition: has_poll, id: poll_count }
   - { type: str8, name: "Poll option", condition: has_poll, loop: poll_count }
   - { type: uint32, name: "Quote ID", condition: has_quote }
   - { type: uint32, name: "Comment ID", condition: has_comment }
+  - { type: uint64, name: "Scheduled timestamp", condition: is_scheduled }
 
 POST /api/post/like/{post_id}:
   description: "Likes a post"
@@ -308,9 +326,9 @@ POST /api/admin/permissions:
 GET /api/message/list:
   description: "Lists message groups you are in"
   id: 0x50
-  version: 0
+  version: 1
   params:
-    offset: { type: int }
+    offset_raw: { type: offset }
     forwards: { type: bool }
   response:
   - { type: bool7, name: "End of timeline" }
@@ -326,9 +344,9 @@ GET /api/message/list:
 GET /api/messages/{group_id}:
   description: "Lists messages for the specified message group"
   id: 0x51
-  version: 0
+  version: 1
   params:
-    offset: { type: int }
+    offset_raw: { type: offset }
     forwards: { type: bool }
   response:
   - { type: uint8, name: "Members", id: members, loop: group_count }
@@ -364,10 +382,10 @@ GET /api/message/group:
 GET /api/timeline/global:
   description: "Global timeline"
   id: 0x60
-  version: 0
+  version: 2
   params:
     comments: { type: bool }
-    offset: { type: int }
+    offset_raw: { type: offset }
     forwards: { type: bool }
   response:
   - { type: bool7, name: "End of timeline" }
@@ -378,10 +396,10 @@ GET /api/timeline/global:
 GET /api/timeline/following:
   description: "Following timeline"
   id: 0x61
-  version: 0
+  version: 2
   params:
     comments: { type: bool }
-    offset: { type: int }
+    offset_raw: { type: offset }
     forwards: { type: bool }
   response:
   - { type: bool7, name: "End of timeline" }
@@ -392,9 +410,9 @@ GET /api/timeline/following:
 GET /api/timeline/user/{username}:
   description: "User timeline"
   id: 0x62
-  version: 0
+  version: 2
   params:
-    offset: { type: int }
+    offset_raw: { type: offset }
     forwards: { type: bool }
     include_comments: { type: bool }
   response:
@@ -412,6 +430,7 @@ GET /api/timeline/user/{username}:
   - { type: bool4, name: "Is blocking" }
   - { type: bool3, name: "Has pending follow request" }
   - { type: bool2, name: "Has pinned post", id: has_pinned }
+  - { type: bool1, name: "Is muting" }
   - { type: post, name: "Pinned post", condition: has_pinned }
   - { type: uint8, name: "Post count", id: post_count }
   - { type: post, name: "Post", loop: post_count }
@@ -419,10 +438,10 @@ GET /api/timeline/user/{username}:
 GET /api/timeline/post/{post_id}:
   description: "Post comments timeline"
   id: 0x63
-  version: 0
+  version: 2
   params:
     sort: { type: str, required: true }
-    offset: { type: int }
+    offset_raw: { type: offset }
     forwards: { type: bool }
   response:
   - { type: post, name: "Focused post" }
@@ -433,9 +452,9 @@ GET /api/timeline/post/{post_id}:
 GET /api/timeline/notifications:
   description: "Notification timeline"
   id: 0x64
-  version: 1
+  version: 2
   params:
-    offset: { type: int }
+    offset_raw: { type: offset }
     forwards: { type: bool }
   response:
   - { type: bool7, name: "End of timeline" }
@@ -446,10 +465,10 @@ GET /api/timeline/notifications:
 GET /api/timeline/tag/{tag}:
   description: "Hashtag timeline"
   id: 0x65
-  version: 0
+  version: 2
   params:
     sort: { type: str, required: true }
-    offset: { type: int }
+    offset_raw: { type: offset }
     forwards: { type: bool }
   response:
   - { type: bool7, name: "End of timeline" }
@@ -460,9 +479,9 @@ GET /api/timeline/tag/{tag}:
 GET /api/timeline/follow-requests:
   description: "Notification timeline"
   id: 0x66
-  version: 1
+  version: 2
   params:
-    offset: { type: int }
+    offset_raw: { type: offset }
   response:
   - { type: bool7, name: "End of timeline" }
   - { type: uint8, name: "User count", id: user_count }
@@ -477,9 +496,9 @@ GET /api/timeline/follow-requests:
 GET /api/timeline/search:
   description: "For searching"
   id: 0x67
-  version: 0
+  version: 2
   params:
-    offset: { type: int }
+    offset_raw: { type: offset }
     q: { type: str }
     cw: { type: str }
     user: { type: str }
@@ -494,9 +513,9 @@ GET /api/timeline/search:
 GET /api/timeline/user/following/{username}:
   description: "Lists people someone follows"
   id: 0x68
-  version: 0
+  version: 1
   params:
-    offset: { type: int }
+    offset_raw: { type: offset }
   response:
   - { type: bool7, name: "End of timeline" }
   - { type: uint8, name: "User count", id: user_count }
@@ -511,9 +530,9 @@ GET /api/timeline/user/following/{username}:
 GET /api/timeline/user/followers/{username}:
   description: "Lists people that follow someone"
   id: 0x69
-  version: 0
+  version: 1
   params:
-    offset: { type: int }
+    offset_raw: { type: offset }
   response:
   - { type: bool7, name: "End of timeline" }
   - { type: uint8, name: "User count", id: user_count }
@@ -524,6 +543,18 @@ GET /api/timeline/user/followers/{username}:
   - { type: hex3, name: "Banner color 2" }
   - { type: str8, name: "Display name", loop: user_count }
   - { type: str16, name: "User bio", loop: user_count }
+
+GET /api/timeline/scheduled:
+  description: "Lists pending scheduled posts"
+  id: 0x6a
+  version: 0
+  params:
+    offset_raw: { type: offset }
+  response:
+  - { type: bool7, name: "End of timeline" }
+  - { type: bool6, name: "Forwards" }
+  - { type: uint8, name: "Post count", id: post_count }
+  - { type: post, name: "Post", loop: post_count }
 
 GET /api/notifications:
   description: "Checks for unread notifications"
