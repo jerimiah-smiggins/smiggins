@@ -145,8 +145,16 @@ def tl_comments(request: HttpRequest, post_id: int, sort: Literal["recent", "old
     offset = _parse_offset(offset_raw)
 
     try:
-        post = Post.objects.get(post_id=post_id)
+        post = Post.objects.filter(Q(timestamp__lte=round(time.time() + TIMESTAMP_FUTURE_OFFSET))).filter(
+            ~Q(private=True) # public posts
+            | Q(creator=request.s_user) # post from self
+            | (Q(private=True) & Q(creator__followers=request.s_user)) # private but following
+        ).get(post_id=post_id)
     except Post.DoesNotExist:
+        return api.error(ErrorCodes.POST_NOT_FOUND)
+
+    # scheduled post that's not public yet
+    if post.scheduled and post.timestamp - TIMESTAMP_FUTURE_OFFSET > round(time.time()):
         return api.error(ErrorCodes.POST_NOT_FOUND)
 
     kwargs = {}
