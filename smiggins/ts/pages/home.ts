@@ -1,3 +1,7 @@
+function scheduledInputToTS(el: I): number {
+  return Math.floor(+(new Date(el.value)) / 1000);
+}
+
 function p_home(element: D): void {
   hookTimeline(element.querySelector("[id=\"timeline-posts\"]") as D, element.querySelector("#timeline-carousel") as Del, {
     following: { api: api_TimelineFollowing, prependPosts: true },
@@ -46,7 +50,7 @@ function homeCreatePost(e: Event): void {
   let cw: string = cwElement.value;
   let content: string = contentElement.value;
   let privatePost: boolean = privatePostElement.checked;
-  let scheduled: number | undefined = scheduledCheckElement.checked ? Math.floor(scheduledDateElement.valueAsNumber / 1000) : undefined;
+  let scheduled: number | undefined = scheduledCheckElement.checked ? scheduledInputToTS(scheduledDateElement) : undefined;
 
   let poll: string[] = [];
 

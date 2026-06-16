@@ -253,7 +253,7 @@ function postModalCreatePost(e: Event): void {
   let cw: string = cwElement.value;
   let content: string = contentElement.value;
   let privatePost: boolean = privatePostElement.checked;
-  let scheduled: number | undefined = scheduledCheckElement.checked ? Math.floor(scheduledDateElement.valueAsNumber / 1000) : undefined;
+  let scheduled: number | undefined = scheduledCheckElement.checked ? scheduledInputToTS(scheduledDateElement) : undefined;
 
   let poll: string[] = [];
 
