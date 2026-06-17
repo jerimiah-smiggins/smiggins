@@ -56,8 +56,6 @@ class User(models.Model):
 
     if TYPE_CHECKING:
         posts: models.Manager["Post"]
-        admin_log_for: models.Manager["AdminLog"]
-        admin_log_by: models.Manager["AdminLog"]
         notifications: models.Manager["Notification"]
         liked_posts: models.Manager["Post"]
         followers: models.Manager["User"]
@@ -77,9 +75,8 @@ class User(models.Model):
             "count": min(100, notification_count + message_count + folreq_count)
         }
 
-
     def __str__(self):
-        return f"({self.user_id}) @{self.username}"
+        return f"({self.user_id}) {'(admin) ' if self.admin_level else ''}{self.display_name} / @{self.username}"
 
 class Post(models.Model):
     post_id = models.IntegerField(primary_key=True)
@@ -107,25 +104,19 @@ class Post(models.Model):
         quotes: models.Manager["Post"]
         poll: "Poll | None"
 
-    # def get_poll(self: "Post", user: User | None) -> dict | None:
-    #     if hasattr(self, "poll"):
-    #         p: Poll = self.poll
-    #     else:
-    #         return None
-
-    #     return {
-    #         "votes": p.votes.count(),
-    #         "voted": user is not None and p.votes.filter(user=user).count() > 0,
-    #         "content": [{
-    #             "id": c.id,
-    #             "value": c.content,
-    #             "votes": c.votes.count(),
-    #             "voted": user is not None and c.votes.filter(user=user).count() > 0
-    #         } for c in p.choices.all()]
-    #     }
-
     def __str__(self):
-        return f"({self.post_id}) {self.content}"
+        info: list[str] = list(filter(bool, [ # type: ignore
+            self.private and "private",
+            self.edited and "edited",
+            self.scheduled and "scheduled",
+            hasattr(self, "poll") and "poll",
+            self.quoted_post and "quote",
+            self.comment_parent and "comment"
+        ]))
+
+        print(info)
+
+        return f"({self.post_id} @ {self.timestamp}){' (' + (', '.join(info)) + ')' if len(info) else ''}{' CW: ' + self.content_warning[:25] if self.content_warning else ''}{'...' if self.content_warning and len(self.content_warning) > 25 else ''} \"{self.content[:100]}{'...' if len(self.content) > 100 else ''}\""
 
 class Notification(models.Model):
     notif_id = models.IntegerField(primary_key=True, unique=True)
@@ -151,7 +142,7 @@ class Notification(models.Model):
     is_for = models.ForeignKey(User, on_delete=models.CASCADE, related_name="notifications")
 
     def __str__(self):
-        return f"({'' if self.read else 'un'}read) {self.event_type} ({self.notif_id}) for {self.is_for.username if self.is_for else None}"
+        return f"({'' if self.read else 'un'}read) {self.event_type} ({self.notif_id} @ {self.timestamp}) for {self.is_for.username if self.is_for else None}"
 
 class Hashtag(models.Model):
     tag = models.CharField(max_length=MAX_STR8, unique=True, primary_key=True)
@@ -159,17 +150,6 @@ class Hashtag(models.Model):
 
     def __str__(self):
         return f"#{self.tag} ({self.posts.count()} posts)"
-
-class AdminLog(models.Model):
-    type = models.TextField()
-    u_by = models.ForeignKey(User, on_delete=models.CASCADE, related_name="admin_log_by")
-    u_for = models.ForeignKey(User, on_delete=models.SET_NULL, null=True, related_name="admin_log_for")
-    uname_for = models.TextField(null=True)
-    info = models.TextField()
-    timestamp = models.IntegerField()
-
-    def __str__(self):
-        return f"{self.type} - {self.u_by.username} -> {self.uname_for or (self.u_for.username if isinstance(self.u_for, User) else self.u_for)} - {self.info}"
 
 class Poll(models.Model):
     target = models.OneToOneField(Post, on_delete=models.CASCADE, related_name="poll")
@@ -179,7 +159,7 @@ class Poll(models.Model):
         votes: models.Manager["PollVote"]
 
     def __str__(self):
-        return f"post {self.target.post_id} - {self.votes.count()} vote(s) on {self.choices.count()} choices"
+        return f"post {self.target.post_id}, {self.votes.count()} votes - \"{self.target.content[:100]}{'...' if len(self.target.content) > 100 else ''}\": {''.join(['\n    ' + str(i.votes.count()) + 'x ' + i.content for i in self.choices.all()])}"
 
 class PollChoice(models.Model):
     poll = models.ForeignKey(Poll, on_delete=models.CASCADE, related_name="choices")
@@ -206,6 +186,9 @@ class PollVote(models.Model):
 class InviteCode(models.Model):
     id = models.CharField(primary_key=True, unique=True, max_length=64)
 
+    def __str__(self):
+        return self.id
+
 class MessageGroup(models.Model):
     id = models.IntegerField(primary_key=True)
     group_id = models.TextField(unique=True)
@@ -220,7 +203,7 @@ class MessageGroup(models.Model):
         return ":".join([str(i) for i in sorted([u.user_id for u in users])])
 
     def __str__(self) -> str:
-        return f"({self.id}/{self.group_id}) " + ", ".join(self.members.all().values_list("username", flat=True))
+        return f"({self.id} // {self.group_id} @ {self.timestamp}) {', '.join(self.members.all().values_list('username', flat=True))}"
 
 class Message(models.Model):
     content = models.CharField(max_length=MAX_STR16)
@@ -229,7 +212,7 @@ class Message(models.Model):
     timestamp = models.IntegerField()
 
     def __str__(self) -> str:
-        return f"({self.group.id}/{self.group.group_id}) @{self.user.username} - {self.content}"
+        return f"({self.group.id} // {self.group.group_id} @ {self.timestamp}) @{self.user.username} - {self.content}"
 
 class PushNotification(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE)
@@ -335,6 +318,9 @@ class PushNotification(models.Model):
 
             raise err
 
+    def __str__(self):
+        return f"@{self.user.username} at {self.endpoint.split("/")[2]}"
+
 class M2MLike(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE)
     post = models.ForeignKey(Post, on_delete=models.CASCADE)
@@ -383,7 +369,7 @@ class M2MPending(models.Model):
         unique_together = ("user", "following")
 
     def __str__(self):
-        return f"{self.user.username} pending follow to {self.following.username}"
+        return f"{self.following.username} wants to follow {self.user.username}"
 
 class M2MHashtagPost(models.Model):
     post = models.ForeignKey(Post, on_delete=models.CASCADE)
@@ -403,6 +389,9 @@ class M2MMessageMember(models.Model):
     class Meta:
         unique_together = ("user", "group")
 
+    def __str__(self):
+        return f"({'un' if self.unread else ''}read) @{self.user.username} is in group {self.group.id} // {self.group.group_id}"
+
 class GenericData(models.Model):
     id = models.CharField(max_length=50, unique=True, primary_key=True)
     value = models.TextField(blank=True)
@@ -413,7 +402,6 @@ try:
         Post,
         Notification,
         Hashtag,
-        AdminLog,
         Poll,
         PollChoice,
         PollVote,

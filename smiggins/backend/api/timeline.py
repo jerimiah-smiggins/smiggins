@@ -30,7 +30,8 @@ def get_timeline(
     show_blocked_and_muted: bool=False,
     order_by: list[str]=["-timestamp", "-pk"],
     offset_ignore_id: bool=False,
-    timestamp_future_exclusion: str | None="timestamp"
+    timestamp_future_exclusion: str | None="timestamp",
+    distinct: tuple[str, ...]=("timestamp", "post_id")
 ) -> tuple[bool, list[T]]:
     if offset:
         if offset_ignore_id:
@@ -61,7 +62,7 @@ def get_timeline(
                 ~Q(private=True) # public posts
               | Q(creator=user) # post from self
               | (Q(private=True) & Q(creator__followers=user)) # private but following
-            ).distinct()
+            ).distinct(*distinct)
         else:
             tl = tl.filter(~Q(private=True))
 
@@ -191,7 +192,8 @@ def tl_notifications(request: HttpRequest, offset_raw: str | None=None, forwards
         request.s_user,
         forwards,
         no_visibility_check=True,
-        offset_ignore_id=True # IGNORE ID on offset! -> isn't sent to frontend!!
+        offset_ignore_id=True, # IGNORE ID on offset! -> isn't sent to frontend!!
+        distinct=("notif_id",)
     )
 
     api.set_response(end, forwards, notifications, request.s_user)

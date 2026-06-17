@@ -49,7 +49,8 @@ def tl_message_groups(request: HttpRequest, offset_raw: str | None=None, forward
         request.s_user,
         forwards,
         no_visibility_check=True,
-        order_by=["-timestamp"]
+        order_by=["-timestamp"],
+        distinct=("timestamp", "id")
     )
 
     api.set_response(end, forwards, groups, request.s_user)
@@ -82,7 +83,8 @@ def tl_messages(request: HttpRequest, gid: int, offset_raw: str | None=None, for
         forwards,
         no_visibility_check=True,
         order_by=["-timestamp"],
-        offset_ignore_id=True # IGNORE ID on offset - not sent to frontend
+        offset_ignore_id=True, # IGNORE ID on offset - not sent to frontend
+        distinct=("timestamp", "id")
     )
 
     M2MMessageMember.objects.filter(user=request.s_user, group=group, unread=True).update(unread=False)

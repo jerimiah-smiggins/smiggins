@@ -100,6 +100,12 @@ ALTERNATE_IPS: bool | str = False
 TIMELINE_POLLING_INTERVAL: int = 15
 NOTIFICATION_POLLING_INTERVAL: int = 60
 
+PG_NAME: str = "smiggins"
+PG_USER: str = "postgres"
+PG_PASSWORD: str = "postgres"
+PG_HOST: str = "127.0.0.1"
+PG_PORT: int = 5432
+
 API_RATELIMITS: dict[str, tuple[int, int]] = {
 #   "METHOD /api/route": (MAX_REQ, PER_N_SECONDS)
 #   "METHOD /api/route/*" implies another parameter after, such as /api/route/{int:var}
@@ -134,6 +140,7 @@ API_RATELIMITS: dict[str, tuple[int, int]] = {
     "GET /api/timeline/search": (10, 5),
     "GET /api/timeline/user/following/*": (10, 5),
     "GET /api/timeline/user/followers/*": (10, 5),
+    "GET /api/timeline/scheduled": (10, 5),
 
     "POST /api/post": (10, 5),
     "PATCH /api/post": (10, 5),
@@ -188,7 +195,12 @@ _VARIABLES: list[tuple[str | None, list[str], type | str | list | tuple | dict, 
     ("GOOGLE_VERIFICATION_TAG", ["google_verification_tag"], str, False),
     ("ALTERNATE_IPS", ["alternate_ips"], (bool, str), False),
     ("TIMELINE_POLLING_INTERVAL", ["timeline_polling_interval"], int, False),
-    ("NOTIFICATION_POLLING_INTERVAL", ["notifications_polling_interval"], int, False)
+    ("NOTIFICATION_POLLING_INTERVAL", ["notifications_polling_interval"], int, False),
+    ("PG_NAME", ["pg_name", "postgres_name", "db_name"], str, False),
+    ("PG_USER", ["pg_user", "postgres_user", "db_user"], str, False),
+    ("PG_PASSWORD", ["pg_password", "postgres_password", "db_password"], str, False),
+    ("PG_HOST", ["pg_host", "postgres_host", "db_host"], str, False),
+    ("PG_PORT", ["pg_port", "postgres_port", "db_port"], int, False)
 ]
 
 f = {}

@@ -34,7 +34,7 @@
 
     <!-- Scheduled Posts (Desktop, 1/2) -->
     <a data-navbar-mobile-hidden data-internal-link="scheduled" href="/scheduled/" class="plain-link{% if active_page == "scheduled" %} navbar-current{% endif %}">
-      <div data-notif-dot="folreq">{% if active_page == "scheduled" %}@{icon_schedule_active}{% else %}@{icon_schedule}{% endif %}</div>
+      <div>{% if active_page == "scheduled" %}@{icon_schedule_active}{% else %}@{icon_schedule}{% endif %}</div>
     </a>
 
     <!-- Follow Requests (Desktop, 1/2) -->
@@ -66,7 +66,7 @@
 
           <!-- Scheduled Posts (Mobile, 2/2) -->
           <div><a data-internal-link="scheduled" href="/scheduled/" class="plain-link{% if active_page == "scheduled" %} navbar-current{% endif %}">
-            <span data-notif-dot="folreq">{% if active_page == "scheduled" %}@{icon_schedule_active}{% else %}@{icon_schedule}{% endif %}</span> @{lang.titles.scheduled}
+            <span>{% if active_page == "scheduled" %}@{icon_schedule_active}{% else %}@{icon_schedule}{% endif %}</span> @{lang.titles.scheduled}
           </a></div>
 
           <!-- Follow Requests (Mobile, 2/2) -->
