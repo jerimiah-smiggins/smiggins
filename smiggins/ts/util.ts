@@ -180,7 +180,7 @@ function updateTimestamps(): void {
 }
 
 function setTokenCookie(token: string): void {
-  document.cookie = `token=${token};Path=/;SameSite=Lax;Expires=${new Date(Date.now() + (356 * 24 * 60 * 60 * 1000)).toUTCString()}`;
+  document.cookie = `token=${token};Path=/;SameSite=Lax;Expires=${new Date(Date.now() + (365 * 24 * 60 * 60 * 1000)).toUTCString()}`;
 }
 
 function genericCheckbox(storageId: string): (e: Event) => void {
